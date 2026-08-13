@@ -25,6 +25,7 @@ from trustweave.report import (
 )
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import explain_scenario, parse_scenarios, run_scenarios
+from trustweave.statement import build_unsigned_statement
 from trustweave.trace_review import review_trace
 
 BUNDLE_FILE = "agent-security-bundle.json"
@@ -43,6 +44,7 @@ MCP_TOOL_INVENTORY_FILE = "mcp-tool-inventory.json"
 MCP_MANIFEST_SCAFFOLD_FILE = "mcp-manifest-scaffold.json"
 FRAMEWORK_INVENTORY_FILE = "framework-inventory.json"
 SARIF_FILE = "trustweave.sarif"
+UNSIGNED_STATEMENT_FILE = "unsigned-statement.json"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -209,6 +211,17 @@ def _parser() -> argparse.ArgumentParser:
         help="Return status 1 when the profile produces any review finding.",
     )
 
+    statement = subcommands.add_parser(
+        "statement",
+        help="Export an existing local attestation as an explicitly unsigned statement.",
+    )
+    statement.add_argument(
+        "--attestation", type=Path, required=True, help="Local attestation JSON."
+    )
+    statement.add_argument(
+        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+
     sarif = subcommands.add_parser(
         "sarif",
         help="Export existing local review artifacts as deterministic SARIF 2.1.0 evidence.",
@@ -302,6 +315,13 @@ def _trace_review(
     has_findings = int(review["summary"]["review_findings"]) > 0
     code = 1 if exit_on_review and has_findings else 0
     return f"Wrote trace review: {json_path} and {markdown_path}", code
+
+
+def _statement(attestation_path: Path, output_dir: Path) -> str:
+    path = write_json(
+        output_dir / UNSIGNED_STATEMENT_FILE, build_unsigned_statement(read_json(attestation_path))
+    )
+    return f"Wrote unsigned local statement: {path}"
 
 
 def _sarif(
@@ -402,6 +422,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(message)
             return code
+        if args.command == "statement":
+            print(_statement(args.attestation, args.output_dir))
+            return 0
         if args.command == "sarif":
             print(
                 _sarif(
