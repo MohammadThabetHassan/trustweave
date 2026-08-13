@@ -475,6 +475,22 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 raise ValidationError(
                     f"policy.rules[{index}].{field_name} must be in policy.classification_taxonomy"
                 )
+        if schema_version == "trustweave.dev/policy/v1alpha2":
+            unknown_classifications = set(classifications) - set(classification_taxonomy)
+            if unknown_classifications:
+                raise ValidationError(
+                    f"policy.rules[{index}].source_data_classifications must be in "
+                    "policy.classification_taxonomy"
+                )
+            if (
+                classification_at_least is not None
+                and classification_at_most is not None
+                and classification_taxonomy.index(classification_at_least)
+                > classification_taxonomy.index(classification_at_most)
+            ):
+                raise ValidationError(
+                    f"policy.rules[{index}] has an impossible classification lower/upper bound"
+                )
         severity: str | None = None
         if "severity" in rule:
             severity = _string(rule["severity"], f"policy.rules[{index}].severity")
