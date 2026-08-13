@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from trustweave.engine import capability_pattern_covers
 from trustweave.models import Policy, PolicyRule
 from trustweave.provenance import add_generated_at
 
@@ -13,12 +14,38 @@ REQUIRED_APPROVAL_BINDINGS = frozenset(
 )
 
 
-def _covers(first: PolicyRule, later: PolicyRule) -> bool:
-    """Return whether an earlier ordered rule matches every combination of a later rule."""
+def _set_covers(first: tuple[str, ...], later: tuple[str, ...]) -> bool:
+    """Return whether an optional exact-set constraint covers another constraint."""
 
-    return set(later.source_trust).issubset(first.source_trust) and set(
-        later.tool_action_classes
-    ).issubset(first.tool_action_classes)
+    if not first:
+        return True
+    if not later:
+        return False
+    return set(later).issubset(first)
+
+
+def _capabilities_cover(first: tuple[str, ...], later: tuple[str, ...]) -> bool:
+    """Return only capability coverage relationships that are provable from bounded patterns."""
+
+    if not first:
+        return True
+    if not later:
+        return False
+    return all(
+        any(capability_pattern_covers(first_pattern, later_pattern) for first_pattern in first)
+        for later_pattern in later
+    )
+
+
+def _covers(first: PolicyRule, later: PolicyRule) -> bool:
+    """Return whether an earlier rule provably matches every path matched by a later rule."""
+
+    return (
+        set(later.source_trust).issubset(first.source_trust)
+        and set(later.tool_action_classes).issubset(first.tool_action_classes)
+        and _set_covers(first.source_data_classifications, later.source_data_classifications)
+        and _capabilities_cover(first.tool_capabilities, later.tool_capabilities)
+    )
 
 
 def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, Any]:
