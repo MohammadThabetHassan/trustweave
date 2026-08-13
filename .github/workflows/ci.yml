@@ -42,6 +42,9 @@ jobs:
       - name: Run tests
         run: pytest
 
+      - name: Verify repository reality
+        run: python scripts/reality_check.py
+
       - name: Build distributable packages
         run: python -m build
 
@@ -67,6 +70,10 @@ jobs:
           trustweave scan --manifest examples/support-agent.candidate.manifest.json --policy policies/default-policy.json --output-dir artifacts/review/head
           trustweave diff --base artifacts/review/base/agent-security-bundle.json --head artifacts/review/head/agent-security-bundle.json --output-dir artifacts/review/diff
           grep -q 'TW-DIFF-001' artifacts/review/diff/bundle-diff.json
+          trustweave scan --manifest examples/support-agent.capability-growth.manifest.json --policy policies/default-policy.json --output-dir artifacts/review/capability-head
+          trustweave diff --base artifacts/review/base/agent-security-bundle.json --head artifacts/review/capability-head/agent-security-bundle.json --output-dir artifacts/review/capability-diff
+          grep -q 'TW-DIFF-003' artifacts/review/capability-diff/bundle-diff.json
+          grep -q 'customer-record.export' artifacts/review/capability-diff/bundle-diff.md
           trustweave trace-review --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --trace examples/traces/clear-support-trace.json --output-dir artifacts/trace-clear --exit-on-review
           set +e
           trustweave trace-review --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --trace examples/traces/review-required-support-trace.json --output-dir artifacts/trace-review --exit-on-review

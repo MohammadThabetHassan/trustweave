@@ -69,7 +69,7 @@ The policy-review artifact checks three deterministic structural conditions: whe
 
 ### Bundle diff
 
-The bundle-diff artifact compares a base and candidate bundle. It records additions, removals, and modifications to declared sources and tools; added and removed paths; and policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool and for an untrusted-input path to a sensitive/external action that is not denied.
+The bundle-diff artifact compares a base and candidate bundle. It records additions, removals, and modifications to declared sources and tools; exact capability additions/removals for each existing changed tool; added and removed paths; and policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool, capability growth on an existing sensitive/external tool, and an untrusted-input path to a sensitive/external action that is not denied.
 
 ### Offline trace review
 
@@ -108,5 +108,6 @@ The following capabilities are intentionally represented as adapters or future w
 4. **Evidence before claims:** reports include scope limits and avoid deployment-security guarantees.
 5. **Reproducible inputs:** examples, policy rules, and scenarios are versioned in the repository.
 6. **Diffs require context:** a review signal highlights an explicit change but does not replace review of the manifest, policy, and authorization design.
-7. **Trace minimization:** trace evidence is metadata, not executable input; reports exclude message content and tool arguments.
-8. **MCP metadata is declarative:** a profile is never a connection instruction, credential source, or protocol-conformance claim.
+7. **Least privilege is reviewable:** added/removed declared capabilities are preserved in bundle-diff evidence, while a capability-growth signal on sensitive/external tools still requires human authorization review.
+8. **Trace minimization:** trace evidence is metadata, not executable input; reports exclude message content and tool arguments.
+9. **MCP metadata is declarative:** a profile is never a connection instruction, credential source, or protocol-conformance claim.

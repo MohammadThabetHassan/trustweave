@@ -110,6 +110,8 @@ trustweave diff \
 
 The candidate adds a synthetic external archive capability. Its untrusted-input path remains denied, but the diff emits a review signal because a human should confirm that the new capability and policy coverage are intentional.
 
+To review a **capability change on an existing sensitive tool**, scan `examples/support-agent.capability-growth.manifest.json` as the head bundle and diff it against the baseline. The generated diff inventories `customer-record.export` as an added capability and emits `TW-DIFF-003`, a least-privilege review signal. The candidate is declarative and synthetic: it does not export a record or enable a runtime action.
+
 ### 4. Review declared MCP metadata without connecting
 
 ```bash
@@ -150,7 +152,7 @@ flowchart LR
 | `scan` | `agent-security-bundle.json` | Deterministic decisions for every **declared** flow. | Runtime discovery, tool execution, or security of a deployed agent. |
 | `test` | `security-test-results.json` | Whether synthetic trust/action scenarios match the current policy. | Model-level behavior or a live attack result. |
 | `policy-check` | `policy-review.json` and `.md` | Structural policy findings such as shadowed rules or review-sensitive allow/default decisions. | Correct business authorization or runtime enforcement. |
-| `diff` | `bundle-diff.json` and `.md` | Declared source, tool, path, rule, and decision changes between bundles. | Undeclared runtime behavior or a vulnerability verdict. |
+| `diff` | `bundle-diff.json` and `.md` | Declared source, tool, **capability**, path, rule, and decision changes between bundles. | Undeclared runtime behavior or a vulnerability verdict. |
 | `trace-review` | `trace-review.json` and `.md` | Mismatches between safe local trace metadata, declared flows, and policy decisions. | Trace authenticity, full incident reconstruction, or message-content inspection. |
 | `mcp-profile-check` | `mcp-profile-review.json` and `.md` | Mismatches between a local MCP profile and declared manifest tool/action-class mappings. | Server discovery, OAuth, token validation, MCP conformance, or live capability validation. |
 | `attest` and `verify` | `attestation.json` | Internal hash-chain consistency among local artifacts. | External signing, identity, non-repudiation, or transparency-log inclusion. |
@@ -186,7 +188,7 @@ python -m build
 pip-audit -r requirements.txt
 ```
 
-The hosted **Quality and tests** workflow also builds an isolated wheel, runs the policy and bundle-diff references, performs offline trace review, and uploads generated evidence.
+The hosted **Quality and tests** workflow also validates local documentation links, schemas, workflow YAML, and CLI documentation; builds an isolated wheel; runs policy, bundle-diff, capability-growth, offline trace, and MCP metadata references; and uploads generated evidence.
 
 ## Contributing and security
 

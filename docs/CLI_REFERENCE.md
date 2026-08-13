@@ -114,7 +114,9 @@ A clear policy review is not approval to deploy. A finding is a human-review obl
 trustweave diff --base PATH --head PATH [--output-dir DIR]
 ```
 
-`diff` compares two generated Agent Security Bundles. It records added, removed, and changed sources and tools; declared path additions and removals; matching-rule or decision changes; and review signals for new/changed sensitive or external capabilities.
+`diff` compares two generated Agent Security Bundles. It records added, removed, and changed sources and tools; exact capability additions/removals for existing tools; declared path additions and removals; matching-rule or decision changes; and review signals for new/changed sensitive or external tools.
+
+When an existing `sensitive` or `external` tool gains one or more declared capabilities, `diff` emits `TW-DIFF-003`. The signal requests a least-privilege and policy-coverage review; it does not prove that the capability is enabled or executable at runtime.
 
 | Input | Required | Description |
 |---|---:|---|
@@ -124,8 +126,8 @@ trustweave diff --base PATH --head PATH [--output-dir DIR]
 
 | Output file | Content |
 |---|---|
-| `bundle-diff.json` | Structured change inventory, review signals, summary, and limits. |
-| `bundle-diff.md` | Human-readable candidate-change report. |
+| `bundle-diff.json` | Structured source, tool, capability, path, decision, signal, summary, and limit inventory. |
+| `bundle-diff.md` | Human-readable candidate-change report with a capability-addition/removal table. |
 
 ## `trace-review`
 

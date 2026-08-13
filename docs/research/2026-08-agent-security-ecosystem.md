@@ -63,3 +63,35 @@ TrustWeave’s initial trace-review implementation will accept a deliberately co
 | Unknown fields | Preserve no raw unknown payload data in the report. | The validator rejects malformed required fields and reports structural errors. |
 
 This preserves compatibility at the conceptual data-model level while avoiding live-target execution, adapter loading, network access, token handling, and model-output interpretation.
+
+
+## Fresh standards and guidance review
+
+A second web review identified several current authoritative guidance sources relevant to TrustWeave’s bounded, evidence-first approach:
+
+| Source | Relevant direction | Potential TrustWeave response |
+|---|---|---|
+| NIST AI Agent Standards Initiative | NIST is actively convening an initiative focused on confidence in agentic AI systems. [5] | Keep explicit, versioned architecture/policy evidence and make review artifacts stable, explainable, and reproducible. |
+| OWASP AI Agent Security Cheat Sheet | Emphasizes least-privilege tools and per-tool permission scoping. [6] | Add a deterministic **capability-diff** review that highlights changes to a tool’s declared capability list, not only its action class. |
+| OWASP Top 10 for Agentic Applications | Current OWASP materials call out agentic tool security and misuse risk. [7] | Strengthen pre-merge visibility of new capabilities and sensitive/external action scope. |
+| MCP Security Best Practices | Official MCP security guidance supplements authorization requirements with broader security considerations. [8] | Preserve the local MCP metadata profile boundary and extend it only with declarative policy checks; do not add transport, token, or discovery behavior. |
+
+### Candidate: capability-diff review
+
+The current bundle diff reports source/tool additions and detects a changed tool object, but it does not render a precise capability-level change set or a dedicated review signal when a tool gains a sensitive capability. A **capability-diff** enhancement can remain local and deterministic: compare each manifest tool’s declared `capabilities`, record added/removed capabilities, flag capability growth for `sensitive` or `external` action-class tools, and add a concise review section to the existing diff report.
+
+This is the best next addition because it is directly justified by least-privilege guidance, improves a current artifact rather than adding another unrelated subsystem, requires no external data or code, and is testable with synthetic manifests.
+
+## References
+
+[5]: https://www.nist.gov/artificial-intelligence/ai-agent-standards-initiative "NIST AI Agent Standards Initiative"
+[6]: https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html "OWASP AI Agent Security Cheat Sheet"
+[7]: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ "OWASP Top 10 for Agentic Applications"
+[8]: https://modelcontextprotocol.io/specification/draft/basic/security_best_practices "MCP Security Best Practices"
+
+
+### Primary-source validation
+
+The NIST initiative page states that the program is intended to help agents capable of autonomous action be adopted securely and emphasizes identity and authorization workstreams. [5] The OWASP agent security cheat sheet recommends minimum necessary tools, per-tool permission scoping, explicit authorization for sensitive operations, structured decision metadata, and clear audit trails. [6] The official MCP security guidance describes token-passthrough and SSRF risks and requires strong authorization boundaries for actual MCP implementations. [8]
+
+These sources support a local **capability-change review** and stronger pre-connection MCP metadata checks. They do not justify making TrustWeave a network client, OAuth library, or live enforcement proxy. The next enhancement should therefore remain a deterministic comparison of versioned declarations: it can show a reviewer when a manifest tool gains or loses a capability and classify growth on sensitive/external tools as requiring review.
