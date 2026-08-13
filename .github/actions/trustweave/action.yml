@@ -1,0 +1,40 @@
+name: TrustWeave local evidence
+summary: Run deterministic local TrustWeave scan, synthetic test, and policy review commands.
+description: >-
+  Produces local workflow artifacts from supplied declarations. This action does not upload results,
+  invoke tools or agents, connect to networks beyond dependency installation, or post pull-request comments.
+inputs:
+  manifest:
+    description: Local manifest path.
+    required: true
+  policy:
+    description: Local policy path.
+    required: true
+  scenarios:
+    description: Local synthetic scenario pack path.
+    required: true
+  output-dir:
+    description: Local output directory.
+    required: false
+    default: artifacts
+runs:
+  using: composite
+  steps:
+    - name: Install local package
+      shell: bash
+      run: python -m pip install .
+    - name: Scan declared architecture
+      shell: bash
+      run: >-
+        trustweave scan --manifest "${{ inputs.manifest }}" --policy "${{ inputs.policy }}"
+        --output-dir "${{ inputs.output-dir }}"
+    - name: Run synthetic policy scenarios
+      shell: bash
+      run: >-
+        trustweave test --policy "${{ inputs.policy }}" --scenarios "${{ inputs.scenarios }}"
+        --output-dir "${{ inputs.output-dir }}"
+    - name: Review policy structure
+      shell: bash
+      run: >-
+        trustweave policy-check --policy "${{ inputs.policy }}"
+        --output-dir "${{ inputs.output-dir }}"

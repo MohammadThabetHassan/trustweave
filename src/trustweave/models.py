@@ -93,6 +93,12 @@ class PolicyRule:
     source_data_classifications: tuple[str, ...] = ()
     tool_capabilities: tuple[str, ...] = ()
     severity: str | None = None
+    source_identifiers: tuple[str, ...] = ()
+    tool_identifiers: tuple[str, ...] = ()
+    purpose_tags: tuple[str, ...] = ()
+    source_data_classification_at_least: str | None = None
+    source_data_classification_at_most: str | None = None
+    required_controls: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -113,12 +119,19 @@ class Policy:
     default_decision: str
     rules: tuple[PolicyRule, ...]
     approval_control: ApprovalControl | None
+    classification_taxonomy: tuple[str, ...] = (
+        "public",
+        "internal",
+        "confidential",
+        "restricted",
+    )
 
 
 VALID_TRUST_LABELS = frozenset({"trusted", "untrusted", "conditional"})
 VALID_ACTION_CLASSES = frozenset({"read", "write", "sensitive", "external"})
 VALID_DECISIONS = frozenset({"allow", "deny", "require_approval"})
 VALID_SEVERITIES = frozenset({"critical", "high", "medium", "low", "info"})
+DEFAULT_CLASSIFICATION_TAXONOMY = ("public", "internal", "confidential", "restricted")
 CAPABILITY_PATTERN_MAX_LENGTH = 128
 
 
@@ -310,14 +323,33 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
     """Validate a policy document and return its typed, immutable representation."""
 
     root = _mapping(document, "policy")
-    reject_unknown_fields(
-        root,
-        {"schema_version", "name", "default_decision", "rules", "approval_control"},
-        "policy",
-    )
     schema_version = _string(root.get("schema_version"), "policy.schema_version")
-    if schema_version != "trustweave.dev/v1alpha1":
-        raise ValidationError("policy.schema_version must be trustweave.dev/v1alpha1")
+    allowed_root_fields = {
+        "schema_version",
+        "name",
+        "default_decision",
+        "rules",
+        "approval_control",
+    }
+    if schema_version == "trustweave.dev/policy/v1alpha2":
+        allowed_root_fields.add("classification_taxonomy")
+    reject_unknown_fields(root, allowed_root_fields, "policy")
+    if schema_version not in {"trustweave.dev/v1alpha1", "trustweave.dev/policy/v1alpha2"}:
+        raise ValidationError(
+            "policy.schema_version must be trustweave.dev/v1alpha1 or "
+            "trustweave.dev/policy/v1alpha2"
+        )
+    classification_taxonomy: tuple[str, ...] = DEFAULT_CLASSIFICATION_TAXONOMY
+    if "classification_taxonomy" in root:
+        classification_taxonomy = tuple(
+            _string(value, "policy.classification_taxonomy")
+            for value in _sequence(
+                root["classification_taxonomy"], "policy.classification_taxonomy"
+            )
+        )
+        if not classification_taxonomy:
+            raise ValidationError("policy.classification_taxonomy must not be empty")
+        _unique_names(list(classification_taxonomy), "policy.classification_taxonomy")
     default_decision = _string(root.get("default_decision"), "policy.default_decision")
     if default_decision not in VALID_DECISIONS:
         raise ValidationError(f"policy.default_decision must be one of {sorted(VALID_DECISIONS)}")
@@ -325,21 +357,29 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
     rules: list[PolicyRule] = []
     for index, raw_rule in enumerate(_sequence(root.get("rules"), "policy.rules")):
         rule = _mapping(raw_rule, f"policy.rules[{index}]")
-        reject_unknown_fields(
-            rule,
-            {
-                "id",
-                "description",
-                "source_trust",
-                "tool_action_classes",
-                "decision",
-                "rationale",
-                "source_data_classifications",
-                "tool_capabilities",
-                "severity",
-            },
-            f"policy.rules[{index}]",
-        )
+        allowed_rule_fields = {
+            "id",
+            "description",
+            "source_trust",
+            "tool_action_classes",
+            "decision",
+            "rationale",
+            "source_data_classifications",
+            "tool_capabilities",
+            "severity",
+        }
+        if schema_version == "trustweave.dev/policy/v1alpha2":
+            allowed_rule_fields.update(
+                {
+                    "source_identifiers",
+                    "tool_identifiers",
+                    "purpose_tags",
+                    "source_data_classification_at_least",
+                    "source_data_classification_at_most",
+                    "required_controls",
+                }
+            )
+        reject_unknown_fields(rule, allowed_rule_fields, f"policy.rules[{index}]")
         source_trust = tuple(
             _string(value, f"policy.rules[{index}].source_trust")
             for value in _sequence(rule.get("source_trust"), f"policy.rules[{index}].source_trust")
@@ -384,6 +424,57 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 f"policy.rules[{index}].tool_capabilities",
             )
         )
+        source_identifiers = tuple(
+            _string(value, f"policy.rules[{index}].source_identifiers")
+            for value in _sequence(
+                rule.get("source_identifiers", []), f"policy.rules[{index}].source_identifiers"
+            )
+        )
+        tool_identifiers = tuple(
+            _string(value, f"policy.rules[{index}].tool_identifiers")
+            for value in _sequence(
+                rule.get("tool_identifiers", []), f"policy.rules[{index}].tool_identifiers"
+            )
+        )
+        purpose_tags = tuple(
+            _string(value, f"policy.rules[{index}].purpose_tags")
+            for value in _sequence(
+                rule.get("purpose_tags", []), f"policy.rules[{index}].purpose_tags"
+            )
+        )
+        required_controls = tuple(
+            _string(value, f"policy.rules[{index}].required_controls")
+            for value in _sequence(
+                rule.get("required_controls", []), f"policy.rules[{index}].required_controls"
+            )
+        )
+        for field_name, values in (
+            ("source_identifiers", source_identifiers),
+            ("tool_identifiers", tool_identifiers),
+            ("purpose_tags", purpose_tags),
+            ("required_controls", required_controls),
+        ):
+            _unique_names(list(values), f"policy.rules[{index}].{field_name}")
+        classification_at_least = rule.get("source_data_classification_at_least")
+        classification_at_most = rule.get("source_data_classification_at_most")
+        if classification_at_least is not None:
+            classification_at_least = _string(
+                classification_at_least,
+                f"policy.rules[{index}].source_data_classification_at_least",
+            )
+        if classification_at_most is not None:
+            classification_at_most = _string(
+                classification_at_most,
+                f"policy.rules[{index}].source_data_classification_at_most",
+            )
+        for value, field_name in (
+            (classification_at_least, "source_data_classification_at_least"),
+            (classification_at_most, "source_data_classification_at_most"),
+        ):
+            if value is not None and value not in classification_taxonomy:
+                raise ValidationError(
+                    f"policy.rules[{index}].{field_name} must be in policy.classification_taxonomy"
+                )
         severity: str | None = None
         if "severity" in rule:
             severity = _string(rule["severity"], f"policy.rules[{index}].severity")
@@ -402,6 +493,12 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 source_data_classifications=classifications,
                 tool_capabilities=capabilities,
                 severity=severity,
+                source_identifiers=source_identifiers,
+                tool_identifiers=tool_identifiers,
+                purpose_tags=purpose_tags,
+                source_data_classification_at_least=classification_at_least,
+                source_data_classification_at_most=classification_at_most,
+                required_controls=required_controls,
             )
         )
     _unique_names([rule.id for rule in rules], "policy.rules.id")
@@ -436,4 +533,5 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
         default_decision=default_decision,
         rules=tuple(rules),
         approval_control=approval_control,
+        classification_taxonomy=classification_taxonomy,
     )

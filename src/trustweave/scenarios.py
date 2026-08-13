@@ -45,6 +45,7 @@ class Scenario:
     tool_capabilities: tuple[str, ...] = ()
     source_identifier: str | None = None
     tool_identifier: str | None = None
+    purpose_tag: str | None = None
 
 
 def _text(value: Any, path: str) -> str:
@@ -123,6 +124,7 @@ def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
                 "tool_capabilities",
                 "source_identifier",
                 "tool_identifier",
+                "purpose_tag",
             },
             f"scenario_pack.scenarios[{index}]",
         )
@@ -190,6 +192,11 @@ def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
                     if "tool_identifier" in raw
                     else None
                 ),
+                purpose_tag=(
+                    _text(raw["purpose_tag"], f"scenario_pack.scenarios[{index}].purpose_tag")
+                    if "purpose_tag" in raw
+                    else None
+                ),
             )
         )
 
@@ -215,6 +222,9 @@ def run_scenarios(
             scenario.tool_action_class,
             scenario.source_data_classification,
             scenario.tool_capabilities,
+            scenario.source_identifier or "synthetic-source",
+            scenario.tool_identifier or "synthetic-tool",
+            scenario.purpose_tag or "synthetic",
         )
         results.append(
             {
@@ -248,6 +258,11 @@ def run_scenarios(
                     **(
                         {"tool_identifier": scenario.tool_identifier}
                         if scenario.tool_identifier is not None
+                        else {}
+                    ),
+                    **(
+                        {"purpose_tag": scenario.purpose_tag}
+                        if scenario.purpose_tag is not None
                         else {}
                     ),
                 },

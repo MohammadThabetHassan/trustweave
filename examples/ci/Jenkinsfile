@@ -1,0 +1,18 @@
+pipeline {
+  agent { docker { image 'python:3.12-slim' } }
+  stages {
+    stage('Local TrustWeave evidence') {
+      steps {
+        sh 'python -m pip install .'
+        sh 'trustweave scan --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --output-dir artifacts'
+        sh 'trustweave test --policy policies/default-policy.json --scenarios scenarios/default-scenarios.json --output-dir artifacts'
+        sh 'trustweave policy-check --policy policies/default-policy.json --output-dir artifacts'
+      }
+    }
+  }
+  post {
+    always {
+      archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
+    }
+  }
+}

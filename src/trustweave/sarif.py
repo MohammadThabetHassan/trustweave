@@ -19,6 +19,7 @@ REVIEW_INPUTS: tuple[tuple[str, str, str], ...] = (
     ("trace", "trustweave.dev/trace-review/v1alpha1", "findings"),
     ("mcp", "trustweave.dev/mcp-profile-review/v1alpha1", "findings"),
     ("risk", "trustweave.dev/risk-review/v1alpha1", "findings"),
+    ("chain", "trustweave.dev/chain-review/v1alpha1", "findings"),
 )
 REVIEW_INPUT_MAP = {
     kind: (schema_version, finding_key) for kind, schema_version, finding_key in REVIEW_INPUTS
