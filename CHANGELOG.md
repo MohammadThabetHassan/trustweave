@@ -6,6 +6,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Added an additive `trustweave.dev/finding/v1alpha1` contract for canonical local policy-review and bundle-diff entries. Stable evidence kinds and declared subjects support wording-independent local correlation while retaining existing review fields and the non-executing privacy boundary.
 - Added `trustweave.dev/attestation/v1alpha3`, which binds stable payload hashes, exact file hashes, subject names, and source revision. `verify --bundle --test-results` now checks supplied local evidence bytes; readers retain `v1alpha1` and `v1alpha2` compatibility.
 - Made `risk-check` schema-aware for policy, trace, MCP-profile, and bundle-diff review evidence. It now normalizes documented `findings` and diff `signals` into semantic `trustweave/fingerprint/v2` identities, preserves local input paths, and deterministically deduplicates exact identities.
 - Restricted policy capability matching to exact capabilities or one final namespace wildcard, made shadow analysis conservative across classification and capability constraints, and made optional scenario attributes use the same deterministic matcher as declared manifest flows.

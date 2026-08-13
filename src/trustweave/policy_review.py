@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from trustweave.engine import capability_pattern_covers
+from trustweave.findings import finding as canonical_finding
 from trustweave.models import Policy, PolicyRule
 from trustweave.provenance import add_generated_at
 
@@ -51,7 +52,7 @@ def _covers(first: PolicyRule, later: PolicyRule) -> bool:
 def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, Any]:
     """Review policy structure with optional application-layer provenance."""
 
-    findings: list[dict[str, str]] = []
+    findings: list[dict[str, Any]] = []
     if policy.default_decision == "allow":
         findings.append(
             {
@@ -140,6 +141,17 @@ def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, 
                 }
             )
 
+    canonical_findings = [
+        canonical_finding(
+            str(item["id"]),
+            str(item["severity"]),
+            str(item["message"]),
+            "declared_policy_structure",
+            subject=item.get("subject", {"policy": policy.name}),
+        )
+        for item in findings
+    ]
+
     approval_summary: dict[str, Any] = {
         "high_impact_approval_rules": [rule.id for rule in high_impact_approval_rules],
         "declared": approval_control is not None,
@@ -158,11 +170,11 @@ def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, 
         "schema_version": "trustweave.dev/policy-review/v1alpha1",
         "policy": policy.name,
         "approval_control": approval_summary,
-        "findings": findings,
+        "findings": canonical_findings,
         "summary": {
             "rules": len(policy.rules),
-            "review_findings": len(findings),
-            "status": "review_required" if findings else "clear",
+            "review_findings": len(canonical_findings),
+            "status": "review_required" if canonical_findings else "clear",
         },
         "limits": [
             (

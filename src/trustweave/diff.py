@@ -124,8 +124,8 @@ def _review_signals(
     tool_changes: Mapping[str, Sequence[Mapping[str, Any]]],
     capability_changes: Sequence[Mapping[str, Any]],
     changed_findings: Sequence[Mapping[str, Any]],
-) -> list[dict[str, str]]:
-    signals: list[dict[str, str]] = []
+) -> list[dict[str, Any]]:
+    signals: list[dict[str, Any]] = []
     for item in list(tool_changes["added"]) + list(tool_changes["changed"]):
         after = _mapping(item.get("after"))
         action_class = after.get("action_class")
@@ -139,6 +139,7 @@ def _review_signals(
                         f"Tool {name} is newly introduced or changed with action class "
                         f"{action_class}; review its capability and policy coverage."
                     ),
+                    "subject": {"tool": str(name), "action_class": str(action_class)},
                 }
             )
 
@@ -158,6 +159,13 @@ def _review_signals(
                         f"Tool {name} gained sensitive or external capabilities: "
                         f"{capability_list}. Review least-privilege scope and policy coverage."
                     ),
+                    "subject": {
+                        "tool": str(name),
+                        "action_class": str(action_class),
+                        "added_capabilities": sorted(
+                            capability for capability in added if isinstance(capability, str)
+                        ),
+                    },
                 }
             )
 
@@ -178,6 +186,11 @@ def _review_signals(
                         "external tool that is not denied; review the policy decision and "
                         "human-control boundary."
                     ),
+                    "subject": {
+                        "source": str(source.get("name", "unknown")),
+                        "tool": str(tool.get("name", "unknown")),
+                        "action_class": str(tool.get("action_class", "unknown")),
+                    },
                 }
             )
     return signals
