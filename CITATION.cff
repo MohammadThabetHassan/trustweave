@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use TrustWeave, please cite the released software and link to its source repository."
+title: "TrustWeave"
+type: software
+authors:
+  - name: "TrustWeave Contributors"
+version: "0.1.1"
+date-released: 2026-08-13
+license: Apache-2.0
+url: "https://pypi.org/project/trustweave/"
+repository-code: "https://github.com/MohammadThabetHassan/trustweave"

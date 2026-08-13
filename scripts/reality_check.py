@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -26,10 +27,33 @@ EXPECTED_COMMANDS = (
     "diff",
     "policy-check",
     "trace-review",
-    "mcp-profile-check",
     "framework-import",
+    "mcp-scaffold",
     "mcp-import",
+    "mcp-profile-check",
+    "statement",
     "sarif",
+)
+PUBLIC_ASSETS = (
+    "README.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "CODE_OF_CONDUCT.md",
+    "GOVERNANCE.md",
+    "LICENSE",
+    "CITATION.cff",
+    ".github/CODEOWNERS",
+)
+REQUIRED_ISSUE_FORMS = (
+    ".github/ISSUE_TEMPLATE/01-bug-report.yml",
+    ".github/ISSUE_TEMPLATE/02-feature-request.yml",
+)
+REQUIRED_README_MARKERS = (
+    "python -m pip install --upgrade trustweave",
+    "[SUPPORT.md](SUPPORT.md)",
+    "[SECURITY.md](SECURITY.md)",
+    "[CONTRIBUTING.md](CONTRIBUTING.md)",
 )
 
 
@@ -78,6 +102,100 @@ def _check_workflows() -> list[str]:
     return failures
 
 
+def _check_issue_templates() -> list[str]:
+    failures: list[str] = []
+    config_path = ROOT / ".github" / "ISSUE_TEMPLATE" / "config.yml"
+    if not config_path.exists():
+        return ["Missing .github/ISSUE_TEMPLATE/config.yml"]
+
+    try:
+        config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as error:
+        return [f"Invalid issue-template config YAML: {error}"]
+    if not isinstance(config, dict):
+        failures.append("Issue-template config must be a YAML mapping")
+    elif config.get("blank_issues_enabled") is not False:
+        failures.append("Issue-template config must disable blank public issues")
+
+    for relative_path in REQUIRED_ISSUE_FORMS:
+        path = ROOT / relative_path
+        if not path.exists():
+            failures.append(f"Missing required issue form: {relative_path}")
+            continue
+        try:
+            form = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as error:
+            failures.append(f"Invalid issue-form YAML {relative_path}: {error}")
+            continue
+        if not isinstance(form, dict):
+            failures.append(f"Issue form {relative_path} must be a YAML mapping")
+            continue
+        for key in ("name", "description", "body"):
+            if key not in form:
+                failures.append(f"Issue form {relative_path} lacks required key: {key}")
+        if not isinstance(form.get("name"), str) or len(form.get("name", "")) <= 3:
+            failures.append(f"Issue form {relative_path} needs a name longer than three characters")
+        if not isinstance(form.get("description"), str) or not form.get("description", "").strip():
+            failures.append(f"Issue form {relative_path} needs a non-empty description")
+        if not isinstance(form.get("body"), list) or not form.get("body"):
+            failures.append(f"Issue form {relative_path} needs a non-empty body list")
+    return failures
+
+
+def _check_public_documents() -> list[str]:
+    failures: list[str] = []
+    for relative_path in PUBLIC_ASSETS:
+        if not (ROOT / relative_path).exists():
+            failures.append(f"Missing public project asset: {relative_path}")
+
+    readme_path = ROOT / "README.md"
+    if readme_path.exists():
+        readme = readme_path.read_text(encoding="utf-8")
+        for marker in REQUIRED_README_MARKERS:
+            if marker not in readme:
+                failures.append(f"README.md lacks required public-readiness marker: {marker}")
+        if "repository remains private" in readme.casefold():
+            failures.append("README.md still claims that the repository remains private")
+
+    security_path = ROOT / "SECURITY.md"
+    if security_path.exists():
+        security = security_path.read_text(encoding="utf-8").casefold()
+        if "pre-release software" in security:
+            failures.append(
+                "SECURITY.md still describes the released project as pre-release software"
+            )
+        if "report a vulnerability" not in security:
+            failures.append("SECURITY.md lacks a private vulnerability-reporting route")
+
+    project_path = ROOT / "pyproject.toml"
+    release_path = ROOT / "docs" / "RELEASE.md"
+    if project_path.exists() and release_path.exists():
+        with project_path.open("rb") as project_file:
+            project = tomllib.load(project_file)
+        version = project.get("project", {}).get("version")
+        if isinstance(version, str):
+            release = release_path.read_text(encoding="utf-8")
+            if f"TrustWeave `{version}`" not in release:
+                failures.append("docs/RELEASE.md does not name the declared package version")
+
+            citation_path = ROOT / "CITATION.cff"
+            if citation_path.exists():
+                try:
+                    citation = yaml.safe_load(citation_path.read_text(encoding="utf-8"))
+                except yaml.YAMLError as error:
+                    failures.append(f"Invalid CITATION.cff YAML: {error}")
+                else:
+                    if not isinstance(citation, dict):
+                        failures.append("CITATION.cff must be a YAML mapping")
+                    elif citation.get("title") != "TrustWeave":
+                        failures.append("CITATION.cff must use the TrustWeave title")
+                    elif citation.get("type") != "software":
+                        failures.append("CITATION.cff must identify the project as software")
+                    elif citation.get("version") != version:
+                        failures.append("CITATION.cff version does not match pyproject.toml")
+    return failures
+
+
 def _check_cli() -> list[str]:
     completed = subprocess.run(
         ["trustweave", "--help"],
@@ -97,7 +215,14 @@ def _check_cli() -> list[str]:
 def main() -> int:
     """Print actionable repository reality-check failures and return an appropriate code."""
 
-    failures = _check_json_documents() + _check_markdown_links() + _check_workflows() + _check_cli()
+    failures = (
+        _check_json_documents()
+        + _check_markdown_links()
+        + _check_workflows()
+        + _check_issue_templates()
+        + _check_public_documents()
+        + _check_cli()
+    )
     if failures:
         print("Repository reality check failed:")
         for failure in failures:
@@ -105,7 +230,7 @@ def main() -> int:
         return 1
     print(
         "Repository reality check passed: schemas, local documentation links, workflows, "
-        "and CLI commands are connected."
+        "issue forms, public documentation, release metadata, and CLI commands are connected."
     )
     return 0
 

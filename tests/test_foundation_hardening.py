@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -142,3 +143,16 @@ def test_policy_contract_preserves_known_decision_vocabularies() -> None:
     assert {"trusted", "untrusted", "conditional"} == VALID_TRUST_LABELS
     assert {"read", "write", "sensitive", "external"} == VALID_ACTION_CLASSES
     assert {"allow", "deny", "require_approval"} == VALID_DECISIONS
+
+
+def test_repository_reality_check_accepts_tracked_public_contracts() -> None:
+    completed = subprocess.run(
+        ["python3", "scripts/reality_check.py"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert "issue forms, public documentation, release metadata" in completed.stdout

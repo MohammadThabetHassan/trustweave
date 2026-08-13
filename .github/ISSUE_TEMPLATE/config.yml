@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability report
+    url: https://github.com/MohammadThabetHassan/trustweave/security/advisories/new
+    about: Do not report suspected vulnerabilities in a public issue. Use the private reporting route in SECURITY.md.
+  - name: Documentation and usage guidance
+    url: https://github.com/MohammadThabetHassan/trustweave/blob/main/README.md
+    about: Review the installation, workflow, safety-boundary, and documentation guidance before opening an issue.

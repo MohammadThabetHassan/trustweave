@@ -61,7 +61,7 @@ The initial release is complete only when:
 
 ## Delivery policy
 
-The user has requested a **private** GitHub repository and direct commits to `main`. No commit or push may occur until explicit commit name and email address information is supplied for every requested attribution identity. No release will be published until the repository is created, verified checks pass, and release authorization is explicit.
+TrustWeave `0.1.1` is distributed on PyPI and maintained on GitHub through direct commits to `main` under explicitly authorized contributor identities. A future release must update its version and changelog, pass the documented local checks, pass hosted CI on the exact release commit, use an annotated tag, and follow the dedicated GitHub OIDC publishing workflow. Publication remains an explicit maintainer decision; a successful build alone is not release authorization.
 
 ## Future scope, deliberately excluded from v0.1
 

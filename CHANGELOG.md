@@ -4,6 +4,17 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [Unreleased]
 
+### Documentation
+
+- Rebuilt the README around a verified installation path, first successful local review, workflow selection, artifact meanings, safety boundaries, documentation map, and public contribution routes.
+- Refreshed the product contract, roadmap, release guide, security policy, governance guide, contribution guide, and TestPyPI validation guide to distinguish completed `0.1.1` release evidence from deliberate future scope.
+- Added `SUPPORT.md` to route installation questions, safe bug reports, bounded feature proposals, and private vulnerability reports without promising unstaffed services.
+
+### Governance
+
+- Added structured public issue forms for reproducible bugs and bounded feature proposals, with explicit safeguards against publishing credentials, personal data, raw trace content, tool arguments, or third-party targets.
+- Added issue-template routing, a transparent ownership map, and a public contribution path while preserving private vulnerability reporting and the non-executing core boundary.
+
 ## [0.1.1] - 2026-08-13
 
 ### Release
@@ -77,4 +88,4 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - No MCP proxy, runtime enforcement, framework SDK, automatic discovery, external signature provider, or enterprise integration is included.
 - JSON inputs work with no dependency. Safe YAML parsing requires the optional PyYAML dependency.
-- Production publication uses the dedicated trusted-publishing workflow; repository visibility remains private and external signing, hosted-result uploads, and runtime integrations remain separately authorized work.
+- Production publication uses the dedicated trusted-publishing workflow; external signing, hosted-result uploads, and runtime integrations remain separately authorized work.

@@ -2,64 +2,69 @@
 
 ## Product direction
 
-TrustWeave is a **local evidence layer for AI-agent trust-boundary review**. It makes declared architecture, deterministic policy, synthetic regression, and pre-recorded local metadata visible before a change reaches production. It must not become an unrestricted agent runner, MCP proxy, exploit tool, credential scanner, model evaluator, or live infrastructure scanner.
+TrustWeave is a **local evidence layer for AI-agent trust-boundary review**. It makes declared architecture, deterministic policy outcomes, synthetic regression results, and pre-recorded local metadata visible before a configuration change reaches production. It must not become an unrestricted agent runner, MCP proxy, exploit tool, credential scanner, model evaluator, or live infrastructure scanner.
+
+The roadmap favors improvements that make an existing reviewer decision more reproducible and understandable. A feature is not a fit merely because it is common in an agent platform; it must preserve deterministic behavior, local inputs, privacy minimization, explicit limits, and no hidden external side effects.
 
 ## Completed foundation
 
 | Capability | Status | Evidence |
-|---|---|---|
-| Declared source, tool, and flow inventory | Complete | Strict manifest validation and Agent Security Bundle. |
-| Deterministic flow-policy evaluation | Complete | First-match policies, synthetic scenarios, and policy review. |
-| Change review | Complete | Bundle diff with source, tool, capability, path, rule, and decision signals. |
-| Local integrity evidence | Complete | Hash-linked local attestation and verifier. |
-| Offline observed-evidence review | Complete | Local trace-policy review with privacy-preserving reports and explicit review gate. |
-| Static MCP metadata review | Complete | Local profile-to-manifest mapping, transport/authorization expectation, and strict non-connection boundary. |
-| Static MCP tools-list inventory | Complete | Strict normalization of an already-provided `tools/list` snapshot; no discovery, connection, or action-class inference. |
-| Cited synthetic adversarial scenarios | Complete | Ten OWASP/MITRE/MCP-shaped label-only scenarios, deterministic expectations, and local `explain` output. |
+| --- | --- | --- |
+| Declared source, tool, capability, and flow inventory | Complete | Strict manifest validation and Agent Security Bundle generation. |
+| Deterministic flow-policy evaluation | Complete | First-match policies, synthetic scenarios, and static policy review. |
+| Configuration change review | Complete | Bundle diffs with source, tool, capability, path, rule, and decision signals. |
+| Local integrity evidence | Complete | Hash-linked local attestation, verifier, and explicitly unsigned statement export. |
+| Offline observed-evidence review | Complete | Local trace-policy review with privacy-preserving reports and an explicit review gate. |
+| Static MCP metadata review | Complete | Local profile-to-manifest mapping with strict transport and authorization-expectation checks; no connection. |
+| Static MCP tools-list inventory | Complete | Normalization of an already-provided `tools/list` snapshot; no discovery, connection, or action-class inference. |
+| Framework declaration normalization | Complete | Static proof fixtures for LangGraph, OpenAI Agents SDK, and CrewAI; no SDK import or execution. |
+| Cited synthetic adversarial scenarios | Complete | Twenty-five OWASP-, MITRE-, and MCP-shaped label-only scenarios with deterministic expectations. |
 | Interoperable review export | Complete | Deterministic local SARIF 2.1.0 generation with no automatic upload. |
-| Quality automation | Complete | 90% branch coverage, property-based fail-closed tests, formatting, linting, type checks, static source scan, package checks, wheel reproducibility, SBOM, dependency audit, and hosted Python compatibility checks. |
-| Governance baseline | Complete | Maintainer decision contract, review cadence, and best-effort private-report acknowledgement objective. |
+| Quality automation | Complete | 90% branch coverage, property-based fail-closed tests, formatting, linting, type checks, static source scanning, isolated package checks, wheel reproducibility, SBOM, dependency audit, and cross-platform compatibility jobs. |
+| Package release path | Complete | TestPyPI validation, production PyPI `0.1.1`, annotated release tag, GitHub OIDC trusted publishing, and clean-install validation. |
+| Governance baseline | Complete | Direct-main maintenance policy, review cadence, a release procedure, contribution guidance, and a private security-report route. |
 
-## Current planned milestones
+## Current priorities
 
-### v0.2.0 — publish the verified review workflow
+### 1. Contract maturity and reviewer feedback
 
-A future `v0.2.0` release should package the current reviewed work after explicit release authorization. It should include a clean changelog section, release notes, source distribution, wheel, verification evidence for the final tag, and an owner decision on TestPyPI/PyPI distribution.
+The first post-release priority is to collect feedback from maintainers and reviewers using the documented local workflows. Useful evidence includes whether the manifest and policy vocabulary is understandable, whether review signals are actionable, and whether the generated Markdown artifacts support an actual change-review decision. Feedback should be documented as issues or examples without publishing customer data, credentials, trace content, or third-party targets.
 
-### v0.3.0 — statement-shaped evidence export
+Schema identifiers remain `v1alpha1` contracts. A future stabilization decision requires a written compatibility policy, representative migration evidence, and a clear statement of which artifact fields and review identifiers become stable.
 
-TrustWeave should export existing local evidence into a generic subject/predicate statement shape with explicit `unsigned_local_evidence` status. It must distinguish local integrity from authenticated provenance. External DSSE, Sigstore, or SLSA support requires separate design for identities, key custody, verification, publication, and failure behavior.
+### 2. Curated file-only declaration importers
 
-### v0.4.0 — review-platform adapters
+TrustWeave can add narrowly scoped importers for carefully selected framework declaration formats when each importer accepts an already-provided local file, validates it strictly, preserves source provenance and limits, and never executes a framework, discovers an endpoint, accesses credentials, or infers authorization. Each importer must include positive, negative, and boundary fixtures.
 
-A narrowly scoped adapter could emit a pull-request-friendly Markdown summary or annotation from existing local artifacts. It should remain opt-in, use least-privilege workflow permissions, never expose message content or tool arguments, and never modify runtime systems. Any posting or code-scanning upload requires separate owner authorization.
+### 3. Optional review-platform adapters
 
-### v0.5.0 — expanded declarative scenario and importer coverage
+A future adapter may render an existing local artifact as a pull-request-friendly summary or an explicit export file. Any service posting, repository annotation, or code-scanning upload must remain opt-in, use least-privilege permissions, preserve the privacy boundary, and receive separate maintainer authorization. The core must remain fully useful without the adapter.
 
-Extend the cited synthetic scenario library and add file-only importers for carefully selected agent-framework declaration formats. Each importer must accept an already-provided local file, perform strict validation, preserve source provenance and limits, and avoid framework execution, endpoint discovery, credential access, or automatic authorization mapping.
+### 4. Authenticated provenance design
 
-## Actions requiring explicit owner authorization
+TrustWeave currently produces local hash-linked evidence and explicitly unsigned statement-shaped exports. Adding DSSE, Sigstore, SLSA, or transparency-log support would require a separate design that defines identity, key custody, signing scope, verification procedure, publication behavior, failures, retention, and how reviewers distinguish local integrity from authenticated provenance.
 
-| Action | Why a code change alone is insufficient |
-|---|---|
-| Make the repository public | Changes the visibility and exposure of repository history and files. |
-| Publish to TestPyPI or PyPI | Creates an external distribution and requires publishing credentials and release approval. |
-| Create public issues, labels, PR comments, release notes, or promotional posts | Performs collaborative or public external actions. |
-| Upload SARIF to a code-scanning service | Requires an authorized service integration and repository permissions. |
-| Sign artifacts with Sigstore/cosign | Requires an identity/key-custody and release-verification policy. |
-| Apply for an OpenSSF badge or fiscal sponsorship | Requires external attestations and maintainership commitments. |
+## Maintainer decisions that require explicit authorization
+
+| Decision | Why it needs a maintainer decision beyond a code change |
+| --- | --- |
+| Publish a new PyPI version | Distribution is permanent, versioned public release activity and must use the documented OIDC release path. |
+| Add a hosted integration or automatic result upload | It can create external effects, permissions, retention obligations, and privacy risk. |
+| Sign artifacts or publish provenance | It creates identity and verification commitments that must be documented and maintained. |
+| Add runtime interception, live discovery, or remote analysis | It crosses the local, non-executing safety boundary and requires a different operational threat model. |
+| Apply for an external assessment, badge, sponsorship, or certification | It requires external assertions and ongoing maintainer commitments. |
 
 ## Explicitly deferred work
 
 | Capability | Why it is deferred |
-|---|---|
-| Runtime tool interception | It belongs to an authorization/enforcement layer with identity, availability, rollback, and incident-response requirements. |
-| Live agent or MCP execution | It would cross TrustWeave’s non-executing safety boundary and need isolated environments plus explicit user authorization. |
-| Prompt injection detection from raw text | It risks false confidence, privacy exposure, and model-dependent classification behavior outside the deterministic core. |
+| --- | --- |
+| Runtime tool interception | It belongs to an authorization and enforcement layer with identity, availability, rollback, and incident-response requirements. |
+| Live agent or MCP execution | It crosses the non-executing safety boundary and would require isolated environments, credential policy, and explicit authorization. |
+| Prompt-injection classification from raw text | It risks false confidence, privacy exposure, and model-dependent behavior outside the deterministic core. |
 | Automatic vulnerability scanning of third-party skills | It requires a dedicated analysis engine, malicious-input handling, licensing review, and a different threat model. |
-| Source-distribution byte reproducibility | Fixed-epoch wheel reproducibility is implemented; compressed sdist metadata requires a separate deterministic-packaging design. |
-| Multi-tenant service or hosted dashboard | It requires a full privacy, authentication, authorization, data-retention, and operational model. |
+| Source-distribution byte reproducibility | Fixed-epoch wheel reproducibility is implemented; compressed-sdist determinism requires a separate packaging design. |
+| Multi-tenant service or hosted dashboard | It requires a complete privacy, authentication, authorization, data-retention, availability, and operational model. |
 
 ## Contribution selection rule
 
-A proposed feature is a good fit only when it improves a reviewer’s ability to understand **declared or pre-recorded local evidence** while preserving deterministic behavior, explicit limits, testability, privacy minimization, and no external side effects.
+A proposed feature is a good fit only when it improves a reviewer’s ability to understand **declared or pre-recorded local evidence** while preserving deterministic behavior, explicit limits, testability, privacy minimization, and no external side effects. See [CONTRIBUTING.md](../CONTRIBUTING.md), [the product contract](PRODUCT_CONTRACT.md), and [the threat model](THREAT_MODEL.md) before proposing scope expansion.

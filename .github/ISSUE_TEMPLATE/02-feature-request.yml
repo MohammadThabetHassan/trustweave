@@ -1,0 +1,43 @@
+name: Bounded feature request
+description: Propose a scoped improvement to TrustWeave's local deterministic evidence workflow.
+title: "[Proposal]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        TrustWeave accepts proposals that improve review of declared or pre-recorded local evidence. Proposals for hidden execution, live MCP access, credential handling, model calls, remote scanning, or automatic external effects are outside the core scope unless separately designed and authorized.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Reviewer problem
+      description: What concrete review decision is difficult today, and who needs to make it?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe inputs, deterministic outputs, expected failure behavior, and the human-review boundary.
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety and scope impact
+      description: Explain how the proposal preserves local inputs, no tool execution, no network access, no credential handling, and no model calls. If it cannot, explain why it belongs outside the core.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Test and documentation evidence
+      description: Name the positive, negative, or boundary controls, generated artifacts, compatibility impact, and documentation updates that would make the proposal reviewable.
+    validations:
+      required: true
+  - type: checkboxes
+    id: conduct
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct.
+          required: true

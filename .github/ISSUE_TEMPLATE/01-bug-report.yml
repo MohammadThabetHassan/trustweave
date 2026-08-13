@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a reproducible problem in TrustWeave itself.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for improving TrustWeave. Public issues are for defects in this project. Do not include vulnerabilities, credentials, personal data, raw trace content, tool arguments, customer data, or third-party targets. Use the private route in SECURITY.md for suspected vulnerabilities.
+  - type: input
+    id: version
+    attributes:
+      label: TrustWeave version or commit
+      description: Include `trustweave --version` when available, or the exact source commit.
+      placeholder: "0.1.1"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Python and operating-system environment
+      description: Include Python version and operating system.
+      placeholder: "Python 3.11 on Ubuntu 24.04"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Describe the expected deterministic result or validation behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the complete error text if it is safe to share.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal safe reproduction
+      description: Use a synthetic manifest, policy, scenario, trace-metadata fixture, or MCP-profile fixture. Remove any identifiers not needed to reproduce the issue.
+      render: shell
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safe-reporting confirmation
+      options:
+        - label: I have removed credentials, personal data, customer data, raw trace content, tool arguments, and third-party targets.
+          required: true
+        - label: This is not a suspected security vulnerability; I will use the private security route for one.
+          required: true
+  - type: checkboxes
+    id: conduct
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct.
+          required: true

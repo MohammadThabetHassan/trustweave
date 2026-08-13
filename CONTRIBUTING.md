@@ -10,6 +10,12 @@ Thank you for helping improve TrustWeave. The project welcomes contributions tha
 4. **Use synthetic examples.** Tests and demonstration data must not contain real customer records, secrets, tokens, or third-party targets.
 5. **Keep contracts stable.** Schema changes require a documented migration path and compatibility test.
 
+## Before you contribute
+
+Use the repository’s **Bug report** issue form for reproducible defects in TrustWeave and the **Bounded feature request** form for scoped ideas. For a larger change, describe the reviewer decision, deterministic evidence, tests, compatibility impact, and safety boundary before investing in an implementation. Suspected vulnerabilities must follow the private route in [SECURITY.md](SECURITY.md), not a public issue or pull request.
+
+External contributors should normally propose a pull request from a branch or fork. The repository owner may use documented direct-main maintenance for reviewed maintainer work; that policy does not grant direct-main access to other contributors.
+
 ## Local development
 
 ```bash
@@ -75,4 +81,4 @@ Before requesting review, confirm the following statements are true.
 
 ## Governance
 
-Until a published maintainer group is established, repository owners make final decisions on releases, schema changes, and security-sensitive contributions. See [GOVERNANCE.md](GOVERNANCE.md) for decision and review cadence, [SECURITY.md](SECURITY.md) for vulnerability reporting, and [docs/RELEASE.md](docs/RELEASE.md) for the release checklist.
+The repository owner is currently the published release authority and final decision-maker for releases, schema changes, and security-sensitive contributions. See [GOVERNANCE.md](GOVERNANCE.md) for decision and review cadence, [SECURITY.md](SECURITY.md) for vulnerability reporting, [SUPPORT.md](SUPPORT.md) for public support routing, and [docs/RELEASE.md](docs/RELEASE.md) for the release checklist.

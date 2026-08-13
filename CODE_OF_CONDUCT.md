@@ -18,4 +18,4 @@ Report concerns privately through the process in [SECURITY.md](SECURITY.md) when
 
 ## Attribution
 
-This code of conduct is adapted in spirit from widely used open-source community standards and is intentionally concise for the project’s current pre-release stage.
+This code of conduct is adapted in spirit from widely used open-source community standards and is intentionally concise for the project’s current maintainer capacity.

@@ -1,51 +1,55 @@
 # TrustWeave
 
-> **Review AI-agent trust-boundary changes like code.**
+> **Review declared AI-agent trust boundaries like code—locally, deterministically, and without running the agent.**
 
-TrustWeave is a local-first developer tool for reviewing the declared data sources, tools, and policy decisions of an AI agent. It turns a small, versioned manifest plus a deterministic policy into reviewable JSON and Markdown evidence. It can also compare two declared architectures and review a **pre-recorded local trace** without executing an agent, tool, model, MCP server, or network request.
+TrustWeave is a Python tool for developers and security reviewers who need to examine an AI agent's **declared** sources, tools, capabilities, data flows, and deterministic policy before a configuration change is deployed. It produces reviewable JSON and Markdown evidence from local files. It does not execute an agent, invoke a tool, connect to an MCP server, call a model, access credentials, or send network traffic.
 
-TrustWeave is deliberately narrow: it gives reviewers visible evidence before a configuration change becomes deployed behavior. It is **not** a runtime enforcement gateway, a vulnerability scanner for live systems, or proof that an agent is secure.
+| Release | Installation | License | Project home |
+| --- | --- | --- | --- |
+| [`0.1.1`](https://pypi.org/project/trustweave/0.1.1/) | `python -m pip install trustweave` | [Apache-2.0](LICENSE) | [GitHub repository](https://github.com/MohammadThabetHassan/trustweave) |
 
-## Start here
+## Why TrustWeave
 
-| If you need to… | Start with… | Result |
-|---|---|---|
-| Review an agent’s declared sources, tools, and flows | [`scan`](docs/CLI_REFERENCE.md#scan) | An Agent Security Bundle with deterministic decisions for every declared flow. |
-| Verify expected policy behavior in CI | [`test`](docs/CLI_REFERENCE.md#test) | Synthetic policy-regression evidence that uses no real systems or data. |
-| Learn a cited synthetic adversarial pattern and its policy boundary | [`explain`](docs/CLI_REFERENCE.md#explain) | Local Markdown explanation; no prompt, payload, model, or tool execution. |
-| Review whether a candidate configuration changed security-relevant paths | [`diff`](docs/CLI_REFERENCE.md#diff) | A baseline-versus-candidate review artifact and focused signals. |
-| Review the declared human-approval boundary for high-impact paths | [`policy-check`](docs/CLI_REFERENCE.md#policy-check) | Static evidence that approval controls are declared, bound to the action context, and fail closed. |
-| Review a local trace of what was recorded | [`trace-review`](docs/TRACE_REVIEW.md) | A privacy-preserving comparison between trace metadata, declared flows, and policy decisions. |
-| Review an MCP integration’s declared metadata before connection | [`mcp-profile-check`](docs/MCP_PROFILE.md) | A static mapping and authorization-expectation review with no server discovery or token handling. |
-| Turn local MCP metadata into human-resolved security evidence | [`Local reviewer workflow`](docs/REVIEWER_WORKFLOW.md) | A non-authorizing inventory → scaffold → reviewed manifest and policy process. |
-| Export review findings for a compatible static-analysis consumer | [`sarif`](docs/CLI_REFERENCE.md#sarif) | A deterministic local SARIF 2.1.0 artifact; no automatic upload occurs. |
-| Understand limits, artifact meanings, and release checks | [`docs/QUALITY.md`](docs/QUALITY.md) | The exact local and hosted evidence required for a release. |
+An agent configuration can introduce a sensitive path even when no application code changes. A newly declared untrusted source, a broader tool capability, or a modified policy rule can turn a reviewable design decision into an unnoticed deployment risk. TrustWeave makes those declarations and policy outcomes visible as deterministic local artifacts that a reviewer can inspect, compare, retain, or export.
 
-## Safety boundary
+> **TrustWeave establishes evidence about the declarations and local artifacts it reads.** It does not establish runtime behavior, live MCP-server behavior, authorization correctness, incident conclusions, or that an agent is secure.
 
-> **TrustWeave reads local declarative files and pre-recorded structured trace metadata only.** It does not execute tool configurations, connect to MCP servers, call models, access credentials, send network traffic, scan hosts, or perform business actions.
+## What it does—and what it deliberately does not do
 
-Trace review deliberately excludes message content and tool arguments from reports. A finding means that a reviewer should compare local evidence with the declared manifest and policy; it is **not** a vulnerability verdict, incident conclusion, or deployment authorization.
+| TrustWeave does | TrustWeave does not do |
+| --- | --- |
+| Validates local JSON or optional YAML agent manifests and deterministic policies. | Execute manifest commands, agent tools, MCP configurations, or external actions. |
+| Creates Agent Security Bundles for declared sources, tools, capabilities, and flows. | Discover servers, call models, scan hosts, inspect repositories, or retrieve remote metadata. |
+| Runs synthetic policy scenarios and reports deterministic allow, deny, and approval-required decisions. | Run exploit payloads, process real customer data, or claim general prompt-injection prevention. |
+| Compares baseline and candidate evidence, static policy structure, local trace metadata, and local MCP metadata profiles. | Authenticate users, validate tokens, operate approval queues, or enforce deployments. |
+| Exports local evidence as Markdown, JSON, an explicitly unsigned statement, or SARIF 2.1.0. | Create signed provenance, upload SARIF, publish findings, or contact a third-party service. |
 
-## Quick start
+## Install
 
-Install the released package from PyPI:
+TrustWeave supports **Python 3.11 or later**. The core JSON workflow has no required runtime dependencies.
 
 ```bash
-python -m pip install trustweave
+python -m pip install --upgrade trustweave
+trustweave --help
 ```
 
-The active repository remains private. Authorized collaborators can instead clone it for source development:
+Safe YAML parsing is optional:
+
+```bash
+python -m pip install "trustweave[yaml]"
+```
+
+For source development, clone the repository and install the development extras:
 
 ```bash
 git clone https://github.com/MohammadThabetHassan/trustweave.git
 cd trustweave
-python -m pip install -e .
+python -m pip install -e ".[dev]"
 ```
 
-TrustWeave supports Python 3.11 or later. The core JSON workflow has no required runtime dependencies. Safe YAML parsing is optional through `PyYAML`.
+## First successful review
 
-### 1. Generate declared-architecture evidence
+The following fully synthetic example creates an evidence bundle, runs the default policy scenarios, links the artifacts locally, renders a report, and verifies the local hash chain. It does not interact with an agent or external system.
 
 ```bash
 rm -rf artifacts
@@ -66,60 +70,39 @@ trustweave attest \
 
 trustweave report --output-dir artifacts
 trustweave verify --attestation artifacts/attestation.json
-trustweave policy-check \
-  --policy policies/default-policy.json \
-  --output-dir artifacts \
-  --exit-on-review
 ```
 
-The reference policy declares a review-queue approval boundary for its conditional-to-external path. `policy-check` records that declaration and produces review findings if a high-impact approval path lacks a declared control, lacks bindings to the actor, exact action context, and expiry, or does not fail closed. It does **not** implement a queue, authenticate a reviewer, or validate approval at runtime.
+A successful run writes the following local evidence files:
 
-The reference agent is fully synthetic. It includes an allowed retrieval path, a confidential-data path that requires approval before a mock external action, and an intentionally unsafe untrusted-content-to-external-action path that policy denies.
+| Artifact | Purpose |
+| --- | --- |
+| `artifacts/agent-security-bundle.json` | Deterministic decisions for every declared flow in the manifest. |
+| `artifacts/security-test-results.json` | Results for fixed synthetic policy scenarios. |
+| `artifacts/attestation.json` | Local hash-linked integrity statement for the generated bundle and test result. |
+| `artifacts/report.md` | Human-readable summary of findings, evidence, and limits. |
 
-### 2. Exercise cited synthetic adversarial patterns
+## Choose the review workflow you need
 
-TrustWeave includes a curated library of entirely synthetic, taxonomy-cited trust-boundary patterns. It models labels and expected policy outcomes—not prompts, payloads, target systems, or live exploitation:
+| Review question | Start with | Primary result |
+| --- | --- | --- |
+| What trust-boundary paths does this declared agent contain? | [`scan`](docs/CLI_REFERENCE.md#scan) | Agent Security Bundle with a decision for every declared flow. |
+| Does the declared policy still meet expected behavior in CI? | [`test`](docs/CLI_REFERENCE.md#test) | Synthetic regression result with no real systems or data. |
+| Which policy boundary does a cited synthetic adversarial pattern illustrate? | [`explain`](docs/CLI_REFERENCE.md#explain) | Local Markdown explanation with no prompt, payload, model, or tool execution. |
+| Did a proposed configuration change introduce a material declared path or capability? | [`diff`](docs/CLI_REFERENCE.md#diff) | Baseline-versus-candidate bundle diff and focused review signals. |
+| Is a policy structurally reviewable and fail-closed on sensitive paths? | [`policy-check`](docs/CLI_REFERENCE.md#policy-check) | Static policy findings, including ordered-rule and approval-boundary signals. |
+| Does minimized local trace metadata match the declared manifest and policy? | [`trace-review`](docs/TRACE_REVIEW.md) | Privacy-preserving local trace-review evidence. |
+| Does provided MCP metadata map safely to declared tools and action classes? | [`mcp-profile-check`](docs/MCP_PROFILE.md) | Static local profile-to-manifest review with no server connection. |
+| Do I need to turn an already-recorded MCP tools list into a reviewer-owned inventory? | [`mcp-import`](docs/MCP_IMPORT.md) and the [reviewer workflow](docs/REVIEWER_WORKFLOW.md) | A deterministic inventory and a human-resolved manifest scaffold. |
+| Do I need interoperable local findings for a compatible static-analysis consumer? | [`sarif`](docs/CLI_REFERENCE.md#sarif) | Deterministic local SARIF 2.1.0; no automatic upload. |
+| Do I need a statement-shaped representation of existing local integrity evidence? | [`statement`](docs/CLI_REFERENCE.md#statement) | An explicitly unsigned local statement. |
 
-```bash
-trustweave test \
-  --policy policies/default-policy.json \
-  --scenarios scenarios/adversarial-scenarios.json \
-  --output-dir artifacts/adversarial
+The complete command contract, including inputs, output files, exit codes, and error behavior, is in the [CLI reference](docs/CLI_REFERENCE.md).
 
-trustweave explain \
-  --scenarios scenarios/adversarial-scenarios.json \
-  --scenario-id TW-ADV-001
-```
+## Key review workflows
 
-The library covers prompt-injection-shaped retrieved context, tool-misuse-shaped metadata, confused-deputy paths, excessive agency, sensitive-data routes, supply-chain metadata, and approval-boundary cases using OWASP and MITRE references. A passing result demonstrates only the local policy decision for that synthetic label pair. See [`docs/SCENARIOS.md`](docs/SCENARIOS.md).
+### Compare a baseline and a candidate declaration
 
-### 3. Review a recorded local trace
-
-A trace is **evidence**, not an instruction. The examples contain only synthetic text and mock tool names.
-
-```bash
-trustweave trace-review \
-  --manifest examples/support-agent.manifest.json \
-  --policy policies/default-policy.json \
-  --trace examples/traces/clear-support-trace.json \
-  --output-dir artifacts/trace-clear \
-  --exit-on-review
-```
-
-The clear trace exits with status `0`. The following deliberately review-required trace records an untrusted-context event followed by a call that the declared policy denies. It writes evidence and exits with `1` only because `--exit-on-review` was requested.
-
-```bash
-trustweave trace-review \
-  --manifest examples/support-agent.manifest.json \
-  --policy policies/default-policy.json \
-  --trace examples/traces/review-required-support-trace.json \
-  --output-dir artifacts/trace-review \
-  --exit-on-review
-```
-
-See the complete privacy, input, and exit-code contract in [`docs/TRACE_REVIEW.md`](docs/TRACE_REVIEW.md).
-
-### 4. Review a candidate architecture change
+Create evidence for each declaration and then diff the generated bundles. The checked-in candidate adds a **synthetic** external archive capability. TrustWeave reports the declared change and a review signal; it does not enable or invoke that capability.
 
 ```bash
 rm -rf review-artifacts
@@ -140,33 +123,48 @@ trustweave diff \
   --output-dir review-artifacts/diff
 ```
 
-The candidate adds a synthetic external archive capability. Its untrusted-input path remains denied, but the diff emits a review signal because a human should confirm that the new capability and policy coverage are intentional.
+To focus on least privilege for an existing sensitive tool, use `examples/support-agent.capability-growth.manifest.json` as the head manifest. The output inventories the added declared capability and emits `TW-DIFF-003` when review is required.
 
-To review a **capability change on an existing sensitive tool**, scan `examples/support-agent.capability-growth.manifest.json` as the head bundle and diff it against the baseline. The generated diff inventories `customer-record.export` as an added capability and emits `TW-DIFF-003`, a least-privilege review signal. The candidate is declarative and synthetic: it does not export a record or enable a runtime action.
-
-### 5. Export local review evidence as SARIF
-
-After generating one or more review artifacts, export their existing findings as deterministic SARIF 2.1.0 data:
+### Review policy structure and approval declarations
 
 ```bash
-trustweave sarif \
-  --policy-review artifacts/policy-review.json \
-  --output artifacts/trustweave.sarif
+trustweave policy-check \
+  --policy policies/default-policy.json \
+  --output-dir artifacts \
+  --exit-on-review
 ```
 
-The command is a local format conversion only. It preserves review identifiers, messages, and artifact locations, creates stable result fingerprints, and does **not** upload to GitHub, enable code scanning, connect to a service, or make a runtime-security claim. See the [SARIF CLI contract](docs/CLI_REFERENCE.md#sarif).
+The reference policy declares an approval-control boundary for its conditional external path. `policy-check` records whether that declaration is present, bound to actor/action context and expiry metadata, and intended to fail closed. It does **not** implement an approval queue, authenticate a reviewer, or validate approval at runtime.
 
-### 6. Normalize an already-recorded MCP tools list
+### Exercise safe, cited synthetic scenarios
 
 ```bash
-trustweave mcp-import \
-  --tool-list examples/mcp-tools/support-tools-list.json \
-  --output-dir artifacts/mcp-inventory
+trustweave test \
+  --policy policies/default-policy.json \
+  --scenarios scenarios/adversarial-scenarios.json \
+  --output-dir artifacts/adversarial
+
+trustweave explain \
+  --scenarios scenarios/adversarial-scenarios.json \
+  --scenario-id TW-ADV-001
 ```
 
-This strictly validates and sorts a supplied MCP `tools/list` snapshot into an inventory. It does **not** fetch the list, open a transport, infer authorization or an action class, process credentials, or call a tool. MCP annotations remain review metadata and are not trusted authority. See [`docs/MCP_IMPORT.md`](docs/MCP_IMPORT.md).
+The adversarial library contains entirely synthetic, taxonomy-cited labels and expected local policy outcomes. It contains no prompt payloads, target systems, or live exploit behavior. See [scenario scope and citations](docs/SCENARIOS.md).
 
-### 7. Review declared MCP metadata without connecting
+### Review recorded local trace metadata
+
+```bash
+trustweave trace-review \
+  --manifest examples/support-agent.manifest.json \
+  --policy policies/default-policy.json \
+  --trace examples/traces/clear-support-trace.json \
+  --output-dir artifacts/trace-clear \
+  --exit-on-review
+```
+
+Trace review compares minimized local event metadata with declared flows and deterministic policy. It excludes message content and tool arguments from its reports. A review finding asks a human to compare the local evidence; it is not an incident conclusion. See the [trace-review contract](docs/TRACE_REVIEW.md).
+
+### Review supplied MCP metadata without connecting
 
 ```bash
 trustweave mcp-profile-check \
@@ -176,9 +174,9 @@ trustweave mcp-profile-check \
   --exit-on-review
 ```
 
-This maps an explicit local MCP metadata profile to the Agent Security Manifest. It does **not** discover a server, open HTTP or stdio, retrieve metadata, exchange credentials, validate a token, or invoke a tool. See [`docs/MCP_PROFILE.md`](docs/MCP_PROFILE.md) for the strict input and review contract.
+This command reviews an already-provided local metadata profile. It does not discover an MCP server, open HTTP or stdio, retrieve server metadata, exchange credentials, validate a token, or invoke a tool. See the [MCP metadata profile guide](docs/MCP_PROFILE.md).
 
-## Evidence workflow
+## Evidence model
 
 ```mermaid
 flowchart LR
@@ -201,53 +199,41 @@ flowchart LR
     MC --> ME[MCP profile review artifacts]
 ```
 
-| Command | Primary artifact | What the artifact establishes | What it does **not** establish |
-|---|---|---|---|
-| `scan` | `agent-security-bundle.json` | Deterministic decisions for every **declared** flow. | Runtime discovery, tool execution, or security of a deployed agent. |
-| `test` | `security-test-results.json` | Whether synthetic trust/action scenarios match the current policy. | Model-level behavior or a live attack result. |
-| `policy-check` | `policy-review.json` and `.md` | Structural policy findings such as shadowed rules or review-sensitive allow/default decisions. | Correct business authorization or runtime enforcement. |
-| `diff` | `bundle-diff.json` and `.md` | Declared source, tool, **capability**, path, rule, and decision changes between bundles. | Undeclared runtime behavior or a vulnerability verdict. |
-| `trace-review` | `trace-review.json` and `.md` | Mismatches between safe local trace metadata, declared flows, and policy decisions. | Trace authenticity, full incident reconstruction, or message-content inspection. |
-| `mcp-profile-check` | `mcp-profile-review.json` and `.md` | Mismatches between a local MCP profile and declared manifest tool/action-class mappings. | Server discovery, OAuth, token validation, MCP conformance, or live capability validation. |
-| `attest` and `verify` | `attestation.json` | Internal hash-chain consistency among local artifacts. | External signing, identity, non-repudiation, or transparency-log inclusion. |
+| Command | Establishes | Does not establish |
+| --- | --- | --- |
+| `scan` | Deterministic decisions for every declared flow. | Runtime discovery, tool execution, or deployed-agent security. |
+| `test` | Whether local synthetic scenarios match the current policy. | Model-level behavior or a live attack result. |
+| `policy-check` | Structural policy findings and review obligations. | Business authorization correctness or runtime enforcement. |
+| `diff` | Declared source, tool, capability, path, rule, and decision changes. | Undeclared runtime behavior or a vulnerability verdict. |
+| `trace-review` | Mismatches between safe local trace metadata, declared flows, and policy. | Trace authenticity, complete incident reconstruction, or message inspection. |
+| `mcp-profile-check` | Mismatches between a provided local MCP profile and a manifest. | Server discovery, OAuth, token validation, conformance, or live capability validation. |
+| `attest` and `verify` | Internal hash-chain consistency among local artifacts. | External signing, identity, non-repudiation, or transparency-log inclusion. |
 
 ## Documentation map
 
-| Document | Purpose |
-|---|---|
-| [CLI reference](docs/CLI_REFERENCE.md) | Inputs, outputs, exit codes, and errors for every command. |
-| [Trace review guide](docs/TRACE_REVIEW.md) | Trace contract, privacy boundary, review outcomes, and CI usage. |
-| [MCP metadata profile guide](docs/MCP_PROFILE.md) | Safe profile contract, mapping review, and strict non-connection boundary. |
-| [Local reviewer workflow](docs/REVIEWER_WORKFLOW.md) | Human-resolved inventory, scaffold, manifest, policy, and evidence sequence. |
+| Document | Use it for |
+| --- | --- |
+| [CLI reference](docs/CLI_REFERENCE.md) | Exact command inputs, outputs, exit codes, and error behavior. |
+| [Reviewer workflow](docs/REVIEWER_WORKFLOW.md) | Turning local MCP inventories into human-resolved evidence. |
 | [Architecture](docs/ARCHITECTURE.md) | Components, data flows, invariants, and extension boundaries. |
-| [Product contract](docs/PRODUCT_CONTRACT.md) | Explicit user promises, non-goals, and acceptance evidence. |
-| [Threat model](docs/THREAT_MODEL.md) | Assumptions, control boundaries, and out-of-scope threats. |
-| [Quality evidence](docs/QUALITY.md) | Required local and hosted checks before a direct commit or release. |
-| [Schema and compatibility](docs/SCHEMA_AND_COMPATIBILITY.md) | Current schemas and rules for compatible changes. |
-| [Roadmap](docs/ROADMAP.md) | Planned work and deliberately deferred integrations. |
-| [Release procedure](docs/RELEASE.md) | Versioning, evidence, and authorization gates for releases. |
+| [Product contract](docs/PRODUCT_CONTRACT.md) | User promise, evidence model, safety boundary, and acceptance criteria. |
+| [Threat model](docs/THREAT_MODEL.md) | Assumptions, threat boundaries, and non-goals. |
+| [Quality evidence](docs/QUALITY.md) | Local and hosted verification evidence. |
+| [Schemas and compatibility](docs/SCHEMA_AND_COMPATIBILITY.md) | Versioned input/output contracts and change policy. |
+| [Release procedure](docs/RELEASE.md) | Evidence and authorization requirements for releases. |
+| [Roadmap](docs/ROADMAP.md) | Completed work, deliberate limits, and evidence-based next steps. |
 
-## Local verification
+## Quality and maintenance
 
-The repository CI verifies the same core controls. Run these commands from a clean checkout before a direct commit:
+TrustWeave `0.1.1` is published on [PyPI](https://pypi.org/project/trustweave/). Its release target passed formatting, linting, strict type checks, static source-security scanning, a 90% branch-coverage gate, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
 
-```bash
-python -m pip install -e . bandit build pip-audit pytest ruff mypy PyYAML
+The project keeps its contract deliberately conservative: `v1alpha1` input and generated-artifact formats are suitable for the checked-in examples and CI, but may change with documented migration guidance. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
 
-ruff format --check .
-ruff check .
-mypy src
-bandit -r src/trustweave -q
-pytest
-python -m build
-pip-audit -r requirements.txt
-```
+## Contributing, support, and security
 
-The hosted **Quality and tests** workflow also validates local documentation links, schemas, workflow YAML, and CLI documentation; builds an isolated wheel; runs policy, bundle-diff, capability-growth, offline trace, and MCP metadata references; and uploads generated evidence.
+Contributions are welcome when they improve a reviewer's understanding of **declared or pre-recorded local evidence** without crossing the non-executing boundary. Start with [CONTRIBUTING.md](CONTRIBUTING.md), which includes the local quality suite and contribution checklist.
 
-## Contributing and security
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before proposing a change. Contributions must preserve the non-executing core, use synthetic examples, include deterministic tests, state explicit limits, and avoid real credentials, personal data, external targets, or hidden side effects.
+For installation and workflow help, begin with [SUPPORT.md](SUPPORT.md). For bugs and bounded feature requests, use the repository's issue forms. Please **do not** report suspected vulnerabilities in a public issue. Follow [SECURITY.md](SECURITY.md) for the private reporting route and safe-reporting limits. Community conduct expectations are in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and maintenance decisions are described in [GOVERNANCE.md](GOVERNANCE.md).
 
 ## License
 

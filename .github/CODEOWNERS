@@ -1,0 +1,8 @@
+# TrustWeave currently has one published maintainer and release authority.
+# CODEOWNERS provides review routing; it does not override the documented direct-main policy.
+
+* @MohammadThabetHassan
+/src/ @MohammadThabetHassan
+/schemas/ @MohammadThabetHassan
+/docs/ @MohammadThabetHassan
+/.github/ @MohammadThabetHassan
