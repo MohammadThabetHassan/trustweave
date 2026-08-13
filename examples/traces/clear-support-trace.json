@@ -1,0 +1,19 @@
+{
+  "schema_version": "trustweave.dev/trace/v1alpha1",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Synthetic support request omitted from the review report."
+    }
+  ],
+  "tool_calls": [
+    {
+      "name": "search_knowledge_base",
+      "source": "customer_request",
+      "arguments": {
+        "query": "synthetic value omitted from the review report"
+      }
+    }
+  ],
+  "events": []
+}

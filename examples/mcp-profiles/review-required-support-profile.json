@@ -1,0 +1,21 @@
+{
+  "schema_version": "trustweave.dev/mcp-profile/v1alpha1",
+  "name": "synthetic-unprotected-support-service",
+  "transport": "http",
+  "resource_uri": "https://mcp.synthetic.invalid/support",
+  "authorization_expected": false,
+  "tools": [
+    {
+      "name": "knowledge.search",
+      "manifest_tool": "search_knowledge_base",
+      "action_class": "external",
+      "description": "A deliberately inconsistent action classification used for local review testing."
+    },
+    {
+      "name": "undeclared.export",
+      "manifest_tool": "unknown_synthetic_tool",
+      "action_class": "external",
+      "description": "A deliberately undeclared mapping used for local review testing."
+    }
+  ]
+}

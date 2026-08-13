@@ -224,3 +224,148 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
         ]
     )
     return "\n".join(lines)
+
+
+def render_trace_review_report(review: Mapping[str, Any]) -> str:
+    """Render a local trace-policy review without exposing messages or tool arguments."""
+
+    summary = _as_mapping(review.get("summary"))
+    observations = _as_sequence(review.get("observations"))
+    findings = _as_sequence(review.get("findings"))
+    lines = [
+        "# TrustWeave Offline Trace Review",
+        "",
+        f"**Agent:** `{review.get('agent', 'unknown')}`  ",
+        f"**Policy:** `{review.get('policy', 'unknown')}`  ",
+        f"**Status:** **{summary.get('status', 'unknown')}**",
+        "",
+        "## Review summary",
+        "",
+        "| Metric | Value |",
+        "|---|---:|",
+        f"| Messages observed | {summary.get('messages_observed', 0)} |",
+        f"| Tool calls observed | {summary.get('tool_calls_observed', 0)} |",
+        f"| Untrusted-context events | {summary.get('untrusted_context_events', 0)} |",
+        f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        "",
+        "## Tool-call observations",
+        "",
+        "| Index | Declared source | Tool | Action class | Policy decision | Status |",
+        "|---:|---|---|---|---|---|",
+    ]
+    for raw_observation in observations:
+        observation = _as_mapping(raw_observation)
+        lines.append(
+            "| {index} | {source} | {tool} | {action_class} | {decision} | **{status}** |".format(
+                index=observation.get("index", "unknown"),
+                source=observation.get("source", "unknown"),
+                tool=observation.get("tool", "unknown"),
+                action_class=observation.get("action_class", "not available"),
+                decision=observation.get("decision", "not available"),
+                status=observation.get("status", "unknown"),
+            )
+        )
+
+    lines.extend(["", "## Findings", ""])
+    if not findings:
+        lines.append("No local trace-policy mismatches requiring review were generated.")
+    else:
+        lines.extend(["| Severity | Identifier | Call index | Message |", "|---|---|---:|---|"])
+        for raw_finding in findings:
+            finding = _as_mapping(raw_finding)
+            lines.append(
+                "| {severity} | `{identifier}` | {index} | {message} |".format(
+                    severity=finding.get("severity", "unknown"),
+                    identifier=finding.get("id", "unknown"),
+                    index=finding.get("index", "not available"),
+                    message=finding.get("message", "unknown"),
+                )
+            )
+
+    lines.extend(
+        [
+            "",
+            "## Privacy and evidence limits",
+            "",
+            (
+                "This report intentionally excludes message content and tool arguments. It reads "
+                "local structured metadata only and does not execute a target, tool, adapter, "
+                "model, or network request. A finding is a review obligation, not a vulnerability "
+                "verdict or incident conclusion."
+            ),
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def render_mcp_profile_review_report(review: Mapping[str, Any]) -> str:
+    """Render a static MCP metadata review without implying live-server validation."""
+
+    profile = _as_mapping(review.get("profile"))
+    summary = _as_mapping(review.get("summary"))
+    mappings = _as_sequence(review.get("mappings"))
+    findings = _as_sequence(review.get("findings"))
+    lines = [
+        "# TrustWeave MCP Metadata Profile Review",
+        "",
+        f"**Profile:** `{profile.get('name', 'unknown')}`  ",
+        f"**Transport:** `{profile.get('transport', 'unknown')}`  ",
+        f"**Resource URI:** `{profile.get('resource_uri', 'not declared')}`  ",
+        f"**Authorization expected:** `{profile.get('authorization_expected', 'unknown')}`  ",
+        f"**Status:** **{summary.get('status', 'unknown')}**",
+        "",
+        "## Review summary",
+        "",
+        "| Metric | Value |",
+        "|---|---:|",
+        f"| Tools reviewed | {summary.get('tools_reviewed', 0)} |",
+        f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        "",
+        "## Declared tool mappings",
+        "",
+        "| MCP tool | Manifest tool | Profile action class | Manifest action class | Status |",
+        "|---|---|---|---|---|",
+    ]
+    for raw_mapping in mappings:
+        mapping = _as_mapping(raw_mapping)
+        lines.append(
+            "| {mcp_tool} | {manifest_tool} | {declared_action} | {manifest_action} | "
+            "**{status}** |".format(
+                mcp_tool=mapping.get("mcp_tool", "unknown"),
+                manifest_tool=mapping.get("manifest_tool", "unknown"),
+                declared_action=mapping.get("declared_action_class", "unknown"),
+                manifest_action=mapping.get("manifest_action_class", "not available"),
+                status=mapping.get("status", "unknown"),
+            )
+        )
+
+    lines.extend(["", "## Findings", ""])
+    if not findings:
+        lines.append("No local profile-to-manifest mismatches requiring review were generated.")
+    else:
+        lines.extend(["| Severity | Identifier | Message |", "|---|---|---|"])
+        for raw_finding in findings:
+            finding = _as_mapping(raw_finding)
+            lines.append(
+                "| {severity} | `{identifier}` | {message} |".format(
+                    severity=finding.get("severity", "unknown"),
+                    identifier=finding.get("id", "unknown"),
+                    message=finding.get("message", "unknown"),
+                )
+            )
+
+    lines.extend(
+        [
+            "",
+            "## Evidence limits",
+            "",
+            (
+                "This is a local metadata-profile review. TrustWeave did not discover, connect "
+                "to, authenticate with, or execute an MCP server. The profile resource URI is an "
+                "identifier only; no token or remote server metadata was read."
+            ),
+            "",
+        ]
+    )
+    return "\n".join(lines)

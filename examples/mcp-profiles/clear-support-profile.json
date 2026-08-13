@@ -1,0 +1,21 @@
+{
+  "schema_version": "trustweave.dev/mcp-profile/v1alpha1",
+  "name": "synthetic-support-service",
+  "transport": "http",
+  "resource_uri": "https://mcp.synthetic.invalid/support",
+  "authorization_expected": true,
+  "tools": [
+    {
+      "name": "knowledge.search",
+      "manifest_tool": "search_knowledge_base",
+      "action_class": "read",
+      "description": "A synthetic MCP search capability mapped to the declared read-only manifest tool."
+    },
+    {
+      "name": "customer.lookup",
+      "manifest_tool": "lookup_customer_record",
+      "action_class": "sensitive",
+      "description": "A synthetic MCP customer lookup mapped to the declared sensitive manifest tool."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/mcp-profile/v1alpha1.json",
+  "title": "TrustWeave MCP Metadata Profile",
+  "description": "A local, user-supplied MCP metadata profile reviewed without discovery, network access, token handling, or server execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "transport",
+    "authorization_expected",
+    "tools"
+  ],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/mcp-profile/v1alpha1"},
+    "name": {"type": "string", "minLength": 1},
+    "transport": {"enum": ["http", "stdio"]},
+    "resource_uri": {"type": "string", "minLength": 1},
+    "authorization_expected": {"type": "boolean"},
+    "tools": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/tool"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"transport": {"const": "http"}}},
+      "then": {"required": ["resource_uri"]}
+    }
+  ],
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "manifest_tool", "action_class", "description"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "manifest_tool": {"type": "string", "minLength": 1},
+        "action_class": {"enum": ["read", "write", "sensitive", "external"]},
+        "description": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

@@ -11,10 +11,18 @@ from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation, verify_attestation
 from trustweave.io import load_document, read_json, write_json, write_text
+from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
-from trustweave.report import render_diff_report, render_policy_review_report, render_report
+from trustweave.report import (
+    render_diff_report,
+    render_mcp_profile_review_report,
+    render_policy_review_report,
+    render_report,
+    render_trace_review_report,
+)
 from trustweave.scenarios import parse_scenarios, run_scenarios
+from trustweave.trace_review import review_trace
 
 BUNDLE_FILE = "agent-security-bundle.json"
 TEST_RESULTS_FILE = "security-test-results.json"
@@ -24,6 +32,10 @@ DIFF_FILE = "bundle-diff.json"
 DIFF_REPORT_FILE = "bundle-diff.md"
 POLICY_REVIEW_FILE = "policy-review.json"
 POLICY_REVIEW_REPORT_FILE = "policy-review.md"
+TRACE_REVIEW_FILE = "trace-review.json"
+TRACE_REVIEW_REPORT_FILE = "trace-review.md"
+MCP_PROFILE_REVIEW_FILE = "mcp-profile-review.json"
+MCP_PROFILE_REVIEW_REPORT_FILE = "mcp-profile-review.md"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -99,6 +111,50 @@ def _parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
 
+    trace_review = subcommands.add_parser(
+        "trace-review",
+        help="Review local trace metadata against declared flows without executing an agent.",
+    )
+    trace_review.add_argument(
+        "--manifest", type=Path, required=True, help="Agent manifest JSON or safe YAML file."
+    )
+    trace_review.add_argument(
+        "--policy", type=Path, required=True, help="Policy JSON or safe YAML file."
+    )
+    trace_review.add_argument(
+        "--trace", type=Path, required=True, help="Local trace JSON file to review."
+    )
+    trace_review.add_argument(
+        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+    trace_review.add_argument(
+        "--exit-on-review",
+        action="store_true",
+        help="Return status 1 when the trace produces any review finding.",
+    )
+
+    mcp_profile = subcommands.add_parser(
+        "mcp-profile-check",
+        help="Review a local MCP metadata profile without connecting to a server.",
+    )
+    mcp_profile.add_argument(
+        "--manifest", type=Path, required=True, help="Agent manifest JSON or safe YAML file."
+    )
+    mcp_profile.add_argument(
+        "--profile",
+        type=Path,
+        required=True,
+        help="Local MCP metadata profile JSON or safe YAML file.",
+    )
+    mcp_profile.add_argument(
+        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+    mcp_profile.add_argument(
+        "--exit-on-review",
+        action="store_true",
+        help="Return status 1 when the profile produces any review finding.",
+    )
+
     return parser
 
 
@@ -153,6 +209,40 @@ def _policy_check(policy_path: Path, output_dir: Path) -> str:
     return f"Wrote policy review: {json_path} and {markdown_path}"
 
 
+def _trace_review(
+    manifest_path: Path,
+    policy_path: Path,
+    trace_path: Path,
+    output_dir: Path,
+    exit_on_review: bool,
+) -> tuple[str, int]:
+    manifest = parse_manifest(load_document(manifest_path))
+    policy = parse_policy(load_document(policy_path))
+    review = review_trace(manifest, policy, read_json(trace_path))
+    json_path = write_json(output_dir / TRACE_REVIEW_FILE, review)
+    markdown_path = write_text(
+        output_dir / TRACE_REVIEW_REPORT_FILE, render_trace_review_report(review)
+    )
+    has_findings = int(review["summary"]["review_findings"]) > 0
+    code = 1 if exit_on_review and has_findings else 0
+    return f"Wrote trace review: {json_path} and {markdown_path}", code
+
+
+def _mcp_profile_check(
+    manifest_path: Path, profile_path: Path, output_dir: Path, exit_on_review: bool
+) -> tuple[str, int]:
+    manifest = parse_manifest(load_document(manifest_path))
+    profile = parse_mcp_profile(load_document(profile_path))
+    review = review_mcp_profile(profile, manifest)
+    json_path = write_json(output_dir / MCP_PROFILE_REVIEW_FILE, review)
+    markdown_path = write_text(
+        output_dir / MCP_PROFILE_REVIEW_REPORT_FILE, render_mcp_profile_review_report(review)
+    )
+    has_findings = int(review["summary"]["review_findings"]) > 0
+    code = 1 if exit_on_review and has_findings else 0
+    return f"Wrote MCP profile review: {json_path} and {markdown_path}", code
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the TrustWeave CLI and return an actionable status code."""
 
@@ -181,6 +271,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "policy-check":
             print(_policy_check(args.policy, args.output_dir))
             return 0
+        if args.command == "trace-review":
+            message, code = _trace_review(
+                args.manifest,
+                args.policy,
+                args.trace,
+                args.output_dir,
+                args.exit_on_review,
+            )
+            print(message)
+            return code
+        if args.command == "mcp-profile-check":
+            message, code = _mcp_profile_check(
+                args.manifest,
+                args.profile,
+                args.output_dir,
+                args.exit_on_review,
+            )
+            print(message)
+            return code
         raise AssertionError(f"Unexpected command: {args.command}")
     except ValidationError as error:
         print(f"Validation error: {error}")
