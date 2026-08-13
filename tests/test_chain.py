@@ -3,8 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from trustweave.chain import review_declared_chains
 from trustweave.cli import main
+from trustweave.models import ValidationError
 
 
 def _document(nodes: list[dict[str, object]], edges: list[dict[str, str]]) -> dict[str, object]:
@@ -22,6 +25,22 @@ def _unsafe_nodes() -> list[dict[str, object]]:
         {"id": "records", "kind": "data", "classification": "confidential"},
         {"id": "email", "kind": "tool", "action_class": "external"},
     ]
+
+
+def test_chain_manifest_rejects_incompatible_node_fields() -> None:
+    document = _document(_unsafe_nodes(), [])
+    source = document["nodes"][0]
+    assert isinstance(source, dict)
+    source["action_class"] = "external"
+    with pytest.raises(ValidationError, match="not valid for source"):
+        review_declared_chains(document)
+
+    document = _document(_unsafe_nodes(), [])
+    data = document["nodes"][1]
+    assert isinstance(data, dict)
+    data.pop("classification")
+    with pytest.raises(ValidationError, match="classification is required"):
+        review_declared_chains(document)
 
 
 def test_chain_review_reports_only_explicitly_declared_unsafe_path() -> None:

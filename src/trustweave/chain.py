@@ -101,6 +101,24 @@ def _parse_chain_manifest(
                 node.get("covers_classifications", []), f"{path}.covers_classifications"
             )
         )
+        if kind == "source" and trust is None:
+            raise ValidationError(f"{path}.trust is required for source nodes")
+        if kind == "data" and classification is None:
+            raise ValidationError(f"{path}.classification is required for data nodes")
+        if kind in {"tool", "sink"} and action_class is None:
+            raise ValidationError(f"{path}.action_class is required for {kind} nodes")
+        if kind == "approval" and fail_closed is None:
+            raise ValidationError(f"{path}.fail_closed is required for approval nodes")
+        if kind == "sanitizer" and not covers:
+            raise ValidationError(f"{path}.covers_classifications is required for sanitizer nodes")
+        if kind not in {"approval"} and fail_closed is not None:
+            raise ValidationError(f"{path}.fail_closed is only valid for approval nodes")
+        if kind not in {"sanitizer"} and covers:
+            raise ValidationError(
+                f"{path}.covers_classifications is only valid for sanitizer nodes"
+            )
+        if kind in {"source", "data", "approval", "sanitizer"} and action_class is not None:
+            raise ValidationError(f"{path}.action_class is not valid for {kind} nodes")
         nodes[identifier] = ChainNode(
             identifier,
             kind,
