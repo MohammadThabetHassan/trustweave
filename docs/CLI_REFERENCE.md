@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] [--generated-at ISO_8601] [--debug] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,sarif} ...
+trustweave [-h] [--generated-at ISO_8601] [--debug] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,risk-check,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -168,6 +168,32 @@ When an existing `sensitive` or `external` tool gains one or more declared capab
 |---|---|
 | `bundle-diff.json` | Structured source, tool, capability, path, decision, signal, summary, and limit inventory. |
 | `bundle-diff.md` | Human-readable candidate-change report with a capability-addition/removal table. |
+
+## `risk-check`
+
+```bash
+trustweave risk-check \
+  --input REVIEW_ARTIFACT [--input REVIEW_ARTIFACT ...] \
+  [--baseline PATH] [--suppressions PATH] \
+  [--fail-on {critical,high,medium,low,info,none}] \
+  [--output PATH]
+```
+
+`risk-check` reads existing local review artifacts and normalizes their supplied findings into stable fingerprints. It then applies optional local baseline and suppression entries that must include a reviewer-visible reason and an ISO 8601 expiry timestamp. Expired entries become active again deterministically. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
+
+| Input | Required | Description |
+|---|---:|---|
+| `--input` | Yes; repeatable | Existing local review artifact containing a `findings` array. |
+| `--baseline` | No | Local `trustweave.dev/risk-baseline/v1alpha1` JSON or safe YAML document. |
+| `--suppressions` | No | Local `trustweave.dev/risk-suppressions/v1alpha1` JSON or safe YAML document. |
+| `--fail-on` | No | Active-finding severity threshold; defaults to `high`. |
+| `--output` | No | Local output path; defaults to `artifacts/risk-review.json`. |
+
+| Output file | Content |
+|---|---|
+| `risk-review.json` | Normalized findings, stable fingerprints, risk states, expiry data, severity summary, and explicit limits. |
+
+A baseline or suppression records only a temporary reviewer decision about supplied local evidence. It does not remediate a finding, waive a security obligation, authenticate an approval, contact a ticketing system, or prove runtime security. See [Local Risk Management](RISK_MANAGEMENT.md) for the maintained workflow and safe templates.
 
 ## `sarif`
 

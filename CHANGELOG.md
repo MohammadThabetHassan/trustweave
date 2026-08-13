@@ -6,6 +6,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Added `risk-check`, a local deterministic risk-review command that normalizes supplied review artifacts into stable fingerprints and applies explicit expiry-enforced baselines and suppressions.
+- Added severity gates for active local findings, safe empty baseline/suppression templates, and maintainer guidance that distinguishes reviewer documentation from remediation or runtime enforcement.
+
 - Added optional declarative policy constraints for exact source data classifications and bounded tool-capability globs, so those declared security attributes now affect tested flow decisions.
 - Added deterministic decision severities (`high`, `medium`, and `info`) with explicit policy overrides from the documented `critical` through `info` vocabulary.
 - Made manifest, policy, scenario, trace, MCP profile, MCP inventory, and supported framework-declaration parsers reject unknown declared fields by default with path-aware close-match diagnostics.
