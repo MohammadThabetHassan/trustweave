@@ -1,0 +1,1 @@
+{"agents": [{"name": "support_triage", "tools": ["knowledge_search", "ticket_draft"]}, {"name": "record_reviewer", "tools": ["customer_lookup"]}]}

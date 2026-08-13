@@ -1,0 +1,1 @@
+{"agents": [{"name": "researcher", "tools": ["knowledge_search"]}, {"name": "reviewer", "tools": ["policy_lookup"]}], "tasks": [{"name": "collect_context", "agent": "researcher", "tools": ["knowledge_search"]}, {"name": "review_summary", "agent": "reviewer", "tools": ["policy_lookup"]}]}

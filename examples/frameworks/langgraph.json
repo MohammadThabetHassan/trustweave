@@ -1,0 +1,1 @@
+{"dependencies": ["."], "graphs": {"support_review": "./support_graph.py:graph", "archive_review": "./archive_graph.py:build_graph"}}

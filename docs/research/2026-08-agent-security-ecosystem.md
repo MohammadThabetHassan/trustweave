@@ -129,3 +129,16 @@ The MCP tools specification states that tools carry a unique `name`, human-reada
 [12]: https://genai.owasp.org/llmrisk/llm01-prompt-injection/ "OWASP LLM01:2025 Prompt Injection"
 [13]: https://atlas.mitre.org/ "MITRE ATLAS"
 [14]: https://modelcontextprotocol.io/specification/2025-03-26/server/tools "MCP tools specification (2025-03-26)"
+
+
+### Framework-adapter research record
+
+LangGraph documents `langgraph.json` as a deployment configuration that names dependencies, graph entry points, and environment configuration; graph entries identify a compiled graph or graph-building function by reference. [15] A safe static adapter can therefore inventory **only the literal local graph references** present in that JSON without importing the named module, resolving dependencies, reading environment variables, compiling a graph, or discovering its runtime tools.
+
+OpenAI’s Agents SDK documents tools as runtime action surfaces including hosted tools, local/runtime execution tools, function tools, agent-as-tool composition, and experimental tool types. [16] The SDK’s public configuration is Python-runtime oriented rather than a standalone portable agent-config document. TrustWeave must consequently accept only an explicitly exported, user-supplied static descriptor for this adapter; it cannot claim to import arbitrary Python Agent objects without loading code. Tool type is evidence metadata, not an action-class authorization or execution request.
+
+CrewAI documents JSONC project configuration with ordered tasks, agent references, task context, task-level tools, and optional classic YAML projects. [17] A safe adapter can accept a JSON-compatible local snapshot of that structure and inventory literal agent/task/tool names without importing a Crew, resolving a tool, interpreting a guardrail, or starting a task.
+
+[15]: https://docs.langchain.com/oss/python/langgraph/application-structure "LangGraph application structure"
+[16]: https://openai.github.io/openai-agents-python/tools/ "OpenAI Agents SDK tools"
+[17]: https://docs.crewai.com/v1.15.14/en/concepts/tasks "CrewAI tasks and JSONC configuration"

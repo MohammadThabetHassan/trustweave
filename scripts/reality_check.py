@@ -27,6 +27,7 @@ EXPECTED_COMMANDS = (
     "policy-check",
     "trace-review",
     "mcp-profile-check",
+    "framework-import",
     "mcp-import",
     "sarif",
 )

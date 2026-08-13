@@ -10,6 +10,7 @@ from pathlib import Path
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation, verify_attestation
+from trustweave.framework_import import SUPPORTED_FRAMEWORKS, normalize_framework_declaration
 from trustweave.io import load_document, read_json, write_json, write_text
 from trustweave.mcp_import import normalize_mcp_tools_list
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
@@ -39,6 +40,7 @@ TRACE_REVIEW_REPORT_FILE = "trace-review.md"
 MCP_PROFILE_REVIEW_FILE = "mcp-profile-review.json"
 MCP_PROFILE_REVIEW_REPORT_FILE = "mcp-profile-review.md"
 MCP_TOOL_INVENTORY_FILE = "mcp-tool-inventory.json"
+FRAMEWORK_INVENTORY_FILE = "framework-inventory.json"
 SARIF_FILE = "trustweave.sarif"
 
 
@@ -148,6 +150,20 @@ def _parser() -> argparse.ArgumentParser:
         "--exit-on-review",
         action="store_true",
         help="Return status 1 when the trace produces any review finding.",
+    )
+
+    framework_import = subcommands.add_parser(
+        "framework-import",
+        help="Normalize a local framework declaration without importing or running its framework.",
+    )
+    framework_import.add_argument(
+        "--framework", choices=sorted(SUPPORTED_FRAMEWORKS), required=True
+    )
+    framework_import.add_argument(
+        "--input", type=Path, required=True, help="Local declaration snapshot."
+    )
+    framework_import.add_argument(
+        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
 
     mcp_import = subcommands.add_parser(
@@ -299,6 +315,12 @@ def _sarif(
     return f"Wrote local SARIF evidence: {path}"
 
 
+def _framework_import(framework: str, input_path: Path, output_dir: Path) -> str:
+    inventory = normalize_framework_declaration(framework, load_document(input_path))
+    path = write_json(output_dir / FRAMEWORK_INVENTORY_FILE, inventory)
+    return f"Wrote local framework inventory: {path}"
+
+
 def _mcp_import(tool_list_path: Path, output_dir: Path) -> str:
     inventory = normalize_mcp_tools_list(load_document(tool_list_path))
     path = write_json(output_dir / MCP_TOOL_INVENTORY_FILE, inventory)
@@ -372,6 +394,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.output,
                 )
             )
+            return 0
+        if args.command == "framework-import":
+            print(_framework_import(args.framework, args.input, args.output_dir))
             return 0
         if args.command == "mcp-import":
             print(_mcp_import(args.tool_list, args.output_dir))

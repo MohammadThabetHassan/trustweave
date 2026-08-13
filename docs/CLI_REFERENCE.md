@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,mcp-import,mcp-profile-check,sarif} ...
+trustweave [-h] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-import,mcp-profile-check,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -234,6 +234,14 @@ trustweave trace-review \
 
 Use a review-required reference only to verify the gate itself. Because it intentionally returns status `1`, invert that assertion in a test script or unit test rather than treating it as a passing production policy gate.
 
+
+## `framework-import`
+
+```bash
+trustweave framework-import --framework {langgraph,openai-agents,crewai} --input PATH [--output-dir DIR]
+```
+
+`framework-import` reads one supplied local framework declaration snapshot and writes a deterministic inventory. It does not import Python code, install a framework, read an environment file, construct a graph, instantiate an agent, run a task, call a model, execute a tool, or contact a network service. See [`docs/FRAMEWORK_IMPORT.md`](FRAMEWORK_IMPORT.md) for the supported input contracts and limits.
 
 ## `mcp-import`
 
