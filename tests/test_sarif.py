@@ -149,3 +149,72 @@ def test_cli_sarif_writes_a_local_json_artifact(tmp_path: Path) -> None:
 
 def test_cli_sarif_requires_at_least_one_review_artifact(tmp_path: Path) -> None:
     assert main(["sarif", "--output", str(tmp_path / "trustweave.sarif")]) == 2
+
+
+def test_sarif_exports_only_active_risk_findings_with_their_canonical_fingerprint() -> None:
+    active_fingerprint = "a" * 64
+    risk_review = {
+        "schema_version": "trustweave.dev/risk-review/v1alpha1",
+        "findings": [
+            {
+                "id": "TW-POL-004",
+                "severity": "high",
+                "message": "Approval control is not declared.",
+                "fingerprint": active_fingerprint,
+                "risk_state": "new",
+            },
+            {
+                "id": "TW-POL-005",
+                "severity": "medium",
+                "message": "A documented baseline remains in effect.",
+                "fingerprint": "b" * 64,
+                "risk_state": "baselined",
+            },
+        ],
+    }
+
+    exported = build_sarif({"risk": ("artifacts/risk-review.json", risk_review)})
+    result = exported["runs"][0]["results"]
+    assert len(result) == 1
+    assert result[0]["ruleId"] == "TW-POL-004"
+    assert result[0]["level"] == "error"
+    assert result[0]["partialFingerprints"] == {"trustweave/risk-v1": active_fingerprint}
+
+
+def test_cli_sarif_accepts_active_risk_review(tmp_path: Path) -> None:
+    risk_path = tmp_path / "risk-review.json"
+    output_path = tmp_path / "trustweave.sarif"
+    risk_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/risk-review/v1alpha1",
+                "findings": [
+                    {
+                        "id": "TW-POL-004",
+                        "severity": "high",
+                        "message": "Approval control is not declared.",
+                        "fingerprint": "c" * 64,
+                        "risk_state": "expired_baseline",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "sarif",
+                "--risk-review",
+                str(risk_path),
+                "--output",
+                str(output_path),
+            ]
+        )
+        == 0
+    )
+    exported = json.loads(output_path.read_text(encoding="utf-8"))
+    assert exported["runs"][0]["results"][0]["partialFingerprints"] == {
+        "trustweave/risk-v1": "c" * 64
+    }

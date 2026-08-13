@@ -127,3 +127,6 @@ def test_risk_check_cli_writes_review_and_applies_fail_on(tmp_path: Path) -> Non
     assert main([*arguments, "--fail-on", "high"]) == EXIT_SUCCESS
     assert main([*arguments, "--fail-on", "medium"]) == EXIT_REVIEW
     assert json.loads(output_path.read_text(encoding="utf-8"))["summary"]["new"] == 1
+    markdown = (tmp_path / "risk-review.md").read_text(encoding="utf-8")
+    assert "# TrustWeave Local Risk Review" in markdown
+    assert "| new | medium | `TW-POL-004`" in markdown

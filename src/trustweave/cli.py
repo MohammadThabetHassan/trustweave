@@ -24,6 +24,7 @@ from trustweave.report import (
     render_mcp_profile_review_report,
     render_policy_review_report,
     render_report,
+    render_risk_review_report,
     render_trace_review_report,
 )
 from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
@@ -50,6 +51,7 @@ FRAMEWORK_INVENTORY_FILE = "framework-inventory.json"
 SARIF_FILE = "trustweave.sarif"
 UNSIGNED_STATEMENT_FILE = "unsigned-statement.json"
 RISK_REVIEW_FILE = "risk-review.json"
+RISK_REVIEW_REPORT_FILE = "risk-review.md"
 
 EXIT_SUCCESS = 0
 EXIT_REVIEW = 1
@@ -271,6 +273,11 @@ def _parser() -> argparse.ArgumentParser:
         help="Local risk-review JSON output path.",
     )
     risk_check.add_argument(
+        "--markdown-output",
+        type=Path,
+        help="Optional local Markdown summary path; defaults beside the JSON output.",
+    )
+    risk_check.add_argument(
         "--fail-on",
         choices=[*VALID_SEVERITIES, "none"],
         default="high",
@@ -285,6 +292,7 @@ def _parser() -> argparse.ArgumentParser:
     sarif.add_argument("--diff", type=Path, help="Bundle-diff JSON artifact.")
     sarif.add_argument("--trace-review", type=Path, help="Trace-review JSON artifact.")
     sarif.add_argument("--mcp-profile-review", type=Path, help="MCP-profile-review JSON artifact.")
+    sarif.add_argument("--risk-review", type=Path, help="Local risk-review JSON artifact.")
     sarif.add_argument(
         "--output",
         type=Path,
@@ -392,6 +400,7 @@ def _risk_check(
     baseline_path: Path | None,
     suppressions_path: Path | None,
     output_path: Path,
+    markdown_output_path: Path | None,
     fail_on: str,
     generated_at: str,
 ) -> tuple[str, int]:
@@ -402,8 +411,12 @@ def _risk_check(
         reviewed_at=generated_at,
     )
     path = write_json(output_path, review)
+    markdown_path = write_text(
+        markdown_output_path or output_path.with_name(RISK_REVIEW_REPORT_FILE),
+        render_risk_review_report(review),
+    )
     code = EXIT_REVIEW if should_fail(review, fail_on) else EXIT_SUCCESS
-    return f"Wrote local risk review: {path}", code
+    return f"Wrote local risk review: {path} and {markdown_path}", code
 
 
 def _sarif(
@@ -411,6 +424,7 @@ def _sarif(
     diff_path: Path | None,
     trace_review_path: Path | None,
     mcp_profile_review_path: Path | None,
+    risk_review_path: Path | None,
     output_path: Path,
 ) -> str:
     selected_paths = {
@@ -418,6 +432,7 @@ def _sarif(
         "diff": diff_path,
         "trace": trace_review_path,
         "mcp": mcp_profile_review_path,
+        "risk": risk_review_path,
     }
     reviews = {
         kind: (path.as_posix(), read_json(path))
@@ -556,6 +571,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.baseline,
                 args.suppressions,
                 args.output,
+                args.markdown_output,
                 args.fail_on,
                 generation_timestamp(args.generated_at),
             )
@@ -568,6 +584,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.diff,
                     args.trace_review,
                     args.mcp_profile_review,
+                    args.risk_review,
                     args.output,
                 )
             )
