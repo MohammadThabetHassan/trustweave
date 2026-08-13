@@ -34,6 +34,7 @@ The declared core runtime dependency set is intentionally empty in v0.1. Optiona
 | Repository reality | `python scripts/reality_check.py` | Verified local Markdown links, JSON schemas, workflow YAML, and documented CLI commands. |
 | Observed-evidence review | `trustweave trace-review` | Clear and review-required local trace artifacts with minimized reports. |
 | MCP integration metadata | `trustweave mcp-profile-check` | Clear and review-required local profile artifacts with no server connection. |
+| Interoperable review evidence | `trustweave sarif` | A deterministic local SARIF 2.1.0 file derived from selected review artifacts, with no automatic upload. |
 
 ## Acceptance controls
 
@@ -47,11 +48,13 @@ The clear trace fixture must exit `0` with `--exit-on-review`. The review-requir
 
 The clear MCP profile fixture must exit `0` with `--exit-on-review`. The review-required profile fixture must exit `1`, contain `TW-MCP-001`, and omit token-like query data from the Markdown report. These checks validate mapping drift, authorization-expectation review, URI hygiene, and the profile’s strict non-connection boundary.
 
+A SARIF workflow must combine existing policy, diff, trace, and MCP review artifacts and retain `TW-POL-004`, `TW-DIFF-003`, `TW-TRACE-004`, and `TW-MCP-001` in `trustweave.sarif`. The artifact must declare SARIF version `2.1.0`. This is format-level interoperability evidence only; no hosted code-scanning upload occurs in the repository workflow.
+
 A failing synthetic scenario, malformed manifest, unknown reference, invalid schema version, broken attestation chain, or missing review artifact is a release-blocking condition until the cause is understood and resolved.
 
 ## Hosted checks
 
-The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, tests, repository-reality validation, package build, isolated wheel invocation, declared dependency audit, the synthetic evidence workflow, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, and profile-URI hygiene assertions. It uploads generated evidence for inspection.
+The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, tests, repository-reality validation, package build, isolated wheel invocation, declared dependency audit, the synthetic evidence workflow, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, profile-URI hygiene assertions, and deterministic SARIF generation. It uploads generated evidence for inspection but does not upload SARIF to a code-scanning service.
 
 The repository’s `main` branch requires this status check, retains linear history, and blocks force pushes and deletion. Direct commits remain the authorized working model; maintainers must complete the local checks before pushing and must monitor hosted results on the exact pushed SHA.
 

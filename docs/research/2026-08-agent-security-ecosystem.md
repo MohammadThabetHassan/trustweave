@@ -106,3 +106,13 @@ TrustWeave can express these recommendations without becoming a runtime approval
 This is a suitable additive enhancement because it operates on local versioned policy files, generates deterministic report fields and signals, needs no model call or server connection, and can be tested with clear and deliberately review-required synthetic policies.
 
 [9]: https://modelcontextprotocol.io/specification/2025-06-18/server/tools "Model Context Protocol tools specification (2025-06-18)"
+
+
+### Candidate: deterministic SARIF export
+
+SARIF 2.1.0 is an OASIS standard for representing static-analysis results in a common interchange format. Its stated goals include representing results directly from tools, reducing integration complexity, and supporting aggregation in common engineering workflows. [10] GitHub documents SARIF upload as a **separate** action that requires an enabled code-scanning capability and an explicitly configured workflow step with appropriate permissions. [11] The OWASP Agent Security Regression Harness similarly treats machine-readable local/CI results as useful evidence, while distinguishing them from a guarantee that an agent is secure. [2]
+
+TrustWeave can provide a narrow SARIF exporter without changing its safety boundary. The exporter should consume only already-generated local review artifacts, preserve their review identifiers and messages, use stable ordering and deterministic partial fingerprints, and emit no timestamp or network request. It should not upload the output, configure code scanning, request `security-events` permission, or claim that a downstream consumer will accept or interpret every finding. This turns existing deterministic review evidence into a portable artifact while preserving the distinction between **format interoperability** and **runtime security assurance**.
+
+[10]: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html "OASIS SARIF 2.1.0"
+[11]: https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/integrate-with-existing-tools/upload-sarif-file "GitHub Docs: Uploading a SARIF file"

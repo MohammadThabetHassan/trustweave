@@ -24,6 +24,10 @@ flowchart LR
     MP[Local MCP metadata profile] --> MC[Static MCP profile review]
     M --> MC
     MC --> MO[MCP profile review artifacts]
+    PRR --> SR[Local SARIF evidence]
+    DR --> SR
+    TO --> SR
+    MO --> SR
     S[Synthetic scenario pack] --> T[Deterministic scenario runner]
     P --> T
     T --> TS[Test results]
@@ -44,6 +48,7 @@ flowchart LR
 | `diff.py` | Compares two generated bundles for declared source, tool, path, and decision changes. | Does not discover behavior, execute tools, or issue a security verdict. |
 | `trace_review.py` | Compares local trace tool-call metadata with declared sources, tools, flows, and deterministic policy. | Does not execute a target, inspect message text/tool arguments, or treat a trace as an instruction. |
 | `mcp_profile.py` | Validates local MCP metadata profiles and compares tool mappings/action classes with the manifest. | Does not discover a server, open a transport, retrieve metadata, handle tokens, or execute a tool. |
+| `sarif.py` | Converts existing local review findings into deterministic SARIF 2.1.0 evidence. | Does not inspect a live target, upload results, enable code scanning, or perform a network request. |
 | `report.py` | Renders review-friendly Markdown from generated artifacts. | Reads generated structured artifacts only and omits sensitive trace fields. |
 | `cli.py` | Exposes the local workflow through a predictable CLI. | Returns non-zero on invalid data or failed synthetic scenarios. |
 
@@ -78,6 +83,10 @@ The trace-review artifact consumes a strictly validated local trace with `messag
 ### MCP metadata profile review
 
 The MCP profile-review artifact validates an explicit local profile containing transport, HTTP resource identifier when relevant, authorization expectation, and a tool-to-manifest mapping. It rejects URI credentials, query parameters, and fragments; surfaces an HTTP profile that does not expect authorization; flags unknown manifest mappings and action-class drift; and reports a minimized mapping. It treats the profile as local metadata only and does not retrieve remote server metadata, connect to a transport, validate OAuth, process a token, or execute a tool.
+
+### Local SARIF evidence
+
+The `sarif` command converts selected policy, bundle-diff, trace, and MCP-profile review artifacts into SARIF 2.1.0. It uses stable sorting and a SHA-256-derived partial fingerprint for each finding, recording the local review-artifact path as the finding location. It does not generate new security conclusions, upload a result, configure GitHub Code Security, or prove a runtime’s behavior. A separate, explicitly authorized integration can consume the resulting file.
 
 ## Policy semantics
 

@@ -16,6 +16,7 @@ TrustWeave is deliberately narrow: it gives reviewers visible evidence before a 
 | Review the declared human-approval boundary for high-impact paths | [`policy-check`](docs/CLI_REFERENCE.md#policy-check) | Static evidence that approval controls are declared, bound to the action context, and fail closed. |
 | Review a local trace of what was recorded | [`trace-review`](docs/TRACE_REVIEW.md) | A privacy-preserving comparison between trace metadata, declared flows, and policy decisions. |
 | Review an MCP integration’s declared metadata before connection | [`mcp-profile-check`](docs/MCP_PROFILE.md) | A static mapping and authorization-expectation review with no server discovery or token handling. |
+| Export review findings for a compatible static-analysis consumer | [`sarif`](docs/CLI_REFERENCE.md#sarif) | A deterministic local SARIF 2.1.0 artifact; no automatic upload occurs. |
 | Understand limits, artifact meanings, and release checks | [`docs/QUALITY.md`](docs/QUALITY.md) | The exact local and hosted evidence required for a release. |
 
 ## Safety boundary
@@ -118,7 +119,19 @@ The candidate adds a synthetic external archive capability. Its untrusted-input 
 
 To review a **capability change on an existing sensitive tool**, scan `examples/support-agent.capability-growth.manifest.json` as the head bundle and diff it against the baseline. The generated diff inventories `customer-record.export` as an added capability and emits `TW-DIFF-003`, a least-privilege review signal. The candidate is declarative and synthetic: it does not export a record or enable a runtime action.
 
-### 4. Review declared MCP metadata without connecting
+### 4. Export local review evidence as SARIF
+
+After generating one or more review artifacts, export their existing findings as deterministic SARIF 2.1.0 data:
+
+```bash
+trustweave sarif \
+  --policy-review artifacts/policy-review.json \
+  --output artifacts/trustweave.sarif
+```
+
+The command is a local format conversion only. It preserves review identifiers, messages, and artifact locations, creates stable result fingerprints, and does **not** upload to GitHub, enable code scanning, connect to a service, or make a runtime-security claim. See the [SARIF CLI contract](docs/CLI_REFERENCE.md#sarif).
+
+### 5. Review declared MCP metadata without connecting
 
 ```bash
 trustweave mcp-profile-check \

@@ -21,6 +21,7 @@ from trustweave.report import (
     render_report,
     render_trace_review_report,
 )
+from trustweave.sarif import build_sarif
 from trustweave.scenarios import parse_scenarios, run_scenarios
 from trustweave.trace_review import review_trace
 
@@ -36,6 +37,7 @@ TRACE_REVIEW_FILE = "trace-review.json"
 TRACE_REVIEW_REPORT_FILE = "trace-review.md"
 MCP_PROFILE_REVIEW_FILE = "mcp-profile-review.json"
 MCP_PROFILE_REVIEW_REPORT_FILE = "mcp-profile-review.md"
+SARIF_FILE = "trustweave.sarif"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -160,6 +162,21 @@ def _parser() -> argparse.ArgumentParser:
         help="Return status 1 when the profile produces any review finding.",
     )
 
+    sarif = subcommands.add_parser(
+        "sarif",
+        help="Export existing local review artifacts as deterministic SARIF 2.1.0 evidence.",
+    )
+    sarif.add_argument("--policy-review", type=Path, help="Policy-review JSON artifact.")
+    sarif.add_argument("--diff", type=Path, help="Bundle-diff JSON artifact.")
+    sarif.add_argument("--trace-review", type=Path, help="Trace-review JSON artifact.")
+    sarif.add_argument("--mcp-profile-review", type=Path, help="MCP-profile-review JSON artifact.")
+    sarif.add_argument(
+        "--output",
+        type=Path,
+        default=Path("artifacts") / SARIF_FILE,
+        help="Local SARIF output path.",
+    )
+
     return parser
 
 
@@ -235,6 +252,28 @@ def _trace_review(
     return f"Wrote trace review: {json_path} and {markdown_path}", code
 
 
+def _sarif(
+    policy_review_path: Path | None,
+    diff_path: Path | None,
+    trace_review_path: Path | None,
+    mcp_profile_review_path: Path | None,
+    output_path: Path,
+) -> str:
+    selected_paths = {
+        "policy": policy_review_path,
+        "diff": diff_path,
+        "trace": trace_review_path,
+        "mcp": mcp_profile_review_path,
+    }
+    reviews = {
+        kind: (path.as_posix(), read_json(path))
+        for kind, path in selected_paths.items()
+        if path is not None
+    }
+    path = write_json(output_path, build_sarif(reviews))
+    return f"Wrote local SARIF evidence: {path}"
+
+
 def _mcp_profile_check(
     manifest_path: Path, profile_path: Path, output_dir: Path, exit_on_review: bool
 ) -> tuple[str, int]:
@@ -289,6 +328,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(message)
             return code
+        if args.command == "sarif":
+            print(
+                _sarif(
+                    args.policy_review,
+                    args.diff,
+                    args.trace_review,
+                    args.mcp_profile_review,
+                    args.output,
+                )
+            )
+            return 0
         if args.command == "mcp-profile-check":
             message, code = _mcp_profile_check(
                 args.manifest,

@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] {scan,test,attest,report,verify,diff,policy-check,trace-review} ...
+trustweave [-h] {scan,test,attest,report,verify,diff,policy-check,trace-review,mcp-profile-check,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -11,7 +11,7 @@ All commands operate on local files. They do not execute an agent, tool configur
 | Exit code | Meaning |
 |---:|---|
 | `0` | The command completed and no explicit review gate requested failure. |
-| `1` | A deterministic regression failed, an attestation did not verify, or `trace-review --exit-on-review` found at least one review finding. |
+| `1` | A deterministic regression failed, an attestation did not verify, or an explicit `--exit-on-review` gate found at least one review finding. |
 | `2` | A supplied local document failed TrustWeave validation. |
 
 ## `scan`
@@ -137,6 +137,36 @@ When an existing `sensitive` or `external` tool gains one or more declared capab
 | `bundle-diff.json` | Structured source, tool, capability, path, decision, signal, summary, and limit inventory. |
 | `bundle-diff.md` | Human-readable candidate-change report with a capability-addition/removal table. |
 
+## `sarif`
+
+```bash
+trustweave sarif \
+  [--policy-review PATH] \
+  [--diff PATH] \
+  [--trace-review PATH] \
+  [--mcp-profile-review PATH] \
+  [--output PATH]
+```
+
+`sarif` converts one or more already-generated local review artifacts into a deterministic **SARIF 2.1.0** JSON file. It accepts the structured artifacts from `policy-check`, `diff`, `trace-review`, and `mcp-profile-check`; it never reads a manifest, connects to a server, executes a tool, or uploads the output. SARIF is an OASIS standard for static-analysis result interchange, so the file can be retained as CI evidence or supplied to a separately authorized compatible consumer.[1]
+
+| Input | Required | Description |
+|---|---:|---|
+| `--policy-review` | One or more review inputs required | `policy-review.json` using `trustweave.dev/policy-review/v1alpha1`. |
+| `--diff` | One or more review inputs required | `bundle-diff.json` using `trustweave.dev/bundle-diff/v1alpha1`. |
+| `--trace-review` | One or more review inputs required | `trace-review.json` using `trustweave.dev/trace-review/v1alpha1`. |
+| `--mcp-profile-review` | One or more review inputs required | `mcp-profile-review.json` using `trustweave.dev/mcp-profile-review/v1alpha1`. |
+| `--output` | No | Local output path; defaults to `artifacts/trustweave.sarif`. |
+
+| Output field | TrustWeave behavior |
+|---|---|
+| `runs[].tool.driver.rules` | A stable sorted inventory of emitted TrustWeave review identifiers. |
+| `runs[].results` | Findings mapped to SARIF `warning`, `error`, or `note` levels; ordinary `review` findings become `warning`. |
+| `locations` | The supplied local artifact path is recorded as the result location. |
+| `partialFingerprints` | A deterministic SHA-256 fingerprint derived from review kind, identifier, message, and artifact path. |
+
+The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
+
 ## `trace-review`
 
 ```bash
@@ -168,6 +198,10 @@ The detailed input and privacy contract is in [Trace Review](TRACE_REVIEW.md).
 ## Validation behavior
 
 TrustWeave is intentionally strict. It rejects an unsupported schema version, missing required list, blank identifier, duplicate named declaration, unsupported trust label/action class/decision, unknown manifest reference, conflicting trace tool names, or malformed local object. Correct the input rather than bypassing validation.
+
+## References
+
+[1]: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html "OASIS Static Analysis Results Interchange Format (SARIF) 2.1.0"
 
 ## CI patterns
 

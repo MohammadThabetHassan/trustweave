@@ -96,6 +96,12 @@ jobs:
           test "$mcp_review_exit" -eq 1
           grep -q 'TW-MCP-001' artifacts/mcp-review/mcp-profile-review.json
           ! grep -q 'token=' artifacts/mcp-review/mcp-profile-review.md
+          trustweave sarif --policy-review artifacts/policy-review-required/policy-review.json --diff artifacts/review/capability-diff/bundle-diff.json --trace-review artifacts/trace-review/trace-review.json --mcp-profile-review artifacts/mcp-review/mcp-profile-review.json --output artifacts/trustweave.sarif
+          grep -q '"version": "2.1.0"' artifacts/trustweave.sarif
+          grep -q 'TW-POL-004' artifacts/trustweave.sarif
+          grep -q 'TW-DIFF-003' artifacts/trustweave.sarif
+          grep -q 'TW-TRACE-004' artifacts/trustweave.sarif
+          grep -q 'TW-MCP-001' artifacts/trustweave.sarif
 
       - name: Upload generated evidence
         uses: actions/upload-artifact@v4

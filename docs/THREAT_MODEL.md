@@ -31,6 +31,7 @@ TrustWeave is a **declarative architecture-review and synthetic-regression tool*
 | A local trace records an undeclared source, tool, flow, denied call, or approval-required call | The trace-review command produces a structured review finding and can return a review-gate exit code. | It cannot establish trace authenticity, completeness, actor identity, or incident cause. |
 | Trace evidence contains sensitive message content or tool arguments | Trace-review outputs retain only counts, declared names, action classes, decisions, and finding identifiers. | The trace source itself may still require separate data-governance controls. |
 | MCP metadata drifts from manifest tool declarations or action classes | The MCP profile-review command flags unknown mappings and action-class mismatch before a connection is made. | It cannot discover an undeclared server capability or prove runtime enforcement. |
+| Review findings need to enter a compatible static-analysis evidence workflow | The SARIF command emits a deterministic local conversion with identifiers, locations, and stable fingerprints. | It does not upload a finding, enable code scanning, prove consumer compatibility, or create a runtime control. |
 | An HTTP MCP profile omits an authorization expectation | The profile review emits a review finding and requires an explicit decision before a CI gate can pass. | It does not validate OAuth, token audience, consent, or a real server policy. |
 | A generated evidence document is manually edited | The verifier detects a mismatch in the attestation’s internal hash chain. | It cannot prove the original operator or protect unsigned files from replacement. |
 
@@ -67,6 +68,7 @@ TrustWeave does **not** assume manifests from third parties are safe to execute.
 | Bundle diff | Makes declared source, tool, path, matching-rule, and decision changes visible before a merge. |
 | Offline trace review | Compares minimized local trace metadata with declared flows and deterministic policy while excluding message contents and tool arguments from reports. |
 | MCP profile review | Compares local transport, authorization expectation, and tool mappings with the manifest without server discovery, transport access, or token handling. |
+| Local SARIF export | Converts existing review findings into a portable static-analysis artifact without a network operation or new security conclusion. |
 
 ## Reporting a weakness
 

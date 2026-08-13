@@ -20,6 +20,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - A deterministic repository reality checker that validates local Markdown links, JSON schemas, workflow YAML, and documented CLI commands; hosted CI now gates on it.
 - An optional `approval_control` policy declaration and `TW-POL-004` through `TW-POL-006` static review signals for missing approval documentation, incomplete action-context binding, and fail-open approval intent on sensitive/external approval-required paths.
 - `trustweave policy-check --exit-on-review`, clear and deliberately review-required approval-policy fixtures, and hosted CI coverage for deterministic approval-boundary evidence.
+- `trustweave sarif`, which deterministically converts selected existing policy, bundle-diff, trace, and MCP-profile review artifacts into a local SARIF 2.1.0 file with stable ordering and partial fingerprints.
+- SARIF unit coverage, CLI validation, repository-reality coverage, and hosted CI assertions for policy, diff, trace, and MCP review signals in the generated local evidence file.
 - Strict manifest, policy, and scenario validation with explicit trust labels, action classes, and fail-closed behavior.
 - A fully synthetic customer-support-agent example with deterministic allow, deny, and approval-required paths.
 - Unit and end-to-end tests for validation, policy decisions, scenario results, evidence verification, source/tool/capability bundle diffs, static policy review, offline trace review, static MCP profile review, privacy omission, review-gate behavior, and the complete CLI workflow.
@@ -31,6 +33,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - The v0.1 core does not execute MCP configurations, agent tools, external commands from manifests, network requests, or model calls.
 - The v0.1 attestation is locally hash-linked only; it is not a signed or transparency-log-backed attestation.
 - Approval-control declarations are design-time evidence only; TrustWeave does not implement approval queues, authenticate approvers, or verify approval records at runtime.
+- SARIF export is a local format conversion only; TrustWeave does not upload results, enable GitHub Code Security, or assert compatibility with a particular hosted code-scanning configuration.
 
 ### Known limitations
 
