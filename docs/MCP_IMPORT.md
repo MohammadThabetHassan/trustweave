@@ -24,6 +24,16 @@ The importer expects a top-level `tools` list. Every tool needs a unique nonblan
 
 MCP describes tools using a name, description, input schema, and optional annotations.[1] It also states that clients must consider annotations untrusted unless they come from trusted servers.[1] TrustWeave therefore preserves selected hints for reviewer visibility but never uses them to infer an `action_class`, grant authorization, or override the declared Agent Security Manifest and policy.
 
+## Reviewer-required manifest scaffold
+
+After creating an inventory, generate a non-authorizing draft:
+
+```bash
+trustweave mcp-scaffold --inventory artifacts/mcp-inventory/mcp-tool-inventory.json --output-dir artifacts
+```
+
+The command writes `mcp-manifest-scaffold.json`. Its `manifest_draft` is deliberately **not** a valid Agent Security Manifest: every imported tool is marked `REVIEW_REQUIRED`, and sources and flows are empty. A reviewer must set action classes, capabilities, sources, flows, and deterministic policy before running a normal TrustWeave scan. The scaffold makes no server connection and never infers authorization from names, schemas, descriptions, or annotations.
+
 ## Output contract
 
 | Field | Meaning |
