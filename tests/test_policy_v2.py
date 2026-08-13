@@ -62,6 +62,7 @@ def test_policy_v2_matches_all_bounded_dimensions() -> None:
         ("inbox", "send_email", "internal", ("email.send",), "outbound"),
         ("inbox", "send_email", "confidential", ("email.read",), "outbound"),
         ("inbox", "send_email", "confidential", ("email.send",), "other"),
+        ("inbox", "send_email", "undeclared", ("email.send",), "outbound"),
     ):
         assert decision_for_scenario(
             policy,
@@ -174,7 +175,60 @@ def test_why_command_emits_a_local_machine_readable_rule_trace(
     explanation = json.loads(capsys.readouterr().out)
     assert explanation["decision"] == "deny"
     assert explanation["rule_id"] == "TW-V2-001"
-    assert explanation["checked_rules"] == [{"id": "TW-V2-001", "matched": True}]
+    assert explanation["checked_rules"] == [
+        {
+            "id": "TW-V2-001",
+            "matched": True,
+            "checks": {
+                "source_trust": {
+                    "matched": True,
+                    "actual": "untrusted",
+                    "expected_any_of": ["untrusted"],
+                },
+                "tool_action_class": {
+                    "matched": True,
+                    "actual": "external",
+                    "expected_any_of": ["external"],
+                },
+                "source_data_classification": {
+                    "matched": True,
+                    "actual": "confidential",
+                    "expected_any_of": [],
+                },
+                "source_identifier": {
+                    "matched": True,
+                    "actual": "inbox",
+                    "expected_any_of": ["inbox"],
+                },
+                "tool_identifier": {
+                    "matched": True,
+                    "actual": "send_email",
+                    "expected_any_of": ["send_email"],
+                },
+                "purpose_tags": {
+                    "matched": True,
+                    "actual": ["outbound"],
+                    "expected_any_of": ["outbound"],
+                },
+                "source_data_classification_bounds": {
+                    "matched": True,
+                    "actual": "confidential",
+                    "at_least": "confidential",
+                    "at_most": None,
+                },
+                "required_controls": {
+                    "matched": True,
+                    "actual": ["approval", "approval.fail_closed"],
+                    "expected_all_of": ["approval.fail_closed"],
+                },
+                "tool_capabilities": {
+                    "matched": True,
+                    "actual": ["email.send"],
+                    "expected_any_of": ["email.send"],
+                },
+            },
+        }
+    ]
 
 
 def test_policy_v2_identifier_constraint_does_not_false_shadow_broader_rule() -> None:

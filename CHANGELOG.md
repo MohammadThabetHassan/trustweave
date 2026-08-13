@@ -7,6 +7,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 ### Changed
 
 - Made flow `purpose_tags` an additive, validated manifest attribute and aligned policy-v2 matching to these machine-readable identifiers rather than the human-readable `purpose` prose, while preserving v1alpha1 manifests without tags.
+- Expanded `trustweave why` with deterministic per-dimension local match evidence for every evaluated policy rule, including unbounded dimensions and declared-control checks.
 - Restored the owner-enabled SHA-pinned GitHub dependency-review action for pull-request dependency changes while retaining the independent `pip-audit` audit.
 - Added a versioned bounded `trustweave.dev/policy/v1alpha2` contract with optional declared source/tool identifiers, purpose tags, classification bounds, and required declared controls, plus machine-readable `trustweave why` explanations.
 - Added `trustweave chain-check` for bounded static review of explicitly supplied chain graphs and local chain-review integration with risk normalization and SARIF conversion. It reports declarations only and does not infer runtime paths.
