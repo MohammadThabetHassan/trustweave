@@ -6,7 +6,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Documentation
 
-- Rebuilt the README around a verified installation path, first successful local review, workflow selection, artifact meanings, safety boundaries, documentation map, and public contribution routes.
+- Rebuilt the README as a concise developer landing page with a verified installation path, first successful local review, artifact meanings, safety boundaries, documentation map, public contribution routes, and a source-controlled product mark.
+- Moved advanced workflow detail behind task-focused documentation links so the landing page remains skimmable without reducing the published command and safety contract.
 - Refreshed the product contract, roadmap, release guide, security policy, governance guide, contribution guide, and TestPyPI validation guide to distinguish completed `0.1.1` release evidence from deliberate future scope.
 - Added `SUPPORT.md` to route installation questions, safe bug reports, bounded feature proposals, and private vulnerability reports without promising unstaffed services.
 

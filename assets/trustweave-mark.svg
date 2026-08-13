@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">TrustWeave product mark</title>
+  <desc id="desc">An abstract shield formed from interwoven evidence paths and three review nodes.</desc>
+  <rect x="12" y="12" width="232" height="232" rx="56" fill="#0B1220"/>
+  <path d="M128 36 204 76v50c0 47-31 77-76 95-45-18-76-48-76-95V76l76-40Z" fill="#101C35" stroke="#284267" stroke-width="4"/>
+  <path d="M69 91c27-13 58-8 84 17 18 17 35 24 56 23" fill="none" stroke="#38BDF8" stroke-linecap="round" stroke-width="16"/>
+  <path d="M71 159c24 11 52 8 76-10 22-17 39-33 61-29" fill="none" stroke="#4F46E5" stroke-linecap="round" stroke-width="16"/>
+  <path d="M91 65c6 30 22 53 47 70 20 13 31 32 31 57" fill="none" stroke="#22D3EE" stroke-linecap="round" stroke-width="16"/>
+  <g fill="#0B1220" stroke="#E0F2FE" stroke-width="6">
+    <circle cx="70" cy="91" r="11"/>
+    <circle cx="208" cy="120" r="11"/>
+    <circle cx="169" cy="192" r="11"/>
+  </g>
+</svg>
