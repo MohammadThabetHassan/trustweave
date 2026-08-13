@@ -26,6 +26,7 @@ from trustweave.report import (
     render_report,
     render_trace_review_report,
 )
+from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import explain_scenario, parse_scenarios, run_scenarios
 from trustweave.statement import build_unsigned_statement
@@ -48,6 +49,7 @@ MCP_MANIFEST_SCAFFOLD_FILE = "mcp-manifest-scaffold.json"
 FRAMEWORK_INVENTORY_FILE = "framework-inventory.json"
 SARIF_FILE = "trustweave.sarif"
 UNSIGNED_STATEMENT_FILE = "unsigned-statement.json"
+RISK_REVIEW_FILE = "risk-review.json"
 
 EXIT_SUCCESS = 0
 EXIT_REVIEW = 1
@@ -245,6 +247,36 @@ def _parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
 
+    risk_check = subcommands.add_parser(
+        "risk-check",
+        help="Evaluate local review findings against expiry-enforced baselines and suppressions.",
+    )
+    risk_check.add_argument(
+        "--input",
+        type=Path,
+        action="append",
+        required=True,
+        help="Local review artifact JSON; repeat for multiple artifacts.",
+    )
+    risk_check.add_argument(
+        "--baseline", type=Path, help="Optional local risk-baseline JSON or YAML."
+    )
+    risk_check.add_argument(
+        "--suppressions", type=Path, help="Optional local risk-suppressions JSON or YAML."
+    )
+    risk_check.add_argument(
+        "--output",
+        type=Path,
+        default=Path("artifacts") / RISK_REVIEW_FILE,
+        help="Local risk-review JSON output path.",
+    )
+    risk_check.add_argument(
+        "--fail-on",
+        choices=[*VALID_SEVERITIES, "none"],
+        default="high",
+        help="Return status 1 for active findings at or above this severity; defaults to high.",
+    )
+
     sarif = subcommands.add_parser(
         "sarif",
         help="Export existing local review artifacts as deterministic SARIF 2.1.0 evidence.",
@@ -353,6 +385,25 @@ def _statement(attestation_path: Path, output_dir: Path) -> str:
         output_dir / UNSIGNED_STATEMENT_FILE, build_unsigned_statement(read_json(attestation_path))
     )
     return f"Wrote unsigned local statement: {path}"
+
+
+def _risk_check(
+    artifact_paths: Sequence[Path],
+    baseline_path: Path | None,
+    suppressions_path: Path | None,
+    output_path: Path,
+    fail_on: str,
+    generated_at: str,
+) -> tuple[str, int]:
+    review = review_risks(
+        [read_json(path) for path in artifact_paths],
+        baseline_document=load_document(baseline_path) if baseline_path else None,
+        suppressions_document=load_document(suppressions_path) if suppressions_path else None,
+        reviewed_at=generated_at,
+    )
+    path = write_json(output_path, review)
+    code = EXIT_REVIEW if should_fail(review, fail_on) else EXIT_SUCCESS
+    return f"Wrote local risk review: {path}", code
 
 
 def _sarif(
@@ -499,6 +550,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "statement":
             print(_statement(args.attestation, args.output_dir))
             return EXIT_SUCCESS
+        if args.command == "risk-check":
+            message, code = _risk_check(
+                args.input,
+                args.baseline,
+                args.suppressions,
+                args.output,
+                args.fail_on,
+                generation_timestamp(args.generated_at),
+            )
+            print(message)
+            return code
         if args.command == "sarif":
             print(
                 _sarif(

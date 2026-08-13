@@ -47,6 +47,7 @@ flowchart LR
 | `engine.py` | Builds a bundle and applies first-match deterministic rules to every declared flow. | Never calls a model, tool, subprocess, or network service. |
 | `scenarios.py` | Runs safe scenario assertions and renders cited local scenario explanations. | Does not execute a payload, prompt, model, tool, or configured server. |
 | `evidence.py` | Hash-links canonical stable evidence payloads and records exact local-file hashes in an unsigned attestation. | States explicit limits; no claim of external signing or non-repudiation. |
+| `risk.py` | Normalizes supplied local review findings, produces stable fingerprints, and applies expiry-enforced baselines and suppressions. | Does not remediate findings, contact ticketing systems, authenticate an approver, or inspect runtime behavior. |
 | `policy_review.py` | Reviews ordered-rule shadowing and decisions that require human scrutiny. | Does not decide authorization or run a policy in a deployed runtime. |
 | `diff.py` | Compares two generated bundles for declared source, tool, path, and decision changes. | Does not discover behavior, execute tools, or issue a security verdict. |
 | `trace_review.py` | Compares local trace tool-call metadata with declared sources, tools, flows, and deterministic policy. | Does not execute a target, inspect message text/tool arguments, or treat a trace as an instruction. |
@@ -133,3 +134,4 @@ The following capabilities are intentionally represented as adapters or future w
 8. **Least privilege is reviewable:** added/removed declared capabilities are preserved in bundle-diff evidence, while a capability-growth signal on sensitive/external tools still requires human authorization review.
 9. **Trace minimization:** trace evidence is metadata, not executable input; reports exclude message content and tool arguments.
 10. **MCP metadata is declarative:** a profile is never a connection instruction, credential source, or protocol-conformance claim.
+11. **Risk decisions expire:** a baseline or suppression is explicit, local, reasoned, and time-bounded; expiry returns the finding to active reviewer attention.
