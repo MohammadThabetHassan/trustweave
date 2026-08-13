@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] [--generated-at ISO_8601] [--debug] {scan,test,explain,why,attest,report,verify,diff,chain-check,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,risk-check,sarif} ...
+trustweave [-h] [--generated-at ISO_8601] [--debug] {init,config,schema,scan,test,explain,why,attest,report,verify,diff,chain-check,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,baseline,suppressions,risk-check,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -183,6 +183,16 @@ When an existing `sensitive` or `external` tool gains one or more declared capab
 |---|---|
 | `bundle-diff.json` | Structured source, tool, capability, path, decision, signal, summary, and limit inventory. |
 | `bundle-diff.md` | Human-readable candidate-change report with a capability-addition/removal table. |
+
+## `baseline` and `suppressions`
+
+```bash
+trustweave baseline create --review RISK_REVIEW --reason TEXT --expires-at ISO_8601 --output PATH
+trustweave baseline validate --input PATH
+trustweave suppressions validate --input PATH
+```
+
+`baseline create` creates a local expiry-enforced baseline draft from active findings in an already-supplied risk review. A human supplies both the reason and expiry. The validation commands check document structure only. None of these commands authenticates a reviewer, waives a security condition, contacts a ticketing system, remediates a finding, or enforces a deployed control.
 
 ## `risk-check`
 

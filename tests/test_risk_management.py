@@ -144,6 +144,65 @@ def test_risk_contract_rejects_missing_reason_duplicate_or_invalid_expiry(
         )
 
 
+def test_baseline_create_and_decision_validation_commands_are_explicit_and_local(
+    tmp_path: Path,
+) -> None:
+    review_path = tmp_path / "risk-review.json"
+    review_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/risk-review/v1alpha1",
+                "findings": [
+                    {
+                        "fingerprint": "a" * 64,
+                        "risk_state": "new",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    baseline_path = tmp_path / "baseline.json"
+    assert (
+        main(
+            [
+                "baseline",
+                "create",
+                "--review",
+                str(review_path),
+                "--reason",
+                "Explicit local reviewer decision.",
+                "--expires-at",
+                "2026-09-01T00:00:00+00:00",
+                "--output",
+                str(baseline_path),
+            ]
+        )
+        == EXIT_SUCCESS
+    )
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    assert baseline["baseline"] == [
+        {
+            "fingerprint": "a" * 64,
+            "reason": "Explicit local reviewer decision.",
+            "expires_at": "2026-09-01T00:00:00+00:00",
+        }
+    ]
+    assert main(["baseline", "validate", "--input", str(baseline_path)]) == EXIT_SUCCESS
+
+    suppressions_path = tmp_path / "suppressions.json"
+    suppressions_path.write_text(
+        json.dumps(
+            {
+                "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+                "suppressions": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert main(["suppressions", "validate", "--input", str(suppressions_path)]) == EXIT_SUCCESS
+
+
 def test_risk_check_cli_writes_review_and_applies_fail_on(tmp_path: Path) -> None:
     artifact_path = tmp_path / "policy-review.json"
     artifact_path.write_text(

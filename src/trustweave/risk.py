@@ -345,6 +345,56 @@ def review_risks(
     return add_generated_at(review, reviewed_at)
 
 
+def validate_decision_document(document: Mapping[str, Any], decision_kind: str) -> None:
+    """Validate one local baseline or suppression document without changing or accepting it."""
+
+    if decision_kind == "baseline":
+        _expiry_entries(document, RISK_BASELINE_SCHEMA_VERSION, "baseline")
+        return
+    if decision_kind == "suppressions":
+        _expiry_entries(document, RISK_SUPPRESSIONS_SCHEMA_VERSION, "suppressions")
+        return
+    raise ValidationError("decision_kind must be baseline or suppressions")
+
+
+def create_baseline(review: Mapping[str, Any], reason: str, expires_at: str) -> dict[str, Any]:
+    """Create an explicit expiry-enforced baseline draft from active supplied risk findings."""
+
+    if review.get("schema_version") != RISK_REVIEW_SCHEMA_VERSION:
+        raise ValidationError(f"risk_review.schema_version must be {RISK_REVIEW_SCHEMA_VERSION}")
+    normalized_reason = _text(reason, "baseline.reason")
+    normalized_expiry = _timestamp(expires_at, "baseline.expires_at").isoformat()
+    entries: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for index, raw_finding in enumerate(_sequence(review.get("findings"), "risk_review.findings")):
+        finding = _mapping(raw_finding, f"risk_review.findings[{index}]")
+        state = _text(finding.get("risk_state"), f"risk_review.findings[{index}].risk_state")
+        if state not in {"new", "expired_baseline", "expired_suppression"}:
+            continue
+        fingerprint = _text(
+            finding.get("fingerprint"), f"risk_review.findings[{index}].fingerprint"
+        )
+        if len(fingerprint) != 64 or any(
+            character not in "0123456789abcdef" for character in fingerprint
+        ):
+            raise ValidationError(
+                f"risk_review.findings[{index}].fingerprint must be a SHA-256 hex digest"
+            )
+        if fingerprint not in seen:
+            entries.append(
+                {
+                    "fingerprint": fingerprint,
+                    "reason": normalized_reason,
+                    "expires_at": normalized_expiry,
+                }
+            )
+            seen.add(fingerprint)
+    return {
+        "schema_version": RISK_BASELINE_SCHEMA_VERSION,
+        "baseline": sorted(entries, key=lambda entry: entry["fingerprint"]),
+    }
+
+
 def should_fail(review: Mapping[str, Any], fail_on: str) -> bool:
     """Return whether active findings meet the configured deterministic severity gate."""
 

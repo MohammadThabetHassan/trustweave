@@ -6,6 +6,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Added explicit local `trustweave baseline create`, `baseline validate`, and `suppressions validate` lifecycle commands. Baseline creation requires a reviewer-provided reason and expiry and never claims remediation or authorization.
 - Added strict read-only `trustweave config validate` and `config show` commands plus explicit or bounded auto-discovered `trustweave.toml` path resolution for `scan`, `test`, and `policy-check`.
 - Added opt-in `trustweave policy-check --coverage` diagnostics for first-match reachability, contradictory shadowed decisions, and impossible declared control requirements, with the same local deterministic policy boundary.
 - Made declared-chain analysis stateful for propagated sensitive classifications and fail-closed approval state, and added explicit edge, depth, and state budgets to prevent unbounded local review work.

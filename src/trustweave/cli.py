@@ -36,7 +36,13 @@ from trustweave.report import (
     render_risk_review_report,
     render_trace_review_report,
 )
-from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
+from trustweave.risk import (
+    VALID_SEVERITIES,
+    create_baseline,
+    review_risks,
+    should_fail,
+    validate_decision_document,
+)
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import explain_scenario, parse_scenarios, run_scenarios
 from trustweave.schema_catalog import list_schema_names, read_schema
@@ -330,6 +336,41 @@ def _parser() -> argparse.ArgumentParser:
     )
     statement.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+
+    baseline = subcommands.add_parser(
+        "baseline", help="Create or validate explicit local risk-baseline decisions."
+    )
+    baseline_commands = baseline.add_subparsers(dest="baseline_command", required=True)
+    baseline_create = baseline_commands.add_parser(
+        "create", help="Create an explicit baseline draft from active local risk-review findings."
+    )
+    baseline_create.add_argument(
+        "--review", type=Path, required=True, help="Local risk-review JSON."
+    )
+    baseline_create.add_argument(
+        "--reason", required=True, help="Explicit reviewer decision reason."
+    )
+    baseline_create.add_argument("--expires-at", required=True, help="ISO 8601 expiry timestamp.")
+    baseline_create.add_argument(
+        "--output", type=Path, required=True, help="Baseline JSON output path."
+    )
+    baseline_validate = baseline_commands.add_parser(
+        "validate", help="Validate one local risk-baseline JSON or safe YAML document."
+    )
+    baseline_validate.add_argument(
+        "--input", type=Path, required=True, help="Local baseline document."
+    )
+
+    suppressions = subcommands.add_parser(
+        "suppressions", help="Validate explicit local risk-suppression decisions."
+    )
+    suppressions_commands = suppressions.add_subparsers(dest="suppressions_command", required=True)
+    suppressions_validate = suppressions_commands.add_parser(
+        "validate", help="Validate one local risk-suppressions JSON or safe YAML document."
+    )
+    suppressions_validate.add_argument(
+        "--input", type=Path, required=True, help="Local suppressions document."
     )
 
     risk_check = subcommands.add_parser(
@@ -632,6 +673,20 @@ def _statement(attestation_path: Path, output_dir: Path) -> str:
     return f"Wrote unsigned local statement: {path}"
 
 
+def _baseline_create(review_path: Path, reason: str, expires_at: str, output_path: Path) -> str:
+    """Write a reviewer-supplied local baseline draft for active review findings."""
+
+    baseline = create_baseline(read_json(review_path), reason, expires_at)
+    return f"Wrote local risk baseline: {write_json(output_path, baseline)}"
+
+
+def _validate_decisions(path: Path, decision_kind: str) -> str:
+    """Validate one supplied local decision document without changing it."""
+
+    validate_decision_document(load_document(path), decision_kind)
+    return f"Validated local risk {decision_kind}: {path}"
+
+
 def _risk_check(
     artifact_paths: Sequence[Path],
     baseline_path: Path | None,
@@ -853,6 +908,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             return code
         if args.command == "statement":
             print(_statement(args.attestation, args.output_dir))
+            return EXIT_SUCCESS
+        if args.command == "baseline":
+            if args.baseline_command == "create":
+                print(_baseline_create(args.review, args.reason, args.expires_at, args.output))
+            else:
+                print(_validate_decisions(args.input, "baseline"))
+            return EXIT_SUCCESS
+        if args.command == "suppressions":
+            print(_validate_decisions(args.input, "suppressions"))
             return EXIT_SUCCESS
         if args.command == "risk-check":
             message, code = _risk_check(
