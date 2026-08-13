@@ -104,3 +104,42 @@ def test_cli_diff_writes_json_and_markdown_artifacts(tmp_path: Path) -> None:
     )
     assert (tmp_path / "bundle-diff.json").is_file()
     assert (tmp_path / "bundle-diff.md").is_file()
+
+
+def test_bundle_diff_inventories_sensitive_capability_growth() -> None:
+    base_manifest_document = _copy_document(MANIFEST)
+    head_manifest_document = _copy_document(MANIFEST)
+    tools = head_manifest_document["tools"]
+    assert isinstance(tools, list)
+    for tool in tools:
+        assert isinstance(tool, dict)
+        if tool["name"] == "lookup_customer_record":
+            capabilities = tool["capabilities"]
+            assert isinstance(capabilities, list)
+            capabilities.append("customer-record.export")
+
+    base_bundle = build_bundle(
+        parse_manifest(base_manifest_document), parse_policy(_copy_document(POLICY))
+    )
+    head_bundle = build_bundle(
+        parse_manifest(head_manifest_document), parse_policy(_copy_document(POLICY))
+    )
+
+    diff = diff_bundles(base_bundle, head_bundle)
+
+    assert diff["summary"]["tools_with_capability_changes"] == 1
+    assert diff["summary"]["added_capabilities"] == 1
+    assert diff["summary"]["removed_capabilities"] == 0
+    assert diff["changes"]["capabilities"] == [
+        {
+            "name": "lookup_customer_record",
+            "action_class": "sensitive",
+            "added": ["customer-record.export"],
+            "removed": [],
+        }
+    ]
+    signal_ids = {signal["id"] for signal in diff["signals"]}
+    assert "TW-DIFF-003" in signal_ids
+    report = render_diff_report(diff)
+    assert "## Capability changes" in report
+    assert "customer-record.export" in report

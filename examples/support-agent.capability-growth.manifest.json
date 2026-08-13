@@ -1,0 +1,67 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-customer-support-agent",
+  "description": "A safe candidate change that adds one declared export capability to a synthetic sensitive customer-record tool for least-privilege review.",
+  "sources": [
+    {
+      "name": "customer_request",
+      "trust": "trusted",
+      "data_classification": "customer-provided",
+      "description": "A direct support request from an authenticated synthetic customer."
+    },
+    {
+      "name": "knowledge_base_document",
+      "trust": "untrusted",
+      "data_classification": "public-content",
+      "description": "Retrieved knowledge-base text that may contain untrusted instructions."
+    },
+    {
+      "name": "customer_record",
+      "trust": "conditional",
+      "data_classification": "confidential",
+      "description": "A synthetic customer record returned after an authorized lookup."
+    }
+  ],
+  "tools": [
+    {
+      "name": "search_knowledge_base",
+      "action_class": "read",
+      "capabilities": ["knowledge-base.read"],
+      "description": "Reads synthetic knowledge-base articles."
+    },
+    {
+      "name": "lookup_customer_record",
+      "action_class": "sensitive",
+      "capabilities": ["customer-record.read", "customer-record.export"],
+      "description": "Reads a synthetic confidential customer record and declares a candidate export capability for review only."
+    },
+    {
+      "name": "send_mock_email",
+      "action_class": "external",
+      "capabilities": ["email.send"],
+      "description": "Writes a local mock email event only; it never sends a real message."
+    }
+  ],
+  "flows": [
+    {
+      "source": "customer_request",
+      "tool": "search_knowledge_base",
+      "purpose": "Find public support documentation relevant to a request."
+    },
+    {
+      "source": "customer_request",
+      "tool": "lookup_customer_record",
+      "purpose": "Retrieve the authenticated synthetic customer's support context."
+    },
+    {
+      "source": "customer_record",
+      "tool": "send_mock_email",
+      "purpose": "Prepare a response that requires a human approval control."
+    },
+    {
+      "source": "knowledge_base_document",
+      "tool": "send_mock_email",
+      "purpose": "Deliberately unsafe path used to demonstrate deterministic policy denial."
+    }
+  ]
+}

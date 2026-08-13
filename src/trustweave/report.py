@@ -118,6 +118,12 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
             f"{summary.get('removed_tools', 0)} | {summary.get('changed_tools', 0)} |"
         ),
         "",
+        "| Capability outcome | Count |",
+        "|---|---:|",
+        f"| Tools with capability changes | {summary.get('tools_with_capability_changes', 0)} |",
+        f"| Added capabilities | {summary.get('added_capabilities', 0)} |",
+        f"| Removed capabilities | {summary.get('removed_capabilities', 0)} |",
+        "",
         "| Path outcome | Count |",
         "|---|---:|",
         f"| Added paths | {summary.get('added_paths', 0)} |",
@@ -139,6 +145,31 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
                     severity=signal.get("severity", "unknown"),
                     identifier=signal.get("id", "unknown"),
                     message=signal.get("message", "unknown"),
+                )
+            )
+
+    capability_changes = _as_sequence(changes.get("capabilities"))
+    lines.extend(["", "## Capability changes", ""])
+    if not capability_changes:
+        lines.append("No existing declared tool changed its capability set.")
+    else:
+        lines.extend(["| Tool | Action class | Added | Removed |", "|---|---|---|---|"])
+        for raw_change in capability_changes:
+            change = _as_mapping(raw_change)
+            added = (
+                ", ".join(str(capability) for capability in _as_sequence(change.get("added")))
+                or "—"
+            )
+            removed = (
+                ", ".join(str(capability) for capability in _as_sequence(change.get("removed")))
+                or "—"
+            )
+            lines.append(
+                "| {tool} | {action_class} | {added} | {removed} |".format(
+                    tool=change.get("name", "unknown"),
+                    action_class=change.get("action_class", "unknown"),
+                    added=added,
+                    removed=removed,
                 )
             )
 
@@ -169,8 +200,9 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
             (
                 "This report is a deterministic comparison of two generated bundles. It does "
                 "not discover undeclared runtime behavior, execute a tool, or make a security "
-                "verdict. Review every signal and changed path in the context of the underlying "
-                "manifest, policy, and operational authorization boundary."
+                "verdict. Capability changes are declared metadata, not proof of runtime scope. "
+                "Review every signal and changed path in the context of the underlying manifest, "
+                "policy, and operational authorization boundary."
             ),
             "",
         ]

@@ -81,8 +81,48 @@ def _named_changes(
     }
 
 
+def _capabilities(tool: Mapping[str, Any], label: str) -> set[str]:
+    capabilities: set[str] = set()
+    for capability in _sequence(tool.get("capabilities")):
+        if not isinstance(capability, str) or not capability:
+            raise ValidationError(f"{label} must contain non-empty capability strings")
+        capabilities.add(capability)
+    return capabilities
+
+
+def _capability_changes(
+    tool_changes: Mapping[str, Sequence[Mapping[str, Any]]],
+) -> list[dict[str, Any]]:
+    changes: list[dict[str, Any]] = []
+    for item in tool_changes["changed"]:
+        name = item.get("name")
+        if not isinstance(name, str) or not name:
+            raise ValidationError("changed tool must contain a name")
+        before = _mapping(item.get("before"))
+        after = _mapping(item.get("after"))
+        added = sorted(
+            _capabilities(after, f"head tool {name}.capabilities")
+            - _capabilities(before, f"base tool {name}.capabilities")
+        )
+        removed = sorted(
+            _capabilities(before, f"base tool {name}.capabilities")
+            - _capabilities(after, f"head tool {name}.capabilities")
+        )
+        if added or removed:
+            changes.append(
+                {
+                    "name": name,
+                    "action_class": after.get("action_class", "unknown"),
+                    "added": added,
+                    "removed": removed,
+                }
+            )
+    return changes
+
+
 def _review_signals(
     tool_changes: Mapping[str, Sequence[Mapping[str, Any]]],
+    capability_changes: Sequence[Mapping[str, Any]],
     changed_findings: Sequence[Mapping[str, Any]],
 ) -> list[dict[str, str]]:
     signals: list[dict[str, str]] = []
@@ -98,6 +138,25 @@ def _review_signals(
                     "message": (
                         f"Tool {name} is newly introduced or changed with action class "
                         f"{action_class}; review its capability and policy coverage."
+                    ),
+                }
+            )
+
+    for change in capability_changes:
+        action_class = change.get("action_class")
+        added = _sequence(change.get("added"))
+        name = change.get("name", "unknown")
+        if action_class in REVIEW_ACTION_CLASSES and added:
+            capability_list = ", ".join(
+                capability for capability in added if isinstance(capability, str)
+            )
+            signals.append(
+                {
+                    "severity": "review",
+                    "id": "TW-DIFF-003",
+                    "message": (
+                        f"Tool {name} gained sensitive or external capabilities: "
+                        f"{capability_list}. Review least-privilege scope and policy coverage."
                     ),
                 }
             )
@@ -159,8 +218,9 @@ def diff_bundles(base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any])
             for key in changed_paths
         ],
     }
+    capability_changes = _capability_changes(tool_changes)
     review_relevant_findings = [head_findings[key] for key in added_paths + changed_paths]
-    signals = _review_signals(tool_changes, review_relevant_findings)
+    signals = _review_signals(tool_changes, capability_changes, review_relevant_findings)
 
     return {
         "schema_version": "trustweave.dev/bundle-diff/v1alpha1",
@@ -173,7 +233,12 @@ def diff_bundles(base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any])
             "agent": head_manifest.get("name", "unknown"),
             "bundle_generated_at": head_bundle.get("generated_at", "unknown"),
         },
-        "changes": {"sources": source_changes, "tools": tool_changes, "paths": path_changes},
+        "changes": {
+            "sources": source_changes,
+            "tools": tool_changes,
+            "capabilities": capability_changes,
+            "paths": path_changes,
+        },
         "signals": signals,
         "summary": {
             "added_sources": len(source_changes["added"]),
@@ -182,6 +247,9 @@ def diff_bundles(base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any])
             "added_tools": len(tool_changes["added"]),
             "removed_tools": len(tool_changes["removed"]),
             "changed_tools": len(tool_changes["changed"]),
+            "tools_with_capability_changes": len(capability_changes),
+            "added_capabilities": sum(len(change["added"]) for change in capability_changes),
+            "removed_capabilities": sum(len(change["removed"]) for change in capability_changes),
             "added_paths": len(path_changes["added"]),
             "removed_paths": len(path_changes["removed"]),
             "decision_changes": len(path_changes["decision_changed"]),
