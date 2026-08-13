@@ -53,9 +53,12 @@ class Flow:
     source: str
     tool: str
     purpose: str
+    purpose_tags: tuple[str, ...] = ()
 
-    def as_dict(self) -> dict[str, str]:
-        return asdict(self)
+    def as_dict(self) -> dict[str, Any]:
+        result = asdict(self)
+        result["purpose_tags"] = list(self.purpose_tags)
+        return result
 
 
 @dataclass(frozen=True)
@@ -286,7 +289,7 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
         flow = _mapping(raw_flow, f"manifest.flows[{index}]")
         reject_unknown_fields(
             flow,
-            {"source", "tool", "purpose"},
+            {"source", "tool", "purpose", "purpose_tags"},
             f"manifest.flows[{index}]",
         )
         source_name = _string(flow.get("source"), f"manifest.flows[{index}].source")
@@ -299,11 +302,19 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             raise ValidationError(
                 f"manifest.flows[{index}].tool references unknown tool {tool_name}"
             )
+        purpose_tags = tuple(
+            _string(value, f"manifest.flows[{index}].purpose_tags")
+            for value in _sequence(
+                flow.get("purpose_tags", []), f"manifest.flows[{index}].purpose_tags"
+            )
+        )
+        _unique_names(list(purpose_tags), f"manifest.flows[{index}].purpose_tags")
         flows.append(
             Flow(
                 source=source_name,
                 tool=tool_name,
                 purpose=_string(flow.get("purpose"), f"manifest.flows[{index}].purpose"),
+                purpose_tags=purpose_tags,
             )
         )
     if not flows:

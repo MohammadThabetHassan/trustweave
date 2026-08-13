@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 from trustweave.cli import main
-from trustweave.engine import decision_for_scenario
-from trustweave.models import ValidationError, parse_policy
+from trustweave.engine import decision_for_scenario, evaluate_manifest
+from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
 from trustweave.scenarios import parse_scenarios, run_scenarios
 
@@ -73,6 +73,46 @@ def test_policy_v2_matches_all_bounded_dimensions() -> None:
             tool,
             purpose,
         ) == ("allow", None)
+
+
+def test_policy_v2_manifest_purpose_tags_are_machine_readable_and_additive() -> None:
+    policy = parse_policy(_policy_document())
+    manifest = parse_manifest(
+        {
+            "schema_version": "trustweave.dev/v1alpha1",
+            "name": "purpose-tag-manifest",
+            "description": "A declared purpose remains prose while tags are identifiers.",
+            "sources": [
+                {
+                    "name": "inbox",
+                    "trust": "untrusted",
+                    "data_classification": "confidential",
+                    "description": "Declared inbox.",
+                }
+            ],
+            "tools": [
+                {
+                    "name": "send_email",
+                    "action_class": "external",
+                    "capabilities": ["email.send"],
+                    "description": "Declared email route.",
+                }
+            ],
+            "flows": [
+                {
+                    "source": "inbox",
+                    "tool": "send_email",
+                    "purpose": "Send the customer the requested account update.",
+                    "purpose_tags": ["outbound"],
+                }
+            ],
+        }
+    )
+
+    findings = evaluate_manifest(manifest, policy)
+
+    assert findings[0].decision == "deny"
+    assert manifest.as_dict()["flows"][0]["purpose_tags"] == ["outbound"]
 
 
 def test_policy_v2_scenarios_use_identifier_and_purpose_constraints() -> None:

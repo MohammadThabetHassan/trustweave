@@ -107,7 +107,9 @@ def _rule_matches(
         return False
     if rule.tool_identifiers and tool.name not in rule.tool_identifiers:
         return False
-    if rule.purpose_tags and (flow is None or flow.purpose not in rule.purpose_tags):
+    if rule.purpose_tags and (
+        flow is None or not set(rule.purpose_tags).intersection(flow.purpose_tags)
+    ):
         return False
     if not _classification_matches(rule, source, policy):
         return False
@@ -221,7 +223,7 @@ def matching_rule(
         capabilities=tool_capabilities,
         description="Synthetic policy scenario input.",
     )
-    flow = Flow(source=source.name, tool=tool.name, purpose=purpose)
+    flow = Flow(source=source.name, tool=tool.name, purpose=purpose, purpose_tags=(purpose,))
     return next(
         (rule for rule in policy.rules if _rule_matches(rule, source, tool, policy, flow)), None
     )
@@ -278,7 +280,7 @@ def explain_policy_decision(
         capabilities=tool_capabilities,
         description="Synthetic explanation input.",
     )
-    flow = Flow(source=source.name, tool=tool.name, purpose=purpose)
+    flow = Flow(source=source.name, tool=tool.name, purpose=purpose, purpose_tags=(purpose,))
     checked_rules = [
         {"id": rule.id, "matched": _rule_matches(rule, source, tool, policy, flow)}
         for rule in policy.rules
