@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/policy/v1alpha1.json",
+  "title": "TrustWeave Policy",
+  "description": "A declarative ordered policy for TrustWeave source-to-tool flows.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "name", "default_decision", "rules"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/v1alpha1"},
+    "name": {"type": "string", "minLength": 1},
+    "default_decision": {"enum": ["allow", "deny", "require_approval"]},
+    "rules": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/rule"}
+    }
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "source_trust",
+        "tool_action_classes",
+        "decision",
+        "rationale"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1},
+        "source_trust": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"enum": ["trusted", "untrusted", "conditional"]}
+        },
+        "tool_action_classes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"enum": ["read", "write", "sensitive", "external"]}
+        },
+        "decision": {"enum": ["allow", "deny", "require_approval"]},
+        "rationale": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
