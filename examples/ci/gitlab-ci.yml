@@ -1,0 +1,14 @@
+image: python:3.12-slim
+
+trustweave-local-evidence:
+  stage: test
+  script:
+    - python -m pip install .
+    - trustweave scan --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --output-dir artifacts
+    - trustweave test --policy policies/default-policy.json --scenarios scenarios/default-scenarios.json --output-dir artifacts
+    - trustweave policy-check --policy policies/default-policy.json --output-dir artifacts
+  artifacts:
+    when: always
+    paths:
+      - artifacts/
+    expire_in: 7 days

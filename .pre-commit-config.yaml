@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: trustweave-format
+        name: TrustWeave format check
+        entry: ruff format --check .
+        language: system
+        pass_filenames: false
+      - id: trustweave-lint
+        name: TrustWeave lint check
+        entry: ruff check .
+        language: system
+        pass_filenames: false
+      - id: trustweave-types
+        name: TrustWeave type check
+        entry: mypy src
+        language: system
+        pass_filenames: false
