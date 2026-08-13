@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/chain-review/v1alpha1",
+  "title": "TrustWeave Declared Chain Review v1alpha1",
+  "type": "object",
+  "required": ["schema_version", "findings", "paths", "summary", "limits"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/chain-review/v1alpha1"},
+    "findings": {"type": "array", "maxItems": 1000, "items": {"type": "object"}},
+    "paths": {"type": "array", "maxItems": 1000, "items": {"type": "object"}},
+    "summary": {"type": "object"},
+    "limits": {"type": "array", "items": {"type": "string"}},
+    "generated_at": {"type": "string"}
+  },
+  "additionalProperties": false
+}
