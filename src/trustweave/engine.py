@@ -56,12 +56,63 @@ def capability_pattern_covers(first: str, later: str) -> bool:
     return later.startswith(prefix)
 
 
-def _rule_matches(rule: PolicyRule, source: Source, tool: Tool) -> bool:
+def _classification_matches(rule: PolicyRule, source: Source, policy: Policy) -> bool:
+    """Evaluate bounded taxonomy comparisons; unknown classifications never satisfy a bound."""
+
+    if (
+        rule.source_data_classification_at_least is None
+        and rule.source_data_classification_at_most is None
+    ):
+        return True
+    if source.data_classification not in policy.classification_taxonomy:
+        return False
+    rank = policy.classification_taxonomy.index(source.data_classification)
+    if (
+        rule.source_data_classification_at_least is not None
+        and rank < policy.classification_taxonomy.index(rule.source_data_classification_at_least)
+    ):
+        return False
+    return (
+        rule.source_data_classification_at_most is None
+        or rank <= policy.classification_taxonomy.index(rule.source_data_classification_at_most)
+    )
+
+
+def _declared_controls(policy: Policy) -> frozenset[str]:
+    """Expose only design-time control declarations, never runtime enforcement state."""
+
+    controls: set[str] = set()
+    if policy.approval_control is not None:
+        controls.add("approval")
+        if policy.approval_control.fail_closed:
+            controls.add("approval.fail_closed")
+    return frozenset(controls)
+
+
+def _rule_matches(
+    rule: PolicyRule,
+    source: Source,
+    tool: Tool,
+    policy: Policy,
+    flow: Flow | None = None,
+) -> bool:
     if source.trust not in rule.source_trust or tool.action_class not in rule.tool_action_classes:
         return False
     if (
         rule.source_data_classifications
         and source.data_classification not in rule.source_data_classifications
+    ):
+        return False
+    if rule.source_identifiers and source.name not in rule.source_identifiers:
+        return False
+    if rule.tool_identifiers and tool.name not in rule.tool_identifiers:
+        return False
+    if rule.purpose_tags and (flow is None or flow.purpose not in rule.purpose_tags):
+        return False
+    if not _classification_matches(rule, source, policy):
+        return False
+    if rule.required_controls and not set(rule.required_controls).issubset(
+        _declared_controls(policy)
     ):
         return False
     return not rule.tool_capabilities or any(
@@ -75,7 +126,7 @@ def evaluate_flow(flow: Flow, source: Source, tool: Tool, policy: Policy) -> Fin
     """Apply the first matching declarative rule to one declared flow."""
 
     for rule in policy.rules:
-        if _rule_matches(rule, source, tool):
+        if _rule_matches(rule, source, tool, policy, flow):
             return Finding(
                 flow=flow,
                 source=source,
@@ -152,22 +203,28 @@ def matching_rule(
     action_class: str,
     source_data_classification: str | None = None,
     tool_capabilities: tuple[str, ...] = (),
+    source_identifier: str = "synthetic-source",
+    tool_identifier: str = "synthetic-tool",
+    purpose: str = "synthetic",
 ) -> PolicyRule | None:
     """Return the first rule that matches a synthetic input using manifest-equivalent semantics."""
 
     source = Source(
-        name="synthetic-source",
+        name=source_identifier,
         trust=source_trust,
         data_classification=source_data_classification or "unspecified",
         description="Synthetic policy scenario input.",
     )
     tool = Tool(
-        name="synthetic-tool",
+        name=tool_identifier,
         action_class=action_class,
         capabilities=tool_capabilities,
         description="Synthetic policy scenario input.",
     )
-    return next((rule for rule in policy.rules if _rule_matches(rule, source, tool)), None)
+    flow = Flow(source=source.name, tool=tool.name, purpose=purpose)
+    return next(
+        (rule for rule in policy.rules if _rule_matches(rule, source, tool, policy, flow)), None
+    )
 
 
 def decision_for_scenario(
@@ -176,6 +233,9 @@ def decision_for_scenario(
     action_class: str,
     source_data_classification: str | None = None,
     tool_capabilities: tuple[str, ...] = (),
+    source_identifier: str = "synthetic-source",
+    tool_identifier: str = "synthetic-tool",
+    purpose: str = "synthetic",
 ) -> tuple[str, str | None]:
     """Return a synthetic decision using the same matcher as declared manifest flows."""
 
@@ -185,10 +245,81 @@ def decision_for_scenario(
         action_class,
         source_data_classification,
         tool_capabilities,
+        source_identifier,
+        tool_identifier,
+        purpose,
     )
     if rule is None:
         return policy.default_decision, None
     return rule.decision, rule.id
+
+
+def explain_policy_decision(
+    policy: Policy,
+    source_trust: str,
+    action_class: str,
+    source_data_classification: str | None = None,
+    tool_capabilities: tuple[str, ...] = (),
+    source_identifier: str = "synthetic-source",
+    tool_identifier: str = "synthetic-tool",
+    purpose: str = "synthetic",
+) -> dict[str, Any]:
+    """Explain first-match evaluation over supplied synthetic labels and declared metadata."""
+
+    source = Source(
+        name=source_identifier,
+        trust=source_trust,
+        data_classification=source_data_classification or "unspecified",
+        description="Synthetic explanation input.",
+    )
+    tool = Tool(
+        name=tool_identifier,
+        action_class=action_class,
+        capabilities=tool_capabilities,
+        description="Synthetic explanation input.",
+    )
+    flow = Flow(source=source.name, tool=tool.name, purpose=purpose)
+    checked_rules = [
+        {"id": rule.id, "matched": _rule_matches(rule, source, tool, policy, flow)}
+        for rule in policy.rules
+    ]
+    matched_rule = next(
+        (
+            rule
+            for rule, checked in zip(policy.rules, checked_rules, strict=True)
+            if checked["matched"]
+        ),
+        None,
+    )
+    decision = matched_rule.decision if matched_rule is not None else policy.default_decision
+    rationale = (
+        matched_rule.rationale
+        if matched_rule is not None
+        else "No policy rule matched this supplied local input; the default decision was applied."
+    )
+    return {
+        "schema_version": "trustweave.dev/policy-explanation/v1alpha1",
+        "policy": policy.name,
+        "input": {
+            "source_trust": source.trust,
+            "source_data_classification": source.data_classification,
+            "source_identifier": source.name,
+            "tool_action_class": tool.action_class,
+            "tool_capabilities": list(tool.capabilities),
+            "tool_identifier": tool.name,
+            "purpose_tag": flow.purpose,
+        },
+        "checked_rules": checked_rules,
+        "decision": decision,
+        "rule_id": matched_rule.id if matched_rule is not None else None,
+        "rationale": rationale,
+        "limits": [
+            (
+                "The explanation applies only to supplied synthetic labels and declared local "
+                "policy metadata; it does not inspect or enforce a deployed runtime."
+            )
+        ],
+    }
 
 
 def decision_for_labels(

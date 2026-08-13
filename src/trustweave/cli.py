@@ -3,20 +3,28 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Never
 
+from trustweave.chain import render_chain_review, review_declared_chains
 from trustweave.diff import diff_bundles
-from trustweave.engine import build_bundle
+from trustweave.engine import build_bundle, explain_policy_decision
 from trustweave.evidence import build_attestation, verify_attestation
 from trustweave.framework_import import SUPPORTED_FRAMEWORKS, normalize_framework_declaration
 from trustweave.io import load_document, read_json, write_json, write_text
 from trustweave.mcp_import import build_manifest_scaffold, normalize_mcp_tools_list
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
-from trustweave.models import InputOutputError, ValidationError, parse_manifest, parse_policy
+from trustweave.models import (
+    InputOutputError,
+    ValidationError,
+    parse_manifest,
+    parse_policy,
+    validate_capability_pattern,
+)
 from trustweave.policy_review import review_policy
 from trustweave.provenance import generation_timestamp
 from trustweave.report import (
@@ -52,6 +60,8 @@ SARIF_FILE = "trustweave.sarif"
 UNSIGNED_STATEMENT_FILE = "unsigned-statement.json"
 RISK_REVIEW_FILE = "risk-review.json"
 RISK_REVIEW_REPORT_FILE = "risk-review.md"
+CHAIN_REVIEW_FILE = "chain-review.json"
+CHAIN_REVIEW_REPORT_FILE = "chain-review.md"
 
 EXIT_SUCCESS = 0
 EXIT_REVIEW = 1
@@ -116,6 +126,25 @@ def _parser() -> argparse.ArgumentParser:
     )
     explain.add_argument("--scenario-id", required=True, help="Synthetic scenario identifier.")
 
+    why = subcommands.add_parser(
+        "why", help="Explain a local policy decision for supplied declared synthetic labels."
+    )
+    why.add_argument("--policy", type=Path, required=True, help="Policy JSON or safe YAML file.")
+    why.add_argument("--source-trust", required=True, help="Declared source trust label.")
+    why.add_argument("--tool-action-class", required=True, help="Declared tool action class.")
+    why.add_argument(
+        "--source-data-classification", help="Optional declared source classification."
+    )
+    why.add_argument(
+        "--tool-capability",
+        action="append",
+        default=[],
+        help="Optional exact declared tool capability; repeat for multiple capabilities.",
+    )
+    why.add_argument("--source-identifier", default="synthetic-source")
+    why.add_argument("--tool-identifier", default="synthetic-tool")
+    why.add_argument("--purpose-tag", default="synthetic")
+
     attest = subcommands.add_parser("attest", help="Write a local hash-linked evidence statement.")
     attest.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
@@ -153,6 +182,23 @@ def _parser() -> argparse.ArgumentParser:
     diff.add_argument("--head", type=Path, required=True, help="Head Agent Security Bundle JSON.")
     diff.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+
+    chain_check = subcommands.add_parser(
+        "chain-check",
+        help=(
+            "Review a supplied declared trust-boundary graph without runtime discovery or "
+            "execution."
+        ),
+    )
+    chain_check.add_argument("--input", type=Path, required=True, help="Local chain-manifest JSON.")
+    chain_check.add_argument(
+        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+    chain_check.add_argument("--max-nodes", type=int, default=1000, help="Maximum declared nodes.")
+    chain_check.add_argument("--max-paths", type=int, default=1000, help="Maximum emitted paths.")
+    chain_check.add_argument(
+        "--exit-on-review", action="store_true", help="Return status 1 when review findings exist."
     )
 
     policy_check = subcommands.add_parser(
@@ -304,6 +350,9 @@ def _parser() -> argparse.ArgumentParser:
     sarif.add_argument("--mcp-profile-review", type=Path, help="MCP-profile-review JSON artifact.")
     sarif.add_argument("--risk-review", type=Path, help="Local risk-review JSON artifact.")
     sarif.add_argument(
+        "--chain-review", type=Path, help="Local declared-chain review JSON artifact."
+    )
+    sarif.add_argument(
         "--output",
         type=Path,
         default=Path("artifacts") / SARIF_FILE,
@@ -336,6 +385,36 @@ def _explain(scenario_path: Path, scenario_id: str) -> str:
     return explain_scenario(scenarios, scenario_id)
 
 
+def _why(
+    policy_path: Path,
+    source_trust: str,
+    action_class: str,
+    source_data_classification: str | None,
+    tool_capabilities: Sequence[str],
+    source_identifier: str,
+    tool_identifier: str,
+    purpose_tag: str,
+) -> str:
+    """Render a deterministic JSON explanation from supplied local policy labels."""
+
+    policy = parse_policy(load_document(policy_path))
+    capabilities = tuple(
+        validate_capability_pattern(capability, "why.tool_capability", allow_namespace=False)
+        for capability in tool_capabilities
+    )
+    explanation = explain_policy_decision(
+        policy,
+        source_trust,
+        action_class,
+        source_data_classification,
+        capabilities,
+        source_identifier,
+        tool_identifier,
+        purpose_tag,
+    )
+    return json.dumps(explanation, sort_keys=True, separators=(",", ":"))
+
+
 def _attest(output_dir: Path, source_revision: str, generated_at: str) -> str:
     attestation = build_attestation(
         output_dir / BUNDLE_FILE,
@@ -362,6 +441,25 @@ def _diff(base_path: Path, head_path: Path, output_dir: Path, generated_at: str)
     json_path = write_json(output_dir / DIFF_FILE, diff)
     markdown_path = write_text(output_dir / DIFF_REPORT_FILE, render_diff_report(diff))
     return f"Wrote bundle diff: {json_path} and {markdown_path}"
+
+
+def _chain_check(
+    input_path: Path,
+    output_dir: Path,
+    max_nodes: int,
+    max_paths: int,
+    exit_on_review: bool,
+    generated_at: str,
+) -> tuple[str, int]:
+    """Create local chain-review artifacts from an explicitly supplied graph declaration."""
+
+    review = review_declared_chains(
+        load_document(input_path), generated_at, max_nodes=max_nodes, max_paths=max_paths
+    )
+    json_path = write_json(output_dir / CHAIN_REVIEW_FILE, review)
+    markdown_path = write_text(output_dir / CHAIN_REVIEW_REPORT_FILE, render_chain_review(review))
+    code = EXIT_REVIEW if exit_on_review and review["findings"] else EXIT_SUCCESS
+    return f"Wrote declared chain review: {json_path} and {markdown_path}", code
 
 
 def _policy_check(
@@ -436,6 +534,7 @@ def _sarif(
     trace_review_path: Path | None,
     mcp_profile_review_path: Path | None,
     risk_review_path: Path | None,
+    chain_review_path: Path | None,
     output_path: Path,
 ) -> str:
     selected_paths = {
@@ -444,6 +543,7 @@ def _sarif(
         "trace": trace_review_path,
         "mcp": mcp_profile_review_path,
         "risk": risk_review_path,
+        "chain": chain_review_path,
     }
     reviews = {
         kind: (path.as_posix(), read_json(path))
@@ -530,6 +630,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "explain":
             print(_explain(args.scenarios, args.scenario_id))
             return EXIT_SUCCESS
+        if args.command == "why":
+            print(
+                _why(
+                    args.policy,
+                    args.source_trust,
+                    args.tool_action_class,
+                    args.source_data_classification,
+                    args.tool_capability,
+                    args.source_identifier,
+                    args.tool_identifier,
+                    args.purpose_tag,
+                )
+            )
+            return EXIT_SUCCESS
         if args.command == "attest":
             print(
                 _attest(
@@ -555,6 +669,17 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
             return EXIT_SUCCESS
+        if args.command == "chain-check":
+            message, code = _chain_check(
+                args.input,
+                args.output_dir,
+                args.max_nodes,
+                args.max_paths,
+                args.exit_on_review,
+                generation_timestamp(args.generated_at),
+            )
+            print(message)
+            return code
         if args.command == "policy-check":
             message, code = _policy_check(
                 args.policy,
@@ -598,6 +723,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.trace_review,
                     args.mcp_profile_review,
                     args.risk_review,
+                    args.chain_review,
                     args.output,
                 )
             )

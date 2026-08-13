@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] [--generated-at ISO_8601] [--debug] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,risk-check,sarif} ...
+trustweave [-h] [--generated-at ISO_8601] [--debug] {scan,test,explain,why,attest,report,verify,diff,chain-check,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,risk-check,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -179,7 +179,7 @@ trustweave risk-check \
   [--output PATH]
 ```
 
-`risk-check` accepts policy-review, trace-review, MCP-profile-review, and bundle-diff artifacts by exact schema version. It normalizes their documented finding collections (`findings` or bundle-diff `signals`) into semantic `trustweave/fingerprint/v2` identities, preserving supplied local source paths while excluding output-directory wording from identity. It then applies optional local baseline and suppression entries that must include a reviewer-visible reason and an ISO 8601 expiry timestamp. Expired entries become active again deterministically. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
+`risk-check` accepts policy-review, trace-review, MCP-profile-review, bundle-diff, and declared-chain-review artifacts by exact schema version. It normalizes their documented finding collections (`findings` or bundle-diff `signals`) into semantic `trustweave/fingerprint/v2` identities, preserving supplied local source paths while excluding output-directory wording from identity. It then applies optional local baseline and suppression entries that must include a reviewer-visible reason and an ISO 8601 expiry timestamp. Expired entries become active again deterministically. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
 
 | Input | Required | Description |
 |---|---:|---|
@@ -206,6 +206,7 @@ trustweave sarif \
   [--trace-review PATH] \
   [--mcp-profile-review PATH] \
   [--risk-review PATH] \
+  [--chain-review PATH] \
   [--output PATH]
 ```
 
@@ -218,6 +219,7 @@ trustweave sarif \
 | `--trace-review` | One or more review inputs required | `trace-review.json` using `trustweave.dev/trace-review/v1alpha1`. |
 | `--mcp-profile-review` | One or more review inputs required | `mcp-profile-review.json` using `trustweave.dev/mcp-profile-review/v1alpha1`. |
 | `--risk-review` | One or more review inputs required | `risk-review.json` using `trustweave.dev/risk-review/v1alpha1`; only `new` or expired findings are exported. |
+| `--chain-review` | One or more review inputs required | `chain-review.json` using `trustweave.dev/chain-review/v1alpha1`. |
 | `--output` | No | Local output path; defaults to `artifacts/trustweave.sarif`. |
 
 | Output field | TrustWeave behavior |

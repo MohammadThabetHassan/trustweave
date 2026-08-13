@@ -26,6 +26,7 @@ _ARTIFACT_CONTRACTS: dict[str, tuple[str, str]] = {
     "trustweave.dev/trace-review/v1alpha1": ("findings", "pre_recorded_trace_metadata"),
     "trustweave.dev/mcp-profile-review/v1alpha1": ("findings", "pre_recorded_mcp_metadata"),
     "trustweave.dev/bundle-diff/v1alpha1": ("signals", "configuration_difference"),
+    "trustweave.dev/chain-review/v1alpha1": ("findings", "declared_chain_configuration"),
 }
 
 
