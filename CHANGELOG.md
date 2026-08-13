@@ -4,6 +4,17 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [Unreleased]
 
+## [0.1.1rc2] - 2026-08-13
+
+### Fixed
+
+- The import-visible `trustweave.__version__` now matches the version declared in `pyproject.toml`.
+- A regression test prevents package metadata and import-level version values from diverging in a future release candidate.
+
+### Validation
+
+- This candidate supersedes `0.1.1rc1` as the TestPyPI validation target after the clean-install check identified its immutable runtime-version mismatch.
+
 ## [0.1.1rc1] - 2026-08-13
 
 ### Added
@@ -43,7 +54,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - The v0.1 core does not execute MCP configurations, agent tools, external commands from manifests, network requests, or model calls.
 - The v0.1 attestation is locally hash-linked only; it is not a signed or transparency-log-backed attestation.
-- The `0.1.1rc1` TestPyPI workflow disables package attestations and does not publish to production PyPI, change repository visibility, or create a public release.
+- The `0.1.1rc1` and `0.1.1rc2` TestPyPI workflow disables package attestations and does not publish to production PyPI, change repository visibility, or create a public release.
 - Approval-control declarations are design-time evidence only; TrustWeave does not implement approval queues, authenticate approvers, or verify approval records at runtime.
 - SARIF export is a local format conversion only; TrustWeave does not upload results, enable GitHub Code Security, or assert compatibility with a particular hosted code-scanning configuration.
 - Scenario references and MCP tools-list metadata are local review inputs, not trusted authorization, exploit demonstrations, live-system observations, or evidence that a remote server behaves as declared.
@@ -53,4 +64,4 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - No MCP proxy, runtime enforcement, framework SDK, automatic discovery, external signature provider, or enterprise integration is included.
 - JSON inputs work with no dependency. Safe YAML parsing requires the optional PyYAML dependency.
-- The repository has not yet been published or released; release notes will be added only after hosted checks and explicit release authorization.
+- Production PyPI publication and a public GitHub release remain deferred pending separate explicit owner authorization.

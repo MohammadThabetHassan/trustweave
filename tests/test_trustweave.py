@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from pathlib import Path
 
 import pytest
 
+from trustweave import __version__
 from trustweave.cli import main
 from trustweave.engine import build_bundle, evaluate_manifest
 from trustweave.evidence import build_attestation, verify_attestation
@@ -16,6 +18,13 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
 POLICY = ROOT / "policies" / "default-policy.json"
 SCENARIOS = ROOT / "scenarios" / "default-scenarios.json"
+
+
+def test_import_version_matches_declared_project_version() -> None:
+    with (ROOT / "pyproject.toml").open("rb") as project_file:
+        metadata = tomllib.load(project_file)
+
+    assert __version__ == metadata["project"]["version"]
 
 
 def test_example_manifest_and_policy_produce_expected_boundary_decisions() -> None:

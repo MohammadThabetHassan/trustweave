@@ -6,7 +6,7 @@ on:
       expected_version:
         description: Exact package version expected from pyproject.toml
         required: true
-        default: 0.1.1rc1
+        default: 0.1.1rc2
         type: string
 
 permissions:
