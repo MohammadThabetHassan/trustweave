@@ -186,6 +186,7 @@ def review_declared_chains(
                     if len(paths) > max_paths:
                         budget_exceeded = True
                         break
+                    continue
                 for target in reversed(edges.get(current, ())):
                     if target not in path:
                         stack.append((target, path + (target,)))

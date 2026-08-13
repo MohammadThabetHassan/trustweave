@@ -94,6 +94,21 @@ def test_chain_check_cli_writes_local_json_and_markdown(tmp_path: Path) -> None:
     assert "TW-CHAIN-001" in (output_dir / "chain-review.md").read_text(encoding="utf-8")
 
 
+def test_chain_traversal_terminates_at_declared_external_action() -> None:
+    review = review_declared_chains(
+        _document(
+            _unsafe_nodes(),
+            [
+                {"from": "inbox", "to": "records"},
+                {"from": "records", "to": "email"},
+                {"from": "email", "to": "records"},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+    assert review["paths"] == [{"identity": ["inbox", "records", "email"]}]
+
+
 def test_chain_review_handles_cycles_and_reports_budget_limits() -> None:
     cyclic = review_declared_chains(
         _document(
