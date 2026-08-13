@@ -6,12 +6,12 @@ import argparse
 import json
 import os
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Never
 
 from trustweave.chain import render_chain_review, review_declared_chains
-from trustweave.config import init_project
+from trustweave.config import find_project_config, init_project, load_project_config
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle, explain_policy_decision
 from trustweave.evidence import build_attestation, verify_attestation
@@ -98,6 +98,22 @@ def _parser() -> argparse.ArgumentParser:
     )
     init.add_argument("--directory", type=Path, default=Path("."), help="Project directory.")
 
+    config = subcommands.add_parser(
+        "config", help="Validate or display explicit local TrustWeave project configuration."
+    )
+    config_commands = config.add_subparsers(dest="config_command", required=True)
+    for name, help_text in (
+        ("validate", "Validate one local trustweave.toml document."),
+        ("show", "Print one validated local trustweave.toml document as JSON."),
+    ):
+        config_command = config_commands.add_parser(name, help=help_text)
+        config_command.add_argument(
+            "--config",
+            type=Path,
+            default=Path("trustweave.toml"),
+            help="Local TOML configuration path.",
+        )
+
     schema = subcommands.add_parser("schema", help="List or display checked-in local JSON Schemas.")
     schema_commands = schema.add_subparsers(dest="schema_command", required=True)
     schema_commands.add_parser("list", help="List checked-in schema filenames.")
@@ -107,29 +123,18 @@ def _parser() -> argparse.ArgumentParser:
     scan = subcommands.add_parser(
         "scan", help="Validate a manifest and write an Agent Security Bundle."
     )
-    scan.add_argument(
-        "--manifest", type=Path, required=True, help="Path to a manifest JSON or safe YAML file."
-    )
-    scan.add_argument(
-        "--policy", type=Path, required=True, help="Path to a policy JSON or safe YAML file."
-    )
-    scan.add_argument(
-        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
-    )
+    scan.add_argument("--manifest", type=Path, help="Path to a manifest JSON or safe YAML file.")
+    scan.add_argument("--policy", type=Path, help="Path to a policy JSON or safe YAML file.")
+    scan.add_argument("--output-dir", type=Path, help="Artifact directory.")
+    scan.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
 
     test = subcommands.add_parser("test", help="Run safe synthetic policy regression scenarios.")
+    test.add_argument("--policy", type=Path, help="Path to a policy JSON or safe YAML file.")
     test.add_argument(
-        "--policy", type=Path, required=True, help="Path to a policy JSON or safe YAML file."
+        "--scenarios", type=Path, help="Path to a scenario-pack JSON or safe YAML file."
     )
-    test.add_argument(
-        "--scenarios",
-        type=Path,
-        required=True,
-        help="Path to a scenario-pack JSON or safe YAML file.",
-    )
-    test.add_argument(
-        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
-    )
+    test.add_argument("--output-dir", type=Path, help="Artifact directory.")
+    test.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
 
     explain = subcommands.add_parser(
         "explain", help="Explain one cited synthetic scenario without executing an agent."
@@ -224,12 +229,9 @@ def _parser() -> argparse.ArgumentParser:
     policy_check = subcommands.add_parser(
         "policy-check", help="Review deterministic policy structure without executing a runtime."
     )
-    policy_check.add_argument(
-        "--policy", type=Path, required=True, help="Policy JSON or safe YAML file."
-    )
-    policy_check.add_argument(
-        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
-    )
+    policy_check.add_argument("--policy", type=Path, help="Policy JSON or safe YAML file.")
+    policy_check.add_argument("--output-dir", type=Path, help="Artifact directory.")
+    policy_check.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
     policy_check.add_argument(
         "--coverage",
         action="store_true",
@@ -399,20 +401,93 @@ def _init(directory: Path) -> str:
     return f"Wrote local project configuration: {init_project(directory)}"
 
 
-def _scan(manifest_path: Path, policy_path: Path, output_dir: Path, generated_at: str) -> str:
-    manifest = parse_manifest(load_document(manifest_path))
-    policy = parse_policy(load_document(policy_path))
-    path = write_json(output_dir / BUNDLE_FILE, build_bundle(manifest, policy, generated_at))
+def _config_validate(path: Path) -> str:
+    """Validate one explicit local configuration without changing it."""
+
+    load_project_config(path)
+    return f"Validated local project configuration: {path}"
+
+
+def _config_show(path: Path) -> str:
+    """Render a validated local configuration as deterministic JSON."""
+
+    return json.dumps(load_project_config(path), sort_keys=True, separators=(",", ":"))
+
+
+def _configured_paths(
+    config_path: Path | None,
+    values: Mapping[str, Path | None],
+) -> dict[str, Path]:
+    """Resolve command values from explicit flags or one local TOML configuration document."""
+
+    missing = [name for name, value in values.items() if value is None]
+    if not missing:
+        return {name: value for name, value in values.items() if value is not None}
+    if config_path is None:
+        try:
+            path = find_project_config(Path.cwd())
+        except InputOutputError as error:
+            raise ValidationError(
+                "required command paths were not supplied and no local trustweave.toml was "
+                "discovered"
+            ) from error
+    else:
+        path = config_path
+    config = load_project_config(path)
+    resolved: dict[str, Path] = {}
+    for name, value in values.items():
+        selected = value
+        if selected is None:
+            configured = config.get(name)
+            if configured is None:
+                raise ValidationError(
+                    f"{name} is required as a command argument or tool.trustweave.{name} in {path}"
+                )
+            selected = Path(configured)
+            if not selected.is_absolute():
+                selected = path.parent / selected
+        resolved[name] = selected
+    return resolved
+
+
+def _scan(
+    manifest_path: Path | None,
+    policy_path: Path | None,
+    output_dir: Path | None,
+    config_path: Path | None,
+    generated_at: str,
+) -> str:
+    if config_path is None and manifest_path is not None and policy_path is not None:
+        output_dir = output_dir or Path("artifacts")
+    paths = _configured_paths(
+        config_path,
+        {"manifest": manifest_path, "policy": policy_path, "output_dir": output_dir},
+    )
+    manifest = parse_manifest(load_document(paths["manifest"]))
+    policy = parse_policy(load_document(paths["policy"]))
+    path = write_json(
+        paths["output_dir"] / BUNDLE_FILE, build_bundle(manifest, policy, generated_at)
+    )
     return f"Wrote Agent Security Bundle: {path}"
 
 
 def _test(
-    policy_path: Path, scenario_path: Path, output_dir: Path, generated_at: str
+    policy_path: Path | None,
+    scenario_path: Path | None,
+    output_dir: Path | None,
+    config_path: Path | None,
+    generated_at: str,
 ) -> tuple[str, int]:
-    policy = parse_policy(load_document(policy_path))
-    scenarios = parse_scenarios(load_document(scenario_path))
+    if config_path is None and policy_path is not None and scenario_path is not None:
+        output_dir = output_dir or Path("artifacts")
+    paths = _configured_paths(
+        config_path,
+        {"policy": policy_path, "scenarios": scenario_path, "output_dir": output_dir},
+    )
+    policy = parse_policy(load_document(paths["policy"]))
+    scenarios = parse_scenarios(load_document(paths["scenarios"]))
     result = run_scenarios(policy, scenarios, generated_at)
-    path = write_json(output_dir / TEST_RESULTS_FILE, result)
+    path = write_json(paths["output_dir"] / TEST_RESULTS_FILE, result)
     status = str(result["summary"]["status"])
     return f"Wrote synthetic test results ({status}): {path}", 0 if status == "passed" else 1
 
@@ -509,17 +584,21 @@ def _chain_check(
 
 
 def _policy_check(
-    policy_path: Path,
-    output_dir: Path,
+    policy_path: Path | None,
+    output_dir: Path | None,
+    config_path: Path | None,
     include_coverage: bool,
     exit_on_review: bool,
     generated_at: str,
 ) -> tuple[str, int]:
-    policy = parse_policy(load_document(policy_path))
+    if config_path is None and policy_path is not None:
+        output_dir = output_dir or Path("artifacts")
+    paths = _configured_paths(config_path, {"policy": policy_path, "output_dir": output_dir})
+    policy = parse_policy(load_document(paths["policy"]))
     review = review_policy(policy, generated_at, include_coverage=include_coverage)
-    json_path = write_json(output_dir / POLICY_REVIEW_FILE, review)
+    json_path = write_json(paths["output_dir"] / POLICY_REVIEW_FILE, review)
     markdown_path = write_text(
-        output_dir / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
+        paths["output_dir"] / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
     )
     has_findings = int(review["summary"]["review_findings"]) > 0
     code = 1 if exit_on_review and has_findings else 0
@@ -667,12 +746,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "init":
             print(_init(args.directory))
             return EXIT_SUCCESS
+        if args.command == "config":
+            if args.config_command == "validate":
+                print(_config_validate(args.config))
+            else:
+                print(_config_show(args.config))
+            return EXIT_SUCCESS
         if args.command == "scan":
             print(
                 _scan(
                     args.manifest,
                     args.policy,
                     args.output_dir,
+                    args.config,
                     generation_timestamp(args.generated_at),
                 )
             )
@@ -682,6 +768,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.policy,
                 args.scenarios,
                 args.output_dir,
+                args.config,
                 generation_timestamp(args.generated_at),
             )
             print(message)
@@ -746,6 +833,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             message, code = _policy_check(
                 args.policy,
                 args.output_dir,
+                args.config,
                 args.coverage,
                 args.exit_on_review,
                 generation_timestamp(args.generated_at),

@@ -6,6 +6,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Added strict read-only `trustweave config validate` and `config show` commands plus explicit or bounded auto-discovered `trustweave.toml` path resolution for `scan`, `test`, and `policy-check`.
 - Added opt-in `trustweave policy-check --coverage` diagnostics for first-match reachability, contradictory shadowed decisions, and impossible declared control requirements, with the same local deterministic policy boundary.
 - Made declared-chain analysis stateful for propagated sensitive classifications and fail-closed approval state, and added explicit edge, depth, and state budgets to prevent unbounded local review work.
 - Made flow `purpose_tags` an additive, validated manifest attribute and aligned policy-v2 matching to these machine-readable identifiers rather than the human-readable `purpose` prose, while preserving v1alpha1 manifests without tags.
