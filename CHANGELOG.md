@@ -4,6 +4,19 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-13
+
+### Release
+
+- Promoted the TestPyPI-validated `0.1.1rc2` package to the final `0.1.1` release target.
+- Added a dedicated, manually dispatched production PyPI workflow that builds and validates distributions in an unprivileged job before an isolated GitHub OIDC trusted-publishing job uploads them.
+- Added an import-version synchronization regression test to keep the installed `trustweave.__version__` value aligned with the package metadata.
+
+### Security
+
+- The production workflow grants `id-token: write` only to its isolated publishing job, uses no stored upload token, and disables package attestations pending separately authorized signing work.
+- Production publication does not change repository visibility or the local-only, non-executing product boundary.
+
 ## [0.1.1rc2] - 2026-08-13
 
 ### Fixed
@@ -64,4 +77,4 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - No MCP proxy, runtime enforcement, framework SDK, automatic discovery, external signature provider, or enterprise integration is included.
 - JSON inputs work with no dependency. Safe YAML parsing requires the optional PyYAML dependency.
-- Production PyPI publication and a public GitHub release remain deferred pending separate explicit owner authorization.
+- Production publication uses the dedicated trusted-publishing workflow; repository visibility remains private and external signing, hosted-result uploads, and runtime integrations remain separately authorized work.

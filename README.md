@@ -29,7 +29,13 @@ Trace review deliberately excludes message content and tool arguments from repor
 
 ## Quick start
 
-The active repository is private. Authorized collaborators can clone it from:
+Install the released package from PyPI:
+
+```bash
+python -m pip install trustweave
+```
+
+The active repository remains private. Authorized collaborators can instead clone it for source development:
 
 ```bash
 git clone https://github.com/MohammadThabetHassan/trustweave.git

@@ -30,6 +30,14 @@ TrustWeave releases are authorized only after a maintainer confirms the target v
 8. Create an annotated semantic-version tag and publish a release only after the prior checks complete and explicit authorization is reconfirmed.
 9. Record the release URL, tag, verification evidence, and remaining limits in the release notes.
 
+## Production PyPI trusted publishing
+
+Production PyPI publication is a separately authorized action. The release target must first pass the TestPyPI validation path, local evidence checklist, and hosted CI on its exact final commit.
+
+The repository uses `.github/workflows/publish-pypi.yml` for production publication. It is manually dispatched against an annotated final-version tag, builds and checks distributions before publishing, and gives `id-token: write` only to the isolated publish job. The job uses the GitHub Actions environment named `pypi` and the PyPA trusted-publishing action without a stored PyPI token. PyPI must have a pending or active GitHub trusted publisher matching the owner `MohammadThabetHassan`, repository `trustweave`, workflow `publish-pypi.yml`, and environment `pypi`.
+
+This route publishes package artifacts to PyPI but does not make the GitHub repository public, create runtime network behavior in TrustWeave, upload SARIF, connect to MCP servers, or add external signing. Any of those changes requires separate authorization.
+
 ## Release-note boundaries
 
 Release notes must distinguish implemented behavior from planned work. They must not claim production security certification, general prompt-injection prevention, externally signed provenance, or complete agent-system security unless separately implemented and evidenced.
