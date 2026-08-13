@@ -8,6 +8,7 @@ import pytest
 from trustweave.cli import main
 from trustweave.engine import decision_for_scenario
 from trustweave.models import ValidationError, parse_policy
+from trustweave.policy_review import review_policy
 from trustweave.scenarios import parse_scenarios, run_scenarios
 
 
@@ -134,6 +135,16 @@ def test_why_command_emits_a_local_machine_readable_rule_trace(
     assert explanation["decision"] == "deny"
     assert explanation["rule_id"] == "TW-V2-001"
     assert explanation["checked_rules"] == [{"id": "TW-V2-001", "matched": True}]
+
+
+def test_policy_v2_identifier_constraint_does_not_false_shadow_broader_rule() -> None:
+    document = _policy_document()
+    broad_rule = dict(document["rules"][0])
+    broad_rule["id"] = "TW-V2-002"
+    broad_rule.pop("source_identifiers")
+    document["rules"] = [document["rules"][0], broad_rule]
+    findings = review_policy(parse_policy(document))["findings"]
+    assert not any(item["id"] == "TW-POL-002" for item in findings)
 
 
 def test_policy_v2_rejects_invalid_taxonomy_references_and_v1_unknown_fields() -> None:
