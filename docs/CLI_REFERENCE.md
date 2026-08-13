@@ -88,7 +88,7 @@ trustweave attest [--source-revision TEXT] [--output-dir DIR]
 |---|---|
 | `attestation.json` | Hashes of local artifacts, canonical-document digests, source revision, integrity chain, and limits. |
 
-New statements use `trustweave.dev/attestation/v1alpha2`: their integrity chains cover stable canonical bundle and test-result payloads after excluding volatile `generated_at` metadata, while separate file hashes identify the exact local files used. The verifier remains compatible with legacy `v1alpha1` local statements. The statement is internally verifiable but is **not signed** and is not a DSSE, SLSA, Sigstore, or transparency-log claim.
+New statements use `trustweave.dev/attestation/v1alpha3`: their integrity chain binds stable canonical bundle/test-result payload digests, exact generated-file digests, subject names, and the stated source revision while excluding volatile `generated_at` metadata. `trustweave verify --attestation PATH --bundle PATH --test-results PATH` additionally checks supplied local file bytes and their stable payloads. The verifier remains compatible with legacy `v1alpha1` and `v1alpha2` local statements. The statement is internally verifiable but is **not signed** and is not a DSSE, SLSA, Sigstore, or transparency-log claim.
 
 ## `statement`
 
@@ -179,7 +179,7 @@ trustweave risk-check \
   [--output PATH]
 ```
 
-`risk-check` reads existing local review artifacts and normalizes their supplied findings into stable fingerprints. It then applies optional local baseline and suppression entries that must include a reviewer-visible reason and an ISO 8601 expiry timestamp. Expired entries become active again deterministically. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
+`risk-check` accepts policy-review, trace-review, MCP-profile-review, and bundle-diff artifacts by exact schema version. It normalizes their documented finding collections (`findings` or bundle-diff `signals`) into semantic `trustweave/fingerprint/v2` identities, preserving supplied local source paths while excluding output-directory wording from identity. It then applies optional local baseline and suppression entries that must include a reviewer-visible reason and an ISO 8601 expiry timestamp. Expired entries become active again deterministically. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
 
 | Input | Required | Description |
 |---|---:|---|
