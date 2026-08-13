@@ -187,11 +187,13 @@ trustweave risk-check \
 | `--baseline` | No | Local `trustweave.dev/risk-baseline/v1alpha1` JSON or safe YAML document. |
 | `--suppressions` | No | Local `trustweave.dev/risk-suppressions/v1alpha1` JSON or safe YAML document. |
 | `--fail-on` | No | Active-finding severity threshold; defaults to `high`. |
-| `--output` | No | Local output path; defaults to `artifacts/risk-review.json`. |
+| `--output` | No | Local JSON output path; defaults to `artifacts/risk-review.json`. |
+| `--markdown-output` | No | Local Markdown summary path; defaults beside the JSON output as `risk-review.md`. |
 
 | Output file | Content |
 |---|---|
 | `risk-review.json` | Normalized findings, stable fingerprints, risk states, expiry data, severity summary, and explicit limits. |
+| `risk-review.md` | Reviewer-facing risk-state, severity, expiry, and finding-decision summary. |
 
 A baseline or suppression records only a temporary reviewer decision about supplied local evidence. It does not remediate a finding, waive a security obligation, authenticate an approval, contact a ticketing system, or prove runtime security. See [Local Risk Management](RISK_MANAGEMENT.md) for the maintained workflow and safe templates.
 
@@ -203,6 +205,7 @@ trustweave sarif \
   [--diff PATH] \
   [--trace-review PATH] \
   [--mcp-profile-review PATH] \
+  [--risk-review PATH] \
   [--output PATH]
 ```
 
@@ -214,6 +217,7 @@ trustweave sarif \
 | `--diff` | One or more review inputs required | `bundle-diff.json` using `trustweave.dev/bundle-diff/v1alpha1`. |
 | `--trace-review` | One or more review inputs required | `trace-review.json` using `trustweave.dev/trace-review/v1alpha1`. |
 | `--mcp-profile-review` | One or more review inputs required | `mcp-profile-review.json` using `trustweave.dev/mcp-profile-review/v1alpha1`. |
+| `--risk-review` | One or more review inputs required | `risk-review.json` using `trustweave.dev/risk-review/v1alpha1`; only `new` or expired findings are exported. |
 | `--output` | No | Local output path; defaults to `artifacts/trustweave.sarif`. |
 
 | Output field | TrustWeave behavior |
@@ -223,7 +227,7 @@ trustweave sarif \
 | `locations` | The supplied local artifact path is recorded as the result location. |
 | `partialFingerprints` | A deterministic SHA-256 fingerprint derived from review kind, identifier, message, and artifact path. |
 
-The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
+The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. When a `risk-review.json` is supplied, only `new`, `expired_baseline`, and `expired_suppression` findings are included; its canonical risk fingerprint is retained as `trustweave/risk-v1`. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
 
 ## `trace-review`
 

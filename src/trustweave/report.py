@@ -418,3 +418,72 @@ def render_mcp_profile_review_report(review: Mapping[str, Any]) -> str:
         ]
     )
     return "\n".join(lines)
+
+
+def render_risk_review_report(review: Mapping[str, Any]) -> str:
+    """Render a deterministic Markdown summary for a local risk-review artifact."""
+
+    summary = _as_mapping(review.get("summary"))
+    findings = _as_sequence(review.get("findings"))
+    active_by_severity = _as_mapping(summary.get("active_by_severity"))
+    lines = [
+        "# TrustWeave Local Risk Review",
+        "",
+        f"**Status:** **{summary.get('status', 'unknown')}**  ",
+        f"**Findings:** {summary.get('findings', 0)}",
+        "",
+        "## Risk-state summary",
+        "",
+        "| State | Count |",
+        "|---|---:|",
+        f"| New | {summary.get('new', 0)} |",
+        f"| Baselined | {summary.get('baselined', 0)} |",
+        f"| Suppressed | {summary.get('suppressed', 0)} |",
+        f"| Expired baseline | {summary.get('expired_baseline', 0)} |",
+        f"| Expired suppression | {summary.get('expired_suppression', 0)} |",
+        "",
+        "## Active findings by severity",
+        "",
+        "| Severity | Count |",
+        "|---|---:|",
+    ]
+    for severity in ("critical", "high", "medium", "low", "info"):
+        lines.append(f"| {severity} | {active_by_severity.get(severity, 0)} |")
+
+    lines.extend(["", "## Finding decisions", ""])
+    if not findings:
+        lines.append("No supplied local review findings were present.")
+    else:
+        lines.extend(
+            [
+                "| State | Severity | Identifier | Expiry | Message |",
+                "|---|---|---|---|---|",
+            ]
+        )
+        for raw_finding in findings:
+            finding = _as_mapping(raw_finding)
+            lines.append(
+                "| {state} | {severity} | `{identifier}` | {expiry} | {message} |".format(
+                    state=finding.get("risk_state", "unknown"),
+                    severity=finding.get("severity", "unknown"),
+                    identifier=finding.get("id", "unknown"),
+                    expiry=finding.get("expires_at", "—"),
+                    message=finding.get("message", "unknown"),
+                )
+            )
+
+    lines.extend(
+        [
+            "",
+            "## Evidence limits",
+            "",
+            (
+                "This report derives solely from supplied local review artifacts and explicit "
+                "local baseline or suppression decisions. It does not remediate a finding, contact "
+                "a ticketing system, authenticate an approver, inspect a deployed agent, or "
+                "establish runtime security."
+            ),
+            "",
+        ]
+    )
+    return "\n".join(lines)

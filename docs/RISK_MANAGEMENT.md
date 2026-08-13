@@ -29,7 +29,9 @@ The command accepts one or more existing local review artifacts that contain `fi
 | `fingerprint` | SHA-256 over the normalized schema version, identifier, severity, and message. |
 | `risk_state` | `new`, `baselined`, `suppressed`, `expired_baseline`, or `expired_suppression`. |
 
-The default `--fail-on high` exits with status `1` only for active `critical` or `high` findings. `--fail-on medium`, `low`, or `info` tightens the gate. `--fail-on none` reports the evidence without changing the exit code. A finding that is baselined or suppressed before its expiry is not active; an expired entry becomes active again deterministically.
+The command writes both `risk-review.json` and a reviewer-facing `risk-review.md` summary by default. The default `--fail-on high` exits with status `1` only for active `critical` or `high` findings. `--fail-on medium`, `low`, or `info` tightens the gate. `--fail-on none` reports the evidence without changing the exit code. A finding that is baselined or suppressed before its expiry is not active; an expired entry becomes active again deterministically.
+
+To retain active risk evidence in a separately authorized SARIF consumer, pass the local JSON output to `trustweave sarif --risk-review artifacts/risk-review.json`. Only `new`, `expired_baseline`, and `expired_suppression` findings are exported; baselined and suppressed entries remain visible in the local risk-review report but are intentionally omitted from the active SARIF results. The canonical risk fingerprint is preserved as `trustweave/risk-v1`.
 
 ## Baseline contract
 

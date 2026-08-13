@@ -18,11 +18,22 @@ REVIEW_INPUTS: tuple[tuple[str, str, str], ...] = (
     ("diff", "trustweave.dev/bundle-diff/v1alpha1", "signals"),
     ("trace", "trustweave.dev/trace-review/v1alpha1", "findings"),
     ("mcp", "trustweave.dev/mcp-profile-review/v1alpha1", "findings"),
+    ("risk", "trustweave.dev/risk-review/v1alpha1", "findings"),
 )
 REVIEW_INPUT_MAP = {
     kind: (schema_version, finding_key) for kind, schema_version, finding_key in REVIEW_INPUTS
 }
-SEVERITY_TO_LEVEL = {"review": "warning", "warning": "warning", "error": "error", "note": "note"}
+SEVERITY_TO_LEVEL = {
+    "critical": "error",
+    "high": "error",
+    "medium": "warning",
+    "low": "warning",
+    "info": "note",
+    "review": "warning",
+    "warning": "warning",
+    "error": "error",
+    "note": "note",
+}
 
 
 def _mapping(value: Any) -> Mapping[str, Any]:
@@ -52,6 +63,24 @@ def _review_findings(kind: str, review: Mapping[str, Any]) -> list[dict[str, str
         severity = _required_string(
             finding.get("severity"), f"{kind}.{finding_key}[{index}].severity"
         )
+        if kind == "risk":
+            risk_state = _required_string(
+                finding.get("risk_state"), f"{kind}.{finding_key}[{index}].risk_state"
+            )
+            if risk_state not in {"new", "expired_baseline", "expired_suppression"}:
+                continue
+            fingerprint = _required_string(
+                finding.get("fingerprint"), f"{kind}.{finding_key}[{index}].fingerprint"
+            )
+            findings.append(
+                {
+                    "id": identifier,
+                    "message": message,
+                    "severity": severity,
+                    "fingerprint": fingerprint,
+                }
+            )
+            continue
         findings.append({"id": identifier, "message": message, "severity": severity})
     return findings
 
@@ -111,7 +140,11 @@ def build_sarif(reviews: Mapping[str, tuple[str, Mapping[str, Any]]]) -> dict[st
                         }
                     ],
                     "partialFingerprints": {
-                        "trustweave/v1": _fingerprint(kind, identifier, message, normalized_uri)
+                        "trustweave/risk-v1" if kind == "risk" else "trustweave/v1": (
+                            finding["fingerprint"]
+                            if kind == "risk"
+                            else _fingerprint(kind, identifier, message, normalized_uri)
+                        )
                     },
                 }
             )
