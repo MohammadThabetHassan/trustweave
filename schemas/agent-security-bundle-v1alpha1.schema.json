@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/bundle/v1alpha1",
+  "title": "TrustWeave Agent Security Bundle v1alpha1",
+  "type": "object",
+  "required": ["schema_version", "manifest", "policy", "findings", "summary"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/bundle/v1alpha1"},
+    "manifest": {"type": "object"},
+    "policy": {"type": "object"},
+    "findings": {"type": "array", "maxItems": 10000, "items": {"type": "object"}},
+    "summary": {"type": "object"},
+    "generated_at": {"type": "string"}
+  },
+  "additionalProperties": false
+}
