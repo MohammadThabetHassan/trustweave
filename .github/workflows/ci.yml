@@ -77,7 +77,7 @@ jobs:
           trustweave scan --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --output-dir artifacts
           trustweave test --policy policies/default-policy.json --scenarios scenarios/default-scenarios.json --output-dir artifacts
           trustweave test --policy policies/default-policy.json --scenarios scenarios/adversarial-scenarios.json --output-dir artifacts/adversarial
-          grep -q '"total": 10' artifacts/adversarial/security-test-results.json
+          grep -q '"total": 13' artifacts/adversarial/security-test-results.json
           trustweave explain --scenarios scenarios/adversarial-scenarios.json --scenario-id TW-ADV-001 | grep -q 'OWASP LLM01:2025 Prompt Injection'
           trustweave mcp-import --tool-list examples/mcp-tools/support-tools-list.json --output-dir artifacts/mcp-inventory
           grep -q '"tool_count": 2' artifacts/mcp-inventory/mcp-tool-inventory.json
