@@ -4,6 +4,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [Unreleased]
 
+## [0.1.1rc1] - 2026-08-13
+
 ### Added
 
 - A local CLI for scanning declared agent manifests, running synthetic policy tests, generating hash-linked evidence, rendering Markdown reports, and verifying internal evidence chains.
@@ -31,11 +33,17 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Unit and end-to-end tests for validation, policy decisions, scenario results, evidence verification, source/tool/capability bundle diffs, static policy review, offline trace review, static MCP profile review, privacy omission, review-gate behavior, and the complete CLI workflow.
 - Architecture, product-contract, threat-model, contribution, security, governance, and release documentation.
 - GitHub workflows for quality checks, dependency review, Bandit static source-security scanning, package builds, isolated wheel verification, declared dependency auditing, policy review, candidate bundle-diff evidence, offline trace review, static MCP profile review, review-gate behavior, and report privacy assertions.
+- An expanded 25-pattern cited synthetic adversarial scenario baseline, including MCP metadata drift, tool confusion, supply-chain provenance, delegated-agent, approval-boundary, and memory-boundary labels.
+- A local MCP inventory-to-reviewer-required-manifest scaffold plus an explicit reviewer workflow that requires humans to declare sources, flows, capabilities, action classes, and policy.
+- Static declaration inventories and non-executing proof walkthroughs for LangGraph, OpenAI Agents SDK, and CrewAI.
+- An explicitly unsigned statement-shaped local evidence export; it preserves local digests without creating an external provenance or identity claim.
+- A manual TestPyPI-only OIDC publishing workflow that separates distribution building from publishing and uses no stored upload token.
 
 ### Security
 
 - The v0.1 core does not execute MCP configurations, agent tools, external commands from manifests, network requests, or model calls.
 - The v0.1 attestation is locally hash-linked only; it is not a signed or transparency-log-backed attestation.
+- The `0.1.1rc1` TestPyPI workflow disables package attestations and does not publish to production PyPI, change repository visibility, or create a public release.
 - Approval-control declarations are design-time evidence only; TrustWeave does not implement approval queues, authenticate approvers, or verify approval records at runtime.
 - SARIF export is a local format conversion only; TrustWeave does not upload results, enable GitHub Code Security, or assert compatibility with a particular hosted code-scanning configuration.
 - Scenario references and MCP tools-list metadata are local review inputs, not trusted authorization, exploit demonstrations, live-system observations, or evidence that a remote server behaves as declared.
