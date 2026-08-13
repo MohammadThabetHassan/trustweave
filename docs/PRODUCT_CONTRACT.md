@@ -18,6 +18,8 @@ Before merging an agent change, a developer needs to decide whether a newly decl
 | `trustweave test` | Runs a fixed set of harmless synthetic scenarios against declared policy invariants. | `artifacts/security-test-results.json` |
 | `trustweave attest` | Creates a hash-chained local evidence statement covering the bundle, policy, test result, and current source revision. | `artifacts/attestation.json` |
 | `trustweave report` | Writes a human-readable report that explains findings, evidence, and limits. | `artifacts/report.md` |
+| `trustweave policy-check` | Reviews ordered policy structure and declared decisions requiring human scrutiny. | `artifacts/policy-review.json`, `artifacts/policy-review.md` |
+| `trustweave diff` | Compares a baseline and candidate Agent Security Bundle for declared changes. | `artifacts/bundle-diff.json`, `artifacts/bundle-diff.md` |
 
 ## Domain model
 
@@ -30,6 +32,8 @@ Before merging an agent change, a developer needs to decide whether a newly decl
 | **Policy** | Deterministic allow/deny or approval rule for a flow. | The MVP never delegates enforcement decisions to a language model. |
 | **Scenario** | A safe synthetic test case that validates a policy assertion. | No scenario targets external infrastructure or handles real data. |
 | **Evidence bundle** | Hash-linked JSON document generated from local artifacts. | It proves local artifact integrity only; it is not a substitute for external signing or audit. |
+| **Policy review** | Static report over ordered rules and review-sensitive decisions. | It creates review obligations; it never approves, blocks, or enforces a deployment. |
+| **Bundle diff** | Structured comparison of two generated bundles. | It reports declared changes and signals; it never discovers runtime behavior or reports a vulnerability verdict. |
 
 ## Explicit safety boundaries
 
@@ -44,8 +48,10 @@ The initial release is complete only when:
 1. The documented example produces a valid bundle, deterministic policy results, a report, and an attestation.
 2. Unit tests cover manifest validation, policy evaluation, scenario outcomes, report generation, and hash-link verification.
 3. The CLI is type-checked, formatted, tested, and packaged locally.
-4. Documentation states what the project does, what it does not do, how to verify it, and how to report a security concern.
-5. The GitHub workflow defines the exact automated checks without making unsupported production-readiness claims.
+4. The baseline and candidate example produce a deterministic bundle diff and an expected review signal for the newly declared synthetic external tool.
+5. The policy-review command reports a clear result for the default policy and structured review findings for covered unsafe test controls.
+6. Documentation states what the project does, what it does not do, how to verify it, and how to report a security concern.
+7. The GitHub workflow defines the exact automated checks without making unsupported production-readiness claims.
 
 ## Delivery policy
 

@@ -25,6 +25,8 @@ TrustWeave is a **declarative architecture-review and synthetic-regression tool*
 | Confidential or conditional data is declared as reaching an external action | A rule can require approval. | It does not implement approval or verify real identity. |
 | A policy weakens or a new flow is added | The generated bundle and synthetic tests provide a reviewable diffable artifact. | PR diff rendering is a future integration. |
 | A scenario unexpectedly changes decision | The test command returns non-zero on failed expected decisions. | The scenario covers only its declared labels, not full model behavior. |
+| An ordered policy rule is unreachable or a default permits unmatched paths | The policy-review command writes a deterministic finding for review. | It does not establish whether the policy intent is correct or enforce a runtime decision. |
+| A candidate manifest introduces an external/sensitive tool or changes a policy decision | The bundle-diff command writes declared changes and review signals. | It cannot discover undeclared behavior or determine business authorization. |
 | A generated evidence document is manually edited | The verifier detects a mismatch in the attestation’s internal hash chain. | It cannot prove the original operator or protect unsigned files from replacement. |
 
 ## Out of scope threats
@@ -54,8 +56,10 @@ TrustWeave does **not** assume manifests from third parties are safe to execute.
 | Synthetic-only scenarios | Allows regression testing without attacks or external side effects. |
 | Hash-linked artifacts | Makes local evidence relationships independently checkable. |
 | Explicit limits in every artifact | Discourages overclaiming and security theatre. |
-| CI workflow | Repeats formatting, lint, typing, and tests on changes. |
+| CI workflow | Repeats formatting, lint, typing, tests, package build, isolated wheel invocation, static policy review, and candidate diff evidence on changes. |
 | Dependency review workflow | Reviews dependency changes before they are merged in hosted workflows. |
+| Policy review | Makes rule shadowing and review-sensitive allow/default decisions visible in a structured artifact. |
+| Bundle diff | Makes declared source, tool, path, matching-rule, and decision changes visible before a merge. |
 
 ## Reporting a weakness
 

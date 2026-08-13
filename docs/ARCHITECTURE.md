@@ -12,6 +12,11 @@ flowchart LR
     P[Flow policy\nJSON or safe YAML] --> V
     V --> B[Agent Security Bundle]
     B --> R[Markdown report]
+    P --> PR[Static policy review]
+    PR --> PRR[Policy review artifacts]
+    B --> D[Bundle diff]
+    B2[Candidate bundle] --> D
+    D --> DR[Diff artifacts]
     S[Synthetic scenario pack] --> T[Deterministic scenario runner]
     P --> T
     T --> TR[Test results]
@@ -28,6 +33,8 @@ flowchart LR
 | `engine.py` | Builds a bundle and applies first-match deterministic rules to every declared flow. | Never calls a model, tool, subprocess, or network service. |
 | `scenarios.py` | Runs safe scenario assertions against abstract trust/action labels. | Does not execute a payload, tool, or configured server. |
 | `evidence.py` | Hash-links generated JSON artifacts into a local attestation. | States explicit limits; no claim of external signing or non-repudiation. |
+| `policy_review.py` | Reviews ordered-rule shadowing and decisions that require human scrutiny. | Does not decide authorization or run a policy in a deployed runtime. |
+| `diff.py` | Compares two generated bundles for declared source, tool, path, and decision changes. | Does not discover behavior, execute tools, or issue a security verdict. |
 | `report.py` | Renders review-friendly Markdown from generated artifacts. | Reads generated structured artifacts only. |
 | `cli.py` | Exposes the local workflow through a predictable CLI. | Returns non-zero on invalid data or failed synthetic scenarios. |
 
@@ -46,6 +53,14 @@ Synthetic results are intentionally simple. A scenario specifies only a source t
 The attestation stores SHA-256 digests of the bundle and test-results files, canonical-document digests, the stated source revision, and a hash chain derived from those inputs. It is internally verifiable with `trustweave verify`.
 
 > **Important:** The v0.1 attestation is not externally signed and is not backed by a transparency log. It proves only an internally consistent relationship among local artifacts after generation. Future DSSE, in-toto, or Sigstore integration is intentionally out of scope.
+
+### Policy review
+
+The policy-review artifact checks three deterministic structural conditions: whether an ordered rule is shadowed by an earlier rule, whether an unmatched flow defaults to `allow`, and whether a rule allows an untrusted input to a sensitive or external action class. A finding is an obligation for human review, never an automatic block, authorization result, or vulnerability conclusion.
+
+### Bundle diff
+
+The bundle-diff artifact compares a base and candidate bundle. It records additions, removals, and modifications to declared sources and tools; added and removed paths; and policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool and for an untrusted-input path to a sensitive/external action that is not denied.
 
 ## Policy semantics
 
@@ -75,3 +90,4 @@ The following capabilities are intentionally represented as adapters or future w
 3. **Fail closed:** malformed documents, unknown references, and unmatched policy paths lead to errors or the explicit default decision.
 4. **Evidence before claims:** reports include scope limits and avoid deployment-security guarantees.
 5. **Reproducible inputs:** examples, policy rules, and scenarios are versioned in the repository.
+6. **Diffs require context:** a review signal highlights an explicit change but does not replace review of the manifest, policy, and authorization design.

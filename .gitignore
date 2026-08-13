@@ -1,5 +1,6 @@
 # Generated TrustWeave evidence
 artifacts/
+*-artifacts/
 
 # Python build and test artifacts
 __pycache__/

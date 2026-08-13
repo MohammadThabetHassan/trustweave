@@ -13,6 +13,8 @@ TrustWeave is a **local-first developer tool** for teams adding tools or MCP-sty
 | `trustweave attest` | Hash-linked local attestation | The integrity relationship among the generated bundle, test results, and stated source revision. |
 | `trustweave report` | Markdown evidence report | A review-friendly explanation of declared paths and policy decisions. |
 | `trustweave verify` | Verification result | Whether an attestation’s internal hash chain matches its predicate. |
+| `trustweave policy-check` | Policy review JSON and Markdown | Ordered-rule shadowing and policy decisions that require a human review. |
+| `trustweave diff` | Bundle diff JSON and Markdown | Declared source, tool, path, and policy-decision changes between two generated bundles. |
 
 > **Security boundary:** TrustWeave v0.1 does not execute MCP configurations, run agent tools, contact networks, access credentials, call models, scan systems, or act on external data. It analyzes only a local declarative manifest and fixed synthetic scenarios.
 
@@ -38,23 +40,51 @@ trustweave test \
 trustweave attest --source-revision "$(git rev-parse --short HEAD 2>/dev/null || echo local)" --output-dir artifacts
 trustweave report --output-dir artifacts
 trustweave verify --attestation artifacts/attestation.json
+
+trustweave policy-check --policy policies/default-policy.json --output-dir artifacts
 ```
 
 The example is a fully synthetic customer-support agent. It declares a safe retrieval path, a confidential-data path that requires approval before a mock external action, and an intentionally unsafe untrusted-content-to-external-action path that the policy denies.
 
 ## Expected result
 
-The workflow produces four local artifacts.
+The basic workflow produces six local artifacts.
 
 ```text
 artifacts/
 ├── agent-security-bundle.json
 ├── security-test-results.json
 ├── attestation.json
-└── report.md
+├── report.md
+├── policy-review.json
+└── policy-review.md
 ```
 
 The generated report identifies the unsafe declared path and records the deterministic decision without sending a message, reading a real customer record, or invoking an external tool.
+
+## Review a candidate agent change
+
+TrustWeave can compare two generated bundles before a merge. The candidate example adds a synthetic external archive capability. Its untrusted-input path remains denied by the policy, but the diff still emits a review signal because the new external capability needs a human to confirm its authorization and policy coverage.
+
+```bash
+rm -rf review-artifacts
+trustweave scan \
+  --manifest examples/support-agent.manifest.json \
+  --policy policies/default-policy.json \
+  --output-dir review-artifacts/base
+
+trustweave scan \
+  --manifest examples/support-agent.candidate.manifest.json \
+  --policy policies/default-policy.json \
+  --output-dir review-artifacts/head
+
+trustweave diff \
+  --base review-artifacts/base/agent-security-bundle.json \
+  --head review-artifacts/head/agent-security-bundle.json \
+  --output-dir review-artifacts/diff
+```
+
+The diff is a declarative review artifact, not a vulnerability scanner or a runtime verdict. It highlights source, tool, path, and matching-policy changes for a reviewer to assess in context.
 
 ## Why TrustWeave
 
@@ -85,7 +115,7 @@ mypy src
 pytest
 ```
 
-The initial repository baseline was verified locally with **Ruff formatting and linting, strict type checking over `src`, six unit/end-to-end tests, and the documented synthetic evidence workflow**. Generated artifacts are excluded from version control and can be regenerated from the checked-in example.
+The current repository baseline is verified locally with **Ruff formatting and linting, strict type checking over `src`, deterministic unit and end-to-end tests, isolated wheel installation, and the documented synthetic evidence workflows**. Generated artifacts are excluded from version control and can be regenerated from the checked-in example.
 
 ## Scope and non-goals
 
