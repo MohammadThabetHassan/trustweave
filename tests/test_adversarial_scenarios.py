@@ -16,8 +16,8 @@ def test_adversarial_scenario_library_is_cited_synthetic_and_passes_reference_po
     scenarios = parse_scenarios(load_document(SCENARIOS))
     results = run_scenarios(parse_policy(load_document(POLICY)), scenarios)
 
-    assert len(scenarios) == 13
-    assert results["summary"] == {"total": 13, "passed": 13, "failed": 0, "status": "passed"}
+    assert len(scenarios) == 25
+    assert results["summary"] == {"total": 25, "passed": 25, "failed": 0, "status": "passed"}
     assert all(scenario.references for scenario in scenarios)
     assert all(
         reference.url.startswith("https://")
