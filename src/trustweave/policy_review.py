@@ -38,7 +38,41 @@ def _capabilities_cover(first: tuple[str, ...], later: tuple[str, ...]) -> bool:
     )
 
 
-def _covers(first: PolicyRule, later: PolicyRule) -> bool:
+def _bounds_cover(first: PolicyRule, later: PolicyRule, policy: Policy) -> bool:
+    """Return whether first's declared classification interval contains later's interval."""
+
+    if not policy.classification_taxonomy:
+        return (
+            first.source_data_classification_at_least is None
+            and first.source_data_classification_at_most is None
+            and later.source_data_classification_at_least is None
+            and later.source_data_classification_at_most is None
+        )
+    ranks = {value: index for index, value in enumerate(policy.classification_taxonomy)}
+    first_lower = (
+        ranks[first.source_data_classification_at_least]
+        if first.source_data_classification_at_least is not None
+        else 0
+    )
+    later_lower = (
+        ranks[later.source_data_classification_at_least]
+        if later.source_data_classification_at_least is not None
+        else 0
+    )
+    first_upper = (
+        ranks[first.source_data_classification_at_most]
+        if first.source_data_classification_at_most is not None
+        else len(ranks) - 1
+    )
+    later_upper = (
+        ranks[later.source_data_classification_at_most]
+        if later.source_data_classification_at_most is not None
+        else len(ranks) - 1
+    )
+    return first_lower <= later_lower and first_upper >= later_upper
+
+
+def _covers(first: PolicyRule, later: PolicyRule, policy: Policy) -> bool:
     """Return whether an earlier rule provably matches every path matched by a later rule."""
 
     return (
@@ -49,11 +83,25 @@ def _covers(first: PolicyRule, later: PolicyRule) -> bool:
         and _set_covers(first.tool_identifiers, later.tool_identifiers)
         and _set_covers(first.purpose_tags, later.purpose_tags)
         and _set_covers(first.required_controls, later.required_controls)
+        and _bounds_cover(first, later, policy)
         and _capabilities_cover(first.tool_capabilities, later.tool_capabilities)
     )
 
 
-def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, Any]:
+def _declared_controls(policy: Policy) -> frozenset[str]:
+    """Return design-time policy control labels usable by a policy rule."""
+
+    if policy.approval_control is None:
+        return frozenset()
+    controls = {"approval"}
+    if policy.approval_control.fail_closed:
+        controls.add("approval.fail_closed")
+    return frozenset(controls)
+
+
+def review_policy(
+    policy: Policy, generated_at: str | None = None, *, include_coverage: bool = False
+) -> dict[str, Any]:
     """Review policy structure with optional application-layer provenance."""
 
     findings: list[dict[str, Any]] = []
@@ -69,20 +117,58 @@ def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, 
             }
         )
 
+    coverage_rules: dict[str, dict[str, object]] = {}
+    declared_controls = _declared_controls(policy)
     for later_index, later_rule in enumerate(policy.rules):
-        for earlier_rule in policy.rules[:later_index]:
-            if _covers(earlier_rule, later_rule):
+        shadowing_rule = next(
+            (
+                earlier_rule
+                for earlier_rule in policy.rules[:later_index]
+                if _covers(earlier_rule, later_rule, policy)
+            ),
+            None,
+        )
+        impossible = not set(later_rule.required_controls).issubset(declared_controls)
+        if include_coverage:
+            coverage_rules[later_rule.id] = {
+                "reachable": shadowing_rule is None and not impossible,
+                "possible": not impossible,
+                "shadowed_by": shadowing_rule.id if shadowing_rule is not None else None,
+                "decision": later_rule.decision,
+            }
+        if shadowing_rule is not None:
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-002",
+                    "message": (
+                        f"Rule {later_rule.id} is shadowed by earlier rule {shadowing_rule.id} "
+                        "under first-match semantics and cannot determine a decision."
+                    ),
+                }
+            )
+            if include_coverage and shadowing_rule.decision != later_rule.decision:
                 findings.append(
                     {
                         "severity": "review",
-                        "id": "TW-POL-002",
+                        "id": "TW-POL-007",
                         "message": (
-                            f"Rule {later_rule.id} is shadowed by earlier rule {earlier_rule.id} "
-                            "under first-match semantics and cannot determine a decision."
+                            f"Rule {later_rule.id} conflicts with shadowing rule "
+                            f"{shadowing_rule.id}: their declared decisions differ."
                         ),
                     }
                 )
-                break
+        if include_coverage and impossible:
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-008",
+                    "message": (
+                        f"Rule {later_rule.id} requires declared controls that this policy does "
+                        "not provide and cannot determine a decision."
+                    ),
+                }
+            )
         if (
             later_rule.decision == "allow"
             and "untrusted" in later_rule.source_trust
@@ -192,4 +278,16 @@ def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, 
             ),
         ],
     }
+    if include_coverage:
+        review["coverage"] = {
+            "rules": coverage_rules,
+            "shadowed_rules": sorted(
+                rule_id
+                for rule_id, result in coverage_rules.items()
+                if result["shadowed_by"] is not None
+            ),
+            "impossible_rules": sorted(
+                rule_id for rule_id, result in coverage_rules.items() if result["possible"] is False
+            ),
+        }
     return add_generated_at(review, generated_at)

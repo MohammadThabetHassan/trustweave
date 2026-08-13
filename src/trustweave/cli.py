@@ -210,6 +210,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     chain_check.add_argument("--max-nodes", type=int, default=1000, help="Maximum declared nodes.")
     chain_check.add_argument("--max-paths", type=int, default=1000, help="Maximum emitted paths.")
+    chain_check.add_argument("--max-edges", type=int, default=5000, help="Maximum traversed edges.")
+    chain_check.add_argument(
+        "--max-depth", type=int, default=100, help="Maximum declared path depth."
+    )
+    chain_check.add_argument(
+        "--max-states", type=int, default=5000, help="Maximum propagation states."
+    )
     chain_check.add_argument(
         "--exit-on-review", action="store_true", help="Return status 1 when review findings exist."
     )
@@ -222,6 +229,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     policy_check.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+    policy_check.add_argument(
+        "--coverage",
+        action="store_true",
+        help="Include deterministic rule reachability and contradiction diagnostics.",
     )
     policy_check.add_argument(
         "--exit-on-review",
@@ -473,13 +485,22 @@ def _chain_check(
     output_dir: Path,
     max_nodes: int,
     max_paths: int,
+    max_edges: int,
+    max_depth: int,
+    max_states: int,
     exit_on_review: bool,
     generated_at: str,
 ) -> tuple[str, int]:
     """Create local chain-review artifacts from an explicitly supplied graph declaration."""
 
     review = review_declared_chains(
-        load_document(input_path), generated_at, max_nodes=max_nodes, max_paths=max_paths
+        load_document(input_path),
+        generated_at,
+        max_nodes=max_nodes,
+        max_paths=max_paths,
+        max_edges=max_edges,
+        max_depth=max_depth,
+        max_states=max_states,
     )
     json_path = write_json(output_dir / CHAIN_REVIEW_FILE, review)
     markdown_path = write_text(output_dir / CHAIN_REVIEW_REPORT_FILE, render_chain_review(review))
@@ -488,10 +509,14 @@ def _chain_check(
 
 
 def _policy_check(
-    policy_path: Path, output_dir: Path, exit_on_review: bool, generated_at: str
+    policy_path: Path,
+    output_dir: Path,
+    include_coverage: bool,
+    exit_on_review: bool,
+    generated_at: str,
 ) -> tuple[str, int]:
     policy = parse_policy(load_document(policy_path))
-    review = review_policy(policy, generated_at)
+    review = review_policy(policy, generated_at, include_coverage=include_coverage)
     json_path = write_json(output_dir / POLICY_REVIEW_FILE, review)
     markdown_path = write_text(
         output_dir / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
@@ -709,6 +734,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.output_dir,
                 args.max_nodes,
                 args.max_paths,
+                args.max_edges,
+                args.max_depth,
+                args.max_states,
                 args.exit_on_review,
                 generation_timestamp(args.generated_at),
             )
@@ -718,6 +746,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             message, code = _policy_check(
                 args.policy,
                 args.output_dir,
+                args.coverage,
                 args.exit_on_review,
                 generation_timestamp(args.generated_at),
             )

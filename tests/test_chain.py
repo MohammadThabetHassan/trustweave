@@ -43,6 +43,31 @@ def test_chain_manifest_rejects_incompatible_node_fields() -> None:
         review_declared_chains(document)
 
 
+def test_checked_in_safe_sanitized_chain_example_has_no_review_findings() -> None:
+    example_path = (
+        Path(__file__).resolve().parents[1]
+        / "examples"
+        / "chains"
+        / "safe-sanitized-external.chain.json"
+    )
+    review = review_declared_chains(
+        json.loads(example_path.read_text(encoding="utf-8")),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    assert review["findings"] == []
+    assert review["paths"] == [
+        {
+            "identity": [
+                "customer-request",
+                "customer-record",
+                "declared-redactor",
+                "external-notification",
+            ]
+        }
+    ]
+
+
 def test_chain_review_reports_only_explicitly_declared_unsafe_path() -> None:
     review = review_declared_chains(
         _document(
@@ -107,6 +132,42 @@ def test_chain_traversal_terminates_at_declared_external_action() -> None:
         generated_at="2026-08-13T00:00:00+00:00",
     )
     assert review["paths"] == [{"identity": ["inbox", "records", "email"]}]
+
+
+def test_chain_review_tracks_sanitized_classifications_as_propagated_state() -> None:
+    nodes = _unsafe_nodes() + [
+        {"id": "redactor", "kind": "sanitizer", "covers_classifications": ["confidential"]}
+    ]
+    review = review_declared_chains(
+        _document(
+            nodes,
+            [
+                {"from": "inbox", "to": "records"},
+                {"from": "records", "to": "redactor"},
+                {"from": "redactor", "to": "email"},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    assert review["paths"] == [{"identity": ["inbox", "records", "redactor", "email"]}]
+    assert review["findings"] == []
+
+
+def test_chain_review_enforces_edge_depth_and_state_budgets() -> None:
+    document = _document(
+        _unsafe_nodes(),
+        [{"from": "inbox", "to": "records"}, {"from": "records", "to": "email"}],
+    )
+    for budget in ({"max_edges": 1}, {"max_depth": 2}, {"max_states": 2}):
+        review = review_declared_chains(
+            document,
+            generated_at="2026-08-13T00:00:00+00:00",
+            **budget,
+        )
+        finding = review["findings"][0]
+        assert finding["id"] == "TW-CHAIN-004"
+        assert finding["properties"]["budget"] in {"max_edges", "max_depth", "max_states"}
 
 
 def test_chain_review_handles_cycles_and_reports_budget_limits() -> None:
