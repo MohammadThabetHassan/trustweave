@@ -147,6 +147,22 @@ def test_policy_v2_identifier_constraint_does_not_false_shadow_broader_rule() ->
     assert not any(item["id"] == "TW-POL-002" for item in findings)
 
 
+def test_policy_v2_rejects_impossible_bounds_and_unknown_exact_classification() -> None:
+    invalid_bounds = _policy_document()
+    rule = invalid_bounds["rules"][0]
+    assert isinstance(rule, dict)
+    rule["source_data_classification_at_most"] = "internal"
+    with pytest.raises(ValidationError, match="impossible classification"):
+        parse_policy(invalid_bounds)
+
+    invalid_exact = _policy_document()
+    exact_rule = invalid_exact["rules"][0]
+    assert isinstance(exact_rule, dict)
+    exact_rule["source_data_classifications"] = ["secret"]
+    with pytest.raises(ValidationError, match="classification_taxonomy"):
+        parse_policy(invalid_exact)
+
+
 def test_policy_v2_rejects_invalid_taxonomy_references_and_v1_unknown_fields() -> None:
     invalid = _policy_document()
     rule = invalid["rules"][0]
