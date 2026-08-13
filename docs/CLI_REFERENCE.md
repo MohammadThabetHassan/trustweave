@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-import,mcp-profile-check,sarif} ...
+trustweave [-h] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -85,6 +85,19 @@ trustweave attest [--source-revision TEXT] [--output-dir DIR]
 | `attestation.json` | Hashes of local artifacts, canonical-document digests, source revision, integrity chain, and limits. |
 
 The statement is internally verifiable but is **not signed** and is not a DSSE, SLSA, Sigstore, or transparency-log claim.
+
+## `statement`
+
+```bash
+trustweave statement --attestation PATH [--output-dir DIR]
+```
+
+`statement` converts an existing local `attestation.json` into `unsigned-statement.json`. It preserves the local subject, predicate, and integrity fields while explicitly setting `unsigned: true`. It does not sign, upload, authenticate an identity, establish provenance, or authorize a deployment.
+
+| Input | Required | Description |
+|---|---:|---|
+| `--attestation` | Yes | Local TrustWeave attestation JSON. |
+| `--output-dir` | No | Artifact directory; defaults to `artifacts`. |
 
 ## `report`
 
@@ -261,6 +274,14 @@ trustweave mcp-import --tool-list PATH [--output-dir DIR]
 | `mcp-tool-inventory.json` | Stable, sorted tool metadata inventory with explicit non-connection and non-authorization limits. |
 
 MCP specifies tool names, descriptions, input schemas, and optional annotations, while warning that annotations must be treated as untrusted unless received from trusted servers.[2] TrustWeave does not retrieve the list, open a transport, resolve an endpoint, inspect credentials, invoke a tool, infer action classes from hints, or treat tool metadata as authorization.
+
+## `mcp-scaffold`
+
+```bash
+trustweave mcp-scaffold --inventory PATH [--output-dir DIR]
+```
+
+`mcp-scaffold` converts a local MCP inventory into an intentionally incomplete reviewer draft. Every tool remains `REVIEW_REQUIRED`; the command does not infer action classes, capabilities, sources, flows, policy, or authorization. See [MCP Import](MCP_IMPORT.md) and the [Local Reviewer Workflow](REVIEWER_WORKFLOW.md).
 
 ## `mcp-profile-check`
 
