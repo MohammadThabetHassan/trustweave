@@ -39,6 +39,7 @@ from trustweave.report import (
 from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import explain_scenario, parse_scenarios, run_scenarios
+from trustweave.schema_catalog import list_schema_names, read_schema
 from trustweave.statement import build_unsigned_statement
 from trustweave.trace_review import review_trace
 
@@ -96,6 +97,12 @@ def _parser() -> argparse.ArgumentParser:
         "init", help="Create an opt-in local trustweave.toml template without overwriting files."
     )
     init.add_argument("--directory", type=Path, default=Path("."), help="Project directory.")
+
+    schema = subcommands.add_parser("schema", help="List or display checked-in local JSON Schemas.")
+    schema_commands = schema.add_subparsers(dest="schema_command", required=True)
+    schema_commands.add_parser("list", help="List checked-in schema filenames.")
+    schema_show = schema_commands.add_parser("show", help="Print one checked-in schema document.")
+    schema_show.add_argument("name", help="Exact schema filename from `trustweave schema list`.")
 
     scan = subcommands.add_parser(
         "scan", help="Validate a manifest and write an Agent Security Bundle."
@@ -368,6 +375,12 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _schema_list() -> str:
+    """Render checked-in schema names one per line."""
+
+    return "\n".join(list_schema_names())
+
+
 def _init(directory: Path) -> str:
     """Create the explicit local configuration template."""
 
@@ -620,6 +633,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         args = _parser().parse_args(argv)
         debug = args.debug
+        if args.command == "schema":
+            if args.schema_command == "list":
+                print(_schema_list())
+            else:
+                print(read_schema(args.name))
+            return EXIT_SUCCESS
         if args.command == "init":
             print(_init(args.directory))
             return EXIT_SUCCESS

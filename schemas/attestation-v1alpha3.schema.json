@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/attestation/v1alpha3",
+  "title": "TrustWeave Local Attestation v1alpha3",
+  "type": "object",
+  "required": ["schema_version", "subject", "source_revision", "payloads", "files"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/attestation/v1alpha3"},
+    "subject": {"type": "string", "minLength": 1, "maxLength": 1024},
+    "source_revision": {"type": "string", "minLength": 1, "maxLength": 1024},
+    "payloads": {"type": "object"},
+    "files": {"type": "object"},
+    "generated_at": {"type": "string"}
+  },
+  "additionalProperties": false
+}

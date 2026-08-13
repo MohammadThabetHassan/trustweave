@@ -300,6 +300,11 @@ def review_risks(
         entries.append(entry)
 
     states = Counter(str(entry["risk_state"]) for entry in entries)
+    observed_fingerprints = set(unique_findings)
+    orphaned_decisions = {
+        "baseline": sorted(set(baseline) - observed_fingerprints),
+        "suppressions": sorted(set(suppressions) - observed_fingerprints),
+    }
     active = [
         entry
         for entry in entries
@@ -315,12 +320,15 @@ def review_risks(
             "suppressed": states["suppressed"],
             "expired_baseline": states["expired_baseline"],
             "expired_suppression": states["expired_suppression"],
+            "orphaned_baseline": len(orphaned_decisions["baseline"]),
+            "orphaned_suppressions": len(orphaned_decisions["suppressions"]),
             "active_by_severity": {
                 severity: sum(1 for entry in active if entry["severity"] == severity)
                 for severity in VALID_SEVERITIES
             },
             "status": "review_required" if active else "clear",
         },
+        "orphaned_decisions": orphaned_decisions,
         "limits": [
             (
                 "Risk decisions apply only to supplied local review findings. A baseline or "

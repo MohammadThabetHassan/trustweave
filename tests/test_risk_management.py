@@ -87,6 +87,49 @@ def test_baseline_and_suppression_expiry_are_enforced(
     assert suppressed["findings"][0]["risk_state"] == "suppressed"
 
 
+def test_risk_review_reports_orphaned_local_decisions(
+    review_artifact: dict[str, object],
+) -> None:
+    fingerprint = normalize_findings(review_artifact)[0].fingerprint
+    orphaned = "a" * 64
+    review = review_risks(
+        [review_artifact],
+        baseline_document={
+            "schema_version": RISK_BASELINE_SCHEMA_VERSION,
+            "baseline": [
+                {
+                    "fingerprint": fingerprint,
+                    "reason": "Known local review decision.",
+                    "expires_at": "2026-09-01T00:00:00+00:00",
+                },
+                {
+                    "fingerprint": orphaned,
+                    "reason": "Stale local decision to review.",
+                    "expires_at": "2026-09-01T00:00:00+00:00",
+                },
+            ],
+        },
+        suppressions_document={
+            "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+            "suppressions": [
+                {
+                    "fingerprint": "b" * 64,
+                    "reason": "Stale temporary local exemption to review.",
+                    "expires_at": "2026-09-01T00:00:00+00:00",
+                }
+            ],
+        },
+        reviewed_at="2026-08-13T00:00:00+00:00",
+    )
+
+    assert review["summary"]["orphaned_baseline"] == 1
+    assert review["summary"]["orphaned_suppressions"] == 1
+    assert review["orphaned_decisions"] == {
+        "baseline": [orphaned],
+        "suppressions": ["b" * 64],
+    }
+
+
 def test_risk_contract_rejects_missing_reason_duplicate_or_invalid_expiry(
     review_artifact: dict[str, object],
 ) -> None:

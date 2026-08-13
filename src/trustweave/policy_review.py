@@ -45,6 +45,10 @@ def _covers(first: PolicyRule, later: PolicyRule) -> bool:
         set(later.source_trust).issubset(first.source_trust)
         and set(later.tool_action_classes).issubset(first.tool_action_classes)
         and _set_covers(first.source_data_classifications, later.source_data_classifications)
+        and _set_covers(first.source_identifiers, later.source_identifiers)
+        and _set_covers(first.tool_identifiers, later.tool_identifiers)
+        and _set_covers(first.purpose_tags, later.purpose_tags)
+        and _set_covers(first.required_controls, later.required_controls)
         and _capabilities_cover(first.tool_capabilities, later.tool_capabilities)
     )
 

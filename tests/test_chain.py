@@ -3,8 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from trustweave.chain import review_declared_chains
 from trustweave.cli import main
+from trustweave.models import ValidationError
 
 
 def _document(nodes: list[dict[str, object]], edges: list[dict[str, str]]) -> dict[str, object]:
@@ -22,6 +25,22 @@ def _unsafe_nodes() -> list[dict[str, object]]:
         {"id": "records", "kind": "data", "classification": "confidential"},
         {"id": "email", "kind": "tool", "action_class": "external"},
     ]
+
+
+def test_chain_manifest_rejects_incompatible_node_fields() -> None:
+    document = _document(_unsafe_nodes(), [])
+    source = document["nodes"][0]
+    assert isinstance(source, dict)
+    source["action_class"] = "external"
+    with pytest.raises(ValidationError, match="not valid for source"):
+        review_declared_chains(document)
+
+    document = _document(_unsafe_nodes(), [])
+    data = document["nodes"][1]
+    assert isinstance(data, dict)
+    data.pop("classification")
+    with pytest.raises(ValidationError, match="classification is required"):
+        review_declared_chains(document)
 
 
 def test_chain_review_reports_only_explicitly_declared_unsafe_path() -> None:
@@ -73,6 +92,21 @@ def test_chain_check_cli_writes_local_json_and_markdown(tmp_path: Path) -> None:
     assert main(["chain-check", "--input", str(input_path), "--output-dir", str(output_dir)]) == 0
     assert (output_dir / "chain-review.json").is_file()
     assert "TW-CHAIN-001" in (output_dir / "chain-review.md").read_text(encoding="utf-8")
+
+
+def test_chain_traversal_terminates_at_declared_external_action() -> None:
+    review = review_declared_chains(
+        _document(
+            _unsafe_nodes(),
+            [
+                {"from": "inbox", "to": "records"},
+                {"from": "records", "to": "email"},
+                {"from": "email", "to": "records"},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+    assert review["paths"] == [{"identity": ["inbox", "records", "email"]}]
 
 
 def test_chain_review_handles_cycles_and_reports_budget_limits() -> None:

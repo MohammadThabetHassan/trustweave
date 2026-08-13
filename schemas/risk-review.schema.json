@@ -8,6 +8,15 @@
     "schema_version": {"const": "trustweave.dev/risk-review/v1alpha1"},
     "findings": {"type": "array", "items": {"type": "object"}},
     "summary": {"type": "object"},
+    "orphaned_decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline", "suppressions"],
+      "properties": {
+        "baseline": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+        "suppressions": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+      }
+    },
     "limits": {"type": "array", "items": {"type": "string"}},
     "generated_at": {"type": "string"}
   },
