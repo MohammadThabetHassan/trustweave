@@ -15,7 +15,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - A fully synthetic customer-support-agent example with deterministic allow, deny, and approval-required paths.
 - Unit and end-to-end tests for validation, policy decisions, scenario results, evidence verification, bundle diffs, static policy review, and the complete CLI workflow.
 - Architecture, product-contract, threat-model, contribution, security, governance, and release documentation.
-- GitHub workflows for quality checks, dependency review, package builds, isolated wheel verification, declared dependency auditing, policy review, and candidate bundle-diff evidence.
+- GitHub workflows for quality checks, dependency review, Bandit static source-security scanning, package builds, isolated wheel verification, declared dependency auditing, policy review, and candidate bundle-diff evidence.
 
 ### Security
 

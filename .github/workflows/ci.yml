@@ -25,7 +25,7 @@ jobs:
       - name: Install package and verification tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e . build pip-audit pytest ruff mypy PyYAML
+          python -m pip install -e . bandit build pip-audit pytest ruff mypy PyYAML
 
       - name: Check formatting
         run: ruff format --check .
@@ -35,6 +35,9 @@ jobs:
 
       - name: Type check core package
         run: mypy src
+
+      - name: Static security scan
+        run: bandit -r src/trustweave -q
 
       - name: Run tests
         run: pytest

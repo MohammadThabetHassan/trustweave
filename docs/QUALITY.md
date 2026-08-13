@@ -9,11 +9,12 @@ TrustWeave makes security-related review claims only when they are linked to rep
 Run the following commands from a clean checkout. The package requires Python 3.11 or later; the repository CI currently verifies Python 3.12.
 
 ```bash
-python -m pip install -e . build pip-audit pytest ruff mypy PyYAML
+python -m pip install -e . bandit build pip-audit pytest ruff mypy PyYAML
 
 ruff format --check .
 ruff check .
 mypy src
+bandit -r src/trustweave -q
 pytest
 python -m build
 pip-audit -r requirements.txt
@@ -39,7 +40,7 @@ A failing synthetic scenario, malformed manifest, unknown reference, invalid sch
 
 ## Hosted checks
 
-The `Quality and tests` workflow repeats formatting, linting, core type checking, tests, package build, isolated wheel invocation, declared dependency audit, the synthetic evidence workflow, policy review, and baseline/candidate diff review. It uploads generated evidence for inspection.
+The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, tests, package build, isolated wheel invocation, declared dependency audit, the synthetic evidence workflow, policy review, and baseline/candidate diff review. It uploads generated evidence for inspection.
 
 The repository’s `main` branch requires this status check, retains linear history, and blocks force pushes and deletion. Direct commits remain the authorized working model; maintainers must complete the local checks before pushing and must monitor hosted results on the exact pushed SHA.
 
