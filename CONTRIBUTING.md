@@ -13,13 +13,15 @@ Thank you for helping improve TrustWeave. The project welcomes contributions tha
 ## Local development
 
 ```bash
-python -m pip install -e .
-python -m pip install pytest ruff mypy PyYAML
+python -m pip install -e . bandit build pip-audit pytest ruff mypy PyYAML
 
 ruff format --check .
 ruff check .
 mypy src
+bandit -r src/trustweave -q
 pytest
+python -m build
+pip-audit -r requirements.txt
 ```
 
 Run the example workflow before proposing a change:
@@ -31,6 +33,18 @@ trustweave test --policy policies/default-policy.json --scenarios scenarios/defa
 trustweave attest --source-revision contributor-check --output-dir artifacts
 trustweave report --output-dir artifacts
 trustweave verify --attestation artifacts/attestation.json
+trustweave policy-check --policy policies/default-policy.json --output-dir artifacts
+trustweave trace-review \
+  --manifest examples/support-agent.manifest.json \
+  --policy policies/default-policy.json \
+  --trace examples/traces/clear-support-trace.json \
+  --output-dir artifacts/trace-clear \
+  --exit-on-review
+trustweave mcp-profile-check \
+  --manifest examples/support-agent.manifest.json \
+  --profile examples/mcp-profiles/clear-support-profile.json \
+  --output-dir artifacts/mcp-clear \
+  --exit-on-review
 ```
 
 ## Adding a scenario
@@ -49,11 +63,11 @@ Before requesting review, confirm the following statements are true.
 
 - [ ] The change is within the documented safety boundaries.
 - [ ] The change includes relevant tests or updates existing deterministic expectations.
-- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, and `pytest` pass locally.
-- [ ] Generated `artifacts/` files are not committed.
+- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, `bandit -r src/trustweave -q`, `pytest`, `python -m build`, and `pip-audit -r requirements.txt` pass locally.
+- [ ] Generated artifact directories, including `artifacts/` and `*-artifacts/`, are not committed.
 - [ ] Documentation and examples describe the actual implemented behavior.
 - [ ] Any new schema field includes validation and an explicit default/failure behavior.
-- [ ] The change does not add real credentials, personal data, third-party targets, or unsafe execution paths.
+- [ ] The change does not add real credentials, personal data, third-party targets, unsafe execution paths, reports that reproduce trace message content/tool arguments, or MCP profiles that contain token-like URI components.
 
 ## Governance
 

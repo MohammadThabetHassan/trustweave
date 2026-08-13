@@ -17,11 +17,18 @@ flowchart LR
     B --> D[Bundle diff]
     B2[Candidate bundle] --> D
     D --> DR[Diff artifacts]
+    L[Pre-recorded local trace] --> TV[Offline trace review]
+    M --> TV
+    P --> TV
+    TV --> TO[Trace review artifacts]
+    MP[Local MCP metadata profile] --> MC[Static MCP profile review]
+    M --> MC
+    MC --> MO[MCP profile review artifacts]
     S[Synthetic scenario pack] --> T[Deterministic scenario runner]
     P --> T
-    T --> TR[Test results]
+    T --> TS[Test results]
     B --> A[Local hash-linked attestation]
-    TR --> A
+    TS --> A
     A --> R
 ```
 
@@ -35,7 +42,9 @@ flowchart LR
 | `evidence.py` | Hash-links generated JSON artifacts into a local attestation. | States explicit limits; no claim of external signing or non-repudiation. |
 | `policy_review.py` | Reviews ordered-rule shadowing and decisions that require human scrutiny. | Does not decide authorization or run a policy in a deployed runtime. |
 | `diff.py` | Compares two generated bundles for declared source, tool, path, and decision changes. | Does not discover behavior, execute tools, or issue a security verdict. |
-| `report.py` | Renders review-friendly Markdown from generated artifacts. | Reads generated structured artifacts only. |
+| `trace_review.py` | Compares local trace tool-call metadata with declared sources, tools, flows, and deterministic policy. | Does not execute a target, inspect message text/tool arguments, or treat a trace as an instruction. |
+| `mcp_profile.py` | Validates local MCP metadata profiles and compares tool mappings/action classes with the manifest. | Does not discover a server, open a transport, retrieve metadata, handle tokens, or execute a tool. |
+| `report.py` | Renders review-friendly Markdown from generated artifacts. | Reads generated structured artifacts only and omits sensitive trace fields. |
 | `cli.py` | Exposes the local workflow through a predictable CLI. | Returns non-zero on invalid data or failed synthetic scenarios. |
 
 ## Artifact contracts
@@ -61,6 +70,14 @@ The policy-review artifact checks three deterministic structural conditions: whe
 ### Bundle diff
 
 The bundle-diff artifact compares a base and candidate bundle. It records additions, removals, and modifications to declared sources and tools; added and removed paths; and policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool and for an untrusted-input path to a sensitive/external action that is not denied.
+
+### Offline trace review
+
+The trace-review artifact consumes a strictly validated local trace with `messages`, `tool_calls`, and `events`. It records only message counts, tool names, declared source names, event-type counts, deterministic decisions, and review findings. It deliberately does not inspect or copy message content, tool arguments, credentials, or arbitrary event payloads. It reports undeclared sources/tools/flows and observed calls that the declared policy denies or requires approval.
+
+### MCP metadata profile review
+
+The MCP profile-review artifact validates an explicit local profile containing transport, HTTP resource identifier when relevant, authorization expectation, and a tool-to-manifest mapping. It rejects URI credentials, query parameters, and fragments; surfaces an HTTP profile that does not expect authorization; flags unknown manifest mappings and action-class drift; and reports a minimized mapping. It treats the profile as local metadata only and does not retrieve remote server metadata, connect to a transport, validate OAuth, process a token, or execute a tool.
 
 ## Policy semantics
 
@@ -91,3 +108,5 @@ The following capabilities are intentionally represented as adapters or future w
 4. **Evidence before claims:** reports include scope limits and avoid deployment-security guarantees.
 5. **Reproducible inputs:** examples, policy rules, and scenarios are versioned in the repository.
 6. **Diffs require context:** a review signal highlights an explicit change but does not replace review of the manifest, policy, and authorization design.
+7. **Trace minimization:** trace evidence is metadata, not executable input; reports exclude message content and tool arguments.
+8. **MCP metadata is declarative:** a profile is never a connection instruction, credential source, or protocol-conformance claim.

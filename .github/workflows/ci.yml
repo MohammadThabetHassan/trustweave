@@ -67,6 +67,22 @@ jobs:
           trustweave scan --manifest examples/support-agent.candidate.manifest.json --policy policies/default-policy.json --output-dir artifacts/review/head
           trustweave diff --base artifacts/review/base/agent-security-bundle.json --head artifacts/review/head/agent-security-bundle.json --output-dir artifacts/review/diff
           grep -q 'TW-DIFF-001' artifacts/review/diff/bundle-diff.json
+          trustweave trace-review --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --trace examples/traces/clear-support-trace.json --output-dir artifacts/trace-clear --exit-on-review
+          set +e
+          trustweave trace-review --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --trace examples/traces/review-required-support-trace.json --output-dir artifacts/trace-review --exit-on-review
+          trace_review_exit=$?
+          set -e
+          test "$trace_review_exit" -eq 1
+          grep -q 'TW-TRACE-004' artifacts/trace-review/trace-review.json
+          ! grep -q 'synthetic@example.invalid' artifacts/trace-review/trace-review.md
+          trustweave mcp-profile-check --manifest examples/support-agent.manifest.json --profile examples/mcp-profiles/clear-support-profile.json --output-dir artifacts/mcp-clear --exit-on-review
+          set +e
+          trustweave mcp-profile-check --manifest examples/support-agent.manifest.json --profile examples/mcp-profiles/review-required-support-profile.json --output-dir artifacts/mcp-review --exit-on-review
+          mcp_review_exit=$?
+          set -e
+          test "$mcp_review_exit" -eq 1
+          grep -q 'TW-MCP-001' artifacts/mcp-review/mcp-profile-review.json
+          ! grep -q 'token=' artifacts/mcp-review/mcp-profile-review.md
 
       - name: Upload generated evidence
         uses: actions/upload-artifact@v4

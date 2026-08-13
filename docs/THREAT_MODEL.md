@@ -27,6 +27,10 @@ TrustWeave is a **declarative architecture-review and synthetic-regression tool*
 | A scenario unexpectedly changes decision | The test command returns non-zero on failed expected decisions. | The scenario covers only its declared labels, not full model behavior. |
 | An ordered policy rule is unreachable or a default permits unmatched paths | The policy-review command writes a deterministic finding for review. | It does not establish whether the policy intent is correct or enforce a runtime decision. |
 | A candidate manifest introduces an external/sensitive tool or changes a policy decision | The bundle-diff command writes declared changes and review signals. | It cannot discover undeclared behavior or determine business authorization. |
+| A local trace records an undeclared source, tool, flow, denied call, or approval-required call | The trace-review command produces a structured review finding and can return a review-gate exit code. | It cannot establish trace authenticity, completeness, actor identity, or incident cause. |
+| Trace evidence contains sensitive message content or tool arguments | Trace-review outputs retain only counts, declared names, action classes, decisions, and finding identifiers. | The trace source itself may still require separate data-governance controls. |
+| MCP metadata drifts from manifest tool declarations or action classes | The MCP profile-review command flags unknown mappings and action-class mismatch before a connection is made. | It cannot discover an undeclared server capability or prove runtime enforcement. |
+| An HTTP MCP profile omits an authorization expectation | The profile review emits a review finding and requires an explicit decision before a CI gate can pass. | It does not validate OAuth, token audience, consent, or a real server policy. |
 | A generated evidence document is manually edited | The verifier detects a mismatch in the attestation’s internal hash chain. | It cannot prove the original operator or protect unsigned files from replacement. |
 
 ## Out of scope threats
@@ -60,6 +64,8 @@ TrustWeave does **not** assume manifests from third parties are safe to execute.
 | Dependency review workflow | Reviews dependency changes before they are merged in hosted workflows. |
 | Policy review | Makes rule shadowing and review-sensitive allow/default decisions visible in a structured artifact. |
 | Bundle diff | Makes declared source, tool, path, matching-rule, and decision changes visible before a merge. |
+| Offline trace review | Compares minimized local trace metadata with declared flows and deterministic policy while excluding message contents and tool arguments from reports. |
+| MCP profile review | Compares local transport, authorization expectation, and tool mappings with the manifest without server discovery, transport access, or token handling. |
 
 ## Reporting a weakness
 
