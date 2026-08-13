@@ -86,6 +86,15 @@ class PolicyRule:
 
 
 @dataclass(frozen=True)
+class ApprovalControl:
+    """A declared design-time contract for high-impact human approval."""
+
+    mechanism: str
+    binds_to: tuple[str, ...]
+    fail_closed: bool
+
+
+@dataclass(frozen=True)
 class Policy:
     """Validated deterministic flow-control policy."""
 
@@ -93,6 +102,7 @@ class Policy:
     name: str
     default_decision: str
     rules: tuple[PolicyRule, ...]
+    approval_control: ApprovalControl | None
 
 
 VALID_TRUST_LABELS = frozenset({"trusted", "untrusted", "conditional"})
@@ -280,9 +290,29 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
         )
     _unique_names([rule.id for rule in rules], "policy.rules.id")
 
+    approval_control: ApprovalControl | None = None
+    if "approval_control" in root:
+        control = _mapping(root["approval_control"], "policy.approval_control")
+        binds_to = tuple(
+            _string(value, "policy.approval_control.binds_to")
+            for value in _sequence(control.get("binds_to"), "policy.approval_control.binds_to")
+        )
+        if not binds_to:
+            raise ValidationError("policy.approval_control.binds_to must not be empty")
+        _unique_names(list(binds_to), "policy.approval_control.binds_to")
+        fail_closed = control.get("fail_closed")
+        if not isinstance(fail_closed, bool):
+            raise ValidationError("policy.approval_control.fail_closed must be a boolean")
+        approval_control = ApprovalControl(
+            mechanism=_string(control.get("mechanism"), "policy.approval_control.mechanism"),
+            binds_to=binds_to,
+            fail_closed=fail_closed,
+        )
+
     return Policy(
         schema_version=schema_version,
         name=_string(root.get("name"), "policy.name"),
         default_decision=default_decision,
         rules=tuple(rules),
+        approval_control=approval_control,
     )

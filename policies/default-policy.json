@@ -2,6 +2,11 @@
   "schema_version": "trustweave.dev/v1alpha1",
   "name": "support-agent-boundary-policy",
   "default_decision": "deny",
+  "approval_control": {
+    "mechanism": "human-review-queue",
+    "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+    "fail_closed": true
+  },
   "rules": [
     {
       "id": "TW-001",

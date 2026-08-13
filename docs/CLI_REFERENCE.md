@@ -96,15 +96,23 @@ A successful result says only that the statement is internally consistent with i
 ## `policy-check`
 
 ```bash
-trustweave policy-check --policy PATH [--output-dir DIR]
+trustweave policy-check --policy PATH [--output-dir DIR] [--exit-on-review]
 ```
 
-`policy-check` statically reviews the ordered deterministic policy. It identifies a rule that an earlier rule shadows, an `allow` default decision, and an untrusted-input rule that allows sensitive or external actions.
+`policy-check` statically reviews the ordered deterministic policy. It identifies a rule that an earlier rule shadows, an `allow` default decision, an untrusted-input rule that allows sensitive or external actions, and weak declaration of the approval boundary for sensitive/external paths that use `require_approval`.
+
+When a policy declares a high-impact approval path, its optional `approval_control` object can record a mechanism label, `binds_to` fields, and `fail_closed`. The review requires bindings for `actor`, `tool`, `target`, `parameters`, `issued_at`, and `expires_at`. It emits `TW-POL-004` when no control is declared, `TW-POL-005` for missing required bindings, and `TW-POL-006` when the declared control is fail-open. These are documentation and review signals; they do not prove that a mechanism exists or was enforced.
+
+| Input | Required | Description |
+|---|---:|---|
+| `--policy` | Yes | Deterministic policy in JSON or safe YAML. |
+| `--output-dir` | No | Artifact directory; defaults to `artifacts`. |
+| `--exit-on-review` | No | Returns `1` when one or more review findings are generated; useful for explicit CI gates. |
 
 | Output file | Content |
 |---|---|
-| `policy-review.json` | Structured findings and deterministic summary. |
-| `policy-review.md` | Human-readable policy review. |
+| `policy-review.json` | Structured findings, approval-control summary, deterministic counts, and limits. |
+| `policy-review.md` | Human-readable review with a declared approval-boundary table. |
 
 A clear policy review is not approval to deploy. A finding is a human-review obligation, not an automatic block.
 

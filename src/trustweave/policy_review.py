@@ -8,6 +8,9 @@ from typing import Any
 from trustweave.models import Policy, PolicyRule
 
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
+REQUIRED_APPROVAL_BINDINGS = frozenset(
+    {"actor", "tool", "target", "parameters", "issued_at", "expires_at"}
+)
 
 
 def _covers(first: PolicyRule, later: PolicyRule) -> bool:
@@ -64,10 +67,71 @@ def review_policy(policy: Policy) -> dict[str, Any]:
                 }
             )
 
+    high_impact_approval_rules = tuple(
+        rule
+        for rule in policy.rules
+        if rule.decision == "require_approval"
+        and REVIEW_ACTION_CLASSES.intersection(rule.tool_action_classes)
+    )
+    approval_control = policy.approval_control
+    missing_bindings: tuple[str, ...] = ()
+    if high_impact_approval_rules and approval_control is None:
+        findings.append(
+            {
+                "severity": "review",
+                "id": "TW-POL-004",
+                "message": (
+                    "Sensitive or external paths require approval, but the policy does not declare "
+                    "an approval control that reviewers can inspect."
+                ),
+            }
+        )
+    if high_impact_approval_rules and approval_control is not None:
+        missing_bindings = tuple(
+            sorted(REQUIRED_APPROVAL_BINDINGS - set(approval_control.binds_to))
+        )
+        if missing_bindings:
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-005",
+                    "message": (
+                        "The declared approval control does not bind approvals to: "
+                        f"{', '.join(missing_bindings)}."
+                    ),
+                }
+            )
+        if not approval_control.fail_closed:
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-006",
+                    "message": (
+                        "The declared approval control is not fail-closed when approval state "
+                        "cannot be validated."
+                    ),
+                }
+            )
+
+    approval_summary: dict[str, Any] = {
+        "high_impact_approval_rules": [rule.id for rule in high_impact_approval_rules],
+        "declared": approval_control is not None,
+    }
+    if approval_control is not None:
+        approval_summary.update(
+            {
+                "mechanism": approval_control.mechanism,
+                "binds_to": list(approval_control.binds_to),
+                "fail_closed": approval_control.fail_closed,
+                "missing_required_bindings": list(missing_bindings),
+            }
+        )
+
     return {
         "schema_version": "trustweave.dev/policy-review/v1alpha1",
         "generated_at": datetime.now(UTC).isoformat(),
         "policy": policy.name,
+        "approval_control": approval_summary,
         "findings": findings,
         "summary": {
             "rules": len(policy.rules),
@@ -77,7 +141,8 @@ def review_policy(policy: Policy) -> dict[str, Any]:
         "limits": [
             (
                 "The review checks only deterministic structure and declared labels; it does not "
-                "prove a policy is complete, authorized, or effective in a deployed runtime."
+                "prove an approval mechanism exists, authenticate approvers, or authorize a "
+                "deployed runtime."
             ),
             (
                 "Findings indicate review obligations rather than vulnerabilities, compliance "

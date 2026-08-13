@@ -65,7 +65,7 @@ The attestation stores SHA-256 digests of the bundle and test-results files, can
 
 ### Policy review
 
-The policy-review artifact checks three deterministic structural conditions: whether an ordered rule is shadowed by an earlier rule, whether an unmatched flow defaults to `allow`, and whether a rule allows an untrusted input to a sensitive or external action class. A finding is an obligation for human review, never an automatic block, authorization result, or vulnerability conclusion.
+The policy-review artifact checks six deterministic conditions: whether an ordered rule is shadowed by an earlier rule, whether an unmatched flow defaults to `allow`, whether a rule allows an untrusted input to a sensitive or external action class, whether a sensitive/external `require_approval` path lacks a declared approval control, whether that control binds approval to the action context, and whether the declaration fails closed. Required bindings are the actor, tool, target, parameters, issuance time, and expiry. A finding is an obligation for human review, never an automatic block, authorization result, or vulnerability conclusion.
 
 ### Bundle diff
 
@@ -85,7 +85,7 @@ Policies use ordered rules. A rule matches when both the source trust label and 
 
 Supported trust labels are `trusted`, `untrusted`, and `conditional`. Supported action classes are `read`, `write`, `sensitive`, and `external`. Supported decisions are `allow`, `deny`, and `require_approval`.
 
-The `require_approval` result is an evidence decision, not a human-approval implementation. TrustWeave v0.1 records that a path requires an approval control; it does not implement an approval workflow or contact a reviewer.
+The `require_approval` result is an evidence decision, not a human-approval implementation. An optional policy-level `approval_control` declaration records a mechanism label, the fields an approval is bound to, and whether validation fails closed. `trustweave policy-check --exit-on-review` can act as a deterministic CI gate for review findings. TrustWeave does not implement an approval workflow, contact a reviewer, authenticate an approver, or validate approval at runtime.
 
 ## Extension boundaries
 

@@ -1,0 +1,15 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "approval-control-missing-policy",
+  "default_decision": "deny",
+  "rules": [
+    {
+      "id": "TW-EXAMPLE-001",
+      "description": "A synthetic high-impact path requiring approval without a declared control.",
+      "source_trust": ["conditional"],
+      "tool_action_classes": ["external"],
+      "decision": "require_approval",
+      "rationale": "Synthetic negative fixture for deterministic approval-boundary review."
+    }
+  ]
+}

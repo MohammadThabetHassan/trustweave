@@ -214,7 +214,14 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
     """Render deterministic static policy-review findings as Markdown."""
 
     summary = _as_mapping(review.get("summary"))
+    approval_control = _as_mapping(review.get("approval_control"))
     findings = _as_sequence(review.get("findings"))
+    approval_rules = _as_sequence(approval_control.get("high_impact_approval_rules"))
+    approval_bindings = _as_sequence(approval_control.get("binds_to"))
+    approval_rule_value = ", ".join(str(rule) for rule in approval_rules) or "none"
+    approval_binding_value = ", ".join(str(binding) for binding in approval_bindings)
+    if not approval_binding_value:
+        approval_binding_value = "not declared"
     lines = [
         "# TrustWeave Policy Review Report",
         "",
@@ -225,6 +232,16 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
         "|---|---:|",
         f"| Rules reviewed | {summary.get('rules', 0)} |",
         f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        "",
+        "## Declared approval boundary",
+        "",
+        "| Control | Declared value |",
+        "|---|---|",
+        f"| High-impact approval rules | {approval_rule_value} |",
+        f"| Approval control declared | {approval_control.get('declared', False)} |",
+        f"| Mechanism | {approval_control.get('mechanism', 'not declared')} |",
+        f"| Approval bindings | {approval_binding_value} |",
+        f"| Fail closed | {approval_control.get('fail_closed', 'not declared')} |",
         "",
         "## Findings",
         "",

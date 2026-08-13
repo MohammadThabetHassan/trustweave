@@ -29,7 +29,7 @@ The declared core runtime dependency set is intentionally empty in v0.1. Optiona
 | Core bundle | `trustweave scan` | A validated `agent-security-bundle.json` with explicit flow decisions and limits. |
 | Synthetic regression | `trustweave test` | Passing `security-test-results.json` for the versioned scenario pack. |
 | Local integrity | `trustweave attest` then `trustweave verify` | An internally consistent hash-linked attestation. |
-| Policy structure | `trustweave policy-check` | A clear result for the default policy or documented review findings. |
+| Policy structure | `trustweave policy-check --exit-on-review` | A clear default-policy review with a documented, bound, fail-closed approval boundary, or an explicit non-zero review gate. |
 | Change review | `trustweave diff` | Bundle-diff JSON and Markdown for baseline/candidate and capability-growth pairs. |
 | Repository reality | `python scripts/reality_check.py` | Verified local Markdown links, JSON schemas, workflow YAML, and documented CLI commands. |
 | Observed-evidence review | `trustweave trace-review` | Clear and review-required local trace artifacts with minimized reports. |
@@ -41,6 +41,8 @@ The safe reference candidate adds a synthetic external archive tool. A successfu
 
 The capability-growth candidate changes an existing synthetic sensitive tool by adding `customer-record.export`. A successful diff workflow must produce `TW-DIFF-003`, list the capability in its Markdown report, and preserve the distinction between a declared capability change and a runtime authorization decision.
 
+The default policy’s conditional-to-external approval path must declare a human-review control that binds approval to the actor, tool, target, parameters, issue time, and expiry and fails closed. The deliberately incomplete approval fixture must return `1` under `policy-check --exit-on-review` and produce `TW-POL-004`. This verifies the evidence declaration and CI gate; it does not prove a production approval system exists.
+
 The clear trace fixture must exit `0` with `--exit-on-review`. The review-required trace fixture must exit `1`, contain `TW-TRACE-004`, and omit the fixture’s mock recipient and message text from the Markdown report. These checks validate explicit review-gate semantics and the trace-report privacy boundary.
 
 The clear MCP profile fixture must exit `0` with `--exit-on-review`. The review-required profile fixture must exit `1`, contain `TW-MCP-001`, and omit token-like query data from the Markdown report. These checks validate mapping drift, authorization-expectation review, URI hygiene, and the profile’s strict non-connection boundary.
@@ -49,7 +51,7 @@ A failing synthetic scenario, malformed manifest, unknown reference, invalid sch
 
 ## Hosted checks
 
-The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, tests, repository-reality validation, package build, isolated wheel invocation, declared dependency audit, the synthetic evidence workflow, policy review, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, and profile-URI hygiene assertions. It uploads generated evidence for inspection.
+The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, tests, repository-reality validation, package build, isolated wheel invocation, declared dependency audit, the synthetic evidence workflow, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, and profile-URI hygiene assertions. It uploads generated evidence for inspection.
 
 The repository’s `main` branch requires this status check, retains linear history, and blocks force pushes and deletion. Direct commits remain the authorized working model; maintainers must complete the local checks before pushing and must monitor hosted results on the exact pushed SHA.
 

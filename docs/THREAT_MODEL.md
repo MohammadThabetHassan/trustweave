@@ -23,6 +23,7 @@ TrustWeave is a **declarative architecture-review and synthetic-regression tool*
 |---|---|---|
 | Untrusted content is declared as reaching an external action | A deterministic rule can deny the declared path. | It cannot discover undeclared paths or stop a separate runtime. |
 | Confidential or conditional data is declared as reaching an external action | A rule can require approval. | It does not implement approval or verify real identity. |
+| A high-impact path requires approval but lacks a clear boundary declaration | Static policy review checks for an approval-control declaration, exact-action bindings, and fail-closed intent; it can fail a deliberate CI gate. | It cannot prove a queue, approver identity, authorization artifact, or runtime validation exists. |
 | A policy weakens or a new flow is added | The generated bundle and synthetic tests provide a reviewable diffable artifact. | PR diff rendering is a future integration. |
 | A scenario unexpectedly changes decision | The test command returns non-zero on failed expected decisions. | The scenario covers only its declared labels, not full model behavior. |
 | An ordered policy rule is unreachable or a default permits unmatched paths | The policy-review command writes a deterministic finding for review. | It does not establish whether the policy intent is correct or enforce a runtime decision. |
@@ -62,7 +63,7 @@ TrustWeave does **not** assume manifests from third parties are safe to execute.
 | Explicit limits in every artifact | Discourages overclaiming and security theatre. |
 | CI workflow | Repeats formatting, lint, typing, tests, package build, isolated wheel invocation, static policy review, and candidate diff evidence on changes. |
 | Dependency review workflow | Reviews dependency changes before they are merged in hosted workflows. |
-| Policy review | Makes rule shadowing and review-sensitive allow/default decisions visible in a structured artifact. |
+| Policy review | Makes rule shadowing, review-sensitive allow/default decisions, and declared high-impact approval-boundary gaps visible in a structured artifact. |
 | Bundle diff | Makes declared source, tool, path, matching-rule, and decision changes visible before a merge. |
 | Offline trace review | Compares minimized local trace metadata with declared flows and deterministic policy while excluding message contents and tool arguments from reports. |
 | MCP profile review | Compares local transport, authorization expectation, and tool mappings with the manifest without server discovery, transport access, or token handling. |

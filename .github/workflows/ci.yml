@@ -65,7 +65,13 @@ jobs:
           trustweave attest --source-revision "$GITHUB_SHA" --output-dir artifacts
           trustweave report --output-dir artifacts
           trustweave verify --attestation artifacts/attestation.json
-          trustweave policy-check --policy policies/default-policy.json --output-dir artifacts
+          trustweave policy-check --policy policies/default-policy.json --output-dir artifacts --exit-on-review
+          set +e
+          trustweave policy-check --policy examples/policies/approval-control-missing.policy.json --output-dir artifacts/policy-review-required --exit-on-review
+          policy_review_exit=$?
+          set -e
+          test "$policy_review_exit" -eq 1
+          grep -q 'TW-POL-004' artifacts/policy-review-required/policy-review.json
           trustweave scan --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --output-dir artifacts/review/base
           trustweave scan --manifest examples/support-agent.candidate.manifest.json --policy policies/default-policy.json --output-dir artifacts/review/head
           trustweave diff --base artifacts/review/base/agent-security-bundle.json --head artifacts/review/head/agent-security-bundle.json --output-dir artifacts/review/diff

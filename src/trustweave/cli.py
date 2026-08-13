@@ -110,6 +110,11 @@ def _parser() -> argparse.ArgumentParser:
     policy_check.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
+    policy_check.add_argument(
+        "--exit-on-review",
+        action="store_true",
+        help="Return status 1 when the policy produces any review finding.",
+    )
 
     trace_review = subcommands.add_parser(
         "trace-review",
@@ -199,14 +204,16 @@ def _diff(base_path: Path, head_path: Path, output_dir: Path) -> str:
     return f"Wrote bundle diff: {json_path} and {markdown_path}"
 
 
-def _policy_check(policy_path: Path, output_dir: Path) -> str:
+def _policy_check(policy_path: Path, output_dir: Path, exit_on_review: bool) -> tuple[str, int]:
     policy = parse_policy(load_document(policy_path))
     review = review_policy(policy)
     json_path = write_json(output_dir / POLICY_REVIEW_FILE, review)
     markdown_path = write_text(
         output_dir / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
     )
-    return f"Wrote policy review: {json_path} and {markdown_path}"
+    has_findings = int(review["summary"]["review_findings"]) > 0
+    code = 1 if exit_on_review and has_findings else 0
+    return f"Wrote policy review: {json_path} and {markdown_path}", code
 
 
 def _trace_review(
@@ -269,8 +276,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(_diff(args.base, args.head, args.output_dir))
             return 0
         if args.command == "policy-check":
-            print(_policy_check(args.policy, args.output_dir))
-            return 0
+            message, code = _policy_check(args.policy, args.output_dir, args.exit_on_review)
+            print(message)
+            return code
         if args.command == "trace-review":
             message, code = _trace_review(
                 args.manifest,

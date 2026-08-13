@@ -95,3 +95,14 @@ This is the best next addition because it is directly justified by least-privile
 The NIST initiative page states that the program is intended to help agents capable of autonomous action be adopted securely and emphasizes identity and authorization workstreams. [5] The OWASP agent security cheat sheet recommends minimum necessary tools, per-tool permission scoping, explicit authorization for sensitive operations, structured decision metadata, and clear audit trails. [6] The official MCP security guidance describes token-passthrough and SSRF risks and requires strong authorization boundaries for actual MCP implementations. [8]
 
 These sources support a local **capability-change review** and stronger pre-connection MCP metadata checks. They do not justify making TrustWeave a network client, OAuth library, or live enforcement proxy. The next enhancement should therefore remain a deterministic comparison of versioned declarations: it can show a reviewer when a manifest tool gains or loses a capability and classify growth on sensitive/external tools as requiring review.
+
+
+### Candidate: approval-boundary review
+
+A further standards review supports a narrow design-time control for paths already declared as `require_approval`. The NIST AI Agent Standards Initiative explicitly identifies agent identity and authorization as active standardization concerns. [5] OWASP recommends explicit approval for high-impact or irreversible actions and further advises binding an approval to the actor, tool name, target resource, normalized parameters, timestamp, and expiry while failing closed when validation is unavailable. [6] The MCP tools specification likewise says clients should request user confirmation for sensitive operations and show tool inputs before a call. [9]
+
+TrustWeave can express these recommendations without becoming a runtime approval service. An optional policy `approval_control` declaration should name the intended mechanism, state which action-context fields an approval binds to, and record fail-closed intent. Static `policy-check` can then require a review when a sensitive or external path is marked `require_approval` but has no declared control, incomplete bindings, or fail-open intent. The result is evidence about the **declared boundary**, not proof that an approver exists, that a user approved a particular action, or that a runtime validates an authorization artifact.
+
+This is a suitable additive enhancement because it operates on local versioned policy files, generates deterministic report fields and signals, needs no model call or server connection, and can be tested with clear and deliberately review-required synthetic policies.
+
+[9]: https://modelcontextprotocol.io/specification/2025-06-18/server/tools "Model Context Protocol tools specification (2025-06-18)"

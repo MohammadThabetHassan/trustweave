@@ -37,7 +37,7 @@ A pre-release-compatible addition should meet all of the following conditions:
 | Reports clearly state any new review boundary or limit. | Documentation update and report snapshot assertion where appropriate. |
 | Existing generated artifacts remain readable by the current CLI. | Compatibility test or documented migration. |
 
-Examples include a new optional descriptive field that the runtime ignores safely, or a new additive report field with a documented default.
+Examples include a new optional descriptive field that the runtime ignores safely, or a new additive report field with a documented default. The optional policy `approval_control` object follows this rule: policies without it remain valid, but `policy-check` emits `TW-POL-004` when a sensitive/external `require_approval` path lacks the declaration. When supplied, its `mechanism`, unique `binds_to` values, and boolean `fail_closed` field are validated by both the schema and typed parser.
 
 ## Breaking changes
 
@@ -66,3 +66,4 @@ Before merging an input or output contract change, confirm all statements below.
 - [ ] The CLI reference states updated inputs, outputs, and exit-code behavior.
 - [ ] The threat model and quality guide state any new security or privacy boundary.
 - [ ] The changelog explains compatibility and migration impact.
+- [ ] New approval-control declarations are limited to documented evidence metadata and do not imply runtime approval enforcement.

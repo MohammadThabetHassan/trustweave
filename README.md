@@ -13,6 +13,7 @@ TrustWeave is deliberately narrow: it gives reviewers visible evidence before a 
 | Review an agent’s declared sources, tools, and flows | [`scan`](docs/CLI_REFERENCE.md#scan) | An Agent Security Bundle with deterministic decisions for every declared flow. |
 | Verify expected policy behavior in CI | [`test`](docs/CLI_REFERENCE.md#test) | Synthetic policy-regression evidence that uses no real systems or data. |
 | Review whether a candidate configuration changed security-relevant paths | [`diff`](docs/CLI_REFERENCE.md#diff) | A baseline-versus-candidate review artifact and focused signals. |
+| Review the declared human-approval boundary for high-impact paths | [`policy-check`](docs/CLI_REFERENCE.md#policy-check) | Static evidence that approval controls are declared, bound to the action context, and fail closed. |
 | Review a local trace of what was recorded | [`trace-review`](docs/TRACE_REVIEW.md) | A privacy-preserving comparison between trace metadata, declared flows, and policy decisions. |
 | Review an MCP integration’s declared metadata before connection | [`mcp-profile-check`](docs/MCP_PROFILE.md) | A static mapping and authorization-expectation review with no server discovery or token handling. |
 | Understand limits, artifact meanings, and release checks | [`docs/QUALITY.md`](docs/QUALITY.md) | The exact local and hosted evidence required for a release. |
@@ -56,8 +57,13 @@ trustweave attest \
 
 trustweave report --output-dir artifacts
 trustweave verify --attestation artifacts/attestation.json
-trustweave policy-check --policy policies/default-policy.json --output-dir artifacts
+trustweave policy-check \
+  --policy policies/default-policy.json \
+  --output-dir artifacts \
+  --exit-on-review
 ```
+
+The reference policy declares a review-queue approval boundary for its conditional-to-external path. `policy-check` records that declaration and produces review findings if a high-impact approval path lacks a declared control, lacks bindings to the actor, exact action context, and expiry, or does not fail closed. It does **not** implement a queue, authenticate a reviewer, or validate approval at runtime.
 
 The reference agent is fully synthetic. It includes an allowed retrieval path, a confidential-data path that requires approval before a mock external action, and an intentionally unsafe untrusted-content-to-external-action path that policy denies.
 
