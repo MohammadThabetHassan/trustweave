@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,sarif} ...
+trustweave [-h] [--generated-at ISO_8601] [--debug] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -12,7 +12,11 @@ All commands operate on local files. They do not execute an agent, tool configur
 |---:|---|
 | `0` | The command completed and no explicit review gate requested failure. |
 | `1` | A deterministic regression failed, an attestation did not verify, or an explicit `--exit-on-review` gate found at least one review finding. |
-| `2` | A supplied local document failed TrustWeave validation. |
+| `2` | Invalid command-line syntax, input, provenance configuration, or local evidence contract. |
+| `3` | A local input or output could not be safely read or written. |
+| `4` | An unexpected internal error. |
+
+Expected errors are written to stderr without a traceback. Add `--debug` before the subcommand when diagnosing a local failure. `--generated-at` accepts an ISO 8601 value with a UTC offset; otherwise artifact-producing commands use `SOURCE_DATE_EPOCH` when set, then the current UTC clock. See [Reproducibility and Integrity](REPRODUCIBILITY.md) for the stable-payload and file-integrity contract.
 
 ## `scan`
 
@@ -84,7 +88,7 @@ trustweave attest [--source-revision TEXT] [--output-dir DIR]
 |---|---|
 | `attestation.json` | Hashes of local artifacts, canonical-document digests, source revision, integrity chain, and limits. |
 
-The statement is internally verifiable but is **not signed** and is not a DSSE, SLSA, Sigstore, or transparency-log claim.
+New statements use `trustweave.dev/attestation/v1alpha2`: their integrity chains cover stable canonical bundle and test-result payloads after excluding volatile `generated_at` metadata, while separate file hashes identify the exact local files used. The verifier remains compatible with legacy `v1alpha1` local statements. The statement is internally verifiable but is **not signed** and is not a DSSE, SLSA, Sigstore, or transparency-log claim.
 
 ## `statement`
 
@@ -225,7 +229,7 @@ The detailed input and privacy contract is in [Trace Review](TRACE_REVIEW.md).
 
 ## Validation behavior
 
-TrustWeave is intentionally strict. It rejects an unsupported schema version, missing required list, blank identifier, duplicate named declaration, unsupported trust label/action class/decision, unknown manifest reference, conflicting trace tool names, or malformed local object. Correct the input rather than bypassing validation.
+TrustWeave is intentionally strict. It rejects an unsupported schema version, missing required list, blank identifier, duplicate named declaration, unsupported trust label/action class/decision, unknown manifest reference, conflicting trace tool names, malformed local object, and unknown fields. Unknown-field diagnostics name the document path and provide a deterministic “did you mean?” suggestion for close field names. Correct the input rather than bypassing validation; no permissive compatibility mode is enabled by default.
 
 ## References
 

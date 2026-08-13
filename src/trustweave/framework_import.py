@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from trustweave.models import ValidationError
+from trustweave.models import ValidationError, reject_unknown_fields
 
 FRAMEWORK_INVENTORY_SCHEMA_VERSION = "trustweave.dev/framework-inventory/v1alpha1"
 SUPPORTED_FRAMEWORKS = frozenset({"langgraph", "openai-agents", "crewai"})
@@ -30,12 +31,12 @@ def _items(value: Any, path: str) -> Sequence[Any]:
 
 
 def _unique_names(entries: Sequence[Mapping[str, Any]], path: str) -> list[str]:
-    names: list[str] = []
-    for index, entry in enumerate(entries):
-        name = _text(entry.get("name"), f"{path}[{index}].name")
-        if name in names:
-            raise ValidationError(f"{path} contains duplicate name: {name}")
-        names.append(name)
+    names = [
+        _text(entry.get("name"), f"{path}[{index}].name") for index, entry in enumerate(entries)
+    ]
+    duplicates = sorted(name for name, count in Counter(names).items() if count > 1)
+    if duplicates:
+        raise ValidationError(f"{path} contains duplicate names: {', '.join(duplicates)}")
     return names
 
 
@@ -49,6 +50,9 @@ def _tools(value: Any, path: str) -> list[str]:
 
 
 def _langgraph(document: Mapping[str, Any]) -> list[dict[str, Any]]:
+    reject_unknown_fields(document, {"graphs", "dependencies"}, "langgraph")
+    if "dependencies" in document:
+        _tools(document["dependencies"], "langgraph.dependencies")
     graphs = _object(document.get("graphs"), "langgraph.graphs")
     if not graphs:
         raise ValidationError("langgraph.graphs must include at least one graph")
@@ -65,10 +69,13 @@ def _langgraph(document: Mapping[str, Any]) -> list[dict[str, Any]]:
 
 
 def _openai_agents(document: Mapping[str, Any]) -> list[dict[str, Any]]:
+    reject_unknown_fields(document, {"agents"}, "openai_agents")
     agents = [
         _object(item, f"openai_agents.agents[{index}]")
         for index, item in enumerate(_items(document.get("agents"), "openai_agents.agents"))
     ]
+    for index, agent in enumerate(agents):
+        reject_unknown_fields(agent, {"name", "tools"}, f"openai_agents.agents[{index}]")
     names = _unique_names(agents, "openai_agents.agents")
     entries: list[dict[str, Any]] = []
     for agent, name in zip(agents, names, strict=True):
@@ -83,6 +90,7 @@ def _openai_agents(document: Mapping[str, Any]) -> list[dict[str, Any]]:
 
 
 def _crewai(document: Mapping[str, Any]) -> list[dict[str, Any]]:
+    reject_unknown_fields(document, {"agents", "tasks"}, "crewai")
     agents = [
         _object(item, f"crewai.agents[{index}]")
         for index, item in enumerate(_items(document.get("agents"), "crewai.agents"))
@@ -91,6 +99,10 @@ def _crewai(document: Mapping[str, Any]) -> list[dict[str, Any]]:
         _object(item, f"crewai.tasks[{index}]")
         for index, item in enumerate(_items(document.get("tasks"), "crewai.tasks"))
     ]
+    for index, agent in enumerate(agents):
+        reject_unknown_fields(agent, {"name", "tools"}, f"crewai.agents[{index}]")
+    for index, task in enumerate(tasks):
+        reject_unknown_fields(task, {"name", "agent", "tools"}, f"crewai.tasks[{index}]")
     agent_name_list = _unique_names(agents, "crewai.agents")
     agent_names = set(agent_name_list)
     task_names = _unique_names(tasks, "crewai.tasks")

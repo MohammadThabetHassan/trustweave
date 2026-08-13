@@ -57,7 +57,16 @@
           "items": {"enum": ["read", "write", "sensitive", "external"]}
         },
         "decision": {"enum": ["allow", "deny", "require_approval"]},
-        "rationale": {"type": "string", "minLength": 1}
+        "rationale": {"type": "string", "minLength": 1},
+        "source_data_classifications": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "tool_capabilities": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "severity": {"enum": ["critical", "high", "medium", "low", "info"]}
       }
     }
   }

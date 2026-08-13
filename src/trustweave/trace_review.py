@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
 from trustweave.engine import evaluate_flow
-from trustweave.models import AgentManifest, Flow, Policy, ValidationError
+from trustweave.models import AgentManifest, Flow, Policy, ValidationError, reject_unknown_fields
+from trustweave.provenance import add_generated_at
 
 TRACE_SCHEMA_VERSION = "trustweave.dev/trace/v1alpha1"
 TRACE_REVIEW_SCHEMA_VERSION = "trustweave.dev/trace-review/v1alpha1"
@@ -58,15 +58,31 @@ def parse_trace(
     """Validate a local trace shape without inspecting message content or tool arguments."""
 
     root = _mapping(document, "trace")
+    reject_unknown_fields(root, {"schema_version", "messages", "tool_calls", "events"}, "trace")
     if root.get("schema_version") != TRACE_SCHEMA_VERSION:
         raise ValidationError(f"trace.schema_version must be {TRACE_SCHEMA_VERSION}")
     messages = _sequence(root.get("messages"), "trace.messages")
     tool_calls = _sequence(root.get("tool_calls"), "trace.tool_calls")
     events = _sequence(root.get("events"), "trace.events")
 
+    for index, raw_message in enumerate(messages):
+        message = _mapping(raw_message, f"trace.messages[{index}]")
+        reject_unknown_fields(message, {"role", "content"}, f"trace.messages[{index}]")
+        _text(message.get("role"), f"trace.messages[{index}].role")
+        if not isinstance(message.get("content"), str):
+            raise ValidationError(f"trace.messages[{index}].content must be a string")
+
     calls: list[ObservedToolCall] = []
     for index, raw_call in enumerate(tool_calls):
         call = _mapping(raw_call, f"trace.tool_calls[{index}]")
+        reject_unknown_fields(
+            call,
+            {"source", "name", "tool", "tool_name", "arguments"},
+            f"trace.tool_calls[{index}]",
+        )
+        arguments = call.get("arguments")
+        if arguments is not None and not isinstance(arguments, Mapping):
+            raise ValidationError(f"trace.tool_calls[{index}].arguments must be an object")
         calls.append(
             ObservedToolCall(
                 index=index,
@@ -78,15 +94,21 @@ def parse_trace(
     event_types: list[str] = []
     for index, raw_event in enumerate(events):
         event = _mapping(raw_event, f"trace.events[{index}]")
+        reject_unknown_fields(event, {"type", "policy"}, f"trace.events[{index}]")
         event_types.append(_text(event.get("type"), f"trace.events[{index}].type"))
+        if "policy" in event:
+            _text(event["policy"], f"trace.events[{index}].policy")
 
     return tuple(calls), len(messages), tuple(event_types)
 
 
 def review_trace(
-    manifest: AgentManifest, policy: Policy, trace: Mapping[str, Any]
+    manifest: AgentManifest,
+    policy: Policy,
+    trace: Mapping[str, Any],
+    generated_at: str | None = None,
 ) -> dict[str, Any]:
-    """Review local trace metadata without executing a target, tool, or network request."""
+    """Review local metadata with optional application-layer provenance."""
 
     calls, message_count, event_types = parse_trace(trace)
     sources = {source.name: source for source in manifest.sources}
@@ -180,9 +202,8 @@ def review_trace(
     untrusted_context_count = sum(
         event_type == "untrusted_context_received" for event_type in event_types
     )
-    return {
+    review: dict[str, object] = {
         "schema_version": TRACE_REVIEW_SCHEMA_VERSION,
-        "generated_at": datetime.now(UTC).isoformat(),
         "agent": manifest.name,
         "policy": policy.name,
         "summary": {
@@ -209,3 +230,4 @@ def review_trace(
             ),
         ],
     }
+    return add_generated_at(review, generated_at)

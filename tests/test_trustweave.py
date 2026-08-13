@@ -14,6 +14,7 @@ from trustweave.engine import build_bundle, evaluate_flow, evaluate_manifest
 from trustweave.evidence import build_attestation, verify_attestation
 from trustweave.io import load_document, read_json, write_json
 from trustweave.models import ValidationError, parse_manifest, parse_policy
+from trustweave.provenance import stable_document_hash
 from trustweave.scenarios import parse_scenarios, run_scenarios
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,7 +96,7 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
     manifest = parse_manifest(load_document(MANIFEST))
     policy = parse_policy(load_document(POLICY))
 
-    bundle = build_bundle(manifest, policy)
+    bundle = build_bundle(manifest, policy, generated_at="2026-08-13T00:00:00+00:00")
 
     assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha1"
     generated_at = datetime.fromisoformat(bundle["generated_at"])
@@ -127,18 +128,41 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
     ]
 
 
+def test_builders_are_pure_and_stable_hashes_exclude_volatile_provenance() -> None:
+    manifest = parse_manifest(load_document(MANIFEST))
+    policy = parse_policy(load_document(POLICY))
+
+    stable_bundle = build_bundle(manifest, policy)
+    assert "generated_at" not in stable_bundle
+    assert stable_bundle == build_bundle(manifest, policy)
+
+    first = build_bundle(manifest, policy, generated_at="2026-08-13T00:00:00+00:00")
+    second = build_bundle(manifest, policy, generated_at="2026-08-13T00:00:01+00:00")
+    assert stable_document_hash(first) == stable_document_hash(second)
+
+
 def test_attestation_detects_tampering(tmp_path: Path) -> None:
     manifest = parse_manifest(load_document(MANIFEST))
     policy = parse_policy(load_document(POLICY))
     bundle_path = write_json(
-        tmp_path / "agent-security-bundle.json", build_bundle(manifest, policy)
+        tmp_path / "agent-security-bundle.json",
+        build_bundle(manifest, policy, generated_at="2026-08-13T00:00:00+00:00"),
     )
     results_path = write_json(
         tmp_path / "security-test-results.json",
-        run_scenarios(policy, parse_scenarios(load_document(SCENARIOS))),
+        run_scenarios(
+            policy,
+            parse_scenarios(load_document(SCENARIOS)),
+            generated_at="2026-08-13T00:00:00+00:00",
+        ),
     )
 
-    attestation = build_attestation(bundle_path, results_path, source_revision="test-revision")
+    attestation = build_attestation(
+        bundle_path,
+        results_path,
+        source_revision="test-revision",
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
     valid, _ = verify_attestation(attestation)
     assert valid
 

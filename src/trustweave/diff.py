@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from datetime import UTC, datetime
 from typing import Any
 
 from trustweave.models import ValidationError
+from trustweave.provenance import add_generated_at
 
 BUNDLE_SCHEMA_VERSION = "trustweave.dev/bundle/v1alpha1"
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
@@ -183,8 +183,10 @@ def _review_signals(
     return signals
 
 
-def diff_bundles(base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any]) -> dict[str, Any]:
-    """Compare two valid bundle documents without executing an agent, tool, or configuration."""
+def diff_bundles(
+    base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any], generated_at: str | None = None
+) -> dict[str, Any]:
+    """Compare bundle evidence with optional application-layer provenance."""
 
     _assert_bundle(base_bundle, "base bundle")
     _assert_bundle(head_bundle, "head bundle")
@@ -222,9 +224,8 @@ def diff_bundles(base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any])
     review_relevant_findings = [head_findings[key] for key in added_paths + changed_paths]
     signals = _review_signals(tool_changes, capability_changes, review_relevant_findings)
 
-    return {
+    diff: dict[str, object] = {
         "schema_version": "trustweave.dev/bundle-diff/v1alpha1",
-        "generated_at": datetime.now(UTC).isoformat(),
         "base": {
             "agent": base_manifest.get("name", "unknown"),
             "bundle_generated_at": base_bundle.get("generated_at", "unknown"),
@@ -266,3 +267,4 @@ def diff_bundles(base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any])
             ),
         ],
     }
+    return add_generated_at(diff, generated_at)

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from fnmatch import fnmatchcase
 from typing import Any
 
 from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool
+from trustweave.provenance import add_generated_at
 
 
 @dataclass(frozen=True)
@@ -17,6 +18,7 @@ class Finding:
     source: Source
     tool: Tool
     decision: str
+    severity: str
     rule_id: str | None
     rationale: str
 
@@ -26,21 +28,48 @@ class Finding:
             "source": self.source.as_dict(),
             "tool": self.tool.as_dict(),
             "decision": self.decision,
+            "severity": self.severity,
             "rule_id": self.rule_id,
             "rationale": self.rationale,
         }
 
 
+def _default_severity(decision: str) -> str:
+    return {"deny": "high", "require_approval": "medium", "allow": "info"}[decision]
+
+
+def _capability_matches(pattern: str, capability: str) -> bool:
+    """Match bounded capability globs without evaluating arbitrary expressions."""
+
+    return fnmatchcase(capability, pattern)
+
+
+def _rule_matches(rule: PolicyRule, source: Source, tool: Tool) -> bool:
+    if source.trust not in rule.source_trust or tool.action_class not in rule.tool_action_classes:
+        return False
+    if (
+        rule.source_data_classifications
+        and source.data_classification not in rule.source_data_classifications
+    ):
+        return False
+    return not rule.tool_capabilities or any(
+        _capability_matches(pattern, capability)
+        for pattern in rule.tool_capabilities
+        for capability in tool.capabilities
+    )
+
+
 def evaluate_flow(flow: Flow, source: Source, tool: Tool, policy: Policy) -> Finding:
-    """Apply the first matching deterministic rule to a declared flow."""
+    """Apply the first matching declarative rule to one declared flow."""
 
     for rule in policy.rules:
-        if source.trust in rule.source_trust and tool.action_class in rule.tool_action_classes:
+        if _rule_matches(rule, source, tool):
             return Finding(
                 flow=flow,
                 source=source,
                 tool=tool,
                 decision=rule.decision,
+                severity=rule.severity or _default_severity(rule.decision),
                 rule_id=rule.id,
                 rationale=rule.rationale,
             )
@@ -49,6 +78,7 @@ def evaluate_flow(flow: Flow, source: Source, tool: Tool, policy: Policy) -> Fin
         source=source,
         tool=tool,
         decision=policy.default_decision,
+        severity=_default_severity(policy.default_decision),
         rule_id=None,
         rationale="No policy rule matched this declared path; the default decision was applied.",
     )
@@ -65,17 +95,18 @@ def evaluate_manifest(manifest: AgentManifest, policy: Policy) -> tuple[Finding,
     )
 
 
-def build_bundle(manifest: AgentManifest, policy: Policy) -> dict[str, Any]:
-    """Construct a portable, deterministic Agent Security Bundle document."""
+def build_bundle(
+    manifest: AgentManifest, policy: Policy, generated_at: str | None = None
+) -> dict[str, Any]:
+    """Construct a portable bundle from stable declarations and optional provenance."""
 
     findings = evaluate_manifest(manifest, policy)
     summary = {decision: 0 for decision in ("allow", "deny", "require_approval")}
     for finding in findings:
         summary[finding.decision] += 1
 
-    return {
+    bundle: dict[str, object] = {
         "schema_version": "trustweave.dev/bundle/v1alpha1",
-        "generated_at": datetime.now(UTC).isoformat(),
         "manifest": manifest.as_dict(),
         "policy": {
             "schema_version": policy.schema_version,
@@ -100,13 +131,19 @@ def build_bundle(manifest: AgentManifest, policy: Policy) -> dict[str, Any]:
             ),
         ],
     }
+    return add_generated_at(bundle, generated_at)
 
 
 def matching_rule(policy: Policy, source_trust: str, action_class: str) -> PolicyRule | None:
     """Return the first policy rule that matches a synthetic scenario input."""
 
     for rule in policy.rules:
-        if source_trust in rule.source_trust and action_class in rule.tool_action_classes:
+        if (
+            source_trust in rule.source_trust
+            and action_class in rule.tool_action_classes
+            and not rule.source_data_classifications
+            and not rule.tool_capabilities
+        ):
             return rule
     return None
 

@@ -122,6 +122,7 @@ The project also avoids unsupported security claims. A review finding is a deter
 | [Architecture](docs/ARCHITECTURE.md) | Components, local data flow, invariants, and extension boundaries. |
 | [Threat model](docs/THREAT_MODEL.md) | Assumptions, non-goals, and the limits of review evidence. |
 | [Quality evidence](docs/QUALITY.md) | The test, compatibility, build, reproducibility, and scoped mutation-analysis controls. |
+| [Reproducibility and integrity](docs/REPRODUCIBILITY.md) | The exact distinction between stable evidence payloads, volatile provenance, byte reproducibility, and local file integrity. |
 | [Maturity plan](docs/MATURITY_PLAN.md) | Verified 9.5+ priorities, release gates, and external proof the repository cannot manufacture. |
 | [Focused mutation record](docs/MUTATION_TESTING.md) | The exact Linux-only deterministic-engine mutation scope, result, and re-run procedure. |
 | [Supply-chain evidence](docs/SUPPLY_CHAIN.md) | Workflow-action pinning, OIDC release controls, reproducibility, SBOM evidence, and deliberate non-claims. |

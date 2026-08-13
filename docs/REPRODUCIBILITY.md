@@ -1,0 +1,45 @@
+# Reproducibility and Integrity Contract
+
+## Purpose
+
+TrustWeave makes **deterministic decisions** about declared and pre-recorded local evidence. This document distinguishes that guarantee from byte reproducibility, generation provenance, and local file integrity so that a timestamp is never mistaken for a policy input or runtime-security claim.
+
+## Guarantees
+
+| Property | TrustWeave guarantee | Explicit limit |
+| --- | --- | --- |
+| Deterministic decisions | The same validated manifest, policy, scenario, trace metadata, or profile metadata produces the same ordered local decision and finding content. | The decision concerns only supplied local evidence; it does not establish runtime behavior or enforcement. |
+| Stable evidence payload | Core builders are pure. They do not read a clock or environment; optional `generated_at` provenance is injected at the application boundary. | Stable payload equality does not prove the input artifacts are authentic. |
+| Reproducible artifact bytes | Supplying the same inputs, output paths, source revision, and `--generated-at` value produces byte-identical JSON artifacts. | Different output paths can change an attestation subject name, even when the stable evidence payload is identical. |
+| Fixed-epoch CLI output | When `--generated-at` is omitted, `SOURCE_DATE_EPOCH` supplies the UTC generation time. | An unset epoch intentionally falls back to current UTC for ordinary local use. |
+| Local integrity evidence | Attestation integrity chains cover canonical stable evidence payloads after excluding `generated_at`. The statement also records exact generated-file hashes. | The attestation is unsigned, has no identity binding or transparency-log record, and does not establish provenance or runtime security. |
+
+## Timestamp resolution
+
+Artifact-producing commands resolve generation metadata in this order:
+
+1. The global `--generated-at` option, using an ISO 8601 value with a UTC offset.
+2. `SOURCE_DATE_EPOCH`, using a non-negative Unix timestamp.
+3. The current UTC clock at the CLI boundary.
+
+For example, the following produces fixed-time local evidence without contacting any service:
+
+```bash
+trustweave --generated-at 2026-08-13T00:00:00+00:00 scan \
+  --manifest examples/support-agent.manifest.json \
+  --policy policies/default-policy.json \
+  --output-dir artifacts
+
+SOURCE_DATE_EPOCH=0 trustweave test \
+  --policy policies/default-policy.json \
+  --scenarios scenarios/default-scenarios.json \
+  --output-dir artifacts
+```
+
+## Attestation migration
+
+New attestations use `trustweave.dev/attestation/v1alpha2`. Their `chain_sha256` is derived from the stable bundle-document digest, stable test-results-document digest, and source revision. The `bundle_file_sha256` and `test_results_file_sha256` fields retain hashes of the exact files used at generation time.
+
+The verifier continues to read legacy `trustweave.dev/attestation/v1alpha1` statements, whose chains use the former file-hash construction. Regenerate stored local evidence to receive the stable-payload semantics; no live service, credential, or migration upload is involved.
+
+> A successful verification proves only internal consistency of the recorded local relationship. It does not authenticate a person, sign an artifact, validate a deployment, or prove that an agent system is secure.

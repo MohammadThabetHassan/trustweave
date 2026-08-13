@@ -30,9 +30,11 @@ dependencies = []
 yaml = ["PyYAML>=6.0"]
 dev = [
   "PyYAML>=6.0",
+  "build>=1.0",
   "pytest>=8.0",
   "pytest-cov>=7.0",
   "hypothesis>=6.0",
+  "jsonschema>=4.0",
   "cyclonedx-bom>=7.0",
   "ruff>=0.8",
   "mypy>=1.13",
@@ -53,6 +55,9 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+trustweave = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
