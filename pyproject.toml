@@ -30,6 +30,7 @@ dependencies = []
 yaml = ["PyYAML>=6.0"]
 dev = [
   "PyYAML>=6.0",
+  "build>=1.0",
   "pytest>=8.0",
   "pytest-cov>=7.0",
   "hypothesis>=6.0",
