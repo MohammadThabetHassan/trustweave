@@ -1,0 +1,2 @@
+# TrustWeave v0.1 has no third-party runtime dependencies.
+# Optional YAML parsing and developer tools are declared as package extras in pyproject.toml.

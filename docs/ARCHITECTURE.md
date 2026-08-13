@@ -1,0 +1,77 @@
+# TrustWeave Architecture
+
+## Design objective
+
+TrustWeave v0.1 is a local, deterministic evidence workflow. It consumes a declared agent manifest, a declared policy, and a synthetic scenario pack. It then writes structured artifacts that can be reviewed, checked into a CI build, or compared across revisions.
+
+The design prioritizes **visibility, reproducibility, and safety** over autonomous discovery or broad runtime interception.
+
+```mermaid
+flowchart LR
+    M[Agent manifest\nJSON or safe YAML] --> V[Strict validation]
+    P[Flow policy\nJSON or safe YAML] --> V
+    V --> B[Agent Security Bundle]
+    B --> R[Markdown report]
+    S[Synthetic scenario pack] --> T[Deterministic scenario runner]
+    P --> T
+    T --> TR[Test results]
+    B --> A[Local hash-linked attestation]
+    TR --> A
+    A --> R
+```
+
+## Components
+
+| Component | Responsibility | Safety property |
+|---|---|---|
+| `models.py` | Validates manifests, policies, trust labels, action classes, and references. | Rejects incomplete, unknown, malformed, or ambiguous declared inputs. |
+| `engine.py` | Builds a bundle and applies first-match deterministic rules to every declared flow. | Never calls a model, tool, subprocess, or network service. |
+| `scenarios.py` | Runs safe scenario assertions against abstract trust/action labels. | Does not execute a payload, tool, or configured server. |
+| `evidence.py` | Hash-links generated JSON artifacts into a local attestation. | States explicit limits; no claim of external signing or non-repudiation. |
+| `report.py` | Renders review-friendly Markdown from generated artifacts. | Reads generated structured artifacts only. |
+| `cli.py` | Exposes the local workflow through a predictable CLI. | Returns non-zero on invalid data or failed synthetic scenarios. |
+
+## Artifact contracts
+
+### Agent Security Bundle
+
+The bundle is the main review artifact. It contains the validated manifest, normalized policy, decision-level findings, counts by decision, and explicit limits. A finding binds one declared source, one declared tool, one flow, a final deterministic decision, and the matching policy-rule identifier when present.
+
+### Synthetic test results
+
+Synthetic results are intentionally simple. A scenario specifies only a source trust label, a tool action class, and an expected decision. The test runner reports the observed decision, matching rule, and pass/fail status. The format is suitable for CI without exposing real data or needing a live agent.
+
+### Local attestation
+
+The attestation stores SHA-256 digests of the bundle and test-results files, canonical-document digests, the stated source revision, and a hash chain derived from those inputs. It is internally verifiable with `trustweave verify`.
+
+> **Important:** The v0.1 attestation is not externally signed and is not backed by a transparency log. It proves only an internally consistent relationship among local artifacts after generation. Future DSSE, in-toto, or Sigstore integration is intentionally out of scope.
+
+## Policy semantics
+
+Policies use ordered rules. A rule matches when both the source trust label and the tool action class match. The first matching rule determines the result. When no rule matches, TrustWeave uses the policy’s `default_decision`.
+
+Supported trust labels are `trusted`, `untrusted`, and `conditional`. Supported action classes are `read`, `write`, `sensitive`, and `external`. Supported decisions are `allow`, `deny`, and `require_approval`.
+
+The `require_approval` result is an evidence decision, not a human-approval implementation. TrustWeave v0.1 records that a path requires an approval control; it does not implement an approval workflow or contact a reviewer.
+
+## Extension boundaries
+
+The following capabilities are intentionally represented as adapters or future work rather than embedded assumptions.
+
+| Capability | Current position | Rationale |
+|---|---|---|
+| MCP discovery or proxying | Not implemented | Running server configurations would violate the local, non-executing MVP boundary. |
+| OPA/Rego | Future adapter | Keeps the initial policy semantics understandable and dependency-free. |
+| Relationship authorization | Future adapter | Requires an authoritative identity/tenant model outside this repository’s scope. |
+| Model and framework SDKs | Future adapter | A core evidence contract should be stable before framework-specific hooks are added. |
+| Real runtime traces | Future adapter | Privacy, retention, and integrity requirements need a dedicated design. |
+| External signatures | Future adapter | Requires key custody and verification lifecycle decisions. |
+
+## Engineering invariants
+
+1. **No hidden execution:** a manifest is data, never code.
+2. **No implicit trust:** every source has an explicit trust label.
+3. **Fail closed:** malformed documents, unknown references, and unmatched policy paths lead to errors or the explicit default decision.
+4. **Evidence before claims:** reports include scope limits and avoid deployment-security guarantees.
+5. **Reproducible inputs:** examples, policy rules, and scenarios are versioned in the repository.

@@ -1,0 +1,39 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "support-agent-boundary-policy",
+  "default_decision": "deny",
+  "rules": [
+    {
+      "id": "TW-001",
+      "description": "Allow trusted requests to read-only tools.",
+      "source_trust": ["trusted"],
+      "tool_action_classes": ["read"],
+      "decision": "allow",
+      "rationale": "Authenticated synthetic requests may invoke declared read-only retrieval paths."
+    },
+    {
+      "id": "TW-002",
+      "description": "Require approval before conditional confidential data reaches an external action.",
+      "source_trust": ["conditional"],
+      "tool_action_classes": ["external"],
+      "decision": "require_approval",
+      "rationale": "Confidential synthetic records may influence an external mock action only with explicit human review."
+    },
+    {
+      "id": "TW-003",
+      "description": "Deny untrusted or conditional input to sensitive tools.",
+      "source_trust": ["untrusted", "conditional"],
+      "tool_action_classes": ["sensitive"],
+      "decision": "deny",
+      "rationale": "Retrieved or conditionally trusted content must not directly authorize sensitive record access."
+    },
+    {
+      "id": "TW-004",
+      "description": "Deny untrusted input to external actions.",
+      "source_trust": ["untrusted"],
+      "tool_action_classes": ["external"],
+      "decision": "deny",
+      "rationale": "Untrusted retrieved content must not cause outbound or business-impacting actions."
+    }
+  ]
+}

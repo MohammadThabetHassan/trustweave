@@ -1,0 +1,23 @@
+# Generated TrustWeave evidence
+artifacts/
+
+# Python build and test artifacts
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local environments and editor state
+.venv/
+venv/
+.env
+.idea/
+.vscode/
+.DS_Store

@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality and tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package and verification tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . pytest ruff mypy PyYAML
+
+      - name: Check formatting
+        run: ruff format --check .
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Type check core package
+        run: mypy src
+
+      - name: Run tests
+        run: pytest
+
+      - name: Run synthetic evidence workflow
+        run: |
+          trustweave scan --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --output-dir artifacts
+          trustweave test --policy policies/default-policy.json --scenarios scenarios/default-scenarios.json --output-dir artifacts
+          trustweave attest --source-revision "$GITHUB_SHA" --output-dir artifacts
+          trustweave report --output-dir artifacts
+          trustweave verify --attestation artifacts/attestation.json
+
+      - name: Upload generated evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: trustweave-evidence
+          path: artifacts/
+          if-no-files-found: error

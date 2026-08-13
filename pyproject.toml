@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trustweave"
+version = "0.1.0"
+description = "Local-first security build evidence for AI agent trust boundaries."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [
+  { name = "TrustWeave Contributors" }
+]
+keywords = ["ai-agents", "security", "mcp", "policy", "supply-chain", "attestation"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Security",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+yaml = ["PyYAML>=6.0"]
+dev = ["PyYAML>=6.0", "pytest>=8.0", "ruff>=0.8", "mypy>=1.13"]
+
+[project.scripts]
+trustweave = "trustweave.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/AbdulrahmanRezki/trustweave"
+Documentation = "https://github.com/AbdulrahmanRezki/trustweave/tree/main/docs"
+Repository = "https://github.com/AbdulrahmanRezki/trustweave"
+Issues = "https://github.com/AbdulrahmanRezki/trustweave/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"
+warn_unreachable = true
+
+[tool.coverage.run]
+branch = true
+source = ["trustweave"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 90
