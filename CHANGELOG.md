@@ -21,6 +21,10 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - An optional `approval_control` policy declaration and `TW-POL-004` through `TW-POL-006` static review signals for missing approval documentation, incomplete action-context binding, and fail-open approval intent on sensitive/external approval-required paths.
 - `trustweave policy-check --exit-on-review`, clear and deliberately review-required approval-policy fixtures, and hosted CI coverage for deterministic approval-boundary evidence.
 - `trustweave sarif`, which deterministically converts selected existing policy, bundle-diff, trace, and MCP-profile review artifacts into a local SARIF 2.1.0 file with stable ordering and partial fingerprints.
+- A cited ten-pattern synthetic adversarial scenario pack, additive scenario metadata, and `trustweave explain` for local policy-boundary education without prompts, payloads, model calls, or network access.
+- `trustweave mcp-import`, a strict local normalizer for an already-provided MCP `tools/list` snapshot that creates a deterministic review inventory without server discovery, connection, authorization inference, or tool invocation.
+- A release-blocking 90% branch-coverage gate, property-based fail-closed policy tests, Python 3.11/3.13 hosted compatibility jobs, fixed-epoch reproducible-wheel verification, and reproducible CycloneDX SBOM evidence.
+- Corrected package URLs, governance review cadence, and a best-effort private security-report acknowledgement objective.
 - SARIF unit coverage, CLI validation, repository-reality coverage, and hosted CI assertions for policy, diff, trace, and MCP review signals in the generated local evidence file.
 - Strict manifest, policy, and scenario validation with explicit trust labels, action classes, and fail-closed behavior.
 - A fully synthetic customer-support-agent example with deterministic allow, deny, and approval-required paths.
@@ -34,6 +38,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - The v0.1 attestation is locally hash-linked only; it is not a signed or transparency-log-backed attestation.
 - Approval-control declarations are design-time evidence only; TrustWeave does not implement approval queues, authenticate approvers, or verify approval records at runtime.
 - SARIF export is a local format conversion only; TrustWeave does not upload results, enable GitHub Code Security, or assert compatibility with a particular hosted code-scanning configuration.
+- Scenario references and MCP tools-list metadata are local review inputs, not trusted authorization, exploit demonstrations, live-system observations, or evidence that a remote server behaves as declared.
+- Fixed-epoch reproducibility is enforced for wheels only; compressed source-distribution reproducibility is not yet a release gate.
 
 ### Known limitations
 

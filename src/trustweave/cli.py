@@ -11,6 +11,7 @@ from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation, verify_attestation
 from trustweave.io import load_document, read_json, write_json, write_text
+from trustweave.mcp_import import normalize_mcp_tools_list
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
@@ -22,7 +23,7 @@ from trustweave.report import (
     render_trace_review_report,
 )
 from trustweave.sarif import build_sarif
-from trustweave.scenarios import parse_scenarios, run_scenarios
+from trustweave.scenarios import explain_scenario, parse_scenarios, run_scenarios
 from trustweave.trace_review import review_trace
 
 BUNDLE_FILE = "agent-security-bundle.json"
@@ -37,6 +38,7 @@ TRACE_REVIEW_FILE = "trace-review.json"
 TRACE_REVIEW_REPORT_FILE = "trace-review.md"
 MCP_PROFILE_REVIEW_FILE = "mcp-profile-review.json"
 MCP_PROFILE_REVIEW_REPORT_FILE = "mcp-profile-review.md"
+MCP_TOOL_INVENTORY_FILE = "mcp-tool-inventory.json"
 SARIF_FILE = "trustweave.sarif"
 
 
@@ -73,6 +75,14 @@ def _parser() -> argparse.ArgumentParser:
     test.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
+
+    explain = subcommands.add_parser(
+        "explain", help="Explain one cited synthetic scenario without executing an agent."
+    )
+    explain.add_argument(
+        "--scenarios", type=Path, required=True, help="Scenario-pack JSON or safe YAML."
+    )
+    explain.add_argument("--scenario-id", required=True, help="Synthetic scenario identifier.")
 
     attest = subcommands.add_parser("attest", help="Write a local hash-linked evidence statement.")
     attest.add_argument(
@@ -140,6 +150,16 @@ def _parser() -> argparse.ArgumentParser:
         help="Return status 1 when the trace produces any review finding.",
     )
 
+    mcp_import = subcommands.add_parser(
+        "mcp-import", help="Normalize a local MCP tools/list snapshot without a server connection."
+    )
+    mcp_import.add_argument(
+        "--tool-list", type=Path, required=True, help="Local MCP tools/list JSON."
+    )
+    mcp_import.add_argument(
+        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+
     mcp_profile = subcommands.add_parser(
         "mcp-profile-check",
         help="Review a local MCP metadata profile without connecting to a server.",
@@ -194,6 +214,11 @@ def _test(policy_path: Path, scenario_path: Path, output_dir: Path) -> tuple[str
     path = write_json(output_dir / TEST_RESULTS_FILE, result)
     status = str(result["summary"]["status"])
     return f"Wrote synthetic test results ({status}): {path}", 0 if status == "passed" else 1
+
+
+def _explain(scenario_path: Path, scenario_id: str) -> str:
+    scenarios = parse_scenarios(load_document(scenario_path))
+    return explain_scenario(scenarios, scenario_id)
 
 
 def _attest(output_dir: Path, source_revision: str) -> str:
@@ -274,6 +299,12 @@ def _sarif(
     return f"Wrote local SARIF evidence: {path}"
 
 
+def _mcp_import(tool_list_path: Path, output_dir: Path) -> str:
+    inventory = normalize_mcp_tools_list(load_document(tool_list_path))
+    path = write_json(output_dir / MCP_TOOL_INVENTORY_FILE, inventory)
+    return f"Wrote local MCP tool inventory: {path}"
+
+
 def _mcp_profile_check(
     manifest_path: Path, profile_path: Path, output_dir: Path, exit_on_review: bool
 ) -> tuple[str, int]:
@@ -301,6 +332,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             message, code = _test(args.policy, args.scenarios, args.output_dir)
             print(message)
             return code
+        if args.command == "explain":
+            print(_explain(args.scenarios, args.scenario_id))
+            return 0
         if args.command == "attest":
             print(_attest(args.output_dir, args.source_revision))
             return 0
@@ -338,6 +372,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.output,
                 )
             )
+            return 0
+        if args.command == "mcp-import":
+            print(_mcp_import(args.tool_list, args.output_dir))
             return 0
         if args.command == "mcp-profile-check":
             message, code = _mcp_profile_check(

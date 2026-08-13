@@ -18,6 +18,14 @@ from trustweave.models import (
 
 
 @dataclass(frozen=True)
+class ScenarioReference:
+    """A public taxonomy or standards reference for a synthetic scenario."""
+
+    title: str
+    url: str
+
+
+@dataclass(frozen=True)
 class Scenario:
     """One fully synthetic assertion about policy behavior."""
 
@@ -26,12 +34,43 @@ class Scenario:
     source_trust: str
     tool_action_class: str
     expected_decision: str
+    title: str
+    category: str
+    rationale: str
+    references: tuple[ScenarioReference, ...]
 
 
 def _text(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
     return value.strip()
+
+
+def _optional_text(value: Any, default: str, path: str) -> str:
+    if value is None:
+        return default
+    return _text(value, path)
+
+
+def _parse_references(value: Any, path: str) -> tuple[ScenarioReference, ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        raise ValidationError(f"{path} must be a list")
+    references: list[ScenarioReference] = []
+    for index, raw in enumerate(value):
+        if not isinstance(raw, Mapping):
+            raise ValidationError(f"{path}[{index}] must be an object")
+        url = _text(raw.get("url"), f"{path}[{index}].url")
+        if not url.startswith("https://"):
+            raise ValidationError(f"{path}[{index}].url must use https")
+        references.append(
+            ScenarioReference(
+                title=_text(raw.get("title"), f"{path}[{index}].title"),
+                url=url,
+            )
+        )
+    return tuple(references)
 
 
 def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
@@ -62,15 +101,27 @@ def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
             raise ValidationError(f"scenario_pack.scenarios[{index}] has invalid tool_action_class")
         if expected not in VALID_DECISIONS:
             raise ValidationError(f"scenario_pack.scenarios[{index}] has invalid expected_decision")
+        identifier = _text(raw.get("id"), f"scenario_pack.scenarios[{index}].id")
+        description = _text(raw.get("description"), f"scenario_pack.scenarios[{index}].description")
         scenarios.append(
             Scenario(
-                id=_text(raw.get("id"), f"scenario_pack.scenarios[{index}].id"),
-                description=_text(
-                    raw.get("description"), f"scenario_pack.scenarios[{index}].description"
-                ),
+                id=identifier,
+                description=description,
                 source_trust=source_trust,
                 tool_action_class=action_class,
                 expected_decision=expected,
+                title=_optional_text(
+                    raw.get("title"), identifier, f"scenario_pack.scenarios[{index}].title"
+                ),
+                category=_optional_text(
+                    raw.get("category"), "general", f"scenario_pack.scenarios[{index}].category"
+                ),
+                rationale=_optional_text(
+                    raw.get("rationale"), description, f"scenario_pack.scenarios[{index}].rationale"
+                ),
+                references=_parse_references(
+                    raw.get("references"), f"scenario_pack.scenarios[{index}].references"
+                ),
             )
         )
 
@@ -95,6 +146,13 @@ def run_scenarios(policy: Policy, scenarios: Sequence[Scenario]) -> dict[str, An
             {
                 "id": scenario.id,
                 "description": scenario.description,
+                "title": scenario.title,
+                "category": scenario.category,
+                "rationale": scenario.rationale,
+                "references": [
+                    {"title": reference.title, "url": reference.url}
+                    for reference in scenario.references
+                ],
                 "input": {
                     "source_trust": scenario.source_trust,
                     "tool_action_class": scenario.tool_action_class,
@@ -128,3 +186,49 @@ def run_scenarios(policy: Policy, scenarios: Sequence[Scenario]) -> dict[str, An
             ),
         ],
     }
+
+
+def explain_scenario(scenarios: Sequence[Scenario], scenario_id: str) -> str:
+    """Render one cited synthetic scenario without invoking an agent or external system."""
+
+    scenario = next((item for item in scenarios if item.id == scenario_id), None)
+    if scenario is None:
+        raise ValidationError(f"Scenario id not found: {scenario_id}")
+    lines = [
+        f"# {scenario.title}",
+        "",
+        f"**Scenario ID:** `{scenario.id}`  ",
+        f"**Category:** `{scenario.category}`  ",
+        f"**Expected policy decision:** `{scenario.expected_decision}`",
+        "",
+        "## Synthetic boundary assertion",
+        "",
+        scenario.description,
+        "",
+        "## Why it matters",
+        "",
+        scenario.rationale,
+        "",
+        "## Policy labels",
+        "",
+        "| Source trust | Tool action class |",
+        "|---|---|",
+        f"| `{scenario.source_trust}` | `{scenario.tool_action_class}` |",
+        "",
+        "## References",
+        "",
+    ]
+    if scenario.references:
+        lines.extend(f"- [{reference.title}]({reference.url})" for reference in scenario.references)
+    else:
+        lines.append("- No external taxonomy reference was declared for this synthetic scenario.")
+    lines.extend(
+        [
+            "",
+            "> This is a local synthetic policy assertion. It does not execute a prompt, tool, "
+            "model, MCP server, or network request and does not demonstrate a deployed-system "
+            "compromise.",
+            "",
+        ]
+    )
+    return "\n".join(lines)

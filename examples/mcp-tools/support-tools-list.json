@@ -1,0 +1,40 @@
+{
+  "tools": [
+    {
+      "name": "knowledge_search",
+      "description": "Synthetic customer-support knowledge lookup metadata.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string"}
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Knowledge search",
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "customer_export",
+      "description": "Synthetic customer-record export metadata requiring a separate manual action-class review.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {"type": "string"}
+        },
+        "required": ["customer_id"],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Customer export",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

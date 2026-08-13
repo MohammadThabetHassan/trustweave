@@ -25,7 +25,7 @@ jobs:
       - name: Install package and verification tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e . bandit build pip-audit pytest ruff mypy PyYAML
+          python -m pip install -e ".[dev]" bandit build pip-audit
 
       - name: Check formatting
         run: ruff format --check .
@@ -55,13 +55,32 @@ jobs:
           .wheel-check/bin/trustweave --help
           rm -rf .wheel-check
 
+      - name: Verify reproducible wheel build
+        run: |
+          rm -rf .wheel-repro-a .wheel-repro-b
+          SOURCE_DATE_EPOCH=0 python -m build --wheel --outdir .wheel-repro-a
+          SOURCE_DATE_EPOCH=0 python -m build --wheel --outdir .wheel-repro-b
+          cmp .wheel-repro-a/*.whl .wheel-repro-b/*.whl
+          rm -rf .wheel-repro-a .wheel-repro-b
+
       - name: Audit declared runtime dependencies
         run: pip-audit -r requirements.txt
+
+      - name: Generate reproducible local SBOM
+        run: |
+          mkdir -p artifacts
+          cyclonedx-py environment "$(which python)" --pyproject pyproject.toml --mc-type library --output-reproducible --output-file artifacts/trustweave.cdx.json
+          grep -q '"bomFormat": "CycloneDX"' artifacts/trustweave.cdx.json
 
       - name: Run synthetic evidence and review workflows
         run: |
           trustweave scan --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --output-dir artifacts
           trustweave test --policy policies/default-policy.json --scenarios scenarios/default-scenarios.json --output-dir artifacts
+          trustweave test --policy policies/default-policy.json --scenarios scenarios/adversarial-scenarios.json --output-dir artifacts/adversarial
+          grep -q '"total": 10' artifacts/adversarial/security-test-results.json
+          trustweave explain --scenarios scenarios/adversarial-scenarios.json --scenario-id TW-ADV-001 | grep -q 'OWASP LLM01:2025 Prompt Injection'
+          trustweave mcp-import --tool-list examples/mcp-tools/support-tools-list.json --output-dir artifacts/mcp-inventory
+          grep -q '"tool_count": 2' artifacts/mcp-inventory/mcp-tool-inventory.json
           trustweave attest --source-revision "$GITHUB_SHA" --output-dir artifacts
           trustweave report --output-dir artifacts
           trustweave verify --attestation artifacts/attestation.json
@@ -109,3 +128,27 @@ jobs:
           name: trustweave-evidence
           path: artifacts/
           if-no-files-found: error
+
+  compatibility:
+    name: Python compatibility (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and test tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run compatibility tests
+        run: pytest

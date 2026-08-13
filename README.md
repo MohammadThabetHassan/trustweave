@@ -12,6 +12,7 @@ TrustWeave is deliberately narrow: it gives reviewers visible evidence before a 
 |---|---|---|
 | Review an agent’s declared sources, tools, and flows | [`scan`](docs/CLI_REFERENCE.md#scan) | An Agent Security Bundle with deterministic decisions for every declared flow. |
 | Verify expected policy behavior in CI | [`test`](docs/CLI_REFERENCE.md#test) | Synthetic policy-regression evidence that uses no real systems or data. |
+| Learn a cited synthetic adversarial pattern and its policy boundary | [`explain`](docs/CLI_REFERENCE.md#explain) | Local Markdown explanation; no prompt, payload, model, or tool execution. |
 | Review whether a candidate configuration changed security-relevant paths | [`diff`](docs/CLI_REFERENCE.md#diff) | A baseline-versus-candidate review artifact and focused signals. |
 | Review the declared human-approval boundary for high-impact paths | [`policy-check`](docs/CLI_REFERENCE.md#policy-check) | Static evidence that approval controls are declared, bound to the action context, and fail closed. |
 | Review a local trace of what was recorded | [`trace-review`](docs/TRACE_REVIEW.md) | A privacy-preserving comparison between trace metadata, declared flows, and policy decisions. |
@@ -68,7 +69,24 @@ The reference policy declares a review-queue approval boundary for its condition
 
 The reference agent is fully synthetic. It includes an allowed retrieval path, a confidential-data path that requires approval before a mock external action, and an intentionally unsafe untrusted-content-to-external-action path that policy denies.
 
-### 2. Review a recorded local trace
+### 2. Exercise cited synthetic adversarial patterns
+
+TrustWeave includes a curated library of entirely synthetic, taxonomy-cited trust-boundary patterns. It models labels and expected policy outcomes—not prompts, payloads, target systems, or live exploitation:
+
+```bash
+trustweave test \
+  --policy policies/default-policy.json \
+  --scenarios scenarios/adversarial-scenarios.json \
+  --output-dir artifacts/adversarial
+
+trustweave explain \
+  --scenarios scenarios/adversarial-scenarios.json \
+  --scenario-id TW-ADV-001
+```
+
+The library covers prompt-injection-shaped retrieved context, tool-misuse-shaped metadata, confused-deputy paths, excessive agency, sensitive-data routes, supply-chain metadata, and approval-boundary cases using OWASP and MITRE references. A passing result demonstrates only the local policy decision for that synthetic label pair. See [`docs/SCENARIOS.md`](docs/SCENARIOS.md).
+
+### 3. Review a recorded local trace
 
 A trace is **evidence**, not an instruction. The examples contain only synthetic text and mock tool names.
 
@@ -94,7 +112,7 @@ trustweave trace-review \
 
 See the complete privacy, input, and exit-code contract in [`docs/TRACE_REVIEW.md`](docs/TRACE_REVIEW.md).
 
-### 3. Review a candidate architecture change
+### 4. Review a candidate architecture change
 
 ```bash
 rm -rf review-artifacts
@@ -119,7 +137,7 @@ The candidate adds a synthetic external archive capability. Its untrusted-input 
 
 To review a **capability change on an existing sensitive tool**, scan `examples/support-agent.capability-growth.manifest.json` as the head bundle and diff it against the baseline. The generated diff inventories `customer-record.export` as an added capability and emits `TW-DIFF-003`, a least-privilege review signal. The candidate is declarative and synthetic: it does not export a record or enable a runtime action.
 
-### 4. Export local review evidence as SARIF
+### 5. Export local review evidence as SARIF
 
 After generating one or more review artifacts, export their existing findings as deterministic SARIF 2.1.0 data:
 
@@ -131,7 +149,17 @@ trustweave sarif \
 
 The command is a local format conversion only. It preserves review identifiers, messages, and artifact locations, creates stable result fingerprints, and does **not** upload to GitHub, enable code scanning, connect to a service, or make a runtime-security claim. See the [SARIF CLI contract](docs/CLI_REFERENCE.md#sarif).
 
-### 5. Review declared MCP metadata without connecting
+### 6. Normalize an already-recorded MCP tools list
+
+```bash
+trustweave mcp-import \
+  --tool-list examples/mcp-tools/support-tools-list.json \
+  --output-dir artifacts/mcp-inventory
+```
+
+This strictly validates and sorts a supplied MCP `tools/list` snapshot into an inventory. It does **not** fetch the list, open a transport, infer authorization or an action class, process credentials, or call a tool. MCP annotations remain review metadata and are not trusted authority. See [`docs/MCP_IMPORT.md`](docs/MCP_IMPORT.md).
+
+### 7. Review declared MCP metadata without connecting
 
 ```bash
 trustweave mcp-profile-check \

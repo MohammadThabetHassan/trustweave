@@ -6,10 +6,10 @@ TrustWeave makes security-related review claims only when they are linked to rep
 
 ## Local verification
 
-Run the following commands from a clean checkout. The package requires Python 3.11 or later; the repository CI currently verifies Python 3.12.
+Run the following commands from a clean checkout. The package requires Python 3.11 or later. The primary quality workflow verifies Python 3.12, and separate compatibility jobs run the full test suite on Python 3.11 and 3.13.
 
 ```bash
-python -m pip install -e . bandit build pip-audit pytest ruff mypy PyYAML
+python -m pip install -e ".[dev]" bandit build pip-audit
 
 ruff format --check .
 ruff check .
@@ -18,6 +18,10 @@ bandit -r src/trustweave -q
 pytest
 python -m build
 pip-audit -r requirements.txt
+SOURCE_DATE_EPOCH=0 python -m build --wheel --outdir .wheel-repro-a
+SOURCE_DATE_EPOCH=0 python -m build --wheel --outdir .wheel-repro-b
+cmp .wheel-repro-a/*.whl .wheel-repro-b/*.whl
+cyclonedx-py environment "$(which python)" --pyproject pyproject.toml --mc-type library --output-reproducible --output-file artifacts/trustweave.cdx.json
 ```
 
 The declared core runtime dependency set is intentionally empty in v0.1. Optional YAML parsing and developer tools are declared as package extras. An audit that reports no declared runtime packages is therefore expected and must not be described as an audit of the entire developer workstation.
@@ -27,7 +31,12 @@ The declared core runtime dependency set is intentionally empty in v0.1. Optiona
 | Workflow | Command | Expected evidence |
 |---|---|---|
 | Core bundle | `trustweave scan` | A validated `agent-security-bundle.json` with explicit flow decisions and limits. |
-| Synthetic regression | `trustweave test` | Passing `security-test-results.json` for the versioned scenario pack. |
+| Synthetic regression | `trustweave test` | Passing `security-test-results.json` for the baseline and cited adversarial scenario packs. |
+| Scenario explanation | `trustweave explain` | Local Markdown explanation with declared taxonomy references and no model or network action. |
+| Static MCP snapshot inventory | `trustweave mcp-import` | Sorted local `mcp-tool-inventory.json` with no discovery, connection, authorization inference, or invocation. |
+| Branch coverage | `pytest` | Release-blocking 90% branch coverage across the `trustweave` package. |
+| Wheel reproducibility | Two fixed-epoch wheel builds | Byte-for-byte identical wheels from the same working tree. |
+| Local SBOM | `cyclonedx-py environment --output-reproducible` | Reproducible CycloneDX evidence for the verified Python environment and project metadata. |
 | Local integrity | `trustweave attest` then `trustweave verify` | An internally consistent hash-linked attestation. |
 | Policy structure | `trustweave policy-check --exit-on-review` | A clear default-policy review with a documented, bound, fail-closed approval boundary, or an explicit non-zero review gate. |
 | Change review | `trustweave diff` | Bundle-diff JSON and Markdown for baseline/candidate and capability-growth pairs. |
@@ -48,13 +57,15 @@ The clear trace fixture must exit `0` with `--exit-on-review`. The review-requir
 
 The clear MCP profile fixture must exit `0` with `--exit-on-review`. The review-required profile fixture must exit `1`, contain `TW-MCP-001`, and omit token-like query data from the Markdown report. These checks validate mapping drift, authorization-expectation review, URI hygiene, and the profile’s strict non-connection boundary.
 
+The adversarial scenario library must pass all ten cited synthetic patterns under the default policy, and `explain` must render the reference for `TW-ADV-001`. The MCP tools-list fixture must normalize to a two-tool inventory without an endpoint, transport operation, credential, action-class inference, or invocation.
+
 A SARIF workflow must combine existing policy, diff, trace, and MCP review artifacts and retain `TW-POL-004`, `TW-DIFF-003`, `TW-TRACE-004`, and `TW-MCP-001` in `trustweave.sarif`. The artifact must declare SARIF version `2.1.0`. This is format-level interoperability evidence only; no hosted code-scanning upload occurs in the repository workflow.
 
 A failing synthetic scenario, malformed manifest, unknown reference, invalid schema version, broken attestation chain, or missing review artifact is a release-blocking condition until the cause is understood and resolved.
 
 ## Hosted checks
 
-The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, tests, repository-reality validation, package build, isolated wheel invocation, declared dependency audit, the synthetic evidence workflow, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, profile-URI hygiene assertions, and deterministic SARIF generation. It uploads generated evidence for inspection but does not upload SARIF to a code-scanning service.
+The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, the enforced 90% branch-coverage test suite, repository-reality validation, package build, isolated wheel invocation, deterministic wheel reproducibility, declared dependency audit, reproducible CycloneDX SBOM generation, the synthetic evidence workflow, cited adversarial-scenario checks, local MCP tools-list import, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, profile-URI hygiene assertions, and deterministic SARIF generation. Separate compatibility jobs run the test suite on Python 3.11 and 3.13. The workflow uploads generated evidence for inspection but does not upload SARIF to a code-scanning service.
 
 The repository’s `main` branch requires this status check, retains linear history, and blocks force pushes and deletion. Direct commits remain the authorized working model; maintainers must complete the local checks before pushing and must monitor hosted results on the exact pushed SHA.
 

@@ -13,7 +13,7 @@ Thank you for helping improve TrustWeave. The project welcomes contributions tha
 ## Local development
 
 ```bash
-python -m pip install -e . bandit build pip-audit pytest ruff mypy PyYAML
+python -m pip install -e ".[dev]" bandit build pip-audit
 
 ruff format --check .
 ruff check .
@@ -22,6 +22,7 @@ bandit -r src/trustweave -q
 pytest
 python -m build
 pip-audit -r requirements.txt
+cyclonedx-py environment "$(which python)" --pyproject pyproject.toml --mc-type library --output-reproducible --output-file artifacts/trustweave.cdx.json
 ```
 
 Run the example workflow before proposing a change:
@@ -30,6 +31,9 @@ Run the example workflow before proposing a change:
 rm -rf artifacts
 trustweave scan --manifest examples/support-agent.manifest.json --policy policies/default-policy.json --output-dir artifacts
 trustweave test --policy policies/default-policy.json --scenarios scenarios/default-scenarios.json --output-dir artifacts
+trustweave test --policy policies/default-policy.json --scenarios scenarios/adversarial-scenarios.json --output-dir artifacts/adversarial
+trustweave explain --scenarios scenarios/adversarial-scenarios.json --scenario-id TW-ADV-001
+trustweave mcp-import --tool-list examples/mcp-tools/support-tools-list.json --output-dir artifacts/mcp-inventory
 trustweave attest --source-revision contributor-check --output-dir artifacts
 trustweave report --output-dir artifacts
 trustweave verify --attestation artifacts/attestation.json
@@ -49,7 +53,7 @@ trustweave mcp-profile-check \
 
 ## Adding a scenario
 
-A scenario is an assertion over abstract labels. It must not contain an exploit payload or invoke a real tool. Add the scenario to a versioned scenario pack and cover it with a positive, negative, or boundary test as appropriate.
+A scenario is an assertion over abstract labels. It must not contain an exploit payload or invoke a real tool. Add the scenario to a versioned scenario pack and cover it with a positive, negative, or boundary test as appropriate. A new entry in `scenarios/adversarial-scenarios.json` must also have a unique `TW-ADV-*` identifier, a concise rationale, and at least one public `https://` taxonomy or standards reference. See [`docs/SCENARIOS.md`](docs/SCENARIOS.md).
 
 | Scenario type | Example | Expected behavior |
 |---|---|---|
@@ -63,7 +67,7 @@ Before requesting review, confirm the following statements are true.
 
 - [ ] The change is within the documented safety boundaries.
 - [ ] The change includes relevant tests or updates existing deterministic expectations.
-- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, `bandit -r src/trustweave -q`, `pytest`, `python -m build`, and `pip-audit -r requirements.txt` pass locally.
+- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, `bandit -r src/trustweave -q`, `pytest` (including the 90% branch-coverage gate), `python -m build`, and `pip-audit -r requirements.txt` pass locally.
 - [ ] Generated artifact directories, including `artifacts/` and `*-artifacts/`, are not committed.
 - [ ] Documentation and examples describe the actual implemented behavior.
 - [ ] Any new schema field includes validation and an explicit default/failure behavior.
@@ -71,4 +75,4 @@ Before requesting review, confirm the following statements are true.
 
 ## Governance
 
-Until a published maintainer group is established, repository owners make final decisions on releases, schema changes, and security-sensitive contributions. See [SECURITY.md](SECURITY.md) for vulnerability reporting and [docs/RELEASE.md](docs/RELEASE.md) for the release checklist.
+Until a published maintainer group is established, repository owners make final decisions on releases, schema changes, and security-sensitive contributions. See [GOVERNANCE.md](GOVERNANCE.md) for decision and review cadence, [SECURITY.md](SECURITY.md) for vulnerability reporting, and [docs/RELEASE.md](docs/RELEASE.md) for the release checklist.

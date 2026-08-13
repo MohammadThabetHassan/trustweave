@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] {scan,test,attest,report,verify,diff,policy-check,trace-review,mcp-profile-check,sarif} ...
+trustweave [-h] {scan,test,explain,attest,report,verify,diff,policy-check,trace-review,mcp-import,mcp-profile-check,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -51,6 +51,21 @@ trustweave test --policy PATH --scenarios PATH [--output-dir DIR]
 | Output file | Content |
 |---|---|
 | `security-test-results.json` | Per-scenario expectation, observed decision, matching rule, and pass/fail summary. |
+
+## `explain`
+
+```bash
+trustweave explain --scenarios PATH --scenario-id ID
+```
+
+`explain` renders one versioned synthetic scenario as Markdown, including its policy labels, expected decision, rationale, and public taxonomy references. It reads only the supplied local scenario pack. It does **not** send a prompt, invoke a model or tool, contact a reference URL, connect to MCP, or demonstrate a live compromise.
+
+| Input | Required | Description |
+|---|---:|---|
+| `--scenarios` | Yes | A local scenario pack in JSON or safe YAML. |
+| `--scenario-id` | Yes | Exact scenario identifier to explain. |
+
+A missing identifier exits `2`. Legacy scenario packs remain valid: title, category, rationale, and references are additive optional fields; unannotated legacy scenarios explain with their declared description and no taxonomy citation.
 
 ## `attest`
 
@@ -202,6 +217,7 @@ TrustWeave is intentionally strict. It rejects an unsupported schema version, mi
 ## References
 
 [1]: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html "OASIS Static Analysis Results Interchange Format (SARIF) 2.1.0"
+[2]: https://modelcontextprotocol.io/specification/2025-03-26/server/tools "MCP tools specification (2025-03-26)"
 
 ## CI patterns
 
@@ -218,6 +234,25 @@ trustweave trace-review \
 
 Use a review-required reference only to verify the gate itself. Because it intentionally returns status `1`, invert that assertion in a test script or unit test rather than treating it as a passing production policy gate.
 
+
+## `mcp-import`
+
+```bash
+trustweave mcp-import --tool-list PATH [--output-dir DIR]
+```
+
+`mcp-import` normalizes an **already-provided local** MCP `tools/list` snapshot into `mcp-tool-inventory.json`. It accepts each tool’s unique `name`, optional `description`, required `inputSchema`, and selected annotation hints (`title`, `readOnlyHint`, `destructiveHint`, `idempotentHint`, and `openWorldHint`). The result is a review inventory, not an Agent Security Manifest and not an authorization mapping.
+
+| Input | Required | Description |
+|---|---:|---|
+| `--tool-list` | Yes | A local MCP `tools/list` response snapshot in JSON or safe YAML. |
+| `--output-dir` | No | Artifact directory; defaults to `artifacts`. |
+
+| Output file | Content |
+|---|---|
+| `mcp-tool-inventory.json` | Stable, sorted tool metadata inventory with explicit non-connection and non-authorization limits. |
+
+MCP specifies tool names, descriptions, input schemas, and optional annotations, while warning that annotations must be treated as untrusted unless received from trusted servers.[2] TrustWeave does not retrieve the list, open a transport, resolve an endpoint, inspect credentials, invoke a tool, infer action classes from hints, or treat tool metadata as authorization.
 
 ## `mcp-profile-check`
 

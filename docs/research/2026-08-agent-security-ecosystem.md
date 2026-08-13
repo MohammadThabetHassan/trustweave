@@ -116,3 +116,16 @@ TrustWeave can provide a narrow SARIF exporter without changing its safety bound
 
 [10]: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html "OASIS SARIF 2.1.0"
 [11]: https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/integrate-with-existing-tools/upload-sarif-file "GitHub Docs: Uploading a SARIF file"
+
+
+### Synthetic scenario and offline-import research record
+
+The OWASP LLM01:2025 prompt-injection guidance distinguishes direct and indirect prompt injection, explains that external retrieved content can influence an LLM’s behavior, and recommends least privilege, segregation of untrusted content, human approval for high-risk actions, and adversarial testing. [12] It links direct and indirect LLM prompt injection to MITRE ATLAS techniques `AML.T0051.000` and `AML.T0051.001`. [12] MITRE ATLAS describes itself as a living knowledge base of tactics and techniques against AI-enabled systems grounded in observed and realistic demonstrations. [13]
+
+These sources justify **synthetic policy labels and cited architecture patterns**, not live prompts, payloads, exploitation, or model execution. TrustWeave’s adversarial library therefore represents only source trust, tool action class, expected deterministic decision, a rationale, and public references. A scenario explanation is likewise educational evidence, not a runtime test.
+
+The MCP tools specification states that tools carry a unique `name`, human-readable `description`, `inputSchema`, and optional annotations; it also says annotations should be treated as untrusted unless from trusted servers and recommends confirmation for sensitive operations. [14] This supports a future local parser for an already-provided `tools/list` response, provided it performs no discovery request, transport connection, token handling, or tool invocation.
+
+[12]: https://genai.owasp.org/llmrisk/llm01-prompt-injection/ "OWASP LLM01:2025 Prompt Injection"
+[13]: https://atlas.mitre.org/ "MITRE ATLAS"
+[14]: https://modelcontextprotocol.io/specification/2025-03-26/server/tools "MCP tools specification (2025-03-26)"

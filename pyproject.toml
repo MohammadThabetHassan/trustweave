@@ -20,6 +20,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Security",
   "Typing :: Typed",
 ]
@@ -27,16 +28,24 @@ dependencies = []
 
 [project.optional-dependencies]
 yaml = ["PyYAML>=6.0"]
-dev = ["PyYAML>=6.0", "pytest>=8.0", "ruff>=0.8", "mypy>=1.13"]
+dev = [
+  "PyYAML>=6.0",
+  "pytest>=8.0",
+  "pytest-cov>=7.0",
+  "hypothesis>=6.0",
+  "cyclonedx-bom>=7.0",
+  "ruff>=0.8",
+  "mypy>=1.13",
+]
 
 [project.scripts]
 trustweave = "trustweave.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/AbdulrahmanRezki/trustweave"
-Documentation = "https://github.com/AbdulrahmanRezki/trustweave/tree/main/docs"
-Repository = "https://github.com/AbdulrahmanRezki/trustweave"
-Issues = "https://github.com/AbdulrahmanRezki/trustweave/issues"
+Homepage = "https://github.com/MohammadThabetHassan/trustweave"
+Documentation = "https://github.com/MohammadThabetHassan/trustweave/tree/main/docs"
+Repository = "https://github.com/MohammadThabetHassan/trustweave"
+Issues = "https://github.com/MohammadThabetHassan/trustweave/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -46,7 +55,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q --cov=trustweave --cov-branch --cov-report=term-missing --cov-fail-under=90"
 
 [tool.ruff]
 line-length = 100

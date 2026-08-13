@@ -18,7 +18,7 @@ Do not submit real credentials, personal data, destructive payloads, malware, in
 
 The maintainer should acknowledge a valid report, assess affected versions and scope, prepare a fix with regression coverage, verify the fix locally and in hosted CI, and publish a concise advisory or changelog entry after remediation. Public disclosure timing should balance contributor coordination and user safety.
 
-The project does not currently publish a response-service-level target. Until a maintainer group and response rotation are established, the repository owner is responsible for coordinating private reports.
+Maintainers aim to acknowledge a valid private report within **seven calendar days** and to provide a status update after triage. This is a best-effort response objective, not a guarantee of remediation timing or availability. Until a maintainer group and response rotation are established, the repository owner is responsible for coordinating private reports. See [GOVERNANCE.md](GOVERNANCE.md) for review ownership and cadence.
 
 ## Security design limits
 

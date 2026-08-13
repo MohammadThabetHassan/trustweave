@@ -19,6 +19,7 @@ MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)\s]+)(?:\s+[^)]*)?\)")
 EXPECTED_COMMANDS = (
     "scan",
     "test",
+    "explain",
     "attest",
     "report",
     "verify",
@@ -26,6 +27,7 @@ EXPECTED_COMMANDS = (
     "policy-check",
     "trace-review",
     "mcp-profile-check",
+    "mcp-import",
     "sarif",
 )
 

@@ -21,14 +21,17 @@ flowchart LR
     M --> TV
     P --> TV
     TV --> TO[Trace review artifacts]
+    ML[Local MCP tools/list snapshot] --> MI[Static MCP inventory import]
     MP[Local MCP metadata profile] --> MC[Static MCP profile review]
     M --> MC
     MC --> MO[MCP profile review artifacts]
+    MI --> MIO[MCP tool inventory]
     PRR --> SR[Local SARIF evidence]
     DR --> SR
     TO --> SR
     MO --> SR
     S[Synthetic scenario pack] --> T[Deterministic scenario runner]
+    S --> EX[Local scenario explanation]
     P --> T
     T --> TS[Test results]
     B --> A[Local hash-linked attestation]
@@ -42,11 +45,12 @@ flowchart LR
 |---|---|---|
 | `models.py` | Validates manifests, policies, trust labels, action classes, and references. | Rejects incomplete, unknown, malformed, or ambiguous declared inputs. |
 | `engine.py` | Builds a bundle and applies first-match deterministic rules to every declared flow. | Never calls a model, tool, subprocess, or network service. |
-| `scenarios.py` | Runs safe scenario assertions against abstract trust/action labels. | Does not execute a payload, tool, or configured server. |
+| `scenarios.py` | Runs safe scenario assertions and renders cited local scenario explanations. | Does not execute a payload, prompt, model, tool, or configured server. |
 | `evidence.py` | Hash-links generated JSON artifacts into a local attestation. | States explicit limits; no claim of external signing or non-repudiation. |
 | `policy_review.py` | Reviews ordered-rule shadowing and decisions that require human scrutiny. | Does not decide authorization or run a policy in a deployed runtime. |
 | `diff.py` | Compares two generated bundles for declared source, tool, path, and decision changes. | Does not discover behavior, execute tools, or issue a security verdict. |
 | `trace_review.py` | Compares local trace tool-call metadata with declared sources, tools, flows, and deterministic policy. | Does not execute a target, inspect message text/tool arguments, or treat a trace as an instruction. |
+| `mcp_import.py` | Normalizes an already-provided MCP tools/list snapshot into a deterministic review inventory. | Does not discover a server, open a transport, retrieve metadata, handle tokens, infer authorization, or execute a tool. |
 | `mcp_profile.py` | Validates local MCP metadata profiles and compares tool mappings/action classes with the manifest. | Does not discover a server, open a transport, retrieve metadata, handle tokens, or execute a tool. |
 | `sarif.py` | Converts existing local review findings into deterministic SARIF 2.1.0 evidence. | Does not inspect a live target, upload results, enable code scanning, or perform a network request. |
 | `report.py` | Renders review-friendly Markdown from generated artifacts. | Reads generated structured artifacts only and omits sensitive trace fields. |
@@ -79,6 +83,14 @@ The bundle-diff artifact compares a base and candidate bundle. It records additi
 ### Offline trace review
 
 The trace-review artifact consumes a strictly validated local trace with `messages`, `tool_calls`, and `events`. It records only message counts, tool names, declared source names, event-type counts, deterministic decisions, and review findings. It deliberately does not inspect or copy message content, tool arguments, credentials, or arbitrary event payloads. It reports undeclared sources/tools/flows and observed calls that the declared policy denies or requires approval.
+
+### Cited synthetic scenarios
+
+The adversarial scenario pack stores only trust labels, action classes, expected decisions, explanatory rationales, and public reference URLs. `explain` renders those fields from local data. The pack contains no live endpoints, prompt payloads, model invocation, tool configuration, credential, or external request. A passing scenario confirms a local policy decision only.
+
+### Local MCP tools-list inventory
+
+The MCP inventory command normalizes an already-provided local `tools/list` snapshot into a stable tool inventory. It validates unique names, object-valued input schemas, and selected annotation types while treating all metadata as review data rather than authority. It intentionally does not infer a TrustWeave action class, create a manifest, contact an endpoint, authenticate, discover a tool, or execute a call.
 
 ### MCP metadata profile review
 
