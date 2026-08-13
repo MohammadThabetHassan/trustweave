@@ -102,9 +102,9 @@ The `sarif` command converts selected policy, bundle-diff, trace, and MCP-profil
 
 ## Policy semantics
 
-Policies use ordered rules. A rule matches when both the source trust label and the tool action class match. The first matching rule determines the result. When no rule matches, TrustWeave uses the policy’s `default_decision`.
+Policies use ordered rules. A rule matches when its source-trust label and tool action class match. Optional `source_data_classifications` and `tool_capabilities` constraints narrow a rule further; capability constraints use bounded shell-style globs such as `email.*`, never executable expressions. The first matching rule determines the result. When no rule matches, TrustWeave uses the policy’s `default_decision`.
 
-Supported trust labels are `trusted`, `untrusted`, and `conditional`. Supported action classes are `read`, `write`, `sensitive`, and `external`. Supported decisions are `allow`, `deny`, and `require_approval`.
+Supported trust labels are `trusted`, `untrusted`, and `conditional`. Supported action classes are `read`, `write`, `sensitive`, and `external`. Supported decisions are `allow`, `deny`, and `require_approval`. Findings use deterministic default severities of `high` for denied paths, `medium` for approval-required paths, and `info` for allowed paths; a policy rule may declare one of `critical`, `high`, `medium`, `low`, or `info` as an explicit override.
 
 The `require_approval` result is an evidence decision, not a human-approval implementation. An optional policy-level `approval_control` declaration records a mechanism label, the fields an approval is bound to, and whether validation fails closed. `trustweave policy-check --exit-on-review` can act as a deterministic CI gate for review findings. TrustWeave does not implement an approval workflow, contact a reviewer, authenticate an approver, or validate approval at runtime.
 

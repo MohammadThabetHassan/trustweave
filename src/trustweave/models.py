@@ -81,7 +81,7 @@ class AgentManifest:
 
 @dataclass(frozen=True)
 class PolicyRule:
-    """A simple deterministic policy rule evaluated against a flow."""
+    """A deterministic policy rule evaluated against declared flow attributes."""
 
     id: str
     description: str
@@ -89,6 +89,9 @@ class PolicyRule:
     tool_action_classes: tuple[str, ...]
     decision: str
     rationale: str
+    source_data_classifications: tuple[str, ...] = ()
+    tool_capabilities: tuple[str, ...] = ()
+    severity: str | None = None
 
 
 @dataclass(frozen=True)
@@ -114,6 +117,7 @@ class Policy:
 VALID_TRUST_LABELS = frozenset({"trusted", "untrusted", "conditional"})
 VALID_ACTION_CLASSES = frozenset({"read", "write", "sensitive", "external"})
 VALID_DECISIONS = frozenset({"allow", "deny", "require_approval"})
+VALID_SEVERITIES = frozenset({"critical", "high", "medium", "low", "info"})
 
 
 def _string(value: Any, path: str) -> str:
@@ -288,7 +292,17 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
         rule = _mapping(raw_rule, f"policy.rules[{index}]")
         reject_unknown_fields(
             rule,
-            {"id", "description", "source_trust", "tool_action_classes", "decision", "rationale"},
+            {
+                "id",
+                "description",
+                "source_trust",
+                "tool_action_classes",
+                "decision",
+                "rationale",
+                "source_data_classifications",
+                "tool_capabilities",
+                "severity",
+            },
             f"policy.rules[{index}]",
         )
         source_trust = tuple(
@@ -321,6 +335,27 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
             raise ValidationError(
                 f"policy.rules[{index}].decision must be one of {sorted(VALID_DECISIONS)}"
             )
+        classifications = tuple(
+            _string(value, f"policy.rules[{index}].source_data_classifications")
+            for value in _sequence(
+                rule.get("source_data_classifications", []),
+                f"policy.rules[{index}].source_data_classifications",
+            )
+        )
+        capabilities = tuple(
+            _string(value, f"policy.rules[{index}].tool_capabilities")
+            for value in _sequence(
+                rule.get("tool_capabilities", []),
+                f"policy.rules[{index}].tool_capabilities",
+            )
+        )
+        severity: str | None = None
+        if "severity" in rule:
+            severity = _string(rule["severity"], f"policy.rules[{index}].severity")
+            if severity not in VALID_SEVERITIES:
+                raise ValidationError(
+                    f"policy.rules[{index}].severity must be one of {sorted(VALID_SEVERITIES)}"
+                )
         rules.append(
             PolicyRule(
                 id=_string(rule.get("id"), f"policy.rules[{index}].id"),
@@ -329,6 +364,9 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 tool_action_classes=action_classes,
                 decision=decision,
                 rationale=_string(rule.get("rationale"), f"policy.rules[{index}].rationale"),
+                source_data_classifications=classifications,
+                tool_capabilities=capabilities,
+                severity=severity,
             )
         )
     _unique_names([rule.id for rule in rules], "policy.rules.id")

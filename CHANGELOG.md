@@ -6,6 +6,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Added optional declarative policy constraints for exact source data classifications and bounded tool-capability globs, so those declared security attributes now affect tested flow decisions.
+- Added deterministic decision severities (`high`, `medium`, and `info`) with explicit policy overrides from the documented `critical` through `info` vocabulary.
 - Made manifest, policy, scenario, trace, MCP profile, MCP inventory, and supported framework-declaration parsers reject unknown declared fields by default with path-aware close-match diagnostics.
 - Added schema-and-runtime conformance tests for every checked-in manifest, policy, trace, and MCP profile fixture; the repository reality check now enforces the published-schema side in CI.
 - Declared `jsonschema` as a development-only conformance dependency and recorded the typed-parser authority decision in ADR-0001.
