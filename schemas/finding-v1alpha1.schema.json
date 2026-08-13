@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/finding/v1alpha1",
+  "title": "TrustWeave Canonical Local Finding v1alpha1",
+  "type": "object",
+  "required": ["schema_version", "id", "severity", "message", "evidence_kind", "subject"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/finding/v1alpha1"},
+    "id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "title": {"type": "string", "minLength": 1, "maxLength": 256},
+    "severity": {"enum": ["critical", "high", "medium", "low", "info", "review"]},
+    "message": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "rationale": {"type": "string", "maxLength": 4096},
+    "remediation": {"type": "string", "maxLength": 4096},
+    "evidence_kind": {"type": "string", "minLength": 1, "maxLength": 128},
+    "subject": {"type": "string", "minLength": 1, "maxLength": 1024},
+    "properties": {"type": "object"}
+  },
+  "additionalProperties": false
+}
