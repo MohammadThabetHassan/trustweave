@@ -6,6 +6,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Added `trustweave.dev/attestation/v1alpha3`, which binds stable payload hashes, exact file hashes, subject names, and source revision. `verify --bundle --test-results` now checks supplied local evidence bytes; readers retain `v1alpha1` and `v1alpha2` compatibility.
+- Made `risk-check` schema-aware for policy, trace, MCP-profile, and bundle-diff review evidence. It now normalizes documented `findings` and diff `signals` into semantic `trustweave/fingerprint/v2` identities, preserves local input paths, and deterministically deduplicates exact identities.
+- Restricted policy capability matching to exact capabilities or one final namespace wildcard, made shadow analysis conservative across classification and capability constraints, and made optional scenario attributes use the same deterministic matcher as declared manifest flows.
 - Added reviewer-facing `risk-review.md` output and active-risk-only SARIF export that retains a canonical local risk fingerprint while omitting currently baselined or suppressed entries.
 - Added `risk-check`, a local deterministic risk-review command that normalizes supplied review artifacts into stable fingerprints and applies explicit expiry-enforced baselines and suppressions.
 - Added severity gates for active local findings, safe empty baseline/suppression templates, and maintainer guidance that distinguishes reviewer documentation from remediation or runtime enforcement.
