@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from fnmatch import fnmatchcase
 from typing import Any
 
 from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool
@@ -38,10 +37,23 @@ def _default_severity(decision: str) -> str:
     return {"deny": "high", "require_approval": "medium", "allow": "info"}[decision]
 
 
-def _capability_matches(pattern: str, capability: str) -> bool:
-    """Match bounded capability globs without evaluating arbitrary expressions."""
+def capability_matches(pattern: str, capability: str) -> bool:
+    """Match an exact capability or one validated final namespace wildcard."""
 
-    return fnmatchcase(capability, pattern)
+    if pattern.endswith(".*"):
+        return capability.startswith(pattern[:-1])
+    return capability == pattern
+
+
+def capability_pattern_covers(first: str, later: str) -> bool:
+    """Return only proven capability-pattern subsumption relationships."""
+
+    if first == later:
+        return True
+    if not first.endswith(".*"):
+        return False
+    prefix = first[:-1]
+    return later.startswith(prefix)
 
 
 def _rule_matches(rule: PolicyRule, source: Source, tool: Tool) -> bool:
@@ -53,7 +65,7 @@ def _rule_matches(rule: PolicyRule, source: Source, tool: Tool) -> bool:
     ):
         return False
     return not rule.tool_capabilities or any(
-        _capability_matches(pattern, capability)
+        capability_matches(pattern, capability)
         for pattern in rule.tool_capabilities
         for capability in tool.capabilities
     )
@@ -134,26 +146,54 @@ def build_bundle(
     return add_generated_at(bundle, generated_at)
 
 
-def matching_rule(policy: Policy, source_trust: str, action_class: str) -> PolicyRule | None:
-    """Return the first policy rule that matches a synthetic scenario input."""
+def matching_rule(
+    policy: Policy,
+    source_trust: str,
+    action_class: str,
+    source_data_classification: str | None = None,
+    tool_capabilities: tuple[str, ...] = (),
+) -> PolicyRule | None:
+    """Return the first rule that matches a synthetic input using manifest-equivalent semantics."""
 
-    for rule in policy.rules:
-        if (
-            source_trust in rule.source_trust
-            and action_class in rule.tool_action_classes
-            and not rule.source_data_classifications
-            and not rule.tool_capabilities
-        ):
-            return rule
-    return None
+    source = Source(
+        name="synthetic-source",
+        trust=source_trust,
+        data_classification=source_data_classification or "unspecified",
+        description="Synthetic policy scenario input.",
+    )
+    tool = Tool(
+        name="synthetic-tool",
+        action_class=action_class,
+        capabilities=tool_capabilities,
+        description="Synthetic policy scenario input.",
+    )
+    return next((rule for rule in policy.rules if _rule_matches(rule, source, tool)), None)
+
+
+def decision_for_scenario(
+    policy: Policy,
+    source_trust: str,
+    action_class: str,
+    source_data_classification: str | None = None,
+    tool_capabilities: tuple[str, ...] = (),
+) -> tuple[str, str | None]:
+    """Return a synthetic decision using the same matcher as declared manifest flows."""
+
+    rule = matching_rule(
+        policy,
+        source_trust,
+        action_class,
+        source_data_classification,
+        tool_capabilities,
+    )
+    if rule is None:
+        return policy.default_decision, None
+    return rule.decision, rule.id
 
 
 def decision_for_labels(
     policy: Policy, source_trust: str, action_class: str
 ) -> tuple[str, str | None]:
-    """Return decision and optional rule identifier for a synthetic scenario."""
+    """Preserve the legacy label-only synthetic decision API."""
 
-    rule = matching_rule(policy, source_trust, action_class)
-    if rule is None:
-        return policy.default_decision, None
-    return rule.decision, rule.id
+    return decision_for_scenario(policy, source_trust, action_class)

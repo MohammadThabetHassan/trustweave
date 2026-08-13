@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -16,27 +16,40 @@ from trustweave.provenance import add_generated_at
 RISK_REVIEW_SCHEMA_VERSION = "trustweave.dev/risk-review/v1alpha1"
 RISK_BASELINE_SCHEMA_VERSION = "trustweave.dev/risk-baseline/v1alpha1"
 RISK_SUPPRESSIONS_SCHEMA_VERSION = "trustweave.dev/risk-suppressions/v1alpha1"
+FINGERPRINT_SCHEMA_VERSION = "trustweave/fingerprint/v2"
 VALID_SEVERITIES = ("critical", "high", "medium", "low", "info")
 SEVERITY_RANK = {severity: index for index, severity in enumerate(VALID_SEVERITIES)}
 _LEGACY_SEVERITY_MAP = {"review": "medium"}
 
+_ARTIFACT_CONTRACTS: dict[str, tuple[str, str]] = {
+    "trustweave.dev/policy-review/v1alpha1": ("findings", "declared_configuration"),
+    "trustweave.dev/trace-review/v1alpha1": ("findings", "pre_recorded_trace_metadata"),
+    "trustweave.dev/mcp-profile-review/v1alpha1": ("findings", "pre_recorded_mcp_metadata"),
+    "trustweave.dev/bundle-diff/v1alpha1": ("signals", "configuration_difference"),
+}
+
 
 @dataclass(frozen=True)
 class CanonicalFinding:
-    """One reviewer-facing finding normalized from a local TrustWeave artifact."""
+    """One reviewer-facing finding normalized from a supported local review artifact."""
 
     artifact_schema_version: str
+    evidence_kind: str
     identifier: str
     severity: str
     message: str
+    subject: Mapping[str, Any]
     fingerprint: str
 
-    def as_dict(self) -> dict[str, str]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "artifact_schema_version": self.artifact_schema_version,
+            "evidence_kind": self.evidence_kind,
             "id": self.identifier,
             "severity": self.severity,
             "message": self.message,
+            "subject": dict(self.subject),
+            "fingerprint_schema_version": FINGERPRINT_SCHEMA_VERSION,
             "fingerprint": self.fingerprint,
         }
 
@@ -59,39 +72,106 @@ def _text(value: Any, path: str) -> str:
     return value.strip()
 
 
-def _fingerprint(schema_version: str, identifier: str, severity: str, message: str) -> str:
+def _stable_subject(value: Any, path: str) -> Mapping[str, Any]:
+    """Accept a deliberately small JSON-compatible subject identity without private content."""
+
+    if value is None:
+        return {}
+    subject = _mapping(value, path)
+    normalized: dict[str, Any] = {}
+    for key in sorted(subject):
+        if not isinstance(key, str):
+            raise ValidationError(f"{path}: subject keys must be strings")
+        item = subject[key]
+        if isinstance(item, str):
+            normalized[key] = item
+        elif isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+            if not all(isinstance(part, str) for part in item):
+                raise ValidationError(f"{path}.{key} must contain only strings")
+            normalized[key] = sorted(set(item))
+        else:
+            raise ValidationError(f"{path}.{key} must be a string or list of strings")
+    return normalized
+
+
+def _fallback_subject(
+    artifact: Mapping[str, Any], schema_version: str, message: str
+) -> Mapping[str, Any]:
+    """Preserve legacy distinctness when an older artifact has no structured subject."""
+
+    if schema_version == "trustweave.dev/policy-review/v1alpha1":
+        policy = artifact.get("policy")
+        if isinstance(policy, str):
+            return {"policy": policy}
+    if schema_version == "trustweave.dev/trace-review/v1alpha1":
+        identity = {
+            key: artifact[key] for key in ("agent", "policy") if isinstance(artifact.get(key), str)
+        }
+        if identity:
+            return identity
+    if schema_version == "trustweave.dev/mcp-profile-review/v1alpha1":
+        profile = artifact.get("profile")
+        if isinstance(profile, Mapping) and isinstance(profile.get("name"), str):
+            return {"profile": profile["name"]}
+    if schema_version == "trustweave.dev/bundle-diff/v1alpha1":
+        head = artifact.get("head")
+        if isinstance(head, Mapping) and isinstance(head.get("agent"), str):
+            return {"agent": head["agent"], "legacy_message": message}
+    return {"legacy_message": message}
+
+
+def _fingerprint(
+    evidence_kind: str, identifier: str, severity: str, subject: Mapping[str, Any]
+) -> str:
     material = {
-        "artifact_schema_version": schema_version,
+        "fingerprint_schema_version": FINGERPRINT_SCHEMA_VERSION,
+        "evidence_kind": evidence_kind,
         "id": identifier,
         "severity": severity,
-        "message": message,
+        "subject": subject,
     }
     return sha256(canonical_json(material).encode("utf-8")).hexdigest()
 
 
 def normalize_findings(artifact: Mapping[str, Any]) -> tuple[CanonicalFinding, ...]:
-    """Normalize a generated local review artifact without adding external context."""
+    """Normalize one exact supported local review artifact without external side effects."""
 
     schema_version = _text(artifact.get("schema_version"), "artifact.schema_version")
-    raw_findings = _sequence(artifact.get("findings"), "artifact.findings")
+    contract = _ARTIFACT_CONTRACTS.get(schema_version)
+    if contract is None:
+        supported = ", ".join(sorted(_ARTIFACT_CONTRACTS))
+        raise ValidationError(
+            f"artifact.schema_version {schema_version!r} is unsupported for risk review; "
+            f"supported schemas: {supported}"
+        )
+    collection_name, evidence_kind = contract
+    raw_findings = _sequence(artifact.get(collection_name), f"artifact.{collection_name}")
     findings: list[CanonicalFinding] = []
     for index, raw_finding in enumerate(raw_findings):
-        finding = _mapping(raw_finding, f"artifact.findings[{index}]")
-        identifier = _text(finding.get("id"), f"artifact.findings[{index}].id")
-        severity = _text(finding.get("severity"), f"artifact.findings[{index}].severity")
-        severity = _LEGACY_SEVERITY_MAP.get(severity, severity)
+        path = f"artifact.{collection_name}[{index}]"
+        finding = _mapping(raw_finding, path)
+        identifier = _text(finding.get("id"), f"{path}.id")
+        severity = _LEGACY_SEVERITY_MAP.get(
+            _text(finding.get("severity"), f"{path}.severity"),
+            _text(finding.get("severity"), f"{path}.severity"),
+        )
         if severity not in SEVERITY_RANK:
             raise ValidationError(
-                f"artifact.findings[{index}].severity must be one of {list(VALID_SEVERITIES)}"
+                f"{path}.severity must be one of {list(VALID_SEVERITIES)} or legacy review"
             )
-        message = _text(finding.get("message"), f"artifact.findings[{index}].message")
+        message = _text(finding.get("message"), f"{path}.message")
+        subject = _stable_subject(finding.get("subject"), f"{path}.subject")
+        if not subject:
+            subject = _fallback_subject(artifact, schema_version, message)
         findings.append(
             CanonicalFinding(
                 artifact_schema_version=schema_version,
+                evidence_kind=evidence_kind,
                 identifier=identifier,
                 severity=severity,
                 message=message,
-                fingerprint=_fingerprint(schema_version, identifier, severity, message),
+                subject=subject,
+                fingerprint=_fingerprint(evidence_kind, identifier, severity, subject),
             )
         )
     return tuple(sorted(findings, key=lambda item: (item.fingerprint, item.identifier)))
@@ -173,25 +253,45 @@ def review_risks(
     baseline_document: Mapping[str, Any] | None = None,
     suppressions_document: Mapping[str, Any] | None = None,
     reviewed_at: str | None = None,
+    artifact_paths: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     """Evaluate local review findings against explicit expiry-enforced risk decisions."""
 
     reviewed_timestamp = _timestamp(reviewed_at, "reviewed_at") if reviewed_at else None
     if reviewed_timestamp is None:
         raise ValidationError("reviewed_at must be supplied by the application boundary")
+    if artifact_paths is not None and len(artifact_paths) != len(artifacts):
+        raise ValidationError("artifact_paths must align one-to-one with artifacts")
     baseline = _expiry_entries(baseline_document, RISK_BASELINE_SCHEMA_VERSION, "baseline")
     suppressions = _expiry_entries(
         suppressions_document, RISK_SUPPRESSIONS_SCHEMA_VERSION, "suppressions"
     )
-    canonical_findings = tuple(
-        finding for artifact in artifacts for finding in normalize_findings(artifact)
-    )
+    conflict = sorted(set(baseline) & set(suppressions))
+    if conflict:
+        raise ValidationError(
+            "baseline and suppressions conflict for fingerprint: " + ", ".join(conflict)
+        )
+
+    unique_findings: dict[str, CanonicalFinding] = {}
+    sources_by_fingerprint: dict[str, set[str]] = defaultdict(set)
+    for index, artifact in enumerate(artifacts):
+        source_path = artifact_paths[index] if artifact_paths is not None else None
+        for finding in normalize_findings(artifact):
+            existing = unique_findings.get(finding.fingerprint)
+            if existing is None or finding.message < existing.message:
+                unique_findings[finding.fingerprint] = finding
+            if source_path is not None:
+                sources_by_fingerprint[finding.fingerprint].add(source_path)
+
     entries: list[dict[str, Any]] = []
-    for finding in sorted(canonical_findings, key=lambda item: (item.fingerprint, item.identifier)):
+    for fingerprint, finding in sorted(unique_findings.items()):
         status, reason, expires_at = _status_for(
             finding, baseline, suppressions, reviewed_timestamp
         )
         entry = {**finding.as_dict(), "risk_state": status}
+        sources = sorted(sources_by_fingerprint[fingerprint])
+        if sources:
+            entry["source_artifact_paths"] = sources
         if reason is not None:
             entry["reason"] = reason
         if expires_at is not None:

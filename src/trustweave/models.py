@@ -6,6 +6,7 @@ from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from difflib import get_close_matches
+from re import fullmatch
 from typing import Any
 
 
@@ -118,6 +119,7 @@ VALID_TRUST_LABELS = frozenset({"trusted", "untrusted", "conditional"})
 VALID_ACTION_CLASSES = frozenset({"read", "write", "sensitive", "external"})
 VALID_DECISIONS = frozenset({"allow", "deny", "require_approval"})
 VALID_SEVERITIES = frozenset({"critical", "high", "medium", "low", "info"})
+CAPABILITY_PATTERN_MAX_LENGTH = 128
 
 
 def _string(value: Any, path: str) -> str:
@@ -139,10 +141,41 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
 
 
 def reject_unknown_fields(value: Mapping[str, Any], allowed: set[str], path: str) -> None:
+    """Reject unknown fields without allowing non-string keys to escape validation."""
+
+    for field in value:
+        if not isinstance(field, str):
+            raise ValidationError(
+                f"{path}: field names must be strings; received "
+                f"{type(field).__name__} key {field!r}"
+            )
     for field in sorted(set(value) - allowed):
         suggestions = get_close_matches(field, sorted(allowed), n=1, cutoff=0.6)
         suggestion = f"; did you mean {suggestions[0]!r}?" if suggestions else ""
         raise ValidationError(f"{path}: unknown field {field!r}{suggestion}")
+
+
+def validate_capability_pattern(value: Any, path: str, *, allow_namespace: bool = True) -> str:
+    """Validate an exact capability or one final namespace wildcard, never a shell glob."""
+
+    pattern = _string(value, path)
+    if len(pattern) > CAPABILITY_PATTERN_MAX_LENGTH:
+        raise ValidationError(
+            f"{path} must be at most {CAPABILITY_PATTERN_MAX_LENGTH} characters long"
+        )
+    is_namespace = pattern.endswith(".*")
+    if "*" in pattern and not is_namespace:
+        raise ValidationError(f"{path} allows only a final namespace wildcard '.*'")
+    if is_namespace and not allow_namespace:
+        raise ValidationError(f"{path} must be an exact capability, not a namespace wildcard")
+    base = pattern[:-2] if is_namespace else pattern
+    if not base or base.startswith(".") or base.endswith(".") or ".." in base:
+        raise ValidationError(f"{path} must not contain empty, leading, or trailing dot segments")
+    if fullmatch(r"[a-z0-9][a-z0-9_.-]*", base) is None:
+        raise ValidationError(
+            f"{path} must use lowercase ASCII letters, numbers, '.', '_', or '-' only"
+        )
+    return pattern
 
 
 def _unique_names(items: Sequence[str], path: str) -> None:
@@ -209,7 +242,9 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
                 f"manifest.tools[{index}].action_class must be one of {allowed_actions}"
             )
         capabilities = tuple(
-            _string(capability, f"manifest.tools[{index}].capabilities")
+            validate_capability_pattern(
+                capability, f"manifest.tools[{index}].capabilities", allow_namespace=False
+            )
             for capability in _sequence(
                 tool.get("capabilities"), f"manifest.tools[{index}].capabilities"
             )
@@ -343,7 +378,7 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
             )
         )
         capabilities = tuple(
-            _string(value, f"policy.rules[{index}].tool_capabilities")
+            validate_capability_pattern(value, f"policy.rules[{index}].tool_capabilities")
             for value in _sequence(
                 rule.get("tool_capabilities", []),
                 f"policy.rules[{index}].tool_capabilities",

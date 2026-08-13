@@ -19,6 +19,7 @@ from trustweave.cli import (
 from trustweave.evidence import (
     ATTESTATION_SCHEMA_VERSION,
     LEGACY_ATTESTATION_SCHEMA_VERSION,
+    PREVIOUS_ATTESTATION_SCHEMA_VERSION,
     build_attestation,
     verify_attestation,
 )
@@ -231,21 +232,67 @@ def test_built_wheel_contains_and_installs_py_typed(tmp_path: Path) -> None:
     assert check.returncode == 0, check.stdout + check.stderr
 
 
-def test_stable_attestation_payload_digest_ignores_generation_metadata(tmp_path: Path) -> None:
+def test_v1alpha3_attestation_binds_stable_payloads_exact_files_subjects_and_revision(
+    tmp_path: Path,
+) -> None:
     bundle_path = write_json(
         tmp_path / "bundle.json", {"generated_at": "2026-08-13T00:00:00+00:00", "value": 1}
     )
     results_path = write_json(
         tmp_path / "results.json", {"generated_at": "2026-08-13T00:00:01+00:00", "value": 2}
     )
-    attestation = build_attestation(bundle_path, results_path, source_revision="test")
+    attestation = build_attestation(
+        bundle_path,
+        results_path,
+        source_revision="test",
+        generated_at="2026-08-13T00:00:02+00:00",
+    )
     assert attestation["schema_version"] == ATTESTATION_SCHEMA_VERSION
-    assert "generated_at" not in attestation
     assert verify_attestation(attestation)[0]
+    assert verify_attestation(attestation, bundle_path, results_path)[0]
 
-    tampered = json.loads(json.dumps(attestation))
-    tampered["predicate"]["bundle_document_sha256"] = "tampered"
-    assert not verify_attestation(tampered)[0]
+    def tampered_copy() -> dict[str, object]:
+        return json.loads(json.dumps(attestation))
+
+    subject_tampered = tampered_copy()
+    subject_tampered["subject"][0]["digest"]["sha256"] = "f" * 64
+    assert not verify_attestation(subject_tampered)[0]
+
+    file_tampered = tampered_copy()
+    file_tampered["predicate"]["exact_files"]["bundle"]["sha256"] = "e" * 64
+    assert not verify_attestation(file_tampered)[0]
+
+    stable_tampered = tampered_copy()
+    stable_tampered["predicate"]["stable_payload"]["bundle_sha256"] = "d" * 64
+    assert not verify_attestation(stable_tampered)[0]
+
+    revision_tampered = tampered_copy()
+    revision_tampered["predicate"]["source_revision"] = "other-revision"
+    assert not verify_attestation(revision_tampered)[0]
+
+    provenance_tampered = tampered_copy()
+    provenance_tampered["generated_at"] = "2026-08-13T00:00:03+00:00"
+    assert verify_attestation(provenance_tampered)[0]
+
+    bundle_path.write_text('{"value": 9}\n', encoding="utf-8")
+    assert not verify_attestation(attestation, bundle_path, results_path)[0]
+
+
+def test_v1alpha2_attestation_remains_readable() -> None:
+    bundle_hash = "bundle"
+    test_hash = "tests"
+    revision = "previous"
+    chain = "|".join([PREVIOUS_ATTESTATION_SCHEMA_VERSION, bundle_hash, test_hash, revision])
+    previous = {
+        "schema_version": PREVIOUS_ATTESTATION_SCHEMA_VERSION,
+        "predicate": {
+            "bundle_document_sha256": bundle_hash,
+            "test_results_document_sha256": test_hash,
+            "source_revision": revision,
+        },
+        "integrity": {"chain_sha256": sha256(chain.encode("utf-8")).hexdigest()},
+    }
+    assert verify_attestation(previous)[0]
 
 
 def test_legacy_attestation_verification_and_invalid_shapes() -> None:
@@ -297,3 +344,88 @@ def test_atomic_writer_replaces_existing_complete_artifact(tmp_path: Path) -> No
     target.write_text("old", encoding="utf-8")
     write_json(target, {"value": "new"})
     assert target.read_text(encoding="utf-8") == '{\n  "value": "new"\n}\n'
+
+
+def test_v1alpha3_verification_reports_internal_limit_and_individual_supplied_file_checks(
+    tmp_path: Path,
+) -> None:
+    bundle_path = write_json(tmp_path / "bundle.json", {"value": 1})
+    results_path = write_json(tmp_path / "results.json", {"value": 2})
+    attestation = build_attestation(bundle_path, results_path, source_revision="test")
+
+    valid, message = verify_attestation(attestation)
+    assert valid
+    assert "supplied files were not verified" in message
+    assert verify_attestation(attestation, bundle_path=bundle_path)[0]
+    assert verify_attestation(attestation, test_results_path=results_path)[0]
+
+    malformed_subject = json.loads(json.dumps(attestation))
+    malformed_subject["subject"] = [{"name": "bundle", "digest": {"sha256": "a" * 64}}]
+    assert not verify_attestation(malformed_subject)[0]
+
+    malformed_exact = json.loads(json.dumps(attestation))
+    malformed_exact["predicate"]["exact_files"]["bundle"]["name"] = "other.json"
+    assert not verify_attestation(malformed_exact)[0]
+
+
+def test_cli_verify_v1alpha3_accepts_supplied_evidence_files(tmp_path: Path) -> None:
+    bundle_path = write_json(tmp_path / "bundle.json", {"value": 1})
+    results_path = write_json(tmp_path / "results.json", {"value": 2})
+    attestation_path = write_json(
+        tmp_path / "attestation.json",
+        build_attestation(bundle_path, results_path, source_revision="test"),
+    )
+    assert (
+        main(
+            [
+                "verify",
+                "--attestation",
+                str(attestation_path),
+                "--bundle",
+                str(bundle_path),
+                "--test-results",
+                str(results_path),
+            ]
+        )
+        == EXIT_SUCCESS
+    )
+
+
+def test_v1alpha3_rejects_malformed_internal_bindings_and_test_results_bytes(
+    tmp_path: Path,
+) -> None:
+    bundle_path = write_json(tmp_path / "bundle.json", {"value": 1})
+    results_path = write_json(tmp_path / "results.json", {"value": 2})
+    attestation = build_attestation(bundle_path, results_path, source_revision="test")
+
+    duplicate_subject = json.loads(json.dumps(attestation))
+    duplicate_subject["subject"][1]["name"] = duplicate_subject["subject"][0]["name"]
+    assert not verify_attestation(duplicate_subject)[0]
+
+    invalid_subject_digest = json.loads(json.dumps(attestation))
+    invalid_subject_digest["subject"][0]["digest"]["sha256"] = "invalid"
+    assert not verify_attestation(invalid_subject_digest)[0]
+
+    missing_file_binding = json.loads(json.dumps(attestation))
+    del missing_file_binding["predicate"]["exact_files"]["test_results"]
+    assert not verify_attestation(missing_file_binding)[0]
+
+    results_path.write_text('{"value": 3}\n', encoding="utf-8")
+    assert not verify_attestation(attestation, test_results_path=results_path)[0]
+
+
+def test_legacy_versions_fail_closed_when_predicates_are_incomplete() -> None:
+    assert not verify_attestation(
+        {
+            "schema_version": LEGACY_ATTESTATION_SCHEMA_VERSION,
+            "predicate": {"bundle_sha256": "bundle"},
+            "integrity": {"chain_sha256": "chain"},
+        }
+    )[0]
+    assert not verify_attestation(
+        {
+            "schema_version": PREVIOUS_ATTESTATION_SCHEMA_VERSION,
+            "predicate": {"bundle_document_sha256": "bundle"},
+            "integrity": {"chain_sha256": "chain"},
+        }
+    )[0]

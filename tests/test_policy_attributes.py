@@ -63,7 +63,7 @@ def test_policy_attribute_constraints_remain_declarative_and_validate_severity()
     rules = document["rules"]
     assert isinstance(rules, list)
     assert isinstance(rules[0], dict)
-    rules[0]["tool_capabilities"] = ["email.["]
+    rules[0]["tool_capabilities"] = ["email.*"]
     rules[0]["severity"] = "urgent"
 
     with pytest.raises(ValidationError, match="severity must be one of"):

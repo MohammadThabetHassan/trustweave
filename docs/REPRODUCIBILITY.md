@@ -38,8 +38,8 @@ SOURCE_DATE_EPOCH=0 trustweave test \
 
 ## Attestation migration
 
-New attestations use `trustweave.dev/attestation/v1alpha2`. Their `chain_sha256` is derived from the stable bundle-document digest, stable test-results-document digest, and source revision. The `bundle_file_sha256` and `test_results_file_sha256` fields retain hashes of the exact files used at generation time.
+New attestations use `trustweave.dev/attestation/v1alpha3`. Their `chain_sha256` binds stable bundle/test-result payload digests, exact generated-file digests, subject names, and the stated source revision. Volatile `generated_at` metadata remains outside this integrity material. `trustweave verify --attestation PATH --bundle PATH --test-results PATH` checks both the actual supplied file bytes and their stable payloads against the recorded bindings.
 
-The verifier continues to read legacy `trustweave.dev/attestation/v1alpha1` statements, whose chains use the former file-hash construction. Regenerate stored local evidence to receive the stable-payload semantics; no live service, credential, or migration upload is involved.
+The verifier continues to read legacy `trustweave.dev/attestation/v1alpha1` and `v1alpha2` statements using their documented internal-chain semantics. Older statements cannot establish v1alpha3 exact-file binding retroactively. Regenerate stored local evidence to receive v1alpha3 semantics; no live service, credential, signing action, or migration upload is involved.
 
 > A successful verification proves only internal consistency of the recorded local relationship. It does not authenticate a person, sign an artifact, validate a deployment, or prove that an agent system is secure.

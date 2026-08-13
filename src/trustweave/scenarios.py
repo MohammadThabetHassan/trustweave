@@ -7,7 +7,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from trustweave.engine import decision_for_labels
+from trustweave.engine import decision_for_scenario
 from trustweave.models import (
     VALID_ACTION_CLASSES,
     VALID_DECISIONS,
@@ -15,6 +15,7 @@ from trustweave.models import (
     Policy,
     ValidationError,
     reject_unknown_fields,
+    validate_capability_pattern,
 )
 from trustweave.provenance import add_generated_at
 
@@ -40,6 +41,10 @@ class Scenario:
     category: str
     rationale: str
     references: tuple[ScenarioReference, ...]
+    source_data_classification: str | None = None
+    tool_capabilities: tuple[str, ...] = ()
+    source_identifier: str | None = None
+    tool_identifier: str | None = None
 
 
 def _text(value: Any, path: str) -> str:
@@ -52,6 +57,16 @@ def _optional_text(value: Any, default: str, path: str) -> str:
     if value is None:
         return default
     return _text(value, path)
+
+
+def _capabilities(value: Any, path: str) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+        raise ValidationError(f"{path} must be a list")
+    return tuple(
+        validate_capability_pattern(capability, path, allow_namespace=False) for capability in value
+    )
 
 
 def _parse_references(value: Any, path: str) -> tuple[ScenarioReference, ...]:
@@ -104,6 +119,10 @@ def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
                 "category",
                 "rationale",
                 "references",
+                "source_data_classification",
+                "tool_capabilities",
+                "source_identifier",
+                "tool_identifier",
             },
             f"scenario_pack.scenarios[{index}]",
         )
@@ -143,6 +162,34 @@ def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
                 references=_parse_references(
                     raw.get("references"), f"scenario_pack.scenarios[{index}].references"
                 ),
+                source_data_classification=(
+                    _text(
+                        raw["source_data_classification"],
+                        f"scenario_pack.scenarios[{index}].source_data_classification",
+                    )
+                    if "source_data_classification" in raw
+                    else None
+                ),
+                tool_capabilities=_capabilities(
+                    raw.get("tool_capabilities"),
+                    f"scenario_pack.scenarios[{index}].tool_capabilities",
+                ),
+                source_identifier=(
+                    _text(
+                        raw["source_identifier"],
+                        f"scenario_pack.scenarios[{index}].source_identifier",
+                    )
+                    if "source_identifier" in raw
+                    else None
+                ),
+                tool_identifier=(
+                    _text(
+                        raw["tool_identifier"],
+                        f"scenario_pack.scenarios[{index}].tool_identifier",
+                    )
+                    if "tool_identifier" in raw
+                    else None
+                ),
             )
         )
 
@@ -162,8 +209,12 @@ def run_scenarios(
 
     results: list[dict[str, Any]] = []
     for scenario in scenarios:
-        observed, rule_id = decision_for_labels(
-            policy, scenario.source_trust, scenario.tool_action_class
+        observed, rule_id = decision_for_scenario(
+            policy,
+            scenario.source_trust,
+            scenario.tool_action_class,
+            scenario.source_data_classification,
+            scenario.tool_capabilities,
         )
         results.append(
             {
@@ -179,6 +230,26 @@ def run_scenarios(
                 "input": {
                     "source_trust": scenario.source_trust,
                     "tool_action_class": scenario.tool_action_class,
+                    **(
+                        {"source_data_classification": scenario.source_data_classification}
+                        if scenario.source_data_classification is not None
+                        else {}
+                    ),
+                    **(
+                        {"tool_capabilities": list(scenario.tool_capabilities)}
+                        if scenario.tool_capabilities
+                        else {}
+                    ),
+                    **(
+                        {"source_identifier": scenario.source_identifier}
+                        if scenario.source_identifier is not None
+                        else {}
+                    ),
+                    **(
+                        {"tool_identifier": scenario.tool_identifier}
+                        if scenario.tool_identifier is not None
+                        else {}
+                    ),
                 },
                 "expected_decision": scenario.expected_decision,
                 "observed_decision": observed,
@@ -234,9 +305,14 @@ def explain_scenario(scenarios: Sequence[Scenario], scenario_id: str) -> str:
         "",
         "## Policy labels",
         "",
-        "| Source trust | Tool action class |",
-        "|---|---|",
-        f"| `{scenario.source_trust}` | `{scenario.tool_action_class}` |",
+        "| Source trust | Data classification | Tool action class | Tool capabilities |",
+        "|---|---|---|---|",
+        (
+            f"| `{scenario.source_trust}` | "
+            f"`{scenario.source_data_classification or 'not declared'}` | "
+            f"`{scenario.tool_action_class}` | "
+            f"`{', '.join(scenario.tool_capabilities) or 'not declared'}` |"
+        ),
         "",
         "## References",
         "",
