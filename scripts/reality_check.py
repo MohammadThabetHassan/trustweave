@@ -154,6 +154,38 @@ def _check_workflows() -> list[str]:
     return failures
 
 
+def _check_ci_assets() -> list[str]:
+    """Verify repository-native CI integration assets without contacting external services."""
+
+    failures: list[str] = []
+    action_path = ROOT / ".github" / "actions" / "trustweave" / "action.yml"
+    if not action_path.exists():
+        failures.append("Missing repository-local TrustWeave composite action")
+    elif 'python -m pip install "$GITHUB_ACTION_PATH"' not in action_path.read_text(
+        encoding="utf-8"
+    ):
+        failures.append("Composite action must install from $GITHUB_ACTION_PATH")
+
+    dependabot_path = ROOT / ".github" / "dependabot.yml"
+    if not dependabot_path.exists():
+        failures.append("Missing .github/dependabot.yml")
+        return failures
+    try:
+        dependabot = yaml.safe_load(dependabot_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as error:
+        failures.append(f"Invalid Dependabot YAML: {error}")
+        return failures
+    updates = dependabot.get("updates") if isinstance(dependabot, dict) else None
+    if not isinstance(updates, list):
+        failures.append("Dependabot configuration must contain an updates list")
+        return failures
+    ecosystems = {entry.get("package-ecosystem") for entry in updates if isinstance(entry, dict)}
+    for ecosystem in ("pip", "github-actions"):
+        if ecosystem not in ecosystems:
+            failures.append(f"Dependabot configuration lacks {ecosystem} updates")
+    return failures
+
+
 def _check_issue_templates() -> list[str]:
     failures: list[str] = []
     config_path = ROOT / ".github" / "ISSUE_TEMPLATE" / "config.yml"
@@ -322,6 +354,7 @@ def main() -> int:
         + _check_contract_examples()
         + _check_markdown_links()
         + _check_workflows()
+        + _check_ci_assets()
         + _check_issue_templates()
         + _check_public_documents()
         + _check_quality_evidence()
@@ -334,7 +367,7 @@ def main() -> int:
         return 1
     print(
         "Repository reality check passed: schemas, contract examples, local documentation "
-        "links, workflows, issue forms, public documentation, release metadata, "
+        "links, workflows, CI assets, issue forms, public documentation, release metadata, "
         "quality evidence, and CLI commands are connected."
     )
     return 0
