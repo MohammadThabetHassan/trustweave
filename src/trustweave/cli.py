@@ -133,8 +133,18 @@ def _parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
 
-    verify = subcommands.add_parser("verify", help="Verify the attestation's local hash chain.")
+    verify = subcommands.add_parser(
+        "verify", help="Verify local attestation integrity and optionally supplied evidence files."
+    )
     verify.add_argument("--attestation", type=Path, required=True, help="Attestation JSON file.")
+    verify.add_argument(
+        "--bundle", type=Path, help="Optional local bundle file for exact-file verification."
+    )
+    verify.add_argument(
+        "--test-results",
+        type=Path,
+        help="Optional local test-results file for exact-file verification.",
+    )
 
     diff = subcommands.add_parser(
         "diff", help="Compare two generated Agent Security Bundles without executing an agent."
@@ -409,6 +419,7 @@ def _risk_check(
         baseline_document=load_document(baseline_path) if baseline_path else None,
         suppressions_document=load_document(suppressions_path) if suppressions_path else None,
         reviewed_at=generated_at,
+        artifact_paths=[path.as_posix() for path in artifact_paths],
     )
     path = write_json(output_path, review)
     markdown_path = write_text(
@@ -532,7 +543,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(_report(args.output_dir))
             return EXIT_SUCCESS
         if args.command == "verify":
-            valid, message = verify_attestation(read_json(args.attestation))
+            valid, message = verify_attestation(
+                read_json(args.attestation), args.bundle, args.test_results
+            )
             print(message)
             return EXIT_SUCCESS if valid else EXIT_REVIEW
         if args.command == "diff":
