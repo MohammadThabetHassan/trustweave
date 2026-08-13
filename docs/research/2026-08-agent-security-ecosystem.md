@@ -142,3 +142,14 @@ CrewAI documents JSONC project configuration with ordered tasks, agent reference
 [15]: https://docs.langchain.com/oss/python/langgraph/application-structure "LangGraph application structure"
 [16]: https://openai.github.io/openai-agents-python/tools/ "OpenAI Agents SDK tools"
 [17]: https://docs.crewai.com/v1.15.14/en/concepts/tasks "CrewAI tasks and JSONC configuration"
+
+
+### MCP change and supply-chain scenario rationale
+
+The MCP tools specification defines tool listing, optional list-change notifications, unique tool names, JSON Schemas, and client-side confirmation for sensitive operations. [18] The expanded scenario backlog can therefore model **declared** tool-list drift, name collision, and sensitive-operation approval as label-only policy cases; it must not poll a server, subscribe to a notification, invoke a tool, or assert that MCP metadata is authorization.
+
+OWASP’s AI Agent Security Cheat Sheet identifies tool abuse, excessive autonomy, high-impact actions, supply-chain attacks, and agent-chain risks, and recommends least privilege, per-tool scoping, explicit authorization, and human approval for high-impact actions. [19] OWASP’s LLM supply-chain guidance also emphasizes inventories, provenance limitations, and supplier review. [20] These sources ground synthetic MCP/supply-chain scenarios but do not make a passing static scenario proof of runtime defense.
+
+[18]: https://modelcontextprotocol.io/specification/2025-06-18/server/tools "Model Context Protocol tools specification"
+[19]: https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html "OWASP AI Agent Security Cheat Sheet"
+[20]: https://genai.owasp.org/llmrisk/llm03-training-data-poisoning/ "OWASP LLM03: Supply Chain"
