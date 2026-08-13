@@ -17,6 +17,7 @@ TrustWeave is deliberately narrow: it gives reviewers visible evidence before a 
 | Review the declared human-approval boundary for high-impact paths | [`policy-check`](docs/CLI_REFERENCE.md#policy-check) | Static evidence that approval controls are declared, bound to the action context, and fail closed. |
 | Review a local trace of what was recorded | [`trace-review`](docs/TRACE_REVIEW.md) | A privacy-preserving comparison between trace metadata, declared flows, and policy decisions. |
 | Review an MCP integration’s declared metadata before connection | [`mcp-profile-check`](docs/MCP_PROFILE.md) | A static mapping and authorization-expectation review with no server discovery or token handling. |
+| Turn local MCP metadata into human-resolved security evidence | [`Local reviewer workflow`](docs/REVIEWER_WORKFLOW.md) | A non-authorizing inventory → scaffold → reviewed manifest and policy process. |
 | Export review findings for a compatible static-analysis consumer | [`sarif`](docs/CLI_REFERENCE.md#sarif) | A deterministic local SARIF 2.1.0 artifact; no automatic upload occurs. |
 | Understand limits, artifact meanings, and release checks | [`docs/QUALITY.md`](docs/QUALITY.md) | The exact local and hosted evidence required for a release. |
 
@@ -211,6 +212,7 @@ flowchart LR
 | [CLI reference](docs/CLI_REFERENCE.md) | Inputs, outputs, exit codes, and errors for every command. |
 | [Trace review guide](docs/TRACE_REVIEW.md) | Trace contract, privacy boundary, review outcomes, and CI usage. |
 | [MCP metadata profile guide](docs/MCP_PROFILE.md) | Safe profile contract, mapping review, and strict non-connection boundary. |
+| [Local reviewer workflow](docs/REVIEWER_WORKFLOW.md) | Human-resolved inventory, scaffold, manifest, policy, and evidence sequence. |
 | [Architecture](docs/ARCHITECTURE.md) | Components, data flows, invariants, and extension boundaries. |
 | [Product contract](docs/PRODUCT_CONTRACT.md) | Explicit user promises, non-goals, and acceptance evidence. |
 | [Threat model](docs/THREAT_MODEL.md) | Assumptions, control boundaries, and out-of-scope threats. |
