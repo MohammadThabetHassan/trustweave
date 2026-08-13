@@ -68,3 +68,20 @@ def test_cli_mcp_import_rejects_missing_tools_list(tmp_path: Path) -> None:
     invalid.write_text(json.dumps({"tools": {}}), encoding="utf-8")
 
     assert main(["mcp-import", "--tool-list", str(invalid), "--output-dir", str(tmp_path)]) == 2
+
+
+def test_mcp_inventory_scaffold_requires_reviewer_resolution() -> None:
+    from trustweave.mcp_import import build_manifest_scaffold
+
+    inventory = normalize_mcp_tools_list(load_document(TOOL_LIST))
+    scaffold = build_manifest_scaffold(inventory)
+
+    assert scaffold["schema_version"] == "trustweave.dev/mcp-manifest-scaffold/v1alpha1"
+    assert scaffold["manifest_draft"]["name"] == "REVIEW_REQUIRED_MCP_INTEGRATION"
+    assert all(
+        tool["action_class"] == "REVIEW_REQUIRED" for tool in scaffold["manifest_draft"]["tools"]
+    )
+    assert "not a valid Agent Security Manifest" in scaffold["limits"][0]
+
+    with pytest.raises(ValidationError, match="inventory must use"):
+        build_manifest_scaffold({})

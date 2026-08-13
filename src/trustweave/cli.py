@@ -12,7 +12,7 @@ from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation, verify_attestation
 from trustweave.framework_import import SUPPORTED_FRAMEWORKS, normalize_framework_declaration
 from trustweave.io import load_document, read_json, write_json, write_text
-from trustweave.mcp_import import normalize_mcp_tools_list
+from trustweave.mcp_import import build_manifest_scaffold, normalize_mcp_tools_list
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
@@ -40,6 +40,7 @@ TRACE_REVIEW_REPORT_FILE = "trace-review.md"
 MCP_PROFILE_REVIEW_FILE = "mcp-profile-review.json"
 MCP_PROFILE_REVIEW_REPORT_FILE = "mcp-profile-review.md"
 MCP_TOOL_INVENTORY_FILE = "mcp-tool-inventory.json"
+MCP_MANIFEST_SCAFFOLD_FILE = "mcp-manifest-scaffold.json"
 FRAMEWORK_INVENTORY_FILE = "framework-inventory.json"
 SARIF_FILE = "trustweave.sarif"
 
@@ -163,6 +164,16 @@ def _parser() -> argparse.ArgumentParser:
         "--input", type=Path, required=True, help="Local declaration snapshot."
     )
     framework_import.add_argument(
+        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+    )
+
+    mcp_scaffold = subcommands.add_parser(
+        "mcp-scaffold", help="Create a reviewer-required manifest draft from a local MCP inventory."
+    )
+    mcp_scaffold.add_argument(
+        "--inventory", type=Path, required=True, help="MCP tool inventory JSON."
+    )
+    mcp_scaffold.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
 
@@ -321,6 +332,13 @@ def _framework_import(framework: str, input_path: Path, output_dir: Path) -> str
     return f"Wrote local framework inventory: {path}"
 
 
+def _mcp_scaffold(inventory_path: Path, output_dir: Path) -> str:
+    path = write_json(
+        output_dir / MCP_MANIFEST_SCAFFOLD_FILE, build_manifest_scaffold(read_json(inventory_path))
+    )
+    return f"Wrote reviewer-required MCP manifest scaffold: {path}"
+
+
 def _mcp_import(tool_list_path: Path, output_dir: Path) -> str:
     inventory = normalize_mcp_tools_list(load_document(tool_list_path))
     path = write_json(output_dir / MCP_TOOL_INVENTORY_FILE, inventory)
@@ -397,6 +415,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if args.command == "framework-import":
             print(_framework_import(args.framework, args.input, args.output_dir))
+            return 0
+        if args.command == "mcp-scaffold":
+            print(_mcp_scaffold(args.inventory, args.output_dir))
             return 0
         if args.command == "mcp-import":
             print(_mcp_import(args.tool_list, args.output_dir))

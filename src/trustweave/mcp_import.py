@@ -8,6 +8,7 @@ from typing import Any
 from trustweave.models import ValidationError
 
 MCP_TOOL_INVENTORY_SCHEMA_VERSION = "trustweave.dev/mcp-tool-inventory/v1alpha1"
+MCP_MANIFEST_SCAFFOLD_SCHEMA_VERSION = "trustweave.dev/mcp-manifest-scaffold/v1alpha1"
 
 
 def _text(value: Any, path: str) -> str:
@@ -98,5 +99,48 @@ def normalize_mcp_tools_list(document: Mapping[str, Any]) -> dict[str, Any]:
                 "Descriptions, schemas, and annotations are review metadata only. This inventory "
                 "does not infer a TrustWeave action class or authorize a tool."
             ),
+        ],
+    }
+
+
+def build_manifest_scaffold(inventory: Mapping[str, Any]) -> dict[str, Any]:
+    """Create a reviewer-fillable manifest draft from a normalized local MCP inventory."""
+
+    if inventory.get("schema_version") != MCP_TOOL_INVENTORY_SCHEMA_VERSION:
+        raise ValidationError(f"inventory must use {MCP_TOOL_INVENTORY_SCHEMA_VERSION}")
+    raw_tools = inventory.get("tools")
+    if not isinstance(raw_tools, Sequence) or isinstance(raw_tools, (str, bytes)):
+        raise ValidationError("inventory.tools must be a list")
+    tools: list[dict[str, Any]] = []
+    for index, raw_tool in enumerate(raw_tools):
+        tool = _object(raw_tool, f"inventory.tools[{index}]")
+        tools.append(
+            {
+                "name": _text(tool.get("name"), f"inventory.tools[{index}].name"),
+                "description": tool.get("description", ""),
+                "action_class": "REVIEW_REQUIRED",
+                "capabilities": [],
+            }
+        )
+    return {
+        "schema_version": MCP_MANIFEST_SCAFFOLD_SCHEMA_VERSION,
+        "review_required": [
+            "Set each tool action_class to read, write, sensitive, or external.",
+            "Add declared capabilities and sources before converting this draft to an "
+            "Agent Security Manifest.",
+            "Define flows and a deterministic policy; this scaffold grants no authorization.",
+        ],
+        "manifest_draft": {
+            "schema_version": "trustweave.dev/v1alpha1",
+            "name": "REVIEW_REQUIRED_MCP_INTEGRATION",
+            "sources": [],
+            "tools": sorted(tools, key=lambda item: str(item["name"])),
+            "flows": [],
+        },
+        "limits": [
+            "This is intentionally not a valid Agent Security Manifest until a reviewer "
+            "resolves all placeholders.",
+            "No server connection, authorization inference, tool execution, or credential "
+            "access occurred.",
         ],
     }
