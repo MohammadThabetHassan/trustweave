@@ -53,6 +53,30 @@ def test_scan_uses_explicit_local_project_configuration(tmp_path: Path) -> None:
     assert (tmp_path / "configured-artifacts" / "agent-security-bundle.json").is_file()
 
 
+def test_ci_coordinator_runs_local_configured_evidence_workflow(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    config_path = tmp_path / CONFIG_FILE_NAME
+    config_path.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples" / "support-agent.manifest.json").as_posix()}"\n'
+        f'policy = "{(root / "policies" / "default-policy.json").as_posix()}"\n'
+        f'scenarios = "{(root / "scenarios" / "default-scenarios.json").as_posix()}"\n'
+        'output_dir = "ci-artifacts"\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config_path)]) == 0
+    output_dir = tmp_path / "ci-artifacts"
+    for name in (
+        "agent-security-bundle.json",
+        "security-test-results.json",
+        "policy-review.json",
+        "attestation.json",
+        "report.md",
+    ):
+        assert (output_dir / name).is_file()
+
+
 def test_project_config_rejects_unknown_and_non_string_values(tmp_path: Path) -> None:
     path = tmp_path / CONFIG_FILE_NAME
     path.write_text("[tool.trustweave]\nunknown = 'value'\n", encoding="utf-8")

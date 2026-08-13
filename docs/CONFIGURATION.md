@@ -17,4 +17,10 @@ trustweave config show --config trustweave.toml
 
 `scan`, `test`, and `policy-check` accept `--config PATH`. Their explicit command-line values take precedence. When a required path is absent, TrustWeave uses the explicit configuration file or walks upward from the current directory to find the nearest existing `trustweave.toml`. Relative configuration values are resolved from that configuration file’s directory. Discovery reads only local parent directories; it does not execute configuration, inspect a deployment, or contact a network service.
 
+```bash
+trustweave ci --config trustweave.toml
+```
+
+`ci` composes the configured local scan, synthetic scenario test, policy review, attestation, and Markdown report workflows. It writes local artifacts only. `--coverage` includes policy coverage diagnostics and `--exit-on-review` makes policy-review findings return a review exit status. It neither executes declared tools nor interacts with GitHub, a deployment, a ticketing system, or any other external service.
+
 > Configuration selects local evidence inputs and outputs. It does not authenticate a policy, authorize an action, execute a tool, enforce a runtime control, or establish that a declared system is secure.

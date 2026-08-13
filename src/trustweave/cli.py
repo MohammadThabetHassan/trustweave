@@ -126,6 +126,31 @@ def _parser() -> argparse.ArgumentParser:
     schema_show = schema_commands.add_parser("show", help="Print one checked-in schema document.")
     schema_show.add_argument("name", help="Exact schema filename from `trustweave schema list`.")
 
+    ci = subcommands.add_parser(
+        "ci",
+        help=(
+            "Run the configured local evidence workflow without executing an agent or "
+            "contacting services."
+        ),
+    )
+    ci.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
+    ci.add_argument(
+        "--output-dir", type=Path, help="Override the configured local artifact directory."
+    )
+    ci.add_argument(
+        "--source-revision",
+        default=os.environ.get("GITHUB_SHA", "local-uncommitted"),
+        help="Source revision recorded in the local evidence attestation.",
+    )
+    ci.add_argument(
+        "--coverage", action="store_true", help="Include policy rule coverage diagnostics."
+    )
+    ci.add_argument(
+        "--exit-on-review",
+        action="store_true",
+        help="Return status 1 when policy review findings exist.",
+    )
+
     scan = subcommands.add_parser(
         "scan", help="Validate a manifest and write an Agent Security Bundle."
     )
@@ -491,6 +516,51 @@ def _configured_paths(
     return resolved
 
 
+def _ci(
+    config_path: Path | None,
+    output_dir: Path | None,
+    source_revision: str,
+    include_coverage: bool,
+    exit_on_review: bool,
+    generated_at: str,
+) -> tuple[str, int]:
+    """Coordinate the bounded local evidence workflow from declared configuration only."""
+
+    paths = _configured_paths(
+        config_path,
+        {"manifest": None, "policy": None, "scenarios": None, "output_dir": output_dir},
+    )
+    manifest = parse_manifest(load_document(paths["manifest"]))
+    policy = parse_policy(load_document(paths["policy"]))
+    scenarios = parse_scenarios(load_document(paths["scenarios"]))
+    bundle_path = write_json(
+        paths["output_dir"] / BUNDLE_FILE, build_bundle(manifest, policy, generated_at)
+    )
+    test_results = run_scenarios(policy, scenarios, generated_at)
+    test_path = write_json(paths["output_dir"] / TEST_RESULTS_FILE, test_results)
+    review = review_policy(policy, generated_at, include_coverage=include_coverage)
+    policy_path = write_json(paths["output_dir"] / POLICY_REVIEW_FILE, review)
+    write_text(paths["output_dir"] / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review))
+    attestation_path = write_json(
+        paths["output_dir"] / ATTESTATION_FILE,
+        build_attestation(
+            bundle_path, test_path, source_revision=source_revision, generated_at=generated_at
+        ),
+    )
+    report_path = write_text(
+        paths["output_dir"] / REPORT_FILE,
+        render_report(read_json(bundle_path), read_json(test_path), read_json(attestation_path)),
+    )
+    test_failed = str(test_results["summary"]["status"]) != "passed"
+    review_required = int(review["summary"]["review_findings"]) > 0
+    code = EXIT_REVIEW if test_failed or (exit_on_review and review_required) else EXIT_SUCCESS
+    return (
+        f"Wrote local CI evidence: {bundle_path}, {test_path}, {policy_path}, "
+        f"{attestation_path}, and {report_path}",
+        code,
+    )
+
+
 def _scan(
     manifest_path: Path | None,
     policy_path: Path | None,
@@ -807,6 +877,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             else:
                 print(_config_show(args.config))
             return EXIT_SUCCESS
+        if args.command == "ci":
+            message, code = _ci(
+                args.config,
+                args.output_dir,
+                args.source_revision,
+                args.coverage,
+                args.exit_on_review,
+                generation_timestamp(args.generated_at),
+            )
+            print(message)
+            return code
         if args.command == "scan":
             print(
                 _scan(
