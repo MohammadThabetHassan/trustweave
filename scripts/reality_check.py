@@ -35,6 +35,7 @@ EXPECTED_COMMANDS = (
     "mcp-import",
     "mcp-profile-check",
     "statement",
+    "risk-check",
     "sarif",
 )
 PUBLIC_ASSETS = (
