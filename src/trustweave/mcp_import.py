@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from trustweave.models import ValidationError
+from trustweave.models import ValidationError, reject_unknown_fields
 
 MCP_TOOL_INVENTORY_SCHEMA_VERSION = "trustweave.dev/mcp-tool-inventory/v1alpha1"
 MCP_MANIFEST_SCAFFOLD_SCHEMA_VERSION = "trustweave.dev/mcp-manifest-scaffold/v1alpha1"
@@ -33,6 +33,11 @@ def _annotations(value: Any, path: str) -> dict[str, Any]:
     if value is None:
         return {}
     annotations = _object(value, path)
+    reject_unknown_fields(
+        annotations,
+        {"title", "readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"},
+        path,
+    )
     normalized: dict[str, Any] = {}
     for key in ("title", "readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"):
         raw = annotations.get(key)
@@ -54,6 +59,7 @@ def normalize_mcp_tools_list(document: Mapping[str, Any]) -> dict[str, Any]:
     metadata only. It deliberately does not infer TrustWeave action classes or authorize any tool.
     """
 
+    reject_unknown_fields(document, {"tools"}, "mcp_tools_list")
     raw_tools = document.get("tools")
     if not isinstance(raw_tools, Sequence) or isinstance(raw_tools, (str, bytes)):
         raise ValidationError("mcp_tools_list.tools must be a list")
@@ -62,6 +68,11 @@ def normalize_mcp_tools_list(document: Mapping[str, Any]) -> dict[str, Any]:
     names: set[str] = set()
     for index, raw_tool in enumerate(raw_tools):
         tool = _object(raw_tool, f"mcp_tools_list.tools[{index}]")
+        reject_unknown_fields(
+            tool,
+            {"name", "description", "inputSchema", "annotations"},
+            f"mcp_tools_list.tools[{index}]",
+        )
         name = _text(tool.get("name"), f"mcp_tools_list.tools[{index}].name")
         if name in names:
             raise ValidationError(f"mcp_tools_list.tools contains duplicate name: {name}")
@@ -106,6 +117,11 @@ def normalize_mcp_tools_list(document: Mapping[str, Any]) -> dict[str, Any]:
 def build_manifest_scaffold(inventory: Mapping[str, Any]) -> dict[str, Any]:
     """Create a reviewer-fillable manifest draft from a normalized local MCP inventory."""
 
+    reject_unknown_fields(
+        inventory,
+        {"schema_version", "tools", "summary", "limits"},
+        "inventory",
+    )
     if inventory.get("schema_version") != MCP_TOOL_INVENTORY_SCHEMA_VERSION:
         raise ValidationError(f"inventory must use {MCP_TOOL_INVENTORY_SCHEMA_VERSION}")
     raw_tools = inventory.get("tools")
@@ -114,6 +130,11 @@ def build_manifest_scaffold(inventory: Mapping[str, Any]) -> dict[str, Any]:
     tools: list[dict[str, Any]] = []
     for index, raw_tool in enumerate(raw_tools):
         tool = _object(raw_tool, f"inventory.tools[{index}]")
+        reject_unknown_fields(
+            tool,
+            {"name", "description", "input_schema", "annotations"},
+            f"inventory.tools[{index}]",
+        )
         tools.append(
             {
                 "name": _text(tool.get("name"), f"inventory.tools[{index}].name"),

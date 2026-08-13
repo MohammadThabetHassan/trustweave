@@ -14,6 +14,7 @@ from trustweave.models import (
     VALID_TRUST_LABELS,
     Policy,
     ValidationError,
+    reject_unknown_fields,
 )
 from trustweave.provenance import add_generated_at
 
@@ -62,6 +63,7 @@ def _parse_references(value: Any, path: str) -> tuple[ScenarioReference, ...]:
     for index, raw in enumerate(value):
         if not isinstance(raw, Mapping):
             raise ValidationError(f"{path}[{index}] must be an object")
+        reject_unknown_fields(raw, {"title", "url"}, f"{path}[{index}]")
         url = _text(raw.get("url"), f"{path}[{index}].url")
         if not url.startswith("https://"):
             raise ValidationError(f"{path}[{index}].url must use https")
@@ -77,6 +79,9 @@ def _parse_references(value: Any, path: str) -> tuple[ScenarioReference, ...]:
 def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
     """Validate a scenario-pack document without loading executable content."""
 
+    reject_unknown_fields(document, {"schema_version", "name", "scenarios"}, "scenario_pack")
+    if "name" in document:
+        _text(document["name"], "scenario_pack.name")
     if document.get("schema_version") != "trustweave.dev/v1alpha1":
         raise ValidationError("scenario_pack.schema_version must be trustweave.dev/v1alpha1")
     raw_scenarios = document.get("scenarios")
@@ -87,6 +92,21 @@ def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
     for index, raw in enumerate(raw_scenarios):
         if not isinstance(raw, Mapping):
             raise ValidationError(f"scenario_pack.scenarios[{index}] must be an object")
+        reject_unknown_fields(
+            raw,
+            {
+                "id",
+                "description",
+                "source_trust",
+                "tool_action_class",
+                "expected_decision",
+                "title",
+                "category",
+                "rationale",
+                "references",
+            },
+            f"scenario_pack.scenarios[{index}]",
+        )
         source_trust = _text(
             raw.get("source_trust"), f"scenario_pack.scenarios[{index}].source_trust"
         )

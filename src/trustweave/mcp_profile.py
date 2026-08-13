@@ -8,7 +8,12 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse
 
-from trustweave.models import VALID_ACTION_CLASSES, AgentManifest, ValidationError
+from trustweave.models import (
+    VALID_ACTION_CLASSES,
+    AgentManifest,
+    ValidationError,
+    reject_unknown_fields,
+)
 from trustweave.provenance import add_generated_at
 
 MCP_PROFILE_SCHEMA_VERSION = "trustweave.dev/mcp-profile/v1alpha1"
@@ -77,6 +82,18 @@ def parse_mcp_profile(document: Mapping[str, Any]) -> McpProfile:
     """Validate an explicit static MCP profile without discovering or calling a server."""
 
     root = _mapping(document, "mcp_profile")
+    reject_unknown_fields(
+        root,
+        {
+            "schema_version",
+            "name",
+            "transport",
+            "resource_uri",
+            "authorization_expected",
+            "tools",
+        },
+        "mcp_profile",
+    )
     schema_version = _text(root.get("schema_version"), "mcp_profile.schema_version")
     if schema_version != MCP_PROFILE_SCHEMA_VERSION:
         raise ValidationError(f"mcp_profile.schema_version must be {MCP_PROFILE_SCHEMA_VERSION}")
@@ -98,6 +115,11 @@ def parse_mcp_profile(document: Mapping[str, Any]) -> McpProfile:
     tools: list[McpToolMapping] = []
     for index, raw_tool in enumerate(_sequence(root.get("tools"), "mcp_profile.tools")):
         tool = _mapping(raw_tool, f"mcp_profile.tools[{index}]")
+        reject_unknown_fields(
+            tool,
+            {"name", "manifest_tool", "action_class", "description"},
+            f"mcp_profile.tools[{index}]",
+        )
         action_class = _text(tool.get("action_class"), f"mcp_profile.tools[{index}].action_class")
         if action_class not in VALID_ACTION_CLASSES:
             raise ValidationError(

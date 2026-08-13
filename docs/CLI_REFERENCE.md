@@ -229,7 +229,7 @@ The detailed input and privacy contract is in [Trace Review](TRACE_REVIEW.md).
 
 ## Validation behavior
 
-TrustWeave is intentionally strict. It rejects an unsupported schema version, missing required list, blank identifier, duplicate named declaration, unsupported trust label/action class/decision, unknown manifest reference, conflicting trace tool names, or malformed local object. Correct the input rather than bypassing validation.
+TrustWeave is intentionally strict. It rejects an unsupported schema version, missing required list, blank identifier, duplicate named declaration, unsupported trust label/action class/decision, unknown manifest reference, conflicting trace tool names, malformed local object, and unknown fields. Unknown-field diagnostics name the document path and provide a deterministic “did you mean?” suggestion for close field names. Correct the input rather than bypassing validation; no permissive compatibility mode is enabled by default.
 
 ## References
 

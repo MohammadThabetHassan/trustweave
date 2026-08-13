@@ -10,6 +10,8 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 try:
     import yaml
 except ImportError as error:  # pragma: no cover - CI installs the optional dev dependency.
@@ -78,6 +80,38 @@ def _check_json_documents() -> list[str]:
             continue
         if not isinstance(parsed, dict) or "$schema" not in parsed:
             failures.append(f"Schema {path.relative_to(ROOT)} lacks a top-level $schema field")
+    return failures
+
+
+def _check_contract_examples() -> list[str]:
+    """Validate tracked contract examples against their published structural schemas."""
+
+    failures: list[str] = []
+    contracts = (
+        ("agent-manifest.schema.json", sorted((ROOT / "examples").glob("*.manifest.json"))),
+        ("policy.schema.json", sorted((ROOT / "policies").glob("*.json"))),
+        ("trace.schema.json", sorted((ROOT / "examples" / "traces").glob("*.json"))),
+        (
+            "mcp-profile.schema.json",
+            sorted((ROOT / "examples" / "mcp-profiles").glob("*.json")),
+        ),
+    )
+    for schema_name, examples in contracts:
+        schema_path = ROOT / "schemas" / schema_name
+        if not schema_path.exists():
+            failures.append(f"Missing contract schema: schemas/{schema_name}")
+            continue
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+        for example_path in examples:
+            document = json.loads(example_path.read_text(encoding="utf-8"))
+            errors = sorted(validator.iter_errors(document), key=lambda error: list(error.path))
+            for error in errors:
+                location = ".".join(str(part) for part in error.path) or "<root>"
+                failures.append(
+                    f"Contract example {example_path.relative_to(ROOT)} violates "
+                    f"schemas/{schema_name} at {location}: {error.message}"
+                )
     return failures
 
 
@@ -284,6 +318,7 @@ def main() -> int:
 
     failures = (
         _check_json_documents()
+        + _check_contract_examples()
         + _check_markdown_links()
         + _check_workflows()
         + _check_issue_templates()
@@ -297,9 +332,9 @@ def main() -> int:
             print(f"- {failure}")
         return 1
     print(
-        "Repository reality check passed: schemas, local documentation links, workflows, "
-        "issue forms, public documentation, release metadata, quality evidence, and CLI "
-        "commands are connected."
+        "Repository reality check passed: schemas, contract examples, local documentation "
+        "links, workflows, issue forms, public documentation, release metadata, "
+        "quality evidence, and CLI commands are connected."
     )
     return 0
 

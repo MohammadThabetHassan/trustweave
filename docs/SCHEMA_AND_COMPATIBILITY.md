@@ -23,8 +23,10 @@ The current formats are pre-release `v1alpha1` contracts. They are stable enough
 
 TrustWeave deliberately uses two layers of validation.
 
-1. **JSON Schema** gives editors and external tooling structural feedback for manifest, policy, and trace documents.
-2. **The typed Python validator** is authoritative at runtime. It enforces semantic checks such as unique names, valid trust labels, valid action classes, known manifest references, non-empty required values, and trace-name consistency.
+1. **JSON Schema** gives editors and external tooling structural feedback for manifest, policy, trace, and MCP-profile documents.
+2. **The typed Python validator** is authoritative at runtime. It rejects unknown fields by default and enforces semantic checks such as unique names, valid trust labels, valid action classes, known manifest references, non-empty required values, and trace-name consistency.
+
+CI validates every checked-in contract example against its published schema and then through its typed parser. This detects structural drift without adding a required runtime JSON Schema dependency. Read [ADR-0001](ADR-0001-TYPED-PARSER_AUTHORITY.md) for the decision, scope, and opaque-metadata boundary.
 
 Do not assume the structural schemas encode every Python rule. When changing an input contract, update both layers and add a regression test that demonstrates the intended relationship.
 
@@ -73,7 +75,7 @@ Before merging an input or output contract change, confirm all statements below.
 
 - [ ] The new or changed behavior is covered by a deterministic positive, negative, or boundary test.
 - [ ] Existing reference manifests, policies, scenarios, traces, and generated workflows still pass or have a documented migration.
-- [ ] JSON Schema and typed runtime behavior are intentionally aligned or their difference is documented.
+- [ ] JSON Schema and typed runtime behavior are intentionally aligned or their difference is documented; checked-in examples validate through both layers.
 - [ ] The CLI reference states updated inputs, outputs, and exit-code behavior.
 - [ ] The threat model and quality guide state any new security or privacy boundary.
 - [ ] The changelog explains compatibility and migration impact.

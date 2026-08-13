@@ -6,6 +6,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Made manifest, policy, scenario, trace, MCP profile, MCP inventory, and supported framework-declaration parsers reject unknown declared fields by default with path-aware close-match diagnostics.
+- Added schema-and-runtime conformance tests for every checked-in manifest, policy, trace, and MCP profile fixture; the repository reality check now enforces the published-schema side in CI.
+- Declared `jsonschema` as a development-only conformance dependency and recorded the typed-parser authority decision in ADR-0001.
 - Made generated evidence builders pure: volatile `generated_at` provenance is now injected at the CLI boundary through an explicit timestamp, `SOURCE_DATE_EPOCH`, or the local UTC clock.
 - Added `trustweave.dev/attestation/v1alpha2`, whose local integrity chain covers canonical stable bundle and test-result payloads rather than volatile generation metadata. The verifier remains compatible with local `v1alpha1` statements.
 - Added stable CLI exit codes for invalid input/configuration, input/output failure, and unexpected internal errors; expected failures now write concise diagnostics to stderr, while `--debug` preserves tracebacks.

@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
+from difflib import get_close_matches
 from typing import Any
 
 
@@ -133,6 +134,13 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
     return value
 
 
+def reject_unknown_fields(value: Mapping[str, Any], allowed: set[str], path: str) -> None:
+    for field in sorted(set(value) - allowed):
+        suggestions = get_close_matches(field, sorted(allowed), n=1, cutoff=0.6)
+        suggestion = f"; did you mean {suggestions[0]!r}?" if suggestions else ""
+        raise ValidationError(f"{path}: unknown field {field!r}{suggestion}")
+
+
 def _unique_names(items: Sequence[str], path: str) -> None:
     duplicates = sorted(item for item, count in Counter(items).items() if count > 1)
     if duplicates:
@@ -143,6 +151,11 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     """Validate a manifest document and return its typed, immutable representation."""
 
     root = _mapping(document, "manifest")
+    reject_unknown_fields(
+        root,
+        {"schema_version", "name", "description", "sources", "tools", "flows"},
+        "manifest",
+    )
     schema_version = _string(root.get("schema_version"), "manifest.schema_version")
     if schema_version != "trustweave.dev/v1alpha1":
         raise ValidationError("manifest.schema_version must be trustweave.dev/v1alpha1")
@@ -150,6 +163,11 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     sources: list[Source] = []
     for index, raw_source in enumerate(_sequence(root.get("sources"), "manifest.sources")):
         source = _mapping(raw_source, f"manifest.sources[{index}]")
+        reject_unknown_fields(
+            source,
+            {"name", "trust", "data_classification", "description"},
+            f"manifest.sources[{index}]",
+        )
         trust = _string(source.get("trust"), f"manifest.sources[{index}].trust")
         if trust not in VALID_TRUST_LABELS:
             raise ValidationError(
@@ -175,6 +193,11 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     tools: list[Tool] = []
     for index, raw_tool in enumerate(_sequence(root.get("tools"), "manifest.tools")):
         tool = _mapping(raw_tool, f"manifest.tools[{index}]")
+        reject_unknown_fields(
+            tool,
+            {"name", "action_class", "capabilities", "description"},
+            f"manifest.tools[{index}]",
+        )
         action_class = _string(tool.get("action_class"), f"manifest.tools[{index}].action_class")
         if action_class not in VALID_ACTION_CLASSES:
             allowed_actions = sorted(VALID_ACTION_CLASSES)
@@ -209,6 +232,11 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     flows: list[Flow] = []
     for index, raw_flow in enumerate(_sequence(root.get("flows"), "manifest.flows")):
         flow = _mapping(raw_flow, f"manifest.flows[{index}]")
+        reject_unknown_fields(
+            flow,
+            {"source", "tool", "purpose"},
+            f"manifest.flows[{index}]",
+        )
         source_name = _string(flow.get("source"), f"manifest.flows[{index}].source")
         tool_name = _string(flow.get("tool"), f"manifest.flows[{index}].tool")
         if source_name not in source_names:
@@ -243,6 +271,11 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
     """Validate a policy document and return its typed, immutable representation."""
 
     root = _mapping(document, "policy")
+    reject_unknown_fields(
+        root,
+        {"schema_version", "name", "default_decision", "rules", "approval_control"},
+        "policy",
+    )
     schema_version = _string(root.get("schema_version"), "policy.schema_version")
     if schema_version != "trustweave.dev/v1alpha1":
         raise ValidationError("policy.schema_version must be trustweave.dev/v1alpha1")
@@ -253,6 +286,11 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
     rules: list[PolicyRule] = []
     for index, raw_rule in enumerate(_sequence(root.get("rules"), "policy.rules")):
         rule = _mapping(raw_rule, f"policy.rules[{index}]")
+        reject_unknown_fields(
+            rule,
+            {"id", "description", "source_trust", "tool_action_classes", "decision", "rationale"},
+            f"policy.rules[{index}]",
+        )
         source_trust = tuple(
             _string(value, f"policy.rules[{index}].source_trust")
             for value in _sequence(rule.get("source_trust"), f"policy.rules[{index}].source_trust")
@@ -298,6 +336,11 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
     approval_control: ApprovalControl | None = None
     if "approval_control" in root:
         control = _mapping(root["approval_control"], "policy.approval_control")
+        reject_unknown_fields(
+            control,
+            {"mechanism", "binds_to", "fail_closed"},
+            "policy.approval_control",
+        )
         binds_to = tuple(
             _string(value, "policy.approval_control.binds_to")
             for value in _sequence(control.get("binds_to"), "policy.approval_control.binds_to")
