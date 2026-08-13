@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Never
 
 from trustweave.chain import render_chain_review, review_declared_chains
+from trustweave.config import init_project
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle, explain_policy_decision
 from trustweave.evidence import build_attestation, verify_attestation
@@ -90,6 +91,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--debug", action="store_true", help="Show a traceback for failures.")
     subcommands = parser.add_subparsers(dest="command", required=True)
+
+    init = subcommands.add_parser(
+        "init", help="Create an opt-in local trustweave.toml template without overwriting files."
+    )
+    init.add_argument("--directory", type=Path, default=Path("."), help="Project directory.")
 
     scan = subcommands.add_parser(
         "scan", help="Validate a manifest and write an Agent Security Bundle."
@@ -362,6 +368,12 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _init(directory: Path) -> str:
+    """Create the explicit local configuration template."""
+
+    return f"Wrote local project configuration: {init_project(directory)}"
+
+
 def _scan(manifest_path: Path, policy_path: Path, output_dir: Path, generated_at: str) -> str:
     manifest = parse_manifest(load_document(manifest_path))
     policy = parse_policy(load_document(policy_path))
@@ -608,6 +620,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         args = _parser().parse_args(argv)
         debug = args.debug
+        if args.command == "init":
+            print(_init(args.directory))
+            return EXIT_SUCCESS
         if args.command == "scan":
             print(
                 _scan(
