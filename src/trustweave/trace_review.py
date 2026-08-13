@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
 from trustweave.engine import evaluate_flow
 from trustweave.models import AgentManifest, Flow, Policy, ValidationError
+from trustweave.provenance import add_generated_at
 
 TRACE_SCHEMA_VERSION = "trustweave.dev/trace/v1alpha1"
 TRACE_REVIEW_SCHEMA_VERSION = "trustweave.dev/trace-review/v1alpha1"
@@ -84,9 +84,12 @@ def parse_trace(
 
 
 def review_trace(
-    manifest: AgentManifest, policy: Policy, trace: Mapping[str, Any]
+    manifest: AgentManifest,
+    policy: Policy,
+    trace: Mapping[str, Any],
+    generated_at: str | None = None,
 ) -> dict[str, Any]:
-    """Review local trace metadata without executing a target, tool, or network request."""
+    """Review local metadata with optional application-layer provenance."""
 
     calls, message_count, event_types = parse_trace(trace)
     sources = {source.name: source for source in manifest.sources}
@@ -180,9 +183,8 @@ def review_trace(
     untrusted_context_count = sum(
         event_type == "untrusted_context_received" for event_type in event_types
     )
-    return {
+    review: dict[str, object] = {
         "schema_version": TRACE_REVIEW_SCHEMA_VERSION,
-        "generated_at": datetime.now(UTC).isoformat(),
         "agent": manifest.name,
         "policy": policy.name,
         "summary": {
@@ -209,3 +211,4 @@ def review_trace(
             ),
         ],
     }
+    return add_generated_at(review, generated_at)

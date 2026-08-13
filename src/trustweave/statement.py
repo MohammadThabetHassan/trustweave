@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from trustweave.evidence import ATTESTATION_SCHEMA_VERSION, LEGACY_ATTESTATION_SCHEMA_VERSION
 from trustweave.models import ValidationError
 
 STATEMENT_SCHEMA_VERSION = "trustweave.dev/unsigned-statement/v1alpha1"
@@ -13,7 +14,10 @@ STATEMENT_SCHEMA_VERSION = "trustweave.dev/unsigned-statement/v1alpha1"
 def build_unsigned_statement(attestation: Mapping[str, Any]) -> dict[str, Any]:
     """Convert a local TrustWeave attestation into an explicitly unsigned statement."""
 
-    if attestation.get("schema_version") != "trustweave.dev/attestation/v1alpha1":
+    if attestation.get("schema_version") not in {
+        LEGACY_ATTESTATION_SCHEMA_VERSION,
+        ATTESTATION_SCHEMA_VERSION,
+    }:
         raise ValidationError("statement input must be a TrustWeave local attestation")
     subject = attestation.get("subject")
     predicate = attestation.get("predicate")

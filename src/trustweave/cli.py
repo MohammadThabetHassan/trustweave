@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Never
 
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
@@ -14,8 +16,9 @@ from trustweave.framework_import import SUPPORTED_FRAMEWORKS, normalize_framewor
 from trustweave.io import load_document, read_json, write_json, write_text
 from trustweave.mcp_import import build_manifest_scaffold, normalize_mcp_tools_list
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
-from trustweave.models import ValidationError, parse_manifest, parse_policy
+from trustweave.models import InputOutputError, ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
+from trustweave.provenance import generation_timestamp
 from trustweave.report import (
     render_diff_report,
     render_mcp_profile_review_report,
@@ -46,12 +49,32 @@ FRAMEWORK_INVENTORY_FILE = "framework-inventory.json"
 SARIF_FILE = "trustweave.sarif"
 UNSIGNED_STATEMENT_FILE = "unsigned-statement.json"
 
+EXIT_SUCCESS = 0
+EXIT_REVIEW = 1
+EXIT_INVALID_INPUT = 2
+EXIT_INPUT_OUTPUT = 3
+EXIT_INTERNAL = 4
+
+
+class _ArgumentParser(argparse.ArgumentParser):
+    """Expose invalid command-line syntax through TrustWeave's validation contract."""
+
+    def error(self, message: str) -> Never:
+        raise ValidationError(message)
+
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = _ArgumentParser(
         prog="trustweave",
         description="Local-first security build evidence for declared AI agent trust boundaries.",
     )
+    parser.add_argument(
+        "--generated-at",
+        help=(
+            "Explicit ISO 8601 provenance timestamp; defaults to SOURCE_DATE_EPOCH or current UTC."
+        ),
+    )
+    parser.add_argument("--debug", action="store_true", help="Show a traceback for failures.")
     subcommands = parser.add_subparsers(dest="command", required=True)
 
     scan = subcommands.add_parser(
@@ -240,17 +263,19 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _scan(manifest_path: Path, policy_path: Path, output_dir: Path) -> str:
+def _scan(manifest_path: Path, policy_path: Path, output_dir: Path, generated_at: str) -> str:
     manifest = parse_manifest(load_document(manifest_path))
     policy = parse_policy(load_document(policy_path))
-    path = write_json(output_dir / BUNDLE_FILE, build_bundle(manifest, policy))
+    path = write_json(output_dir / BUNDLE_FILE, build_bundle(manifest, policy, generated_at))
     return f"Wrote Agent Security Bundle: {path}"
 
 
-def _test(policy_path: Path, scenario_path: Path, output_dir: Path) -> tuple[str, int]:
+def _test(
+    policy_path: Path, scenario_path: Path, output_dir: Path, generated_at: str
+) -> tuple[str, int]:
     policy = parse_policy(load_document(policy_path))
     scenarios = parse_scenarios(load_document(scenario_path))
-    result = run_scenarios(policy, scenarios)
+    result = run_scenarios(policy, scenarios, generated_at)
     path = write_json(output_dir / TEST_RESULTS_FILE, result)
     status = str(result["summary"]["status"])
     return f"Wrote synthetic test results ({status}): {path}", 0 if status == "passed" else 1
@@ -261,9 +286,12 @@ def _explain(scenario_path: Path, scenario_id: str) -> str:
     return explain_scenario(scenarios, scenario_id)
 
 
-def _attest(output_dir: Path, source_revision: str) -> str:
+def _attest(output_dir: Path, source_revision: str, generated_at: str) -> str:
     attestation = build_attestation(
-        output_dir / BUNDLE_FILE, output_dir / TEST_RESULTS_FILE, source_revision=source_revision
+        output_dir / BUNDLE_FILE,
+        output_dir / TEST_RESULTS_FILE,
+        source_revision=source_revision,
+        generated_at=generated_at,
     )
     path = write_json(output_dir / ATTESTATION_FILE, attestation)
     return f"Wrote local evidence attestation: {path}"
@@ -279,16 +307,18 @@ def _report(output_dir: Path) -> str:
     return f"Wrote Markdown report: {path}"
 
 
-def _diff(base_path: Path, head_path: Path, output_dir: Path) -> str:
-    diff = diff_bundles(read_json(base_path), read_json(head_path))
+def _diff(base_path: Path, head_path: Path, output_dir: Path, generated_at: str) -> str:
+    diff = diff_bundles(read_json(base_path), read_json(head_path), generated_at)
     json_path = write_json(output_dir / DIFF_FILE, diff)
     markdown_path = write_text(output_dir / DIFF_REPORT_FILE, render_diff_report(diff))
     return f"Wrote bundle diff: {json_path} and {markdown_path}"
 
 
-def _policy_check(policy_path: Path, output_dir: Path, exit_on_review: bool) -> tuple[str, int]:
+def _policy_check(
+    policy_path: Path, output_dir: Path, exit_on_review: bool, generated_at: str
+) -> tuple[str, int]:
     policy = parse_policy(load_document(policy_path))
-    review = review_policy(policy)
+    review = review_policy(policy, generated_at)
     json_path = write_json(output_dir / POLICY_REVIEW_FILE, review)
     markdown_path = write_text(
         output_dir / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
@@ -304,10 +334,11 @@ def _trace_review(
     trace_path: Path,
     output_dir: Path,
     exit_on_review: bool,
+    generated_at: str,
 ) -> tuple[str, int]:
     manifest = parse_manifest(load_document(manifest_path))
     policy = parse_policy(load_document(policy_path))
-    review = review_trace(manifest, policy, read_json(trace_path))
+    review = review_trace(manifest, policy, read_json(trace_path), generated_at)
     json_path = write_json(output_dir / TRACE_REVIEW_FILE, review)
     markdown_path = write_text(
         output_dir / TRACE_REVIEW_REPORT_FILE, render_trace_review_report(review)
@@ -366,11 +397,15 @@ def _mcp_import(tool_list_path: Path, output_dir: Path) -> str:
 
 
 def _mcp_profile_check(
-    manifest_path: Path, profile_path: Path, output_dir: Path, exit_on_review: bool
+    manifest_path: Path,
+    profile_path: Path,
+    output_dir: Path,
+    exit_on_review: bool,
+    generated_at: str,
 ) -> tuple[str, int]:
     manifest = parse_manifest(load_document(manifest_path))
     profile = parse_mcp_profile(load_document(profile_path))
-    review = review_mcp_profile(profile, manifest)
+    review = review_mcp_profile(profile, manifest, generated_at)
     json_path = write_json(output_dir / MCP_PROFILE_REVIEW_FILE, review)
     markdown_path = write_text(
         output_dir / MCP_PROFILE_REVIEW_REPORT_FILE, render_mcp_profile_review_report(review)
@@ -380,36 +415,74 @@ def _mcp_profile_check(
     return f"Wrote MCP profile review: {json_path} and {markdown_path}", code
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    """Run the TrustWeave CLI and return an actionable status code."""
+def _debug_requested(argv: Sequence[str] | None) -> bool:
+    arguments = sys.argv[1:] if argv is None else argv
+    return "--debug" in arguments
 
-    args = _parser().parse_args(argv)
+
+def _error(message: str) -> None:
+    print(message, file=sys.stderr)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run the TrustWeave CLI with documented, machine-usable exit codes."""
+
+    debug = _debug_requested(argv)
     try:
+        args = _parser().parse_args(argv)
+        debug = args.debug
         if args.command == "scan":
-            print(_scan(args.manifest, args.policy, args.output_dir))
-            return 0
+            print(
+                _scan(
+                    args.manifest,
+                    args.policy,
+                    args.output_dir,
+                    generation_timestamp(args.generated_at),
+                )
+            )
+            return EXIT_SUCCESS
         if args.command == "test":
-            message, code = _test(args.policy, args.scenarios, args.output_dir)
+            message, code = _test(
+                args.policy,
+                args.scenarios,
+                args.output_dir,
+                generation_timestamp(args.generated_at),
+            )
             print(message)
             return code
         if args.command == "explain":
             print(_explain(args.scenarios, args.scenario_id))
-            return 0
+            return EXIT_SUCCESS
         if args.command == "attest":
-            print(_attest(args.output_dir, args.source_revision))
-            return 0
+            print(
+                _attest(
+                    args.output_dir,
+                    args.source_revision,
+                    generation_timestamp(args.generated_at),
+                )
+            )
+            return EXIT_SUCCESS
         if args.command == "report":
             print(_report(args.output_dir))
-            return 0
+            return EXIT_SUCCESS
         if args.command == "verify":
             valid, message = verify_attestation(read_json(args.attestation))
             print(message)
-            return 0 if valid else 1
+            return EXIT_SUCCESS if valid else EXIT_REVIEW
         if args.command == "diff":
-            print(_diff(args.base, args.head, args.output_dir))
-            return 0
+            print(
+                _diff(
+                    args.base, args.head, args.output_dir, generation_timestamp(args.generated_at)
+                )
+            )
+            return EXIT_SUCCESS
         if args.command == "policy-check":
-            message, code = _policy_check(args.policy, args.output_dir, args.exit_on_review)
+            message, code = _policy_check(
+                args.policy,
+                args.output_dir,
+                args.exit_on_review,
+                generation_timestamp(args.generated_at),
+            )
             print(message)
             return code
         if args.command == "trace-review":
@@ -419,12 +492,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.trace,
                 args.output_dir,
                 args.exit_on_review,
+                generation_timestamp(args.generated_at),
             )
             print(message)
             return code
         if args.command == "statement":
             print(_statement(args.attestation, args.output_dir))
-            return 0
+            return EXIT_SUCCESS
         if args.command == "sarif":
             print(
                 _sarif(
@@ -435,29 +509,47 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.output,
                 )
             )
-            return 0
+            return EXIT_SUCCESS
         if args.command == "framework-import":
             print(_framework_import(args.framework, args.input, args.output_dir))
-            return 0
+            return EXIT_SUCCESS
         if args.command == "mcp-scaffold":
             print(_mcp_scaffold(args.inventory, args.output_dir))
-            return 0
+            return EXIT_SUCCESS
         if args.command == "mcp-import":
             print(_mcp_import(args.tool_list, args.output_dir))
-            return 0
+            return EXIT_SUCCESS
         if args.command == "mcp-profile-check":
             message, code = _mcp_profile_check(
                 args.manifest,
                 args.profile,
                 args.output_dir,
                 args.exit_on_review,
+                generation_timestamp(args.generated_at),
             )
             print(message)
             return code
         raise AssertionError(f"Unexpected command: {args.command}")
     except ValidationError as error:
-        print(f"Validation error: {error}")
-        return 2
+        if debug:
+            raise
+        _error(f"Validation error: {error}")
+        return EXIT_INVALID_INPUT
+    except InputOutputError as error:
+        if debug:
+            raise
+        _error(f"Input/output error: {error}")
+        return EXIT_INPUT_OUTPUT
+    except OSError as error:
+        if debug:
+            raise
+        _error(f"Input/output error: {error}")
+        return EXIT_INPUT_OUTPUT
+    except Exception as error:
+        if debug:
+            raise
+        _error(f"Internal error: {type(error).__name__}: {error}")
+        return EXIT_INTERNAL
 
 
 if __name__ == "__main__":

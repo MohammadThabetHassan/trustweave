@@ -46,7 +46,7 @@ flowchart LR
 | `models.py` | Validates manifests, policies, trust labels, action classes, and references. | Rejects incomplete, unknown, malformed, or ambiguous declared inputs. |
 | `engine.py` | Builds a bundle and applies first-match deterministic rules to every declared flow. | Never calls a model, tool, subprocess, or network service. |
 | `scenarios.py` | Runs safe scenario assertions and renders cited local scenario explanations. | Does not execute a payload, prompt, model, tool, or configured server. |
-| `evidence.py` | Hash-links generated JSON artifacts into a local attestation. | States explicit limits; no claim of external signing or non-repudiation. |
+| `evidence.py` | Hash-links canonical stable evidence payloads and records exact local-file hashes in an unsigned attestation. | States explicit limits; no claim of external signing or non-repudiation. |
 | `policy_review.py` | Reviews ordered-rule shadowing and decisions that require human scrutiny. | Does not decide authorization or run a policy in a deployed runtime. |
 | `diff.py` | Compares two generated bundles for declared source, tool, path, and decision changes. | Does not discover behavior, execute tools, or issue a security verdict. |
 | `trace_review.py` | Compares local trace tool-call metadata with declared sources, tools, flows, and deterministic policy. | Does not execute a target, inspect message text/tool arguments, or treat a trace as an instruction. |
@@ -68,7 +68,7 @@ Synthetic results are intentionally simple. A scenario specifies only a source t
 
 ### Local attestation
 
-The attestation stores SHA-256 digests of the bundle and test-results files, canonical-document digests, the stated source revision, and a hash chain derived from those inputs. It is internally verifiable with `trustweave verify`.
+The attestation records SHA-256 digests of the exact bundle and test-results files, canonical stable-payload digests, the stated source revision, and an integrity chain derived from the stable digests. Volatile `generated_at` metadata is injected at the CLI boundary and excluded from the v1alpha2 chain. It is internally verifiable with `trustweave verify`.
 
 > **Important:** The v0.1 attestation is not externally signed and is not backed by a transparency log. It proves only an internally consistent relationship among local artifacts after generation. Future DSSE, in-toto, or Sigstore integration is intentionally out of scope.
 
@@ -124,11 +124,12 @@ The following capabilities are intentionally represented as adapters or future w
 ## Engineering invariants
 
 1. **No hidden execution:** a manifest is data, never code.
-2. **No implicit trust:** every source has an explicit trust label.
-3. **Fail closed:** malformed documents, unknown references, and unmatched policy paths lead to errors or the explicit default decision.
-4. **Evidence before claims:** reports include scope limits and avoid deployment-security guarantees.
-5. **Reproducible inputs:** examples, policy rules, and scenarios are versioned in the repository.
-6. **Diffs require context:** a review signal highlights an explicit change but does not replace review of the manifest, policy, and authorization design.
-7. **Least privilege is reviewable:** added/removed declared capabilities are preserved in bundle-diff evidence, while a capability-growth signal on sensitive/external tools still requires human authorization review.
-8. **Trace minimization:** trace evidence is metadata, not executable input; reports exclude message content and tool arguments.
-9. **MCP metadata is declarative:** a profile is never a connection instruction, credential source, or protocol-conformance claim.
+2. **Explicit provenance:** core builders do not read a clock or environment; the CLI resolves optional generation metadata.
+3. **No implicit trust:** every source has an explicit trust label.
+4. **Fail closed:** malformed documents, unknown references, and unmatched policy paths lead to errors or the explicit default decision.
+5. **Evidence before claims:** reports include scope limits and avoid deployment-security guarantees.
+6. **Reproducible inputs:** examples, policy rules, and scenarios are versioned in the repository.
+7. **Diffs require context:** a review signal highlights an explicit change but does not replace review of the manifest, policy, and authorization design.
+8. **Least privilege is reviewable:** added/removed declared capabilities are preserved in bundle-diff evidence, while a capability-growth signal on sensitive/external tools still requires human authorization review.
+9. **Trace minimization:** trace evidence is metadata, not executable input; reports exclude message content and tool arguments.
+10. **MCP metadata is declarative:** a profile is never a connection instruction, credential source, or protocol-conformance claim.

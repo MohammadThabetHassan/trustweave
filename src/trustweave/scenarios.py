@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
 from trustweave.engine import decision_for_labels
@@ -15,6 +15,7 @@ from trustweave.models import (
     Policy,
     ValidationError,
 )
+from trustweave.provenance import add_generated_at
 
 
 @dataclass(frozen=True)
@@ -128,14 +129,16 @@ def parse_scenarios(document: Mapping[str, Any]) -> tuple[Scenario, ...]:
     if not scenarios:
         raise ValidationError("scenario_pack.scenarios must include at least one scenario")
     ids = [scenario.id for scenario in scenarios]
-    duplicates = sorted({scenario_id for scenario_id in ids if ids.count(scenario_id) > 1})
+    duplicates = sorted(identifier for identifier, count in Counter(ids).items() if count > 1)
     if duplicates:
         raise ValidationError(f"scenario_pack.scenarios has duplicate ids: {', '.join(duplicates)}")
     return tuple(scenarios)
 
 
-def run_scenarios(policy: Policy, scenarios: Sequence[Scenario]) -> dict[str, Any]:
-    """Evaluate synthetic policy assertions without invoking an agent or external system."""
+def run_scenarios(
+    policy: Policy, scenarios: Sequence[Scenario], generated_at: str | None = None
+) -> dict[str, Any]:
+    """Evaluate synthetic policy assertions with optional application-layer provenance."""
 
     results: list[dict[str, Any]] = []
     for scenario in scenarios:
@@ -164,9 +167,8 @@ def run_scenarios(policy: Policy, scenarios: Sequence[Scenario]) -> dict[str, An
             }
         )
     passed = sum(result["status"] == "passed" for result in results)
-    return {
+    result: dict[str, object] = {
         "schema_version": "trustweave.dev/test-results/v1alpha1",
-        "generated_at": datetime.now(UTC).isoformat(),
         "policy": policy.name,
         "summary": {
             "total": len(results),
@@ -186,6 +188,7 @@ def run_scenarios(policy: Policy, scenarios: Sequence[Scenario]) -> dict[str, An
             ),
         ],
     }
+    return add_generated_at(result, generated_at)
 
 
 def explain_scenario(scenarios: Sequence[Scenario], scenario_id: str) -> str:

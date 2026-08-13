@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
 from typing import Any
 
 from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool
+from trustweave.provenance import add_generated_at
 
 
 @dataclass(frozen=True)
@@ -65,17 +65,18 @@ def evaluate_manifest(manifest: AgentManifest, policy: Policy) -> tuple[Finding,
     )
 
 
-def build_bundle(manifest: AgentManifest, policy: Policy) -> dict[str, Any]:
-    """Construct a portable, deterministic Agent Security Bundle document."""
+def build_bundle(
+    manifest: AgentManifest, policy: Policy, generated_at: str | None = None
+) -> dict[str, Any]:
+    """Construct a portable bundle from stable declarations and optional provenance."""
 
     findings = evaluate_manifest(manifest, policy)
     summary = {decision: 0 for decision in ("allow", "deny", "require_approval")}
     for finding in findings:
         summary[finding.decision] += 1
 
-    return {
+    bundle: dict[str, object] = {
         "schema_version": "trustweave.dev/bundle/v1alpha1",
-        "generated_at": datetime.now(UTC).isoformat(),
         "manifest": manifest.as_dict(),
         "policy": {
             "schema_version": policy.schema_version,
@@ -100,6 +101,7 @@ def build_bundle(manifest: AgentManifest, policy: Policy) -> dict[str, Any]:
             ),
         ],
     }
+    return add_generated_at(bundle, generated_at)
 
 
 def matching_rule(policy: Policy, source_trust: str, action_class: str) -> PolicyRule | None:

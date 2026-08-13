@@ -4,8 +4,18 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [Unreleased]
 
+### Changed
+
+- Made generated evidence builders pure: volatile `generated_at` provenance is now injected at the CLI boundary through an explicit timestamp, `SOURCE_DATE_EPOCH`, or the local UTC clock.
+- Added `trustweave.dev/attestation/v1alpha2`, whose local integrity chain covers canonical stable bundle and test-result payloads rather than volatile generation metadata. The verifier remains compatible with local `v1alpha1` statements.
+- Added stable CLI exit codes for invalid input/configuration, input/output failure, and unexpected internal errors; expected failures now write concise diagnostics to stderr, while `--debug` preserves tracebacks.
+- Replaced repeated-list duplicate detection in the manifest, scenario, and MCP-profile validators with linear-time counting.
+- Added atomic artifact replacement and precise errors for missing files, directories supplied as files, invalid UTF-8, and output failures.
+- Added PEP 561 `py.typed` package data and an isolated-wheel regression test proving the installed marker is present.
+
 ### Documentation
 
+- Added a reproducibility and integrity contract that distinguishes deterministic decisions, stable evidence payloads, byte-identical output, volatile provenance, and unsigned local file integrity.
 - Rebuilt the README as a concise developer landing page with a verified installation path, first successful local review, artifact meanings, safety boundaries, documentation map, public contribution routes, and a source-controlled product mark.
 - Moved advanced workflow detail behind task-focused documentation links so the landing page remains skimmable without reducing the published command and safety contract.
 - Refreshed the product contract, roadmap, release guide, security policy, governance guide, contribution guide, and TestPyPI validation guide to distinguish completed `0.1.1` release evidence from deliberate future scope.

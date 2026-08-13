@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import urlparse
 
 from trustweave.models import VALID_ACTION_CLASSES, AgentManifest, ValidationError
+from trustweave.provenance import add_generated_at
 
 MCP_PROFILE_SCHEMA_VERSION = "trustweave.dev/mcp-profile/v1alpha1"
 MCP_PROFILE_REVIEW_SCHEMA_VERSION = "trustweave.dev/mcp-profile-review/v1alpha1"
@@ -56,7 +57,7 @@ def _text(value: Any, path: str) -> str:
 
 
 def _unique(values: Sequence[str], path: str) -> None:
-    duplicates = sorted({value for value in values if values.count(value) > 1})
+    duplicates = sorted(value for value, count in Counter(values).items() if count > 1)
     if duplicates:
         raise ValidationError(f"{path} contains duplicate values: {', '.join(duplicates)}")
 
@@ -130,8 +131,10 @@ def parse_mcp_profile(document: Mapping[str, Any]) -> McpProfile:
     )
 
 
-def review_mcp_profile(profile: McpProfile, manifest: AgentManifest) -> dict[str, Any]:
-    """Review profile-to-manifest consistency without token, network, or server interaction."""
+def review_mcp_profile(
+    profile: McpProfile, manifest: AgentManifest, generated_at: str | None = None
+) -> dict[str, Any]:
+    """Review profile-to-manifest consistency with optional application-layer provenance."""
 
     manifest_tools = {tool.name: tool for tool in manifest.tools}
     findings: list[dict[str, str]] = []
@@ -185,9 +188,8 @@ def review_mcp_profile(profile: McpProfile, manifest: AgentManifest) -> dict[str
             mapping["manifest_action_class"] = manifest_tool.action_class
         mappings.append(mapping)
 
-    return {
+    review: dict[str, object] = {
         "schema_version": MCP_PROFILE_REVIEW_SCHEMA_VERSION,
-        "generated_at": datetime.now(UTC).isoformat(),
         "profile": {
             "name": profile.name,
             "transport": profile.transport,
@@ -216,3 +218,4 @@ def review_mcp_profile(profile: McpProfile, manifest: AgentManifest) -> dict[str
             ),
         ],
     }
+    return add_generated_at(review, generated_at)

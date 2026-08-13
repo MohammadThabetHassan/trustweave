@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from typing import Any
 
 from trustweave.models import Policy, PolicyRule
+from trustweave.provenance import add_generated_at
 
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 REQUIRED_APPROVAL_BINDINGS = frozenset(
@@ -21,8 +21,8 @@ def _covers(first: PolicyRule, later: PolicyRule) -> bool:
     ).issubset(first.tool_action_classes)
 
 
-def review_policy(policy: Policy) -> dict[str, Any]:
-    """Review deterministic policy structure without calling an agent or policy engine."""
+def review_policy(policy: Policy, generated_at: str | None = None) -> dict[str, Any]:
+    """Review policy structure with optional application-layer provenance."""
 
     findings: list[dict[str, str]] = []
     if policy.default_decision == "allow":
@@ -127,9 +127,8 @@ def review_policy(policy: Policy) -> dict[str, Any]:
             }
         )
 
-    return {
+    review: dict[str, object] = {
         "schema_version": "trustweave.dev/policy-review/v1alpha1",
-        "generated_at": datetime.now(UTC).isoformat(),
         "policy": policy.name,
         "approval_control": approval_summary,
         "findings": findings,
@@ -150,3 +149,4 @@ def review_policy(policy: Policy) -> dict[str, Any]:
             ),
         ],
     }
+    return add_generated_at(review, generated_at)

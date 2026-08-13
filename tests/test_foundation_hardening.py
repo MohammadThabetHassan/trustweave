@@ -14,6 +14,7 @@ from trustweave.models import (
     VALID_ACTION_CLASSES,
     VALID_DECISIONS,
     VALID_TRUST_LABELS,
+    InputOutputError,
     ValidationError,
     parse_policy,
 )
@@ -32,7 +33,7 @@ def test_load_document_rejects_missing_non_object_invalid_json_and_empty_yaml(
     tmp_path: Path,
 ) -> None:
     missing = tmp_path / "missing.json"
-    with pytest.raises(ValidationError, match="does not exist"):
+    with pytest.raises(InputOutputError, match="does not exist"):
         load_document(missing)
 
     list_document = tmp_path / "list.json"

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from typing import Any
 
 
 class ValidationError(ValueError):
-    """Raised when a manifest or policy document fails strict validation."""
+    """Raised when a TrustWeave data contract fails validation."""
+
+
+class InputOutputError(OSError):
+    """Raised when a local evidence input or output cannot be safely accessed."""
 
 
 @dataclass(frozen=True)
@@ -129,7 +134,7 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
 
 
 def _unique_names(items: Sequence[str], path: str) -> None:
-    duplicates = sorted({item for item in items if items.count(item) > 1})
+    duplicates = sorted(item for item, count in Counter(items).items() if count > 1)
     if duplicates:
         raise ValidationError(f"{path} contains duplicate values: {', '.join(duplicates)}")
 
