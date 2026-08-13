@@ -36,6 +36,7 @@ dev = [
   "cyclonedx-bom>=7.0",
   "ruff>=0.8",
   "mypy>=1.13",
+  "mutmut==3.7.0",
 ]
 
 [project.scripts]
@@ -69,6 +70,18 @@ python_version = "3.11"
 strict = true
 mypy_path = "src"
 warn_unreachable = true
+
+[tool.mutmut]
+source_paths = ["src"]
+only_mutate = ["src/trustweave/engine.py"]
+also_copy = ["examples", "policies", "scenarios", "schemas", "docs"]
+pytest_add_cli_args = ["--no-cov"]
+pytest_add_cli_args_test_selection = [
+  "tests/test_trustweave.py",
+  "tests/test_foundation_hardening.py",
+  "-k",
+  "not repository_reality_check",
+]
 
 [tool.coverage.run]
 branch = true

@@ -17,6 +17,7 @@ except ImportError as error:  # pragma: no cover - CI installs the optional dev 
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)\s]+)(?:\s+[^)]*)?\)")
+PINNED_ACTION = re.compile(r"^\s*uses:\s+[A-Za-z0-9._/-]+@[0-9a-f]{40}(?:\s+#\s+\S+)?\s*$")
 EXPECTED_COMMANDS = (
     "scan",
     "test",
@@ -44,6 +45,7 @@ PUBLIC_ASSETS = (
     "LICENSE",
     "CITATION.cff",
     ".github/CODEOWNERS",
+    "docs/SUPPLY_CHAIN.md",
 )
 REQUIRED_ISSUE_FORMS = (
     ".github/ISSUE_TEMPLATE/01-bug-report.yml",
@@ -54,6 +56,15 @@ REQUIRED_README_MARKERS = (
     "[SUPPORT.md](SUPPORT.md)",
     "[SECURITY.md](SECURITY.md)",
     "[CONTRIBUTING.md](CONTRIBUTING.md)",
+)
+ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
+QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
+MUTATION_RECORD_PATH = ROOT / "docs" / "MUTATION_TESTING.md"
+MUTATION_RECORD_MARKERS = (
+    "`mutmut 3.7.0`",
+    "108 generated mutants; 108 killed; 0 survived; 0 timed out; 0 suspicious",
+    "Linux with fork support",
+    "not a cross-platform release-blocking gate",
 )
 
 
@@ -99,6 +110,12 @@ def _check_workflows() -> list[str]:
             continue
         if not isinstance(parsed, dict) or not isinstance(parsed.get("jobs"), dict):
             failures.append(f"Workflow {path.relative_to(ROOT)} lacks a jobs mapping")
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if line.lstrip().startswith("uses:") and not PINNED_ACTION.match(line):
+                failures.append(
+                    f"Workflow action is not pinned to a full commit SHA: "
+                    f"{path.relative_to(ROOT)}:{line_number}"
+                )
     return failures
 
 
@@ -196,6 +213,56 @@ def _check_public_documents() -> list[str]:
     return failures
 
 
+def _check_quality_evidence() -> list[str]:
+    """Verify source-derived quality facts and the bounded mutation record."""
+
+    failures: list[str] = []
+    if not ADVERSARIAL_SCENARIO_PATH.exists():
+        failures.append("Missing cited adversarial scenario library")
+    elif not QUALITY_GUIDE_PATH.exists():
+        failures.append("Missing docs/QUALITY.md")
+    else:
+        try:
+            scenarios_document: Any = json.loads(
+                ADVERSARIAL_SCENARIO_PATH.read_text(encoding="utf-8")
+            )
+        except json.JSONDecodeError as error:
+            failures.append(f"Invalid adversarial scenario library JSON: {error}")
+        else:
+            scenarios = (
+                scenarios_document.get("scenarios")
+                if isinstance(scenarios_document, dict)
+                else None
+            )
+            if not isinstance(scenarios, list):
+                failures.append("Adversarial scenario library must contain a scenarios array")
+            else:
+                expected_count_marker = f"all **{len(scenarios)}** cited synthetic patterns"
+                quality_guide = QUALITY_GUIDE_PATH.read_text(encoding="utf-8")
+                if expected_count_marker not in quality_guide:
+                    failures.append(
+                        "docs/QUALITY.md does not state the source-derived adversarial "
+                        "scenario count"
+                    )
+
+    if not MUTATION_RECORD_PATH.exists():
+        failures.append("Missing docs/MUTATION_TESTING.md")
+    else:
+        mutation_record = MUTATION_RECORD_PATH.read_text(encoding="utf-8")
+        for marker in MUTATION_RECORD_MARKERS:
+            if marker not in mutation_record:
+                failures.append(f"Mutation-testing record lacks required evidence marker: {marker}")
+
+    with (ROOT / "pyproject.toml").open("rb") as project_file:
+        project = tomllib.load(project_file)
+    mutation_config = project.get("tool", {}).get("mutmut")
+    if not isinstance(mutation_config, dict):
+        failures.append("pyproject.toml lacks a [tool.mutmut] configuration")
+    elif mutation_config.get("only_mutate") != ["src/trustweave/engine.py"]:
+        failures.append("Mutation configuration must remain scoped to src/trustweave/engine.py")
+    return failures
+
+
 def _check_cli() -> list[str]:
     completed = subprocess.run(
         ["trustweave", "--help"],
@@ -221,6 +288,7 @@ def main() -> int:
         + _check_workflows()
         + _check_issue_templates()
         + _check_public_documents()
+        + _check_quality_evidence()
         + _check_cli()
     )
     if failures:
@@ -230,7 +298,8 @@ def main() -> int:
         return 1
     print(
         "Repository reality check passed: schemas, local documentation links, workflows, "
-        "issue forms, public documentation, release metadata, and CLI commands are connected."
+        "issue forms, public documentation, release metadata, quality evidence, and CLI "
+        "commands are connected."
     )
     return 0
 

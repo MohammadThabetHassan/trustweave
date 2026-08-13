@@ -121,7 +121,10 @@ The project also avoids unsupported security claims. A review finding is a deter
 | [Product contract](docs/PRODUCT_CONTRACT.md) | The user promise, evidence model, acceptance criteria, and safety boundary. |
 | [Architecture](docs/ARCHITECTURE.md) | Components, local data flow, invariants, and extension boundaries. |
 | [Threat model](docs/THREAT_MODEL.md) | Assumptions, non-goals, and the limits of review evidence. |
-| [Quality evidence](docs/QUALITY.md) | The test, compatibility, build, and reproducibility controls. |
+| [Quality evidence](docs/QUALITY.md) | The test, compatibility, build, reproducibility, and scoped mutation-analysis controls. |
+| [Maturity plan](docs/MATURITY_PLAN.md) | Verified 9.5+ priorities, release gates, and external proof the repository cannot manufacture. |
+| [Focused mutation record](docs/MUTATION_TESTING.md) | The exact Linux-only deterministic-engine mutation scope, result, and re-run procedure. |
+| [Supply-chain evidence](docs/SUPPLY_CHAIN.md) | Workflow-action pinning, OIDC release controls, reproducibility, SBOM evidence, and deliberate non-claims. |
 | [Schema and compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) | Versioned contracts and migration expectations. |
 | [Release guide](docs/RELEASE.md) | The evidence and authorization required to publish a package. |
 

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and intends to use semantic versioning once a release is authorized.
+All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
 ## [Unreleased]
 
@@ -10,6 +10,22 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Moved advanced workflow detail behind task-focused documentation links so the landing page remains skimmable without reducing the published command and safety contract.
 - Refreshed the product contract, roadmap, release guide, security policy, governance guide, contribution guide, and TestPyPI validation guide to distinguish completed `0.1.1` release evidence from deliberate future scope.
 - Added `SUPPORT.md` to route installation questions, safe bug reports, bounded feature proposals, and private vulnerability reports without promising unstaffed services.
+- Added an evidence-led maturity plan that distinguishes repository-controlled 9.5+ work from external proof that must not be fabricated.
+- Added a focused mutation-testing record with its Linux-only scope, exact 108-of-108 killed-mutant result, re-run procedure, and explicit non-blocking limitation.
+- Added a checked-in minimal LangGraph-style project layout, provenance note, and static-import walkthrough that demonstrate a reviewable project configuration without installing, importing, compiling, or executing LangGraph code.
+
+### Quality
+
+- Corrected the stale adversarial-scenario claim in `docs/QUALITY.md` from ten to the source-derived count of 25.
+- Extended the deterministic repository reality check to verify the source-derived adversarial scenario count, mutation record, mutation configuration, and released quality-documentation contract.
+- Added exact deterministic-engine assertions for matching/default rationales, UTC timestamps, and complete bundle fields; the initial scoped mutation analysis killed 108 of 108 generated engine mutants.
+- Added positive and malformed-config regression coverage for the provenance-backed LangGraph-style declaration example.
+- Pinned every third-party GitHub Action used by CI and OIDC publishing to a reviewed full commit SHA, with readable release labels retained in comments.
+- Extended the repository reality checker to reject mutable workflow-action references and require the factual supply-chain evidence guide.
+
+### Security
+
+- Added a supply-chain evidence guide that documents implemented immutable action pins, least-privilege OIDC publishing, wheel reproducibility, SBOM generation, dependency review, and intentional non-claims about signing, attestations, or external certification.
 
 ### Governance
 

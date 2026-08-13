@@ -16,6 +16,19 @@ trustweave framework-import --framework crewai --input examples/frameworks/crewa
 
 The inventory is a review aid only. It never infers a TrustWeave action class, policy decision, authorization, runtime reachability, or security conclusion. Framework documentation describes LangGraph configuration graph references, OpenAI Agents tool action surfaces, and CrewAI agent/task declarations; the importer intentionally reads only local literal data rather than running those ecosystems.[1] [2] [3]
 
+## Provenance-backed LangGraph-style example
+
+The checked-in [`langgraph-minimal-project`](../examples/frameworks/langgraph-minimal-project/) is a minimal project layout containing a real project-style `langgraph.json`, a matching symbolic source path, and a [provenance note](../examples/frameworks/langgraph-minimal-project/PROVENANCE.md). Reproduce its static inventory with:
+
+```bash
+trustweave framework-import \
+  --framework langgraph \
+  --input examples/frameworks/langgraph-minimal-project/langgraph.json \
+  --output-dir artifacts/langgraph-minimal
+```
+
+TrustWeave reads only `langgraph.json`. It does not install the example, import its Python module, compile a graph, instantiate an agent, execute a node, load an environment variable, access a credential, or contact an external service. The example strengthens declaration provenance; it is not runtime integration or deployment validation.
+
 ## References
 
 [1]: https://docs.langchain.com/oss/python/langgraph/application-structure "LangGraph application structure"

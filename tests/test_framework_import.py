@@ -11,6 +11,7 @@ from trustweave.models import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "examples" / "frameworks"
+LANGGRAPH_PROJECT = FIXTURES / "langgraph-minimal-project"
 
 
 @pytest.mark.parametrize(
@@ -47,11 +48,35 @@ def test_framework_imports_are_deterministic_and_static(
     assert "does not infer TrustWeave action classes" in first["limits"][1]
 
 
+def test_project_style_langgraph_configuration_is_normalized_without_execution() -> None:
+    document = load_document(LANGGRAPH_PROJECT / "langgraph.json")
+
+    inventory = normalize_framework_declaration("langgraph", document)
+
+    assert inventory["entries"] == [
+        {
+            "kind": "graph",
+            "name": "boundary_review",
+            "reference": "./src/minimal_review/graph.py:graph",
+        }
+    ]
+    assert inventory["summary"] == {
+        "entry_count": 1,
+        "agent_count": 0,
+        "task_count": 0,
+        "graph_count": 1,
+    }
+    provenance = (LANGGRAPH_PROJECT / "PROVENANCE.md").read_text(encoding="utf-8")
+    assert "does **not** install" in provenance
+
+
 def test_framework_import_rejects_unknown_framework_duplicate_agents_and_unknown_task_agent() -> (
     None
 ):
     with pytest.raises(ValidationError, match="Unsupported framework"):
         normalize_framework_declaration("unknown", {})
+    with pytest.raises(ValidationError, match="langgraph.graphs must include at least one graph"):
+        normalize_framework_declaration("langgraph", {"graphs": {}})
     with pytest.raises(ValidationError, match="duplicate name"):
         normalize_framework_declaration(
             "openai-agents", {"agents": [{"name": "same"}, {"name": "same"}]}

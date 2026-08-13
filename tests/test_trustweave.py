@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import json
 import tomllib
+from dataclasses import asdict
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
 from trustweave import __version__
 from trustweave.cli import main
-from trustweave.engine import build_bundle, evaluate_manifest
+from trustweave.engine import build_bundle, evaluate_flow, evaluate_manifest
 from trustweave.evidence import build_attestation, verify_attestation
 from trustweave.io import load_document, read_json, write_json
 from trustweave.models import ValidationError, parse_manifest, parse_policy
@@ -39,7 +41,33 @@ def test_example_manifest_and_policy_produce_expected_boundary_decisions() -> No
         "require_approval",
         "deny",
     ]
-    assert findings[-1].rule_id == "TW-004"
+    assert [finding.rule_id for finding in findings] == ["TW-001", None, "TW-002", "TW-004"]
+    assert [finding.rationale for finding in findings] == [
+        "Authenticated synthetic requests may invoke declared read-only retrieval paths.",
+        "No policy rule matched this declared path; the default decision was applied.",
+        (
+            "Confidential synthetic records may influence an external mock action only with "
+            "explicit human review."
+        ),
+        "Untrusted retrieved content must not cause outbound or business-impacting actions.",
+    ]
+
+
+def test_unmatched_declared_path_returns_explicit_default_rationale() -> None:
+    manifest = parse_manifest(load_document(MANIFEST))
+    policy = parse_policy(load_document(POLICY))
+    conditional_source = next(
+        source for source in manifest.sources if source.trust == "conditional"
+    )
+    read_tool = next(tool for tool in manifest.tools if tool.action_class == "read")
+
+    finding = evaluate_flow(manifest.flows[0], conditional_source, read_tool, policy)
+
+    assert finding.decision == "deny"
+    assert finding.rule_id is None
+    assert finding.rationale == (
+        "No policy rule matched this declared path; the default decision was applied."
+    )
 
 
 def test_scenarios_pass_against_example_policy() -> None:
@@ -69,8 +97,34 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
 
     bundle = build_bundle(manifest, policy)
 
+    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha1"
+    generated_at = datetime.fromisoformat(bundle["generated_at"])
+    assert generated_at.tzinfo == UTC
+    assert bundle["manifest"] == manifest.as_dict()
+    assert bundle["policy"] == {
+        "schema_version": policy.schema_version,
+        "name": policy.name,
+        "default_decision": policy.default_decision,
+        "rules": [asdict(rule) for rule in policy.rules],
+    }
+    assert [finding["decision"] for finding in bundle["findings"]] == [
+        "allow",
+        "deny",
+        "require_approval",
+        "deny",
+    ]
     assert bundle["summary"] == {"allow": 1, "deny": 2, "require_approval": 1}
-    assert len(bundle["limits"]) == 3
+    assert bundle["limits"] == [
+        "The bundle reflects declared architecture only; it does not discover or execute tools.",
+        (
+            "The bundle applies deterministic local rules; it does not establish security "
+            "of a deployed system."
+        ),
+        (
+            "No model output, credential, network traffic, or external system was analyzed "
+            "to create this bundle."
+        ),
+    ]
 
 
 def test_attestation_detects_tampering(tmp_path: Path) -> None:

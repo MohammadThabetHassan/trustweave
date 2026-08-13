@@ -1,0 +1,6 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "boundary_review": "./src/minimal_review/graph.py:graph"
+  }
+}
