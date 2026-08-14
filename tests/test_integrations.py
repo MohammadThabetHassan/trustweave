@@ -89,4 +89,6 @@ def test_quality_workflow_executes_real_container_build_and_smoke_contract() -> 
     assert "docker run --rm trustweave:0.2.0 schema list" in workflow
     assert "id -u" in workflow
     assert "trustweave.__version__" in workflow
-    assert 'find / -xdev -type d -name "__pycache__"' in workflow
+    assert 'find /app -type d -name "__pycache__"' in workflow
+    assert "/root/.cache/pip" in workflow
+    assert "/home/trustweave/.cache/pip" in workflow

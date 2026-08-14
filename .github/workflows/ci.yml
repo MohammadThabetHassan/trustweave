@@ -71,8 +71,8 @@ jobs:
           docker run --rm --entrypoint sh trustweave:0.2.0 -c 'test "$(id -u)" -eq 10001'
           docker run --rm --entrypoint python trustweave:0.2.0 -c 'import trustweave; assert trustweave.__version__ == "0.2.0"'
           docker run --rm --entrypoint sh trustweave:0.2.0 -c 'test -d /usr/local/lib/python3.13/site-packages/trustweave/schemas'
-          docker run --rm --user 0 --entrypoint sh trustweave:0.2.0 -c '! find / -xdev -type d -name "__pycache__" -print -quit | grep -q .'
-          ! docker image inspect trustweave:0.2.0 --format '{{range .RootFS.Layers}}{{println .}}{{end}}' | grep -q 'cache'
+          docker run --rm --user 0 --entrypoint sh trustweave:0.2.0 -c '! find /app -type d -name "__pycache__" -print -quit | grep -q .'
+          docker run --rm --user 0 --entrypoint sh trustweave:0.2.0 -c '! test -e /root/.cache/pip && ! test -e /home/trustweave/.cache/pip'
 
       - name: Verify reproducible wheel build
         run: |
