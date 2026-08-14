@@ -106,6 +106,12 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
         "schema_version": policy.schema_version,
         "name": policy.name,
         "default_decision": policy.default_decision,
+        "approval_control": {
+            "mechanism": policy.approval_control.mechanism,
+            "binds_to": list(policy.approval_control.binds_to),
+            "fail_closed": policy.approval_control.fail_closed,
+        },
+        "classification_taxonomy": list(policy.classification_taxonomy),
         "rules": [
             {
                 key: list(value) if isinstance(value, tuple) else value
