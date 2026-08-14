@@ -312,13 +312,15 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             "is not deterministic"
         )
     required = _required_paths(stages)
-    paths = configured_paths(
-        config_path,
-        {
-            **{name: None for name in sorted(required)},
-            "output_dir": args.output_dir,
-        },
-    )
+    path_values: dict[str, Path | None] = {
+        **{name: None for name in sorted(required)},
+        "output_dir": args.output_dir,
+    }
+    if "risk" in stages:
+        for name in ("risk_baseline", "suppressions"):
+            if name in config:
+                path_values[name] = None
+    paths = configured_paths(config_path, path_values)
     output_dir = paths["output_dir"]
     if "validate" in stages:
         for name in sorted(required):
@@ -410,10 +412,10 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             risk_review = review_risks(
                 [review for _, review in raw_reviews.values()],
                 baseline_document=(
-                    load_document(paths["risk_baseline"]) if "risk_baseline" in config else None
+                    load_document(paths["risk_baseline"]) if "risk_baseline" in paths else None
                 ),
                 suppressions_document=(
-                    load_document(paths["suppressions"]) if "suppressions" in config else None
+                    load_document(paths["suppressions"]) if "suppressions" in paths else None
                 ),
                 reviewed_at=generated_at,
                 artifact_paths=[path for path, _ in raw_reviews.values()],

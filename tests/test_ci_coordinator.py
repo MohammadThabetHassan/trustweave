@@ -319,6 +319,45 @@ def test_ci_chain_findings_drive_severity_gate_and_summary_status(tmp_path: Path
     )
 
 
+def test_ci_resolves_configured_risk_baseline_for_selected_risk_stage(tmp_path: Path) -> None:
+    """Configured optional risk decisions must be resolved before the risk stage reads them."""
+
+    root = Path(__file__).resolve().parents[1]
+    baseline = tmp_path / "risk baseline.json"
+    chain_manifest = root / "examples" / "chains" / "safe-sanitized-external.chain.json"
+    baseline.write_text(
+        '{"schema_version":"trustweave.dev/risk-baseline/v1alpha2","baseline":[]}',
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'risk_baseline = "{baseline.name}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "risk", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    assert (output_dir / "risk-review.json").is_file()
+
+
 def test_ci_supports_every_configuration_accepted_stage() -> None:
     """Configuration must not advertise any local workflow stage that CI rejects."""
 
