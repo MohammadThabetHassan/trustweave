@@ -241,6 +241,27 @@ def test_policy_v2_identifier_constraint_does_not_false_shadow_broader_rule() ->
     assert not any(item["id"] == "TW-POL-002" for item in findings)
 
 
+def test_policy_v2_rejects_unknown_required_controls() -> None:
+    document = _policy_document()
+    rule = document["rules"][0]
+    assert isinstance(rule, dict)
+    rule["required_controls"] = ["nonexistent.control"]
+
+    with pytest.raises(ValidationError, match="unknown required controls"):
+        parse_policy(document)
+
+
+def test_policy_v2_rejects_empty_exact_classification_bound_intersection() -> None:
+    document = _policy_document()
+    rule = document["rules"][0]
+    assert isinstance(rule, dict)
+    rule["source_data_classifications"] = ["public"]
+    rule["source_data_classification_at_least"] = "confidential"
+
+    with pytest.raises(ValidationError, match="empty classification intersection"):
+        parse_policy(document)
+
+
 def test_policy_v2_rejects_impossible_bounds_and_unknown_exact_classification() -> None:
     invalid_bounds = _policy_document()
     rule = invalid_bounds["rules"][0]

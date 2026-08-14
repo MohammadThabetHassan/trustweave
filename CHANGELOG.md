@@ -6,6 +6,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Rejected unknown policy-v2 required controls outside the bounded declared-control catalog and rejected rules with an empty exact-classification and taxonomy-bound intersection.
 - Preserved every distinct declared chain path during bounded traversal and scoped fail-closed approval evidence to sensitive classifications acquired before the approval node.
 - Aligned generated bundle, embedded finding, and v1alpha3 attestation schemas with real runtime artifacts, and packaged public schemas for installed-wheel discovery.
 - Added the immutable, data-only `trustweave.api.LocalReviewResult` wrapper for typed consumption of already-generated local review artifacts.
