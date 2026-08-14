@@ -31,3 +31,4 @@ nav:
   - Provenance design: PROVENANCE.md
   - Performance gates: PERFORMANCE.md
   - Migration to 0.2.0: MIGRATION_0_2.md
+  - Threat model: THREAT_MODEL.md
