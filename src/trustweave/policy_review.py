@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from trustweave.engine import capability_pattern_covers
-from trustweave.models import Policy, PolicyRule
+from trustweave.models import Policy
+from trustweave.policy_predicates import rule_covers, rule_is_possible
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
@@ -13,90 +13,6 @@ REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 REQUIRED_APPROVAL_BINDINGS = frozenset(
     {"actor", "tool", "target", "parameters", "issued_at", "expires_at"}
 )
-
-
-def _set_covers(first: tuple[str, ...], later: tuple[str, ...]) -> bool:
-    """Return whether an optional exact-set constraint covers another constraint."""
-
-    if not first:
-        return True
-    if not later:
-        return False
-    return set(later).issubset(first)
-
-
-def _capabilities_cover(first: tuple[str, ...], later: tuple[str, ...]) -> bool:
-    """Return only capability coverage relationships that are provable from bounded patterns."""
-
-    if not first:
-        return True
-    if not later:
-        return False
-    return all(
-        any(capability_pattern_covers(first_pattern, later_pattern) for first_pattern in first)
-        for later_pattern in later
-    )
-
-
-def _bounds_cover(first: PolicyRule, later: PolicyRule, policy: Policy) -> bool:
-    """Return whether first's declared classification interval contains later's interval."""
-
-    if not policy.classification_taxonomy:
-        return (
-            first.source_data_classification_at_least is None
-            and first.source_data_classification_at_most is None
-            and later.source_data_classification_at_least is None
-            and later.source_data_classification_at_most is None
-        )
-    ranks = {value: index for index, value in enumerate(policy.classification_taxonomy)}
-    first_lower = (
-        ranks[first.source_data_classification_at_least]
-        if first.source_data_classification_at_least is not None
-        else 0
-    )
-    later_lower = (
-        ranks[later.source_data_classification_at_least]
-        if later.source_data_classification_at_least is not None
-        else 0
-    )
-    first_upper = (
-        ranks[first.source_data_classification_at_most]
-        if first.source_data_classification_at_most is not None
-        else len(ranks) - 1
-    )
-    later_upper = (
-        ranks[later.source_data_classification_at_most]
-        if later.source_data_classification_at_most is not None
-        else len(ranks) - 1
-    )
-    return first_lower <= later_lower and first_upper >= later_upper
-
-
-def _covers(first: PolicyRule, later: PolicyRule, policy: Policy) -> bool:
-    """Return whether an earlier rule provably matches every path matched by a later rule."""
-
-    return (
-        set(later.source_trust).issubset(first.source_trust)
-        and set(later.tool_action_classes).issubset(first.tool_action_classes)
-        and _set_covers(first.source_data_classifications, later.source_data_classifications)
-        and _set_covers(first.source_identifiers, later.source_identifiers)
-        and _set_covers(first.tool_identifiers, later.tool_identifiers)
-        and _set_covers(first.purpose_tags, later.purpose_tags)
-        and _set_covers(first.required_controls, later.required_controls)
-        and _bounds_cover(first, later, policy)
-        and _capabilities_cover(first.tool_capabilities, later.tool_capabilities)
-    )
-
-
-def _declared_controls(policy: Policy) -> frozenset[str]:
-    """Return design-time policy control labels usable by a policy rule."""
-
-    if policy.approval_control is None:
-        return frozenset()
-    controls = {"approval"}
-    if policy.approval_control.fail_closed:
-        controls.add("approval.fail_closed")
-    return frozenset(controls)
 
 
 def review_policy(
@@ -118,17 +34,16 @@ def review_policy(
         )
 
     coverage_rules: dict[str, dict[str, object]] = {}
-    declared_controls = _declared_controls(policy)
     for later_index, later_rule in enumerate(policy.rules):
         shadowing_rule = next(
             (
                 earlier_rule
                 for earlier_rule in policy.rules[:later_index]
-                if _covers(earlier_rule, later_rule, policy)
+                if rule_covers(earlier_rule, later_rule, policy)
             ),
             None,
         )
-        impossible = not set(later_rule.required_controls).issubset(declared_controls)
+        impossible = not rule_is_possible(later_rule, policy)
         if include_coverage:
             coverage_rules[later_rule.id] = {
                 "reachable": shadowing_rule is None and not impossible,

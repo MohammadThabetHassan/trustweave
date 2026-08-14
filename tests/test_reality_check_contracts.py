@@ -45,3 +45,15 @@ def test_reality_check_validates_schema_resources_from_an_installed_wheel() -> N
     reality_check = _reality_check_module()
 
     assert reality_check._check_installed_wheel_schema_resources() == []
+
+
+def test_reality_check_validates_installed_wheel_runtime_contract() -> None:
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_installed_wheel_runtime_contract() == []
+
+
+def test_reality_check_validates_changelog_version_synchronization() -> None:
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_changelog_version_synchronization() == []

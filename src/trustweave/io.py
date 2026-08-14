@@ -5,22 +5,76 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
 from trustweave.models import InputOutputError, ValidationError
 
+MAX_DOCUMENT_BYTES = 16 * 1024 * 1024
+MAX_DOCUMENT_NESTING = 64
+MAX_DOCUMENT_ITEMS = 1_000_000
+
+
+def _bounded_mapping(document: Any, path: Path) -> Mapping[str, Any]:
+    """Reject structurally unsafe local documents without recursive traversal."""
+
+    if not isinstance(document, Mapping):
+        raise ValidationError(f"{path} must contain a top-level object")
+
+    pending: list[tuple[Any, int]] = [(document, 1)]
+    seen_containers: set[int] = set()
+    item_count = 0
+    while pending:
+        value, depth = pending.pop()
+        if depth > MAX_DOCUMENT_NESTING:
+            raise ValidationError(
+                f"{path} exceeds the maximum supported nesting of {MAX_DOCUMENT_NESTING}"
+            )
+        if isinstance(value, Mapping):
+            identifier = id(value)
+            if identifier in seen_containers:
+                raise ValidationError(f"{path} must not contain recursive or aliased structures")
+            seen_containers.add(identifier)
+            for key, child in value.items():
+                if not isinstance(key, str):
+                    raise ValidationError(f"{path} object keys must be strings")
+                item_count += 1
+                if item_count > MAX_DOCUMENT_ITEMS:
+                    raise ValidationError(
+                        f"{path} exceeds the maximum supported item count of {MAX_DOCUMENT_ITEMS}"
+                    )
+                pending.append((child, depth + 1))
+        elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+            identifier = id(value)
+            if identifier in seen_containers:
+                raise ValidationError(f"{path} must not contain recursive or aliased structures")
+            seen_containers.add(identifier)
+            for child in value:
+                item_count += 1
+                if item_count > MAX_DOCUMENT_ITEMS:
+                    raise ValidationError(
+                        f"{path} exceeds the maximum supported item count of {MAX_DOCUMENT_ITEMS}"
+                    )
+                pending.append((child, depth + 1))
+    return document
+
 
 def load_document(path: Path) -> Mapping[str, Any]:
     """Load local JSON or safe YAML without executing configuration or following references."""
 
+    if path.is_symlink():
+        raise InputOutputError(f"Input document must not be a symbolic link: {path}")
     if not path.exists():
         raise InputOutputError(f"Input document does not exist: {path}")
     if not path.is_file():
         raise InputOutputError(f"Input document is not a file: {path}")
     try:
+        if path.stat().st_size > MAX_DOCUMENT_BYTES:
+            raise ValidationError(
+                f"{path} exceeds the maximum supported size of {MAX_DOCUMENT_BYTES} bytes"
+            )
         text = path.read_text(encoding="utf-8")
     except UnicodeDecodeError as error:
         raise ValidationError(f"{path} is not valid UTF-8") from error
@@ -45,12 +99,8 @@ def load_document(path: Path) -> Mapping[str, Any]:
             ) from yaml_error
         if document is None:
             raise ValidationError(f"{path} is empty") from json_error
-        if not isinstance(document, Mapping):
-            raise ValidationError(f"{path} must contain a top-level object") from json_error
-        return document
-    if not isinstance(document, Mapping):
-        raise ValidationError(f"{path} must contain a top-level object")
-    return document
+        return _bounded_mapping(document, path)
+    return _bounded_mapping(document, path)
 
 
 def canonical_json(data: Mapping[str, Any]) -> str:

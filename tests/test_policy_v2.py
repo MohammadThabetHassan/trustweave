@@ -350,3 +350,42 @@ def test_policy_v2_rejects_invalid_approval_control_contracts(
 
     with pytest.raises(ValidationError, match=message):
         parse_policy(document)
+
+
+def test_policy_coverage_detects_shadowing_when_declared_controls_are_static() -> None:
+    document = _policy_document()
+    first = dict(document["rules"][0])
+    first["id"] = "TW-V2-STATIC-CONTROL-FIRST"
+    first["source_identifiers"] = []
+    first["tool_identifiers"] = []
+    first["purpose_tags"] = []
+    first["source_data_classification_at_least"] = None
+    first["tool_capabilities"] = []
+    first["required_controls"] = ["approval"]
+    first["decision"] = "deny"
+
+    later = dict(first)
+    later["id"] = "TW-V2-STATIC-CONTROL-LATER"
+    later["required_controls"] = ["approval.fail_closed"]
+    document["rules"] = [first, later]
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    assert review["coverage"] == {
+        "rules": {
+            "TW-V2-STATIC-CONTROL-FIRST": {
+                "reachable": True,
+                "possible": True,
+                "shadowed_by": None,
+                "decision": "deny",
+            },
+            "TW-V2-STATIC-CONTROL-LATER": {
+                "reachable": False,
+                "possible": True,
+                "shadowed_by": "TW-V2-STATIC-CONTROL-FIRST",
+                "decision": "deny",
+            },
+        },
+        "shadowed_rules": ["TW-V2-STATIC-CONTROL-LATER"],
+        "impossible_rules": [],
+    }

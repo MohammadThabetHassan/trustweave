@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 import subprocess
@@ -70,6 +71,16 @@ MUTATION_RECORD_MARKERS = (
     "Linux with fork support",
     "not a cross-platform release-blocking gate",
 )
+CHANGELOG_VERSION_HEADING = re.compile(r"^## \[([^\]]+)\]", re.MULTILINE)
+
+
+def _declared_project_version() -> str | None:
+    """Return the package version from the build metadata, if structurally valid."""
+
+    with (ROOT / "pyproject.toml").open("rb") as project_file:
+        project = tomllib.load(project_file)
+    version = project.get("project", {}).get("version")
+    return version if isinstance(version, str) and version else None
 
 
 def _check_json_documents() -> list[str]:
@@ -347,6 +358,48 @@ def _check_public_documents() -> list[str]:
     return failures
 
 
+def _check_changelog_version_synchronization() -> list[str]:
+    """Verify build metadata, public package version, and top changelog heading agree."""
+
+    failures: list[str] = []
+    version = _declared_project_version()
+    if version is None:
+        return ["pyproject.toml must declare a non-empty project version"]
+
+    package_init = ROOT / "src" / "trustweave" / "__init__.py"
+    try:
+        module = ast.parse(package_init.read_text(encoding="utf-8"), filename=str(package_init))
+    except (OSError, SyntaxError) as error:
+        return [f"Could not parse public package version: {error}"]
+    source_version = next(
+        (
+            assignment.value.value
+            for assignment in module.body
+            if isinstance(assignment, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "__version__"
+                for target in assignment.targets
+            )
+            and isinstance(assignment.value, ast.Constant)
+            and isinstance(assignment.value.value, str)
+        ),
+        None,
+    )
+    if source_version != version:
+        failures.append("src/trustweave/__init__.py version does not match pyproject.toml")
+
+    changelog_path = ROOT / "CHANGELOG.md"
+    if not changelog_path.exists():
+        failures.append("Missing CHANGELOG.md")
+        return failures
+    headings = CHANGELOG_VERSION_HEADING.findall(changelog_path.read_text(encoding="utf-8"))
+    if not headings:
+        failures.append("CHANGELOG.md lacks a version heading")
+    elif headings[0] != version:
+        failures.append("CHANGELOG.md top version heading does not match pyproject.toml")
+    return failures
+
+
 def _check_quality_evidence() -> list[str]:
     """Verify source-derived quality facts and the bounded mutation record."""
 
@@ -468,7 +521,57 @@ def _check_installed_wheel_schema_resources() -> list[str]:
                     failures.append(
                         "Installed-wheel schema content differs from the source contract"
                     )
+
+        runtime = subprocess.run(
+            [
+                str(python),
+                "-c",
+                (
+                    "import json, pathlib; "
+                    "import trustweave, trustweave.chain, trustweave.config, "
+                    "trustweave.evidence, trustweave.sarif; "
+                    "print(json.dumps({'version': trustweave.__version__, "
+                    "'typed': (pathlib.Path(trustweave.__file__).parent / 'py.typed').is_file()}))"
+                ),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if runtime.returncode != 0:
+            failures.append(
+                f"Installed-wheel public package imports failed: {runtime.stderr.strip()}"
+            )
+        else:
+            try:
+                runtime_contract = json.loads(runtime.stdout)
+            except json.JSONDecodeError as error:
+                failures.append(f"Installed-wheel runtime contract was not JSON: {error}")
+            else:
+                version = _declared_project_version()
+                if runtime_contract.get("version") != version:
+                    failures.append("Installed-wheel package version does not match pyproject.toml")
+                if runtime_contract.get("typed") is not True:
+                    failures.append("Installed-wheel package is missing its py.typed marker")
+
+        help_result = subprocess.run(
+            [str(command), "--help"], check=False, capture_output=True, text=True
+        )
+        if help_result.returncode != 0:
+            failures.append(f"Installed-wheel CLI help failed: {help_result.stderr.strip()}")
+        else:
+            failures.extend(
+                f"Installed-wheel CLI help lacks parser command: {command_name}"
+                for command_name in _parser_command_names()
+                if command_name not in help_result.stdout
+            )
     return failures
+
+
+def _check_installed_wheel_runtime_contract() -> list[str]:
+    """Verify the isolated wheel's executable public runtime contract."""
+
+    return _check_installed_wheel_schema_resources()
 
 
 def _check_rule_registry() -> list[str]:
@@ -561,12 +664,13 @@ def main() -> int:
         _check_json_documents()
         + _check_contract_examples()
         + _check_generated_artifact_schemas()
-        + _check_installed_wheel_schema_resources()
+        + _check_installed_wheel_runtime_contract()
         + _check_markdown_links()
         + _check_workflows()
         + _check_ci_assets()
         + _check_issue_templates()
         + _check_public_documents()
+        + _check_changelog_version_synchronization()
         + _check_quality_evidence()
         + _check_rule_registry()
         + _check_documentation_site()
@@ -580,8 +684,8 @@ def main() -> int:
     print(
         "Repository reality check passed: schemas, contract examples, local documentation "
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
-        "quality evidence, generated artifacts, installed-wheel schema resources, generated "
-        "documentation, strict documentation-site builds, and CLI commands are connected."
+        "quality evidence, generated artifacts, installed-wheel runtime and schema resources, "
+        "generated documentation, strict documentation-site builds, and CLI commands are connected."
     )
     return 0
 
