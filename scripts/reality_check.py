@@ -146,7 +146,13 @@ def _check_workflows() -> list[str]:
         if not isinstance(parsed, dict) or not isinstance(parsed.get("jobs"), dict):
             failures.append(f"Workflow {path.relative_to(ROOT)} lacks a jobs mapping")
         for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-            if line.lstrip().startswith("uses:") and not PINNED_ACTION.match(line):
+            stripped = line.lstrip()
+            if not stripped.startswith("uses:"):
+                continue
+            target = stripped.removeprefix("uses:").strip()
+            if target.startswith("./"):
+                continue
+            if not PINNED_ACTION.match(line):
                 failures.append(
                     f"Workflow action is not pinned to a full commit SHA: "
                     f"{path.relative_to(ROOT)}:{line_number}"
@@ -161,10 +167,18 @@ def _check_ci_assets() -> list[str]:
     action_path = ROOT / ".github" / "actions" / "trustweave" / "action.yml"
     if not action_path.exists():
         failures.append("Missing repository-local TrustWeave composite action")
-    elif 'python -m pip install "$GITHUB_ACTION_PATH"' not in action_path.read_text(
-        encoding="utf-8"
-    ):
-        failures.append("Composite action must install from $GITHUB_ACTION_PATH")
+    else:
+        action = action_path.read_text(encoding="utf-8")
+        if (
+            'test -f "$GITHUB_WORKSPACE/pyproject.toml"' not in action
+            or 'python -m pip install "$GITHUB_WORKSPACE"' not in action
+        ):
+            failures.append(
+                "Composite action must verify and install the checked-out repository package"
+            )
+        workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        if "uses: ./.github/actions/trustweave" not in workflow:
+            failures.append("CI must invoke the repository-local composite action")
 
     dependabot_path = ROOT / ".github" / "dependabot.yml"
     if not dependabot_path.exists():

@@ -129,6 +129,28 @@ jobs:
           path: artifacts/
           if-no-files-found: error
 
+  composite-action:
+    name: Composite action smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Run repository-local action
+        uses: ./.github/actions/trustweave
+        with:
+          manifest: examples/support-agent.manifest.json
+          policy: policies/default-policy.json
+          scenarios: scenarios/default-scenarios.json
+          output-dir: action-artifacts
+
+      - name: Verify local action artifacts
+        shell: bash
+        run: |
+          test -s action-artifacts/agent-security-bundle.json
+          test -s action-artifacts/security-test-results.json
+          test -s action-artifacts/policy-review.json
+
   compatibility:
     name: Python compatibility (${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
