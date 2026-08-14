@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from hashlib import sha256
-from typing import Any
+from typing import Any, cast
 
 from trustweave import __version__
 from trustweave.models import ValidationError
+from trustweave.risk import normalize_findings
 
 SARIF_VERSION = "2.1.0"
 SARIF_SCHEMA_URI = "https://json.schemastore.org/sarif-2.1.0.json"
@@ -51,6 +52,20 @@ def _required_string(value: Any, path: str) -> str:
     return value
 
 
+def _canonical_fingerprint(
+    review: Mapping[str, Any], finding_key: str, finding: Mapping[str, Any]
+) -> str:
+    """Derive the risk identity when a SARIF finding is within the risk contract."""
+
+    isolated_review = dict(review)
+    isolated_review[finding_key] = [finding]
+    try:
+        normalized = normalize_findings(isolated_review)
+    except ValidationError:
+        return ""
+    return normalized[0].fingerprint
+
+
 def _review_findings(kind: str, review: Mapping[str, Any]) -> list[dict[str, str]]:
     schema_version, finding_key = REVIEW_INPUT_MAP[kind]
     if review.get("schema_version") != schema_version:
@@ -82,7 +97,14 @@ def _review_findings(kind: str, review: Mapping[str, Any]) -> list[dict[str, str
                 }
             )
             continue
-        findings.append({"id": identifier, "message": message, "severity": severity})
+        findings.append(
+            {
+                "id": identifier,
+                "message": message,
+                "severity": severity,
+                "canonical_fingerprint": _canonical_fingerprint(review, finding_key, finding),
+            }
+        )
     return findings
 
 
@@ -106,7 +128,7 @@ def build_sarif(reviews: Mapping[str, tuple[str, Mapping[str, Any]]]) -> dict[st
     if unexpected_kinds:
         raise ValidationError(f"Unsupported SARIF review kinds: {', '.join(unexpected_kinds)}")
 
-    results: list[dict[str, Any]] = []
+    results_by_fingerprint: dict[str, dict[str, Any]] = {}
     rules_by_id: dict[str, dict[str, Any]] = {}
     for kind, _, _ in REVIEW_INPUTS:
         selected = reviews.get(kind)
@@ -128,18 +150,21 @@ def build_sarif(reviews: Mapping[str, tuple[str, Mapping[str, Any]]]) -> dict[st
                     "defaultConfiguration": {"level": level},
                 },
             )
-            results.append(
-                {
+            canonical_fingerprint = finding.get("fingerprint") or finding["canonical_fingerprint"]
+            if not canonical_fingerprint:
+                canonical_fingerprint = _fingerprint(kind, identifier, message, normalized_uri)
+            result = results_by_fingerprint.get(canonical_fingerprint)
+            location = {
+                "physicalLocation": {
+                    "artifactLocation": {"uri": normalized_uri},
+                }
+            }
+            if result is None:
+                result = {
                     "ruleId": identifier,
                     "level": level,
                     "message": {"text": f"[{kind}] {message}"},
-                    "locations": [
-                        {
-                            "physicalLocation": {
-                                "artifactLocation": {"uri": normalized_uri},
-                            }
-                        }
-                    ],
+                    "locations": [location],
                     "partialFingerprints": {
                         "trustweave/risk-v1" if kind == "risk" else "trustweave/v1": (
                             finding["fingerprint"]
@@ -147,8 +172,28 @@ def build_sarif(reviews: Mapping[str, tuple[str, Mapping[str, Any]]]) -> dict[st
                             else _fingerprint(kind, identifier, message, normalized_uri)
                         )
                     },
+                    "properties": {"trustweaveSourceKinds": [kind]},
                 }
-            )
+                results_by_fingerprint[canonical_fingerprint] = result
+                continue
+
+            locations = cast(list[dict[str, Any]], result["locations"])
+            if location not in locations:
+                locations.append(location)
+            properties = cast(dict[str, Any], result["properties"])
+            source_kinds = cast(list[str], properties["trustweaveSourceKinds"])
+            if kind not in source_kinds:
+                source_kinds.append(kind)
+
+    results = list(results_by_fingerprint.values())
+    for result in results:
+        locations = cast(list[dict[str, Any]], result["locations"])
+        locations.sort(
+            key=lambda location: str(location["physicalLocation"]["artifactLocation"]["uri"])
+        )
+        properties = cast(dict[str, Any], result["properties"])
+        source_kinds = cast(list[str], properties["trustweaveSourceKinds"])
+        source_kinds.sort()
 
     results.sort(
         key=lambda result: (

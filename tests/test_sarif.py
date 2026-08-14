@@ -7,6 +7,7 @@ import pytest
 
 from trustweave.cli import main
 from trustweave.models import ValidationError
+from trustweave.risk import review_risks
 from trustweave.sarif import SARIF_SCHEMA_URI, SARIF_VERSION, build_sarif
 
 
@@ -179,6 +180,43 @@ def test_sarif_exports_only_active_risk_findings_with_their_canonical_fingerprin
     assert result[0]["ruleId"] == "TW-POL-004"
     assert result[0]["level"] == "error"
     assert result[0]["partialFingerprints"] == {"trustweave/risk-v1": active_fingerprint}
+
+
+def test_sarif_deduplicates_raw_chain_and_derived_risk_findings() -> None:
+    chain_review = {
+        "schema_version": "trustweave.dev/chain-review/v1alpha1",
+        "findings": [
+            {
+                "id": "TW-CHAIN-001",
+                "severity": "high",
+                "message": "Declared path reaches an external action with sensitive data.",
+                "subject": {"path": ["source", "records", "external"]},
+            }
+        ],
+        "paths": [{"identity": ["source", "records", "external"]}],
+        "summary": {"status": "review_required"},
+        "limits": ["Local declared-chain analysis only."],
+    }
+    risk_review = review_risks(
+        [chain_review],
+        reviewed_at="2026-08-14T00:00:00+00:00",
+        artifact_paths=["artifacts/chain-review.json"],
+    )
+
+    exported = build_sarif(
+        {
+            "chain": ("artifacts/chain-review.json", chain_review),
+            "risk": ("artifacts/risk-review.json", risk_review),
+        }
+    )
+
+    results = exported["runs"][0]["results"]
+    assert len(results) == 1
+    assert results[0]["ruleId"] == "TW-CHAIN-001"
+    assert {
+        location["physicalLocation"]["artifactLocation"]["uri"]
+        for location in results[0]["locations"]
+    } == {"artifacts/chain-review.json", "artifacts/risk-review.json"}
 
 
 def test_cli_sarif_accepts_active_risk_review(tmp_path: Path) -> None:
