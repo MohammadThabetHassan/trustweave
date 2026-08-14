@@ -7,13 +7,13 @@
   "required": ["id", "severity", "message", "evidence_kind"],
   "properties": {
     "id": {"type": "string", "pattern": "^TW-[A-Z0-9-]{1,120}$"},
-    "title": {"type": "string", "minLength": 1, "maxLength": 256},
+    "title": {"$ref": "#/$defs/title"},
     "severity": {"enum": ["critical", "high", "medium", "low", "info", "review"]},
-    "message": {"type": "string", "minLength": 1, "maxLength": 4096},
-    "rationale": {"type": "string", "minLength": 1, "maxLength": 4096},
-    "remediation": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "message": {"$ref": "#/$defs/message"},
+    "rationale": {"$ref": "#/$defs/message"},
+    "remediation": {"$ref": "#/$defs/message"},
     "evidence_kind": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,127}$"},
-    "subject": {"$ref": "#/$defs/string_map"},
+    "subject": {"$ref": "#/$defs/subject_map"},
     "location": {"$ref": "#/$defs/string_map"},
     "references": {
       "type": "array",
@@ -23,25 +23,42 @@
     "properties": {"$ref": "#/$defs/safe_property_map"}
   },
   "$defs": {
+    "title": {"type": "string", "minLength": 1, "maxLength": 256},
+    "message": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "metadata_string": {"type": "string", "minLength": 1, "maxLength": 1024},
+    "metadata_key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
     "string_map": {
       "type": "object",
       "maxProperties": 32,
-      "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,63}$"},
-      "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 1024}
+      "propertyNames": {"$ref": "#/$defs/metadata_key"},
+      "additionalProperties": {"$ref": "#/$defs/metadata_string"}
+    },
+    "string_sequence": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/metadata_string"}
+    },
+    "subject_map": {
+      "type": "object",
+      "maxProperties": 32,
+      "propertyNames": {"$ref": "#/$defs/metadata_key"},
+      "additionalProperties": {
+        "oneOf": [
+          {"$ref": "#/$defs/metadata_string"},
+          {"$ref": "#/$defs/string_sequence"}
+        ]
+      }
     },
     "safe_property_map": {
       "type": "object",
       "maxProperties": 64,
-      "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,63}$"},
+      "propertyNames": {"$ref": "#/$defs/metadata_key"},
       "additionalProperties": {
         "oneOf": [
-          {"type": "string", "minLength": 1, "maxLength": 1024},
+          {"$ref": "#/$defs/metadata_string"},
           {"type": "boolean"},
-          {
-            "type": "array",
-            "maxItems": 128,
-            "items": {"type": "string", "minLength": 1, "maxLength": 1024}
-          }
+          {"type": "integer", "minimum": 0, "maximum": 2147483647},
+          {"$ref": "#/$defs/string_sequence"}
         ]
       }
     }

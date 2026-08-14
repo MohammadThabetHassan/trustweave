@@ -4,6 +4,10 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [Unreleased]
 
+### Fixed
+
+- Unified built-in review observations behind a bounded, deeply immutable canonical finding contract. Ordered chain paths, safe integer analysis metadata, producer conformance, and published finding-schema validation now agree without permitting arbitrary nested evidence.
+
 ### Changed
 
 - Split the command-line implementation into focused command modules behind a sub-200-line public facade, preserving stable command help and exit-code behavior with golden help contracts.

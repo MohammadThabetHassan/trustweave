@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from trustweave.findings import finding as canonical_finding
 from trustweave.models import ValidationError
 from trustweave.provenance import add_generated_at
 
@@ -132,15 +133,16 @@ def _review_signals(
         name = item.get("name", "unknown")
         if action_class in REVIEW_ACTION_CLASSES:
             signals.append(
-                {
-                    "severity": "review",
-                    "id": "TW-DIFF-001",
-                    "message": (
+                canonical_finding(
+                    "TW-DIFF-001",
+                    "review",
+                    (
                         f"Tool {name} is newly introduced or changed with action class "
                         f"{action_class}; review its capability and policy coverage."
                     ),
-                    "subject": {"tool": str(name), "action_class": str(action_class)},
-                }
+                    "declared_bundle_difference",
+                    subject={"tool": str(name), "action_class": str(action_class)},
+                )
             )
 
     for change in capability_changes:
@@ -152,21 +154,22 @@ def _review_signals(
                 capability for capability in added if isinstance(capability, str)
             )
             signals.append(
-                {
-                    "severity": "review",
-                    "id": "TW-DIFF-003",
-                    "message": (
+                canonical_finding(
+                    "TW-DIFF-003",
+                    "review",
+                    (
                         f"Tool {name} gained sensitive or external capabilities: "
                         f"{capability_list}. Review least-privilege scope and policy coverage."
                     ),
-                    "subject": {
+                    "declared_bundle_difference",
+                    subject={
                         "tool": str(name),
                         "action_class": str(action_class),
                         "added_capabilities": sorted(
                             capability for capability in added if isinstance(capability, str)
                         ),
                     },
-                }
+                )
             )
 
     for finding in changed_findings:
@@ -178,20 +181,21 @@ def _review_signals(
             and finding.get("decision") != "deny"
         ):
             signals.append(
-                {
-                    "severity": "review",
-                    "id": "TW-DIFF-002",
-                    "message": (
+                canonical_finding(
+                    "TW-DIFF-002",
+                    "review",
+                    (
                         "The head bundle declares an untrusted-input path to a sensitive or "
                         "external tool that is not denied; review the policy decision and "
                         "human-control boundary."
                     ),
-                    "subject": {
+                    "declared_bundle_difference",
+                    subject={
                         "source": str(source.get("name", "unknown")),
                         "tool": str(tool.get("name", "unknown")),
                         "action_class": str(tool.get("action_class", "unknown")),
                     },
-                }
+                )
             )
     return signals
 

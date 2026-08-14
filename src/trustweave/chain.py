@@ -7,6 +7,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from trustweave.findings import finding as canonical_finding
 from trustweave.models import ValidationError, reject_unknown_fields
 from trustweave.provenance import add_generated_at
 
@@ -157,17 +158,17 @@ def _parse_chain_manifest(
 def _finding(
     identifier: str, severity: str, message: str, path: tuple[str, ...], **properties: Any
 ) -> dict[str, Any]:
-    result: dict[str, Any] = {
-        "id": identifier,
-        "severity": severity,
-        "message": message,
-        "evidence_kind": "declared_chain_configuration",
-        "subject": {"path": list(path)},
-        "location": {"path_identity": " -> ".join(path)},
-    }
-    if properties:
-        result["properties"] = properties
-    return result
+    """Build a bounded canonical finding for a supplied declared chain path."""
+
+    return canonical_finding(
+        identifier,
+        severity,
+        message,
+        "declared_chain_configuration",
+        subject={"path": path},
+        location={"path_identity": " -> ".join(path) or "analysis_budget"},
+        properties=properties,
+    )
 
 
 def _advance_state(state: _TraversalState, node: ChainNode) -> _TraversalState:
