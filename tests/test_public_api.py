@@ -26,6 +26,30 @@ def test_public_api_exports_only_documented_data_only_services() -> None:
     assert bundle["summary"]["deny"] == 2
 
 
+def test_local_review_result_is_deeply_immutable_and_defensively_copied() -> None:
+    document: dict[str, object] = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "findings": [{"id": "TW-TEST-001", "subject": {"flow": ["source", "tool"]}}],
+        "summary": {"counts": {"review": 1}},
+        "limits": ["Local evidence only."],
+    }
+
+    result = api.LocalReviewResult.from_document(document)
+    findings = document["findings"]
+    summary = document["summary"]
+    assert isinstance(findings, list)
+    assert isinstance(summary, dict)
+    first_finding = findings[0]
+    assert isinstance(first_finding, dict)
+    first_finding["id"] = "TW-MUTATED"
+    summary["counts"] = {"review": 0}
+
+    assert result.findings[0]["id"] == "TW-TEST-001"
+    assert result.summary["counts"]["review"] == 1
+    with pytest.raises(TypeError):
+        result.findings[0]["id"] = "TW-MUTATED"
+
+
 def test_typed_local_review_result_preserves_only_existing_local_evidence() -> None:
     result = api.LocalReviewResult.from_document(
         {
@@ -46,3 +70,28 @@ def test_typed_local_review_result_preserves_only_existing_local_evidence() -> N
                 "limits": [],
             }
         )
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("schema_version", "", "schema_version"),
+        ("findings", ["not-an-object"], "findings"),
+        ("summary", [], "summary"),
+        ("limits", "not-a-list", "limits"),
+        ("limits", ["valid", 1], "limits"),
+    ],
+)
+def test_local_review_result_rejects_invalid_common_envelopes(
+    field: str, value: object, message: str
+) -> None:
+    document: dict[str, object] = {
+        "schema_version": "trustweave.dev/test-review/v1alpha1",
+        "findings": [{"id": "TW-TEST-001"}],
+        "summary": {"counts": {"review": 1}},
+        "limits": ["Local deterministic evidence only."],
+    }
+    document[field] = value
+
+    with pytest.raises(api.ValidationError, match=message):
+        api.LocalReviewResult.from_document(document)

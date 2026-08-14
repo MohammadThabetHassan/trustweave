@@ -77,6 +77,35 @@ def test_ci_coordinator_runs_local_configured_evidence_workflow(tmp_path: Path) 
         assert (output_dir / name).is_file()
 
 
+def test_project_config_reports_file_and_document_boundary_failures(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    nested = project / "nested"
+    nested.mkdir(parents=True)
+    config_path = init_project(project)
+    marker = nested / "marker.txt"
+    marker.write_text("local", encoding="utf-8")
+
+    assert find_project_config(marker) == config_path
+    with pytest.raises(InputOutputError, match="No trustweave.toml"):
+        find_project_config(tmp_path / "unconfigured")
+    with pytest.raises(InputOutputError, match="does not exist"):
+        load_project_config(tmp_path / "missing.toml")
+
+    invalid = tmp_path / "invalid.toml"
+    invalid.write_text("[tool.trustweave", encoding="utf-8")
+    with pytest.raises(ValidationError, match="invalid TOML"):
+        load_project_config(invalid)
+    invalid.write_text("name = 'not-a-tool-table'", encoding="utf-8")
+    with pytest.raises(ValidationError, match="requires \\[tool.trustweave\\]"):
+        load_project_config(invalid)
+    invalid.write_text("[tool]\nname = 'missing-trustweave'", encoding="utf-8")
+    with pytest.raises(ValidationError, match="requires \\[tool.trustweave\\]"):
+        load_project_config(invalid)
+    invalid.write_bytes(b"\xff")
+    with pytest.raises(InputOutputError, match="not valid UTF-8"):
+        load_project_config(invalid)
+
+
 def test_project_config_rejects_unknown_and_non_string_values(tmp_path: Path) -> None:
     path = tmp_path / CONFIG_FILE_NAME
     path.write_text("[tool.trustweave]\nunknown = 'value'\n", encoding="utf-8")

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/risk-baseline/v1alpha1",
+  "title": "TrustWeave Local Risk Baseline",
+  "type": "object",
+  "required": ["schema_version", "baseline"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/risk-baseline/v1alpha1"},
+    "baseline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["fingerprint", "reason", "expires_at"],
+        "properties": {
+          "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "reason": {"type": "string", "minLength": 1},
+          "expires_at": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

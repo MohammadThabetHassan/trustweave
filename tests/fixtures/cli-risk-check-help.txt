@@ -1,0 +1,17 @@
+usage: trustweave risk-check [-h] --input INPUT [--baseline BASELINE]
+                             [--suppressions SUPPRESSIONS] [--output OUTPUT]
+                             [--markdown-output MARKDOWN_OUTPUT]
+                             [--fail-on {critical,high,medium,low,info,none}]
+
+options:
+  -h, --help            show this help message and exit
+  --input INPUT         Local review artifact JSON; repeat for multiple artifacts.
+  --baseline BASELINE   Optional local risk-baseline JSON or YAML.
+  --suppressions SUPPRESSIONS
+                        Optional local risk-suppressions JSON or YAML.
+  --output OUTPUT       Local risk-review JSON output path.
+  --markdown-output MARKDOWN_OUTPUT
+                        Optional local Markdown summary path; defaults beside the JSON output.
+  --fail-on {critical,high,medium,low,info,none}
+                        Return status 1 for active findings at or above this severity; defaults to
+                        high.

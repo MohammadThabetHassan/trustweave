@@ -6,6 +6,14 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Split the command-line implementation into focused command modules behind a sub-200-line public facade, preserving stable command help and exit-code behavior with golden help contracts.
+- Made the repository reality check validate real generated artifacts, exact schema resources from an installed wheel, and CLI command coverage derived from the authoritative parser.
+- Deduplicated raw review and derived risk-review SARIF results by canonical finding fingerprint while preserving every contributing local artifact location.
+- Made `LocalReviewResult` recursively immutable and defensively copied so nested caller-owned review data cannot mutate public API results.
+- Rejected risk baseline drafts whose expiry is not later than the supplied local review timestamp.
+- Rejected unknown policy-v2 required controls outside the bounded declared-control catalog and rejected rules with an empty exact-classification and taxonomy-bound intersection.
+- Preserved every distinct declared chain path during bounded traversal and scoped fail-closed approval evidence to sensitive classifications acquired before the approval node.
+- Aligned generated bundle, embedded finding, and v1alpha3 attestation schemas with real runtime artifacts, and packaged public schemas for installed-wheel discovery.
 - Added the immutable, data-only `trustweave.api.LocalReviewResult` wrapper for typed consumption of already-generated local review artifacts.
 - Added `trustweave ci`, a one-command coordinator for configured local scan, synthetic tests, policy review, attestation, and report artifacts with optional policy coverage and review gates.
 - Added explicit local `trustweave baseline create`, `baseline validate`, and `suppressions validate` lifecycle commands. Baseline creation requires a reviewer-provided reason and expiry and never claims remediation or authorization.
@@ -51,7 +59,14 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Added a focused mutation-testing record with its Linux-only scope, exact 108-of-108 killed-mutant result, re-run procedure, and explicit non-blocking limitation.
 - Added a checked-in minimal LangGraph-style project layout, provenance note, and static-import walkthrough that demonstrate a reviewable project configuration without installing, importing, compiling, or executing LangGraph code.
 
+### Documentation
+
+- Added a strict-build MkDocs Material documentation site with local-boundary concepts, generated parser-derived CLI help, a built-in review-rule catalog, schema catalog, and deferred authenticated-provenance design guidance.
+- Added deterministic documentation freshness and strict site-build checks to the repository reality checker.
+
 ### Quality
+
+- Raised the enforced branch-coverage gate to 95% after expanding deterministic boundary and property-based regression coverage for local configuration, public review envelopes, manifests, policies, chains, traces, MCP profiles, risk lifecycle decisions, bundle diffs, CLI error handling, and unsigned statements.
 
 - Corrected the stale adversarial-scenario claim in `docs/QUALITY.md` from ten to the source-derived count of 25.
 - Extended the deterministic repository reality check to verify the source-derived adversarial scenario count, mutation record, mutation configuration, and released quality-documentation contract.

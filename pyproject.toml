@@ -39,6 +39,7 @@ dev = [
   "ruff>=0.8",
   "mypy>=1.13",
   "mutmut==3.7.0",
+  "mkdocs-material>=9.5",
 ]
 
 [project.scripts]
@@ -57,11 +58,11 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-trustweave = ["py.typed"]
+trustweave = ["py.typed", "schemas/*.schema.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q --cov=trustweave --cov-branch --cov-report=term-missing --cov-fail-under=90"
+addopts = "-q --cov=trustweave --cov-branch --cov-report=term-missing --cov-fail-under=95"
 
 [tool.ruff]
 line-length = 100

@@ -363,7 +363,13 @@ def create_baseline(review: Mapping[str, Any], reason: str, expires_at: str) -> 
     if review.get("schema_version") != RISK_REVIEW_SCHEMA_VERSION:
         raise ValidationError(f"risk_review.schema_version must be {RISK_REVIEW_SCHEMA_VERSION}")
     normalized_reason = _text(reason, "baseline.reason")
-    normalized_expiry = _timestamp(expires_at, "baseline.expires_at").isoformat()
+    expiry = _timestamp(expires_at, "baseline.expires_at")
+    review_timestamp = review.get("generated_at")
+    if review_timestamp is not None and expiry <= _timestamp(
+        review_timestamp, "risk_review.generated_at"
+    ):
+        raise ValidationError("baseline.expires_at must be later than review timestamp")
+    normalized_expiry = expiry.isoformat()
     entries: list[dict[str, str]] = []
     seen: set[str] = set()
     for index, raw_finding in enumerate(_sequence(review.get("findings"), "risk_review.findings")):

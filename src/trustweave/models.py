@@ -134,6 +134,7 @@ VALID_TRUST_LABELS = frozenset({"trusted", "untrusted", "conditional"})
 VALID_ACTION_CLASSES = frozenset({"read", "write", "sensitive", "external"})
 VALID_DECISIONS = frozenset({"allow", "deny", "require_approval"})
 VALID_SEVERITIES = frozenset({"critical", "high", "medium", "low", "info"})
+DECLARED_CONTROL_CATALOG = frozenset({"approval", "approval.fail_closed"})
 DEFAULT_CLASSIFICATION_TAXONOMY = ("public", "internal", "confidential", "restricted")
 CAPABILITY_PATTERN_MAX_LENGTH = 128
 
@@ -466,6 +467,11 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
             ("required_controls", required_controls),
         ):
             _unique_names(list(values), f"policy.rules[{index}].{field_name}")
+        unknown_controls = set(required_controls) - DECLARED_CONTROL_CATALOG
+        if unknown_controls:
+            raise ValidationError(
+                f"policy.rules[{index}] has unknown required controls: {sorted(unknown_controls)}"
+            )
         classification_at_least = rule.get("source_data_classification_at_least")
         classification_at_most = rule.get("source_data_classification_at_most")
         if classification_at_least is not None:
@@ -502,6 +508,24 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 raise ValidationError(
                     f"policy.rules[{index}] has an impossible classification lower/upper bound"
                 )
+            if classifications:
+                lower_rank = (
+                    classification_taxonomy.index(classification_at_least)
+                    if classification_at_least is not None
+                    else 0
+                )
+                upper_rank = (
+                    classification_taxonomy.index(classification_at_most)
+                    if classification_at_most is not None
+                    else len(classification_taxonomy) - 1
+                )
+                if not any(
+                    lower_rank <= classification_taxonomy.index(value) <= upper_rank
+                    for value in classifications
+                ):
+                    raise ValidationError(
+                        f"policy.rules[{index}] has an empty classification intersection"
+                    )
         severity: str | None = None
         if "severity" in rule:
             severity = _string(rule["severity"], f"policy.rules[{index}].severity")

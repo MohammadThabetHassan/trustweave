@@ -6,11 +6,21 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
+import tempfile
 import tomllib
+import venv
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
+
+from trustweave.cli import _parser
+from trustweave.engine import build_bundle
+from trustweave.evidence import build_attestation
+from trustweave.findings import finding
+from trustweave.io import load_document, write_json
+from trustweave.models import parse_manifest, parse_policy
 
 try:
     import yaml
@@ -20,24 +30,6 @@ except ImportError as error:  # pragma: no cover - CI installs the optional dev 
 ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)\s]+)(?:\s+[^)]*)?\)")
 PINNED_ACTION = re.compile(r"^\s*uses:\s+[A-Za-z0-9._/-]+@[0-9a-f]{40}(?:\s+#\s+\S+)?\s*$")
-EXPECTED_COMMANDS = (
-    "scan",
-    "test",
-    "explain",
-    "attest",
-    "report",
-    "verify",
-    "diff",
-    "policy-check",
-    "trace-review",
-    "framework-import",
-    "mcp-scaffold",
-    "mcp-import",
-    "mcp-profile-check",
-    "statement",
-    "risk-check",
-    "sarif",
-)
 PUBLIC_ASSETS = (
     "README.md",
     "CONTRIBUTING.md",
@@ -81,6 +73,58 @@ def _check_json_documents() -> list[str]:
             continue
         if not isinstance(parsed, dict) or "$schema" not in parsed:
             failures.append(f"Schema {path.relative_to(ROOT)} lacks a top-level $schema field")
+    return failures
+
+
+def _check_generated_artifact_schemas() -> list[str]:
+    """Validate actual deterministic output against the public structural schemas."""
+
+    failures: list[str] = []
+    manifest = parse_manifest(load_document(ROOT / "examples" / "support-agent.manifest.json"))
+    policy = parse_policy(load_document(ROOT / "policies" / "default-policy.json"))
+    bundle = build_bundle(manifest, policy, generated_at="2026-08-14T00:00:00+00:00")
+    emitted_finding = finding(
+        "TW-REALITY-001",
+        "review",
+        "A local declared-evidence observation.",
+        "declared_configuration",
+        subject={"source": "customer_message", "tool": "send_mock_email"},
+    )
+    generated: list[tuple[str, dict[str, Any]]] = [
+        ("agent-security-bundle-v1alpha1.schema.json", bundle),
+        ("finding-v1alpha1.schema.json", emitted_finding),
+    ]
+    with tempfile.TemporaryDirectory(prefix="trustweave-reality-") as temporary_directory:
+        temporary_path = Path(temporary_directory)
+        bundle_path = write_json(temporary_path / "bundle.json", bundle)
+        test_results_path = write_json(
+            temporary_path / "test-results.json",
+            {
+                "schema_version": "trustweave.dev/test-results/v1alpha1",
+                "summary": {"status": "passed"},
+            },
+        )
+        generated.append(
+            (
+                "attestation-v1alpha3.schema.json",
+                build_attestation(
+                    bundle_path,
+                    test_results_path,
+                    source_revision="reality-check",
+                    generated_at="2026-08-14T00:00:00+00:00",
+                ),
+            )
+        )
+
+    for schema_name, artifact in generated:
+        schema_path = ROOT / "schemas" / schema_name
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+        for error in sorted(validator.iter_errors(artifact), key=lambda issue: list(issue.path)):
+            location = ".".join(str(part) for part in error.path) or "<root>"
+            failures.append(
+                f"Generated artifact violates schemas/{schema_name} at {location}: {error.message}"
+            )
     return failures
 
 
@@ -146,7 +190,13 @@ def _check_workflows() -> list[str]:
         if not isinstance(parsed, dict) or not isinstance(parsed.get("jobs"), dict):
             failures.append(f"Workflow {path.relative_to(ROOT)} lacks a jobs mapping")
         for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-            if line.lstrip().startswith("uses:") and not PINNED_ACTION.match(line):
+            stripped = line.lstrip()
+            if not stripped.startswith("uses:"):
+                continue
+            target = stripped.removeprefix("uses:").strip()
+            if target.startswith("./"):
+                continue
+            if not PINNED_ACTION.match(line):
                 failures.append(
                     f"Workflow action is not pinned to a full commit SHA: "
                     f"{path.relative_to(ROOT)}:{line_number}"
@@ -161,10 +211,18 @@ def _check_ci_assets() -> list[str]:
     action_path = ROOT / ".github" / "actions" / "trustweave" / "action.yml"
     if not action_path.exists():
         failures.append("Missing repository-local TrustWeave composite action")
-    elif 'python -m pip install "$GITHUB_ACTION_PATH"' not in action_path.read_text(
-        encoding="utf-8"
-    ):
-        failures.append("Composite action must install from $GITHUB_ACTION_PATH")
+    else:
+        action = action_path.read_text(encoding="utf-8")
+        if (
+            'test -f "$GITHUB_WORKSPACE/pyproject.toml"' not in action
+            or 'python -m pip install "$GITHUB_WORKSPACE"' not in action
+        ):
+            failures.append(
+                "Composite action must verify and install the checked-out repository package"
+            )
+        workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        if "uses: ./.github/actions/trustweave" not in workflow:
+            failures.append("CI must invoke the repository-local composite action")
 
     dependabot_path = ROOT / ".github" / "dependabot.yml"
     if not dependabot_path.exists():
@@ -330,6 +388,117 @@ def _check_quality_evidence() -> list[str]:
     return failures
 
 
+def _parser_command_names() -> tuple[str, ...]:
+    """Return the current top-level command names from the authoritative CLI parser."""
+
+    for action in _parser()._actions:
+        choices = getattr(action, "choices", None)
+        if isinstance(choices, dict):
+            return tuple(sorted(choices))
+    raise RuntimeError("TrustWeave CLI parser has no top-level subcommands")
+
+
+def _check_installed_wheel_schema_resources() -> list[str]:
+    """Verify the wheel exposes exact packaged schemas without source-tree access."""
+
+    failures: list[str] = []
+    expected_names = sorted(path.name for path in (ROOT / "schemas").glob("*.schema.json"))
+    with tempfile.TemporaryDirectory(prefix="trustweave-wheel-reality-") as temporary_directory:
+        temporary_path = Path(temporary_directory)
+        build = subprocess.run(
+            [sys.executable, "-m", "build", "--wheel", "--outdir", str(temporary_path)],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if build.returncode != 0:
+            return [f"Isolated wheel build failed: {build.stderr.strip()}"]
+        wheels = sorted(temporary_path.glob("*.whl"))
+        if len(wheels) != 1:
+            return ["Isolated wheel build did not produce exactly one wheel"]
+
+        environment = temporary_path / "environment"
+        venv.EnvBuilder(with_pip=True).create(environment)
+        binary_directory = "Scripts" if sys.platform == "win32" else "bin"
+        python_name = "python.exe" if sys.platform == "win32" else "python"
+        command_name = "trustweave.exe" if sys.platform == "win32" else "trustweave"
+        python = environment / binary_directory / python_name
+        command = environment / binary_directory / command_name
+        install = subprocess.run(
+            [str(python), "-m", "pip", "install", "--no-index", str(wheels[0])],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if install.returncode != 0:
+            return [f"Isolated wheel installation failed: {install.stderr.strip()}"]
+
+        listed = subprocess.run(
+            [str(command), "schema", "list"], check=False, capture_output=True, text=True
+        )
+        if listed.returncode != 0:
+            return [f"Installed-wheel schema list failed: {listed.stderr.strip()}"]
+        listed_names = listed.stdout.splitlines()
+        if listed_names != expected_names:
+            failures.append("Installed-wheel schema list does not match packaged schema filenames")
+        if expected_names:
+            shown = subprocess.run(
+                [str(command), "schema", "show", expected_names[0]],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if shown.returncode != 0:
+                failures.append(f"Installed-wheel schema show failed: {shown.stderr.strip()}")
+            else:
+                expected_schema = json.loads(
+                    (ROOT / "schemas" / expected_names[0]).read_text(encoding="utf-8")
+                )
+                if json.loads(shown.stdout) != expected_schema:
+                    failures.append(
+                        "Installed-wheel schema content differs from the source contract"
+                    )
+    return failures
+
+
+def _check_documentation_site() -> list[str]:
+    """Verify generated command help and the curated documentation site are buildable."""
+
+    generate = subprocess.run(
+        [sys.executable, "scripts/generate_cli_help.py", "--check"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if generate.returncode != 0:
+        return [
+            f"Generated CLI help is stale: {generate.stdout.strip() or generate.stderr.strip()}"
+        ]
+
+    with tempfile.TemporaryDirectory(prefix="trustweave-docs-reality-") as temporary_directory:
+        build = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mkdocs",
+                "build",
+                "--strict",
+                "--site-dir",
+                str(Path(temporary_directory) / "site"),
+            ],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    if build.returncode != 0:
+        detail = build.stderr.strip() or build.stdout.strip()
+        return [f"Strict documentation-site build failed: {detail}"]
+    return []
+
+
 def _check_cli() -> list[str]:
     completed = subprocess.run(
         ["trustweave", "--help"],
@@ -341,7 +510,7 @@ def _check_cli() -> list[str]:
         return [f"trustweave --help failed: {completed.stderr.strip()}"]
     return [
         f"Documented CLI command missing from help: {command}"
-        for command in EXPECTED_COMMANDS
+        for command in _parser_command_names()
         if command not in completed.stdout
     ]
 
@@ -352,12 +521,15 @@ def main() -> int:
     failures = (
         _check_json_documents()
         + _check_contract_examples()
+        + _check_generated_artifact_schemas()
+        + _check_installed_wheel_schema_resources()
         + _check_markdown_links()
         + _check_workflows()
         + _check_ci_assets()
         + _check_issue_templates()
         + _check_public_documents()
         + _check_quality_evidence()
+        + _check_documentation_site()
         + _check_cli()
     )
     if failures:
@@ -368,7 +540,8 @@ def main() -> int:
     print(
         "Repository reality check passed: schemas, contract examples, local documentation "
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
-        "quality evidence, and CLI commands are connected."
+        "quality evidence, generated artifacts, installed-wheel schema resources, generated "
+        "documentation, strict documentation-site builds, and CLI commands are connected."
     )
     return 0
 

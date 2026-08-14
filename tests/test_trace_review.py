@@ -3,11 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from trustweave.cli import main
 from trustweave.io import load_document
-from trustweave.models import parse_manifest, parse_policy
+from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.report import render_trace_review_report
-from trustweave.trace_review import review_trace
+from trustweave.trace_review import parse_trace, review_trace
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
@@ -67,6 +69,45 @@ def test_trace_review_flags_unknown_tool() -> None:
 
     assert review["summary"]["status"] == "review_required"
     assert review["findings"][0]["id"] == "TW-TRACE-002"
+
+
+def test_trace_review_flags_unknown_source() -> None:
+    trace = _document(CLEAR_TRACE)
+    calls = trace["tool_calls"]
+    assert isinstance(calls, list)
+    calls[0]["source"] = "unknown_synthetic_source"
+
+    review = review_trace(
+        parse_manifest(_document(MANIFEST)),
+        parse_policy(_document(POLICY)),
+        trace,
+    )
+
+    assert review["findings"][0]["id"] == "TW-TRACE-001"
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda trace: trace.update({"schema_version": "unsupported"}), "schema_version"),
+        (lambda trace: trace.update({"messages": "not-a-list"}), "messages"),
+        (lambda trace: trace["messages"][0].update({"content": 1}), "content"),
+        (lambda trace: trace["tool_calls"][0].update({"arguments": []}), "arguments"),
+        (lambda trace: trace["tool_calls"][0].pop("tool_name"), "requires one"),
+        (
+            lambda trace: trace["tool_calls"][0].update({"tool": "different_tool"}),
+            "conflicting tool names",
+        ),
+        (lambda trace: trace["events"][0].update({"policy": 1}), "policy"),
+    ],
+)
+def test_trace_parser_rejects_malformed_minimized_metadata(mutate: object, message: str) -> None:
+    trace = _document(REVIEW_TRACE)
+    assert callable(mutate)
+    mutate(trace)
+
+    with pytest.raises(ValidationError, match=message):
+        parse_trace(trace)
 
 
 def test_cli_trace_review_writes_artifacts_and_can_fail_a_review_gate(tmp_path: Path) -> None:

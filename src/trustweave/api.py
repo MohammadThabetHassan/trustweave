@@ -7,6 +7,7 @@ networks, load plugins, or obtain clocks from the environment.
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Any
 
 from trustweave.chain import review_declared_chains
@@ -29,6 +30,18 @@ from trustweave.models import (
 )
 from trustweave.policy_review import review_policy
 from trustweave.risk import normalize_findings, review_risks
+
+
+def _freeze_review_value(value: Any) -> Any:
+    """Create a recursively immutable, defensively copied local evidence value."""
+
+    if isinstance(value, Mapping):
+        return MappingProxyType(
+            {str(key): _freeze_review_value(item) for key, item in value.items()}
+        )
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return tuple(_freeze_review_value(item) for item in value)
+    return value
 
 
 @dataclass(frozen=True)
@@ -60,7 +73,9 @@ class LocalReviewResult:
             raise ValidationError("review.limits must be a list")
         if not all(isinstance(limit, str) for limit in limits):
             raise ValidationError("review.limits must contain strings")
-        return cls(schema_version, tuple(findings), summary, tuple(limits))
+        frozen_findings = tuple(_freeze_review_value(finding) for finding in findings)
+        frozen_summary = _freeze_review_value(summary)
+        return cls(schema_version, frozen_findings, frozen_summary, tuple(limits))
 
 
 __all__ = [

@@ -1,0 +1,29 @@
+site_name: TrustWeave
+site_description: Local, deterministic security evidence for declared AI-agent trust boundaries.
+site_url: https://mohammadthabethassan.github.io/trustweave/
+repo_name: MohammadThabetHassan/trustweave
+repo_url: https://github.com/MohammadThabetHassan/trustweave
+edit_uri: edit/main/docs/site/
+docs_dir: docs/site
+strict: true
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+nav:
+  - Overview: index.md
+  - Concepts: concepts.md
+  - CLI:
+      - Guide: CLI.md
+      - Generated help: CLI_HELP.md
+  - Rule catalog: RULE_CATALOG.md
+  - Schema catalog: SCHEMAS.md
+  - Provenance design: PROVENANCE.md
