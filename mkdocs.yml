@@ -27,3 +27,4 @@ nav:
   - Rule catalog: RULE_CATALOG.md
   - Schema catalog: SCHEMAS.md
   - Provenance design: PROVENANCE.md
+  - Performance gates: PERFORMANCE.md
