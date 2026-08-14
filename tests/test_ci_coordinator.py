@@ -54,8 +54,7 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
     assert _selected_stages({"enabled_stages": ("scan", "summary")}) == ("scan", "summary")
     with pytest.raises(ValidationError, match="validated stage list"):
         _selected_stages({"enabled_stages": ["scan"]})
-    with pytest.raises(ValidationError, match="does not implement configured stages: trace_review"):
-        _selected_stages({"enabled_stages": ("trace_review",)})
+    assert _selected_stages({"enabled_stages": ("trace_review",)}) == ("trace_review",)
 
     assert _required_paths(()) == set()
     assert _required_paths(("scan", "scenarios", "chain_review")) == {
@@ -315,3 +314,135 @@ def test_ci_chain_findings_drive_severity_gate_and_summary_status(tmp_path: Path
     assert '"status": "review_required"' in (output_dir / "ci-summary.json").read_text(
         encoding="utf-8"
     )
+
+
+def test_ci_supports_every_configuration_accepted_stage() -> None:
+    """Configuration must not advertise any local workflow stage that CI rejects."""
+
+    from trustweave.commands.ci import CI_SUPPORTED_STAGES
+    from trustweave.config import VALID_WORKFLOW_STAGES
+
+    accepted = (
+        "validate",
+        "scan",
+        "scenarios",
+        "policy_review",
+        "policy_coverage",
+        "diff",
+        "trace_review",
+        "mcp_profile_review",
+        "chain_review",
+        "risk",
+        "sarif",
+        "attestation",
+        "report",
+        "summary",
+    )
+    assert CI_SUPPORTED_STAGES == VALID_WORKFLOW_STAGES
+    assert _selected_stages({"enabled_stages": accepted}) == accepted
+
+
+def test_ci_executes_all_supported_local_review_stages(tmp_path: Path) -> None:
+    """Accepted configured review stages must all perform their documented local work."""
+
+    root = Path(__file__).resolve().parents[1]
+    policy = root / "policies" / "default-policy.json"
+    manifest = root / "examples" / "support-agent.manifest.json"
+    candidate = root / "examples" / "support-agent.candidate.manifest.json"
+    base_dir = tmp_path / "base bundle"
+    candidate_dir = tmp_path / "candidate bundle"
+    generated_at = "2026-08-14T00:00:00+00:00"
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "scan",
+                "--manifest",
+                str(manifest),
+                "--policy",
+                str(policy),
+                "--output-dir",
+                str(base_dir),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "scan",
+                "--manifest",
+                str(candidate),
+                "--policy",
+                str(policy),
+                "--output-dir",
+                str(candidate_dir),
+            ]
+        )
+        == 0
+    )
+
+    output_dir = tmp_path / "artifacts"
+    base_bundle = base_dir / "agent-security-bundle.json"
+    candidate_bundle = candidate_dir / "agent-security-bundle.json"
+    trace = root / "examples" / "traces" / "clear-support-trace.json"
+    mcp_profile = root / "examples" / "mcp-profiles" / "clear-support-profile.json"
+    chain_manifest = root / "examples" / "chains" / "safe-sanitized-external.chain.json"
+    stages = (
+        "validate",
+        "diff",
+        "trace_review",
+        "mcp_profile_review",
+        "chain_review",
+        "risk",
+        "sarif",
+        "summary",
+    )
+    rendered_stages = ", ".join(f'"{stage}"' for stage in stages)
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{manifest.as_posix()}"\n'
+        f'policy = "{policy.as_posix()}"\n'
+        f'baseline_bundle = "{base_bundle.as_posix()}"\n'
+        f'candidate_bundle = "{candidate_bundle.as_posix()}"\n'
+        f'trace = "{trace.as_posix()}"\n'
+        f'mcp_profile = "{mcp_profile.as_posix()}"\n'
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        f"enabled_stages = [{rendered_stages}]\n"
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    assert {
+        "bundle-diff.json",
+        "bundle-diff.md",
+        "trace-review.json",
+        "trace-review.md",
+        "mcp-profile-review.json",
+        "mcp-profile-review.md",
+        "chain-review.json",
+        "chain-review.md",
+        "risk-review.json",
+        "risk-review.md",
+        "trustweave.sarif",
+        "ci-summary.json",
+    }.issubset({path.name for path in output_dir.iterdir()})
