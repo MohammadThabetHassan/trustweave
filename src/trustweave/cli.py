@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from collections.abc import Sequence
 from typing import Never
@@ -69,6 +70,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         args = _parser().parse_args(argv)
         debug = args.debug
+        if args.generated_at is not None:
+            args.generated_at_source = "explicit"
+        elif "SOURCE_DATE_EPOCH" in os.environ:
+            args.generated_at_source = "source_date_epoch"
+        else:
+            args.generated_at_source = "clock"
         message, code = dispatch(args, generation_timestamp(args.generated_at))
         if message:
             print(message)

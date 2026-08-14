@@ -7,7 +7,42 @@
   "properties": {
     "schema_version": {"const": "trustweave.dev/v1alpha1"},
     "name": {"type": "string", "minLength": 1, "maxLength": 128},
-    "scenarios": {"type": "array", "minItems": 1, "maxItems": 1000, "items": {"type": "object"}}
+    "scenarios": {"type": "array", "minItems": 1, "maxItems": 1000, "items": {"$ref": "#/$defs/scenario"}}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "short_text": {"type": "string", "minLength": 1, "maxLength": 128},
+    "capability": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z0-9][a-z0-9_.-]*$"},
+    "reference": {
+      "type": "object",
+      "required": ["title", "url"],
+      "properties": {
+        "title": {"$ref": "#/$defs/text"},
+        "url": {"type": "string", "minLength": 9, "maxLength": 2048, "pattern": "^https://"}
+      },
+      "additionalProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "required": ["id", "description", "source_trust", "tool_action_class", "expected_decision"],
+      "properties": {
+        "id": {"$ref": "#/$defs/short_text"},
+        "description": {"$ref": "#/$defs/text"},
+        "source_trust": {"enum": ["trusted", "untrusted", "conditional"]},
+        "tool_action_class": {"enum": ["read", "write", "sensitive", "external"]},
+        "expected_decision": {"enum": ["allow", "deny", "require_approval"]},
+        "title": {"$ref": "#/$defs/text"},
+        "category": {"$ref": "#/$defs/short_text"},
+        "rationale": {"$ref": "#/$defs/text"},
+        "references": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/reference"}},
+        "source_data_classification": {"$ref": "#/$defs/short_text"},
+        "tool_capabilities": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/capability"}},
+        "source_identifier": {"$ref": "#/$defs/short_text"},
+        "tool_identifier": {"$ref": "#/$defs/short_text"},
+        "purpose_tag": {"$ref": "#/$defs/short_text"}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }

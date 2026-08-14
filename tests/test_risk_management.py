@@ -575,3 +575,30 @@ def test_normalized_risk_finding_subject_is_deeply_immutable() -> None:
     assert normalized.as_dict()["subject"] == {"path": ["source", "data", "sink"]}
     with pytest.raises(TypeError):
         normalized.subject["path"] = ("mutated",)
+
+
+def test_v3_fingerprints_preserve_identity_across_severity_changes() -> None:
+    """Severity is review state, not the stable identity of the affected finding."""
+
+    low = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "policy": "support-policy",
+        "findings": [
+            {
+                "id": "TW-POL-004",
+                "severity": "low",
+                "message": "A local policy condition requires review.",
+                "subject": {"source": "customer_request", "tool": "lookup"},
+            }
+        ],
+    }
+    high = {
+        **low,
+        "findings": [{**low["findings"][0], "severity": "high"}],
+    }
+
+    normalized_low = normalize_findings(low)[0]
+    normalized_high = normalize_findings(high)[0]
+    assert normalized_low.fingerprint == normalized_high.fingerprint
+    assert normalized_low.severity == "low"
+    assert normalized_high.severity == "high"

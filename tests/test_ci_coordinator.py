@@ -6,6 +6,8 @@ import argparse
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
+from jsonschema import ValidationError as JsonSchemaValidationError
 
 from trustweave.cli import main
 from trustweave.commands._shared import EXIT_REVIEW
@@ -20,6 +22,7 @@ from trustweave.commands.ci import (
     _staged_sarif_path,
 )
 from trustweave.config import CONFIG_FILE_NAME, find_project_config, load_project_config
+from trustweave.io import load_document
 from trustweave.models import InputOutputError, ValidationError
 
 
@@ -54,8 +57,7 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
     assert _selected_stages({"enabled_stages": ("scan", "summary")}) == ("scan", "summary")
     with pytest.raises(ValidationError, match="validated stage list"):
         _selected_stages({"enabled_stages": ["scan"]})
-    with pytest.raises(ValidationError, match="does not implement configured stages: trace_review"):
-        _selected_stages({"enabled_stages": ("trace_review",)})
+    assert _selected_stages({"enabled_stages": ("trace_review",)}) == ("trace_review",)
 
     assert _required_paths(()) == set()
     assert _required_paths(("scan", "scenarios", "chain_review")) == {
@@ -163,3 +165,341 @@ def test_ci_selected_stage_dependencies_fail_closed_without_publication(tmp_path
     assert run('["policy_review"]', "policy-only") == 0
     assert (tmp_path / "scenarios-only" / "ci-summary.json").is_file()
     assert not (tmp_path / "policy-only" / "ci-summary.json").exists()
+
+
+def _write_ci_config(path: Path, output_dir: Path, *, include_chain_review: bool = False) -> None:
+    """Write a bounded local coordinator configuration for end-to-end regressions."""
+
+    root = Path(__file__).resolve().parents[1]
+    stages = ["scan", "scenarios", "policy_review"]
+    if include_chain_review:
+        stages.append("chain_review")
+    stages.extend(["sarif", "attestation", "report", "summary"])
+    chain_manifest = root / "examples" / "chains" / "safe-sanitized-external.chain.json"
+    chain_line = f'chain_manifest = "{chain_manifest.as_posix()}"\n' if include_chain_review else ""
+    rendered_stages = ", ".join(f'"{stage}"' for stage in stages)
+    path.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples/support-agent.manifest.json").as_posix()}"\n'
+        f'policy = "{(root / "policies/default-policy.json").as_posix()}"\n'
+        f'scenarios = "{(root / "scenarios/default-scenarios.json").as_posix()}"\n'
+        + chain_line
+        + f'output_dir = "{output_dir.as_posix()}"\n'
+        + f"enabled_stages = [{rendered_stages}]\n"
+        + 'failure_threshold = "none"\n'
+        + "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+
+def test_ci_fixed_provenance_artifacts_are_byte_identical_and_path_independent(
+    tmp_path: Path,
+) -> None:
+    """The coordinator must not bind temporary physical paths into reproducible evidence."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir, include_chain_review=True)
+    arguments = [
+        "--generated-at",
+        "2026-08-14T00:00:00+00:00",
+        "ci",
+        "--config",
+        str(config),
+        "--source-revision",
+        "fixed-revision",
+        "--quiet",
+    ]
+
+    assert main(arguments) == 0
+    first = {
+        path.relative_to(output_dir).as_posix(): path.read_bytes()
+        for path in sorted(output_dir.rglob("*"))
+        if path.is_file()
+    }
+    assert main(arguments) == 0
+    second = {
+        path.relative_to(output_dir).as_posix(): path.read_bytes()
+        for path in sorted(output_dir.rglob("*"))
+        if path.is_file()
+    }
+
+    assert second == first
+    evidence = b"\n".join(second.values())
+    assert b".trustweave-ci-" not in evidence
+    assert str(tmp_path).encode("utf-8") not in evidence
+
+
+def test_ci_creates_missing_nested_output_parent_before_staging(tmp_path: Path) -> None:
+    """A configured nested output directory must be safely creatable before staging begins."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "new parent" / "nested" / "artifacts"
+    _write_ci_config(config, output_dir)
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--source-revision",
+                "fixed-revision",
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    assert (output_dir / "ci-summary.json").is_file()
+
+
+def test_reproducible_ci_requires_fixed_provenance_timestamp(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Reproducible configured CI must not silently derive provenance from the wall clock."""
+
+    monkeypatch.delenv("SOURCE_DATE_EPOCH", raising=False)
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir)
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 2
+    assert not output_dir.exists()
+
+
+def test_ci_chain_findings_drive_severity_gate_and_summary_status(tmp_path: Path) -> None:
+    """Selected chain-review findings must participate in the final local CI gate."""
+
+    chain_manifest = tmp_path / "unsafe-chain.json"
+    chain_manifest.write_text(
+        "{\n"
+        '  "schema_version": "trustweave.dev/chain-manifest/v1alpha1",\n'
+        '  "name": "unsafe-chain",\n'
+        '  "nodes": [\n'
+        '    {"id": "inbox", "kind": "source", "trust": "untrusted"},\n'
+        '    {"id": "records", "kind": "data", "classification": "confidential"},\n'
+        '    {"id": "email", "kind": "tool", "action_class": "external"}\n'
+        "  ],\n"
+        '  "edges": [\n'
+        '    {"from": "inbox", "to": "records"},\n'
+        '    {"from": "records", "to": "email"}\n'
+        "  ]\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "summary"]\n'
+        'failure_threshold = "high"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == EXIT_REVIEW
+    )
+    assert '"status": "review_required"' in (output_dir / "ci-summary.json").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_ci_supports_every_configuration_accepted_stage() -> None:
+    """Configuration must not advertise any local workflow stage that CI rejects."""
+
+    from trustweave.commands.ci import CI_SUPPORTED_STAGES
+    from trustweave.config import VALID_WORKFLOW_STAGES
+
+    accepted = (
+        "validate",
+        "scan",
+        "scenarios",
+        "policy_review",
+        "policy_coverage",
+        "diff",
+        "trace_review",
+        "mcp_profile_review",
+        "chain_review",
+        "risk",
+        "sarif",
+        "attestation",
+        "report",
+        "summary",
+    )
+    assert CI_SUPPORTED_STAGES == VALID_WORKFLOW_STAGES
+    assert _selected_stages({"enabled_stages": accepted}) == accepted
+
+
+def test_ci_executes_all_supported_local_review_stages(tmp_path: Path) -> None:
+    """Accepted configured review stages must all perform their documented local work."""
+
+    root = Path(__file__).resolve().parents[1]
+    policy = root / "policies" / "default-policy.json"
+    manifest = root / "examples" / "support-agent.manifest.json"
+    candidate = root / "examples" / "support-agent.candidate.manifest.json"
+    base_dir = tmp_path / "base bundle"
+    candidate_dir = tmp_path / "candidate bundle"
+    generated_at = "2026-08-14T00:00:00+00:00"
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "scan",
+                "--manifest",
+                str(manifest),
+                "--policy",
+                str(policy),
+                "--output-dir",
+                str(base_dir),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "scan",
+                "--manifest",
+                str(candidate),
+                "--policy",
+                str(policy),
+                "--output-dir",
+                str(candidate_dir),
+            ]
+        )
+        == 0
+    )
+
+    output_dir = tmp_path / "artifacts"
+    base_bundle = base_dir / "agent-security-bundle.json"
+    candidate_bundle = candidate_dir / "agent-security-bundle.json"
+    trace = root / "examples" / "traces" / "clear-support-trace.json"
+    mcp_profile = root / "examples" / "mcp-profiles" / "clear-support-profile.json"
+    chain_manifest = root / "examples" / "chains" / "safe-sanitized-external.chain.json"
+    stages = (
+        "validate",
+        "diff",
+        "trace_review",
+        "mcp_profile_review",
+        "chain_review",
+        "risk",
+        "sarif",
+        "summary",
+    )
+    rendered_stages = ", ".join(f'"{stage}"' for stage in stages)
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{manifest.as_posix()}"\n'
+        f'policy = "{policy.as_posix()}"\n'
+        f'baseline_bundle = "{base_bundle.as_posix()}"\n'
+        f'candidate_bundle = "{candidate_bundle.as_posix()}"\n'
+        f'trace = "{trace.as_posix()}"\n'
+        f'mcp_profile = "{mcp_profile.as_posix()}"\n'
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        f"enabled_stages = [{rendered_stages}]\n"
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    assert {
+        "bundle-diff.json",
+        "bundle-diff.md",
+        "trace-review.json",
+        "trace-review.md",
+        "mcp-profile-review.json",
+        "mcp-profile-review.md",
+        "chain-review.json",
+        "chain-review.md",
+        "risk-review.json",
+        "risk-review.md",
+        "trustweave.sarif",
+        "ci-summary.json",
+    }.issubset({path.name for path in output_dir.iterdir()})
+
+
+def test_generated_ci_summary_conforms_to_packaged_strict_schema(tmp_path: Path) -> None:
+    """CI summary output must remain a strict versioned public artifact contract."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir)
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+
+    root = Path(__file__).resolve().parents[1]
+    schema = load_document(root / "schemas" / "ci-summary-v1alpha1.schema.json")
+    summary = load_document(output_dir / "ci-summary.json")
+    Draft202012Validator(schema).validate(summary)
+
+
+def test_ci_summary_schema_rejects_unknown_fields(tmp_path: Path) -> None:
+    """The public CI-summary schema must fail closed for unknown artifact fields."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir)
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+
+    root = Path(__file__).resolve().parents[1]
+    schema = load_document(root / "schemas" / "ci-summary-v1alpha1.schema.json")
+    summary = dict(load_document(output_dir / "ci-summary.json"))
+    summary["unexpected"] = True
+    with pytest.raises(JsonSchemaValidationError, match="Additional properties"):
+        Draft202012Validator(schema).validate(summary)

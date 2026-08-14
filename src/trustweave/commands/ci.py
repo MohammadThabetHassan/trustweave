@@ -16,29 +16,55 @@ from trustweave.commands._shared import (
     BUNDLE_FILE,
     CHAIN_REVIEW_FILE,
     CHAIN_REVIEW_REPORT_FILE,
+    DIFF_FILE,
+    DIFF_REPORT_FILE,
     EXIT_REVIEW,
+    MCP_PROFILE_REVIEW_FILE,
+    MCP_PROFILE_REVIEW_REPORT_FILE,
     POLICY_REVIEW_FILE,
     POLICY_REVIEW_REPORT_FILE,
     REPORT_FILE,
+    RISK_REVIEW_FILE,
+    RISK_REVIEW_REPORT_FILE,
     TEST_RESULTS_FILE,
+    TRACE_REVIEW_FILE,
+    TRACE_REVIEW_REPORT_FILE,
     configured_paths,
 )
-from trustweave.config import find_project_config, load_project_config
+from trustweave.config import VALID_WORKFLOW_STAGES, find_project_config, load_project_config
+from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
-from trustweave.io import canonical_json, read_json, write_json, write_text
+from trustweave.io import canonical_json, load_document, read_json, write_json, write_text
+from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import InputOutputError, ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
-from trustweave.report import render_policy_review_report, render_report
-from trustweave.risk import VALID_SEVERITIES
+from trustweave.report import (
+    render_diff_report,
+    render_mcp_profile_review_report,
+    render_policy_review_report,
+    render_report,
+    render_risk_review_report,
+    render_trace_review_report,
+)
+from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import parse_scenarios, run_scenarios
+from trustweave.trace_review import review_trace
 
 CI_SUMMARY_FILE = "ci-summary.json"
 CI_SUMMARY_SCHEMA_VERSION = "trustweave.dev/ci-summary/v1alpha1"
 DEFAULT_STAGES = ("scan", "scenarios", "policy_review", "attestation", "report", "summary")
-CI_SUPPORTED_STAGES = frozenset({*DEFAULT_STAGES, "policy_coverage", "chain_review", "sarif"})
+CI_SUPPORTED_STAGES = VALID_WORKFLOW_STAGES
 SEVERITY_RANK = {severity: index for index, severity in enumerate(VALID_SEVERITIES)}
+STAGE_DEPENDENCIES = {
+    "policy_coverage": frozenset({"policy_review"}),
+    "attestation": frozenset({"scan", "scenarios"}),
+    "report": frozenset({"scan", "scenarios", "attestation"}),
+}
+REVIEW_STAGES = frozenset(
+    {"policy_review", "diff", "trace_review", "mcp_profile_review", "chain_review"}
+)
 
 
 def register(subcommands: Any) -> None:
@@ -115,8 +141,24 @@ def _selected_stages(config: Mapping[str, object]) -> tuple[str, ...]:
     return configured
 
 
+def _validate_stage_dependencies(stages: Sequence[str]) -> None:
+    """Reject impossible declared stage combinations before staging local artifacts."""
+
+    selected = set(stages)
+    for stage, dependencies in STAGE_DEPENDENCIES.items():
+        if stage in selected and not dependencies.issubset(selected):
+            missing = ", ".join(sorted(dependencies - selected))
+            raise ValidationError(f"{stage} stage requires selected stages: {missing}")
+    if "risk" in selected and not (selected & REVIEW_STAGES):
+        raise ValidationError("risk stage requires at least one selected local review stage")
+    if "sarif" in selected and not ("risk" in selected or selected & REVIEW_STAGES):
+        raise ValidationError(
+            "sarif stage requires risk or at least one selected local review stage"
+        )
+
+
 def _required_paths(stages: Sequence[str]) -> set[str]:
-    """Require only the declared local inputs needed by selected core stages."""
+    """Return declared local inputs required by selected stages before publication starts."""
 
     required: set[str] = set()
     if "scan" in stages:
@@ -125,6 +167,12 @@ def _required_paths(stages: Sequence[str]) -> set[str]:
         required.update({"policy", "scenarios"})
     if "policy_review" in stages:
         required.add("policy")
+    if "diff" in stages:
+        required.update({"baseline_bundle", "candidate_bundle"})
+    if "trace_review" in stages:
+        required.update({"manifest", "policy", "trace"})
+    if "mcp_profile_review" in stages:
+        required.update({"manifest", "mcp_profile"})
     if "chain_review" in stages:
         required.add("chain_manifest")
     return required
@@ -144,12 +192,28 @@ def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
     return staging / path
 
 
+def _prepare_output_parent(output: Path) -> None:
+    """Create a local output parent without accepting symbolic-link directory boundaries."""
+
+    for candidate in (output, *output.parents):
+        if candidate.is_symlink():
+            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
+    try:
+        output.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        raise InputOutputError(
+            f"Could not create CI output parent {output.parent}: {error.strerror or error}"
+        ) from error
+
+
 def _publish_directory(staging: Path, output: Path) -> None:
     """Atomically replace one artifact directory, restoring the prior directory on failure."""
 
+    if output.is_symlink():
+        raise InputOutputError(f"CI output path must not be a symbolic link: {output}")
     if output.exists() and not output.is_dir():
         raise InputOutputError(f"CI output path must be a directory: {output}")
-    output.parent.mkdir(parents=True, exist_ok=True)
+    _prepare_output_parent(output)
     backup = output.parent / f".{output.name}.previous"
     if backup.exists():
         shutil.rmtree(backup)
@@ -167,15 +231,40 @@ def _publish_directory(staging: Path, output: Path) -> None:
         shutil.rmtree(backup)
 
 
-def _fail_on_findings(
-    review: Mapping[str, Any] | None, threshold: str, exit_on_review: bool
-) -> bool:
-    """Evaluate the explicit local review gate without implying remediation or enforcement."""
+def _review_findings(review: Mapping[str, Any]) -> list[Mapping[str, Any]]:
+    """Return canonical review findings or diff signals from one selected local artifact."""
 
-    if review is None:
+    raw = review.get("findings", review.get("signals", []))
+    if not isinstance(raw, list):
+        return []
+    return [finding for finding in raw if isinstance(finding, Mapping)]
+
+
+def _severity_counts(findings: Sequence[Mapping[str, Any]]) -> dict[str, int]:
+    """Return a complete deterministic severity-count envelope for summary contracts."""
+
+    counts = {severity: 0 for severity in (*VALID_SEVERITIES, "review")}
+    for finding in findings:
+        severity = finding.get("severity")
+        if isinstance(severity, str) and severity in counts:
+            counts[severity] += 1
+    return counts
+
+
+def _fail_on_findings(
+    reviews: Mapping[str, Any] | Sequence[Mapping[str, Any] | None] | None,
+    threshold: str,
+    exit_on_review: bool,
+) -> bool:
+    """Evaluate every selected local review finding without implying remediation or enforcement."""
+
+    selected = (reviews,) if isinstance(reviews, Mapping) else reviews
+    if selected is None:
         return False
-    findings = review.get("findings")
-    if not isinstance(findings, list) or not findings:
+    findings = [
+        finding for review in selected if review is not None for finding in _review_findings(review)
+    ]
+    if not findings:
         return False
     if exit_on_review:
         return True
@@ -183,8 +272,7 @@ def _fail_on_findings(
         return False
     minimum = SEVERITY_RANK[threshold]
     return any(
-        isinstance(finding, Mapping)
-        and isinstance(finding.get("severity"), str)
+        isinstance(finding.get("severity"), str)
         and finding["severity"] in SEVERITY_RANK
         and SEVERITY_RANK[finding["severity"]] <= minimum
         for finding in findings
@@ -214,6 +302,15 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     config_path = _config_path(args)
     config = load_project_config(config_path)
     stages = _selected_stages(config)
+    _validate_stage_dependencies(stages)
+    reproducible = config.get("reproducible", False)
+    if not isinstance(reproducible, bool):
+        raise ValidationError("tool.trustweave.reproducible must be a boolean")
+    if reproducible and getattr(args, "generated_at_source", "clock") == "clock":
+        raise ValidationError(
+            "reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance "
+            "is not deterministic"
+        )
     required = _required_paths(stages)
     paths = configured_paths(
         config_path,
@@ -223,10 +320,14 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         },
     )
     output_dir = paths["output_dir"]
+    if "validate" in stages:
+        for name in sorted(required):
+            load_document(paths[name])
     configured_threshold = config.get("failure_threshold", "none")
     if not isinstance(configured_threshold, str):
         raise ValidationError("tool.trustweave.failure_threshold must be a severity string")
     threshold = args.fail_on or configured_threshold
+    _prepare_output_parent(output_dir)
 
     with tempfile.TemporaryDirectory(prefix=".trustweave-ci-", dir=output_dir.parent) as temporary:
         staging = Path(temporary) / "artifacts"
@@ -237,7 +338,12 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         test_path: Path | None = None
         attestation_path: Path | None = None
         policy_review: Mapping[str, Any] | None = None
+        diff_review: Mapping[str, Any] | None = None
+        trace_review: Mapping[str, Any] | None = None
+        mcp_profile_review: Mapping[str, Any] | None = None
         chain_review: Mapping[str, Any] | None = None
+        risk_review: Mapping[str, Any] | None = None
+        raw_reviews: dict[str, tuple[str, Mapping[str, Any]]] = {}
         artifacts: list[str] = []
 
         if "scan" in stages:
@@ -263,22 +369,64 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             write_text(
                 staging / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(policy_review)
             )
+            raw_reviews["policy"] = (POLICY_REVIEW_FILE, policy_review)
             artifacts.extend((POLICY_REVIEW_FILE, POLICY_REVIEW_REPORT_FILE))
+        if "diff" in stages:
+            diff_review = diff_bundles(
+                read_json(paths["baseline_bundle"]),
+                read_json(paths["candidate_bundle"]),
+                generated_at,
+            )
+            write_json(staging / DIFF_FILE, diff_review)
+            write_text(staging / DIFF_REPORT_FILE, render_diff_report(diff_review))
+            raw_reviews["diff"] = (DIFF_FILE, diff_review)
+            artifacts.extend((DIFF_FILE, DIFF_REPORT_FILE))
+        if "trace_review" in stages:
+            manifest = manifest or parse_manifest(read_json(paths["manifest"]))
+            policy = policy or parse_policy(read_json(paths["policy"]))
+            trace_review = review_trace(manifest, policy, read_json(paths["trace"]), generated_at)
+            write_json(staging / TRACE_REVIEW_FILE, trace_review)
+            write_text(staging / TRACE_REVIEW_REPORT_FILE, render_trace_review_report(trace_review))
+            raw_reviews["trace"] = (TRACE_REVIEW_FILE, trace_review)
+            artifacts.extend((TRACE_REVIEW_FILE, TRACE_REVIEW_REPORT_FILE))
+        if "mcp_profile_review" in stages:
+            manifest = manifest or parse_manifest(load_document(paths["manifest"]))
+            profile = parse_mcp_profile(load_document(paths["mcp_profile"]))
+            mcp_profile_review = review_mcp_profile(profile, manifest, generated_at)
+            write_json(staging / MCP_PROFILE_REVIEW_FILE, mcp_profile_review)
+            write_text(
+                staging / MCP_PROFILE_REVIEW_REPORT_FILE,
+                render_mcp_profile_review_report(mcp_profile_review),
+            )
+            raw_reviews["mcp"] = (MCP_PROFILE_REVIEW_FILE, mcp_profile_review)
+            artifacts.extend((MCP_PROFILE_REVIEW_FILE, MCP_PROFILE_REVIEW_REPORT_FILE))
         if "chain_review" in stages:
             chain_review = review_declared_chains(read_json(paths["chain_manifest"]), generated_at)
             write_json(staging / CHAIN_REVIEW_FILE, chain_review)
             write_text(staging / CHAIN_REVIEW_REPORT_FILE, render_chain_review(chain_review))
+            raw_reviews["chain"] = (CHAIN_REVIEW_FILE, chain_review)
             artifacts.extend((CHAIN_REVIEW_FILE, CHAIN_REVIEW_REPORT_FILE))
+        if "risk" in stages:
+            risk_review = review_risks(
+                [review for _, review in raw_reviews.values()],
+                baseline_document=(
+                    load_document(paths["risk_baseline"]) if "risk_baseline" in config else None
+                ),
+                suppressions_document=(
+                    load_document(paths["suppressions"]) if "suppressions" in config else None
+                ),
+                reviewed_at=generated_at,
+                artifact_paths=[path for path, _ in raw_reviews.values()],
+            )
+            write_json(staging / RISK_REVIEW_FILE, risk_review)
+            write_text(staging / RISK_REVIEW_REPORT_FILE, render_risk_review_report(risk_review))
+            artifacts.extend((RISK_REVIEW_FILE, RISK_REVIEW_REPORT_FILE))
         if "sarif" in stages:
-            sarif_reviews: dict[str, tuple[str, Mapping[str, Any]]] = {}
-            if policy_review is not None:
-                sarif_reviews["policy"] = (POLICY_REVIEW_FILE, policy_review)
-            if chain_review is not None:
-                sarif_reviews["chain"] = (CHAIN_REVIEW_FILE, chain_review)
-            if not sarif_reviews:
-                raise ValidationError(
-                    "sarif stage requires at least one selected local review stage"
-                )
+            sarif_reviews = (
+                {"risk": (RISK_REVIEW_FILE, risk_review)}
+                if risk_review is not None
+                else raw_reviews
+            )
             sarif_path = _staged_sarif_path(config, staging)
             write_json(sarif_path, build_sarif(sarif_reviews))
             artifacts.append(sarif_path.relative_to(staging).as_posix())
@@ -294,6 +442,8 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
                     test_path,
                     source_revision=args.source_revision,
                     generated_at=generated_at,
+                    bundle_name=BUNDLE_FILE,
+                    test_results_name=TEST_RESULTS_FILE,
                 ),
             )
             artifacts.append(ATTESTATION_FILE)
@@ -314,17 +464,67 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             test_path is not None
             and read_json(test_path).get("summary", {}).get("status") != "passed"
         )
-        code = (
-            EXIT_REVIEW
-            if test_failed or _fail_on_findings(policy_review, threshold, args.exit_on_review)
-            else 0
+        risk_has_active_finding = risk_review is not None and any(
+            isinstance(finding, Mapping)
+            and finding.get("risk_state") in {"new", "expired_baseline", "expired_suppression"}
+            for finding in risk_review.get("findings", [])
+        )
+        review_failed = (
+            (
+                risk_has_active_finding
+                if args.exit_on_review
+                else should_fail(risk_review, threshold)
+            )
+            if risk_review is not None
+            else _fail_on_findings(
+                [review for _, review in raw_reviews.values()], threshold, args.exit_on_review
+            )
+        )
+        code = EXIT_REVIEW if test_failed or review_failed else 0
+        raw_findings = [
+            finding for _, review in raw_reviews.values() for finding in _review_findings(review)
+        ]
+        risk_findings = _review_findings(risk_review) if risk_review is not None else raw_findings
+        active_findings = (
+            [
+                finding
+                for finding in risk_findings
+                if finding.get("risk_state") in {"new", "expired_baseline", "expired_suppression"}
+            ]
+            if risk_review is not None
+            else raw_findings
+        )
+        risk_summary = risk_review.get("summary", {}) if risk_review is not None else {}
+        incomplete_analyses = sorted(
+            {
+                "Declared chain analysis reached a configured traversal budget."
+                for finding in raw_findings
+                if finding.get("id") == "TW-CHAIN-004"
+            }
         )
         summary: dict[str, Any] = {
             "schema_version": CI_SUMMARY_SCHEMA_VERSION,
             "generated_at": generated_at,
+            "provenance": {
+                "generated_at_source": getattr(args, "generated_at_source", "clock"),
+                "source_revision": args.source_revision,
+            },
             "status": "review_required" if code == EXIT_REVIEW else "clear",
             "stages": list(stages),
             "artifacts": sorted(artifacts),
+            "finding_counts": _severity_counts(risk_findings),
+            "active_severity_counts": _severity_counts(active_findings),
+            "review": {
+                "selected_kinds": sorted([*raw_reviews, *(["risk"] if risk_review else [])]),
+                "uses_risk_lifecycle": risk_review is not None,
+            },
+            "incomplete_analyses": incomplete_analyses,
+            "applied_decisions": {
+                "baselined": risk_summary.get("baselined", 0),
+                "suppressed": risk_summary.get("suppressed", 0),
+                "expired_baseline": risk_summary.get("expired_baseline", 0),
+                "expired_suppression": risk_summary.get("expired_suppression", 0),
+            },
             "limitations": [
                 "This coordinator processes only supplied local declarations and metadata. It does "
                 "not execute agents, models, tools, MCP servers, or network operations."

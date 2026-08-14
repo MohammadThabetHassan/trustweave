@@ -17,7 +17,7 @@ from trustweave.provenance import add_generated_at
 RISK_REVIEW_SCHEMA_VERSION = "trustweave.dev/risk-review/v1alpha1"
 RISK_BASELINE_SCHEMA_VERSION = "trustweave.dev/risk-baseline/v1alpha1"
 RISK_SUPPRESSIONS_SCHEMA_VERSION = "trustweave.dev/risk-suppressions/v1alpha1"
-FINGERPRINT_SCHEMA_VERSION = "trustweave/fingerprint/v2"
+FINGERPRINT_SCHEMA_VERSION = "trustweave/fingerprint/v3"
 VALID_SEVERITIES = ("critical", "high", "medium", "low", "info")
 SEVERITY_RANK = {severity: index for index, severity in enumerate(VALID_SEVERITIES)}
 _LEGACY_SEVERITY_MAP = {"review": "medium"}
@@ -137,14 +137,13 @@ def _fallback_subject(
     return {"legacy_message": message}
 
 
-def _fingerprint(
-    evidence_kind: str, identifier: str, severity: str, subject: Mapping[str, Any]
-) -> str:
+def _fingerprint(evidence_kind: str, identifier: str, subject: Mapping[str, Any]) -> str:
+    """Build v3 identity material without volatile wording or review severity."""
+
     material = {
         "fingerprint_schema_version": FINGERPRINT_SCHEMA_VERSION,
         "evidence_kind": evidence_kind,
         "id": identifier,
-        "severity": severity,
         "subject": subject,
     }
     return sha256(canonical_json(material).encode("utf-8")).hexdigest()
@@ -188,7 +187,7 @@ def normalize_findings(artifact: Mapping[str, Any]) -> tuple[CanonicalFinding, .
                 severity=severity,
                 message=message,
                 subject=subject,
-                fingerprint=_fingerprint(evidence_kind, identifier, severity, subject),
+                fingerprint=_fingerprint(evidence_kind, identifier, subject),
             )
         )
     return tuple(sorted(findings, key=lambda item: (item.fingerprint, item.identifier)))

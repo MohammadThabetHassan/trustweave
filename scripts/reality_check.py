@@ -17,6 +17,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from trustweave.cli import _parser
+from trustweave.cli import main as cli_main
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
 from trustweave.findings import finding
@@ -57,6 +58,7 @@ REQUIRED_README_MARKERS = (
 ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
 MUTATION_RECORD_PATH = ROOT / "docs" / "MUTATION_TESTING.md"
+REPRODUCIBILITY_RECORD_PATH = ROOT / "docs" / "REPRODUCIBILITY.md"
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -67,12 +69,26 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "384 generated mutants; 351 killed; 33 survived; 0 without a selected test; 0 timed out; "
+    "2,339 generated mutants; 1,911 killed; 428 survived; 0 without a selected test; 0 timed out; "
     "0 suspicious.",
-    "91.41% killed (`351 / 384`)",
+    "81.70% killed (`1,911 / 2,339`)",
     "Linux with fork support",
-    "does **not** establish the roadmap target over the intended broader high-risk scope",
+    "**does not meet a 90% mutation threshold** for the measured high-risk scope",
     "not a cross-platform release-blocking gate",
+)
+MUTATION_SOURCE_SCOPE = [
+    "src/trustweave/engine.py",
+    "src/trustweave/models.py",
+    "src/trustweave/policy_predicates.py",
+    "src/trustweave/risk.py",
+]
+REPRODUCIBILITY_RECORD_MARKERS = (
+    "Recorded staged-CI verification",
+    "source revision `fixed-revision`",
+    "all **10** emitted files were byte-identical",
+    "`diff -qr /tmp/repro-first /tmp/repro-second` completed with no differences.",
+    "no `.trustweave-ci-`, `/tmp/`, or `/home/ubuntu/` strings",
+    "does not prove reproducibility across operating systems",
 )
 CHANGELOG_VERSION_HEADING = re.compile(r"^## \[([^\]]+)\]", re.MULTILINE)
 
@@ -118,7 +134,7 @@ def _check_generated_artifact_schemas() -> list[str]:
         ("finding-v1alpha1.schema.json", emitted_finding),
     ]
     with tempfile.TemporaryDirectory(prefix="trustweave-reality-") as temporary_directory:
-        temporary_path = Path(temporary_directory)
+        temporary_path = Path(temporary_directory).resolve()
         bundle_path = write_json(temporary_path / "bundle.json", bundle)
         test_results_path = write_json(
             temporary_path / "test-results.json",
@@ -138,6 +154,44 @@ def _check_generated_artifact_schemas() -> list[str]:
                 ),
             )
         )
+        output_directory = temporary_path / "ci-artifacts"
+        stages = ("scan", "scenarios", "policy_review", "attestation", "report", "summary")
+        rendered_stages = ", ".join(f'"{stage}"' for stage in stages)
+        config_path = temporary_path / "trustweave.toml"
+        config_path.write_text(
+            "[tool.trustweave]\n"
+            f'manifest = "{(ROOT / "examples/support-agent.manifest.json").as_posix()}"\n'
+            f'policy = "{(ROOT / "policies/default-policy.json").as_posix()}"\n'
+            f'scenarios = "{(ROOT / "scenarios/default-scenarios.json").as_posix()}"\n'
+            f'output_dir = "{output_directory.as_posix()}"\n'
+            f"enabled_stages = [{rendered_stages}]\n"
+            'failure_threshold = "none"\n'
+            "reproducible = true\n",
+            encoding="utf-8",
+        )
+        if (
+            cli_main(
+                [
+                    "--generated-at",
+                    "2026-08-14T00:00:00+00:00",
+                    "ci",
+                    "--config",
+                    str(config_path),
+                    "--source-revision",
+                    "reality-check",
+                    "--quiet",
+                ]
+            )
+            != 0
+        ):
+            failures.append("Could not generate fixed-provenance CI summary for schema validation")
+        else:
+            generated.append(
+                (
+                    "ci-summary-v1alpha1.schema.json",
+                    dict(load_document(output_directory / "ci-summary.json")),
+                )
+            )
 
     for schema_name, artifact in generated:
         schema_path = ROOT / "schemas" / schema_name
@@ -482,13 +536,21 @@ def _check_quality_evidence() -> list[str]:
             if marker not in mutation_record:
                 failures.append(f"Mutation-testing record lacks required evidence marker: {marker}")
 
+    if not REPRODUCIBILITY_RECORD_PATH.exists():
+        failures.append("Missing docs/REPRODUCIBILITY.md")
+    else:
+        reproducibility_record = REPRODUCIBILITY_RECORD_PATH.read_text(encoding="utf-8")
+        for marker in REPRODUCIBILITY_RECORD_MARKERS:
+            if marker not in reproducibility_record:
+                failures.append(f"Reproducibility record lacks required evidence marker: {marker}")
+
     with (ROOT / "pyproject.toml").open("rb") as project_file:
         project = tomllib.load(project_file)
     mutation_config = project.get("tool", {}).get("mutmut")
     if not isinstance(mutation_config, dict):
         failures.append("pyproject.toml lacks a [tool.mutmut] configuration")
-    elif mutation_config.get("only_mutate") != ["src/trustweave/engine.py"]:
-        failures.append("Mutation configuration must remain scoped to src/trustweave/engine.py")
+    elif mutation_config.get("only_mutate") != MUTATION_SOURCE_SCOPE:
+        failures.append("Mutation configuration must cover the documented high-risk source scope")
     return failures
 
 

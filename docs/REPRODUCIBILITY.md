@@ -36,6 +36,18 @@ SOURCE_DATE_EPOCH=0 trustweave test \
   --output-dir artifacts
 ```
 
+## Recorded staged-CI verification
+
+On 2026-08-14, the complete configured local CI workflow was run twice with the same declared local inputs, source revision `fixed-revision`, `reproducible = true`, and `--generated-at 2026-08-14T00:00:00+00:00`. Each run used scan, scenarios, policy review, chain review, SARIF, attestation, report, and summary stages. The two output trees were copied after each run and compared with `diff -qr`; all **10** emitted files were byte-identical.
+
+| Check | Result |
+| --- | --- |
+| Artifact comparison | `diff -qr /tmp/repro-first /tmp/repro-second` completed with no differences. |
+| Temporary-path review | A recursive search of the second output found no `.trustweave-ci-`, `/tmp/`, or `/home/ubuntu/` strings. |
+| Emitted artifacts | `agent-security-bundle.json`, `attestation.json`, `chain-review.json`, `chain-review.md`, `ci-summary.json`, `policy-review.json`, `policy-review.md`, `report.md`, `security-test-results.json`, and `trustweave.sarif`. |
+
+This is evidence for deterministic staging and artifact rendering when inputs and the configured destination are held fixed. It does not prove reproducibility across operating systems, Python versions, different source trees, different output destinations, or separately rebuilt distributions. It also remains unsigned local evidence and does not establish provenance, identity, or runtime security.
+
 ## Attestation migration
 
 New attestations use `trustweave.dev/attestation/v1alpha3`. Their `chain_sha256` binds stable bundle/test-result payload digests, exact generated-file digests, subject names, and the stated source revision. Volatile `generated_at` metadata remains outside this integrity material. `trustweave verify --attestation PATH --bundle PATH --test-results PATH` checks both the actual supplied file bytes and their stable payloads against the recorded bindings.
