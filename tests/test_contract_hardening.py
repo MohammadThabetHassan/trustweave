@@ -138,3 +138,21 @@ def test_manifest_parser_fails_with_validation_error_for_arbitrary_object_input(
 ) -> None:
     with suppress(ValidationError):
         parse_manifest(document)
+
+
+def test_all_shipped_schemas_are_draft_valid_and_packaged_bytes_match_source() -> None:
+    source_directory = ROOT / "schemas"
+    packaged_directory = ROOT / "src" / "trustweave" / "schemas"
+    source_paths = sorted(source_directory.glob("*.schema.json"))
+    packaged_paths = sorted(packaged_directory.glob("*.schema.json"))
+
+    assert source_paths
+    assert [path.name for path in packaged_paths] == [path.name for path in source_paths]
+    for source_path in source_paths:
+        document = _document(source_path)
+        assert document["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+        assert isinstance(document.get("$id"), str) and document["$id"].startswith(
+            "https://trustweave.dev/schemas/"
+        )
+        Draft202012Validator.check_schema(document)
+        assert (packaged_directory / source_path.name).read_bytes() == source_path.read_bytes()
