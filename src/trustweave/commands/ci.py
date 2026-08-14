@@ -230,6 +230,14 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     config_path = _config_path(args)
     config = load_project_config(config_path)
     stages = _selected_stages(config)
+    reproducible = config.get("reproducible", False)
+    if not isinstance(reproducible, bool):
+        raise ValidationError("tool.trustweave.reproducible must be a boolean")
+    if reproducible and getattr(args, "generated_at_source", "clock") == "clock":
+        raise ValidationError(
+            "reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance "
+            "is not deterministic"
+        )
     required = _required_paths(stages)
     paths = configured_paths(
         config_path,

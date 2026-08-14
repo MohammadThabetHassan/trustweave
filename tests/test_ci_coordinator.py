@@ -251,3 +251,17 @@ def test_ci_creates_missing_nested_output_parent_before_staging(tmp_path: Path) 
         == 0
     )
     assert (output_dir / "ci-summary.json").is_file()
+
+
+def test_reproducible_ci_requires_fixed_provenance_timestamp(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Reproducible configured CI must not silently derive provenance from the wall clock."""
+
+    monkeypatch.delenv("SOURCE_DATE_EPOCH", raising=False)
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir)
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 2
+    assert not output_dir.exists()
