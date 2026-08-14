@@ -6,6 +6,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Made `LocalReviewResult` recursively immutable and defensively copied so nested caller-owned review data cannot mutate public API results.
 - Rejected risk baseline drafts whose expiry is not later than the supplied local review timestamp.
 - Rejected unknown policy-v2 required controls outside the bounded declared-control catalog and rejected rules with an empty exact-classification and taxonomy-bound intersection.
 - Preserved every distinct declared chain path during bounded traversal and scoped fail-closed approval evidence to sensitive classifications acquired before the approval node.
