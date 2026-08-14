@@ -85,6 +85,9 @@ pytest_add_cli_args = ["--no-cov"]
 pytest_add_cli_args_test_selection = [
   "tests/test_trustweave.py",
   "tests/test_foundation_hardening.py",
+  "tests/test_policy_attributes.py",
+  "tests/test_policy_v2.py",
+  "tests/test_adversarial_scenarios.py",
   "-k",
   "not repository_reality_check",
 ]
