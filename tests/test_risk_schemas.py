@@ -62,3 +62,27 @@ def test_risk_review_schema_requires_generated_lifecycle_summary_shape() -> None
     invalid = {**review, "summary": {}}
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(invalid, schema)
+
+
+def test_risk_review_schema_accepts_generated_v3_normalized_finding() -> None:
+    """Strict risk schemas must cover every emitted normalized finding field."""
+
+    schema = json.loads((ROOT / "schemas" / "risk-review.schema.json").read_text(encoding="utf-8"))
+    review = review_risks(
+        [
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "policy": "support-policy",
+                "findings": [
+                    {
+                        "id": "TW-POL-004",
+                        "severity": "high",
+                        "message": "A declared control requires review.",
+                        "subject": {"source": "customer_request", "tool": "lookup"},
+                    }
+                ],
+            }
+        ],
+        reviewed_at="2026-08-14T00:00:00+00:00",
+    )
+    jsonschema.validate(review, schema)

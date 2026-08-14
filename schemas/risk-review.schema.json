@@ -23,8 +23,9 @@
     "reference": {"type": "object", "maxProperties": 32, "propertyNames": {"$ref": "#/$defs/metadata_key"}, "additionalProperties": {"$ref": "#/$defs/text"}},
     "finding": {
       "type": "object",
-      "required": ["id", "severity", "message", "evidence_kind", "fingerprint", "risk_state"],
+      "required": ["artifact_schema_version", "evidence_kind", "id", "severity", "message", "fingerprint_schema_version", "fingerprint", "risk_state"],
       "properties": {
+        "artifact_schema_version": {"enum": ["trustweave.dev/policy-review/v1alpha1", "trustweave.dev/trace-review/v1alpha1", "trustweave.dev/mcp-profile-review/v1alpha1", "trustweave.dev/bundle-diff/v1alpha1", "trustweave.dev/chain-review/v1alpha1"]},
         "id": {"type": "string", "pattern": "^TW-[A-Z0-9-]{1,120}$"},
         "severity": {"$ref": "#/$defs/severity"},
         "message": {"$ref": "#/$defs/text"},
@@ -36,6 +37,7 @@
         "location": {"$ref": "#/$defs/metadata"},
         "properties": {"$ref": "#/$defs/metadata"},
         "references": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/reference"}},
+        "fingerprint_schema_version": {"const": "trustweave/fingerprint/v3"},
         "fingerprint": {"$ref": "#/$defs/fingerprint"},
         "risk_state": {"enum": ["new", "baselined", "suppressed", "expired_baseline", "expired_suppression"]},
         "source_artifact_paths": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+$"}},
