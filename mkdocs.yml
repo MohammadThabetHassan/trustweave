@@ -35,6 +35,7 @@ nav:
   - Threat model: THREAT_MODEL.md
   - Public API and exports: PUBLIC_API.md
   - MCP metadata workflows: MCP_METADATA.md
+  - Policy versions and controls: POLICY_VERSIONS.md
   - Policy review and coverage: POLICY_REVIEW.md
   - Release process: RELEASE.md
   - Declared chain model: CHAIN_MODEL.md
