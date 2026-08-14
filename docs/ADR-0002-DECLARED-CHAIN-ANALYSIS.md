@@ -16,11 +16,12 @@ The analyzer traverses a bounded directed graph from a node explicitly marked `t
 
 | Topic | Decision |
 |---|---|
+| Node roles | `source` requires trust and may declare an initial classification; `data` requires classification; `tool` and `sink` require action class; `approval` requires fail-closed state; and `sanitizer` requires unique declared coverage. Each role rejects every incompatible field. The ambiguous `output` role is not part of the v1alpha1 contract. |
 | Traversal | Deterministic depth-first traversal over sorted node identifiers and edges; cycles are not followed twice in one path. |
 | Path identity | A path is the ordered list of declared node identifiers. Traversal state retains this identity, so distinct declared routes are never silently merged merely because their propagated metadata is equal. |
 | Approval | A fail-closed approval covers only the sensitive classifications already present at that approval node. Data acquired later is unapproved until a later declared approval covers it. `TW-CHAIN-002` reports each unapproved classification reaching an external action. It is design-time evidence, not proof of runtime approval enforcement. |
 | Sanitization | A sanitizer can cover only classifications it explicitly lists. An intervening sanitizer missing the propagated classification produces `TW-CHAIN-003`; no sanitizer is treated as an absent mitigation, not an insufficient sanitizer finding. |
-| Budget | Defaults cap nodes, paths, edges, depth, and explored states. Exceeding any budget emits `TW-CHAIN-004` and preserves the limitation rather than claiming exhaustive analysis. |
+| Budget | Defaults cap nodes, paths, edges, depth, and explored states. Every counter is checked before retaining a new path, traversal edge, or explored state, so recorded partial results never exceed the configured hard limit. Exceeding any budget emits `TW-CHAIN-004` and preserves the limitation rather than claiming exhaustive analysis. |
 | Compatibility | Legacy agent manifests remain unchanged. Chain analysis accepts only the additive chain-manifest schema. |
 
 ## Consequences

@@ -6,6 +6,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
+- Enforced strict declared-chain node roles, removed the ambiguous `output` node kind, and applied path, state, and edge budgets before retaining limit-plus-one work in partial local analysis.
 - Unified built-in review observations behind a bounded, deeply immutable canonical finding contract. Ordered chain paths, safe integer analysis metadata, producer conformance, and published finding-schema validation now agree without permitting arbitrary nested evidence.
 
 ### Changed

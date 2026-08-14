@@ -13,7 +13,7 @@ from trustweave.provenance import add_generated_at
 
 CHAIN_MANIFEST_SCHEMA_VERSION = "trustweave.dev/chain-manifest/v1alpha1"
 CHAIN_REVIEW_SCHEMA_VERSION = "trustweave.dev/chain-review/v1alpha1"
-VALID_NODE_KINDS = frozenset({"source", "data", "tool", "output", "sink", "sanitizer", "approval"})
+VALID_NODE_KINDS = frozenset({"source", "data", "tool", "sink", "sanitizer", "approval"})
 VALID_ACTION_CLASSES = frozenset({"read", "write", "sensitive", "external"})
 SENSITIVE_CLASSIFICATIONS = frozenset({"confidential", "restricted"})
 
@@ -93,6 +93,16 @@ def _parse_chain_manifest(
         kind = _text(node.get("kind"), f"{path}.kind")
         if kind not in VALID_NODE_KINDS:
             raise ValidationError(f"{path}.kind must be one of {sorted(VALID_NODE_KINDS)}")
+        allowed_fields_by_kind = {
+            "source": {"id", "kind", "trust", "classification"},
+            "data": {"id", "kind", "classification"},
+            "tool": {"id", "kind", "action_class"},
+            "sink": {"id", "kind", "action_class"},
+            "approval": {"id", "kind", "fail_closed"},
+            "sanitizer": {"id", "kind", "covers_classifications"},
+        }
+        for field in sorted(set(node) - allowed_fields_by_kind[kind]):
+            raise ValidationError(f"{path}.{field} is not valid for {kind} nodes")
         trust = node.get("trust")
         if trust is not None and trust not in {"trusted", "untrusted", "conditional"}:
             raise ValidationError(f"{path}.trust must be a declared trust label")
@@ -123,14 +133,10 @@ def _parse_chain_manifest(
             raise ValidationError(f"{path}.fail_closed is required for approval nodes")
         if kind == "sanitizer" and not covers:
             raise ValidationError(f"{path}.covers_classifications is required for sanitizer nodes")
-        if kind not in {"approval"} and fail_closed is not None:
-            raise ValidationError(f"{path}.fail_closed is only valid for approval nodes")
-        if kind not in {"sanitizer"} and covers:
+        if len(set(covers)) != len(covers):
             raise ValidationError(
-                f"{path}.covers_classifications is only valid for sanitizer nodes"
+                f"{path}.covers_classifications must not contain duplicate classifications"
             )
-        if kind in {"source", "data", "approval", "sanitizer"} and action_class is not None:
-            raise ValidationError(f"{path}.action_class is not valid for {kind} nodes")
         nodes[identifier] = ChainNode(
             identifier,
             kind,
@@ -252,24 +258,25 @@ def review_declared_chains(
             )
             if identity in seen_states:
                 continue
-            seen_states.add(identity)
-            states_explored += 1
-            if states_explored > max_states:
+            if states_explored >= max_states:
                 budget_name = "max_states"
                 break
+            seen_states.add(identity)
+            states_explored += 1
             if node.action_class == "external":
-                terminals[state.path] = state
-                if len(terminals) > max_paths:
+                if state.path not in terminals and len(terminals) >= max_paths:
                     budget_name = "max_paths"
+                    break
+                terminals[state.path] = state
                 continue
             for target in reversed(edges.get(state.node, ())):
                 if len(state.path) >= max_depth:
                     budget_name = "max_depth"
                     break
-                edges_traversed += 1
-                if edges_traversed > max_edges:
+                if edges_traversed >= max_edges:
                     budget_name = "max_edges"
                     break
+                edges_traversed += 1
                 stack.append(
                     _TraversalState(
                         target,
