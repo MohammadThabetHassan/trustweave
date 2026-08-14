@@ -161,6 +161,20 @@ def validate_identifier(value: Any, path: str) -> str:
     return identifier
 
 
+def validate_rule_identifier(value: Any, path: str) -> str:
+    """Validate a bounded ASCII rule identifier while allowing established uppercase rule IDs."""
+
+    identifier = _string(value, path)
+    if (
+        len(identifier) > IDENTIFIER_MAX_LENGTH
+        or fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", identifier) is None
+    ):
+        raise ValidationError(
+            f"{path} must be an ASCII identifier of at most {IDENTIFIER_MAX_LENGTH} characters"
+        )
+    return identifier
+
+
 def _mapping(value: Any, path: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         raise ValidationError(f"{path} must be an object")
@@ -453,19 +467,19 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
             )
         )
         source_identifiers = tuple(
-            _string(value, f"policy.rules[{index}].source_identifiers")
+            validate_identifier(value, f"policy.rules[{index}].source_identifiers")
             for value in _sequence(
                 rule.get("source_identifiers", []), f"policy.rules[{index}].source_identifiers"
             )
         )
         tool_identifiers = tuple(
-            _string(value, f"policy.rules[{index}].tool_identifiers")
+            validate_identifier(value, f"policy.rules[{index}].tool_identifiers")
             for value in _sequence(
                 rule.get("tool_identifiers", []), f"policy.rules[{index}].tool_identifiers"
             )
         )
         purpose_tags = tuple(
-            _string(value, f"policy.rules[{index}].purpose_tags")
+            validate_identifier(value, f"policy.rules[{index}].purpose_tags")
             for value in _sequence(
                 rule.get("purpose_tags", []), f"policy.rules[{index}].purpose_tags"
             )
@@ -551,7 +565,7 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 )
         rules.append(
             PolicyRule(
-                id=_string(rule.get("id"), f"policy.rules[{index}].id"),
+                id=validate_rule_identifier(rule.get("id"), f"policy.rules[{index}].id"),
                 description=_string(rule.get("description"), f"policy.rules[{index}].description"),
                 source_trust=source_trust,
                 tool_action_classes=action_classes,

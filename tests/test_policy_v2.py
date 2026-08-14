@@ -389,3 +389,23 @@ def test_policy_coverage_detects_shadowing_when_declared_controls_are_static() -
         "shadowed_rules": ["TW-V2-STATIC-CONTROL-LATER"],
         "impossible_rules": [],
     }
+
+
+def test_policy_v1alpha2_rejects_unicode_declared_identifier_predicates() -> None:
+    base = _policy_document()
+
+    for field, value in (
+        ("id", "TW-Ä"),
+        ("source_identifiers", "customer-inböx"),
+        ("tool_identifiers", "records-åpi"),
+        ("purpose_tags", "case_löökup"),
+    ):
+        document = json.loads(json.dumps(base))
+        rule = document["rules"][0]
+        if field == "id":
+            rule[field] = value
+        else:
+            rule[field] = [value]
+
+        with pytest.raises(ValidationError, match="ASCII identifier"):
+            parse_policy(document)
