@@ -265,3 +265,53 @@ def test_reproducible_ci_requires_fixed_provenance_timestamp(
 
     assert main(["ci", "--config", str(config), "--quiet"]) == 2
     assert not output_dir.exists()
+
+
+def test_ci_chain_findings_drive_severity_gate_and_summary_status(tmp_path: Path) -> None:
+    """Selected chain-review findings must participate in the final local CI gate."""
+
+    chain_manifest = tmp_path / "unsafe-chain.json"
+    chain_manifest.write_text(
+        "{\n"
+        '  "schema_version": "trustweave.dev/chain-manifest/v1alpha1",\n'
+        '  "name": "unsafe-chain",\n'
+        '  "nodes": [\n'
+        '    {"id": "inbox", "kind": "source", "trust": "untrusted"},\n'
+        '    {"id": "records", "kind": "data", "classification": "confidential"},\n'
+        '    {"id": "email", "kind": "tool", "action_class": "external"}\n'
+        "  ],\n"
+        '  "edges": [\n'
+        '    {"from": "inbox", "to": "records"},\n'
+        '    {"from": "records", "to": "email"}\n'
+        "  ]\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "summary"]\n'
+        'failure_threshold = "high"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == EXIT_REVIEW
+    )
+    assert '"status": "review_required"' in (output_dir / "ci-summary.json").read_text(
+        encoding="utf-8"
+    )

@@ -184,14 +184,23 @@ def _publish_directory(staging: Path, output: Path) -> None:
 
 
 def _fail_on_findings(
-    review: Mapping[str, Any] | None, threshold: str, exit_on_review: bool
+    reviews: Mapping[str, Any] | Sequence[Mapping[str, Any] | None] | None,
+    threshold: str,
+    exit_on_review: bool,
 ) -> bool:
-    """Evaluate the explicit local review gate without implying remediation or enforcement."""
+    """Evaluate every selected local review finding without implying remediation or enforcement."""
 
-    if review is None:
+    selected = (reviews,) if isinstance(reviews, Mapping) else reviews
+    if selected is None:
         return False
-    findings = review.get("findings")
-    if not isinstance(findings, list) or not findings:
+    findings = [
+        finding
+        for review in selected
+        if review is not None
+        for finding in review.get("findings", [])
+        if isinstance(finding, Mapping)
+    ]
+    if not findings:
         return False
     if exit_on_review:
         return True
@@ -199,8 +208,7 @@ def _fail_on_findings(
         return False
     minimum = SEVERITY_RANK[threshold]
     return any(
-        isinstance(finding, Mapping)
-        and isinstance(finding.get("severity"), str)
+        isinstance(finding.get("severity"), str)
         and finding["severity"] in SEVERITY_RANK
         and SEVERITY_RANK[finding["severity"]] <= minimum
         for finding in findings
@@ -343,7 +351,8 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         )
         code = (
             EXIT_REVIEW
-            if test_failed or _fail_on_findings(policy_review, threshold, args.exit_on_review)
+            if test_failed
+            or _fail_on_findings((policy_review, chain_review), threshold, args.exit_on_review)
             else 0
         )
         summary: dict[str, Any] = {
