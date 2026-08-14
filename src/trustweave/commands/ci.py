@@ -31,7 +31,12 @@ from trustweave.commands._shared import (
     TRACE_REVIEW_REPORT_FILE,
     configured_paths,
 )
-from trustweave.config import VALID_WORKFLOW_STAGES, find_project_config, load_project_config
+from trustweave.config import (
+    PATH_FIELDS,
+    VALID_WORKFLOW_STAGES,
+    find_project_config,
+    load_project_config,
+)
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
@@ -270,11 +275,13 @@ def _fail_on_findings(
         return True
     if threshold == "none":
         return False
-    minimum = SEVERITY_RANK[threshold]
+    normalized_threshold = "medium" if threshold == "review" else threshold
+    minimum = SEVERITY_RANK[normalized_threshold]
     return any(
         isinstance(finding.get("severity"), str)
-        and finding["severity"] in SEVERITY_RANK
-        and SEVERITY_RANK[finding["severity"]] <= minimum
+        and (severity := "medium" if finding["severity"] == "review" else finding["severity"])
+        in SEVERITY_RANK
+        and SEVERITY_RANK[severity] <= minimum
         for finding in findings
     )
 
@@ -312,8 +319,13 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             "is not deterministic"
         )
     required = _required_paths(stages)
+    validation_inputs = (
+        {name for name in config if name in PATH_FIELDS - {"output_dir", "sarif_output"}}
+        if "validate" in stages
+        else set()
+    )
     path_values: dict[str, Path | None] = {
-        **{name: None for name in sorted(required)},
+        **{name: None for name in sorted(required | validation_inputs)},
         "output_dir": args.output_dir,
     }
     if "risk" in stages:
@@ -323,7 +335,7 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     paths = configured_paths(config_path, path_values)
     output_dir = paths["output_dir"]
     if "validate" in stages:
-        for name in sorted(required):
+        for name in sorted(required | validation_inputs):
             load_document(paths[name])
     configured_threshold = config.get("failure_threshold", "none")
     if not isinstance(configured_threshold, str):

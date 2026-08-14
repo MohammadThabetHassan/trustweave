@@ -95,6 +95,9 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
     assert _fail_on_findings(high_review, "none", False) is False
     assert _fail_on_findings(high_review, "medium", False) is True
     assert _fail_on_findings(high_review, "critical", False) is False
+    assert _fail_on_findings(high_review, "review", False) is True
+    assert _fail_on_findings({"findings": [{"severity": "review"}]}, "review", False) is True
+    assert _fail_on_findings({"findings": [{"severity": "low"}]}, "review", False) is False
     assert _fail_on_findings(high_review, "none", True) is True
 
     summary = {
@@ -356,6 +359,23 @@ def test_ci_resolves_configured_risk_baseline_for_selected_risk_stage(tmp_path: 
         == 0
     )
     assert (output_dir / "risk-review.json").is_file()
+
+
+def test_ci_validate_stage_checks_declared_local_inputs(tmp_path: Path) -> None:
+    """A selected validation stage cannot report success without reading declared inputs."""
+
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        'manifest = "missing-manifest.json"\n'
+        f'output_dir = "{(tmp_path / "artifacts").as_posix()}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 3
+    assert not (tmp_path / "artifacts").exists()
 
 
 def test_ci_supports_every_configuration_accepted_stage() -> None:
