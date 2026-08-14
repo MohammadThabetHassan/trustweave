@@ -120,6 +120,15 @@ def evaluate_manifest(manifest: AgentManifest, policy: Policy) -> tuple[Finding,
     )
 
 
+def _bundle_rule(rule: PolicyRule) -> dict[str, Any]:
+    """Render a policy rule as JSON-compatible local bundle evidence."""
+
+    rendered = asdict(rule)
+    return {
+        key: list(value) if isinstance(value, tuple) else value for key, value in rendered.items()
+    }
+
+
 def build_bundle(
     manifest: AgentManifest, policy: Policy, generated_at: str | None = None
 ) -> dict[str, Any]:
@@ -137,7 +146,7 @@ def build_bundle(
             "schema_version": policy.schema_version,
             "name": policy.name,
             "default_decision": policy.default_decision,
-            "rules": [asdict(rule) for rule in policy.rules],
+            "rules": [_bundle_rule(rule) for rule in policy.rules],
         },
         "findings": [finding.as_dict() for finding in findings],
         "summary": summary,

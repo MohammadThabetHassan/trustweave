@@ -112,3 +112,17 @@ def test_emitted_canonical_finding_conforms_to_its_published_schema() -> None:
     )
 
     Draft202012Validator(load_document(FINDING_SCHEMA)).validate(emitted)
+
+
+def test_bundle_schema_rejects_placeholder_nested_contracts() -> None:
+    """Bundle schemas must not permit generic nested objects in emitted evidence fields."""
+
+    bundle = build_bundle(
+        parse_manifest(load_document(MANIFEST)),
+        parse_policy(load_document(POLICY)),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+    bundle["manifest"] = {}
+
+    with pytest.raises(JsonSchemaValidationError):
+        Draft202012Validator(load_document(SCHEMA)).validate(bundle)

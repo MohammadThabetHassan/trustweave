@@ -106,7 +106,13 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
         "schema_version": policy.schema_version,
         "name": policy.name,
         "default_decision": policy.default_decision,
-        "rules": [asdict(rule) for rule in policy.rules],
+        "rules": [
+            {
+                key: list(value) if isinstance(value, tuple) else value
+                for key, value in asdict(rule).items()
+            }
+            for rule in policy.rules
+        ],
     }
     assert [finding["decision"] for finding in bundle["findings"]] == [
         "allow",
