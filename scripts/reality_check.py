@@ -21,6 +21,7 @@ from trustweave.evidence import build_attestation
 from trustweave.findings import finding
 from trustweave.io import load_document, write_json
 from trustweave.models import parse_manifest, parse_policy
+from trustweave.rules import RULES
 
 try:
     import yaml
@@ -55,6 +56,14 @@ REQUIRED_README_MARKERS = (
 ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
 MUTATION_RECORD_PATH = ROOT / "docs" / "MUTATION_TESTING.md"
+RULE_PRODUCER_PATHS = (
+    ROOT / "src" / "trustweave" / "chain.py",
+    ROOT / "src" / "trustweave" / "diff.py",
+    ROOT / "src" / "trustweave" / "mcp_profile.py",
+    ROOT / "src" / "trustweave" / "policy_review.py",
+    ROOT / "src" / "trustweave" / "trace_review.py",
+)
+RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
     "108 generated mutants; 108 killed; 0 survived; 0 timed out; 0 suspicious",
@@ -462,6 +471,24 @@ def _check_installed_wheel_schema_resources() -> list[str]:
     return failures
 
 
+def _check_rule_registry() -> list[str]:
+    """Require all built-in producer identifiers to be documented in the shared registry."""
+
+    failures: list[str] = []
+    emitted = {
+        identifier
+        for path in RULE_PRODUCER_PATHS
+        for identifier in RULE_IDENTIFIER.findall(path.read_text(encoding="utf-8"))
+    }
+    unknown = sorted(emitted - set(RULES))
+    if unknown:
+        failures.append(
+            "Built-in finding producers emit rule IDs absent from trustweave.rules: "
+            + ", ".join(unknown)
+        )
+    return failures
+
+
 def _check_documentation_site() -> list[str]:
     """Verify generated command help and the curated documentation site are buildable."""
 
@@ -475,6 +502,18 @@ def _check_documentation_site() -> list[str]:
     if generate.returncode != 0:
         return [
             f"Generated CLI help is stale: {generate.stdout.strip() or generate.stderr.strip()}"
+        ]
+    rule_catalog = subprocess.run(
+        [sys.executable, "scripts/generate_rule_catalog.py", "--check"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if rule_catalog.returncode != 0:
+        return [
+            "Generated rule catalog is stale: "
+            f"{rule_catalog.stdout.strip() or rule_catalog.stderr.strip()}"
         ]
 
     with tempfile.TemporaryDirectory(prefix="trustweave-docs-reality-") as temporary_directory:
@@ -529,6 +568,7 @@ def main() -> int:
         + _check_issue_templates()
         + _check_public_documents()
         + _check_quality_evidence()
+        + _check_rule_registry()
         + _check_documentation_site()
         + _check_cli()
     )

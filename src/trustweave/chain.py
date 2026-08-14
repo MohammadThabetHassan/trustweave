@@ -7,9 +7,9 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from trustweave.findings import finding as canonical_finding
 from trustweave.models import ValidationError, reject_unknown_fields
 from trustweave.provenance import add_generated_at
+from trustweave.rules import finding_for_rule
 
 CHAIN_MANIFEST_SCHEMA_VERSION = "trustweave.dev/chain-manifest/v1alpha1"
 CHAIN_REVIEW_SCHEMA_VERSION = "trustweave.dev/chain-review/v1alpha1"
@@ -166,11 +166,10 @@ def _finding(
 ) -> dict[str, Any]:
     """Build a bounded canonical finding for a supplied declared chain path."""
 
-    return canonical_finding(
+    return finding_for_rule(
         identifier,
         severity,
         message,
-        "declared_chain_configuration",
         subject={"path": path},
         location={"path_identity": " -> ".join(path) or "analysis_budget"},
         properties=properties,

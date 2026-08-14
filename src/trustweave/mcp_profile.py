@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse
 
-from trustweave.findings import finding as canonical_finding
 from trustweave.models import (
     VALID_ACTION_CLASSES,
     AgentManifest,
@@ -16,6 +15,7 @@ from trustweave.models import (
     reject_unknown_fields,
 )
 from trustweave.provenance import add_generated_at
+from trustweave.rules import finding_for_rule
 
 MCP_PROFILE_SCHEMA_VERSION = "trustweave.dev/mcp-profile/v1alpha1"
 MCP_PROFILE_REVIEW_SCHEMA_VERSION = "trustweave.dev/mcp-profile-review/v1alpha1"
@@ -162,11 +162,10 @@ def _finding(
     subject: dict[str, str] = {"profile": profile.name}
     if tool is not None:
         subject.update({"mcp_tool": tool.name, "manifest_tool": tool.manifest_tool})
-    return canonical_finding(
+    return finding_for_rule(
         identifier,
         "review",
         message,
-        "pre_recorded_mcp_metadata",
         subject=subject,
     )
 

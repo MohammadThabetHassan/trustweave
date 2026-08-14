@@ -5,9 +5,9 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from trustweave.findings import finding as canonical_finding
 from trustweave.models import ValidationError
 from trustweave.provenance import add_generated_at
+from trustweave.rules import finding_for_rule
 
 BUNDLE_SCHEMA_VERSION = "trustweave.dev/bundle/v1alpha1"
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
@@ -133,14 +133,13 @@ def _review_signals(
         name = item.get("name", "unknown")
         if action_class in REVIEW_ACTION_CLASSES:
             signals.append(
-                canonical_finding(
+                finding_for_rule(
                     "TW-DIFF-001",
                     "review",
                     (
                         f"Tool {name} is newly introduced or changed with action class "
                         f"{action_class}; review its capability and policy coverage."
                     ),
-                    "declared_bundle_difference",
                     subject={"tool": str(name), "action_class": str(action_class)},
                 )
             )
@@ -154,14 +153,13 @@ def _review_signals(
                 capability for capability in added if isinstance(capability, str)
             )
             signals.append(
-                canonical_finding(
+                finding_for_rule(
                     "TW-DIFF-003",
                     "review",
                     (
                         f"Tool {name} gained sensitive or external capabilities: "
                         f"{capability_list}. Review least-privilege scope and policy coverage."
                     ),
-                    "declared_bundle_difference",
                     subject={
                         "tool": str(name),
                         "action_class": str(action_class),
@@ -181,7 +179,7 @@ def _review_signals(
             and finding.get("decision") != "deny"
         ):
             signals.append(
-                canonical_finding(
+                finding_for_rule(
                     "TW-DIFF-002",
                     "review",
                     (
@@ -189,7 +187,6 @@ def _review_signals(
                         "external tool that is not denied; review the policy decision and "
                         "human-control boundary."
                     ),
-                    "declared_bundle_difference",
                     subject={
                         "source": str(source.get("name", "unknown")),
                         "tool": str(tool.get("name", "unknown")),

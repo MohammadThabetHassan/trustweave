@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from trustweave.rules import RULES
+
 
 def _as_mapping(value: Any) -> Mapping[str, Any]:
     return value if isinstance(value, Mapping) else {}
@@ -12,6 +14,25 @@ def _as_mapping(value: Any) -> Mapping[str, Any]:
 
 def _as_sequence(value: Any) -> Sequence[Any]:
     return value if isinstance(value, Sequence) and not isinstance(value, (str, bytes)) else []
+
+
+def _append_builtin_rule_guidance(lines: list[str], findings: Sequence[Any]) -> None:
+    """Append stable remediation guidance for known built-in findings only."""
+
+    identifiers = sorted(
+        {
+            identifier
+            for raw_finding in findings
+            if isinstance((finding := _as_mapping(raw_finding)).get("id"), str)
+            and (identifier := str(finding["id"])) in RULES
+        }
+    )
+    if not identifiers:
+        return
+    lines.extend(["", "## Built-in rule guidance", ""])
+    for identifier in identifiers:
+        rule = RULES[identifier]
+        lines.append(f"- **{rule.title}** (`{identifier}`): {rule.remediation}")
 
 
 def render_report(
@@ -148,6 +169,7 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
                 )
             )
 
+    _append_builtin_rule_guidance(lines, signals)
     capability_changes = _as_sequence(changes.get("capabilities"))
     lines.extend(["", "## Capability changes", ""])
     if not capability_changes:
@@ -260,6 +282,7 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
                 )
             )
 
+    _append_builtin_rule_guidance(lines, findings)
     coverage_value = review.get("coverage")
     if isinstance(coverage_value, Mapping):
         coverage = _as_mapping(coverage_value)
@@ -355,6 +378,7 @@ def render_trace_review_report(review: Mapping[str, Any]) -> str:
                 )
             )
 
+    _append_builtin_rule_guidance(lines, findings)
     lines.extend(
         [
             "",
@@ -428,6 +452,7 @@ def render_mcp_profile_review_report(review: Mapping[str, Any]) -> str:
                 )
             )
 
+    _append_builtin_rule_guidance(lines, findings)
     lines.extend(
         [
             "",
@@ -496,6 +521,7 @@ def render_risk_review_report(review: Mapping[str, Any]) -> str:
                 )
             )
 
+    _append_builtin_rule_guidance(lines, findings)
     lines.extend(
         [
             "",

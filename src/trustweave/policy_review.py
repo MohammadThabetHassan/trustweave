@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import Any
 
 from trustweave.engine import capability_pattern_covers
-from trustweave.findings import finding as canonical_finding
 from trustweave.models import Policy, PolicyRule
 from trustweave.provenance import add_generated_at
+from trustweave.rules import finding_for_rule
 
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 REQUIRED_APPROVAL_BINDINGS = frozenset(
@@ -232,11 +232,10 @@ def review_policy(
             )
 
     canonical_findings = [
-        canonical_finding(
+        finding_for_rule(
             str(item["id"]),
             str(item["severity"]),
             str(item["message"]),
-            "declared_policy_structure",
             subject=item.get("subject", {"policy": policy.name}),
         )
         for item in findings

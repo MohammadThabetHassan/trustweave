@@ -9,6 +9,7 @@ from typing import Any, cast
 from trustweave import __version__
 from trustweave.models import ValidationError
 from trustweave.risk import normalize_findings
+from trustweave.rules import RULES
 
 SARIF_VERSION = "2.1.0"
 SARIF_SCHEMA_URI = "https://json.schemastore.org/sarif-2.1.0.json"
@@ -140,16 +141,24 @@ def build_sarif(reviews: Mapping[str, tuple[str, Mapping[str, Any]]]) -> dict[st
             identifier = finding["id"]
             message = finding["message"]
             level = SEVERITY_TO_LEVEL.get(finding["severity"], "note")
-            rules_by_id.setdefault(
-                identifier,
-                {
-                    "id": identifier,
-                    "name": identifier.lower().replace("-", "_"),
-                    "shortDescription": {"text": f"TrustWeave {identifier} review signal"},
-                    "fullDescription": {"text": message},
-                    "defaultConfiguration": {"level": level},
-                },
-            )
+            rule_definition = RULES.get(identifier)
+            rule_metadata: dict[str, Any] = {
+                "id": identifier,
+                "name": identifier.lower().replace("-", "_"),
+                "shortDescription": {"text": f"TrustWeave {identifier} review signal"},
+                "fullDescription": {"text": message},
+                "defaultConfiguration": {"level": level},
+            }
+            if rule_definition is not None:
+                rule_metadata.update(
+                    {
+                        "shortDescription": {"text": rule_definition.title},
+                        "fullDescription": {"text": rule_definition.rationale},
+                        "help": {"text": rule_definition.remediation},
+                        "properties": {"trustweaveEvidenceKind": rule_definition.evidence_kind},
+                    }
+                )
+            rules_by_id.setdefault(identifier, rule_metadata)
             canonical_fingerprint = finding.get("fingerprint") or finding["canonical_fingerprint"]
             if not canonical_fingerprint:
                 canonical_fingerprint = _fingerprint(kind, identifier, message, normalized_uri)
