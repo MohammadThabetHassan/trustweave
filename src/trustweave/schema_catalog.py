@@ -1,23 +1,41 @@
-"""Local discovery for checked-in TrustWeave JSON Schema contracts."""
+"""Discover packaged TrustWeave JSON Schema contracts without source-tree assumptions."""
 
 from __future__ import annotations
 
-from pathlib import Path
+from importlib.resources import files
+from importlib.resources.abc import Traversable
 
 from trustweave.models import ValidationError
 
-_SCHEMA_DIRECTORY = Path(__file__).resolve().parents[2] / "schemas"
+_SCHEMA_PACKAGE = "trustweave.schemas"
+
+
+def _schema_resources() -> tuple[Traversable, ...]:
+    """Return packaged schema resources in deterministic filename order."""
+
+    resources = files(_SCHEMA_PACKAGE)
+    return tuple(
+        sorted(
+            (
+                resource
+                for resource in resources.iterdir()
+                if resource.is_file() and resource.name.endswith(".schema.json")
+            ),
+            key=lambda resource: resource.name,
+        )
+    )
 
 
 def list_schema_names() -> tuple[str, ...]:
-    """Return checked-in JSON Schema filenames in deterministic order."""
+    """Return packaged JSON Schema filenames in deterministic order."""
 
-    return tuple(sorted(path.name for path in _SCHEMA_DIRECTORY.glob("*.schema.json")))
+    return tuple(resource.name for resource in _schema_resources())
 
 
 def read_schema(name: str) -> str:
-    """Read one checked-in schema by exact basename without path traversal."""
+    """Read one packaged schema by exact basename without path traversal."""
 
-    if name not in list_schema_names():
-        raise ValidationError(f"Unknown checked-in schema: {name}")
-    return (_SCHEMA_DIRECTORY / name).read_text(encoding="utf-8")
+    for resource in _schema_resources():
+        if resource.name == name:
+            return resource.read_text(encoding="utf-8")
+    raise ValidationError(f"Unknown checked-in schema: {name}")

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/policy-explanation/v1alpha1",
+  "title": "TrustWeave Local Policy Explanation v1alpha1",
+  "type": "object",
+  "required": ["schema_version", "policy", "input", "checked_rules", "decision", "rationale", "limits"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/policy-explanation/v1alpha1"},
+    "policy": {"type": "string", "minLength": 1},
+    "input": {"type": "object"},
+    "checked_rules": {"type": "array", "items": {"type": "object"}},
+    "decision": {"enum": ["allow", "deny", "require_approval"]},
+    "rule_id": {"type": ["string", "null"]},
+    "rationale": {"type": "string", "minLength": 1},
+    "limits": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

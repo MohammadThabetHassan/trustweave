@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/risk-review/v1alpha1",
+  "title": "TrustWeave Local Risk Review",
+  "type": "object",
+  "required": ["schema_version", "findings", "summary", "limits"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/risk-review/v1alpha1"},
+    "findings": {"type": "array", "items": {"type": "object"}},
+    "summary": {"type": "object"},
+    "orphaned_decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline", "suppressions"],
+      "properties": {
+        "baseline": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+        "suppressions": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+      }
+    },
+    "limits": {"type": "array", "items": {"type": "string"}},
+    "generated_at": {"type": "string"}
+  },
+  "additionalProperties": false
+}

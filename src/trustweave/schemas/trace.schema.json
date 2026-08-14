@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/trace/v1alpha1.json",
+  "title": "TrustWeave Offline Trace",
+  "description": "A local, pre-recorded structured trace reviewed without execution or message-content inspection.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "messages", "tool_calls", "events"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/trace/v1alpha1"},
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "content": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source"],
+        "properties": {
+          "source": {"type": "string", "minLength": 1},
+          "name": {"type": "string", "minLength": 1},
+          "tool": {"type": "string", "minLength": 1},
+          "tool_name": {"type": "string", "minLength": 1},
+          "arguments": {"type": "object"}
+        },
+        "anyOf": [
+          {"required": ["name"]},
+          {"required": ["tool"]},
+          {"required": ["tool_name"]}
+        ],
+        "additionalProperties": false
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {"type": "string", "minLength": 1},
+          "policy": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

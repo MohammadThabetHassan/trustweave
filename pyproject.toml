@@ -57,7 +57,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-trustweave = ["py.typed"]
+trustweave = ["py.typed", "schemas/*.schema.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
