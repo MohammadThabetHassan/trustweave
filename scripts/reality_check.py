@@ -58,6 +58,7 @@ REQUIRED_README_MARKERS = (
 ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
 MUTATION_RECORD_PATH = ROOT / "docs" / "MUTATION_TESTING.md"
+REPRODUCIBILITY_RECORD_PATH = ROOT / "docs" / "REPRODUCIBILITY.md"
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -81,6 +82,14 @@ MUTATION_SOURCE_SCOPE = [
     "src/trustweave/policy_predicates.py",
     "src/trustweave/risk.py",
 ]
+REPRODUCIBILITY_RECORD_MARKERS = (
+    "Recorded staged-CI verification",
+    "source revision `fixed-revision`",
+    "all **10** emitted files were byte-identical",
+    "`diff -qr /tmp/repro-first /tmp/repro-second` completed with no differences.",
+    "no `.trustweave-ci-`, `/tmp/`, or `/home/ubuntu/` strings",
+    "does not prove reproducibility across operating systems",
+)
 CHANGELOG_VERSION_HEADING = re.compile(r"^## \[([^\]]+)\]", re.MULTILINE)
 
 
@@ -526,6 +535,14 @@ def _check_quality_evidence() -> list[str]:
         for marker in MUTATION_RECORD_MARKERS:
             if marker not in mutation_record:
                 failures.append(f"Mutation-testing record lacks required evidence marker: {marker}")
+
+    if not REPRODUCIBILITY_RECORD_PATH.exists():
+        failures.append("Missing docs/REPRODUCIBILITY.md")
+    else:
+        reproducibility_record = REPRODUCIBILITY_RECORD_PATH.read_text(encoding="utf-8")
+        for marker in REPRODUCIBILITY_RECORD_MARKERS:
+            if marker not in reproducibility_record:
+                failures.append(f"Reproducibility record lacks required evidence marker: {marker}")
 
     with (ROOT / "pyproject.toml").open("rb") as project_file:
         project = tomllib.load(project_file)
