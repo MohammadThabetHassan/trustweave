@@ -1,24 +1,80 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://trustweave.dev/schemas/risk-review/v1alpha1",
-  "title": "TrustWeave Local Risk Review",
+  "title": "TrustWeave Local Risk Review v1alpha1",
   "type": "object",
-  "required": ["schema_version", "findings", "summary", "limits"],
+  "required": ["schema_version", "findings", "summary", "orphaned_decisions", "limits", "generated_at"],
   "properties": {
     "schema_version": {"const": "trustweave.dev/risk-review/v1alpha1"},
-    "findings": {"type": "array", "items": {"type": "object"}},
-    "summary": {"type": "object"},
+    "findings": {"type": "array", "maxItems": 1000000, "items": {"$ref": "#/$defs/finding"}},
+    "summary": {"$ref": "#/$defs/summary"},
+    "orphaned_decisions": {"$ref": "#/$defs/orphaned_decisions"},
+    "limits": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/text"}},
+    "generated_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "severity": {"enum": ["critical", "high", "medium", "low", "info"]},
+    "metadata_key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "metadata_value": {"oneOf": [{"$ref": "#/$defs/text"}, {"type": "boolean"}, {"type": "integer", "minimum": 0, "maximum": 2147483647}, {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/text"}}]},
+    "metadata": {"type": "object", "maxProperties": 64, "propertyNames": {"$ref": "#/$defs/metadata_key"}, "additionalProperties": {"$ref": "#/$defs/metadata_value"}},
+    "reference": {"type": "object", "maxProperties": 32, "propertyNames": {"$ref": "#/$defs/metadata_key"}, "additionalProperties": {"$ref": "#/$defs/text"}},
+    "finding": {
+      "type": "object",
+      "required": ["id", "severity", "message", "evidence_kind", "fingerprint", "risk_state"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^TW-[A-Z0-9-]{1,120}$"},
+        "severity": {"$ref": "#/$defs/severity"},
+        "message": {"$ref": "#/$defs/text"},
+        "evidence_kind": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "title": {"$ref": "#/$defs/text"},
+        "rationale": {"$ref": "#/$defs/text"},
+        "remediation": {"$ref": "#/$defs/text"},
+        "subject": {"$ref": "#/$defs/metadata"},
+        "location": {"$ref": "#/$defs/metadata"},
+        "properties": {"$ref": "#/$defs/metadata"},
+        "references": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/reference"}},
+        "fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "risk_state": {"enum": ["new", "baselined", "suppressed", "expired_baseline", "expired_suppression"]},
+        "source_artifact_paths": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+$"}},
+        "reason": {"$ref": "#/$defs/text"},
+        "expires_at": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": ["findings", "new", "baselined", "suppressed", "expired_baseline", "expired_suppression", "orphaned_baseline", "orphaned_suppressions", "active_by_severity", "status"],
+      "properties": {
+        "findings": {"$ref": "#/$defs/count"},
+        "new": {"$ref": "#/$defs/count"},
+        "baselined": {"$ref": "#/$defs/count"},
+        "suppressed": {"$ref": "#/$defs/count"},
+        "expired_baseline": {"$ref": "#/$defs/count"},
+        "expired_suppression": {"$ref": "#/$defs/count"},
+        "orphaned_baseline": {"$ref": "#/$defs/count"},
+        "orphaned_suppressions": {"$ref": "#/$defs/count"},
+        "active_by_severity": {
+          "type": "object",
+          "required": ["critical", "high", "medium", "low", "info"],
+          "properties": {"critical": {"$ref": "#/$defs/count"}, "high": {"$ref": "#/$defs/count"}, "medium": {"$ref": "#/$defs/count"}, "low": {"$ref": "#/$defs/count"}, "info": {"$ref": "#/$defs/count"}},
+          "additionalProperties": false
+        },
+        "status": {"enum": ["clear", "review_required"]}
+      },
+      "additionalProperties": false
+    },
     "orphaned_decisions": {
       "type": "object",
-      "additionalProperties": false,
       "required": ["baseline", "suppressions"],
       "properties": {
-        "baseline": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
-        "suppressions": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
-      }
-    },
-    "limits": {"type": "array", "items": {"type": "string"}},
-    "generated_at": {"type": "string"}
+        "baseline": {"type": "array", "maxItems": 1000000, "uniqueItems": true, "items": {"$ref": "#/$defs/fingerprint"}},
+        "suppressions": {"type": "array", "maxItems": 1000000, "uniqueItems": true, "items": {"$ref": "#/$defs/fingerprint"}}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }

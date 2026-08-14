@@ -6,6 +6,8 @@ from pathlib import Path
 import jsonschema
 import pytest
 
+from trustweave.risk import review_risks
+
 ROOT = Path(__file__).resolve().parents[1]
 FINGERPRINT = "a" * 64
 
@@ -52,14 +54,11 @@ def test_risk_lifecycle_schemas_validate_required_entries(
         jsonschema.validate(invalid, schema)
 
 
-def test_risk_review_schema_accepts_generated_review_shape() -> None:
+def test_risk_review_schema_requires_generated_lifecycle_summary_shape() -> None:
     schema = json.loads((ROOT / "schemas" / "risk-review.schema.json").read_text(encoding="utf-8"))
-    jsonschema.validate(
-        {
-            "schema_version": "trustweave.dev/risk-review/v1alpha1",
-            "findings": [],
-            "summary": {},
-            "limits": ["Local evidence only."],
-        },
-        schema,
-    )
+    review = review_risks([], reviewed_at="2026-08-14T00:00:00+00:00")
+    jsonschema.validate(review, schema)
+
+    invalid = {**review, "summary": {}}
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(invalid, schema)
