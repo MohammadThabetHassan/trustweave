@@ -21,6 +21,8 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Concepts: concepts.md
+  - Configuration: CONFIGURATION.md
+  - Local CI workflow: CI_WORKFLOW.md
   - CLI:
       - Guide: CLI.md
       - Generated help: CLI_HELP.md
@@ -28,3 +30,4 @@ nav:
   - Schema catalog: SCHEMAS.md
   - Provenance design: PROVENANCE.md
   - Performance gates: PERFORMANCE.md
+  - Migration to 0.2.0: MIGRATION_0_2.md
