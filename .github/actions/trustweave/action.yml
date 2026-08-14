@@ -1,8 +1,17 @@
 name: TrustWeave local evidence
-summary: Run deterministic local TrustWeave scan, synthetic test, and policy review commands.
 description: >-
   Produces local workflow artifacts from supplied declarations. This action does not upload results,
   invoke tools or agents, connect to networks beyond dependency installation, or post pull-request comments.
+outputs:
+  bundle:
+    description: Path to the generated local agent-security bundle.
+    value: ${{ steps.artifacts.outputs.bundle }}
+  test-results:
+    description: Path to the generated local synthetic test results.
+    value: ${{ steps.artifacts.outputs.test-results }}
+  policy-review:
+    description: Path to the generated local policy review.
+    value: ${{ steps.artifacts.outputs.policy-review }}
 inputs:
   manifest:
     description: Local manifest path.
@@ -17,6 +26,10 @@ inputs:
     description: Local output directory.
     required: false
     default: artifacts
+  fail-on-review:
+    description: Return a failing status when policy review requires human review.
+    required: false
+    default: "false"
 runs:
   using: composite
   steps:
@@ -27,16 +40,42 @@ runs:
         python -m pip install "$GITHUB_WORKSPACE"
     - name: Scan declared architecture
       shell: bash
-      run: >-
-        trustweave scan --manifest "${{ inputs.manifest }}" --policy "${{ inputs.policy }}"
-        --output-dir "${{ inputs.output-dir }}"
+      env:
+        MANIFEST: ${{ inputs.manifest }}
+        POLICY: ${{ inputs.policy }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+      run: trustweave scan --manifest "$MANIFEST" --policy "$POLICY" --output-dir "$OUTPUT_DIR"
     - name: Run synthetic policy scenarios
       shell: bash
-      run: >-
-        trustweave test --policy "${{ inputs.policy }}" --scenarios "${{ inputs.scenarios }}"
-        --output-dir "${{ inputs.output-dir }}"
+      env:
+        POLICY: ${{ inputs.policy }}
+        SCENARIOS: ${{ inputs.scenarios }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+      run: trustweave test --policy "$POLICY" --scenarios "$SCENARIOS" --output-dir "$OUTPUT_DIR"
     - name: Review policy structure
       shell: bash
-      run: >-
-        trustweave policy-check --policy "${{ inputs.policy }}"
-        --output-dir "${{ inputs.output-dir }}"
+      env:
+        POLICY: ${{ inputs.policy }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+        FAIL_ON_REVIEW: ${{ inputs.fail-on-review }}
+      run: |
+        if [ "$FAIL_ON_REVIEW" = "true" ]; then
+          trustweave policy-check --policy "$POLICY" --output-dir "$OUTPUT_DIR" --exit-on-review
+        else
+          trustweave policy-check --policy "$POLICY" --output-dir "$OUTPUT_DIR"
+        fi
+    - name: Expose generated artifact paths
+      id: artifacts
+      shell: bash
+      env:
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+      run: |
+        case "$OUTPUT_DIR" in
+          *$'\n'*|*$'\r'*)
+            echo "output-dir must not contain a line break" >&2
+            exit 1
+            ;;
+        esac
+        printf 'bundle=%s\n' "$OUTPUT_DIR/agent-security-bundle.json" >> "$GITHUB_OUTPUT"
+        printf 'test-results=%s\n' "$OUTPUT_DIR/security-test-results.json" >> "$GITHUB_OUTPUT"
+        printf 'policy-review=%s\n' "$OUTPUT_DIR/policy-review.json" >> "$GITHUB_OUTPUT"

@@ -232,17 +232,56 @@ def _check_ci_assets() -> list[str]:
     if not action_path.exists():
         failures.append("Missing repository-local TrustWeave composite action")
     else:
-        action = action_path.read_text(encoding="utf-8")
-        if (
-            'test -f "$GITHUB_WORKSPACE/pyproject.toml"' not in action
-            or 'python -m pip install "$GITHUB_WORKSPACE"' not in action
-        ):
-            failures.append(
-                "Composite action must verify and install the checked-out repository package"
-            )
-        workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-        if "uses: ./.github/actions/trustweave" not in workflow:
-            failures.append("CI must invoke the repository-local composite action")
+        try:
+            action = yaml.safe_load(action_path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as error:
+            failures.append(f"Invalid composite action YAML: {error}")
+        else:
+            if not isinstance(action, dict):
+                failures.append("Composite action must be a YAML mapping")
+            else:
+                required_inputs = {
+                    "manifest",
+                    "policy",
+                    "scenarios",
+                    "output-dir",
+                    "fail-on-review",
+                }
+                inputs = action.get("inputs")
+                if not isinstance(inputs, dict) or set(inputs) != required_inputs:
+                    failures.append(
+                        "Composite action inputs do not match the documented local contract"
+                    )
+                outputs = action.get("outputs")
+                expected_outputs = {"bundle", "test-results", "policy-review"}
+                if not isinstance(outputs, dict) or set(outputs) != expected_outputs:
+                    failures.append("Composite action must expose all generated artifact paths")
+                runs = action.get("runs")
+                steps = runs.get("steps") if isinstance(runs, dict) else None
+                if not isinstance(runs, dict) or runs.get("using") != "composite":
+                    failures.append("TrustWeave action must use supported composite metadata")
+                elif not isinstance(steps, list) or not any(
+                    isinstance(step, dict) and step.get("id") == "artifacts" for step in steps
+                ):
+                    failures.append("Composite action must publish artifact-path outputs")
+
+    workflow_path = ROOT / ".github" / "workflows" / "ci.yml"
+    if not workflow_path.exists():
+        failures.append("Missing CI workflow that exercises the repository-local action")
+    else:
+        try:
+            workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as error:
+            failures.append(f"Invalid CI workflow YAML: {error}")
+        else:
+            jobs = workflow.get("jobs") if isinstance(workflow, dict) else None
+            composite_job = jobs.get("composite-action") if isinstance(jobs, dict) else None
+            steps = composite_job.get("steps") if isinstance(composite_job, dict) else None
+            if not isinstance(steps, list) or not any(
+                isinstance(step, dict) and step.get("uses") == "./.github/actions/trustweave"
+                for step in steps
+            ):
+                failures.append("CI must invoke the repository-local composite action")
 
     dependabot_path = ROOT / ".github" / "dependabot.yml"
     if not dependabot_path.exists():

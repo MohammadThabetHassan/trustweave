@@ -1,6 +1,31 @@
 repos:
   - repo: local
     hooks:
+      - id: trustweave-config
+        name: TrustWeave configuration validation
+        entry: python scripts/validate_declarations.py config
+        language: system
+        files: (^|/)trustweave\.toml$
+      - id: trustweave-manifest
+        name: TrustWeave manifest validation
+        entry: python scripts/validate_declarations.py manifest
+        language: system
+        files: \.manifest\.(json|ya?ml)$
+      - id: trustweave-policy
+        name: TrustWeave policy validation
+        entry: python scripts/validate_declarations.py policy
+        language: system
+        files: (^|/)(policies/.*\.(json|ya?ml)|.*\.policy\.(json|ya?ml))$
+      - id: trustweave-scenarios
+        name: TrustWeave scenario-pack validation
+        entry: python scripts/validate_declarations.py scenarios
+        language: system
+        files: (^|/)(scenarios/.*\.(json|ya?ml)|.*\.scenarios?\.(json|ya?ml))$
+      - id: trustweave-chain-manifest
+        name: TrustWeave chain-manifest validation
+        entry: python scripts/validate_declarations.py chain-manifest
+        language: system
+        files: (^|/)(chains?/.*\.(json|ya?ml)|.*\.chain\.(json|ya?ml))$
       - id: trustweave-format
         name: TrustWeave format check
         entry: ruff format --check .

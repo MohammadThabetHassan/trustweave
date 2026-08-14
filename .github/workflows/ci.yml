@@ -137,19 +137,20 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Run repository-local action
+        id: local-evidence
         uses: ./.github/actions/trustweave
         with:
           manifest: examples/support-agent.manifest.json
           policy: policies/default-policy.json
           scenarios: scenarios/default-scenarios.json
-          output-dir: action-artifacts
+          output-dir: action artifacts
 
-      - name: Verify local action artifacts
+      - name: Verify local action artifacts and outputs
         shell: bash
         run: |
-          test -s action-artifacts/agent-security-bundle.json
-          test -s action-artifacts/security-test-results.json
-          test -s action-artifacts/policy-review.json
+          test -s "${{ steps.local-evidence.outputs.bundle }}"
+          test -s "${{ steps.local-evidence.outputs.test-results }}"
+          test -s "${{ steps.local-evidence.outputs.policy-review }}"
 
   compatibility:
     name: Python compatibility (${{ matrix.python-version }})
