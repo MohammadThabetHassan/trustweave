@@ -1,0 +1,64 @@
+# Generated CLI Help
+
+> This reference is generated from TrustWeave's authoritative argument parser. Regenerate it with `python scripts/generate_cli_help.py`; do not edit the fenced help block manually.
+
+```text
+usage: trustweave [-h] [--generated-at GENERATED_AT] [--debug]
+                  {init,config,schema,ci,scan,test,explain,why,attest,report,verify,diff,chain-check,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,baseline,suppressions,risk-check,sarif}
+                  ...
+
+Local-first security build evidence for declared AI agent trust boundaries.
+
+positional arguments:
+  {init,config,schema,ci,scan,test,explain,why,attest,report,verify,diff,chain-check,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,baseline,suppressions,risk-check,sarif}
+    init                Create an opt-in local trustweave.toml template
+                        without overwriting files.
+    config              Validate or display explicit local TrustWeave project
+                        configuration.
+    schema              List or display checked-in local JSON Schemas.
+    ci                  Run the configured local evidence workflow without
+                        executing an agent or contacting services.
+    scan                Validate a manifest and write an Agent Security
+                        Bundle.
+    test                Run safe synthetic policy regression scenarios.
+    explain             Explain one cited synthetic scenario without executing
+                        an agent.
+    why                 Explain a local policy decision for supplied declared
+                        synthetic labels.
+    attest              Write a local hash-linked evidence statement.
+    report              Render a Markdown report from generated artifacts.
+    verify              Verify local attestation integrity and optionally
+                        supplied evidence files.
+    diff                Compare two generated Agent Security Bundles without
+                        executing an agent.
+    chain-check         Review a supplied declared trust-boundary graph
+                        without runtime discovery or execution.
+    policy-check        Review deterministic policy structure without
+                        executing a runtime.
+    trace-review        Review local trace metadata against declared flows
+                        without executing an agent.
+    framework-import    Normalize a local framework declaration without
+                        importing or running its framework.
+    mcp-scaffold        Create a reviewer-required manifest draft from a local
+                        MCP inventory.
+    mcp-import          Normalize a local MCP tools/list snapshot without a
+                        server connection.
+    mcp-profile-check   Review a local MCP metadata profile without connecting
+                        to a server.
+    statement           Export an existing local attestation as an explicitly
+                        unsigned statement.
+    baseline            Create or validate explicit local risk-baseline
+                        decisions.
+    suppressions        Validate explicit local risk-suppression decisions.
+    risk-check          Evaluate local review findings against expiry-enforced
+                        baselines and suppressions.
+    sarif               Export existing local review artifacts as
+                        deterministic SARIF 2.1.0 evidence.
+
+options:
+  -h, --help            show this help message and exit
+  --generated-at GENERATED_AT
+                        Explicit ISO 8601 provenance timestamp; defaults to
+                        SOURCE_DATE_EPOCH or current UTC.
+  --debug               Show a traceback for failures.
+```

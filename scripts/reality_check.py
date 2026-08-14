@@ -462,6 +462,43 @@ def _check_installed_wheel_schema_resources() -> list[str]:
     return failures
 
 
+def _check_documentation_site() -> list[str]:
+    """Verify generated command help and the curated documentation site are buildable."""
+
+    generate = subprocess.run(
+        [sys.executable, "scripts/generate_cli_help.py", "--check"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if generate.returncode != 0:
+        return [
+            f"Generated CLI help is stale: {generate.stdout.strip() or generate.stderr.strip()}"
+        ]
+
+    with tempfile.TemporaryDirectory(prefix="trustweave-docs-reality-") as temporary_directory:
+        build = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mkdocs",
+                "build",
+                "--strict",
+                "--site-dir",
+                str(Path(temporary_directory) / "site"),
+            ],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    if build.returncode != 0:
+        detail = build.stderr.strip() or build.stdout.strip()
+        return [f"Strict documentation-site build failed: {detail}"]
+    return []
+
+
 def _check_cli() -> list[str]:
     completed = subprocess.run(
         ["trustweave", "--help"],
@@ -492,6 +529,7 @@ def main() -> int:
         + _check_issue_templates()
         + _check_public_documents()
         + _check_quality_evidence()
+        + _check_documentation_site()
         + _check_cli()
     )
     if failures:
@@ -502,8 +540,8 @@ def main() -> int:
     print(
         "Repository reality check passed: schemas, contract examples, local documentation "
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
-        "quality evidence, generated artifacts, installed-wheel schema resources, and "
-        "CLI commands are connected."
+        "quality evidence, generated artifacts, installed-wheel schema resources, generated "
+        "documentation, strict documentation-site builds, and CLI commands are connected."
     )
     return 0
 

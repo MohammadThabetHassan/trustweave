@@ -59,6 +59,11 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Added a focused mutation-testing record with its Linux-only scope, exact 108-of-108 killed-mutant result, re-run procedure, and explicit non-blocking limitation.
 - Added a checked-in minimal LangGraph-style project layout, provenance note, and static-import walkthrough that demonstrate a reviewable project configuration without installing, importing, compiling, or executing LangGraph code.
 
+### Documentation
+
+- Added a strict-build MkDocs Material documentation site with local-boundary concepts, generated parser-derived CLI help, a built-in review-rule catalog, schema catalog, and deferred authenticated-provenance design guidance.
+- Added deterministic documentation freshness and strict site-build checks to the repository reality checker.
+
 ### Quality
 
 - Raised the enforced branch-coverage gate to 95% after expanding deterministic boundary and property-based regression coverage for local configuration, public review envelopes, manifests, policies, chains, traces, MCP profiles, risk lifecycle decisions, bundle diffs, CLI error handling, and unsigned statements.
