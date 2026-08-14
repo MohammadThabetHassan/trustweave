@@ -144,12 +144,28 @@ def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
     return staging / path
 
 
+def _prepare_output_parent(output: Path) -> None:
+    """Create a local output parent without accepting symbolic-link directory boundaries."""
+
+    for candidate in (output, *output.parents):
+        if candidate.is_symlink():
+            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
+    try:
+        output.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        raise InputOutputError(
+            f"Could not create CI output parent {output.parent}: {error.strerror or error}"
+        ) from error
+
+
 def _publish_directory(staging: Path, output: Path) -> None:
     """Atomically replace one artifact directory, restoring the prior directory on failure."""
 
+    if output.is_symlink():
+        raise InputOutputError(f"CI output path must not be a symbolic link: {output}")
     if output.exists() and not output.is_dir():
         raise InputOutputError(f"CI output path must be a directory: {output}")
-    output.parent.mkdir(parents=True, exist_ok=True)
+    _prepare_output_parent(output)
     backup = output.parent / f".{output.name}.previous"
     if backup.exists():
         shutil.rmtree(backup)
@@ -227,6 +243,7 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     if not isinstance(configured_threshold, str):
         raise ValidationError("tool.trustweave.failure_threshold must be a severity string")
     threshold = args.fail_on or configured_threshold
+    _prepare_output_parent(output_dir)
 
     with tempfile.TemporaryDirectory(prefix=".trustweave-ci-", dir=output_dir.parent) as temporary:
         staging = Path(temporary) / "artifacts"
@@ -294,6 +311,8 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
                     test_path,
                     source_revision=args.source_revision,
                     generated_at=generated_at,
+                    bundle_name=BUNDLE_FILE,
+                    test_results_name=TEST_RESULTS_FILE,
                 ),
             )
             artifacts.append(ATTESTATION_FILE)

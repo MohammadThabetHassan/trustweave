@@ -40,8 +40,19 @@ def _chain_digest_v3(predicate: Mapping[str, Any], subjects: Sequence[Mapping[st
     return sha256(canonical_json(material).encode("utf-8")).hexdigest()
 
 
-def _subject(path: Path, digest: str) -> dict[str, Any]:
-    return {"name": str(path), "digest": {"sha256": digest}}
+def _logical_name(name: str | None, path: Path, role: str) -> str:
+    """Return an explicit stable local artifact identity or legacy physical path name."""
+
+    if name is None:
+        return str(path)
+    candidate = Path(name)
+    if not name or candidate.is_absolute() or len(candidate.parts) != 1 or name in {".", ".."}:
+        raise ValidationError(f"{role} logical artifact name must be one relative file name")
+    return name
+
+
+def _subject(name: str, digest: str) -> dict[str, Any]:
+    return {"name": name, "digest": {"sha256": digest}}
 
 
 def build_attestation(
@@ -49,14 +60,21 @@ def build_attestation(
     test_results_path: Path,
     source_revision: str = "local-uncommitted",
     generated_at: str | None = None,
+    *,
+    bundle_name: str | None = None,
+    test_results_name: str | None = None,
 ) -> dict[str, Any]:
     """Create unsigned local integrity evidence with stable and exact-file claims separated."""
 
     bundle = dict(read_json(bundle_path))
     test_results = dict(read_json(test_results_path))
+    bundle_logical_name = _logical_name(bundle_name, bundle_path, "bundle")
+    test_results_logical_name = _logical_name(test_results_name, test_results_path, "test-results")
+    if bundle_logical_name == test_results_logical_name:
+        raise ValidationError("bundle and test-results logical artifact names must be distinct")
     subjects = [
-        _subject(bundle_path, _file_hash(bundle_path)),
-        _subject(test_results_path, _file_hash(test_results_path)),
+        _subject(bundle_logical_name, _file_hash(bundle_path)),
+        _subject(test_results_logical_name, _file_hash(test_results_path)),
     ]
     predicate: dict[str, Any] = {
         "source_revision": source_revision,
@@ -65,9 +83,9 @@ def build_attestation(
             "test_results_sha256": stable_document_hash(test_results),
         },
         "exact_files": {
-            "bundle": {"name": str(bundle_path), "sha256": subjects[0]["digest"]["sha256"]},
+            "bundle": {"name": bundle_logical_name, "sha256": subjects[0]["digest"]["sha256"]},
             "test_results": {
-                "name": str(test_results_path),
+                "name": test_results_logical_name,
                 "sha256": subjects[1]["digest"]["sha256"],
             },
         },

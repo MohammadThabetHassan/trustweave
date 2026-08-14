@@ -163,3 +163,91 @@ def test_ci_selected_stage_dependencies_fail_closed_without_publication(tmp_path
     assert run('["policy_review"]', "policy-only") == 0
     assert (tmp_path / "scenarios-only" / "ci-summary.json").is_file()
     assert not (tmp_path / "policy-only" / "ci-summary.json").exists()
+
+
+def _write_ci_config(path: Path, output_dir: Path, *, include_chain_review: bool = False) -> None:
+    """Write a bounded local coordinator configuration for end-to-end regressions."""
+
+    root = Path(__file__).resolve().parents[1]
+    stages = ["scan", "scenarios", "policy_review"]
+    if include_chain_review:
+        stages.append("chain_review")
+    stages.extend(["sarif", "attestation", "report", "summary"])
+    chain_manifest = root / "examples" / "chains" / "safe-sanitized-external.chain.json"
+    chain_line = f'chain_manifest = "{chain_manifest.as_posix()}"\n' if include_chain_review else ""
+    rendered_stages = ", ".join(f'"{stage}"' for stage in stages)
+    path.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples/support-agent.manifest.json").as_posix()}"\n'
+        f'policy = "{(root / "policies/default-policy.json").as_posix()}"\n'
+        f'scenarios = "{(root / "scenarios/default-scenarios.json").as_posix()}"\n'
+        + chain_line
+        + f'output_dir = "{output_dir.as_posix()}"\n'
+        + f"enabled_stages = [{rendered_stages}]\n"
+        + 'failure_threshold = "none"\n'
+        + "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+
+def test_ci_fixed_provenance_artifacts_are_byte_identical_and_path_independent(
+    tmp_path: Path,
+) -> None:
+    """The coordinator must not bind temporary physical paths into reproducible evidence."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir, include_chain_review=True)
+    arguments = [
+        "--generated-at",
+        "2026-08-14T00:00:00+00:00",
+        "ci",
+        "--config",
+        str(config),
+        "--source-revision",
+        "fixed-revision",
+        "--quiet",
+    ]
+
+    assert main(arguments) == 0
+    first = {
+        path.relative_to(output_dir).as_posix(): path.read_bytes()
+        for path in sorted(output_dir.rglob("*"))
+        if path.is_file()
+    }
+    assert main(arguments) == 0
+    second = {
+        path.relative_to(output_dir).as_posix(): path.read_bytes()
+        for path in sorted(output_dir.rglob("*"))
+        if path.is_file()
+    }
+
+    assert second == first
+    evidence = b"\n".join(second.values())
+    assert b".trustweave-ci-" not in evidence
+    assert str(tmp_path).encode("utf-8") not in evidence
+
+
+def test_ci_creates_missing_nested_output_parent_before_staging(tmp_path: Path) -> None:
+    """A configured nested output directory must be safely creatable before staging begins."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "new parent" / "nested" / "artifacts"
+    _write_ci_config(config, output_dir)
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--source-revision",
+                "fixed-revision",
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    assert (output_dir / "ci-summary.json").is_file()
