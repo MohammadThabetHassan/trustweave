@@ -15,15 +15,15 @@ The configured scope covers the bundle decision engine, public model contracts, 
 | Platform | Linux with fork support |
 | Mutated source | `src/trustweave/engine.py`, `models.py`, `policy_predicates.py`, and `risk.py` |
 | Test selection | Engine foundation and mutation contracts; policy attributes, v1alpha2, and review suites; adversarial scenarios; canonical findings; models contracts; risk management; and risk-schema suites. The unrelated repository-reality subprocess test is excluded. |
-| Result | 2,339 generated mutants; 1,911 killed; 428 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
-| High-risk scope score | 81.70% killed (`1,911 / 2,339`) |
+| Result | 2,614 generated mutants; 2,128 killed; 486 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
+| High-risk scope score | 81.41% killed (`2,128 / 2,614`) |
 | CI status | Informational and Linux-only; it is not a cross-platform release-blocking gate. |
 
 The earlier engine-only diagnostic was superseded by this broader configured run. It measured 387 mutants, killed 354, and left 33 survivors, for 91.47% within `engine.py`; that result must not be compared as though it represented the four-module scope.
 
 ## Interpretation and remaining work
 
-The four-module result broadens evidence beyond the engine, but **does not meet a 90% mutation threshold** for the measured high-risk scope. It therefore does not establish a full 9.8 acceptance gate or a package-wide mutation-quality claim. The 428 surviving mutants require maintainer triage to distinguish equivalent changes from behavior that needs additional assertions. No survivor has been silently suppressed, and the measurement is retained as an honest release-review input rather than treated as a passing release control.
+The four-module result broadens evidence beyond the engine, but **does not meet a 90% mutation threshold** for the measured high-risk scope. It therefore does not establish a full 9.8 acceptance gate or a package-wide mutation-quality claim. The 486 surviving mutants require maintainer triage to distinguish equivalent changes from behavior that needs additional assertions. No survivor has been silently suppressed, and the measurement is retained as an honest release-review input rather than treated as a passing release control.
 
 ## Re-run procedure
 
