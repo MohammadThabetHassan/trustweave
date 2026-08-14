@@ -40,15 +40,21 @@ To retain active risk evidence in a separately authorized SARIF consumer, pass t
 
 ## Baseline contract
 
-A baseline is an explicit temporary acceptance of a known local finding. It uses `trustweave.dev/risk-baseline/v1alpha1` and must record the finding fingerprint, a human-readable reason, and an ISO 8601 timestamp with a UTC offset in `expires_at`.
+A baseline is an explicit temporary acceptance of a known local finding. It uses `trustweave.dev/risk-baseline/v1alpha2` and binds the `trustweave/fingerprint/v3` finding identity to its rule identifier, stable-subject digest, accepted severity, non-empty reason and owner, creation timestamp, and ISO 8601 expiry. It applies only while the observed severity is no more severe than the recorded acceptance; a later escalation becomes active reviewer work. Legacy `v1alpha1` documents are rejected for explicit migration rather than silently reinterpreted.
 
 ```json
 {
-  "schema_version": "trustweave.dev/risk-baseline/v1alpha1",
+  "schema_version": "trustweave.dev/risk-baseline/v1alpha2",
   "baseline": [
     {
       "fingerprint": "<64-character-sha256>",
+      "fingerprint_schema_version": "trustweave/fingerprint/v3",
+      "rule_id": "TW-POL-004",
+      "subject_digest": "<64-character-sha256>",
+      "accepted_severity": "medium",
       "reason": "A bounded, reviewer-owned acceptance while a declared control is delivered.",
+      "owner": "security-review",
+      "created_at": "2026-08-14T00:00:00+00:00",
       "expires_at": "2026-09-30T00:00:00+00:00"
     }
   ]
@@ -57,7 +63,7 @@ A baseline is an explicit temporary acceptance of a known local finding. It uses
 
 ## Suppression contract
 
-A suppression has the same required fields and uses `trustweave.dev/risk-suppressions/v1alpha1`. Use it only when a specific finding is temporarily inapplicable to the reviewed local evidence. Do not use a suppression to hide a persistent control gap; make the scope and expiry short, and replace it with a baseline only when maintainers consciously accept the remaining review obligation.
+A suppression has the same identity, severity, owner, and provenance requirements and uses `trustweave.dev/risk-suppressions/v1alpha2`. Use it only when a specific finding is temporarily inapplicable to the reviewed local evidence. Do not use a suppression to hide a persistent control gap; make the scope and expiry short, and replace it with a baseline only when maintainers consciously accept the remaining review obligation.
 
 ## Reviewer procedure
 
