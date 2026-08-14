@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -22,6 +23,7 @@ def test_top_level_help_matches_the_golden_command_contract() -> None:
         cwd=ROOT,
         check=False,
         capture_output=True,
+        env={**os.environ, "COLUMNS": "100"},
         text=True,
     )
 
@@ -36,6 +38,7 @@ def test_risk_check_help_matches_the_golden_contract() -> None:
         cwd=ROOT,
         check=False,
         capture_output=True,
+        env={**os.environ, "COLUMNS": "100"},
         text=True,
     )
 
