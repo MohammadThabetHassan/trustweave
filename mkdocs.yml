@@ -21,6 +21,7 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Concepts: concepts.md
+  - Installation and quick start: INSTALLATION.md
   - Configuration: CONFIGURATION.md
   - Local CI workflow: CI_WORKFLOW.md
   - CLI:
