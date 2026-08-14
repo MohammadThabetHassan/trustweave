@@ -12,10 +12,16 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs" / "site" / "CLI_HELP.md"
 
 
+def _canonical_help(text: str) -> str:
+    """Normalize formatter line wrapping while preserving parser-derived paragraph content."""
+
+    return "\n\n".join(" ".join(paragraph.split()) for paragraph in text.strip().split("\n\n"))
+
+
 def render() -> str:
     """Render parser-derived CLI help as a Markdown reference without clocks or I/O inputs."""
 
-    help_text = _parser().format_help().rstrip()
+    help_text = _canonical_help(_parser().format_help())
     return (
         "# Generated CLI Help\n\n"
         "> This reference is generated from TrustWeave's authoritative argument parser. "
