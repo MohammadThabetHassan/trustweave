@@ -33,3 +33,4 @@ nav:
   - Migration to 0.2.0: MIGRATION_0_2.md
   - Threat model: THREAT_MODEL.md
   - Public API and exports: PUBLIC_API.md
+  - MCP metadata workflows: MCP_METADATA.md
