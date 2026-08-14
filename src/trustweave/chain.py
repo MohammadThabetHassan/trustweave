@@ -37,7 +37,7 @@ class _TraversalState:
     node: str
     path: tuple[str, ...]
     classifications: frozenset[str]
-    approved_after_sensitive: bool
+    approved_classifications: frozenset[str]
     incomplete_sanitizers: tuple[tuple[str, tuple[str, ...]], ...]
 
 
@@ -174,22 +174,24 @@ def _advance_state(state: _TraversalState, node: ChainNode) -> _TraversalState:
     """Apply the next declared node's static contract to a local traversal state."""
 
     classifications = state.classifications
-    approved_after_sensitive = state.approved_after_sensitive
+    approved_classifications = state.approved_classifications
     incomplete_sanitizers = state.incomplete_sanitizers
     if node.classification in SENSITIVE_CLASSIFICATIONS:
         classifications = classifications | {node.classification}
     if node.kind == "approval" and node.fail_closed is True and classifications:
-        approved_after_sensitive = True
+        approved_classifications = classifications
     if node.kind == "sanitizer" and classifications:
         missing = tuple(sorted(classifications - set(node.covers_classifications)))
         if missing:
             incomplete_sanitizers = (*incomplete_sanitizers, (node.identifier, missing))
-        classifications = classifications - set(node.covers_classifications)
+        covered = set(node.covers_classifications)
+        classifications = classifications - covered
+        approved_classifications = approved_classifications - covered
     return _TraversalState(
         node=state.node,
         path=state.path,
         classifications=frozenset(classifications),
-        approved_after_sensitive=approved_after_sensitive,
+        approved_classifications=frozenset(approved_classifications),
         incomplete_sanitizers=incomplete_sanitizers,
     )
 
@@ -224,10 +226,17 @@ def review_declared_chains(
     if budget_name is None:
         starts = sorted(node.identifier for node in nodes.values() if node.trust == "untrusted")
         stack: list[_TraversalState] = [
-            _TraversalState(start, (start,), frozenset(), False, ()) for start in reversed(starts)
+            _TraversalState(start, (start,), frozenset(), frozenset(), ())
+            for start in reversed(starts)
         ]
         seen_states: set[
-            tuple[str, frozenset[str], bool, tuple[tuple[str, tuple[str, ...]], ...]]
+            tuple[
+                str,
+                tuple[str, ...],
+                frozenset[str],
+                frozenset[str],
+                tuple[tuple[str, tuple[str, ...]], ...],
+            ]
         ] = set()
         while stack and budget_name is None:
             state = stack.pop()
@@ -235,8 +244,9 @@ def review_declared_chains(
             state = _advance_state(state, node)
             identity = (
                 state.node,
+                state.path,
                 state.classifications,
-                state.approved_after_sensitive,
+                state.approved_classifications,
                 state.incomplete_sanitizers,
             )
             if identity in seen_states:
@@ -264,7 +274,7 @@ def review_declared_chains(
                         target,
                         state.path + (target,),
                         state.classifications,
-                        state.approved_after_sensitive,
+                        state.approved_classifications,
                         state.incomplete_sanitizers,
                     )
                 )
@@ -285,7 +295,8 @@ def review_declared_chains(
                 classifications=classifications,
             )
         )
-        if not state.approved_after_sensitive:
+        unapproved = sorted(set(classifications) - set(state.approved_classifications))
+        if unapproved:
             findings.append(
                 _finding(
                     "TW-CHAIN-002",
@@ -295,6 +306,7 @@ def review_declared_chains(
                         "declared fail-closed approval boundary."
                     ),
                     path,
+                    classifications=unapproved,
                 )
             )
         for sanitizer, missing in state.incomplete_sanitizers:

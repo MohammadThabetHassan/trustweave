@@ -43,6 +43,52 @@ def test_chain_manifest_rejects_incompatible_node_fields() -> None:
         review_declared_chains(document)
 
 
+def test_chain_diamond_preserves_distinct_declared_paths() -> None:
+    document = _document(
+        [
+            {"id": "source", "kind": "source", "trust": "untrusted"},
+            {"id": "left", "kind": "tool", "action_class": "read"},
+            {"id": "right", "kind": "tool", "action_class": "read"},
+            {"id": "sink", "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "source", "to": "left"},
+            {"from": "source", "to": "right"},
+            {"from": "left", "to": "sink"},
+            {"from": "right", "to": "sink"},
+        ],
+    )
+
+    review = review_declared_chains(document)
+
+    assert review["paths"] == [
+        {"identity": ["source", "left", "sink"]},
+        {"identity": ["source", "right", "sink"]},
+    ]
+
+
+def test_approval_does_not_cover_later_sensitive_acquisition() -> None:
+    document = _document(
+        [
+            {"id": "source", "kind": "source", "trust": "untrusted"},
+            {"id": "confidential", "kind": "data", "classification": "confidential"},
+            {"id": "approval", "kind": "approval", "fail_closed": True},
+            {"id": "restricted", "kind": "data", "classification": "restricted"},
+            {"id": "sink", "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "source", "to": "confidential"},
+            {"from": "confidential", "to": "approval"},
+            {"from": "approval", "to": "restricted"},
+            {"from": "restricted", "to": "sink"},
+        ],
+    )
+
+    review = review_declared_chains(document)
+
+    assert any(finding["id"] == "TW-CHAIN-002" for finding in review["findings"])
+
+
 def test_checked_in_safe_sanitized_chain_example_has_no_review_findings() -> None:
     example_path = (
         Path(__file__).resolve().parents[1]

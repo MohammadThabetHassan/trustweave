@@ -6,6 +6,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Preserved every distinct declared chain path during bounded traversal and scoped fail-closed approval evidence to sensitive classifications acquired before the approval node.
+- Aligned generated bundle, embedded finding, and v1alpha3 attestation schemas with real runtime artifacts, and packaged public schemas for installed-wheel discovery.
 - Added the immutable, data-only `trustweave.api.LocalReviewResult` wrapper for typed consumption of already-generated local review artifacts.
 - Added `trustweave ci`, a one-command coordinator for configured local scan, synthetic tests, policy review, attestation, and report artifacts with optional policy coverage and review gates.
 - Added explicit local `trustweave baseline create`, `baseline validate`, and `suppressions validate` lifecycle commands. Baseline creation requires a reviewer-provided reason and expiry and never claims remediation or authorization.
