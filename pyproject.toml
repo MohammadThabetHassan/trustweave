@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trustweave"
-version = "0.1.1"
+version = "0.2.0"
 description = "Local-first security build evidence for AI agent trust boundaries."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -95,4 +95,4 @@ source = ["trustweave"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 90
+fail_under = 95

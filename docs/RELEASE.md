@@ -2,7 +2,7 @@
 
 ## Release status and contract
 
-TrustWeave `0.1.1` is published on [PyPI](https://pypi.org/project/trustweave/0.1.1/) and tagged as [`v0.1.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.1.1). The release path is deliberately manual: a maintainer chooses the version, validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
+TrustWeave `0.1.1` is the latest package published on [PyPI](https://pypi.org/project/trustweave/0.1.1/) and tagged as [`v0.1.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.1.1). The source target is prepared as TrustWeave `0.2.0`, but it is not published, tagged, or released until the owner approves TestPyPI validation and production publication. The release path is deliberately manual: a maintainer validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
 
 The GitHub repository is the source of truth for code, documentation, schemas, and release workflows. Every future release must use an explicitly authorized commit identity and retain the project’s non-executing boundary.
 
@@ -13,7 +13,7 @@ The GitHub repository is the source of truth for code, documentation, schemas, a
 | Formatting | `ruff format --check .` passes. |
 | Linting | `ruff check .` passes. |
 | Type checking | `mypy src` passes. |
-| Test suite | `pytest` passes, including the 90% branch-coverage gate. |
+| Test suite | `pytest` passes, including the 95% branch-coverage gate. |
 | Static source security | `bandit -r src/trustweave -q` passes. |
 | Repository reality | `python3 scripts/reality_check.py` passes for tracked docs, schemas, workflow YAML, and CLI references. |
 | Package build | `python -m build` and `twine check dist/*` pass. |
@@ -28,7 +28,7 @@ The GitHub repository is the source of truth for code, documentation, schemas, a
 ### 1. Prepare the release target
 
 1. Choose the intended semantic version and verify it has not already been published.
-2. Update `pyproject.toml`, `src/trustweave/__init__.py`, and `CHANGELOG.md` together.
+2. Update `pyproject.toml`, `src/trustweave/__init__.py`, `CITATION.cff`, and `CHANGELOG.md` together.
 3. Update user-facing installation, compatibility, release, and scope documentation when behavior or public claims change.
 4. Run every applicable local evidence check from the table above.
 5. Commit verified changes using an explicitly authorized identity and push directly to `main` when that remains the documented contribution model.

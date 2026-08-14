@@ -132,7 +132,7 @@ The project also avoids unsupported security claims. A review finding is a deter
 
 ## Built to be inspected
 
-`0.1.1` is published on [PyPI](https://pypi.org/project/trustweave/). Its release path includes formatting, linting, strict type checks, static source-security scanning, a **90% branch-coverage gate**, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
+`0.1.1` remains the currently published [PyPI release](https://pypi.org/project/trustweave/). The source tree is prepared for `0.2.0`, which remains subject to owner-approved TestPyPI validation, production publication, tagging, and a GitHub Release. Its enforced release path includes formatting, linting, strict type checks, static source-security scanning, a **95% branch-coverage gate**, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
 
 The current `v1alpha1` input and generated-artifact formats are suitable for the checked-in examples and CI but may evolve with documented migration guidance. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
 

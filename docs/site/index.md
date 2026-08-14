@@ -10,7 +10,7 @@ Create a project configuration, produce the coordinated local evidence set, and 
 
 ```bash
 trustweave init --directory .
-trustweave ci --config trustweave.toml --generated-at 2026-08-14T00:00:00+00:00
+trustweave --generated-at 2026-08-14T00:00:00+00:00 ci --config trustweave.toml
 ```
 
 The workflow produces a bundle, synthetic regression results, static policy review, unsigned local attestation, and reviewer-facing report. A successful command means that the supplied declarations were processed according to their local contracts; it is not a runtime-security, deployment, signature, or authorization result.

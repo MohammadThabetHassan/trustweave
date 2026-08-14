@@ -2,7 +2,10 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
-## [Unreleased]
+## [0.2.0] - Pending owner-controlled publication
+
+> This source release target is prepared for TestPyPI validation and production publication. It is not a claim that the package has already been published, tagged, or released.
+
 
 ### Fixed
 
@@ -14,6 +17,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - Split the command-line implementation into focused command modules behind a sub-200-line public facade, preserving stable command help and exit-code behavior with golden help contracts.
 - Made the repository reality check validate real generated artifacts, exact schema resources from an installed wheel, and CLI command coverage derived from the authoritative parser.
+- Centralized built-in review-rule guidance for producer validation, SARIF rule metadata, Markdown review reports, generated rule-catalog documentation, and reality-check completeness enforcement.
 - Deduplicated raw review and derived risk-review SARIF results by canonical finding fingerprint while preserving every contributing local artifact location.
 - Made `LocalReviewResult` recursively immutable and defensively copied so nested caller-owned review data cannot mutate public API results.
 - Rejected risk baseline drafts whose expiry is not later than the supplied local review timestamp.
@@ -21,9 +25,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Preserved every distinct declared chain path during bounded traversal and scoped fail-closed approval evidence to sensitive classifications acquired before the approval node.
 - Aligned generated bundle, embedded finding, and v1alpha3 attestation schemas with real runtime artifacts, and packaged public schemas for installed-wheel discovery.
 - Added the immutable, data-only `trustweave.api.LocalReviewResult` wrapper for typed consumption of already-generated local review artifacts.
-- Added `trustweave ci`, a one-command coordinator for configured local scan, synthetic tests, policy review, attestation, and report artifacts with optional policy coverage and review gates.
+- Expanded `trustweave ci` into a staged local coordinator with strict typed configuration, bounded configuration discovery, selectable core review stages, atomic artifact-directory publication, deterministic summaries, `--format`, `--quiet`, `--fail-on`, optional declared-chain review, and local SARIF generation. No stage executes agents, models, tools, MCP servers, or network operations.
 - Added explicit local `trustweave baseline create`, `baseline validate`, and `suppressions validate` lifecycle commands. Baseline creation requires a reviewer-provided reason and expiry and never claims remediation or authorization.
-- Added strict read-only `trustweave config validate` and `config show` commands plus explicit or bounded auto-discovered `trustweave.toml` path resolution for `scan`, `test`, and `policy-check`.
+- Added strict read-only `trustweave config validate` and `config show` commands plus explicit or bounded auto-discovered `trustweave.toml` path resolution for `scan`, `test`, `policy-check`, and staged `ci` execution.
 - Added opt-in `trustweave policy-check --coverage` diagnostics for first-match reachability, contradictory shadowed decisions, and impossible declared control requirements, with the same local deterministic policy boundary.
 - Made declared-chain analysis stateful for propagated sensitive classifications and fail-closed approval state, and added explicit edge, depth, and state budgets to prevent unbounded local review work.
 - Made flow `purpose_tags` an additive, validated manifest attribute and aligned policy-v2 matching to these machine-readable identifiers rather than the human-readable `purpose` prose, while preserving v1alpha1 manifests without tags.
