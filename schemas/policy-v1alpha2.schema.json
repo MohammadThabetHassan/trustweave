@@ -6,11 +6,61 @@
   "required": ["schema_version", "name", "default_decision", "rules"],
   "properties": {
     "schema_version": {"const": "trustweave.dev/policy/v1alpha2"},
+    "name": {"$ref": "#/$defs/name"},
+    "default_decision": {"$ref": "#/$defs/decision"},
+    "classification_taxonomy": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/classification"}
+    },
+    "rules": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/$defs/rule"}},
+    "approval_control": {"$ref": "#/$defs/approval_control"}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096},
     "name": {"type": "string", "minLength": 1, "maxLength": 128},
-    "default_decision": {"enum": ["allow", "deny", "require_approval"]},
-    "classification_taxonomy": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 64}},
-    "rules": {"type": "array", "maxItems": 1000, "items": {"type": "object"}},
-    "approval_control": {"type": "object"}
+    "classification": {"type": "string", "minLength": 1, "maxLength": 64},
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,63}$"},
+    "rule_identifier": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"},
+    "decision": {"enum": ["allow", "deny", "require_approval"]},
+    "trust": {"enum": ["trusted", "untrusted", "conditional"]},
+    "action_class": {"enum": ["read", "write", "sensitive", "external"]},
+    "severity": {"enum": ["critical", "high", "medium", "low", "info"]},
+    "capability": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z0-9][a-z0-9_.-]*(\\.\\*)?$"},
+    "rule": {
+      "type": "object",
+      "required": ["id", "description", "source_trust", "tool_action_classes", "decision", "rationale"],
+      "properties": {
+        "id": {"$ref": "#/$defs/rule_identifier"},
+        "description": {"$ref": "#/$defs/text"},
+        "source_trust": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"$ref": "#/$defs/trust"}},
+        "tool_action_classes": {"type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": {"$ref": "#/$defs/action_class"}},
+        "decision": {"$ref": "#/$defs/decision"},
+        "rationale": {"$ref": "#/$defs/text"},
+        "source_data_classifications": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/classification"}},
+        "tool_capabilities": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/capability"}},
+        "severity": {"$ref": "#/$defs/severity"},
+        "source_identifiers": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "tool_identifiers": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "purpose_tags": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "source_data_classification_at_least": {"$ref": "#/$defs/classification"},
+        "source_data_classification_at_most": {"$ref": "#/$defs/classification"},
+        "required_controls": {"type": "array", "maxItems": 2, "uniqueItems": true, "items": {"enum": ["approval", "approval.fail_closed"]}}
+      },
+      "additionalProperties": false
+    },
+    "approval_control": {
+      "type": "object",
+      "required": ["mechanism", "binds_to", "fail_closed"],
+      "properties": {
+        "mechanism": {"$ref": "#/$defs/text"},
+        "binds_to": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+        "fail_closed": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }
