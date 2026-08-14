@@ -21,6 +21,21 @@ CONFIG_TEMPLATE = (
 )
 
 
+def find_project_config(start: Path) -> Path:
+    """Find the nearest existing local configuration by walking explicit parent directories."""
+
+    directory = start.resolve()
+    if directory.is_file():
+        directory = directory.parent
+    for candidate_directory in (directory, *directory.parents):
+        candidate = candidate_directory / CONFIG_FILE_NAME
+        if candidate.is_file():
+            return candidate
+    raise InputOutputError(
+        f"No {CONFIG_FILE_NAME} was found from the supplied local directory: {start}"
+    )
+
+
 def init_project(directory: Path) -> Path:
     """Create an opt-in local configuration template without replacing an existing file."""
 

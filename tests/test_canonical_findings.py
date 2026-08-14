@@ -8,8 +8,10 @@ import pytest
 from trustweave.diff import diff_bundles
 from trustweave.findings import FINDING_SCHEMA_VERSION, finding
 from trustweave.io import load_document
+from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
+from trustweave.trace_review import review_trace
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
@@ -37,6 +39,25 @@ def test_canonical_finding_omits_unavailable_fields_and_orders_safe_sequences() 
     }
     with pytest.raises(ValueError, match="unsupported"):
         finding("TW-TEST-002", "urgent", "Invalid severity.", "declared_configuration")
+
+
+def test_trace_and_mcp_producers_emit_additive_canonical_metadata() -> None:
+    manifest = parse_manifest(load_document(MANIFEST))
+    policy = parse_policy(load_document(POLICY))
+    trace = load_document(ROOT / "examples" / "traces" / "review-required-support-trace.json")
+    trace_review = review_trace(manifest, policy, trace)
+    trace_finding = trace_review["findings"][0]
+    assert trace_finding["evidence_kind"] == "pre_recorded_trace_metadata"
+    assert set(trace_finding["subject"]) == {"source", "tool"}
+    assert trace_finding["properties"] == {"call_index": "0"}
+
+    profile = parse_mcp_profile(
+        load_document(ROOT / "examples" / "mcp-profiles" / "review-required-support-profile.json")
+    )
+    profile_review = review_mcp_profile(profile, manifest)
+    profile_finding = profile_review["findings"][0]
+    assert profile_finding["evidence_kind"] == "pre_recorded_mcp_metadata"
+    assert profile_finding["subject"]["profile"] == profile.name
 
 
 def test_policy_and_diff_producers_emit_additive_canonical_metadata() -> None:

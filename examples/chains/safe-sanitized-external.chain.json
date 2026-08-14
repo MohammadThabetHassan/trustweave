@@ -1,0 +1,31 @@
+{
+  "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+  "name": "safe-sanitized-external-chain",
+  "nodes": [
+    {
+      "id": "customer-request",
+      "kind": "source",
+      "trust": "untrusted"
+    },
+    {
+      "id": "customer-record",
+      "kind": "data",
+      "classification": "confidential"
+    },
+    {
+      "id": "declared-redactor",
+      "kind": "sanitizer",
+      "covers_classifications": ["confidential"]
+    },
+    {
+      "id": "external-notification",
+      "kind": "tool",
+      "action_class": "external"
+    }
+  ],
+  "edges": [
+    {"from": "customer-request", "to": "customer-record"},
+    {"from": "customer-record", "to": "declared-redactor"},
+    {"from": "declared-redactor", "to": "external-notification"}
+  ]
+}

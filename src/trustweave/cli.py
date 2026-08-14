@@ -6,12 +6,12 @@ import argparse
 import json
 import os
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Never
 
 from trustweave.chain import render_chain_review, review_declared_chains
-from trustweave.config import init_project
+from trustweave.config import find_project_config, init_project, load_project_config
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle, explain_policy_decision
 from trustweave.evidence import build_attestation, verify_attestation
@@ -36,7 +36,13 @@ from trustweave.report import (
     render_risk_review_report,
     render_trace_review_report,
 )
-from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
+from trustweave.risk import (
+    VALID_SEVERITIES,
+    create_baseline,
+    review_risks,
+    should_fail,
+    validate_decision_document,
+)
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import explain_scenario, parse_scenarios, run_scenarios
 from trustweave.schema_catalog import list_schema_names, read_schema
@@ -98,38 +104,68 @@ def _parser() -> argparse.ArgumentParser:
     )
     init.add_argument("--directory", type=Path, default=Path("."), help="Project directory.")
 
+    config = subcommands.add_parser(
+        "config", help="Validate or display explicit local TrustWeave project configuration."
+    )
+    config_commands = config.add_subparsers(dest="config_command", required=True)
+    for name, help_text in (
+        ("validate", "Validate one local trustweave.toml document."),
+        ("show", "Print one validated local trustweave.toml document as JSON."),
+    ):
+        config_command = config_commands.add_parser(name, help=help_text)
+        config_command.add_argument(
+            "--config",
+            type=Path,
+            default=Path("trustweave.toml"),
+            help="Local TOML configuration path.",
+        )
+
     schema = subcommands.add_parser("schema", help="List or display checked-in local JSON Schemas.")
     schema_commands = schema.add_subparsers(dest="schema_command", required=True)
     schema_commands.add_parser("list", help="List checked-in schema filenames.")
     schema_show = schema_commands.add_parser("show", help="Print one checked-in schema document.")
     schema_show.add_argument("name", help="Exact schema filename from `trustweave schema list`.")
 
+    ci = subcommands.add_parser(
+        "ci",
+        help=(
+            "Run the configured local evidence workflow without executing an agent or "
+            "contacting services."
+        ),
+    )
+    ci.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
+    ci.add_argument(
+        "--output-dir", type=Path, help="Override the configured local artifact directory."
+    )
+    ci.add_argument(
+        "--source-revision",
+        default=os.environ.get("GITHUB_SHA", "local-uncommitted"),
+        help="Source revision recorded in the local evidence attestation.",
+    )
+    ci.add_argument(
+        "--coverage", action="store_true", help="Include policy rule coverage diagnostics."
+    )
+    ci.add_argument(
+        "--exit-on-review",
+        action="store_true",
+        help="Return status 1 when policy review findings exist.",
+    )
+
     scan = subcommands.add_parser(
         "scan", help="Validate a manifest and write an Agent Security Bundle."
     )
-    scan.add_argument(
-        "--manifest", type=Path, required=True, help="Path to a manifest JSON or safe YAML file."
-    )
-    scan.add_argument(
-        "--policy", type=Path, required=True, help="Path to a policy JSON or safe YAML file."
-    )
-    scan.add_argument(
-        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
-    )
+    scan.add_argument("--manifest", type=Path, help="Path to a manifest JSON or safe YAML file.")
+    scan.add_argument("--policy", type=Path, help="Path to a policy JSON or safe YAML file.")
+    scan.add_argument("--output-dir", type=Path, help="Artifact directory.")
+    scan.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
 
     test = subcommands.add_parser("test", help="Run safe synthetic policy regression scenarios.")
+    test.add_argument("--policy", type=Path, help="Path to a policy JSON or safe YAML file.")
     test.add_argument(
-        "--policy", type=Path, required=True, help="Path to a policy JSON or safe YAML file."
+        "--scenarios", type=Path, help="Path to a scenario-pack JSON or safe YAML file."
     )
-    test.add_argument(
-        "--scenarios",
-        type=Path,
-        required=True,
-        help="Path to a scenario-pack JSON or safe YAML file.",
-    )
-    test.add_argument(
-        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
-    )
+    test.add_argument("--output-dir", type=Path, help="Artifact directory.")
+    test.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
 
     explain = subcommands.add_parser(
         "explain", help="Explain one cited synthetic scenario without executing an agent."
@@ -210,6 +246,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     chain_check.add_argument("--max-nodes", type=int, default=1000, help="Maximum declared nodes.")
     chain_check.add_argument("--max-paths", type=int, default=1000, help="Maximum emitted paths.")
+    chain_check.add_argument("--max-edges", type=int, default=5000, help="Maximum traversed edges.")
+    chain_check.add_argument(
+        "--max-depth", type=int, default=100, help="Maximum declared path depth."
+    )
+    chain_check.add_argument(
+        "--max-states", type=int, default=5000, help="Maximum propagation states."
+    )
     chain_check.add_argument(
         "--exit-on-review", action="store_true", help="Return status 1 when review findings exist."
     )
@@ -217,11 +260,13 @@ def _parser() -> argparse.ArgumentParser:
     policy_check = subcommands.add_parser(
         "policy-check", help="Review deterministic policy structure without executing a runtime."
     )
+    policy_check.add_argument("--policy", type=Path, help="Policy JSON or safe YAML file.")
+    policy_check.add_argument("--output-dir", type=Path, help="Artifact directory.")
+    policy_check.add_argument("--config", type=Path, help="Explicit local trustweave.toml path.")
     policy_check.add_argument(
-        "--policy", type=Path, required=True, help="Policy JSON or safe YAML file."
-    )
-    policy_check.add_argument(
-        "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
+        "--coverage",
+        action="store_true",
+        help="Include deterministic rule reachability and contradiction diagnostics.",
     )
     policy_check.add_argument(
         "--exit-on-review",
@@ -318,6 +363,41 @@ def _parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact directory."
     )
 
+    baseline = subcommands.add_parser(
+        "baseline", help="Create or validate explicit local risk-baseline decisions."
+    )
+    baseline_commands = baseline.add_subparsers(dest="baseline_command", required=True)
+    baseline_create = baseline_commands.add_parser(
+        "create", help="Create an explicit baseline draft from active local risk-review findings."
+    )
+    baseline_create.add_argument(
+        "--review", type=Path, required=True, help="Local risk-review JSON."
+    )
+    baseline_create.add_argument(
+        "--reason", required=True, help="Explicit reviewer decision reason."
+    )
+    baseline_create.add_argument("--expires-at", required=True, help="ISO 8601 expiry timestamp.")
+    baseline_create.add_argument(
+        "--output", type=Path, required=True, help="Baseline JSON output path."
+    )
+    baseline_validate = baseline_commands.add_parser(
+        "validate", help="Validate one local risk-baseline JSON or safe YAML document."
+    )
+    baseline_validate.add_argument(
+        "--input", type=Path, required=True, help="Local baseline document."
+    )
+
+    suppressions = subcommands.add_parser(
+        "suppressions", help="Validate explicit local risk-suppression decisions."
+    )
+    suppressions_commands = suppressions.add_subparsers(dest="suppressions_command", required=True)
+    suppressions_validate = suppressions_commands.add_parser(
+        "validate", help="Validate one local risk-suppressions JSON or safe YAML document."
+    )
+    suppressions_validate.add_argument(
+        "--input", type=Path, required=True, help="Local suppressions document."
+    )
+
     risk_check = subcommands.add_parser(
         "risk-check",
         help="Evaluate local review findings against expiry-enforced baselines and suppressions.",
@@ -387,20 +467,138 @@ def _init(directory: Path) -> str:
     return f"Wrote local project configuration: {init_project(directory)}"
 
 
-def _scan(manifest_path: Path, policy_path: Path, output_dir: Path, generated_at: str) -> str:
-    manifest = parse_manifest(load_document(manifest_path))
-    policy = parse_policy(load_document(policy_path))
-    path = write_json(output_dir / BUNDLE_FILE, build_bundle(manifest, policy, generated_at))
+def _config_validate(path: Path) -> str:
+    """Validate one explicit local configuration without changing it."""
+
+    load_project_config(path)
+    return f"Validated local project configuration: {path}"
+
+
+def _config_show(path: Path) -> str:
+    """Render a validated local configuration as deterministic JSON."""
+
+    return json.dumps(load_project_config(path), sort_keys=True, separators=(",", ":"))
+
+
+def _configured_paths(
+    config_path: Path | None,
+    values: Mapping[str, Path | None],
+) -> dict[str, Path]:
+    """Resolve command values from explicit flags or one local TOML configuration document."""
+
+    missing = [name for name, value in values.items() if value is None]
+    if not missing:
+        return {name: value for name, value in values.items() if value is not None}
+    if config_path is None:
+        try:
+            path = find_project_config(Path.cwd())
+        except InputOutputError as error:
+            raise ValidationError(
+                "required command paths were not supplied and no local trustweave.toml was "
+                "discovered"
+            ) from error
+    else:
+        path = config_path
+    config = load_project_config(path)
+    resolved: dict[str, Path] = {}
+    for name, value in values.items():
+        selected = value
+        if selected is None:
+            configured = config.get(name)
+            if configured is None:
+                raise ValidationError(
+                    f"{name} is required as a command argument or tool.trustweave.{name} in {path}"
+                )
+            selected = Path(configured)
+            if not selected.is_absolute():
+                selected = path.parent / selected
+        resolved[name] = selected
+    return resolved
+
+
+def _ci(
+    config_path: Path | None,
+    output_dir: Path | None,
+    source_revision: str,
+    include_coverage: bool,
+    exit_on_review: bool,
+    generated_at: str,
+) -> tuple[str, int]:
+    """Coordinate the bounded local evidence workflow from declared configuration only."""
+
+    paths = _configured_paths(
+        config_path,
+        {"manifest": None, "policy": None, "scenarios": None, "output_dir": output_dir},
+    )
+    manifest = parse_manifest(load_document(paths["manifest"]))
+    policy = parse_policy(load_document(paths["policy"]))
+    scenarios = parse_scenarios(load_document(paths["scenarios"]))
+    bundle_path = write_json(
+        paths["output_dir"] / BUNDLE_FILE, build_bundle(manifest, policy, generated_at)
+    )
+    test_results = run_scenarios(policy, scenarios, generated_at)
+    test_path = write_json(paths["output_dir"] / TEST_RESULTS_FILE, test_results)
+    review = review_policy(policy, generated_at, include_coverage=include_coverage)
+    policy_path = write_json(paths["output_dir"] / POLICY_REVIEW_FILE, review)
+    write_text(paths["output_dir"] / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review))
+    attestation_path = write_json(
+        paths["output_dir"] / ATTESTATION_FILE,
+        build_attestation(
+            bundle_path, test_path, source_revision=source_revision, generated_at=generated_at
+        ),
+    )
+    report_path = write_text(
+        paths["output_dir"] / REPORT_FILE,
+        render_report(read_json(bundle_path), read_json(test_path), read_json(attestation_path)),
+    )
+    test_failed = str(test_results["summary"]["status"]) != "passed"
+    review_required = int(review["summary"]["review_findings"]) > 0
+    code = EXIT_REVIEW if test_failed or (exit_on_review and review_required) else EXIT_SUCCESS
+    return (
+        f"Wrote local CI evidence: {bundle_path}, {test_path}, {policy_path}, "
+        f"{attestation_path}, and {report_path}",
+        code,
+    )
+
+
+def _scan(
+    manifest_path: Path | None,
+    policy_path: Path | None,
+    output_dir: Path | None,
+    config_path: Path | None,
+    generated_at: str,
+) -> str:
+    if config_path is None and manifest_path is not None and policy_path is not None:
+        output_dir = output_dir or Path("artifacts")
+    paths = _configured_paths(
+        config_path,
+        {"manifest": manifest_path, "policy": policy_path, "output_dir": output_dir},
+    )
+    manifest = parse_manifest(load_document(paths["manifest"]))
+    policy = parse_policy(load_document(paths["policy"]))
+    path = write_json(
+        paths["output_dir"] / BUNDLE_FILE, build_bundle(manifest, policy, generated_at)
+    )
     return f"Wrote Agent Security Bundle: {path}"
 
 
 def _test(
-    policy_path: Path, scenario_path: Path, output_dir: Path, generated_at: str
+    policy_path: Path | None,
+    scenario_path: Path | None,
+    output_dir: Path | None,
+    config_path: Path | None,
+    generated_at: str,
 ) -> tuple[str, int]:
-    policy = parse_policy(load_document(policy_path))
-    scenarios = parse_scenarios(load_document(scenario_path))
+    if config_path is None and policy_path is not None and scenario_path is not None:
+        output_dir = output_dir or Path("artifacts")
+    paths = _configured_paths(
+        config_path,
+        {"policy": policy_path, "scenarios": scenario_path, "output_dir": output_dir},
+    )
+    policy = parse_policy(load_document(paths["policy"]))
+    scenarios = parse_scenarios(load_document(paths["scenarios"]))
     result = run_scenarios(policy, scenarios, generated_at)
-    path = write_json(output_dir / TEST_RESULTS_FILE, result)
+    path = write_json(paths["output_dir"] / TEST_RESULTS_FILE, result)
     status = str(result["summary"]["status"])
     return f"Wrote synthetic test results ({status}): {path}", 0 if status == "passed" else 1
 
@@ -473,13 +671,22 @@ def _chain_check(
     output_dir: Path,
     max_nodes: int,
     max_paths: int,
+    max_edges: int,
+    max_depth: int,
+    max_states: int,
     exit_on_review: bool,
     generated_at: str,
 ) -> tuple[str, int]:
     """Create local chain-review artifacts from an explicitly supplied graph declaration."""
 
     review = review_declared_chains(
-        load_document(input_path), generated_at, max_nodes=max_nodes, max_paths=max_paths
+        load_document(input_path),
+        generated_at,
+        max_nodes=max_nodes,
+        max_paths=max_paths,
+        max_edges=max_edges,
+        max_depth=max_depth,
+        max_states=max_states,
     )
     json_path = write_json(output_dir / CHAIN_REVIEW_FILE, review)
     markdown_path = write_text(output_dir / CHAIN_REVIEW_REPORT_FILE, render_chain_review(review))
@@ -488,13 +695,21 @@ def _chain_check(
 
 
 def _policy_check(
-    policy_path: Path, output_dir: Path, exit_on_review: bool, generated_at: str
+    policy_path: Path | None,
+    output_dir: Path | None,
+    config_path: Path | None,
+    include_coverage: bool,
+    exit_on_review: bool,
+    generated_at: str,
 ) -> tuple[str, int]:
-    policy = parse_policy(load_document(policy_path))
-    review = review_policy(policy, generated_at)
-    json_path = write_json(output_dir / POLICY_REVIEW_FILE, review)
+    if config_path is None and policy_path is not None:
+        output_dir = output_dir or Path("artifacts")
+    paths = _configured_paths(config_path, {"policy": policy_path, "output_dir": output_dir})
+    policy = parse_policy(load_document(paths["policy"]))
+    review = review_policy(policy, generated_at, include_coverage=include_coverage)
+    json_path = write_json(paths["output_dir"] / POLICY_REVIEW_FILE, review)
     markdown_path = write_text(
-        output_dir / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
+        paths["output_dir"] / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
     )
     has_findings = int(review["summary"]["review_findings"]) > 0
     code = 1 if exit_on_review and has_findings else 0
@@ -526,6 +741,20 @@ def _statement(attestation_path: Path, output_dir: Path) -> str:
         output_dir / UNSIGNED_STATEMENT_FILE, build_unsigned_statement(read_json(attestation_path))
     )
     return f"Wrote unsigned local statement: {path}"
+
+
+def _baseline_create(review_path: Path, reason: str, expires_at: str, output_path: Path) -> str:
+    """Write a reviewer-supplied local baseline draft for active review findings."""
+
+    baseline = create_baseline(read_json(review_path), reason, expires_at)
+    return f"Wrote local risk baseline: {write_json(output_path, baseline)}"
+
+
+def _validate_decisions(path: Path, decision_kind: str) -> str:
+    """Validate one supplied local decision document without changing it."""
+
+    validate_decision_document(load_document(path), decision_kind)
+    return f"Validated local risk {decision_kind}: {path}"
 
 
 def _risk_check(
@@ -642,12 +871,30 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "init":
             print(_init(args.directory))
             return EXIT_SUCCESS
+        if args.command == "config":
+            if args.config_command == "validate":
+                print(_config_validate(args.config))
+            else:
+                print(_config_show(args.config))
+            return EXIT_SUCCESS
+        if args.command == "ci":
+            message, code = _ci(
+                args.config,
+                args.output_dir,
+                args.source_revision,
+                args.coverage,
+                args.exit_on_review,
+                generation_timestamp(args.generated_at),
+            )
+            print(message)
+            return code
         if args.command == "scan":
             print(
                 _scan(
                     args.manifest,
                     args.policy,
                     args.output_dir,
+                    args.config,
                     generation_timestamp(args.generated_at),
                 )
             )
@@ -657,6 +904,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.policy,
                 args.scenarios,
                 args.output_dir,
+                args.config,
                 generation_timestamp(args.generated_at),
             )
             print(message)
@@ -709,6 +957,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.output_dir,
                 args.max_nodes,
                 args.max_paths,
+                args.max_edges,
+                args.max_depth,
+                args.max_states,
                 args.exit_on_review,
                 generation_timestamp(args.generated_at),
             )
@@ -718,6 +969,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             message, code = _policy_check(
                 args.policy,
                 args.output_dir,
+                args.config,
+                args.coverage,
                 args.exit_on_review,
                 generation_timestamp(args.generated_at),
             )
@@ -736,6 +989,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             return code
         if args.command == "statement":
             print(_statement(args.attestation, args.output_dir))
+            return EXIT_SUCCESS
+        if args.command == "baseline":
+            if args.baseline_command == "create":
+                print(_baseline_create(args.review, args.reason, args.expires_at, args.output))
+            else:
+                print(_validate_decisions(args.input, "baseline"))
+            return EXIT_SUCCESS
+        if args.command == "suppressions":
+            print(_validate_decisions(args.input, "suppressions"))
             return EXIT_SUCCESS
         if args.command == "risk-check":
             message, code = _risk_check(

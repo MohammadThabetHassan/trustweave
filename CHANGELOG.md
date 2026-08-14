@@ -6,6 +6,12 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Added the immutable, data-only `trustweave.api.LocalReviewResult` wrapper for typed consumption of already-generated local review artifacts.
+- Added `trustweave ci`, a one-command coordinator for configured local scan, synthetic tests, policy review, attestation, and report artifacts with optional policy coverage and review gates.
+- Added explicit local `trustweave baseline create`, `baseline validate`, and `suppressions validate` lifecycle commands. Baseline creation requires a reviewer-provided reason and expiry and never claims remediation or authorization.
+- Added strict read-only `trustweave config validate` and `config show` commands plus explicit or bounded auto-discovered `trustweave.toml` path resolution for `scan`, `test`, and `policy-check`.
+- Added opt-in `trustweave policy-check --coverage` diagnostics for first-match reachability, contradictory shadowed decisions, and impossible declared control requirements, with the same local deterministic policy boundary.
+- Made declared-chain analysis stateful for propagated sensitive classifications and fail-closed approval state, and added explicit edge, depth, and state budgets to prevent unbounded local review work.
 - Made flow `purpose_tags` an additive, validated manifest attribute and aligned policy-v2 matching to these machine-readable identifiers rather than the human-readable `purpose` prose, while preserving v1alpha1 manifests without tags.
 - Expanded `trustweave why` with deterministic per-dimension local match evidence for every evaluated policy rule, including unbounded dimensions and declared-control checks.
 - Added deterministic orphaned baseline and suppression reporting to local risk reviews so stale decisions remain visible without altering the active-finding gate or claiming remediation.

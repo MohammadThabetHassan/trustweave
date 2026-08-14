@@ -69,6 +69,53 @@ def test_policy_review_flags_allow_default_shadowed_rule_and_untrusted_external_
     assert review["summary"]["status"] == "review_required"
 
 
+def test_policy_coverage_reports_redundant_contradictory_and_impossible_rules() -> None:
+    document = _copy_policy_document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["classification_taxonomy"] = ["public", "internal", "confidential", "restricted"]
+    rules = document["rules"]
+    assert isinstance(rules, list)
+    rules.extend(
+        [
+            {
+                "id": "TW-COVER-001",
+                "description": "Broad deterministic test rule.",
+                "source_trust": ["untrusted"],
+                "tool_action_classes": ["external"],
+                "decision": "deny",
+                "rationale": "Test-only policy coverage rule.",
+            },
+            {
+                "id": "TW-COVER-002",
+                "description": "Contradictory shadowed deterministic test rule.",
+                "source_trust": ["untrusted"],
+                "tool_action_classes": ["external"],
+                "decision": "allow",
+                "rationale": "Test-only policy coverage rule.",
+            },
+            {
+                "id": "TW-COVER-003",
+                "description": "Impossible control requirement test rule.",
+                "source_trust": ["trusted"],
+                "tool_action_classes": ["read"],
+                "required_controls": ["approval.fail_closed"],
+                "decision": "allow",
+                "rationale": "Test-only policy coverage rule.",
+            },
+        ]
+    )
+    document.pop("approval_control")
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    ids = {finding["id"] for finding in review["findings"]}
+    assert {"TW-POL-007", "TW-POL-008"}.issubset(ids)
+    coverage = review["coverage"]
+    assert coverage["rules"]["TW-COVER-002"]["reachable"] is False
+    assert coverage["rules"]["TW-COVER-002"]["shadowed_by"] == "TW-004"
+    assert coverage["rules"]["TW-COVER-003"]["possible"] is False
+
+
 def test_policy_rejects_explicit_null_approval_control() -> None:
     document = _copy_policy_document()
     document["approval_control"] = None
@@ -103,6 +150,7 @@ def test_cli_policy_check_writes_json_markdown_and_optional_review_exit(tmp_path
                 str(POLICY),
                 "--output-dir",
                 str(tmp_path),
+                "--coverage",
                 "--exit-on-review",
             ]
         )

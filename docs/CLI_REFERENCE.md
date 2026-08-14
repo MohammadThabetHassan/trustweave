@@ -3,7 +3,7 @@
 ## Global contract
 
 ```text
-trustweave [-h] [--generated-at ISO_8601] [--debug] {scan,test,explain,why,attest,report,verify,diff,chain-check,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,risk-check,sarif} ...
+trustweave [-h] [--generated-at ISO_8601] [--debug] {init,config,schema,scan,test,explain,why,attest,report,verify,diff,chain-check,policy-check,trace-review,framework-import,mcp-scaffold,mcp-import,mcp-profile-check,statement,baseline,suppressions,risk-check,sarif} ...
 ```
 
 All commands operate on local files. They do not execute an agent, tool configuration, model, MCP server, subprocess declared by an input, network request, credential lookup, or external business action. JSON inputs are supported by default; safe YAML loading requires the optional `PyYAML` package.
@@ -125,13 +125,27 @@ trustweave verify --attestation PATH
 
 A successful result says only that the statement is internally consistent with its recorded local digests. It does not authenticate the author or prove that a trace, deployment, or external artifact is trustworthy.
 
+## `chain-check`
+
+```bash
+trustweave chain-check --input PATH [--output-dir DIR] [--max-nodes N] [--max-paths N] [--max-edges N] [--max-depth N] [--max-states N] [--exit-on-review]
+```
+
+`chain-check` reviews only an explicitly supplied trust-boundary graph. It deterministically propagates declared sensitive classifications and fail-closed approval state along supplied edges, terminates at declared external actions, and reports when any local traversal budget makes the review incomplete. It does not discover or execute runtime paths.
+
+| Input | Required | Description |
+|---|---:|---|
+| `--input` | Yes | Declared chain manifest JSON. |
+| `--max-nodes`, `--max-paths`, `--max-edges`, `--max-depth`, `--max-states` | No | Positive local analysis budgets for nodes, terminal paths, traversed edges, path depth, and propagation states. |
+| `--exit-on-review` | No | Returns `1` when review findings are generated. |
+
 ## `policy-check`
 
 ```bash
-trustweave policy-check --policy PATH [--output-dir DIR] [--exit-on-review]
+trustweave policy-check --policy PATH [--output-dir DIR] [--coverage] [--exit-on-review]
 ```
 
-`policy-check` statically reviews the ordered deterministic policy. It identifies a rule that an earlier rule shadows, an `allow` default decision, an untrusted-input rule that allows sensitive or external actions, and weak declaration of the approval boundary for sensitive/external paths that use `require_approval`.
+`policy-check` statically reviews the ordered deterministic policy. It identifies a rule that an earlier rule shadows, an `allow` default decision, an untrusted-input rule that allows sensitive or external actions, and weak declaration of the approval boundary for sensitive/external paths that use `require_approval`. With `--coverage`, it additionally records first-match reachability, impossible declared control requirements, and contradictory decisions for provably shadowed rules; this is structural analysis of supplied policy metadata only.
 
 When a policy declares a high-impact approval path, its optional `approval_control` object can record a mechanism label, `binds_to` fields, and `fail_closed`. The review requires bindings for `actor`, `tool`, `target`, `parameters`, `issued_at`, and `expires_at`. It emits `TW-POL-004` when no control is declared, `TW-POL-005` for missing required bindings, and `TW-POL-006` when the declared control is fail-open. These are documentation and review signals; they do not prove that a mechanism exists or was enforced.
 
@@ -139,12 +153,13 @@ When a policy declares a high-impact approval path, its optional `approval_contr
 |---|---:|---|
 | `--policy` | Yes | Deterministic policy in JSON or safe YAML. |
 | `--output-dir` | No | Artifact directory; defaults to `artifacts`. |
+| `--coverage` | No | Adds per-rule local reachability, shadowing, contradiction, and impossible-control diagnostics. |
 | `--exit-on-review` | No | Returns `1` when one or more review findings are generated; useful for explicit CI gates. |
 
 | Output file | Content |
 |---|---|
-| `policy-review.json` | Structured findings, approval-control summary, deterministic counts, and limits. |
-| `policy-review.md` | Human-readable review with a declared approval-boundary table. |
+| `policy-review.json` | Structured findings, approval-control summary, deterministic counts, optional rule coverage, and limits. |
+| `policy-review.md` | Human-readable review with a declared approval-boundary table and optional rule-coverage table. |
 
 A clear policy review is not approval to deploy. A finding is a human-review obligation, not an automatic block.
 
@@ -168,6 +183,16 @@ When an existing `sensitive` or `external` tool gains one or more declared capab
 |---|---|
 | `bundle-diff.json` | Structured source, tool, capability, path, decision, signal, summary, and limit inventory. |
 | `bundle-diff.md` | Human-readable candidate-change report with a capability-addition/removal table. |
+
+## `baseline` and `suppressions`
+
+```bash
+trustweave baseline create --review RISK_REVIEW --reason TEXT --expires-at ISO_8601 --output PATH
+trustweave baseline validate --input PATH
+trustweave suppressions validate --input PATH
+```
+
+`baseline create` creates a local expiry-enforced baseline draft from active findings in an already-supplied risk review. A human supplies both the reason and expiry. The validation commands check document structure only. None of these commands authenticates a reviewer, waives a security condition, contacts a ticketing system, remediates a finding, or enforces a deployed control.
 
 ## `risk-check`
 

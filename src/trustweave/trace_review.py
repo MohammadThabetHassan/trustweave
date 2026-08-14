@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from trustweave.engine import evaluate_flow
+from trustweave.findings import finding as canonical_finding
 from trustweave.models import AgentManifest, Flow, Policy, ValidationError, reject_unknown_fields
 from trustweave.provenance import add_generated_at
 
@@ -50,6 +51,19 @@ def _tool_name(call: Mapping[str, Any], path: str) -> str:
     if len(set(values)) > 1:
         raise ValidationError(f"{path} contains conflicting tool names")
     return values[0]
+
+
+def _finding(identifier: str, message: str, call: ObservedToolCall) -> dict[str, Any]:
+    """Build a canonical finding from minimized local trace metadata only."""
+
+    return canonical_finding(
+        identifier,
+        "review",
+        message,
+        "pre_recorded_trace_metadata",
+        subject={"source": call.source, "tool": call.tool},
+        properties={"call_index": str(call.index)},
+    )
 
 
 def parse_trace(
@@ -130,22 +144,20 @@ def review_trace(
         if source is None:
             observation["status"] = "review_required"
             findings.append(
-                {
-                    "id": "TW-TRACE-001",
-                    "severity": "review",
-                    "index": call.index,
-                    "message": f"Observed call references undeclared source {call.source}.",
-                }
+                _finding(
+                    "TW-TRACE-001",
+                    f"Observed call references undeclared source {call.source}.",
+                    call,
+                )
             )
         elif tool is None:
             observation["status"] = "review_required"
             findings.append(
-                {
-                    "id": "TW-TRACE-002",
-                    "severity": "review",
-                    "index": call.index,
-                    "message": f"Observed call references undeclared tool {call.tool}.",
-                }
+                _finding(
+                    "TW-TRACE-002",
+                    f"Observed call references undeclared tool {call.tool}.",
+                    call,
+                )
             )
         else:
             declared_flow = flows_by_pair.get((call.source, call.tool))
@@ -153,15 +165,14 @@ def review_trace(
                 observation["status"] = "review_required"
                 observation["action_class"] = tool.action_class
                 findings.append(
-                    {
-                        "id": "TW-TRACE-003",
-                        "severity": "review",
-                        "index": call.index,
-                        "message": (
+                    _finding(
+                        "TW-TRACE-003",
+                        (
                             f"Observed call from {call.source} to {call.tool} is not a declared "
                             "manifest flow."
                         ),
-                    }
+                        call,
+                    )
                 )
             else:
                 decision = evaluate_flow(declared_flow, source, tool, policy)
@@ -175,27 +186,25 @@ def review_trace(
                 )
                 if decision.decision == "deny":
                     findings.append(
-                        {
-                            "id": "TW-TRACE-004",
-                            "severity": "review",
-                            "index": call.index,
-                            "message": (
+                        _finding(
+                            "TW-TRACE-004",
+                            (
                                 f"Observed call from {call.source} to {call.tool} matches a policy "
                                 "decision of deny."
                             ),
-                        }
+                            call,
+                        )
                     )
                 elif decision.decision == "require_approval":
                     findings.append(
-                        {
-                            "id": "TW-TRACE-005",
-                            "severity": "review",
-                            "index": call.index,
-                            "message": (
+                        _finding(
+                            "TW-TRACE-005",
+                            (
                                 f"Observed call from {call.source} to {call.tool} requires "
                                 "approval under the declared policy."
                             ),
-                        }
+                            call,
+                        )
                     )
         observations.append(observation)
 

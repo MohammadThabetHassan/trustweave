@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse
 
+from trustweave.findings import finding as canonical_finding
 from trustweave.models import (
     VALID_ACTION_CLASSES,
     AgentManifest,
@@ -153,6 +154,23 @@ def parse_mcp_profile(document: Mapping[str, Any]) -> McpProfile:
     )
 
 
+def _finding(
+    identifier: str, message: str, profile: McpProfile, tool: McpToolMapping | None = None
+) -> dict[str, Any]:
+    """Build a canonical finding from supplied local profile identifiers only."""
+
+    subject: dict[str, str] = {"profile": profile.name}
+    if tool is not None:
+        subject.update({"mcp_tool": tool.name, "manifest_tool": tool.manifest_tool})
+    return canonical_finding(
+        identifier,
+        "review",
+        message,
+        "pre_recorded_mcp_metadata",
+        subject=subject,
+    )
+
+
 def review_mcp_profile(
     profile: McpProfile, manifest: AgentManifest, generated_at: str | None = None
 ) -> dict[str, Any]:
@@ -162,15 +180,15 @@ def review_mcp_profile(
     findings: list[dict[str, str]] = []
     if profile.transport == "http" and not profile.authorization_expected:
         findings.append(
-            {
-                "id": "TW-MCP-001",
-                "severity": "review",
-                "message": (
+            _finding(
+                "TW-MCP-001",
+                (
                     "HTTP profile declares authorization_expected=false; review whether "
                     "the server is intentionally unauthenticated and how the trust "
                     "boundary is protected."
                 ),
-            }
+                profile,
+            )
         )
 
     mappings: list[dict[str, str]] = []
@@ -184,26 +202,26 @@ def review_mcp_profile(
         if manifest_tool is None:
             mapping["status"] = "review_required"
             findings.append(
-                {
-                    "id": "TW-MCP-002",
-                    "severity": "review",
-                    "message": (
-                        f"MCP tool {tool.name} maps to unknown manifest tool {tool.manifest_tool}."
-                    ),
-                }
+                _finding(
+                    "TW-MCP-002",
+                    f"MCP tool {tool.name} maps to unknown manifest tool {tool.manifest_tool}.",
+                    profile,
+                    tool,
+                )
             )
         elif manifest_tool.action_class != tool.action_class:
             mapping["status"] = "review_required"
             mapping["manifest_action_class"] = manifest_tool.action_class
             findings.append(
-                {
-                    "id": "TW-MCP-003",
-                    "severity": "review",
-                    "message": (
+                _finding(
+                    "TW-MCP-003",
+                    (
                         f"MCP tool {tool.name} declares action class {tool.action_class}, but "
                         f"manifest tool {tool.manifest_tool} declares {manifest_tool.action_class}."
                     ),
-                }
+                    profile,
+                    tool,
+                )
             )
         else:
             mapping["status"] = "clear"
