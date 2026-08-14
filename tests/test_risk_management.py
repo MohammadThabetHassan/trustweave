@@ -9,7 +9,9 @@ from trustweave.cli import EXIT_REVIEW, EXIT_SUCCESS, main
 from trustweave.models import ValidationError
 from trustweave.risk import (
     RISK_BASELINE_SCHEMA_VERSION,
+    RISK_REVIEW_SCHEMA_VERSION,
     RISK_SUPPRESSIONS_SCHEMA_VERSION,
+    create_baseline,
     normalize_findings,
     review_risks,
     should_fail,
@@ -141,6 +143,21 @@ def test_risk_contract_rejects_missing_reason_duplicate_or_invalid_expiry(
     with pytest.raises(ValidationError, match="unknown field|reason"):
         review_risks(
             [review_artifact], baseline_document=malformed, reviewed_at="2026-08-13T00:00:00+00:00"
+        )
+
+
+def test_baseline_creation_rejects_expiry_before_review_timestamp() -> None:
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-14T12:00:00+00:00",
+        "findings": [{"fingerprint": "a" * 64, "risk_state": "new"}],
+    }
+
+    with pytest.raises(ValidationError, match="later than review timestamp"):
+        create_baseline(
+            review,
+            "Explicit local reviewer decision.",
+            "2026-08-14T11:59:59+00:00",
         )
 
 
