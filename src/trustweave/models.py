@@ -137,12 +137,28 @@ VALID_SEVERITIES = frozenset({"critical", "high", "medium", "low", "info"})
 DECLARED_CONTROL_CATALOG = frozenset({"approval", "approval.fail_closed"})
 DEFAULT_CLASSIFICATION_TAXONOMY = ("public", "internal", "confidential", "restricted")
 CAPABILITY_PATTERN_MAX_LENGTH = 128
+IDENTIFIER_MAX_LENGTH = 64
 
 
 def _string(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
     return value.strip()
+
+
+def validate_identifier(value: Any, path: str) -> str:
+    """Validate a bounded lowercase ASCII identifier used in declared local links."""
+
+    identifier = _string(value, path)
+    if (
+        len(identifier) > IDENTIFIER_MAX_LENGTH
+        or fullmatch(r"[a-z][a-z0-9_-]*", identifier) is None
+    ):
+        raise ValidationError(
+            f"{path} must be a lowercase ASCII identifier of at most "
+            f"{IDENTIFIER_MAX_LENGTH} characters"
+        )
+    return identifier
 
 
 def _mapping(value: Any, path: str) -> Mapping[str, Any]:
@@ -229,7 +245,7 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             )
         sources.append(
             Source(
-                name=_string(source.get("name"), f"manifest.sources[{index}].name"),
+                name=validate_identifier(source.get("name"), f"manifest.sources[{index}].name"),
                 trust=trust,
                 data_classification=_string(
                     source.get("data_classification"),
@@ -271,7 +287,7 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
         _unique_names(list(capabilities), f"manifest.tools[{index}].capabilities")
         tools.append(
             Tool(
-                name=_string(tool.get("name"), f"manifest.tools[{index}].name"),
+                name=validate_identifier(tool.get("name"), f"manifest.tools[{index}].name"),
                 action_class=action_class,
                 capabilities=capabilities,
                 description=_string(
@@ -304,7 +320,7 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
                 f"manifest.flows[{index}].tool references unknown tool {tool_name}"
             )
         purpose_tags = tuple(
-            _string(value, f"manifest.flows[{index}].purpose_tags")
+            validate_identifier(value, f"manifest.flows[{index}].purpose_tags")
             for value in _sequence(
                 flow.get("purpose_tags", []), f"manifest.flows[{index}].purpose_tags"
             )

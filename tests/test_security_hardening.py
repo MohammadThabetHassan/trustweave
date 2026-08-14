@@ -122,3 +122,55 @@ def test_runtime_source_has_no_network_process_or_dynamic_execution_primitives()
                 violations.append(f"{source_path.name}: {module}.{name}()")
 
     assert violations == []
+
+
+def test_manifest_rejects_unicode_declared_identifiers() -> None:
+    from trustweave.models import parse_manifest
+
+    document = {
+        "schema_version": "trustweave.dev/v1alpha1",
+        "name": "identifier-boundary",
+        "description": "A local declaration used to test identifier validation.",
+        "sources": [
+            {
+                "name": "inbox",
+                "trust": "untrusted",
+                "data_classification": "confidential",
+                "description": "Declared source.",
+            }
+        ],
+        "tools": [
+            {
+                "name": "send_email",
+                "action_class": "external",
+                "capabilities": ["email.send"],
+                "description": "Declared tool.",
+            }
+        ],
+        "flows": [
+            {
+                "source": "inbox",
+                "tool": "send_email",
+                "purpose": "notify_customer",
+                "purpose_tags": ["outbound"],
+            }
+        ],
+    }
+
+    for field, value in (
+        ("sources", "inböx"),
+        ("tools", "send-émail"),
+        ("purpose_tags", "outbøund"),
+    ):
+        candidate = json.loads(json.dumps(document))
+        if field == "sources":
+            candidate["sources"][0]["name"] = value
+            candidate["flows"][0]["source"] = value
+        elif field == "tools":
+            candidate["tools"][0]["name"] = value
+            candidate["flows"][0]["tool"] = value
+        else:
+            candidate["flows"][0]["purpose_tags"] = [value]
+
+        with pytest.raises(ValidationError, match="ASCII identifier"):
+            parse_manifest(candidate)
