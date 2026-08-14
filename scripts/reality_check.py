@@ -68,13 +68,19 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "384 generated mutants; 351 killed; 33 survived; 0 without a selected test; 0 timed out; "
+    "2,339 generated mutants; 1,911 killed; 428 survived; 0 without a selected test; 0 timed out; "
     "0 suspicious.",
-    "91.41% killed (`351 / 384`)",
+    "81.70% killed (`1,911 / 2,339`)",
     "Linux with fork support",
-    "does **not** establish the roadmap target over the intended broader high-risk scope",
+    "**does not meet a 90% mutation threshold** for the measured high-risk scope",
     "not a cross-platform release-blocking gate",
 )
+MUTATION_SOURCE_SCOPE = [
+    "src/trustweave/engine.py",
+    "src/trustweave/models.py",
+    "src/trustweave/policy_predicates.py",
+    "src/trustweave/risk.py",
+]
 CHANGELOG_VERSION_HEADING = re.compile(r"^## \[([^\]]+)\]", re.MULTILINE)
 
 
@@ -526,8 +532,8 @@ def _check_quality_evidence() -> list[str]:
     mutation_config = project.get("tool", {}).get("mutmut")
     if not isinstance(mutation_config, dict):
         failures.append("pyproject.toml lacks a [tool.mutmut] configuration")
-    elif mutation_config.get("only_mutate") != ["src/trustweave/engine.py"]:
-        failures.append("Mutation configuration must remain scoped to src/trustweave/engine.py")
+    elif mutation_config.get("only_mutate") != MUTATION_SOURCE_SCOPE:
+        failures.append("Mutation configuration must cover the documented high-risk source scope")
     return failures
 
 

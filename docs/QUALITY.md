@@ -44,7 +44,7 @@ The declared core runtime dependency set is intentionally empty in v0.1. Optiona
 | Observed-evidence review | `trustweave trace-review` | Clear and review-required local trace artifacts with minimized reports. |
 | MCP integration metadata | `trustweave mcp-profile-check` | Clear and review-required local profile artifacts with no server connection. |
 | Interoperable review evidence | `trustweave sarif` | A deterministic local SARIF 2.1.0 file derived from selected review artifacts, with no automatic upload. |
-| Focused mutation analysis | `mutmut run` then `mutmut results` | A Linux-only diagnostic of the configured deterministic engine scope; see [the mutation-testing record](MUTATION_TESTING.md). |
+| High-risk mutation analysis | `mutmut run` then `mutmut results` | A Linux-only diagnostic of the configured engine, models, policy-predicate, and risk-lifecycle scope; see [the mutation-testing record](MUTATION_TESTING.md). |
 
 ## Acceptance controls
 
@@ -60,7 +60,7 @@ The clear MCP profile fixture must exit `0` with `--exit-on-review`. The review-
 
 The adversarial scenario library must pass all **25** cited synthetic patterns under the default policy, and `explain` must render the reference for `TW-ADV-001`. The MCP tools-list fixture must normalize to a two-tool inventory without an endpoint, transport operation, credential, action-class inference, or invocation.
 
-The focused mutation analysis recorded in [MUTATION_TESTING.md](MUTATION_TESTING.md) is intentionally limited to `src/trustweave/engine.py` on Linux because mutmut requires fork support. Its result is additional test-quality evidence, not a release-blocking cross-platform control or a claim about the entire package.
+The high-risk mutation analysis recorded in [MUTATION_TESTING.md](MUTATION_TESTING.md) covers `engine.py`, `models.py`, `policy_predicates.py`, and `risk.py` on Linux because mutmut requires fork support. Its 81.70% measured score is additional test-quality evidence, is below a 90% high-risk-scope threshold, and is neither a release-blocking cross-platform control nor a claim about the entire package.
 
 A SARIF workflow must combine existing policy, diff, trace, and MCP review artifacts and retain `TW-POL-004`, `TW-DIFF-003`, `TW-TRACE-004`, and `TW-MCP-001` in `trustweave.sarif`. The artifact must declare SARIF version `2.1.0`. This is format-level interoperability evidence only; no hosted code-scanning upload occurs in the repository workflow.
 

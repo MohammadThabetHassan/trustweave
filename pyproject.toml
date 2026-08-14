@@ -79,7 +79,12 @@ warn_unreachable = true
 
 [tool.mutmut]
 source_paths = ["src"]
-only_mutate = ["src/trustweave/engine.py"]
+only_mutate = [
+  "src/trustweave/engine.py",
+  "src/trustweave/models.py",
+  "src/trustweave/policy_predicates.py",
+  "src/trustweave/risk.py",
+]
 also_copy = ["examples", "policies", "scenarios", "schemas", "docs"]
 pytest_add_cli_args = ["--no-cov"]
 pytest_add_cli_args_test_selection = [
@@ -89,6 +94,11 @@ pytest_add_cli_args_test_selection = [
   "tests/test_policy_attributes.py",
   "tests/test_policy_v2.py",
   "tests/test_adversarial_scenarios.py",
+  "tests/test_canonical_findings.py",
+  "tests/test_models_contracts.py",
+  "tests/test_policy_review.py",
+  "tests/test_risk_management.py",
+  "tests/test_risk_schemas.py",
   "-k",
   "not repository_reality_check",
 ]
