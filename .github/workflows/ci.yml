@@ -62,6 +62,18 @@ jobs:
           .sdist-check/bin/trustweave --help
           rm -rf .sdist-check
 
+      - name: Container build and smoke test
+        run: |
+          docker build --pull=false -t trustweave:0.2.0 .
+          docker run --rm trustweave:0.2.0 --help
+          docker run --rm trustweave:0.2.0 schema list
+          docker run --rm --network none trustweave:0.2.0 schema list
+          docker run --rm --entrypoint sh trustweave:0.2.0 -c 'test "$(id -u)" -eq 10001'
+          docker run --rm --entrypoint python trustweave:0.2.0 -c 'import trustweave; assert trustweave.__version__ == "0.2.0"'
+          docker run --rm --entrypoint sh trustweave:0.2.0 -c 'test -d /usr/local/lib/python3.13/site-packages/trustweave/schemas'
+          docker run --rm --entrypoint sh trustweave:0.2.0 -c '! find / -xdev -type d -name "__pycache__" -print -quit | grep -q .'
+          ! docker image inspect trustweave:0.2.0 --format '{{range .RootFS.Layers}}{{println .}}{{end}}' | grep -q 'cache'
+
       - name: Verify reproducible wheel build
         run: |
           rm -rf .wheel-repro-a .wheel-repro-b
