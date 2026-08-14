@@ -14,12 +14,12 @@ The initial scope is intentionally limited to `src/trustweave/engine.py`. This m
 | Tool | `mutmut 3.7.0` |
 | Platform | Linux with fork support |
 | Mutated source | `src/trustweave/engine.py` only |
-| Test selection | Engine foundation, policy attributes, policy v1alpha2, and adversarial scenario suites; the unrelated repository-reality subprocess test is excluded. |
-| Result | 384 generated mutants; 295 killed; 89 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
-| Focused score | 76.82% killed (`295 / 384`) |
+| Test selection | Engine foundation, focused engine mutation contracts, policy attributes, policy v1alpha2, and adversarial scenario suites; the unrelated repository-reality subprocess test is excluded. |
+| Result | 384 generated mutants; 351 killed; 33 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
+| Focused score | 91.41% killed (`351 / 384`) |
 | CI status | Informational and Linux-only; it is not a cross-platform release-blocking gate. |
 
-This result improves test association for shared engine behavior, but it does **not** meet the roadmap target of at least 90% over the intended high-risk scope. The unaddressed survivors, broader high-risk module scope, and any final acceptance claim remain outstanding. The result must be re-run and updated whenever selected source, targeted tests, or mutation-tool configuration changes.
+This focused engine result meets a 90% mutation threshold for its measured module, but it does **not** establish the roadmap target over the intended broader high-risk scope. The 33 survivors, unmutated high-risk modules, and any broader final acceptance claim remain outstanding. The result must be re-run and updated whenever selected source, targeted tests, or mutation-tool configuration changes.
 
 ## Re-run procedure
 

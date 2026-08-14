@@ -67,11 +67,11 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "384 generated mutants; 295 killed; 89 survived; 0 without a selected test; 0 timed out; "
+    "384 generated mutants; 351 killed; 33 survived; 0 without a selected test; 0 timed out; "
     "0 suspicious.",
-    "76.82% killed (`295 / 384`)",
+    "91.41% killed (`351 / 384`)",
     "Linux with fork support",
-    "does **not** meet the roadmap target of at least 90%",
+    "does **not** establish the roadmap target over the intended broader high-risk scope",
     "not a cross-platform release-blocking gate",
 )
 CHANGELOG_VERSION_HEADING = re.compile(r"^## \[([^\]]+)\]", re.MULTILINE)
