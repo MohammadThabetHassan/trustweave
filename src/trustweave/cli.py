@@ -70,7 +70,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         args = _parser().parse_args(argv)
         debug = args.debug
         message, code = dispatch(args, generation_timestamp(args.generated_at))
-        print(message)
+        if message:
+            print(message)
         return code
     except ValidationError as error:
         if debug:

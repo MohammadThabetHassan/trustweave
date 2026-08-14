@@ -66,6 +66,8 @@ def configured_paths(
                 raise ValidationError(
                     f"{name} is required as a command argument or tool.trustweave.{name} in {path}"
                 )
+            if not isinstance(configured, str):
+                raise ValidationError(f"tool.trustweave.{name} must be a local path string")
             selected = Path(configured)
             if not selected.is_absolute():
                 selected = path.parent / selected

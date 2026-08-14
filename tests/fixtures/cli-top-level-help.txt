@@ -9,7 +9,7 @@ positional arguments:
     init                Create an opt-in local trustweave.toml template without overwriting files.
     config              Validate or display explicit local TrustWeave project configuration.
     schema              List or display checked-in local JSON Schemas.
-    ci                  Run the configured local evidence workflow without executing an agent or
+    ci                  Run configured local evidence stages without executing an agent or
                         contacting services.
     scan                Validate a manifest and write an Agent Security Bundle.
     test                Run safe synthetic policy regression scenarios.
