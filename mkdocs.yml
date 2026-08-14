@@ -23,6 +23,7 @@ nav:
   - Concepts: concepts.md
   - Installation and quick start: INSTALLATION.md
   - Configuration: CONFIGURATION.md
+  - Manifest, tags, and classifications: MANIFEST_CONTRACT.md
   - Local CI workflow: CI_WORKFLOW.md
   - CLI:
       - Guide: CLI.md
