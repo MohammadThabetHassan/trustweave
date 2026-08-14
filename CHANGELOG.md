@@ -6,6 +6,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- Split the command-line implementation into focused command modules behind a sub-200-line public facade, preserving stable command help and exit-code behavior with golden help contracts.
 - Made the repository reality check validate real generated artifacts, exact schema resources from an installed wheel, and CLI command coverage derived from the authoritative parser.
 - Deduplicated raw review and derived risk-review SARIF results by canonical finding fingerprint while preserving every contributing local artifact location.
 - Made `LocalReviewResult` recursively immutable and defensively copied so nested caller-owned review data cannot mutate public API results.
