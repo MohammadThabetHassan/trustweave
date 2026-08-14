@@ -119,7 +119,7 @@ def _check_generated_artifact_schemas() -> list[str]:
         ("finding-v1alpha1.schema.json", emitted_finding),
     ]
     with tempfile.TemporaryDirectory(prefix="trustweave-reality-") as temporary_directory:
-        temporary_path = Path(temporary_directory)
+        temporary_path = Path(temporary_directory).resolve()
         bundle_path = write_json(temporary_path / "bundle.json", bundle)
         test_results_path = write_json(
             temporary_path / "test-results.json",
