@@ -13,6 +13,13 @@ GOLDEN_HELP_PATH = ROOT / "tests" / "fixtures" / "cli-top-level-help.txt"
 RISK_HELP_PATH = ROOT / "tests" / "fixtures" / "cli-risk-check-help.txt"
 
 
+def _normalized_help(text: str) -> str:
+    """Compare golden help content while ignoring platform-specific argparse line wrapping."""
+
+    paragraphs = text.split("\n\n")
+    return "\n\n".join(" ".join(paragraph.split()) for paragraph in paragraphs).strip()
+
+
 def test_cli_facade_remains_under_two_hundred_lines() -> None:
     assert len(CLI_PATH.read_text(encoding="utf-8").splitlines()) < 200
 
@@ -29,7 +36,9 @@ def test_top_level_help_matches_the_golden_command_contract() -> None:
 
     assert completed.returncode == 0
     assert completed.stderr == ""
-    assert completed.stdout == GOLDEN_HELP_PATH.read_text(encoding="utf-8")
+    assert _normalized_help(completed.stdout) == _normalized_help(
+        GOLDEN_HELP_PATH.read_text(encoding="utf-8")
+    )
 
 
 def test_risk_check_help_matches_the_golden_contract() -> None:
@@ -44,4 +53,6 @@ def test_risk_check_help_matches_the_golden_contract() -> None:
 
     assert completed.returncode == 0
     assert completed.stderr == ""
-    assert completed.stdout == RISK_HELP_PATH.read_text(encoding="utf-8")
+    assert _normalized_help(completed.stdout) == _normalized_help(
+        RISK_HELP_PATH.read_text(encoding="utf-8")
+    )
