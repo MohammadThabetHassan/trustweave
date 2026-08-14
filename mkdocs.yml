@@ -35,3 +35,4 @@ nav:
   - Public API and exports: PUBLIC_API.md
   - MCP metadata workflows: MCP_METADATA.md
   - Policy review and coverage: POLICY_REVIEW.md
+  - Release process: RELEASE.md
