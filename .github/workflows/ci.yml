@@ -55,6 +55,13 @@ jobs:
           .wheel-check/bin/trustweave --help
           rm -rf .wheel-check
 
+      - name: Verify the built source distribution in isolation
+        run: |
+          python -m venv .sdist-check
+          .sdist-check/bin/pip install dist/*.tar.gz
+          .sdist-check/bin/trustweave --help
+          rm -rf .sdist-check
+
       - name: Verify reproducible wheel build
         run: |
           rm -rf .wheel-repro-a .wheel-repro-b

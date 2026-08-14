@@ -67,3 +67,12 @@ def test_release_integration_assets_cover_local_validation_code_scanning_and_con
     assert "USER trustweave" in container_text
     assert "--no-cache-dir" in container_text
     assert "trustweave --help" in container_text
+
+
+def test_quality_workflow_smoke_tests_built_source_distribution() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+
+    assert "Verify the built source distribution in isolation" in workflow
+    assert ".sdist-check/bin/pip install dist/*.tar.gz" in workflow
+    assert ".sdist-check/bin/trustweave --help" in workflow
+    assert "rm -rf .sdist-check" in workflow
