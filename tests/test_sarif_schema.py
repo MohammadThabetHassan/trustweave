@@ -19,7 +19,8 @@ def test_generated_sarif_validates_against_the_pinned_official_schema() -> None:
     """The local exporter remains conformant without network access at validation time."""
 
     schema_bytes = SARIF_SCHEMA.read_bytes()
-    assert sha256(schema_bytes).hexdigest() == SARIF_SCHEMA_SHA256
+    canonical_bytes = schema_bytes.replace(b"\r\n", b"\n")
+    assert sha256(canonical_bytes).hexdigest() == SARIF_SCHEMA_SHA256
     schema = json.loads(schema_bytes)
     Draft4Validator.check_schema(schema)
     exported = build_sarif(
