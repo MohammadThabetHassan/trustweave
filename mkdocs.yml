@@ -34,3 +34,4 @@ nav:
   - Threat model: THREAT_MODEL.md
   - Public API and exports: PUBLIC_API.md
   - MCP metadata workflows: MCP_METADATA.md
+  - Policy review and coverage: POLICY_REVIEW.md
