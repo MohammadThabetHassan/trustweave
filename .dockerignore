@@ -1,0 +1,21 @@
+# VCS and local tooling metadata
+.git/
+.github/
+
+# Python bytecode and local verification artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mutmut-cache/
+
+# Build and virtual-environment artifacts
+build/
+dist/
+*.egg-info/
+.venv/
