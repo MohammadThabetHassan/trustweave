@@ -524,3 +524,54 @@ def test_risk_review_rejects_misaligned_paths_and_invalid_subject_collection() -
     }
     with pytest.raises(ValidationError, match="only strings"):
         review_risks([malformed_subject], reviewed_at="2026-08-13T00:00:00+00:00")
+
+
+def test_risk_normalization_preserves_ordered_chain_path_identity() -> None:
+    forward = {
+        "schema_version": "trustweave.dev/chain-review/v1alpha1",
+        "findings": [
+            {
+                "id": "TW-CHAIN-001",
+                "severity": "high",
+                "message": "A declared path requires review.",
+                "subject": {"path": ["source", "data", "sink"]},
+            }
+        ],
+    }
+    reverse = {
+        **forward,
+        "findings": [
+            {
+                **forward["findings"][0],
+                "subject": {"path": ["sink", "data", "source"]},
+            }
+        ],
+    }
+
+    normalized_forward = normalize_findings(forward)[0]
+    normalized_reverse = normalize_findings(reverse)[0]
+
+    assert normalized_forward.subject == {"path": ("source", "data", "sink")}
+    assert normalized_reverse.subject == {"path": ("sink", "data", "source")}
+    assert normalized_forward.fingerprint != normalized_reverse.fingerprint
+
+
+def test_normalized_risk_finding_subject_is_deeply_immutable() -> None:
+    artifact = {
+        "schema_version": "trustweave.dev/chain-review/v1alpha1",
+        "findings": [
+            {
+                "id": "TW-CHAIN-001",
+                "severity": "high",
+                "message": "A declared path requires review.",
+                "subject": {"path": ["source", "data", "sink"]},
+            }
+        ],
+    }
+
+    normalized = normalize_findings(artifact)[0]
+    artifact["findings"][0]["subject"]["path"].append("mutated")
+
+    assert normalized.as_dict()["subject"] == {"path": ["source", "data", "sink"]}
+    with pytest.raises(TypeError):
+        normalized.subject["path"] = ("mutated",)
