@@ -170,6 +170,14 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         "A supplied rule names required controls outside the declared control catalog.",
         "Declare the required controls or correct the rule references.",
     ),
+    "TW-POL-009": RuleDefinition(
+        "TW-POL-009",
+        "declared_policy_structure",
+        "Policy rule is redundant under first-match semantics",
+        "An earlier supplied rule covers a later rule and specifies the same deterministic "
+        "decision.",
+        "Remove the later rule or narrow it to express a distinct reviewable policy condition.",
+    ),
     "TW-TRACE-001": RuleDefinition(
         "TW-TRACE-001",
         "pre_recorded_trace_metadata",

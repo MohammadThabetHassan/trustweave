@@ -62,7 +62,7 @@ def review_policy(
                     ),
                 }
             )
-            if include_coverage and shadowing_rule.decision != later_rule.decision:
+            if shadowing_rule.decision != later_rule.decision:
                 findings.append(
                     {
                         "severity": "review",
@@ -70,6 +70,17 @@ def review_policy(
                         "message": (
                             f"Rule {later_rule.id} conflicts with shadowing rule "
                             f"{shadowing_rule.id}: their declared decisions differ."
+                        ),
+                    }
+                )
+            else:
+                findings.append(
+                    {
+                        "severity": "review",
+                        "id": "TW-POL-009",
+                        "message": (
+                            f"Rule {later_rule.id} is redundant because shadowing rule "
+                            f"{shadowing_rule.id} specifies the same decision."
                         ),
                     }
                 )

@@ -409,3 +409,24 @@ def test_policy_v1alpha2_rejects_unicode_declared_identifier_predicates() -> Non
 
         with pytest.raises(ValidationError, match="ASCII identifier"):
             parse_policy(document)
+
+
+def test_policy_coverage_reports_a_redundant_shadowed_rule_separately() -> None:
+    document = _policy_document()
+    document["default_decision"] = "deny"
+    duplicate = dict(document["rules"][0])
+    duplicate["id"] = "TW-V2-REDUNDANT"
+    document["rules"] = [document["rules"][0], duplicate]
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    assert [finding["id"] for finding in review["findings"]] == [
+        "TW-POL-002",
+        "TW-POL-009",
+    ]
+    assert review["coverage"]["rules"]["TW-V2-REDUNDANT"] == {
+        "reachable": False,
+        "possible": True,
+        "shadowed_by": "TW-V2-001",
+        "decision": "deny",
+    }
