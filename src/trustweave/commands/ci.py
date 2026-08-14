@@ -37,6 +37,7 @@ from trustweave.scenarios import parse_scenarios, run_scenarios
 CI_SUMMARY_FILE = "ci-summary.json"
 CI_SUMMARY_SCHEMA_VERSION = "trustweave.dev/ci-summary/v1alpha1"
 DEFAULT_STAGES = ("scan", "scenarios", "policy_review", "attestation", "report", "summary")
+CI_SUPPORTED_STAGES = frozenset({*DEFAULT_STAGES, "policy_coverage", "chain_review", "sarif"})
 SEVERITY_RANK = {severity: index for index, severity in enumerate(VALID_SEVERITIES)}
 
 
@@ -106,6 +107,11 @@ def _selected_stages(config: Mapping[str, object]) -> tuple[str, ...]:
         return DEFAULT_STAGES
     if not isinstance(configured, tuple) or not all(isinstance(stage, str) for stage in configured):
         raise ValidationError("tool.trustweave.enabled_stages must be a validated stage list")
+    unsupported = sorted(set(configured) - CI_SUPPORTED_STAGES)
+    if unsupported:
+        raise ValidationError(
+            "trustweave ci does not implement configured stages: " + ", ".join(unsupported)
+        )
     return configured
 
 

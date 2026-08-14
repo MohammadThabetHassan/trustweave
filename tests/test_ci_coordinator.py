@@ -54,6 +54,8 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
     assert _selected_stages({"enabled_stages": ("scan", "summary")}) == ("scan", "summary")
     with pytest.raises(ValidationError, match="validated stage list"):
         _selected_stages({"enabled_stages": ["scan"]})
+    with pytest.raises(ValidationError, match="does not implement configured stages: trace_review"):
+        _selected_stages({"enabled_stages": ("trace_review",)})
 
     assert _required_paths(()) == set()
     assert _required_paths(("scan", "scenarios", "chain_review")) == {
