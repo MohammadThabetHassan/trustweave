@@ -13,7 +13,7 @@ trustweave --generated-at 2026-08-13T00:00:00+00:00 risk-check \
 
 ## Stable identity and state
 
-Every supported local finding receives a `trustweave/fingerprint/v2` value. The fingerprint is a SHA-256 identity over evidence kind, review identifier, normalized severity, and stable subject. Message wording and local output paths do not change the fingerprint.
+Every supported local finding receives a `trustweave/fingerprint/v3` value. The fingerprint is a SHA-256 identity over evidence kind, review identifier, and normalized stable subject. Message wording, review severity, timestamps, artifact paths, temporary directories, and output locations do not change the fingerprint; severity remains a separate reviewer-visible property.
 
 | State | Meaning | Active for a severity gate |
 | --- | --- | --- |
