@@ -35,6 +35,7 @@ nav:
   - Risk identities and lifecycle: RISK_MANAGEMENT.md
   - Migration to 0.2.0: MIGRATION_0_2.md
   - Threat model: THREAT_MODEL.md
+  - Troubleshooting and limitations: TROUBLESHOOTING.md
   - Public API and exports: PUBLIC_API.md
   - MCP metadata workflows: MCP_METADATA.md
   - Policy versions and controls: POLICY_VERSIONS.md
