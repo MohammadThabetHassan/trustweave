@@ -680,6 +680,73 @@ def _check_documentation_site() -> list[str]:
     return []
 
 
+def _check_documentation_commands() -> list[str]:
+    """Execute representative copy-paste documentation commands without external services."""
+
+    failures: list[str] = []
+    expected_names = sorted(path.name for path in (ROOT / "schemas").glob("*.schema.json"))
+    with tempfile.TemporaryDirectory(
+        prefix="trustweave-doc-command-reality-"
+    ) as temporary_directory:
+        temporary_path = Path(temporary_directory)
+        schema_list = subprocess.run(
+            ["trustweave", "schema", "list"], check=False, capture_output=True, text=True
+        )
+        if schema_list.returncode != 0:
+            failures.append(f"Documented schema list command failed: {schema_list.stderr.strip()}")
+        elif schema_list.stdout.splitlines() != expected_names:
+            failures.append("Documented schema list command does not show all shipped schemas")
+
+        if expected_names:
+            schema_show = subprocess.run(
+                ["trustweave", "schema", "show", expected_names[0]],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if schema_show.returncode != 0:
+                failures.append(
+                    f"Documented schema show command failed: {schema_show.stderr.strip()}"
+                )
+            else:
+                try:
+                    shown_schema = json.loads(schema_show.stdout)
+                except json.JSONDecodeError as error:
+                    failures.append(f"Documented schema show command emitted invalid JSON: {error}")
+                else:
+                    expected_schema = json.loads(
+                        (ROOT / "schemas" / expected_names[0]).read_text(encoding="utf-8")
+                    )
+                    if shown_schema != expected_schema:
+                        failures.append(
+                            "Documented schema show command differs from the shipped schema"
+                        )
+
+        initialized = subprocess.run(
+            ["trustweave", "init", "--directory", str(temporary_path)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        config_path = temporary_path / "trustweave.toml"
+        if initialized.returncode != 0 or not config_path.is_file():
+            failures.append(
+                "Documented init command did not create a local trustweave.toml template"
+            )
+        else:
+            validated = subprocess.run(
+                ["trustweave", "config", "validate", "--config", str(config_path)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if validated.returncode != 0:
+                failures.append(
+                    f"Documented config validate command failed: {validated.stderr.strip()}"
+                )
+    return failures
+
+
 def _check_cli() -> list[str]:
     completed = subprocess.run(
         ["trustweave", "--help"],
@@ -713,6 +780,7 @@ def main() -> int:
         + _check_quality_evidence()
         + _check_rule_registry()
         + _check_documentation_site()
+        + _check_documentation_commands()
         + _check_cli()
     )
     if failures:
@@ -724,7 +792,8 @@ def main() -> int:
         "Repository reality check passed: schemas, contract examples, local documentation "
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
         "quality evidence, generated artifacts, installed-wheel runtime and schema resources, "
-        "generated documentation, strict documentation-site builds, and CLI commands are connected."
+        "generated documentation, strict documentation-site builds, executed documentation "
+        "commands, and CLI commands are connected."
     )
     return 0
 

@@ -57,3 +57,9 @@ def test_reality_check_validates_changelog_version_synchronization() -> None:
     reality_check = _reality_check_module()
 
     assert reality_check._check_changelog_version_synchronization() == []
+
+
+def test_reality_check_executes_representative_documentation_commands() -> None:
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_documentation_commands() == []
