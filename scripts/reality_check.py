@@ -17,6 +17,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from trustweave.cli import _parser
+from trustweave.cli import main as cli_main
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
 from trustweave.findings import finding
@@ -138,6 +139,44 @@ def _check_generated_artifact_schemas() -> list[str]:
                 ),
             )
         )
+        output_directory = temporary_path / "ci-artifacts"
+        stages = ("scan", "scenarios", "policy_review", "attestation", "report", "summary")
+        rendered_stages = ", ".join(f'"{stage}"' for stage in stages)
+        config_path = temporary_path / "trustweave.toml"
+        config_path.write_text(
+            "[tool.trustweave]\n"
+            f'manifest = "{(ROOT / "examples/support-agent.manifest.json").as_posix()}"\n'
+            f'policy = "{(ROOT / "policies/default-policy.json").as_posix()}"\n'
+            f'scenarios = "{(ROOT / "scenarios/default-scenarios.json").as_posix()}"\n'
+            f'output_dir = "{output_directory.as_posix()}"\n'
+            f"enabled_stages = [{rendered_stages}]\n"
+            'failure_threshold = "none"\n'
+            "reproducible = true\n",
+            encoding="utf-8",
+        )
+        if (
+            cli_main(
+                [
+                    "--generated-at",
+                    "2026-08-14T00:00:00+00:00",
+                    "ci",
+                    "--config",
+                    str(config_path),
+                    "--source-revision",
+                    "reality-check",
+                    "--quiet",
+                ]
+            )
+            != 0
+        ):
+            failures.append("Could not generate fixed-provenance CI summary for schema validation")
+        else:
+            generated.append(
+                (
+                    "ci-summary-v1alpha1.schema.json",
+                    dict(load_document(output_directory / "ci-summary.json")),
+                )
+            )
 
     for schema_name, artifact in generated:
         schema_path = ROOT / "schemas" / schema_name
