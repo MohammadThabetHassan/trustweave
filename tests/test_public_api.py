@@ -70,3 +70,28 @@ def test_typed_local_review_result_preserves_only_existing_local_evidence() -> N
                 "limits": [],
             }
         )
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("schema_version", "", "schema_version"),
+        ("findings", ["not-an-object"], "findings"),
+        ("summary", [], "summary"),
+        ("limits", "not-a-list", "limits"),
+        ("limits", ["valid", 1], "limits"),
+    ],
+)
+def test_local_review_result_rejects_invalid_common_envelopes(
+    field: str, value: object, message: str
+) -> None:
+    document: dict[str, object] = {
+        "schema_version": "trustweave.dev/test-review/v1alpha1",
+        "findings": [{"id": "TW-TEST-001"}],
+        "summary": {"counts": {"review": 1}},
+        "limits": ["Local deterministic evidence only."],
+    }
+    document[field] = value
+
+    with pytest.raises(api.ValidationError, match=message):
+        api.LocalReviewResult.from_document(document)

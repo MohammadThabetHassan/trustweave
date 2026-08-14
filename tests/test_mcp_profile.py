@@ -91,3 +91,37 @@ def test_cli_mcp_profile_check_writes_artifacts_and_can_fail_review_gate(tmp_pat
     )
     assert (review_dir / "mcp-profile-review.json").is_file()
     assert (review_dir / "mcp-profile-review.md").is_file()
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda profile: profile.update({"schema_version": "unsupported"}), "schema_version"),
+        (lambda profile: profile.update({"transport": "websocket"}), "transport"),
+        (lambda profile: profile.update({"authorization_expected": "false"}), "boolean"),
+        (lambda profile: profile.update({"resource_uri": "relative/path"}), "absolute HTTP"),
+        (lambda profile: profile.update({"tools": []}), "at least one tool"),
+        (
+            lambda profile: profile["tools"].append(dict(profile["tools"][0])),
+            "mcp_profile.tools.name contains duplicate",
+        ),
+    ],
+)
+def test_mcp_profile_parser_rejects_invalid_static_contracts(mutate: object, message: str) -> None:
+    profile = _document(CLEAR_PROFILE)
+    assert callable(mutate)
+    mutate(profile)
+
+    with pytest.raises(ValidationError, match=message):
+        parse_mcp_profile(profile)
+
+
+def test_stdio_profile_retains_an_explicit_local_identifier_without_http_validation() -> None:
+    profile = _document(CLEAR_PROFILE)
+    profile["transport"] = "stdio"
+    profile["resource_uri"] = "local-reviewable-stdio-identifier"
+
+    parsed = parse_mcp_profile(profile)
+
+    assert parsed.transport == "stdio"
+    assert parsed.resource_uri == "local-reviewable-stdio-identifier"

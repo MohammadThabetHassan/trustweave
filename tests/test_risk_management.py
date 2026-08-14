@@ -15,6 +15,7 @@ from trustweave.risk import (
     normalize_findings,
     review_risks,
     should_fail,
+    validate_decision_document,
 )
 
 
@@ -41,6 +42,20 @@ def test_findings_have_stable_fingerprints_and_legacy_review_severity_is_normali
     assert first == second
     assert first[0].severity == "medium"
     assert len(first[0].fingerprint) == 64
+
+
+def test_risk_normalization_rejects_invalid_subjects_and_severities() -> None:
+    artifact = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "findings": [{"id": "TW-RISK-001", "severity": "invalid", "message": "Test."}],
+    }
+    with pytest.raises(ValidationError, match="must be one of"):
+        normalize_findings(artifact)
+
+    artifact["findings"][0]["severity"] = "high"
+    artifact["findings"][0]["subject"] = {"path": ["valid", 1]}
+    with pytest.raises(ValidationError, match="only strings"):
+        normalize_findings(artifact)
 
 
 def test_baseline_and_suppression_expiry_are_enforced(
@@ -144,6 +159,57 @@ def test_risk_contract_rejects_missing_reason_duplicate_or_invalid_expiry(
         review_risks(
             [review_artifact], baseline_document=malformed, reviewed_at="2026-08-13T00:00:00+00:00"
         )
+
+
+def test_risk_lifecycle_rejects_missing_time_misaligned_paths_conflicts_and_invalid_decision_kind(
+    review_artifact: dict[str, object],
+) -> None:
+    fingerprint = normalize_findings(review_artifact)[0].fingerprint
+    decision = {
+        "schema_version": RISK_BASELINE_SCHEMA_VERSION,
+        "baseline": [
+            {
+                "fingerprint": fingerprint,
+                "reason": "Explicit temporary local decision.",
+                "expires_at": "2026-09-01T00:00:00+00:00",
+            }
+        ],
+    }
+    with pytest.raises(ValidationError, match="reviewed_at must be supplied"):
+        review_risks([review_artifact])
+    with pytest.raises(ValidationError, match="align one-to-one"):
+        review_risks(
+            [review_artifact],
+            reviewed_at="2026-08-14T00:00:00+00:00",
+            artifact_paths=[],
+        )
+    with pytest.raises(ValidationError, match="conflict"):
+        review_risks(
+            [review_artifact],
+            baseline_document=decision,
+            suppressions_document={
+                "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+                "suppressions": [
+                    {
+                        "fingerprint": fingerprint,
+                        "reason": "Conflicting local decision.",
+                        "expires_at": "2026-09-01T00:00:00+00:00",
+                    }
+                ],
+            },
+            reviewed_at="2026-08-14T00:00:00+00:00",
+        )
+    with pytest.raises(ValidationError, match="decision_kind"):
+        validate_decision_document(decision, "unsupported")
+
+
+def test_risk_gate_rejects_invalid_severity_and_supports_none(
+    review_artifact: dict[str, object],
+) -> None:
+    review = review_risks([review_artifact], reviewed_at="2026-08-14T00:00:00+00:00")
+    assert not should_fail(review, "none")
+    with pytest.raises(ValidationError, match="fail_on"):
+        should_fail(review, "invalid")
 
 
 def test_baseline_creation_rejects_expiry_before_review_timestamp() -> None:

@@ -290,3 +290,63 @@ def test_policy_v2_rejects_invalid_taxonomy_references_and_v1_unknown_fields() -
     legacy["schema_version"] = "trustweave.dev/v1alpha1"
     with pytest.raises(ValidationError, match="unknown field"):
         parse_policy(legacy)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("classification_taxonomy", [], "must not be empty"),
+        ("classification_taxonomy", ["public", "public"], "duplicate values"),
+    ],
+)
+def test_policy_v2_rejects_invalid_taxonomy_declarations(
+    field: str, value: object, message: str
+) -> None:
+    document = _policy_document()
+    document[field] = value
+
+    with pytest.raises(ValidationError, match=message):
+        parse_policy(document)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("source_identifiers", ["inbox", "inbox"]),
+        ("tool_identifiers", ["send_email", "send_email"]),
+        ("purpose_tags", ["outbound", "outbound"]),
+        ("required_controls", ["approval", "approval"]),
+    ],
+)
+def test_policy_v2_rejects_duplicate_optional_rule_constraints(
+    field: str, value: list[str]
+) -> None:
+    document = _policy_document()
+    rule = document["rules"][0]
+    assert isinstance(rule, dict)
+    rule[field] = value
+
+    with pytest.raises(ValidationError, match="duplicate values"):
+        parse_policy(document)
+
+
+@pytest.mark.parametrize(
+    ("control", "message"),
+    [
+        (None, "approval_control must be an object"),
+        ({"mechanism": "declared", "binds_to": [], "fail_closed": True}, "must not be empty"),
+        (
+            {"mechanism": "declared", "binds_to": ["tool", "tool"], "fail_closed": True},
+            "duplicate values",
+        ),
+        ({"mechanism": "declared", "binds_to": ["tool"], "fail_closed": "true"}, "boolean"),
+    ],
+)
+def test_policy_v2_rejects_invalid_approval_control_contracts(
+    control: object, message: str
+) -> None:
+    document = _policy_document()
+    document["approval_control"] = control
+
+    with pytest.raises(ValidationError, match=message):
+        parse_policy(document)

@@ -61,7 +61,7 @@ trustweave = ["py.typed", "schemas/*.schema.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q --cov=trustweave --cov-branch --cov-report=term-missing --cov-fail-under=90"
+addopts = "-q --cov=trustweave --cov-branch --cov-report=term-missing --cov-fail-under=95"
 
 [tool.ruff]
 line-length = 100

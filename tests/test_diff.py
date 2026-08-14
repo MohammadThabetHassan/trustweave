@@ -143,3 +143,41 @@ def test_bundle_diff_inventories_sensitive_capability_growth() -> None:
     report = render_diff_report(diff)
     assert "## Capability changes" in report
     assert "customer-record.export" in report
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda bundle: bundle.pop("manifest"), "missing a manifest"),
+        (
+            lambda bundle: bundle["manifest"].update({"sources": [{"trust": "trusted"}]}),
+            "named objects",
+        ),
+        (
+            lambda bundle: bundle["manifest"].update(
+                {"tools": [bundle["manifest"]["tools"][0], bundle["manifest"]["tools"][0]]}
+            ),
+            "duplicate item name",
+        ),
+        (
+            lambda bundle: bundle.update({"findings": [{"flow": {"source": "source"}}]}),
+            "named tool",
+        ),
+        (
+            lambda bundle: bundle["manifest"]["tools"][0].update({"capabilities": [""]}),
+            "non-empty capability",
+        ),
+    ],
+)
+def test_bundle_diff_rejects_malformed_declared_artifact_components(
+    mutate: object, message: str
+) -> None:
+    bundle = build_bundle(
+        parse_manifest(_copy_document(MANIFEST)), parse_policy(_copy_document(POLICY))
+    )
+    head = json.loads(json.dumps(bundle))
+    assert callable(mutate)
+    mutate(head)
+
+    with pytest.raises(ValidationError, match=message):
+        diff_bundles(bundle, head)

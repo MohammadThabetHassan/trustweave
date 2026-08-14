@@ -47,3 +47,22 @@ def test_cli_writes_unsigned_statement(tmp_path: Path) -> None:
         main(["statement", "--attestation", str(attestation), "--output-dir", str(output_dir)]) == 0
     )
     assert read_json(output_dir / "unsigned-statement.json")["unsigned"] is True
+
+
+@pytest.mark.parametrize(
+    "attestation",
+    [
+        {"schema_version": "trustweave.dev/attestation/v1alpha3"},
+        {
+            "schema_version": "trustweave.dev/attestation/v1alpha3",
+            "subject": {},
+            "predicate": {},
+            "integrity": {},
+        },
+    ],
+)
+def test_unsigned_statement_rejects_incomplete_attestation_envelopes(
+    attestation: dict[str, object],
+) -> None:
+    with pytest.raises(ValidationError, match="missing subject"):
+        build_unsigned_statement(attestation)

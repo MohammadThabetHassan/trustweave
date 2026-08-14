@@ -61,6 +61,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Quality
 
+- Raised the enforced branch-coverage gate to 95% after expanding deterministic boundary and property-based regression coverage for local configuration, public review envelopes, manifests, policies, chains, traces, MCP profiles, risk lifecycle decisions, bundle diffs, CLI error handling, and unsigned statements.
+
 - Corrected the stale adversarial-scenario claim in `docs/QUALITY.md` from ten to the source-derived count of 25.
 - Extended the deterministic repository reality check to verify the source-derived adversarial scenario count, mutation record, mutation configuration, and released quality-documentation contract.
 - Added exact deterministic-engine assertions for matching/default rationales, UTC timestamps, and complete bundle fields; the initial scoped mutation analysis killed 108 of 108 generated engine mutants.

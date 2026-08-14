@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from trustweave.diff import diff_bundles
-from trustweave.findings import FINDING_SCHEMA_VERSION, finding
+from trustweave.findings import FINDING_SCHEMA_VERSION, LocalFinding, finding
 from trustweave.io import load_document
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import parse_manifest, parse_policy
@@ -39,6 +39,20 @@ def test_canonical_finding_omits_unavailable_fields_and_orders_safe_sequences() 
     }
     with pytest.raises(ValueError, match="unsupported"):
         finding("TW-TEST-002", "urgent", "Invalid severity.", "declared_configuration")
+
+
+def test_local_finding_renders_ordered_optional_location_and_references() -> None:
+    rendered = LocalFinding(
+        identifier="TW-TEST-LOCATION",
+        severity="low",
+        message="A local metadata reference.",
+        evidence_kind="declared_configuration",
+        location={"path": "b", "kind": "declared"},
+        references=({"uri": "z"}, {"uri": "a"}),
+    ).as_dict()
+
+    assert rendered["location"] == {"kind": "declared", "path": "b"}
+    assert rendered["references"] == [{"uri": "a"}, {"uri": "z"}]
 
 
 def test_trace_and_mcp_producers_emit_additive_canonical_metadata() -> None:
