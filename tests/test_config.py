@@ -114,3 +114,123 @@ def test_project_config_rejects_unknown_and_non_string_values(tmp_path: Path) ->
     path.write_text("[tool.trustweave]\nmanifest = 1\n", encoding="utf-8")
     with pytest.raises(ValidationError, match="non-empty string"):
         load_project_config(path)
+
+
+def test_project_config_accepts_safe_typed_ci_workflow_fields(tmp_path: Path) -> None:
+    """The config contract admits only explicit local coordinator settings."""
+
+    path = tmp_path / CONFIG_FILE_NAME
+    path.write_text(
+        "[tool.trustweave]\n"
+        'manifest = "manifest.json"\n'
+        'policy = "policy.json"\n'
+        'scenarios = "scenarios.json"\n'
+        'chain_manifest = "chain.json"\n'
+        'baseline_bundle = "base.json"\n'
+        'candidate_bundle = "candidate.json"\n'
+        'trace = "trace.json"\n'
+        'mcp_profile = "profile.json"\n'
+        'risk_baseline = "baseline.json"\n'
+        'suppressions = "suppressions.json"\n'
+        'output_dir = "artifacts"\n'
+        'sarif_output = "artifacts/trustweave.sarif"\n'
+        'failure_threshold = "high"\n'
+        'enabled_stages = ["scan", "policy_review", "sarif"]\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    config = load_project_config(path)
+
+    assert config["chain_manifest"] == "chain.json"
+    assert config["enabled_stages"] == ("scan", "policy_review", "sarif")
+    assert config["reproducible"] is True
+
+
+def test_project_config_discovery_has_an_explicit_upward_bound(tmp_path: Path) -> None:
+    """Discovery cannot silently escape an explicitly chosen local project boundary."""
+
+    project = tmp_path / "project"
+    nested = project / "nested" / "work"
+    nested.mkdir(parents=True)
+    config_path = init_project(project)
+
+    assert find_project_config(nested, max_parents=2) == config_path
+    with pytest.raises(InputOutputError, match="within 1 parent directories"):
+        find_project_config(nested, max_parents=1)
+
+
+def test_ci_uses_configured_stages_formats_and_quiet_output(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Configured CI publishes only selected deterministic stages with a stable JSON summary."""
+
+    root = Path(__file__).resolve().parents[1]
+    config_path = tmp_path / CONFIG_FILE_NAME
+    config_path.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples" / "support-agent.manifest.json").as_posix()}"\n'
+        f'policy = "{(root / "policies" / "default-policy.json").as_posix()}"\n'
+        'output_dir = "ci-artifacts"\n'
+        'enabled_stages = ["scan", "policy_review", "summary"]\n'
+        'failure_threshold = "none"\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config_path), "--format", "json", "--quiet"]) == 0
+    assert capsys.readouterr().out == ""
+    output_dir = tmp_path / "ci-artifacts"
+    assert (output_dir / "agent-security-bundle.json").is_file()
+    assert (output_dir / "policy-review.json").is_file()
+    summary = (output_dir / "ci-summary.json").read_text(encoding="utf-8")
+    assert '"schema_version": "trustweave.dev/ci-summary/v1alpha1"' in summary
+    assert '"stages": [' in summary
+    assert not (output_dir / "security-test-results.json").exists()
+
+
+def test_ci_preserves_existing_artifacts_when_a_later_stage_fails(tmp_path: Path) -> None:
+    """A failed run cannot publish a mixed artifact directory over prior local evidence."""
+
+    root = Path(__file__).resolve().parents[1]
+    output_dir = tmp_path / "ci-artifacts"
+    output_dir.mkdir()
+    marker = output_dir / "previous-evidence.txt"
+    marker.write_text("keep", encoding="utf-8")
+    config_path = tmp_path / CONFIG_FILE_NAME
+    config_path.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples" / "support-agent.manifest.json").as_posix()}"\n'
+        'policy = "missing-policy.json"\n'
+        'output_dir = "ci-artifacts"\n'
+        'enabled_stages = ["scan", "policy_review"]\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config_path)]) == 3
+    assert marker.read_text(encoding="utf-8") == "keep"
+    assert sorted(path.name for path in output_dir.iterdir()) == ["previous-evidence.txt"]
+
+
+def test_ci_runs_selected_chain_and_sarif_stages(tmp_path: Path) -> None:
+    """Optional local review stages must publish deterministic artifacts when explicitly enabled."""
+
+    root = Path(__file__).resolve().parents[1]
+    chain_manifest = root / "examples" / "chains" / "safe-sanitized-external.chain.json"
+    config_path = tmp_path / CONFIG_FILE_NAME
+    config_path.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples" / "support-agent.manifest.json").as_posix()}"\n'
+        f'policy = "{(root / "policies" / "default-policy.json").as_posix()}"\n'
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        'output_dir = "ci-artifacts"\n'
+        'enabled_stages = ["scan", "policy_review", "chain_review", "sarif", "summary"]\n'
+        'sarif_output = "trustweave.sarif"\n'
+        'failure_threshold = "none"\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config_path), "--quiet"]) == 0
+    output_dir = tmp_path / "ci-artifacts"
+    assert (output_dir / "chain-review.json").is_file()
+    assert (output_dir / "chain-review.md").is_file()
+    assert (output_dir / "trustweave.sarif").is_file()

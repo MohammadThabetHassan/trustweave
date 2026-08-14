@@ -1,47 +1,35 @@
 # Built-in Rule Catalog
 
-TrustWeave finding identifiers are stable labels for **review of supplied local declarations and evidence metadata**. They do not establish a vulnerability, incident, runtime exploit path, deployed control state, or authorization outcome. Policy-rule IDs supplied by a user remain user-owned declarations and are not included in this catalog.
+> This reference is generated from TrustWeave's immutable built-in rule registry. Regenerate it with `python scripts/generate_rule_catalog.py`; do not edit the table manually.
 
-## Declared chain review
+TrustWeave finding identifiers are stable labels for **review of supplied local declarations and evidence metadata**. They do not establish a vulnerability, incident, runtime exploit path, deployed control state, or authorization outcome. User-supplied policy-rule identifiers are declarations and are not included in this catalog.
 
-| Identifier | Local trigger | Reviewer action |
-|---|---|---|
-| `TW-CHAIN-001` | A declared path from an untrusted source reaches a sensitive classification and a declared external action. | Confirm the declared graph, classification, boundary ownership, and policy intent. |
-| `TW-CHAIN-002` | Such a declared sensitive path lacks a fail-closed approval state scoped to its propagated classification. | Confirm that approval is required and binds to the relevant declared scope. |
-| `TW-CHAIN-003` | A declared sanitizer does not claim coverage for every propagated sensitive classification. | Review the sanitizer’s stated coverage and any residual classification. |
-| `TW-CHAIN-004` | A configured local traversal budget is exceeded, making the graph review incomplete. | Increase an explicit budget only after reviewing input scale; do not treat an incomplete review as clear. |
-
-## Static policy review
-
-| Identifier | Local trigger | Reviewer action |
-|---|---|---|
-| `TW-POL-001` | The supplied policy has an `allow` default decision. | Confirm that the default is intentional and appropriately bounded. |
-| `TW-POL-002` | A rule is structurally shadowed by an earlier deterministic rule. | Reorder, narrow, or remove the later declaration. |
-| `TW-POL-003` | A supplied rule permits an untrusted sensitive or external action. | Confirm the policy rationale and human-control boundary. |
-| `TW-POL-004` | A high-impact approval path has no declared approval control. | Declare the control or revise the path policy. |
-| `TW-POL-005` | A declared approval control lacks required binding fields. | Bind the approval to actor, tool, target, parameters, issuance, and expiry as applicable. |
-| `TW-POL-006` | A declared approval control is fail-open. | Review whether a fail-closed control is required for the stated path. |
-
-## Trace and MCP metadata review
-
-| Identifier | Local trigger | Reviewer action |
-|---|---|---|
-| `TW-TRACE-001` | A supplied trace call names an undeclared manifest source. | Reconcile minimized trace metadata with the declared source inventory. |
-| `TW-TRACE-002` | A supplied trace call names an undeclared manifest tool. | Reconcile minimized trace metadata with the declared tool inventory. |
-| `TW-TRACE-003` | A source-tool pair appears in supplied trace metadata but is not a declared flow. | Review the declaration and the provenance of the local trace. |
-| `TW-TRACE-004` | A declared trace call matches a deterministic `deny` decision. | Investigate the mismatch through the human review process; TrustWeave takes no action. |
-| `TW-TRACE-005` | A declared trace call matches `require_approval`. | Verify the relevant approval evidence outside TrustWeave’s local metadata boundary. |
-| `TW-MCP-001` | An HTTP MCP profile declares `authorization_expected: false`. | Review whether unauthenticated transport is intentional and protected. |
-| `TW-MCP-002` | An MCP profile mapping names an unknown manifest tool. | Correct or review the static mapping. |
-| `TW-MCP-003` | An MCP profile action class disagrees with its mapped manifest tool. | Reconcile the declared classifications. |
-
-## Bundle-diff signals
-
-| Identifier | Local trigger | Reviewer action |
-|---|---|---|
-| `TW-DIFF-001` | A sensitive or external declared tool is added or changed between supplied bundles. | Review its declared capabilities and policy coverage. |
-| `TW-DIFF-002` | A supplied head bundle adds or changes an untrusted path to a sensitive or external tool that is not denied. | Review the decision and human-control boundary. |
-| `TW-DIFF-003` | An existing sensitive or external tool gains declared capabilities. | Review least privilege and policy coverage. |
+| Identifier | Evidence kind | Title | Local trigger / rationale | Reviewer action |
+|---|---|---|---|---|
+| `TW-CHAIN-001` | `declared_chain_configuration` | Declared untrusted path reaches an external action | The supplied graph propagates a sensitive classification from an explicitly untrusted source to a declared external action. | Confirm the declared graph, classification, boundary ownership, and policy intent. |
+| `TW-CHAIN-002` | `declared_chain_configuration` | Declared sensitive path lacks scoped fail-closed approval | The supplied path reaches an external action without a fail-closed approval covering every propagated sensitive classification. | Confirm that approval is required and binds to the relevant declared scope. |
+| `TW-CHAIN-003` | `declared_chain_configuration` | Declared sanitizer coverage is incomplete | A supplied sanitizer does not list coverage for every propagated sensitive classification. | Review the sanitizer’s stated coverage and any residual classification. |
+| `TW-CHAIN-004` | `declared_chain_configuration` | Declared chain analysis is incomplete | A configured local traversal budget was reached before the supplied graph could be fully reviewed. | Increase an explicit budget only after reviewing input scale; do not treat an incomplete review as clear. |
+| `TW-DIFF-001` | `declared_bundle_difference` | Sensitive or external tool declaration changed | A supplied bundle comparison adds or changes a sensitive or external declared tool. | Review the tool’s declared capabilities and policy coverage. |
+| `TW-DIFF-002` | `declared_bundle_difference` | Untrusted high-impact path is not denied | The supplied head bundle includes an untrusted path to a sensitive or external tool without a deny decision. | Review the decision and human-control boundary. |
+| `TW-DIFF-003` | `declared_bundle_difference` | Sensitive or external tool gained capability | A supplied bundle comparison shows new declared capabilities on a sensitive or external tool. | Review least-privilege scope and policy coverage. |
+| `TW-MCP-001` | `pre_recorded_mcp_metadata` | MCP HTTP profile declares no authorization expectation | The supplied static MCP profile declares authorization_expected as false for HTTP transport. | Review whether unauthenticated transport is intentional and appropriately protected. |
+| `TW-MCP-002` | `pre_recorded_mcp_metadata` | MCP mapping names an unknown manifest tool | A supplied MCP profile mapping does not identify a declared manifest tool. | Correct or review the static mapping. |
+| `TW-MCP-003` | `pre_recorded_mcp_metadata` | MCP action class disagrees with manifest mapping | A supplied MCP profile action class differs from its mapped manifest tool classification. | Reconcile the declared classifications. |
+| `TW-POL-001` | `declared_policy_structure` | Policy default decision allows unmatched paths | The supplied policy uses allow as the default decision for unmatched declared paths. | Confirm that the default is intentional and appropriately bounded. |
+| `TW-POL-002` | `declared_policy_structure` | Policy rule is structurally shadowed | An earlier deterministic rule structurally covers a later supplied rule. | Reorder, narrow, or remove the later declaration. |
+| `TW-POL-003` | `declared_policy_structure` | Policy permits untrusted high-impact action | A supplied rule permits untrusted input to a sensitive or external action. | Confirm the policy rationale and human-control boundary. |
+| `TW-POL-004` | `declared_policy_structure` | High-impact approval path lacks a control | A supplied high-impact approval path has no declared approval control. | Declare the control or revise the path policy. |
+| `TW-POL-005` | `declared_policy_structure` | Approval control lacks required bindings | A supplied approval control omits one or more required binding fields. | Bind the approval to actor, tool, target, parameters, issuance, and expiry as applicable. |
+| `TW-POL-006` | `declared_policy_structure` | Approval control is fail-open | A supplied approval control is not fail-closed when its state cannot be validated. | Review whether a fail-closed control is required for the stated path. |
+| `TW-POL-007` | `declared_policy_structure` | Policy rules conflict structurally | Two supplied rules can match the same declared path while specifying different decisions. | Resolve the conflict by narrowing, reordering, or removing a declaration. |
+| `TW-POL-008` | `declared_policy_structure` | Policy rule requires undeclared controls | A supplied rule names required controls outside the declared control catalog. | Declare the required controls or correct the rule references. |
+| `TW-POL-009` | `declared_policy_structure` | Policy rule is redundant under first-match semantics | An earlier supplied rule covers a later rule and specifies the same deterministic decision. | Remove the later rule or narrow it to express a distinct reviewable policy condition. |
+| `TW-TRACE-001` | `pre_recorded_trace_metadata` | Trace metadata names an undeclared source | A supplied minimized trace call references a source absent from the declared inventory. | Reconcile minimized trace metadata with the declared source inventory. |
+| `TW-TRACE-002` | `pre_recorded_trace_metadata` | Trace metadata names an undeclared tool | A supplied minimized trace call references a tool absent from the declared inventory. | Reconcile minimized trace metadata with the declared tool inventory. |
+| `TW-TRACE-003` | `pre_recorded_trace_metadata` | Trace source-tool pair is undeclared | A supplied trace source-tool pair is not present in the declared flow inventory. | Review the declaration and the provenance of the local trace. |
+| `TW-TRACE-004` | `pre_recorded_trace_metadata` | Trace matches a deny decision | A supplied trace call matches a deterministic deny policy decision. | Investigate the mismatch through the human review process; TrustWeave takes no action. |
+| `TW-TRACE-005` | `pre_recorded_trace_metadata` | Trace requires approval evidence | A supplied trace call matches a deterministic require_approval policy decision. | Verify the relevant approval evidence outside TrustWeave’s local metadata boundary. |
 
 ## Risk-review states
 

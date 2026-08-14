@@ -55,6 +55,8 @@ def test_denied_trace_produces_review_finding_without_exposing_private_fields() 
     assert "synthetic@example.invalid" not in report
     assert "Synthetic message content" not in report
     assert "send_mock_email" in report
+    assert "Trace matches a deny decision" in report
+    assert "Investigate the mismatch through the human review process" in report
 
 
 def test_trace_review_flags_unknown_tool() -> None:

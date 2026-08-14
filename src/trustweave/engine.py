@@ -6,6 +6,12 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool
+from trustweave.policy_predicates import (
+    PolicySubject,
+    checks_for_rule,
+    declared_controls,
+    rule_matches,
+)
 from trustweave.provenance import add_generated_at
 
 
@@ -37,56 +43,21 @@ def _default_severity(decision: str) -> str:
     return {"deny": "high", "require_approval": "medium", "allow": "info"}[decision]
 
 
-def capability_matches(pattern: str, capability: str) -> bool:
-    """Match an exact capability or one validated final namespace wildcard."""
+def _policy_subject(
+    source: Source, tool: Tool, policy: Policy, flow: Flow | None = None
+) -> PolicySubject:
+    """Create the exact declared predicate subject used by every evaluation entry point."""
 
-    if pattern.endswith(".*"):
-        return capability.startswith(pattern[:-1])
-    return capability == pattern
-
-
-def capability_pattern_covers(first: str, later: str) -> bool:
-    """Return only proven capability-pattern subsumption relationships."""
-
-    if first == later:
-        return True
-    if not first.endswith(".*"):
-        return False
-    prefix = first[:-1]
-    return later.startswith(prefix)
-
-
-def _classification_matches(rule: PolicyRule, source: Source, policy: Policy) -> bool:
-    """Evaluate bounded taxonomy comparisons; unknown classifications never satisfy a bound."""
-
-    if (
-        rule.source_data_classification_at_least is None
-        and rule.source_data_classification_at_most is None
-    ):
-        return True
-    if source.data_classification not in policy.classification_taxonomy:
-        return False
-    rank = policy.classification_taxonomy.index(source.data_classification)
-    if (
-        rule.source_data_classification_at_least is not None
-        and rank < policy.classification_taxonomy.index(rule.source_data_classification_at_least)
-    ):
-        return False
-    return (
-        rule.source_data_classification_at_most is None
-        or rank <= policy.classification_taxonomy.index(rule.source_data_classification_at_most)
+    return PolicySubject(
+        source_trust=source.trust,
+        tool_action_class=tool.action_class,
+        source_data_classification=source.data_classification,
+        source_identifier=source.name,
+        tool_identifier=tool.name,
+        purpose_tags=flow.purpose_tags if flow is not None else (),
+        tool_capabilities=tool.capabilities,
+        declared_controls=declared_controls(policy),
     )
-
-
-def _declared_controls(policy: Policy) -> frozenset[str]:
-    """Expose only design-time control declarations, never runtime enforcement state."""
-
-    controls: set[str] = set()
-    if policy.approval_control is not None:
-        controls.add("approval")
-        if policy.approval_control.fail_closed:
-            controls.add("approval.fail_closed")
-    return frozenset(controls)
 
 
 def _rule_match_checks(
@@ -96,66 +67,9 @@ def _rule_match_checks(
     policy: Policy,
     flow: Flow | None = None,
 ) -> dict[str, dict[str, Any]]:
-    """Return deterministic local evidence for each declared policy-rule dimension."""
+    """Return deterministic local evidence from the shared predicate model."""
 
-    declared_controls = sorted(_declared_controls(policy))
-    purpose_tags = sorted(flow.purpose_tags) if flow is not None else []
-    checks: dict[str, dict[str, Any]] = {
-        "source_trust": {
-            "matched": source.trust in rule.source_trust,
-            "actual": source.trust,
-            "expected_any_of": list(rule.source_trust),
-        },
-        "tool_action_class": {
-            "matched": tool.action_class in rule.tool_action_classes,
-            "actual": tool.action_class,
-            "expected_any_of": list(rule.tool_action_classes),
-        },
-        "source_data_classification": {
-            "matched": not rule.source_data_classifications
-            or source.data_classification in rule.source_data_classifications,
-            "actual": source.data_classification,
-            "expected_any_of": list(rule.source_data_classifications),
-        },
-        "source_identifier": {
-            "matched": not rule.source_identifiers or source.name in rule.source_identifiers,
-            "actual": source.name,
-            "expected_any_of": list(rule.source_identifiers),
-        },
-        "tool_identifier": {
-            "matched": not rule.tool_identifiers or tool.name in rule.tool_identifiers,
-            "actual": tool.name,
-            "expected_any_of": list(rule.tool_identifiers),
-        },
-        "purpose_tags": {
-            "matched": not rule.purpose_tags
-            or bool(set(rule.purpose_tags).intersection(purpose_tags)),
-            "actual": purpose_tags,
-            "expected_any_of": list(rule.purpose_tags),
-        },
-        "source_data_classification_bounds": {
-            "matched": _classification_matches(rule, source, policy),
-            "actual": source.data_classification,
-            "at_least": rule.source_data_classification_at_least,
-            "at_most": rule.source_data_classification_at_most,
-        },
-        "required_controls": {
-            "matched": set(rule.required_controls).issubset(declared_controls),
-            "actual": declared_controls,
-            "expected_all_of": list(rule.required_controls),
-        },
-        "tool_capabilities": {
-            "matched": not rule.tool_capabilities
-            or any(
-                capability_matches(pattern, capability)
-                for pattern in rule.tool_capabilities
-                for capability in tool.capabilities
-            ),
-            "actual": list(tool.capabilities),
-            "expected_any_of": list(rule.tool_capabilities),
-        },
-    }
-    return checks
+    return checks_for_rule(rule, _policy_subject(source, tool, policy, flow), policy)
 
 
 def _rule_matches(
@@ -165,12 +79,9 @@ def _rule_matches(
     policy: Policy,
     flow: Flow | None = None,
 ) -> bool:
-    """Return whether every declared constraint in a rule matches local inputs."""
+    """Return whether every declared predicate matches local inputs."""
 
-    return all(
-        bool(check["matched"])
-        for check in _rule_match_checks(rule, source, tool, policy, flow).values()
-    )
+    return rule_matches(rule, _policy_subject(source, tool, policy, flow), policy)
 
 
 def evaluate_flow(flow: Flow, source: Source, tool: Tool, policy: Policy) -> Finding:

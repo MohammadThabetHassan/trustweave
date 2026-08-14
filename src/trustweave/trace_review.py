@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from trustweave.engine import evaluate_flow
-from trustweave.findings import finding as canonical_finding
 from trustweave.models import AgentManifest, Flow, Policy, ValidationError, reject_unknown_fields
 from trustweave.provenance import add_generated_at
+from trustweave.rules import finding_for_rule
 
 TRACE_SCHEMA_VERSION = "trustweave.dev/trace/v1alpha1"
 TRACE_REVIEW_SCHEMA_VERSION = "trustweave.dev/trace-review/v1alpha1"
@@ -56,11 +56,10 @@ def _tool_name(call: Mapping[str, Any], path: str) -> str:
 def _finding(identifier: str, message: str, call: ObservedToolCall) -> dict[str, Any]:
     """Build a canonical finding from minimized local trace metadata only."""
 
-    return canonical_finding(
+    return finding_for_rule(
         identifier,
         "review",
         message,
-        "pre_recorded_trace_metadata",
         subject={"source": call.source, "tool": call.tool},
         properties={"call_index": str(call.index)},
     )

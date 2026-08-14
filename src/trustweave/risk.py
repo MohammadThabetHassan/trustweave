@@ -7,6 +7,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
+from types import MappingProxyType
 from typing import Any
 
 from trustweave.io import canonical_json
@@ -20,6 +21,7 @@ FINGERPRINT_SCHEMA_VERSION = "trustweave/fingerprint/v2"
 VALID_SEVERITIES = ("critical", "high", "medium", "low", "info")
 SEVERITY_RANK = {severity: index for index, severity in enumerate(VALID_SEVERITIES)}
 _LEGACY_SEVERITY_MAP = {"review": "medium"}
+_ORDERED_SUBJECT_FIELDS = frozenset({"path"})
 
 _ARTIFACT_CONTRACTS: dict[str, tuple[str, str]] = {
     "trustweave.dev/policy-review/v1alpha1": ("findings", "declared_configuration"),
@@ -42,6 +44,17 @@ class CanonicalFinding:
     subject: Mapping[str, Any]
     fingerprint: str
 
+    def __post_init__(self) -> None:
+        """Defensively freeze the normalized, bounded subject identity."""
+
+        frozen_subject = {
+            key: tuple(value)
+            if isinstance(value, Sequence) and not isinstance(value, str)
+            else value
+            for key, value in sorted(self.subject.items())
+        }
+        object.__setattr__(self, "subject", MappingProxyType(frozen_subject))
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "artifact_schema_version": self.artifact_schema_version,
@@ -49,7 +62,10 @@ class CanonicalFinding:
             "id": self.identifier,
             "severity": self.severity,
             "message": self.message,
-            "subject": dict(self.subject),
+            "subject": {
+                key: list(value) if isinstance(value, tuple) else value
+                for key, value in self.subject.items()
+            },
             "fingerprint_schema_version": FINGERPRINT_SCHEMA_VERSION,
             "fingerprint": self.fingerprint,
         }
@@ -89,7 +105,7 @@ def _stable_subject(value: Any, path: str) -> Mapping[str, Any]:
         elif isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
             if not all(isinstance(part, str) for part in item):
                 raise ValidationError(f"{path}.{key} must contain only strings")
-            normalized[key] = sorted(set(item))
+            normalized[key] = list(item) if key in _ORDERED_SUBJECT_FIELDS else sorted(set(item))
         else:
             raise ValidationError(f"{path}.{key} must be a string or list of strings")
     return normalized

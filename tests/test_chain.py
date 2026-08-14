@@ -236,3 +236,50 @@ def test_chain_review_handles_cycles_and_reports_budget_limits() -> None:
         max_nodes=2,
     )
     assert budgeted["findings"][0]["id"] == "TW-CHAIN-004"
+
+
+def test_chain_review_never_emits_more_paths_than_the_declared_limit() -> None:
+    document = _document(
+        [
+            {"id": "source", "kind": "source", "trust": "untrusted"},
+            {"id": "left", "kind": "tool", "action_class": "read"},
+            {"id": "right", "kind": "tool", "action_class": "read"},
+            {"id": "sink", "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "source", "to": "left"},
+            {"from": "source", "to": "right"},
+            {"from": "left", "to": "sink"},
+            {"from": "right", "to": "sink"},
+        ],
+    )
+
+    review = review_declared_chains(document, max_paths=1)
+
+    assert review["paths"] == [{"identity": ["source", "left", "sink"]}]
+    assert any(
+        finding["id"] == "TW-CHAIN-004" and finding["properties"]["budget"] == "max_paths"
+        for finding in review["findings"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("budget", "summary_key"),
+    [({"max_states": 1}, "states_explored"), ({"max_edges": 1}, "edges_traversed")],
+)
+def test_chain_review_never_exceeds_state_or_edge_budget(
+    budget: dict[str, int], summary_key: str
+) -> None:
+    review = review_declared_chains(
+        _document(
+            _unsafe_nodes(),
+            [{"from": "inbox", "to": "records"}, {"from": "records", "to": "email"}],
+        ),
+        **budget,
+    )
+
+    assert review["summary"][summary_key] <= 1
+    assert any(
+        finding["id"] == "TW-CHAIN-004" and finding["properties"]["budget"] in budget
+        for finding in review["findings"]
+    )

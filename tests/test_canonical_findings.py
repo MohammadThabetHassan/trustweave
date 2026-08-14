@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from trustweave.diff import diff_bundles
-from trustweave.findings import FINDING_SCHEMA_VERSION, LocalFinding, finding
+from trustweave.findings import FINDING_SCHEMA_VERSION, LocalFinding, finding, parse_finding
 from trustweave.io import load_document
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import parse_manifest, parse_policy
@@ -55,6 +55,46 @@ def test_local_finding_renders_ordered_optional_location_and_references() -> Non
     assert rendered["references"] == [{"uri": "a"}, {"uri": "z"}]
 
 
+def test_local_finding_is_deeply_immutable_and_defensively_copies_metadata() -> None:
+    subject = {"path": ["source", "sink"]}
+    references = [{"uri": "local://evidence"}]
+    properties = {"budget": 1}
+    local = LocalFinding(
+        identifier="TW-TEST-IMMUTABLE",
+        severity="review",
+        message="A bounded local finding.",
+        evidence_kind="declared_configuration",
+        subject=subject,
+        references=references,
+        properties=properties,
+    )
+
+    subject["path"].append("mutated")
+    references[0]["uri"] = "local://mutated"
+    properties["budget"] = 2
+
+    assert local.as_dict()["subject"] == {"path": ["source", "sink"]}
+    assert local.as_dict()["references"] == [{"uri": "local://evidence"}]
+    assert local.as_dict()["properties"] == {"budget": 1}
+    with pytest.raises(TypeError):
+        local.subject["path"] = ("mutated",)
+    with pytest.raises(TypeError):
+        local.references[0]["uri"] = "local://mutated"
+
+
+def test_canonical_finding_runtime_rejects_arbitrary_nested_metadata() -> None:
+    with pytest.raises(ValueError, match="string array"):
+        parse_finding(
+            {
+                "id": "TW-TEST-NESTED",
+                "severity": "review",
+                "message": "Nested metadata must not be accepted.",
+                "evidence_kind": "declared_configuration",
+                "subject": {"path": [{"nested": "object"}]},
+            }
+        )
+
+
 def test_trace_and_mcp_producers_emit_additive_canonical_metadata() -> None:
     manifest = parse_manifest(load_document(MANIFEST))
     policy = parse_policy(load_document(POLICY))
@@ -100,3 +140,67 @@ def test_policy_and_diff_producers_emit_additive_canonical_metadata() -> None:
         "action_class": "sensitive",
         "added_capabilities": ["customer-record.export"],
     }
+
+
+def test_canonical_finding_renders_optional_rule_metadata_and_safe_scalars() -> None:
+    rendered = finding(
+        "TW-TEST-OPTIONAL",
+        "high",
+        "A bounded finding with reviewer metadata.",
+        "declared_configuration",
+        location={"path": "local.json"},
+        references=({"uri": "local://first"},),
+        properties={"count": 3, "reviewed": True, "labels": ["zeta", "alpha"]},
+        title="Bounded finding",
+        rationale="The local declaration requires review.",
+        remediation="Confirm the declared boundary with a human reviewer.",
+    )
+
+    assert rendered["title"] == "Bounded finding"
+    assert rendered["rationale"] == "The local declaration requires review."
+    assert rendered["remediation"] == "Confirm the declared boundary with a human reviewer."
+    assert rendered["properties"] == {"count": 3, "labels": ["alpha", "zeta"], "reviewed": True}
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "message"),
+    [
+        ({"identifier": "invalid"}, "id must match"),
+        ({"message": ""}, "message must be"),
+        ({"evidence_kind": "not-valid"}, "evidence_kind"),
+        ({"subject": {"Not_Safe": "value"}}, "lower_snake_case"),
+        ({"subject": {"nested": {"value": "object"}}}, "unsupported value type"),
+        ({"location": {"path": ["not", "a", "string"]}}, "unsupported value type"),
+        ({"references": "not-a-list"}, "references must be a list"),
+        ({"properties": {"count": -1}}, "must be between"),
+        ({"properties": {"nested": {"value": "object"}}}, "unsupported value type"),
+    ],
+)
+def test_canonical_finding_rejects_invalid_bounded_metadata(
+    kwargs: dict[str, object], message: str
+) -> None:
+    arguments: dict[str, object] = {
+        "identifier": "TW-TEST-INVALID",
+        "severity": "review",
+        "message": "A bounded invalid-value fixture.",
+        "evidence_kind": "declared_configuration",
+    }
+    arguments.update(kwargs)
+
+    with pytest.raises(ValueError, match=message):
+        finding(**arguments)  # type: ignore[arg-type]
+
+
+def test_parse_finding_rejects_non_object_and_unknown_fields() -> None:
+    with pytest.raises(ValueError, match="must be an object"):
+        parse_finding([])  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="unknown fields"):
+        parse_finding(
+            {
+                "id": "TW-TEST-UNKNOWN",
+                "severity": "review",
+                "message": "Unknown data must be rejected.",
+                "evidence_kind": "declared_configuration",
+                "unexpected": True,
+            }
+        )

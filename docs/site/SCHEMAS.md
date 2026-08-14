@@ -4,7 +4,7 @@ TrustWeave packages its public JSON Schemas with the Python distribution. Schema
 
 ```bash
 trustweave schema list
-trustweave schema show agent-security-bundle-v1alpha1
+trustweave schema show agent-security-bundle-v1alpha1.schema.json
 ```
 
 ## Public schema families

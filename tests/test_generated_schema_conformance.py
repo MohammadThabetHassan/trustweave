@@ -8,6 +8,7 @@ import pytest
 from jsonschema import Draft202012Validator
 from jsonschema import ValidationError as JsonSchemaValidationError
 
+from trustweave.chain import review_declared_chains
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
 from trustweave.findings import finding
@@ -71,6 +72,32 @@ def test_real_v1alpha3_attestation_conforms_to_its_published_schema(tmp_path: Pa
     )
 
     Draft202012Validator(load_document(ATTESTATION_SCHEMA)).validate(attestation)
+
+
+def test_real_chain_findings_conform_to_the_canonical_finding_schema() -> None:
+    """Path-bearing chain observations must use the shared embedded finding contract."""
+
+    review = review_declared_chains(
+        {
+            "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+            "name": "real-chain-finding",
+            "nodes": [
+                {"id": "untrusted", "kind": "source", "trust": "untrusted"},
+                {"id": "sensitive", "kind": "data", "classification": "confidential"},
+                {"id": "external", "kind": "sink", "action_class": "external"},
+            ],
+            "edges": [
+                {"from": "untrusted", "to": "sensitive"},
+                {"from": "sensitive", "to": "external"},
+            ],
+        },
+        generated_at="2026-08-14T00:00:00+00:00",
+    )
+    validator = Draft202012Validator(load_document(FINDING_SCHEMA))
+
+    assert review["findings"]
+    for emitted in review["findings"]:
+        validator.validate(emitted)
 
 
 def test_emitted_canonical_finding_conforms_to_its_published_schema() -> None:

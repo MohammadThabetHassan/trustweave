@@ -34,7 +34,7 @@ The declared core runtime dependency set is intentionally empty in v0.1. Optiona
 | Synthetic regression | `trustweave test` | Passing `security-test-results.json` for the baseline and cited adversarial scenario packs. |
 | Scenario explanation | `trustweave explain` | Local Markdown explanation with declared taxonomy references and no model or network action. |
 | Static MCP snapshot inventory | `trustweave mcp-import` | Sorted local `mcp-tool-inventory.json` with no discovery, connection, authorization inference, or invocation. |
-| Branch coverage | `pytest` | Release-blocking 90% branch coverage across the `trustweave` package. |
+| Branch coverage | `pytest` | Release-blocking 95% branch coverage across the `trustweave` package. |
 | Wheel reproducibility | Two fixed-epoch wheel builds | Byte-for-byte identical wheels from the same working tree. |
 | Local SBOM | `cyclonedx-py environment --output-reproducible` | Reproducible CycloneDX evidence for the verified Python environment and project metadata. |
 | Local integrity | `trustweave attest` then `trustweave verify` | An internally consistent hash-linked attestation. |
@@ -68,7 +68,7 @@ A failing synthetic scenario, malformed manifest, unknown reference, invalid sch
 
 ## Hosted checks
 
-The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, the enforced 90% branch-coverage test suite, repository-reality validation, package build, isolated wheel invocation, deterministic wheel reproducibility, declared dependency audit, reproducible CycloneDX SBOM generation, the synthetic evidence workflow, cited adversarial-scenario checks, local MCP tools-list import, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, profile-URI hygiene assertions, and deterministic SARIF generation. Separate compatibility jobs run the test suite on Python 3.11 and 3.13. The workflow uploads generated evidence for inspection but does not upload SARIF to a code-scanning service.
+The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, the enforced 95% branch-coverage test suite, repository-reality validation, package build, isolated wheel invocation, deterministic wheel reproducibility, declared dependency audit, reproducible CycloneDX SBOM generation, the synthetic evidence workflow, cited adversarial-scenario checks, local MCP tools-list import, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, profile-URI hygiene assertions, and deterministic SARIF generation. Separate compatibility jobs run the test suite on Python 3.11 and 3.13. The workflow uploads generated evidence for inspection but does not upload SARIF to a code-scanning service.
 
 The repository’s `main` branch requires this status check, retains linear history, and blocks force pushes and deletion. Direct commits remain the authorized working model; maintainers must complete the local checks before pushing and must monitor hosted results on the exact pushed SHA.
 

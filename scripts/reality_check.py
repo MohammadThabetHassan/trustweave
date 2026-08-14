@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 import subprocess
@@ -21,6 +22,7 @@ from trustweave.evidence import build_attestation
 from trustweave.findings import finding
 from trustweave.io import load_document, write_json
 from trustweave.models import parse_manifest, parse_policy
+from trustweave.rules import RULES
 
 try:
     import yaml
@@ -55,12 +57,33 @@ REQUIRED_README_MARKERS = (
 ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
 MUTATION_RECORD_PATH = ROOT / "docs" / "MUTATION_TESTING.md"
+RULE_PRODUCER_PATHS = (
+    ROOT / "src" / "trustweave" / "chain.py",
+    ROOT / "src" / "trustweave" / "diff.py",
+    ROOT / "src" / "trustweave" / "mcp_profile.py",
+    ROOT / "src" / "trustweave" / "policy_review.py",
+    ROOT / "src" / "trustweave" / "trace_review.py",
+)
+RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "108 generated mutants; 108 killed; 0 survived; 0 timed out; 0 suspicious",
+    "384 generated mutants; 351 killed; 33 survived; 0 without a selected test; 0 timed out; "
+    "0 suspicious.",
+    "91.41% killed (`351 / 384`)",
     "Linux with fork support",
+    "does **not** establish the roadmap target over the intended broader high-risk scope",
     "not a cross-platform release-blocking gate",
 )
+CHANGELOG_VERSION_HEADING = re.compile(r"^## \[([^\]]+)\]", re.MULTILINE)
+
+
+def _declared_project_version() -> str | None:
+    """Return the package version from the build metadata, if structurally valid."""
+
+    with (ROOT / "pyproject.toml").open("rb") as project_file:
+        project = tomllib.load(project_file)
+    version = project.get("project", {}).get("version")
+    return version if isinstance(version, str) and version else None
 
 
 def _check_json_documents() -> list[str]:
@@ -212,17 +235,56 @@ def _check_ci_assets() -> list[str]:
     if not action_path.exists():
         failures.append("Missing repository-local TrustWeave composite action")
     else:
-        action = action_path.read_text(encoding="utf-8")
-        if (
-            'test -f "$GITHUB_WORKSPACE/pyproject.toml"' not in action
-            or 'python -m pip install "$GITHUB_WORKSPACE"' not in action
-        ):
-            failures.append(
-                "Composite action must verify and install the checked-out repository package"
-            )
-        workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-        if "uses: ./.github/actions/trustweave" not in workflow:
-            failures.append("CI must invoke the repository-local composite action")
+        try:
+            action = yaml.safe_load(action_path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as error:
+            failures.append(f"Invalid composite action YAML: {error}")
+        else:
+            if not isinstance(action, dict):
+                failures.append("Composite action must be a YAML mapping")
+            else:
+                required_inputs = {
+                    "manifest",
+                    "policy",
+                    "scenarios",
+                    "output-dir",
+                    "fail-on-review",
+                }
+                inputs = action.get("inputs")
+                if not isinstance(inputs, dict) or set(inputs) != required_inputs:
+                    failures.append(
+                        "Composite action inputs do not match the documented local contract"
+                    )
+                outputs = action.get("outputs")
+                expected_outputs = {"bundle", "test-results", "policy-review"}
+                if not isinstance(outputs, dict) or set(outputs) != expected_outputs:
+                    failures.append("Composite action must expose all generated artifact paths")
+                runs = action.get("runs")
+                steps = runs.get("steps") if isinstance(runs, dict) else None
+                if not isinstance(runs, dict) or runs.get("using") != "composite":
+                    failures.append("TrustWeave action must use supported composite metadata")
+                elif not isinstance(steps, list) or not any(
+                    isinstance(step, dict) and step.get("id") == "artifacts" for step in steps
+                ):
+                    failures.append("Composite action must publish artifact-path outputs")
+
+    workflow_path = ROOT / ".github" / "workflows" / "ci.yml"
+    if not workflow_path.exists():
+        failures.append("Missing CI workflow that exercises the repository-local action")
+    else:
+        try:
+            workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as error:
+            failures.append(f"Invalid CI workflow YAML: {error}")
+        else:
+            jobs = workflow.get("jobs") if isinstance(workflow, dict) else None
+            composite_job = jobs.get("composite-action") if isinstance(jobs, dict) else None
+            steps = composite_job.get("steps") if isinstance(composite_job, dict) else None
+            if not isinstance(steps, list) or not any(
+                isinstance(step, dict) and step.get("uses") == "./.github/actions/trustweave"
+                for step in steps
+            ):
+                failures.append("CI must invoke the repository-local composite action")
 
     dependabot_path = ROOT / ".github" / "dependabot.yml"
     if not dependabot_path.exists():
@@ -335,6 +397,48 @@ def _check_public_documents() -> list[str]:
                         failures.append("CITATION.cff must identify the project as software")
                     elif citation.get("version") != version:
                         failures.append("CITATION.cff version does not match pyproject.toml")
+    return failures
+
+
+def _check_changelog_version_synchronization() -> list[str]:
+    """Verify build metadata, public package version, and top changelog heading agree."""
+
+    failures: list[str] = []
+    version = _declared_project_version()
+    if version is None:
+        return ["pyproject.toml must declare a non-empty project version"]
+
+    package_init = ROOT / "src" / "trustweave" / "__init__.py"
+    try:
+        module = ast.parse(package_init.read_text(encoding="utf-8"), filename=str(package_init))
+    except (OSError, SyntaxError) as error:
+        return [f"Could not parse public package version: {error}"]
+    source_version = next(
+        (
+            assignment.value.value
+            for assignment in module.body
+            if isinstance(assignment, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "__version__"
+                for target in assignment.targets
+            )
+            and isinstance(assignment.value, ast.Constant)
+            and isinstance(assignment.value.value, str)
+        ),
+        None,
+    )
+    if source_version != version:
+        failures.append("src/trustweave/__init__.py version does not match pyproject.toml")
+
+    changelog_path = ROOT / "CHANGELOG.md"
+    if not changelog_path.exists():
+        failures.append("Missing CHANGELOG.md")
+        return failures
+    headings = CHANGELOG_VERSION_HEADING.findall(changelog_path.read_text(encoding="utf-8"))
+    if not headings:
+        failures.append("CHANGELOG.md lacks a version heading")
+    elif headings[0] != version:
+        failures.append("CHANGELOG.md top version heading does not match pyproject.toml")
     return failures
 
 
@@ -459,6 +563,74 @@ def _check_installed_wheel_schema_resources() -> list[str]:
                     failures.append(
                         "Installed-wheel schema content differs from the source contract"
                     )
+
+        runtime = subprocess.run(
+            [
+                str(python),
+                "-c",
+                (
+                    "import json, pathlib; "
+                    "import trustweave, trustweave.chain, trustweave.config, "
+                    "trustweave.evidence, trustweave.sarif; "
+                    "print(json.dumps({'version': trustweave.__version__, "
+                    "'typed': (pathlib.Path(trustweave.__file__).parent / 'py.typed').is_file()}))"
+                ),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if runtime.returncode != 0:
+            failures.append(
+                f"Installed-wheel public package imports failed: {runtime.stderr.strip()}"
+            )
+        else:
+            try:
+                runtime_contract = json.loads(runtime.stdout)
+            except json.JSONDecodeError as error:
+                failures.append(f"Installed-wheel runtime contract was not JSON: {error}")
+            else:
+                version = _declared_project_version()
+                if runtime_contract.get("version") != version:
+                    failures.append("Installed-wheel package version does not match pyproject.toml")
+                if runtime_contract.get("typed") is not True:
+                    failures.append("Installed-wheel package is missing its py.typed marker")
+
+        help_result = subprocess.run(
+            [str(command), "--help"], check=False, capture_output=True, text=True
+        )
+        if help_result.returncode != 0:
+            failures.append(f"Installed-wheel CLI help failed: {help_result.stderr.strip()}")
+        else:
+            failures.extend(
+                f"Installed-wheel CLI help lacks parser command: {command_name}"
+                for command_name in _parser_command_names()
+                if command_name not in help_result.stdout
+            )
+    return failures
+
+
+def _check_installed_wheel_runtime_contract() -> list[str]:
+    """Verify the isolated wheel's executable public runtime contract."""
+
+    return _check_installed_wheel_schema_resources()
+
+
+def _check_rule_registry() -> list[str]:
+    """Require all built-in producer identifiers to be documented in the shared registry."""
+
+    failures: list[str] = []
+    emitted = {
+        identifier
+        for path in RULE_PRODUCER_PATHS
+        for identifier in RULE_IDENTIFIER.findall(path.read_text(encoding="utf-8"))
+    }
+    unknown = sorted(emitted - set(RULES))
+    if unknown:
+        failures.append(
+            "Built-in finding producers emit rule IDs absent from trustweave.rules: "
+            + ", ".join(unknown)
+        )
     return failures
 
 
@@ -475,6 +647,18 @@ def _check_documentation_site() -> list[str]:
     if generate.returncode != 0:
         return [
             f"Generated CLI help is stale: {generate.stdout.strip() or generate.stderr.strip()}"
+        ]
+    rule_catalog = subprocess.run(
+        [sys.executable, "scripts/generate_rule_catalog.py", "--check"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if rule_catalog.returncode != 0:
+        return [
+            "Generated rule catalog is stale: "
+            f"{rule_catalog.stdout.strip() or rule_catalog.stderr.strip()}"
         ]
 
     with tempfile.TemporaryDirectory(prefix="trustweave-docs-reality-") as temporary_directory:
@@ -497,6 +681,73 @@ def _check_documentation_site() -> list[str]:
         detail = build.stderr.strip() or build.stdout.strip()
         return [f"Strict documentation-site build failed: {detail}"]
     return []
+
+
+def _check_documentation_commands() -> list[str]:
+    """Execute representative copy-paste documentation commands without external services."""
+
+    failures: list[str] = []
+    expected_names = sorted(path.name for path in (ROOT / "schemas").glob("*.schema.json"))
+    with tempfile.TemporaryDirectory(
+        prefix="trustweave-doc-command-reality-"
+    ) as temporary_directory:
+        temporary_path = Path(temporary_directory)
+        schema_list = subprocess.run(
+            ["trustweave", "schema", "list"], check=False, capture_output=True, text=True
+        )
+        if schema_list.returncode != 0:
+            failures.append(f"Documented schema list command failed: {schema_list.stderr.strip()}")
+        elif schema_list.stdout.splitlines() != expected_names:
+            failures.append("Documented schema list command does not show all shipped schemas")
+
+        if expected_names:
+            schema_show = subprocess.run(
+                ["trustweave", "schema", "show", expected_names[0]],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if schema_show.returncode != 0:
+                failures.append(
+                    f"Documented schema show command failed: {schema_show.stderr.strip()}"
+                )
+            else:
+                try:
+                    shown_schema = json.loads(schema_show.stdout)
+                except json.JSONDecodeError as error:
+                    failures.append(f"Documented schema show command emitted invalid JSON: {error}")
+                else:
+                    expected_schema = json.loads(
+                        (ROOT / "schemas" / expected_names[0]).read_text(encoding="utf-8")
+                    )
+                    if shown_schema != expected_schema:
+                        failures.append(
+                            "Documented schema show command differs from the shipped schema"
+                        )
+
+        initialized = subprocess.run(
+            ["trustweave", "init", "--directory", str(temporary_path)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        config_path = temporary_path / "trustweave.toml"
+        if initialized.returncode != 0 or not config_path.is_file():
+            failures.append(
+                "Documented init command did not create a local trustweave.toml template"
+            )
+        else:
+            validated = subprocess.run(
+                ["trustweave", "config", "validate", "--config", str(config_path)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if validated.returncode != 0:
+                failures.append(
+                    f"Documented config validate command failed: {validated.stderr.strip()}"
+                )
+    return failures
 
 
 def _check_cli() -> list[str]:
@@ -522,14 +773,17 @@ def main() -> int:
         _check_json_documents()
         + _check_contract_examples()
         + _check_generated_artifact_schemas()
-        + _check_installed_wheel_schema_resources()
+        + _check_installed_wheel_runtime_contract()
         + _check_markdown_links()
         + _check_workflows()
         + _check_ci_assets()
         + _check_issue_templates()
         + _check_public_documents()
+        + _check_changelog_version_synchronization()
         + _check_quality_evidence()
+        + _check_rule_registry()
         + _check_documentation_site()
+        + _check_documentation_commands()
         + _check_cli()
     )
     if failures:
@@ -540,8 +794,9 @@ def main() -> int:
     print(
         "Repository reality check passed: schemas, contract examples, local documentation "
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
-        "quality evidence, generated artifacts, installed-wheel schema resources, generated "
-        "documentation, strict documentation-site builds, and CLI commands are connected."
+        "quality evidence, generated artifacts, installed-wheel runtime and schema resources, "
+        "generated documentation, strict documentation-site builds, executed documentation "
+        "commands, and CLI commands are connected."
     )
     return 0
 

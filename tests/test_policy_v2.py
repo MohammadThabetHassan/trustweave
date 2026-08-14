@@ -350,3 +350,83 @@ def test_policy_v2_rejects_invalid_approval_control_contracts(
 
     with pytest.raises(ValidationError, match=message):
         parse_policy(document)
+
+
+def test_policy_coverage_detects_shadowing_when_declared_controls_are_static() -> None:
+    document = _policy_document()
+    first = dict(document["rules"][0])
+    first["id"] = "TW-V2-STATIC-CONTROL-FIRST"
+    first["source_identifiers"] = []
+    first["tool_identifiers"] = []
+    first["purpose_tags"] = []
+    first["source_data_classification_at_least"] = None
+    first["tool_capabilities"] = []
+    first["required_controls"] = ["approval"]
+    first["decision"] = "deny"
+
+    later = dict(first)
+    later["id"] = "TW-V2-STATIC-CONTROL-LATER"
+    later["required_controls"] = ["approval.fail_closed"]
+    document["rules"] = [first, later]
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    assert review["coverage"] == {
+        "rules": {
+            "TW-V2-STATIC-CONTROL-FIRST": {
+                "reachable": True,
+                "possible": True,
+                "shadowed_by": None,
+                "decision": "deny",
+            },
+            "TW-V2-STATIC-CONTROL-LATER": {
+                "reachable": False,
+                "possible": True,
+                "shadowed_by": "TW-V2-STATIC-CONTROL-FIRST",
+                "decision": "deny",
+            },
+        },
+        "shadowed_rules": ["TW-V2-STATIC-CONTROL-LATER"],
+        "impossible_rules": [],
+    }
+
+
+def test_policy_v1alpha2_rejects_unicode_declared_identifier_predicates() -> None:
+    base = _policy_document()
+
+    for field, value in (
+        ("id", "TW-Ä"),
+        ("source_identifiers", "customer-inböx"),
+        ("tool_identifiers", "records-åpi"),
+        ("purpose_tags", "case_löökup"),
+    ):
+        document = json.loads(json.dumps(base))
+        rule = document["rules"][0]
+        if field == "id":
+            rule[field] = value
+        else:
+            rule[field] = [value]
+
+        with pytest.raises(ValidationError, match="ASCII identifier"):
+            parse_policy(document)
+
+
+def test_policy_coverage_reports_a_redundant_shadowed_rule_separately() -> None:
+    document = _policy_document()
+    document["default_decision"] = "deny"
+    duplicate = dict(document["rules"][0])
+    duplicate["id"] = "TW-V2-REDUNDANT"
+    document["rules"] = [document["rules"][0], duplicate]
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    assert [finding["id"] for finding in review["findings"]] == [
+        "TW-POL-002",
+        "TW-POL-009",
+    ]
+    assert review["coverage"]["rules"]["TW-V2-REDUNDANT"] == {
+        "reachable": False,
+        "possible": True,
+        "shadowed_by": "TW-V2-001",
+        "decision": "deny",
+    }
