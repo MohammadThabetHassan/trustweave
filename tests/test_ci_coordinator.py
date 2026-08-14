@@ -6,6 +6,8 @@ import argparse
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
+from jsonschema import ValidationError as JsonSchemaValidationError
 
 from trustweave.cli import main
 from trustweave.commands._shared import EXIT_REVIEW
@@ -20,6 +22,7 @@ from trustweave.commands.ci import (
     _staged_sarif_path,
 )
 from trustweave.config import CONFIG_FILE_NAME, find_project_config, load_project_config
+from trustweave.io import load_document
 from trustweave.models import InputOutputError, ValidationError
 
 
@@ -446,3 +449,57 @@ def test_ci_executes_all_supported_local_review_stages(tmp_path: Path) -> None:
         "trustweave.sarif",
         "ci-summary.json",
     }.issubset({path.name for path in output_dir.iterdir()})
+
+
+def test_generated_ci_summary_conforms_to_packaged_strict_schema(tmp_path: Path) -> None:
+    """CI summary output must remain a strict versioned public artifact contract."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir)
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+
+    root = Path(__file__).resolve().parents[1]
+    schema = load_document(root / "schemas" / "ci-summary-v1alpha1.schema.json")
+    summary = load_document(output_dir / "ci-summary.json")
+    Draft202012Validator(schema).validate(summary)
+
+
+def test_ci_summary_schema_rejects_unknown_fields(tmp_path: Path) -> None:
+    """The public CI-summary schema must fail closed for unknown artifact fields."""
+
+    config = tmp_path / "trustweave.toml"
+    output_dir = tmp_path / "artifacts"
+    _write_ci_config(config, output_dir)
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-14T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+
+    root = Path(__file__).resolve().parents[1]
+    schema = load_document(root / "schemas" / "ci-summary-v1alpha1.schema.json")
+    summary = dict(load_document(output_dir / "ci-summary.json"))
+    summary["unexpected"] = True
+    with pytest.raises(JsonSchemaValidationError, match="Additional properties"):
+        Draft202012Validator(schema).validate(summary)

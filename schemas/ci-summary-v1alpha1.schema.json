@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/ci-summary/v1alpha1",
+  "title": "TrustWeave Local CI Summary v1alpha1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "provenance",
+    "status",
+    "stages",
+    "artifacts",
+    "finding_counts",
+    "active_severity_counts",
+    "review",
+    "incomplete_analyses",
+    "applied_decisions",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/ci-summary/v1alpha1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "provenance": {
+      "type": "object",
+      "required": ["generated_at_source"],
+      "properties": {
+        "generated_at_source": {"enum": ["explicit", "source_date_epoch", "clock"]},
+        "source_revision": {"$ref": "#/$defs/text"}
+      },
+      "additionalProperties": false
+    },
+    "status": {"enum": ["clear", "review_required"]},
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {"enum": ["validate", "scan", "scenarios", "policy_review", "policy_coverage", "diff", "trace_review", "mcp_profile_review", "chain_review", "risk", "sarif", "attestation", "report", "summary"]}
+    },
+    "artifacts": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/artifact_name"}
+    },
+    "finding_counts": {"$ref": "#/$defs/severity_counts"},
+    "active_severity_counts": {"$ref": "#/$defs/severity_counts"},
+    "review": {
+      "type": "object",
+      "required": ["selected_kinds", "uses_risk_lifecycle"],
+      "properties": {
+        "selected_kinds": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"enum": ["policy", "diff", "trace", "mcp", "chain", "risk"]}
+        },
+        "uses_risk_lifecycle": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "incomplete_analyses": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/text"}
+    },
+    "applied_decisions": {
+      "type": "object",
+      "required": ["baselined", "suppressed", "expired_baseline", "expired_suppression"],
+      "properties": {
+        "baselined": {"$ref": "#/$defs/count"},
+        "suppressed": {"$ref": "#/$defs/count"},
+        "expired_baseline": {"$ref": "#/$defs/count"},
+        "expired_suppression": {"$ref": "#/$defs/count"}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/text"}
+    }
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "artifact_name": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+$"},
+    "count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+    "severity_counts": {
+      "type": "object",
+      "required": ["critical", "high", "medium", "low", "info", "review"],
+      "properties": {
+        "critical": {"$ref": "#/$defs/count"},
+        "high": {"$ref": "#/$defs/count"},
+        "medium": {"$ref": "#/$defs/count"},
+        "low": {"$ref": "#/$defs/count"},
+        "info": {"$ref": "#/$defs/count"},
+        "review": {"$ref": "#/$defs/count"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

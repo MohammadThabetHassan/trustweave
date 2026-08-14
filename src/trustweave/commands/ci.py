@@ -231,6 +231,26 @@ def _publish_directory(staging: Path, output: Path) -> None:
         shutil.rmtree(backup)
 
 
+def _review_findings(review: Mapping[str, Any]) -> list[Mapping[str, Any]]:
+    """Return canonical review findings or diff signals from one selected local artifact."""
+
+    raw = review.get("findings", review.get("signals", []))
+    if not isinstance(raw, list):
+        return []
+    return [finding for finding in raw if isinstance(finding, Mapping)]
+
+
+def _severity_counts(findings: Sequence[Mapping[str, Any]]) -> dict[str, int]:
+    """Return a complete deterministic severity-count envelope for summary contracts."""
+
+    counts = {severity: 0 for severity in (*VALID_SEVERITIES, "review")}
+    for finding in findings:
+        severity = finding.get("severity")
+        if isinstance(severity, str) and severity in counts:
+            counts[severity] += 1
+    return counts
+
+
 def _fail_on_findings(
     reviews: Mapping[str, Any] | Sequence[Mapping[str, Any] | None] | None,
     threshold: str,
@@ -242,11 +262,7 @@ def _fail_on_findings(
     if selected is None:
         return False
     findings = [
-        finding
-        for review in selected
-        if review is not None
-        for finding in review.get("findings", [])
-        if isinstance(finding, Mapping)
+        finding for review in selected if review is not None for finding in _review_findings(review)
     ]
     if not findings:
         return False
@@ -465,12 +481,50 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             )
         )
         code = EXIT_REVIEW if test_failed or review_failed else 0
+        raw_findings = [
+            finding for _, review in raw_reviews.values() for finding in _review_findings(review)
+        ]
+        risk_findings = _review_findings(risk_review) if risk_review is not None else raw_findings
+        active_findings = (
+            [
+                finding
+                for finding in risk_findings
+                if finding.get("risk_state") in {"new", "expired_baseline", "expired_suppression"}
+            ]
+            if risk_review is not None
+            else raw_findings
+        )
+        risk_summary = risk_review.get("summary", {}) if risk_review is not None else {}
+        incomplete_analyses = sorted(
+            {
+                "Declared chain analysis reached a configured traversal budget."
+                for finding in raw_findings
+                if finding.get("id") == "TW-CHAIN-004"
+            }
+        )
         summary: dict[str, Any] = {
             "schema_version": CI_SUMMARY_SCHEMA_VERSION,
             "generated_at": generated_at,
+            "provenance": {
+                "generated_at_source": getattr(args, "generated_at_source", "clock"),
+                "source_revision": args.source_revision,
+            },
             "status": "review_required" if code == EXIT_REVIEW else "clear",
             "stages": list(stages),
             "artifacts": sorted(artifacts),
+            "finding_counts": _severity_counts(risk_findings),
+            "active_severity_counts": _severity_counts(active_findings),
+            "review": {
+                "selected_kinds": sorted([*raw_reviews, *(["risk"] if risk_review else [])]),
+                "uses_risk_lifecycle": risk_review is not None,
+            },
+            "incomplete_analyses": incomplete_analyses,
+            "applied_decisions": {
+                "baselined": risk_summary.get("baselined", 0),
+                "suppressed": risk_summary.get("suppressed", 0),
+                "expired_baseline": risk_summary.get("expired_baseline", 0),
+                "expired_suppression": risk_summary.get("expired_suppression", 0),
+            },
             "limitations": [
                 "This coordinator processes only supplied local declarations and metadata. It does "
                 "not execute agents, models, tools, MCP servers, or network operations."
