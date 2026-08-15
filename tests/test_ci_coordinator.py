@@ -378,6 +378,46 @@ def test_ci_validate_stage_checks_declared_local_inputs(tmp_path: Path) -> None:
     assert not (tmp_path / "artifacts").exists()
 
 
+def test_ci_validate_stage_semantically_validates_declared_policy_and_scenarios(
+    tmp_path: Path,
+) -> None:
+    """Declared policy and scenario inputs are validated through their typed parsers."""
+
+    root = Path(__file__).resolve().parents[1]
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples/support-agent.manifest.json").as_posix()}"\n'
+        f'policy = "{(root / "policies/default-policy.json").as_posix()}"\n'
+        f'scenarios = "{(root / "scenarios/default-scenarios.json").as_posix()}"\n'
+        f'output_dir = "{(tmp_path / "artifacts").as_posix()}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 0
+
+
+def test_ci_validate_stage_semantically_validates_declared_manifest(tmp_path: Path) -> None:
+    """A selected validation stage must reject a parsed but semantically invalid manifest."""
+
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text('{"not": "a manifest"}', encoding="utf-8")
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{manifest.name}"\n'
+        f'output_dir = "{(tmp_path / "artifacts").as_posix()}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 2
+    assert not (tmp_path / "artifacts").exists()
+
+
 def test_ci_supports_every_configuration_accepted_stage() -> None:
     """Configuration must not advertise any local workflow stage that CI rejects."""
 

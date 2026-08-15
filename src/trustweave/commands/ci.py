@@ -52,7 +52,7 @@ from trustweave.report import (
     render_risk_review_report,
     render_trace_review_report,
 )
-from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
+from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail, validate_decision_document
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import parse_scenarios, run_scenarios
 from trustweave.trace_review import review_trace
@@ -335,8 +335,21 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     paths = configured_paths(config_path, path_values)
     output_dir = paths["output_dir"]
     if "validate" in stages:
-        for name in sorted(required | validation_inputs):
-            load_document(paths[name])
+        validated_documents = {
+            name: load_document(paths[name]) for name in sorted(required | validation_inputs)
+        }
+        if "manifest" in validated_documents:
+            parse_manifest(validated_documents["manifest"])
+        if "policy" in validated_documents:
+            parse_policy(validated_documents["policy"])
+        if "scenarios" in validated_documents:
+            parse_scenarios(validated_documents["scenarios"])
+        if "mcp_profile" in validated_documents:
+            parse_mcp_profile(validated_documents["mcp_profile"])
+        if "risk_baseline" in validated_documents:
+            validate_decision_document(validated_documents["risk_baseline"], "baseline")
+        if "suppressions" in validated_documents:
+            validate_decision_document(validated_documents["suppressions"], "suppressions")
     configured_threshold = config.get("failure_threshold", "none")
     if not isinstance(configured_threshold, str):
         raise ValidationError("tool.trustweave.failure_threshold must be a severity string")
