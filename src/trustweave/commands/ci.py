@@ -55,7 +55,7 @@ from trustweave.report import (
 from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail, validate_decision_document
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import parse_scenarios, run_scenarios
-from trustweave.trace_review import review_trace
+from trustweave.trace_review import parse_trace, review_trace
 
 CI_SUMMARY_FILE = "ci-summary.json"
 CI_SUMMARY_SCHEMA_VERSION = "trustweave.dev/ci-summary/v1alpha1"
@@ -346,6 +346,10 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             parse_scenarios(validated_documents["scenarios"])
         if "mcp_profile" in validated_documents:
             parse_mcp_profile(validated_documents["mcp_profile"])
+        if "chain_manifest" in validated_documents:
+            review_declared_chains(validated_documents["chain_manifest"], generated_at)
+        if "trace" in validated_documents:
+            parse_trace(validated_documents["trace"])
         if "risk_baseline" in validated_documents:
             validate_decision_document(validated_documents["risk_baseline"], "baseline")
         if "suppressions" in validated_documents:
