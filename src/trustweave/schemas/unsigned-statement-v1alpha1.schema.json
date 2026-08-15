@@ -1,0 +1,325 @@
+{
+  "$defs": {
+    "attestation_predicate": {
+      "additionalProperties": false,
+      "properties": {
+        "exact_files": {
+          "additionalProperties": false,
+          "properties": {
+            "bundle": {
+              "$ref": "#/$defs/exact_file"
+            },
+            "test_results": {
+              "$ref": "#/$defs/exact_file"
+            }
+          },
+          "required": [
+            "bundle",
+            "test_results"
+          ],
+          "type": "object"
+        },
+        "source_revision": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "stable_payload": {
+          "additionalProperties": false,
+          "properties": {
+            "bundle_sha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "test_results_sha256": {
+              "$ref": "#/$defs/digest"
+            }
+          },
+          "required": [
+            "bundle_sha256",
+            "test_results_sha256"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "source_revision",
+        "stable_payload",
+        "exact_files"
+      ],
+      "type": "object"
+    },
+    "count": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "exact_file": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "name",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "pattern": "^[a-z][a-z0-9_]{0,127}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^TW-[A-Z0-9-]{1,120}$",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/string_map"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/property_map"
+        },
+        "rationale": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/string_map"
+          },
+          "maxItems": 64,
+          "type": "array"
+        },
+        "remediation": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info",
+            "review"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/subject"
+        },
+        "title": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "message",
+        "evidence_kind"
+      ],
+      "type": "object"
+    },
+    "identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "integrity": {
+      "additionalProperties": false,
+      "properties": {
+        "chain_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "covers": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "chain_sha256",
+        "covers"
+      ],
+      "type": "object"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "property_map": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "rule_id": {
+      "pattern": "^TW-[A-Z0-9-]{1,120}$",
+      "type": "string"
+    },
+    "statement_subject": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "additionalProperties": false,
+          "properties": {
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            }
+          },
+          "required": [
+            "sha256"
+          ],
+          "type": "object"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "name",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "string_list": {
+      "items": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "type": "array"
+    },
+    "string_map": {
+      "additionalProperties": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "subject": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/unsigned-statement/v1alpha1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "integrity": {
+      "$ref": "#/$defs/integrity"
+    },
+    "limits": {
+      "items": {
+        "maxLength": 4096,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "predicate": {
+      "$ref": "#/$defs/attestation_predicate"
+    },
+    "predicate_type": {
+      "const": "https://trustweave.dev/attestation/local-evidence/v1alpha3"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/unsigned-statement/v1alpha1"
+    },
+    "statement_type": {
+      "const": "https://trustweave.dev/unsigned-local-evidence/v1alpha1"
+    },
+    "subject": {
+      "items": {
+        "$ref": "#/$defs/statement_subject"
+      },
+      "maxItems": 1000000,
+      "minItems": 1,
+      "type": "array"
+    },
+    "unsigned": {
+      "const": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "statement_type",
+    "unsigned",
+    "subject",
+    "predicate_type",
+    "predicate",
+    "integrity",
+    "limits"
+  ],
+  "title": "TrustWeave Unsigned Integrity Statement v1alpha1",
+  "type": "object"
+}

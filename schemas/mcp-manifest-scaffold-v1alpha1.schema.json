@@ -1,0 +1,261 @@
+{
+  "$defs": {
+    "count": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "pattern": "^[a-z][a-z0-9_]{0,127}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^TW-[A-Z0-9-]{1,120}$",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/string_map"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/property_map"
+        },
+        "rationale": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/string_map"
+          },
+          "maxItems": 64,
+          "type": "array"
+        },
+        "remediation": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info",
+            "review"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/subject"
+        },
+        "title": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "message",
+        "evidence_kind"
+      ],
+      "type": "object"
+    },
+    "identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "manifest_draft": {
+      "additionalProperties": false,
+      "properties": {
+        "flows": {
+          "maxItems": 0,
+          "type": "array"
+        },
+        "name": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "trustweave.dev/v1alpha1"
+        },
+        "sources": {
+          "maxItems": 0,
+          "type": "array"
+        },
+        "tools": {
+          "items": {
+            "$ref": "#/$defs/manifest_tool"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "name",
+        "sources",
+        "tools",
+        "flows"
+      ],
+      "type": "object"
+    },
+    "manifest_tool": {
+      "additionalProperties": false,
+      "properties": {
+        "action_class": {
+          "const": "REVIEW_REQUIRED"
+        },
+        "capabilities": {
+          "maxItems": 0,
+          "type": "array"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "name": {
+          "$ref": "#/$defs/name"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "action_class",
+        "capabilities"
+      ],
+      "type": "object"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "property_map": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "rule_id": {
+      "pattern": "^TW-[A-Z0-9-]{1,120}$",
+      "type": "string"
+    },
+    "string_list": {
+      "items": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "type": "array"
+    },
+    "string_map": {
+      "additionalProperties": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "subject": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/mcp-manifest-scaffold/v1alpha1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "limits": {
+      "items": {
+        "maxLength": 4096,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "manifest_draft": {
+      "$ref": "#/$defs/manifest_draft"
+    },
+    "review_required": {
+      "items": {
+        "$ref": "#/$defs/text"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/mcp-manifest-scaffold/v1alpha1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "review_required",
+    "manifest_draft",
+    "limits"
+  ],
+  "title": "TrustWeave MCP Manifest Scaffold v1alpha1",
+  "type": "object"
+}

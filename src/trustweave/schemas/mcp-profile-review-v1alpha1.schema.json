@@ -1,0 +1,300 @@
+{
+  "$defs": {
+    "count": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "pattern": "^[a-z][a-z0-9_]{0,127}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^TW-[A-Z0-9-]{1,120}$",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/string_map"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/property_map"
+        },
+        "rationale": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/string_map"
+          },
+          "maxItems": 64,
+          "type": "array"
+        },
+        "remediation": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info",
+            "review"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/subject"
+        },
+        "title": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "message",
+        "evidence_kind"
+      ],
+      "type": "object"
+    },
+    "identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "mapping": {
+      "additionalProperties": false,
+      "properties": {
+        "declared_action_class": {
+          "enum": [
+            "read",
+            "write",
+            "sensitive",
+            "external"
+          ]
+        },
+        "manifest_action_class": {
+          "enum": [
+            "read",
+            "write",
+            "sensitive",
+            "external"
+          ]
+        },
+        "manifest_tool": {
+          "$ref": "#/$defs/name"
+        },
+        "mcp_tool": {
+          "$ref": "#/$defs/name"
+        },
+        "status": {
+          "enum": [
+            "clear",
+            "review_required"
+          ]
+        }
+      },
+      "required": [
+        "mcp_tool",
+        "manifest_tool",
+        "declared_action_class",
+        "status"
+      ],
+      "type": "object"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "property_map": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "rule_id": {
+      "pattern": "^TW-[A-Z0-9-]{1,120}$",
+      "type": "string"
+    },
+    "string_list": {
+      "items": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "type": "array"
+    },
+    "string_map": {
+      "additionalProperties": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "subject": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/mcp-profile-review/v1alpha1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "maxItems": 1000000,
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "limits": {
+      "items": {
+        "maxLength": 4096,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "mappings": {
+      "items": {
+        "$ref": "#/$defs/mapping"
+      },
+      "maxItems": 1000000,
+      "type": "array"
+    },
+    "profile": {
+      "additionalProperties": false,
+      "properties": {
+        "authorization_expected": {
+          "type": "boolean"
+        },
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "resource_uri": {
+          "$ref": "#/$defs/text"
+        },
+        "transport": {
+          "enum": [
+            "stdio",
+            "http"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "transport",
+        "resource_uri",
+        "authorization_expected"
+      ],
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/mcp-profile-review/v1alpha1"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "review_findings": {
+          "$ref": "#/$defs/count"
+        },
+        "status": {
+          "enum": [
+            "clear",
+            "review_required"
+          ]
+        },
+        "tools_reviewed": {
+          "$ref": "#/$defs/count"
+        }
+      },
+      "required": [
+        "tools_reviewed",
+        "review_findings",
+        "status"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile",
+    "summary",
+    "mappings",
+    "findings",
+    "limits",
+    "generated_at"
+  ],
+  "title": "TrustWeave Local MCP Profile Review v1alpha1",
+  "type": "object"
+}
