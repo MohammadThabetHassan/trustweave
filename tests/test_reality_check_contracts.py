@@ -63,3 +63,12 @@ def test_reality_check_executes_representative_documentation_commands() -> None:
     reality_check = _reality_check_module()
 
     assert reality_check._check_documentation_commands() == []
+
+
+def test_reality_check_verifies_generated_schema_coverage_and_packaged_resource_sync() -> None:
+    """Every runtime-emitted versioned artifact must have a byte-identical public schema."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_schema_resource_synchronization() == []
+    assert reality_check._check_generated_artifact_schema_coverage() == []
