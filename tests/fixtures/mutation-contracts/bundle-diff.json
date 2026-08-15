@@ -1,0 +1,53 @@
+{
+  "base": {
+    "agent": "synthetic-customer-support-agent",
+    "bundle_generated_at": "2026-08-15T00:00:00+00:00",
+    "bundle_schema_version": "trustweave.dev/bundle/v1alpha2"
+  },
+  "changes": {
+    "capabilities": [],
+    "paths": {
+      "added": [],
+      "decision_changed": [],
+      "removed": []
+    },
+    "sources": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    },
+    "tools": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    }
+  },
+  "generated_at": "2026-08-15T00:00:00+00:00",
+  "head": {
+    "agent": "synthetic-customer-support-agent",
+    "bundle_generated_at": "2026-08-15T00:00:00+00:00",
+    "bundle_schema_version": "trustweave.dev/bundle/v1alpha2"
+  },
+  "limits": [
+    "The diff compares declared bundle content only; it does not discover runtime behavior or validate an external deployment.",
+    "Review signals identify policy-relevant changes and require human judgment; they are not vulnerability findings or a security verdict."
+  ],
+  "schema_version": "trustweave.dev/bundle-diff/v1alpha2",
+  "signals": [],
+  "summary": {
+    "added_capabilities": 0,
+    "added_paths": 0,
+    "added_sources": 0,
+    "added_tools": 0,
+    "changed_sources": 0,
+    "changed_tools": 0,
+    "decision_changes": 0,
+    "removed_capabilities": 0,
+    "removed_paths": 0,
+    "removed_sources": 0,
+    "removed_tools": 0,
+    "review_signals": 0,
+    "tools_with_capability_changes": 0
+  }
+}
+

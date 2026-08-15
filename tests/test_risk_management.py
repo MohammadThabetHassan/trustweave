@@ -1038,3 +1038,261 @@ def test_risk_review_preserves_absolute_artifact_paths_with_spaces_for_schema_pa
     assert review["findings"][0]["source_artifact_paths"] == [
         "/workspace/release artifacts/policy review.json"
     ]
+
+
+def test_risk_review_preserves_decision_lifecycle_metadata_and_exact_summary(
+    review_artifact: dict[str, object],
+) -> None:
+    """Applied and unusable reviewer decisions remain distinguishable local evidence."""
+
+    normalized = normalize_findings(review_artifact)[0]
+    accepted = _decision_entry(
+        normalized,
+        reason="Accepted local baseline for a bounded declared approval review.",
+        expires_at="2026-09-01T00:00:00+00:00",
+    )
+    applied = review_risks(
+        [review_artifact],
+        baseline_document={"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [accepted]},
+        reviewed_at="2026-08-15T00:00:00+00:00",
+        artifact_paths=["/workspace/release artifacts/policy review.json"],
+    )
+
+    finding = applied["findings"][0]
+    assert applied["schema_version"] == RISK_REVIEW_SCHEMA_VERSION
+    assert finding["risk_state"] == "baselined"
+    assert finding["reason"] == accepted["reason"]
+    assert finding["expires_at"] == accepted["expires_at"]
+    assert finding["source_artifact_paths"] == ["/workspace/release artifacts/policy review.json"]
+    assert applied["summary"] == {
+        "findings": 1,
+        "new": 0,
+        "baselined": 1,
+        "suppressed": 0,
+        "expired_baseline": 0,
+        "expired_suppression": 0,
+        "not_yet_applicable_baseline": 0,
+        "not_yet_applicable_suppression": 0,
+        "severity_escalated_baseline": 0,
+        "severity_escalated_suppression": 0,
+        "orphaned_baseline": 0,
+        "orphaned_suppressions": 0,
+        "mismatched_baseline": 0,
+        "mismatched_suppressions": 0,
+        "active_by_severity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0,
+        },
+        "status": "clear",
+    }
+    assert not should_fail(applied, "review")
+
+    expired = {
+        **accepted,
+        "created_at": "2026-08-01T00:00:00+00:00",
+        "expires_at": "2026-08-14T00:00:00+00:00",
+    }
+    expired_review = review_risks(
+        [review_artifact],
+        baseline_document={"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [expired]},
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+    assert expired_review["findings"][0]["risk_state"] == "expired_baseline"
+    assert expired_review["findings"][0]["reason"] == accepted["reason"]
+    assert expired_review["summary"]["expired_baseline"] == 1
+    assert should_fail(expired_review, "review")
+
+    future = {
+        **accepted,
+        "created_at": "2026-08-16T00:00:00+00:00",
+        "expires_at": "2026-09-01T00:00:00+00:00",
+    }
+    future_review = review_risks(
+        [review_artifact],
+        baseline_document={"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [future]},
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+    assert future_review["findings"][0]["risk_state"] == "not_yet_applicable_baseline"
+    assert "reason" not in future_review["findings"][0]
+    assert future_review["summary"]["not_yet_applicable_baseline"] == 1
+    assert should_fail(future_review, "review")
+
+    mismatch = {**accepted, "rule_id": "TW-POL-999"}
+    mismatch_review = review_risks(
+        [review_artifact],
+        baseline_document={"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [mismatch]},
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+    assert mismatch_review["findings"][0]["risk_state"] == "new"
+    assert mismatch_review["mismatched_decisions"] == {
+        "baseline": [{"fingerprint": accepted["fingerprint"], "mismatches": ["rule_id"]}],
+        "suppressions": [],
+    }
+    assert mismatch_review["summary"]["mismatched_baseline"] == 1
+
+    suppression = _decision_entry(
+        normalized,
+        reason="Temporary local suppression while a declared exception is reviewed.",
+    )
+    suppressed_review = review_risks(
+        [review_artifact],
+        suppressions_document={
+            "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+            "suppressions": [suppression],
+        },
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+    assert suppressed_review["findings"][0]["risk_state"] == "suppressed"
+    assert suppressed_review["findings"][0]["reason"] == suppression["reason"]
+    assert suppressed_review["summary"]["suppressed"] == 1
+
+
+@pytest.mark.parametrize(
+    ("parameter", "message"),
+    [
+        ("reason", "baseline.reason must be a non-empty string"),
+        ("owner", "baseline.owner must be a non-empty string"),
+        ("created_at", "baseline.created_at must be an ISO 8601 timestamp"),
+        ("expires_at", "baseline.expires_at must include a UTC offset"),
+        ("reference", "baseline.reference must be a non-empty string"),
+    ],
+)
+def test_baseline_creation_preserves_exact_lifecycle_field_diagnostics(
+    parameter: str, message: str
+) -> None:
+    """Baseline command inputs retain their documented field-level validation diagnostics."""
+
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-14T00:00:00+00:00",
+        "findings": [],
+    }
+    arguments: dict[str, object] = {
+        "review": review,
+        "reason": "Explicit review decision.",
+        "expires_at": "2026-09-01T00:00:00+00:00",
+        "owner": "security-review",
+        "created_at": "2026-08-14T00:00:00+00:00",
+        "reference": "TICKET-42",
+    }
+    invalid_values: dict[str, object] = {
+        "reason": None,
+        "owner": "",
+        "created_at": "not-a-timestamp",
+        "expires_at": "2026-09-01T00:00:00",
+        "reference": "",
+    }
+    arguments[parameter] = invalid_values[parameter]
+
+    with pytest.raises(ValidationError) as error:
+        create_baseline(**arguments)
+    assert str(error.value) == message
+
+
+def test_baseline_creation_deduplicates_active_fingerprints_and_normalizes_metadata() -> None:
+    """One local decision entry binds each active fingerprint with normalized provenance fields."""
+
+    finding = {
+        "fingerprint": "a" * 64,
+        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "id": "TW-POL-004",
+        "severity": "high",
+        "subject": {"tool": "lookup", "source": "customer"},
+        "risk_state": "new",
+    }
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-14T00:00:00+00:00",
+        "findings": [finding, dict(finding)],
+    }
+
+    baseline = create_baseline(
+        review,
+        "  Explicit review decision.  ",
+        "2026-09-01T00:00:00Z",
+        owner="  security-review  ",
+        created_at="2026-08-14T00:00:00Z",
+        reference="  TICKET-42  ",
+    )
+
+    assert baseline == {
+        "schema_version": RISK_BASELINE_SCHEMA_VERSION,
+        "baseline": [
+            {
+                "fingerprint": "a" * 64,
+                "fingerprint_schema_version": "trustweave/fingerprint/v3",
+                "rule_id": "TW-POL-004",
+                "subject_digest": (
+                    "6e3a3401ac246fb8882b3e82fca71a46c4069c311262c406a57dd20fef71ddd0"
+                ),
+                "accepted_severity": "high",
+                "reason": "Explicit review decision.",
+                "owner": "security-review",
+                "created_at": "2026-08-14T00:00:00+00:00",
+                "expires_at": "2026-09-01T00:00:00+00:00",
+                "reference": "TICKET-42",
+            }
+        ],
+    }
+
+
+def test_should_fail_preserves_active_state_threshold_matrix_and_exact_invalid_gate() -> None:
+    """Only active lifecycle states participate in each ordered severity gate."""
+
+    review = {
+        "findings": [
+            {"risk_state": "new", "severity": "high"},
+            {"risk_state": "severity_escalated_baseline", "severity": "medium"},
+            {"risk_state": "baselined", "severity": "critical"},
+            {"risk_state": "suppressed", "severity": "low"},
+        ]
+    }
+
+    assert should_fail(review, "none") is False
+    assert should_fail(review, "critical") is False
+    assert should_fail(review, "high") is True
+    assert should_fail(review, "medium") is True
+    assert should_fail(review, "low") is True
+    assert should_fail(review, "info") is True
+    assert should_fail(review, "review") is True
+
+    with pytest.raises(ValidationError) as invalid_gate_error:
+        should_fail(review, "urgent")
+    assert str(invalid_gate_error.value) == (
+        "fail_on must be one of ['critical', 'high', 'medium', 'low', 'info', 'review'] or none"
+    )
+
+
+def test_should_fail_validates_review_finding_paths_and_skips_resolved_entries() -> None:
+    """Severity gating retains exact indexed diagnostics and continues past resolved findings."""
+
+    with pytest.raises(ValidationError) as missing_findings_error:
+        should_fail({}, "high")
+    assert str(missing_findings_error.value) == "risk_review.findings must be a list"
+
+    with pytest.raises(ValidationError) as malformed_finding_error:
+        should_fail({"findings": [None]}, "high")
+    assert str(malformed_finding_error.value) == "risk_review.findings[0] must be an object"
+
+    with pytest.raises(ValidationError) as missing_state_error:
+        should_fail({"findings": [{"severity": "high"}]}, "high")
+    assert str(missing_state_error.value) == (
+        "risk_review.findings[0].risk_state must be a non-empty string"
+    )
+
+    with pytest.raises(ValidationError) as missing_severity_error:
+        should_fail({"findings": [{"risk_state": "new"}]}, "high")
+    assert str(missing_severity_error.value) == (
+        "risk_review.findings[0].severity must be a non-empty string"
+    )
+
+    resolved_before_active = {
+        "findings": [
+            {"risk_state": "baselined", "severity": "critical"},
+            {"risk_state": "new", "severity": "high"},
+        ]
+    }
+    assert should_fail(resolved_before_active, "high") is True

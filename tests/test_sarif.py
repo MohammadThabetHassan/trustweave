@@ -213,10 +213,11 @@ def test_sarif_deduplicates_raw_chain_and_derived_risk_findings() -> None:
     results = exported["runs"][0]["results"]
     assert len(results) == 1
     assert results[0]["ruleId"] == "TW-CHAIN-001"
-    assert {
-        location["physicalLocation"]["artifactLocation"]["uri"]
-        for location in results[0]["locations"]
-    } == {"artifacts/chain-review.json", "artifacts/risk-review.json"}
+    assert results[0]["locations"] == [
+        {"physicalLocation": {"artifactLocation": {"uri": "artifacts/chain-review.json"}}},
+        {"physicalLocation": {"artifactLocation": {"uri": "artifacts/risk-review.json"}}},
+    ]
+    assert results[0]["properties"]["trustweaveSourceKinds"] == ["chain", "risk"]
 
 
 def test_cli_sarif_accepts_active_risk_review(tmp_path: Path) -> None:

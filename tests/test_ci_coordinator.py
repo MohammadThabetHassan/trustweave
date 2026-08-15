@@ -9,7 +9,9 @@ import pytest
 from jsonschema import Draft202012Validator
 from jsonschema import ValidationError as JsonSchemaValidationError
 
+from trustweave.chain import review_declared_chains
 from trustweave.cli import main
+from trustweave.commands import ci as ci_command
 from trustweave.commands._shared import EXIT_REVIEW
 from trustweave.commands.ci import (
     CI_SUMMARY_SCHEMA_VERSION,
@@ -22,8 +24,9 @@ from trustweave.commands.ci import (
     _staged_sarif_path,
 )
 from trustweave.config import CONFIG_FILE_NAME, find_project_config, load_project_config
-from trustweave.io import load_document
+from trustweave.io import load_document, write_json
 from trustweave.models import InputOutputError, ValidationError
+from trustweave.risk import create_baseline, review_risks
 
 
 def test_config_rejects_invalid_typed_values_and_discovery_bounds(tmp_path: Path) -> None:
@@ -46,6 +49,70 @@ def test_config_rejects_invalid_typed_values_and_discovery_bounds(tmp_path: Path
 
     with pytest.raises(ValidationError, match="non-negative"):
         find_project_config(tmp_path, max_parents=-1)
+
+
+@pytest.mark.parametrize(
+    ("config", "generated_at_source", "message"),
+    [
+        (
+            {"enabled_stages": ("summary",), "reproducible": "true"},
+            "explicit",
+            "tool.trustweave.reproducible must be a boolean",
+        ),
+        (
+            {"enabled_stages": ("summary",), "reproducible": True},
+            "clock",
+            "reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance "
+            "is not deterministic",
+        ),
+        (
+            {
+                "enabled_stages": ("summary",),
+                "reproducible": False,
+                "failure_threshold": 1,
+                "output_dir": "artifacts",
+            },
+            "explicit",
+            "tool.trustweave.failure_threshold must be a severity string",
+        ),
+    ],
+)
+def test_ci_handle_defense_in_depth_rejects_untyped_embedded_configuration(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    config: dict[str, object],
+    generated_at_source: str,
+    message: str,
+) -> None:
+    """Coordinator validation remains fail-closed for an embedding caller.
+
+    This direct boundary test covers callers that bypass configuration loading.
+    """
+
+    config_path = tmp_path / "embedded.toml"
+    config_path.write_text("[tool.trustweave]\n", encoding="utf-8")
+    monkeypatch.setattr(ci_command, "load_project_config", lambda _path: config)
+    monkeypatch.setattr(
+        ci_command,
+        "configured_paths",
+        lambda _config_path, _values: {"output_dir": tmp_path / "artifacts"},
+    )
+    args = argparse.Namespace(
+        config=config_path,
+        no_config_discovery=False,
+        output_dir=None,
+        source_revision="embedded-contract",
+        coverage=False,
+        exit_on_review=False,
+        fail_on=None,
+        quiet=True,
+        format="text",
+        generated_at_source=generated_at_source,
+    )
+
+    with pytest.raises(ValidationError) as error:
+        ci_command.handle(args, "2026-08-15T00:00:00+00:00")
+    assert str(error.value) == message
 
 
 def test_ci_helper_contracts_are_deterministic_and_bounded(
@@ -259,7 +326,7 @@ def test_ci_creates_missing_nested_output_parent_before_staging(tmp_path: Path) 
 
 
 def test_reproducible_ci_requires_fixed_provenance_timestamp(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Reproducible configured CI must not silently derive provenance from the wall clock."""
 
@@ -269,6 +336,10 @@ def test_reproducible_ci_requires_fixed_provenance_timestamp(
     _write_ci_config(config, output_dir)
 
     assert main(["ci", "--config", str(config), "--quiet"]) == 2
+    assert capsys.readouterr().err == (
+        "Validation error: reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; "
+        "wall-clock provenance is not deterministic\n"
+    )
     assert not output_dir.exists()
 
 
@@ -298,8 +369,8 @@ def test_ci_chain_findings_drive_severity_gate_and_summary_status(tmp_path: Path
         "[tool.trustweave]\n"
         f'chain_manifest = "{chain_manifest.as_posix()}"\n'
         f'output_dir = "{output_dir.as_posix()}"\n'
-        'enabled_stages = ["chain_review", "summary"]\n'
-        'failure_threshold = "high"\n'
+        'enabled_stages = ["chain_review", "risk", "summary"]\n'
+        'failure_threshold = "none"\n'
         "reproducible = true\n",
         encoding="utf-8",
     )
@@ -312,14 +383,104 @@ def test_ci_chain_findings_drive_severity_gate_and_summary_status(tmp_path: Path
                 "ci",
                 "--config",
                 str(config),
+                "--exit-on-review",
                 "--quiet",
             ]
         )
         == EXIT_REVIEW
     )
-    assert '"status": "review_required"' in (output_dir / "ci-summary.json").read_text(
-        encoding="utf-8"
+    summary = load_document(output_dir / "ci-summary.json")
+    assert summary["status"] == "review_required"
+    assert summary["review"] == {
+        "selected_kinds": ["chain", "risk"],
+        "uses_risk_lifecycle": True,
+    }
+    assert summary["finding_counts"] == summary["active_severity_counts"]
+    assert summary["finding_counts"]["high"] > 0
+    assert summary["applied_decisions"] == {
+        "baselined": 0,
+        "suppressed": 0,
+        "expired_baseline": 0,
+        "expired_suppression": 0,
+    }
+    assert summary["incomplete_analyses"] == []
+
+
+def test_ci_baseline_lifecycle_updates_active_counts_and_gate_status(tmp_path: Path) -> None:
+    """Configured matching baselines preserve findings but remove them from active CI gating."""
+
+    generated_at = "2026-08-15T00:00:00+00:00"
+    chain_document = {
+        "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+        "name": "lifecycle-chain",
+        "nodes": [
+            {"id": "inbox", "kind": "source", "trust": "untrusted"},
+            {"id": "records", "kind": "data", "classification": "confidential"},
+            {"id": "email", "kind": "tool", "action_class": "external"},
+        ],
+        "edges": [
+            {"from": "inbox", "to": "records"},
+            {"from": "records", "to": "email"},
+        ],
+    }
+    chain_manifest = write_json(tmp_path / "chain.json", chain_document)
+    chain_review = review_declared_chains(chain_document, generated_at=generated_at)
+    initial_risk_review = review_risks(
+        [chain_review],
+        reviewed_at=generated_at,
+        artifact_paths=["chain-review.json"],
     )
+    baseline = create_baseline(
+        initial_risk_review,
+        "Explicit local review decision.",
+        "2026-09-01T00:00:00+00:00",
+        owner="security-review",
+        created_at=generated_at,
+    )
+    baseline_path = write_json(tmp_path / "baseline.json", baseline)
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'risk_baseline = "{baseline_path.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "risk", "summary"]\n'
+        'failure_threshold = "high"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    summary = load_document(output_dir / "ci-summary.json")
+    assert summary["status"] == "clear"
+    assert summary["finding_counts"]["high"] > 0
+    assert summary["active_severity_counts"] == {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0,
+        "review": 0,
+    }
+    assert summary["applied_decisions"] == {
+        "baselined": len(initial_risk_review["findings"]),
+        "suppressed": 0,
+        "expired_baseline": 0,
+        "expired_suppression": 0,
+    }
 
 
 def test_ci_resolves_configured_risk_baseline_for_selected_risk_stage(tmp_path: Path) -> None:
@@ -782,3 +943,57 @@ def test_ci_validate_stage_preserves_existing_output_after_semantic_failure(tmp_
     )
     assert prior.read_text(encoding="utf-8") == '{"preserved": true}'
     assert sorted(path.name for path in output_dir.iterdir()) == ["prior.json"]
+
+
+@pytest.mark.parametrize(
+    ("field", "filename", "contents"),
+    [
+        ("policy", "invalid-policy.json", '{"schema_version":"unsupported"}'),
+        (
+            "risk_baseline",
+            "invalid-baseline.json",
+            '{"schema_version":"trustweave.dev/risk-baseline/v1alpha2","baseline":[{}]}',
+        ),
+        (
+            "suppressions",
+            "invalid-suppressions.json",
+            '{"schema_version":"trustweave.dev/risk-suppressions/v1alpha2","suppressions":[{}]}',
+        ),
+    ],
+)
+def test_ci_validate_stage_semantically_rejects_every_configured_decision_input(
+    tmp_path: Path, field: str, filename: str, contents: str
+) -> None:
+    """Validate-only coordination parses every configured local decision input.
+
+    Invalid documents fail before the coordinator creates or replaces output.
+    """
+
+    invalid_document = tmp_path / filename
+    invalid_document.write_text(contents, encoding="utf-8")
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'{field} = "{invalid_document.name}"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-15T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 2
+    )
+    assert not output_dir.exists()

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from trustweave.chain import review_declared_chains
+from trustweave.chain import render_chain_review, review_declared_chains
 from trustweave.cli import main
 from trustweave.models import ValidationError
 
@@ -282,4 +282,107 @@ def test_chain_review_never_exceeds_state_or_edge_budget(
     assert any(
         finding["id"] == "TW-CHAIN-004" and finding["properties"]["budget"] in budget
         for finding in review["findings"]
+    )
+
+
+def test_chain_review_preserves_unsafe_metadata_and_reviewer_facing_report() -> None:
+    """Reviewer evidence retains the declared path, classifications, and fixed limit language."""
+
+    review = review_declared_chains(
+        _document(
+            _unsafe_nodes(),
+            [{"from": "inbox", "to": "records"}, {"from": "records", "to": "email"}],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    first, second = review["findings"]
+    assert first["id"] == "TW-CHAIN-001"
+    assert first["severity"] == "high"
+    assert first["evidence_kind"] == "declared_chain_configuration"
+    assert first["message"] == (
+        "An explicitly declared untrusted path reaches sensitive data and an external action."
+    )
+    assert first["subject"] == {"path": ["inbox", "records", "email"]}
+    assert first["properties"]["classifications"] == ["confidential"]
+    assert second["id"] == "TW-CHAIN-002"
+    assert second["severity"] == "high"
+    assert second["message"] == (
+        "The declared sensitive-data path reaches an external action without a declared "
+        "fail-closed approval boundary."
+    )
+    assert second["subject"] == {"path": ["inbox", "records", "email"]}
+    assert second["properties"]["classifications"] == ["confidential"]
+    report = render_chain_review(review)
+    assert "# Declared Chain Review" in report
+    assert "- `inbox -> records -> email`" in report
+    assert (
+        "**TW-CHAIN-001** (high): An explicitly declared untrusted path reaches sensitive "
+        "data and an external action." in report
+    )
+    assert "a runtime path, exploitability, or deployed control behavior" in report
+
+
+def test_chain_review_rejects_a_document_at_the_exact_default_node_limit() -> None:
+    """The default `max_nodes` bound rejects a 1,001-node declaration deterministically."""
+
+    nodes = [
+        {"id": f"node-{index}", "kind": "tool", "action_class": "read"} for index in range(1_001)
+    ]
+    review = review_declared_chains(_document(nodes, []), generated_at="2026-08-13T00:00:00+00:00")
+
+    finding = review["findings"][0]
+    assert finding["id"] == "TW-CHAIN-004"
+    assert finding["severity"] == "medium"
+    assert finding["message"] == (
+        "The declared graph analysis budget was exceeded; the local review is incomplete."
+    )
+    assert finding["subject"] == {"path": []}
+    assert finding["properties"]["budget"] == "max_nodes"
+    assert finding["properties"]["max_depth"] == 100
+    assert finding["properties"]["max_edges"] == 5000
+    assert finding["properties"]["max_paths"] == 1000
+    assert finding["properties"]["max_states"] == 5000
+
+
+@pytest.mark.parametrize(
+    ("review", "message"),
+    [
+        ({"paths": "not-a-list", "findings": []}, "chain_review.paths must be a list"),
+        ({"paths": [], "findings": "not-a-list"}, "chain_review.findings must be a list"),
+        (
+            {"paths": ["not-an-object"], "findings": []},
+            "path must be an object",
+        ),
+        (
+            {"paths": [{"identity": "not-a-list"}], "findings": []},
+            "path.identity must be a list",
+        ),
+        (
+            {"paths": [], "findings": ["not-an-object"]},
+            "finding must be an object",
+        ),
+    ],
+)
+def test_chain_renderer_rejects_malformed_public_review_artifacts(
+    review: dict[str, object], message: str
+) -> None:
+    """Chain report rendering fails closed with exact artifact field diagnostics."""
+
+    with pytest.raises(ValidationError) as error:
+        render_chain_review(review)
+    assert str(error.value) == message
+
+
+def test_chain_renderer_preserves_clear_review_explanatory_boundary() -> None:
+    """A clear supplied declaration renders explicit no-path, no-finding, and scope statements."""
+
+    assert render_chain_review({"paths": [], "findings": []}) == (
+        "# Declared Chain Review\n\n"
+        "## Declared paths\n\n"
+        "- No path from an explicitly declared untrusted source reached an external action.\n\n"
+        "## Review findings\n\n"
+        "- No reviewer-facing findings were produced from the supplied declarations.\n\n"
+        "> This report reviews supplied declared graph metadata only. It does not demonstrate "
+        "a runtime path, exploitability, or deployed control behavior.\n"
     )

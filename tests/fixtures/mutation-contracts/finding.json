@@ -1,0 +1,13 @@
+{
+  "evidence_kind": "declared_configuration",
+  "id": "TW-SNAPSHOT-001",
+  "message": "A declared snapshot finding requires local review.",
+  "rationale": "Snapshot contract coverage.",
+  "remediation": "Review the declared local boundary.",
+  "severity": "high",
+  "subject": {
+    "source": "customer_request",
+    "tool": "archive"
+  }
+}
+

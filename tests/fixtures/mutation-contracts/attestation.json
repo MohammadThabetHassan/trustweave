@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-08-15T00:00:00+00:00",
+  "integrity": {
+    "chain_sha256": "45c1f36d0b3a4ea66cea6d2221db5b36a39618917600b5368bf8a7e84854145a",
+    "covers": "stable payload digests, exact file digests, subject bindings, source revision, and generated_at exclusion"
+  },
+  "limits": [
+    "This is a local hash-linked statement, not an externally signed or transparency-log-backed attestation.",
+    "Exact-file verification requires the referenced local files to be supplied to the verifier; an internal-only check cannot establish their current bytes."
+  ],
+  "predicate": {
+    "exact_files": {
+      "bundle": {
+        "name": "bundle.json",
+        "sha256": "07443d040f123fdfd9f69df247dc8cbb9984f50d2cdf57f33bdcd8ceb5a14e15"
+      },
+      "test_results": {
+        "name": "results.json",
+        "sha256": "a53503f02e7d48cda7f37a2c4c2f748fde032ddfa7371c87279c1155914e098c"
+      }
+    },
+    "source_revision": "mutation-contract-snapshot",
+    "stable_payload": {
+      "bundle_sha256": "2315049ee6b27fc52dea4fe6b2b207a2dd2d7c57bdfb2e740134d845fe76d6e8",
+      "test_results_sha256": "e2116ea4190c5e9c0fb67315e2dc850883ca383f3f1c174325f6c4ff49e38014"
+    }
+  },
+  "predicate_type": "https://trustweave.dev/attestation/local-evidence/v1alpha3",
+  "schema_version": "trustweave.dev/attestation/v1alpha3",
+  "subject": [
+    {
+      "digest": {
+        "sha256": "07443d040f123fdfd9f69df247dc8cbb9984f50d2cdf57f33bdcd8ceb5a14e15"
+      },
+      "name": "bundle.json"
+    },
+    {
+      "digest": {
+        "sha256": "a53503f02e7d48cda7f37a2c4c2f748fde032ddfa7371c87279c1155914e098c"
+      },
+      "name": "results.json"
+    }
+  ]
+}
+

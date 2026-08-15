@@ -429,3 +429,41 @@ def test_legacy_versions_fail_closed_when_predicates_are_incomplete() -> None:
             "integrity": {"chain_sha256": "chain"},
         }
     )[0]
+
+
+def test_v1alpha3_attestation_verification_preserves_exact_result_contracts(tmp_path: Path) -> None:
+    """Verification messages distinguish internal bindings from supplied-file evidence checks."""
+
+    bundle_path = write_json(tmp_path / "bundle.json", {"bundle": 1})
+    results_path = write_json(tmp_path / "results.json", {"results": 1})
+    attestation = build_attestation(
+        bundle_path,
+        results_path,
+        source_revision="verification-contract",
+        generated_at="2026-08-15T00:00:00+00:00",
+        bundle_name="bundle.json",
+        test_results_name="results.json",
+    )
+
+    assert verify_attestation(attestation) == (
+        True,
+        "v1alpha3 attestation bindings are internally consistent; supplied files were not verified",
+    )
+    assert verify_attestation(attestation, bundle_path, results_path) == (
+        True,
+        "v1alpha3 attestation bindings are internally consistent with supplied-file verification",
+    )
+
+    bundle_path.write_text('{"bundle":2}\n', encoding="utf-8")
+    assert verify_attestation(attestation, bundle_path=bundle_path) == (
+        False,
+        "Supplied bundle file does not match v1alpha3 exact-file and stable-payload digests",
+    )
+    assert verify_attestation({"schema_version": "unknown"}) == (
+        False,
+        "Attestation is missing predicate or integrity data",
+    )
+    assert verify_attestation({"schema_version": "unknown", "predicate": {}, "integrity": {}}) == (
+        False,
+        "Unsupported attestation schema version",
+    )

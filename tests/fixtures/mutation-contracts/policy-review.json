@@ -1,0 +1,63 @@
+{
+  "approval_control": {
+    "binds_to": [
+      "actor",
+      "tool",
+      "target",
+      "parameters",
+      "issued_at",
+      "expires_at"
+    ],
+    "declared": true,
+    "fail_closed": true,
+    "high_impact_approval_rules": [
+      "TW-002"
+    ],
+    "mechanism": "human-review-queue",
+    "missing_required_bindings": []
+  },
+  "coverage": {
+    "impossible_rules": [],
+    "rules": {
+      "TW-001": {
+        "decision": "allow",
+        "possible": true,
+        "reachable": true,
+        "shadowed_by": null
+      },
+      "TW-002": {
+        "decision": "require_approval",
+        "possible": true,
+        "reachable": true,
+        "shadowed_by": null
+      },
+      "TW-003": {
+        "decision": "deny",
+        "possible": true,
+        "reachable": true,
+        "shadowed_by": null
+      },
+      "TW-004": {
+        "decision": "deny",
+        "possible": true,
+        "reachable": true,
+        "shadowed_by": null
+      }
+    },
+    "shadowed_rules": []
+  },
+  "findings": [],
+  "generated_at": "2026-08-15T00:00:00+00:00",
+  "limits": [
+    "The review checks only deterministic structure and declared labels; it does not prove an approval mechanism exists, authenticate approvers, or authorize a deployed runtime.",
+    "Findings indicate review obligations rather than vulnerabilities, compliance conclusions, or automatic approval decisions."
+  ],
+  "policy": "support-agent-boundary-policy",
+  "schema_version": "trustweave.dev/policy-review/v1alpha1",
+  "summary": {
+    "review_findings": 0,
+    "rules": 4,
+    "status": "clear"
+  }
+}
+

@@ -66,6 +66,19 @@ def test_policy_review_flags_allow_default_shadowed_rule_and_untrusted_external_
 
     ids = {finding["id"] for finding in review["findings"]}
     assert {"TW-POL-001", "TW-POL-002", "TW-POL-003"}.issubset(ids)
+    default_allow_finding = next(
+        finding for finding in review["findings"] if finding["id"] == "TW-POL-001"
+    )
+    assert default_allow_finding == {
+        "id": "TW-POL-001",
+        "severity": "review",
+        "message": (
+            "The policy default decision is allow. Unmatched declared paths will be allowed and "
+            "require explicit human review."
+        ),
+        "evidence_kind": "declared_policy_structure",
+        "subject": {"policy": "support-agent-boundary-policy"},
+    }
     assert review["summary"]["status"] == "review_required"
 
 
@@ -114,6 +127,30 @@ def test_policy_coverage_reports_redundant_contradictory_and_impossible_rules() 
     assert coverage["rules"]["TW-COVER-002"]["reachable"] is False
     assert coverage["rules"]["TW-COVER-002"]["shadowed_by"] == "TW-004"
     assert coverage["rules"]["TW-COVER-003"]["possible"] is False
+    findings_by_id = {
+        finding["id"]: finding
+        for finding in review["findings"]
+        if finding["id"] in {"TW-POL-002", "TW-POL-003", "TW-POL-007", "TW-POL-008"}
+    }
+    assert findings_by_id["TW-POL-002"]["message"] == (
+        "Rule TW-COVER-003 is shadowed by earlier rule TW-001 under first-match semantics and "
+        "cannot determine a decision."
+    )
+    assert findings_by_id["TW-POL-003"]["message"] == (
+        "Rule TW-COVER-002 allows untrusted input to a sensitive or external action class; review "
+        "its authorization and human-control boundary."
+    )
+    assert findings_by_id["TW-POL-007"]["message"] == (
+        "Rule TW-COVER-002 conflicts with shadowing rule TW-004: their declared decisions differ."
+    )
+    assert findings_by_id["TW-POL-008"]["message"] == (
+        "Rule TW-COVER-003 requires declared controls that this policy does not provide and cannot "
+        "determine a decision."
+    )
+    assert all(
+        finding["subject"] == {"policy": "support-agent-boundary-policy"}
+        for finding in findings_by_id.values()
+    )
 
 
 def test_policy_rejects_explicit_null_approval_control() -> None:
@@ -176,3 +213,90 @@ def test_cli_policy_check_writes_json_markdown_and_optional_review_exit(tmp_path
         )
         == 1
     )
+
+
+def test_policy_review_preserves_exact_missing_and_incomplete_approval_artifacts() -> None:
+    """Approval review findings retain canonical messages and bounded reviewer metadata."""
+
+    missing_document = _copy_policy_document()
+    missing_document.pop("approval_control")
+    missing_review = review_policy(
+        parse_policy(missing_document), generated_at="2026-08-15T00:00:00+00:00"
+    )
+    assert missing_review == {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "generated_at": "2026-08-15T00:00:00+00:00",
+        "policy": "support-agent-boundary-policy",
+        "approval_control": {
+            "high_impact_approval_rules": ["TW-002"],
+            "declared": False,
+        },
+        "findings": [
+            {
+                "id": "TW-POL-004",
+                "severity": "review",
+                "message": (
+                    "Sensitive or external paths require approval, but the policy does not declare "
+                    "an approval control that reviewers can inspect."
+                ),
+                "evidence_kind": "declared_policy_structure",
+                "subject": {"policy": "support-agent-boundary-policy"},
+            }
+        ],
+        "summary": {"rules": 4, "review_findings": 1, "status": "review_required"},
+        "limits": [
+            (
+                "The review checks only deterministic structure and declared labels; it does not "
+                "prove an approval mechanism exists, authenticate approvers, or authorize a "
+                "deployed runtime."
+            ),
+            (
+                "Findings indicate review obligations rather than vulnerabilities, compliance "
+                "conclusions, or automatic approval decisions."
+            ),
+        ],
+    }
+
+    incomplete_document = _copy_policy_document()
+    control = incomplete_document["approval_control"]
+    assert isinstance(control, dict)
+    control["binds_to"] = ["tool"]
+    control["fail_closed"] = False
+    incomplete_review = review_policy(
+        parse_policy(incomplete_document), generated_at="2026-08-15T00:00:00+00:00"
+    )
+    assert incomplete_review["approval_control"] == {
+        "high_impact_approval_rules": ["TW-002"],
+        "declared": True,
+        "mechanism": "human-review-queue",
+        "binds_to": ["tool"],
+        "fail_closed": False,
+        "missing_required_bindings": ["actor", "expires_at", "issued_at", "parameters", "target"],
+    }
+    assert incomplete_review["findings"] == [
+        {
+            "id": "TW-POL-005",
+            "severity": "review",
+            "message": (
+                "The declared approval control does not bind approvals to: actor, expires_at, "
+                "issued_at, parameters, target."
+            ),
+            "evidence_kind": "declared_policy_structure",
+            "subject": {"policy": "support-agent-boundary-policy"},
+        },
+        {
+            "id": "TW-POL-006",
+            "severity": "review",
+            "message": (
+                "The declared approval control is not fail-closed when approval state cannot be "
+                "validated."
+            ),
+            "evidence_kind": "declared_policy_structure",
+            "subject": {"policy": "support-agent-boundary-policy"},
+        },
+    ]
+    assert incomplete_review["summary"] == {
+        "rules": 4,
+        "review_findings": 2,
+        "status": "review_required",
+    }

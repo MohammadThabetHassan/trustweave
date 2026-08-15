@@ -120,9 +120,51 @@ def test_explanation_contains_exact_input_rule_order_and_default_behavior() -> N
         ("TW-ENGINE-LATER", False),
         ("TW-ENGINE-APPROVAL", True),
     ]
+    assert matched["checked_rules"][2]["checks"] == {
+        "source_trust": {
+            "matched": True,
+            "actual": "conditional",
+            "expected_any_of": ["conditional"],
+        },
+        "tool_action_class": {
+            "matched": True,
+            "actual": "external",
+            "expected_any_of": ["external"],
+        },
+        "source_data_classification": {
+            "matched": True,
+            "actual": "restricted",
+            "expected_any_of": [],
+        },
+        "source_identifier": {"matched": True, "actual": "review-queue", "expected_any_of": []},
+        "tool_identifier": {
+            "matched": True,
+            "actual": "notification-api",
+            "expected_any_of": [],
+        },
+        "purpose_tags": {"matched": True, "actual": ["notify_customer"], "expected_any_of": []},
+        "source_data_classification_bounds": {
+            "matched": True,
+            "actual": "restricted",
+            "at_least": None,
+            "at_most": None,
+        },
+        "required_controls": {"matched": True, "actual": [], "expected_all_of": []},
+        "tool_capabilities": {
+            "matched": True,
+            "actual": ["notifications.send"],
+            "expected_any_of": [],
+        },
+    }
     assert matched["decision"] == "require_approval"
     assert matched["rule_id"] == "TW-ENGINE-APPROVAL"
     assert matched["rationale"] == "The declared conditional external path requires review."
+    assert matched["limits"] == [
+        (
+            "The explanation applies only to supplied synthetic labels and declared local "
+            "policy metadata; it does not inspect or enforce a deployed runtime."
+        )
+    ]
     assert defaulted["schema_version"] == "trustweave.dev/policy-explanation/v1alpha1"
     assert defaulted["policy"] == "engine-mutation-contract"
     assert defaulted["decision"] == "deny"
@@ -130,6 +172,12 @@ def test_explanation_contains_exact_input_rule_order_and_default_behavior() -> N
     assert defaulted["rationale"] == (
         "No policy rule matched this supplied local input; the default decision was applied."
     )
+    assert defaulted["limits"] == matched["limits"]
+    assert [(item["id"], item["matched"]) for item in defaulted["checked_rules"]] == [
+        ("TW-ENGINE-FIRST", False),
+        ("TW-ENGINE-LATER", False),
+        ("TW-ENGINE-APPROVAL", False),
+    ]
 
 
 def test_synthetic_defaults_are_stable_in_matching_and_explanations() -> None:

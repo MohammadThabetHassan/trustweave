@@ -198,3 +198,104 @@ def test_parse_finding_rejects_non_object_and_unknown_fields() -> None:
                 "unexpected": True,
             }
         )
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (
+            lambda document: document.pop("id"),
+            "canonical finding id must match ^TW-[A-Z0-9-]{1,120}$",
+        ),
+        (
+            lambda document: document.update({"severity": "urgent"}),
+            "unsupported canonical finding severity: urgent",
+        ),
+        (
+            lambda document: document.update({"message": ""}),
+            "canonical finding message must be a non-empty string up to 4096 characters",
+        ),
+        (
+            lambda document: document.update({"evidence_kind": "Not_valid"}),
+            "canonical finding evidence_kind must use lower_snake_case",
+        ),
+        (
+            lambda document: document.update({"subject": []}),
+            "canonical finding subject must be an object",
+        ),
+        (
+            lambda document: document.update({"location": []}),
+            "canonical finding location must be an object",
+        ),
+        (
+            lambda document: document.update({"references": "not-a-list"}),
+            "canonical finding references must be a list",
+        ),
+        (
+            lambda document: document.update({"properties": []}),
+            "canonical finding properties must be an object",
+        ),
+        (
+            lambda document: document.update({"title": ""}),
+            "canonical finding title must be a non-empty string up to 256 characters",
+        ),
+        (
+            lambda document: document.update({"rationale": ""}),
+            "canonical finding rationale must be a non-empty string up to 4096 characters",
+        ),
+        (
+            lambda document: document.update({"remediation": ""}),
+            "canonical finding remediation must be a non-empty string up to 4096 characters",
+        ),
+    ],
+)
+def test_parse_finding_preserves_exact_required_and_optional_diagnostics(
+    mutate: object, message: str
+) -> None:
+    """Serialized public findings retain literal parser diagnostics for every public field class."""
+
+    document: dict[str, object] = {
+        "id": "TW-TEST-PARSE",
+        "severity": "review",
+        "message": "A bounded parser fixture.",
+        "evidence_kind": "declared_configuration",
+    }
+    assert callable(mutate)
+    mutate(document)
+    with pytest.raises(ValueError) as error:
+        parse_finding(document)
+    assert str(error.value) == message
+
+
+def test_parse_finding_round_trips_all_bounded_optional_metadata_deterministically() -> None:
+    """Optional canonical evidence fields retain sorting, scalar types, and reviewer prose."""
+
+    parsed = parse_finding(
+        {
+            "id": "TW-TEST-ROUND-TRIP",
+            "severity": "high",
+            "message": "A complete bounded local finding.",
+            "evidence_kind": "declared_configuration",
+            "title": "Complete finding",
+            "rationale": "The declaration requires review.",
+            "remediation": "Review the supplied metadata.",
+            "subject": {"tools": ["zeta", "alpha"], "source": "customer"},
+            "location": {"path": "declared.json", "kind": "manifest"},
+            "references": [{"uri": "local://z"}, {"uri": "local://a"}],
+            "properties": {"labels": ["zeta", "alpha"], "count": 3, "reviewed": True},
+        }
+    )
+
+    assert parsed.as_dict() == {
+        "id": "TW-TEST-ROUND-TRIP",
+        "severity": "high",
+        "message": "A complete bounded local finding.",
+        "evidence_kind": "declared_configuration",
+        "title": "Complete finding",
+        "rationale": "The declaration requires review.",
+        "remediation": "Review the supplied metadata.",
+        "subject": {"source": "customer", "tools": ["alpha", "zeta"]},
+        "location": {"kind": "manifest", "path": "declared.json"},
+        "references": [{"uri": "local://a"}, {"uri": "local://z"}],
+        "properties": {"count": 3, "labels": ["alpha", "zeta"], "reviewed": True},
+    }
