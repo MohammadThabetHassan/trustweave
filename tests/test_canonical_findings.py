@@ -123,16 +123,10 @@ def test_policy_and_diff_producers_emit_additive_canonical_metadata() -> None:
     assert policy_finding["evidence_kind"] == "declared_policy_structure"
     assert policy_finding["subject"] == {"policy": policy.name}
 
-    base = {
-        "schema_version": "trustweave.dev/bundle/v1alpha1",
-        "manifest": parse_manifest(load_document(MANIFEST)).as_dict(),
-        "findings": [],
-    }
-    head = {
-        "schema_version": "trustweave.dev/bundle/v1alpha1",
-        "manifest": parse_manifest(load_document(CANDIDATE)).as_dict(),
-        "findings": [],
-    }
+    from trustweave.engine import build_bundle
+
+    base = build_bundle(parse_manifest(load_document(MANIFEST)), policy)
+    head = build_bundle(parse_manifest(load_document(CANDIDATE)), policy)
     signals = diff_bundles(base, head)["signals"]
     capability_signal = next(item for item in signals if item["id"] == "TW-DIFF-003")
     assert capability_signal["subject"] == {

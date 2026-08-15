@@ -5,11 +5,12 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from trustweave.bundles import BUNDLE_SCHEMA_V1ALPHA1, validate_bundle
 from trustweave.models import ValidationError
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
-BUNDLE_SCHEMA_VERSION = "trustweave.dev/bundle/v1alpha1"
+BUNDLE_SCHEMA_VERSION = BUNDLE_SCHEMA_V1ALPHA1
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 
 
@@ -60,11 +61,9 @@ def _findings_by_key(bundle: Mapping[str, Any]) -> dict[tuple[str, str, str], Ma
 
 
 def _assert_bundle(bundle: Mapping[str, Any], label: str) -> None:
-    if bundle.get("schema_version") != BUNDLE_SCHEMA_VERSION:
-        raise ValidationError(f"{label} must use {BUNDLE_SCHEMA_VERSION}")
-    manifest = _mapping(bundle.get("manifest"))
-    if not manifest:
-        raise ValidationError(f"{label} is missing a manifest")
+    """Validate the complete supplied bundle contract before computing a local diff."""
+
+    validate_bundle(bundle, label)
 
 
 def _named_changes(

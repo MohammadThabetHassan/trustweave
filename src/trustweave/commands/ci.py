@@ -10,6 +10,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from trustweave.bundles import validate_bundle
 from trustweave.chain import render_chain_review, review_declared_chains
 from trustweave.commands._shared import (
     ATTESTATION_FILE,
@@ -183,26 +184,42 @@ def _required_paths(stages: Sequence[str]) -> set[str]:
     return required
 
 
-def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
-    """Return a configured SARIF path that cannot escape the staged artifact directory."""
+def _safe_sarif_path(config: Mapping[str, object]) -> Path:
+    """Validate one portable relative SARIF path without touching the filesystem."""
 
     configured = config.get("sarif_output", "trustweave.sarif")
     if not isinstance(configured, str):
         raise ValidationError("tool.trustweave.sarif_output must be a local path string")
+    if "\\" in configured:
+        raise ValidationError(
+            "tool.trustweave.sarif_output must use portable relative path separators"
+        )
     path = Path(configured)
-    if path.is_absolute() or ".." in path.parts:
+    if path.is_absolute() or ".." in path.parts or path == Path("."):
         raise ValidationError(
             "tool.trustweave.sarif_output must remain within the CI artifact directory"
         )
-    return staging / path
+    return path
+
+
+def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
+    """Return a configured SARIF path that cannot escape the staged artifact directory."""
+
+    return staging / _safe_sarif_path(config)
+
+
+def _validate_output_path(output: Path) -> None:
+    """Reject symbolic-link output boundaries without creating any path on disk."""
+
+    for candidate in (output, *output.parents):
+        if candidate.is_symlink():
+            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
 
 
 def _prepare_output_parent(output: Path) -> None:
     """Create a local output parent without accepting symbolic-link directory boundaries."""
 
-    for candidate in (output, *output.parents):
-        if candidate.is_symlink():
-            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
+    _validate_output_path(output)
     try:
         output.parent.mkdir(parents=True, exist_ok=True)
     except OSError as error:
@@ -354,6 +371,11 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             validate_decision_document(validated_documents["risk_baseline"], "baseline")
         if "suppressions" in validated_documents:
             validate_decision_document(validated_documents["suppressions"], "suppressions")
+        for bundle_name in ("baseline_bundle", "candidate_bundle"):
+            if bundle_name in validated_documents:
+                validate_bundle(validated_documents[bundle_name], bundle_name)
+        _validate_output_path(output_dir)
+        _safe_sarif_path(config)
     configured_threshold = config.get("failure_threshold", "none")
     if not isinstance(configured_threshold, str):
         raise ValidationError("tool.trustweave.failure_threshold must be a severity string")

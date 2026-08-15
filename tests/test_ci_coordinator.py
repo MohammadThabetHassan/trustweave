@@ -604,3 +604,181 @@ def test_ci_summary_schema_rejects_unknown_fields(tmp_path: Path) -> None:
     summary["unexpected"] = True
     with pytest.raises(JsonSchemaValidationError, match="Additional properties"):
         Draft202012Validator(schema).validate(summary)
+
+
+@pytest.mark.parametrize("bundle_field", ["baseline_bundle", "candidate_bundle"])
+def test_ci_validate_stage_semantically_rejects_malformed_configured_bundle(
+    tmp_path: Path, bundle_field: str
+) -> None:
+    """Configured diff bundles require semantic validation even when diff is not selected."""
+
+    malformed = tmp_path / f"{bundle_field}.json"
+    malformed.write_text('{"not": "a bundle"}', encoding="utf-8")
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'{bundle_field} = "{malformed.name}"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-15T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 2
+    )
+    assert not output_dir.exists()
+
+
+@pytest.mark.parametrize(
+    "sarif_output", ["../escape.sarif", "/tmp/escape.sarif", r"..\\escape.sarif"]
+)
+def test_ci_validate_stage_rejects_unsafe_configured_sarif_path_before_publication(
+    tmp_path: Path, sarif_output: str
+) -> None:
+    """Configured SARIF output paths are validated even when the SARIF stage is not selected."""
+
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'sarif_output = "{sarif_output}"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-15T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 2
+    )
+    assert not output_dir.exists()
+
+
+def test_ci_validate_stage_accepts_nested_sarif_path_with_spaces(tmp_path: Path) -> None:
+    """A safe relative nested SARIF path remains valid in a validate-only configuration."""
+
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        'sarif_output = "nested reports/my report.sarif"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-15T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    assert (output_dir / "ci-summary.json").is_file()
+
+
+def test_ci_validate_stage_rejects_output_symlink_escape_without_publication(
+    tmp_path: Path,
+) -> None:
+    """Validate-only runs reject an output path that traverses a symbolic link before writes."""
+
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    link = tmp_path / "artifact-link"
+    try:
+        link.symlink_to(outside, target_is_directory=True)
+    except OSError as error:
+        pytest.skip(f"symbolic links are unavailable: {error}")
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        'output_dir = "artifact-link/artifacts"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-15T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 3
+    )
+    assert not (outside / "artifacts").exists()
+
+
+def test_ci_validate_stage_preserves_existing_output_after_semantic_failure(tmp_path: Path) -> None:
+    """Semantic validation fails before replacing a prior complete local artifact directory."""
+
+    output_dir = tmp_path / "artifacts"
+    output_dir.mkdir()
+    prior = output_dir / "prior.json"
+    prior.write_text('{"preserved": true}', encoding="utf-8")
+    malformed = tmp_path / "baseline.json"
+    malformed.write_text('{"not": "a bundle"}', encoding="utf-8")
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'baseline_bundle = "{malformed.name}"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-15T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 2
+    )
+    assert prior.read_text(encoding="utf-8") == '{"preserved": true}'
+    assert sorted(path.name for path in output_dir.iterdir()) == ["prior.json"]
