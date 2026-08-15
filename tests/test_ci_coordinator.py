@@ -97,7 +97,7 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
     assert _fail_on_findings(high_review, "critical", False) is False
     assert _fail_on_findings(high_review, "review", False) is True
     assert _fail_on_findings({"findings": [{"severity": "review"}]}, "review", False) is True
-    assert _fail_on_findings({"findings": [{"severity": "low"}]}, "review", False) is False
+    assert _fail_on_findings({"findings": [{"severity": "low"}]}, "review", False) is True
     assert _fail_on_findings(high_review, "none", True) is True
 
     summary = {

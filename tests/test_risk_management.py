@@ -389,6 +389,13 @@ def test_risk_gate_rejects_invalid_severity_and_supports_none(
 ) -> None:
     review = review_risks([review_artifact], reviewed_at="2026-08-14T00:00:00+00:00")
     assert not should_fail(review, "none")
+    assert should_fail({"findings": [{"risk_state": "new", "severity": "info"}]}, "review")
+    assert should_fail(
+        {"findings": [{"risk_state": "expired_baseline", "severity": "low"}]}, "review"
+    )
+    assert not should_fail(
+        {"findings": [{"risk_state": "baselined", "severity": "info"}]}, "review"
+    )
     with pytest.raises(ValidationError, match="fail_on"):
         should_fail(review, "invalid")
 

@@ -106,8 +106,8 @@ def register(subcommands: Any) -> None:
     )
     ci.add_argument(
         "--fail-on",
-        choices=[*VALID_SEVERITIES, "none"],
-        help="Return status 1 for selected review findings at or above this severity.",
+        choices=[*VALID_SEVERITIES, "review", "none"],
+        help="Return status 1 at the selected severity, or for any finding with review.",
     )
     ci.add_argument(
         "--format",
@@ -275,12 +275,12 @@ def _fail_on_findings(
         return True
     if threshold == "none":
         return False
-    normalized_threshold = "medium" if threshold == "review" else threshold
-    minimum = SEVERITY_RANK[normalized_threshold]
+    if threshold == "review":
+        return True
+    minimum = SEVERITY_RANK[threshold]
     return any(
         isinstance(finding.get("severity"), str)
-        and (severity := "medium" if finding["severity"] == "review" else finding["severity"])
-        in SEVERITY_RANK
+        and (severity := finding["severity"]) in SEVERITY_RANK
         and SEVERITY_RANK[severity] <= minimum
         for finding in findings
     )

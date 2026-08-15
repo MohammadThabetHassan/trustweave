@@ -592,17 +592,16 @@ def should_fail(review: Mapping[str, Any], fail_on: str) -> bool:
 
     if fail_on == "none":
         return False
-    if fail_on not in SEVERITY_RANK:
-        raise ValidationError(f"fail_on must be one of {list(VALID_SEVERITIES)} or none")
+    if fail_on not in {*VALID_SEVERITIES, "review"}:
+        raise ValidationError(f"fail_on must be one of {[*VALID_SEVERITIES, 'review']} or none")
     findings = _sequence(review.get("findings"), "risk_review.findings")
-    threshold = SEVERITY_RANK[fail_on]
+    threshold = SEVERITY_RANK.get(fail_on)
     for index, raw_finding in enumerate(findings):
         finding = _mapping(raw_finding, f"risk_review.findings[{index}]")
         state = _text(finding.get("risk_state"), f"risk_review.findings[{index}].risk_state")
         severity = _text(finding.get("severity"), f"risk_review.findings[{index}].severity")
-        if (
-            state in {"new", "expired_baseline", "expired_suppression"}
-            and SEVERITY_RANK[severity] <= threshold
-        ):
+        if state not in {"new", "expired_baseline", "expired_suppression"}:
+            continue
+        if fail_on == "review" or (threshold is not None and SEVERITY_RANK[severity] <= threshold):
             return True
     return False
