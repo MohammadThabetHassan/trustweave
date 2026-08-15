@@ -14,6 +14,7 @@ from trustweave.evidence import build_attestation
 from trustweave.findings import finding
 from trustweave.io import load_document, write_json
 from trustweave.models import parse_manifest, parse_policy
+from trustweave.risk import review_risks
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
@@ -21,6 +22,7 @@ POLICY = ROOT / "policies" / "default-policy.json"
 SCHEMA = ROOT / "schemas" / "agent-security-bundle-v1alpha1.schema.json"
 ATTESTATION_SCHEMA = ROOT / "schemas" / "attestation-v1alpha3.schema.json"
 FINDING_SCHEMA = ROOT / "schemas" / "finding-v1alpha1.schema.json"
+RISK_REVIEW_SCHEMA = ROOT / "schemas" / "risk-review.schema.json"
 
 
 def test_real_generated_bundle_conforms_to_its_published_schema() -> None:
@@ -126,6 +128,30 @@ def test_emitted_canonical_finding_conforms_to_its_published_schema() -> None:
     )
 
     Draft202012Validator(load_document(FINDING_SCHEMA)).validate(emitted)
+
+
+def test_risk_review_schema_accepts_runtime_absolute_artifact_paths_with_spaces() -> None:
+    """Published risk-review validation preserves bounded literal local provenance paths."""
+
+    review = review_risks(
+        [
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [
+                    {
+                        "id": "TW-POL-004",
+                        "severity": "high",
+                        "message": "A declared control requires review.",
+                        "subject": {"tool": "lookup"},
+                    }
+                ],
+            }
+        ],
+        reviewed_at="2026-08-15T00:00:00+00:00",
+        artifact_paths=["/workspace/release artifacts/policy review.json"],
+    )
+
+    Draft202012Validator(load_document(RISK_REVIEW_SCHEMA)).validate(review)
 
 
 def test_bundle_schema_rejects_placeholder_nested_contracts() -> None:

@@ -956,3 +956,81 @@ def test_v3_fingerprints_preserve_identity_across_severity_changes() -> None:
     assert normalized_low.fingerprint == normalized_high.fingerprint
     assert normalized_low.severity == "low"
     assert normalized_high.severity == "high"
+
+
+def test_risk_review_reports_fingerprint_matched_decisions_with_incompatible_identity(
+    review_artifact: dict[str, object],
+) -> None:
+    """A decision that collides on fingerprint must be visible rather than silently discarded."""
+
+    normalized = normalize_findings(review_artifact)[0]
+    mismatched_baseline = {**_decision_entry(normalized), "rule_id": "TW-POL-999"}
+    mismatched_suppression = {
+        **_decision_entry(normalized),
+        "subject_digest": "f" * 64,
+    }
+
+    baseline_review = review_risks(
+        [review_artifact],
+        baseline_document={
+            "schema_version": RISK_BASELINE_SCHEMA_VERSION,
+            "baseline": [mismatched_baseline],
+        },
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+    suppression_review = review_risks(
+        [review_artifact],
+        suppressions_document={
+            "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+            "suppressions": [mismatched_suppression],
+        },
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+
+    assert baseline_review["findings"][0]["risk_state"] == "new"
+    assert suppression_review["findings"][0]["risk_state"] == "new"
+    assert baseline_review["mismatched_decisions"] == {
+        "baseline": [
+            {
+                "fingerprint": normalized.fingerprint,
+                "mismatches": ["rule_id"],
+            }
+        ],
+        "suppressions": [],
+    }
+    assert suppression_review["mismatched_decisions"] == {
+        "baseline": [],
+        "suppressions": [
+            {
+                "fingerprint": normalized.fingerprint,
+                "mismatches": ["subject_digest"],
+            }
+        ],
+    }
+    assert baseline_review["summary"]["mismatched_baseline"] == 1
+    assert suppression_review["summary"]["mismatched_suppressions"] == 1
+
+
+def test_risk_review_preserves_absolute_artifact_paths_with_spaces_for_schema_parity() -> None:
+    """The review schema must accept the runtime's literal local artifact provenance path."""
+
+    artifact = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "findings": [
+            {
+                "id": "TW-POL-004",
+                "severity": "high",
+                "message": "A declared control requires review.",
+                "subject": {"tool": "lookup"},
+            }
+        ],
+    }
+    review = review_risks(
+        [artifact],
+        reviewed_at="2026-08-15T00:00:00+00:00",
+        artifact_paths=["/workspace/release artifacts/policy review.json"],
+    )
+
+    assert review["findings"][0]["source_artifact_paths"] == [
+        "/workspace/release artifacts/policy review.json"
+    ]

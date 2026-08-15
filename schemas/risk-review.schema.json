@@ -9,6 +9,7 @@
     "findings": {"type": "array", "maxItems": 1000000, "items": {"$ref": "#/$defs/finding"}},
     "summary": {"$ref": "#/$defs/summary"},
     "orphaned_decisions": {"$ref": "#/$defs/orphaned_decisions"},
+    "mismatched_decisions": {"$ref": "#/$defs/mismatched_decisions"},
     "limits": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/text"}},
     "generated_at": {"type": "string", "format": "date-time"}
   },
@@ -40,7 +41,7 @@
         "fingerprint_schema_version": {"const": "trustweave/fingerprint/v3"},
         "fingerprint": {"$ref": "#/$defs/fingerprint"},
         "risk_state": {"enum": ["new", "baselined", "suppressed", "expired_baseline", "expired_suppression"]},
-        "source_artifact_paths": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+$"}},
+        "source_artifact_paths": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\u0000-\\u001F\\u007F]{1,4096}$"}},
         "reason": {"$ref": "#/$defs/text"},
         "expires_at": {"type": "string", "format": "date-time"}
       },
@@ -58,6 +59,8 @@
         "expired_suppression": {"$ref": "#/$defs/count"},
         "orphaned_baseline": {"$ref": "#/$defs/count"},
         "orphaned_suppressions": {"$ref": "#/$defs/count"},
+        "mismatched_baseline": {"$ref": "#/$defs/count"},
+        "mismatched_suppressions": {"$ref": "#/$defs/count"},
         "active_by_severity": {
           "type": "object",
           "required": ["critical", "high", "medium", "low", "info"],
@@ -74,6 +77,24 @@
       "properties": {
         "baseline": {"type": "array", "maxItems": 1000000, "uniqueItems": true, "items": {"$ref": "#/$defs/fingerprint"}},
         "suppressions": {"type": "array", "maxItems": 1000000, "uniqueItems": true, "items": {"$ref": "#/$defs/fingerprint"}}
+      },
+      "additionalProperties": false
+    },
+    "mismatched_decision": {
+      "type": "object",
+      "required": ["fingerprint", "mismatches"],
+      "properties": {
+        "fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "mismatches": {"type": "array", "minItems": 1, "maxItems": 2, "uniqueItems": true, "items": {"enum": ["rule_id", "subject_digest"]}}
+      },
+      "additionalProperties": false
+    },
+    "mismatched_decisions": {
+      "type": "object",
+      "required": ["baseline", "suppressions"],
+      "properties": {
+        "baseline": {"type": "array", "maxItems": 1000000, "items": {"$ref": "#/$defs/mismatched_decision"}},
+        "suppressions": {"type": "array", "maxItems": 1000000, "items": {"$ref": "#/$defs/mismatched_decision"}}
       },
       "additionalProperties": false
     }

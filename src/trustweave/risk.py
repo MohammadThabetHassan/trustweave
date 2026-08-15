@@ -247,6 +247,30 @@ def _subject_digest(subject: Mapping[str, Any]) -> str:
     return sha256(canonical_json(dict(subject)).encode("utf-8")).hexdigest()
 
 
+def _artifact_path(value: Any, path: str) -> str:
+    """Accept literal local provenance paths while excluding empty and control-containing values."""
+
+    normalized = _text(value, path)
+    if len(normalized) > 4096 or any(
+        ord(character) < 32 or ord(character) == 127 for character in normalized
+    ):
+        raise ValidationError(f"{path} must be at most 4096 characters without control characters")
+    return normalized
+
+
+def _decision_identity_mismatches(
+    finding: CanonicalFinding, decision: RiskDecision
+) -> tuple[str, ...]:
+    """Return fingerprint-bound identity fields that prevent a reviewer decision from applying."""
+
+    mismatches: list[str] = []
+    if decision.rule_id != finding.identifier:
+        mismatches.append("rule_id")
+    if decision.subject_digest != _subject_digest(finding.subject):
+        mismatches.append("subject_digest")
+    return tuple(mismatches)
+
+
 def _decision_entries(
     document: Mapping[str, Any] | None,
     schema_version: str,
@@ -366,9 +390,7 @@ def _status_for(
 ) -> tuple[str, str | None, str | None]:
     decision = suppressions.get(finding.fingerprint)
     if decision is not None:
-        if decision.rule_id != finding.identifier or decision.subject_digest != _subject_digest(
-            finding.subject
-        ):
+        if _decision_identity_mismatches(finding, decision):
             return "new", None, None
         if decision.created_at > reviewed_at:
             return "new", None, None
@@ -379,9 +401,7 @@ def _status_for(
         return "new", None, None
     decision = baseline.get(finding.fingerprint)
     if decision is not None:
-        if decision.rule_id != finding.identifier or decision.subject_digest != _subject_digest(
-            finding.subject
-        ):
+        if _decision_identity_mismatches(finding, decision):
             return "new", None, None
         if decision.created_at > reviewed_at:
             return "new", None, None
@@ -428,7 +448,11 @@ def review_risks(
     unique_findings: dict[str, CanonicalFinding] = {}
     sources_by_fingerprint: dict[str, set[str]] = defaultdict(set)
     for index, artifact in enumerate(artifacts):
-        source_path = artifact_paths[index] if artifact_paths is not None else None
+        source_path = (
+            _artifact_path(artifact_paths[index], f"artifact_paths[{index}]")
+            if artifact_paths is not None
+            else None
+        )
         for finding in normalize_findings(artifact):
             existing = unique_findings.get(finding.fingerprint)
             if existing is None:
@@ -463,6 +487,23 @@ def review_risks(
         "baseline": sorted(set(baseline) - observed_fingerprints),
         "suppressions": sorted(set(suppressions) - observed_fingerprints),
     }
+    mismatched_decisions = {
+        decision_kind: [
+            {
+                "fingerprint": fingerprint,
+                "mismatches": list(
+                    _decision_identity_mismatches(unique_findings[fingerprint], decision)
+                ),
+            }
+            for fingerprint, decision in sorted(decisions.items())
+            if fingerprint in unique_findings
+            and _decision_identity_mismatches(unique_findings[fingerprint], decision)
+        ]
+        for decision_kind, decisions in (
+            ("baseline", baseline),
+            ("suppressions", suppressions),
+        )
+    }
     active = [
         entry
         for entry in entries
@@ -480,6 +521,8 @@ def review_risks(
             "expired_suppression": states["expired_suppression"],
             "orphaned_baseline": len(orphaned_decisions["baseline"]),
             "orphaned_suppressions": len(orphaned_decisions["suppressions"]),
+            "mismatched_baseline": len(mismatched_decisions["baseline"]),
+            "mismatched_suppressions": len(mismatched_decisions["suppressions"]),
             "active_by_severity": {
                 severity: sum(1 for entry in active if entry["severity"] == severity)
                 for severity in VALID_SEVERITIES
@@ -487,6 +530,7 @@ def review_risks(
             "status": "review_required" if active else "clear",
         },
         "orphaned_decisions": orphaned_decisions,
+        "mismatched_decisions": mismatched_decisions,
         "limits": [
             (
                 "Risk decisions apply only to supplied local review findings. A baseline or "
