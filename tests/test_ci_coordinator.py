@@ -574,6 +574,8 @@ def test_generated_ci_summary_conforms_to_packaged_strict_schema(tmp_path: Path)
     schema = load_document(root / "schemas" / "ci-summary-v1alpha1.schema.json")
     summary = load_document(output_dir / "ci-summary.json")
     Draft202012Validator(schema).validate(summary)
+    summary["artifacts"] = ["reports/my report.sarif"]
+    Draft202012Validator(schema).validate(summary)
 
 
 def test_ci_summary_schema_rejects_unknown_fields(tmp_path: Path) -> None:

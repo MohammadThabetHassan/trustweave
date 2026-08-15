@@ -85,7 +85,7 @@
   },
   "$defs": {
     "text": {"type": "string", "minLength": 1, "maxLength": 4096},
-    "artifact_name": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+$"},
+    "artifact_name": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^(?!/)(?!.*\\.\\.)[^\\\\]+$"},
     "count": {"type": "integer", "minimum": 0, "maximum": 1000000},
     "severity_counts": {
       "type": "object",
