@@ -53,7 +53,13 @@ from trustweave.report import (
     render_risk_review_report,
     render_trace_review_report,
 )
-from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail, validate_decision_document
+from trustweave.risk import (
+    ACTIVE_RISK_STATES,
+    VALID_SEVERITIES,
+    review_risks,
+    should_fail,
+    validate_decision_document,
+)
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import parse_scenarios, run_scenarios
 from trustweave.trace_review import parse_trace, review_trace
@@ -518,8 +524,7 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             and read_json(test_path).get("summary", {}).get("status") != "passed"
         )
         risk_has_active_finding = risk_review is not None and any(
-            isinstance(finding, Mapping)
-            and finding.get("risk_state") in {"new", "expired_baseline", "expired_suppression"}
+            isinstance(finding, Mapping) and finding.get("risk_state") in ACTIVE_RISK_STATES
             for finding in risk_review.get("findings", [])
         )
         review_failed = (
@@ -542,7 +547,7 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             [
                 finding
                 for finding in risk_findings
-                if finding.get("risk_state") in {"new", "expired_baseline", "expired_suppression"}
+                if finding.get("risk_state") in ACTIVE_RISK_STATES
             ]
             if risk_review is not None
             else raw_findings

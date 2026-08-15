@@ -181,3 +181,20 @@ def test_bundle_diff_rejects_malformed_declared_artifact_components(
 
     with pytest.raises(ValidationError, match=message):
         diff_bundles(bundle, head)
+
+
+def test_bundle_diff_supports_historical_and_current_bundle_versions() -> None:
+    """A v1alpha2 diff explicitly records a compatible v1alpha1-to-v1alpha2 comparison."""
+
+    manifest = parse_manifest(_copy_document(MANIFEST))
+    policy = parse_policy(_copy_document(POLICY))
+    current = build_bundle(manifest, policy, generated_at="2026-08-15T00:00:00+00:00")
+    historical = json.loads(json.dumps(current))
+    historical["schema_version"] = "trustweave.dev/bundle/v1alpha1"
+    historical.pop("limits")
+
+    diff = diff_bundles(historical, current, generated_at="2026-08-15T00:00:00+00:00")
+
+    assert diff["schema_version"] == "trustweave.dev/bundle-diff/v1alpha2"
+    assert diff["base"]["bundle_schema_version"] == "trustweave.dev/bundle/v1alpha1"
+    assert diff["head"]["bundle_schema_version"] == "trustweave.dev/bundle/v1alpha2"

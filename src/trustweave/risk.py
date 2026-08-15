@@ -14,7 +14,8 @@ from trustweave.io import canonical_json
 from trustweave.models import ValidationError, reject_unknown_fields, validate_rule_identifier
 from trustweave.provenance import add_generated_at
 
-RISK_REVIEW_SCHEMA_VERSION = "trustweave.dev/risk-review/v1alpha1"
+LEGACY_RISK_REVIEW_SCHEMA_VERSION = "trustweave.dev/risk-review/v1alpha1"
+RISK_REVIEW_SCHEMA_VERSION = "trustweave.dev/risk-review/v1alpha2"
 RISK_BASELINE_SCHEMA_VERSION = "trustweave.dev/risk-baseline/v1alpha2"
 RISK_SUPPRESSIONS_SCHEMA_VERSION = "trustweave.dev/risk-suppressions/v1alpha2"
 LEGACY_RISK_BASELINE_SCHEMA_VERSION = "trustweave.dev/risk-baseline/v1alpha1"
@@ -22,6 +23,17 @@ LEGACY_RISK_SUPPRESSIONS_SCHEMA_VERSION = "trustweave.dev/risk-suppressions/v1al
 FINGERPRINT_SCHEMA_VERSION = "trustweave/fingerprint/v3"
 VALID_SEVERITIES = ("critical", "high", "medium", "low", "info")
 SEVERITY_RANK = {severity: index for index, severity in enumerate(VALID_SEVERITIES)}
+ACTIVE_RISK_STATES = frozenset(
+    {
+        "new",
+        "expired_baseline",
+        "expired_suppression",
+        "not_yet_applicable_baseline",
+        "not_yet_applicable_suppression",
+        "severity_escalated_baseline",
+        "severity_escalated_suppression",
+    }
+)
 _LEGACY_SEVERITY_MAP = {"review": "medium"}
 _ORDERED_SUBJECT_FIELDS = frozenset({"path"})
 
@@ -30,6 +42,7 @@ _ARTIFACT_CONTRACTS: dict[str, tuple[str, str]] = {
     "trustweave.dev/trace-review/v1alpha1": ("findings", "pre_recorded_trace_metadata"),
     "trustweave.dev/mcp-profile-review/v1alpha1": ("findings", "pre_recorded_mcp_metadata"),
     "trustweave.dev/bundle-diff/v1alpha1": ("signals", "configuration_difference"),
+    "trustweave.dev/bundle-diff/v1alpha2": ("signals", "configuration_difference"),
     "trustweave.dev/chain-review/v1alpha1": ("findings", "declared_chain_configuration"),
 }
 
@@ -393,23 +406,23 @@ def _status_for(
         if _decision_identity_mismatches(finding, decision):
             return "new", None, None
         if decision.created_at > reviewed_at:
-            return "new", None, None
+            return "not_yet_applicable_suppression", None, None
         if decision.expires_at < reviewed_at:
             return "expired_suppression", decision.reason, decision.expires_at.isoformat()
         if SEVERITY_RANK[finding.severity] >= SEVERITY_RANK[decision.accepted_severity]:
             return "suppressed", decision.reason, decision.expires_at.isoformat()
-        return "new", None, None
+        return "severity_escalated_suppression", None, None
     decision = baseline.get(finding.fingerprint)
     if decision is not None:
         if _decision_identity_mismatches(finding, decision):
             return "new", None, None
         if decision.created_at > reviewed_at:
-            return "new", None, None
+            return "not_yet_applicable_baseline", None, None
         if decision.expires_at < reviewed_at:
             return "expired_baseline", decision.reason, decision.expires_at.isoformat()
         if SEVERITY_RANK[finding.severity] >= SEVERITY_RANK[decision.accepted_severity]:
             return "baselined", decision.reason, decision.expires_at.isoformat()
-        return "new", None, None
+        return "severity_escalated_baseline", None, None
     return "new", None, None
 
 
@@ -504,11 +517,7 @@ def review_risks(
             ("suppressions", suppressions),
         )
     }
-    active = [
-        entry
-        for entry in entries
-        if entry["risk_state"] in {"new", "expired_baseline", "expired_suppression"}
-    ]
+    active = [entry for entry in entries if entry["risk_state"] in ACTIVE_RISK_STATES]
     review: dict[str, Any] = {
         "schema_version": RISK_REVIEW_SCHEMA_VERSION,
         "findings": entries,
@@ -519,6 +528,10 @@ def review_risks(
             "suppressed": states["suppressed"],
             "expired_baseline": states["expired_baseline"],
             "expired_suppression": states["expired_suppression"],
+            "not_yet_applicable_baseline": states["not_yet_applicable_baseline"],
+            "not_yet_applicable_suppression": states["not_yet_applicable_suppression"],
+            "severity_escalated_baseline": states["severity_escalated_baseline"],
+            "severity_escalated_suppression": states["severity_escalated_suppression"],
             "orphaned_baseline": len(orphaned_decisions["baseline"]),
             "orphaned_suppressions": len(orphaned_decisions["suppressions"]),
             "mismatched_baseline": len(mismatched_decisions["baseline"]),
@@ -598,7 +611,7 @@ def create_baseline(
         path = f"risk_review.findings[{index}]"
         finding = _mapping(raw_finding, path)
         state = _text(finding.get("risk_state"), f"{path}.risk_state")
-        if state not in {"new", "expired_baseline", "expired_suppression"}:
+        if state not in ACTIVE_RISK_STATES:
             continue
         fingerprint = _text(finding.get("fingerprint"), f"{path}.fingerprint")
         if len(fingerprint) != 64 or any(
@@ -650,7 +663,7 @@ def should_fail(review: Mapping[str, Any], fail_on: str) -> bool:
         finding = _mapping(raw_finding, f"risk_review.findings[{index}]")
         state = _text(finding.get("risk_state"), f"risk_review.findings[{index}].risk_state")
         severity = _text(finding.get("severity"), f"risk_review.findings[{index}].severity")
-        if state not in {"new", "expired_baseline", "expired_suppression"}:
+        if state not in ACTIVE_RISK_STATES:
             continue
         if fail_on == "review" or (threshold is not None and SEVERITY_RANK[severity] <= threshold):
             return True

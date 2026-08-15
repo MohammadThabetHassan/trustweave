@@ -157,7 +157,9 @@ def test_future_created_decision_does_not_apply_to_earlier_review(
         reviewed_at="2026-08-15T00:00:00+00:00",
     )
 
-    assert review["findings"][0]["risk_state"] == "new"
+    assert review["schema_version"] == "trustweave.dev/risk-review/v1alpha2"
+    assert review["findings"][0]["risk_state"] == "not_yet_applicable_baseline"
+    assert review["summary"]["not_yet_applicable_baseline"] == 1
     assert review["summary"]["status"] == "review_required"
 
     suppressed = review_risks(
@@ -168,7 +170,8 @@ def test_future_created_decision_does_not_apply_to_earlier_review(
         },
         reviewed_at="2026-08-15T00:00:00+00:00",
     )
-    assert suppressed["findings"][0]["risk_state"] == "new"
+    assert suppressed["findings"][0]["risk_state"] == "not_yet_applicable_suppression"
+    assert suppressed["summary"]["not_yet_applicable_suppression"] == 1
     assert suppressed["summary"]["status"] == "review_required"
 
 
@@ -209,7 +212,8 @@ def test_baseline_does_not_mask_severity_escalation() -> None:
         reviewed_at="2026-08-14T00:00:00+00:00",
     )
 
-    assert review["findings"][0]["risk_state"] == "new"
+    assert review["findings"][0]["risk_state"] == "severity_escalated_baseline"
+    assert review["summary"]["severity_escalated_baseline"] == 1
     assert review["summary"]["status"] == "review_required"
     assert should_fail(review, "critical")
 
@@ -461,7 +465,7 @@ def test_baseline_create_and_decision_validation_commands_are_explicit_and_local
     review_path.write_text(
         json.dumps(
             {
-                "schema_version": "trustweave.dev/risk-review/v1alpha1",
+                "schema_version": RISK_REVIEW_SCHEMA_VERSION,
                 "generated_at": "2026-08-14T00:00:00+00:00",
                 "findings": [
                     {

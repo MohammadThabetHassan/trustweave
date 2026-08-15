@@ -8,23 +8,31 @@ from typing import Any, cast
 
 from trustweave import __version__
 from trustweave.models import ValidationError
-from trustweave.risk import normalize_findings
+from trustweave.risk import ACTIVE_RISK_STATES, normalize_findings
 from trustweave.rules import RULES
 
 SARIF_VERSION = "2.1.0"
 SARIF_SCHEMA_URI = "https://json.schemastore.org/sarif-2.1.0.json"
 TOOL_INFORMATION_URI = "https://github.com/MohammadThabetHassan/trustweave"
 
-REVIEW_INPUTS: tuple[tuple[str, str, str], ...] = (
-    ("policy", "trustweave.dev/policy-review/v1alpha1", "findings"),
-    ("diff", "trustweave.dev/bundle-diff/v1alpha1", "signals"),
-    ("trace", "trustweave.dev/trace-review/v1alpha1", "findings"),
-    ("mcp", "trustweave.dev/mcp-profile-review/v1alpha1", "findings"),
-    ("risk", "trustweave.dev/risk-review/v1alpha1", "findings"),
-    ("chain", "trustweave.dev/chain-review/v1alpha1", "findings"),
+REVIEW_INPUTS: tuple[tuple[str, frozenset[str], str], ...] = (
+    ("policy", frozenset({"trustweave.dev/policy-review/v1alpha1"}), "findings"),
+    (
+        "diff",
+        frozenset({"trustweave.dev/bundle-diff/v1alpha1", "trustweave.dev/bundle-diff/v1alpha2"}),
+        "signals",
+    ),
+    ("trace", frozenset({"trustweave.dev/trace-review/v1alpha1"}), "findings"),
+    ("mcp", frozenset({"trustweave.dev/mcp-profile-review/v1alpha1"}), "findings"),
+    (
+        "risk",
+        frozenset({"trustweave.dev/risk-review/v1alpha1", "trustweave.dev/risk-review/v1alpha2"}),
+        "findings",
+    ),
+    ("chain", frozenset({"trustweave.dev/chain-review/v1alpha1"}), "findings"),
 )
 REVIEW_INPUT_MAP = {
-    kind: (schema_version, finding_key) for kind, schema_version, finding_key in REVIEW_INPUTS
+    kind: (schema_versions, finding_key) for kind, schema_versions, finding_key in REVIEW_INPUTS
 }
 SEVERITY_TO_LEVEL = {
     "critical": "error",
@@ -68,9 +76,10 @@ def _canonical_fingerprint(
 
 
 def _review_findings(kind: str, review: Mapping[str, Any]) -> list[dict[str, str]]:
-    schema_version, finding_key = REVIEW_INPUT_MAP[kind]
-    if review.get("schema_version") != schema_version:
-        raise ValidationError(f"{kind} review must use {schema_version}")
+    schema_versions, finding_key = REVIEW_INPUT_MAP[kind]
+    if review.get("schema_version") not in schema_versions:
+        supported = ", ".join(sorted(schema_versions))
+        raise ValidationError(f"{kind} review must use one of: {supported}")
 
     findings: list[dict[str, str]] = []
     for index, raw_finding in enumerate(_sequence(review.get(finding_key))):
@@ -84,7 +93,7 @@ def _review_findings(kind: str, review: Mapping[str, Any]) -> list[dict[str, str
             risk_state = _required_string(
                 finding.get("risk_state"), f"{kind}.{finding_key}[{index}].risk_state"
             )
-            if risk_state not in {"new", "expired_baseline", "expired_suppression"}:
+            if risk_state not in ACTIVE_RISK_STATES:
                 continue
             fingerprint = _required_string(
                 finding.get("fingerprint"), f"{kind}.{finding_key}[{index}].fingerprint"

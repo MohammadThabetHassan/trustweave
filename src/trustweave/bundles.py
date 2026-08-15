@@ -20,7 +20,8 @@ from trustweave.models import (
 )
 
 BUNDLE_SCHEMA_V1ALPHA1 = "trustweave.dev/bundle/v1alpha1"
-SUPPORTED_BUNDLE_SCHEMA_VERSIONS = frozenset({BUNDLE_SCHEMA_V1ALPHA1})
+BUNDLE_SCHEMA_V1ALPHA2 = "trustweave.dev/bundle/v1alpha2"
+SUPPORTED_BUNDLE_SCHEMA_VERSIONS = frozenset({BUNDLE_SCHEMA_V1ALPHA1, BUNDLE_SCHEMA_V1ALPHA2})
 MAX_BUNDLE_FINDINGS = 10_000
 MAX_BUNDLE_LIMITS = 32
 
@@ -138,20 +139,36 @@ def _validate_finding(
     return decision
 
 
-def validate_bundle(document: Mapping[str, Any], label: str = "bundle") -> None:
-    """Validate one supplied local evidence bundle without reading files or performing writes."""
+def _validate_legacy_bundle(bundle: Mapping[str, Any], label: str) -> None:
+    """Validate the immutable historical v1alpha1 envelope without reinterpreting it as v1alpha2."""
 
-    bundle = _mapping(document, label)
+    required = {"schema_version", "manifest", "policy", "findings", "summary"}
+    allowed = required | {"generated_at"}
+    reject_unknown_fields(bundle, allowed, label)
+    missing = sorted(required - set(bundle))
+    if missing:
+        raise ValidationError(f"{label} is missing required fields: {', '.join(missing)}")
+    _mapping(bundle["manifest"], f"{label}.manifest")
+    _mapping(bundle["policy"], f"{label}.policy")
+    findings = _sequence(bundle["findings"], f"{label}.findings")
+    if len(findings) > MAX_BUNDLE_FINDINGS:
+        raise ValidationError(
+            f"{label}.findings must contain at most {MAX_BUNDLE_FINDINGS} entries"
+        )
+    _mapping(bundle["summary"], f"{label}.summary")
+    if "generated_at" in bundle:
+        _text(bundle["generated_at"], f"{label}.generated_at")
+
+
+def _validate_current_bundle(bundle: Mapping[str, Any], label: str) -> None:
+    """Validate the fully normalized v1alpha2 evidence contract."""
+
     required = {"schema_version", "manifest", "policy", "findings", "summary", "limits"}
     allowed = required | {"generated_at"}
     reject_unknown_fields(bundle, allowed, label)
     missing = sorted(required - set(bundle))
     if missing:
         raise ValidationError(f"{label} is missing required fields: {', '.join(missing)}")
-    schema_version = _text(bundle.get("schema_version"), f"{label}.schema_version")
-    if schema_version not in SUPPORTED_BUNDLE_SCHEMA_VERSIONS:
-        supported = ", ".join(sorted(SUPPORTED_BUNDLE_SCHEMA_VERSIONS))
-        raise ValidationError(f"{label}.schema_version must be one of: {supported}")
     if "generated_at" in bundle:
         _timestamp(bundle["generated_at"], f"{label}.generated_at")
 
@@ -187,3 +204,18 @@ def validate_bundle(document: Mapping[str, Any], label: str = "bundle") -> None:
         )
     for index, limit in enumerate(limits):
         _text(limit, f"{label}.limits[{index}]")
+
+
+def validate_bundle(document: Mapping[str, Any], label: str = "bundle") -> None:
+    """Validate a supported local bundle version without reading files or performing writes."""
+
+    bundle = _mapping(document, label)
+    schema_version = _text(bundle.get("schema_version"), f"{label}.schema_version")
+    if schema_version == BUNDLE_SCHEMA_V1ALPHA1:
+        _validate_legacy_bundle(bundle, label)
+        return
+    if schema_version == BUNDLE_SCHEMA_V1ALPHA2:
+        _validate_current_bundle(bundle, label)
+        return
+    supported = ", ".join(sorted(SUPPORTED_BUNDLE_SCHEMA_VERSIONS))
+    raise ValidationError(f"{label}.schema_version must be one of: {supported}")

@@ -98,7 +98,7 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
 
     bundle = build_bundle(manifest, policy, generated_at="2026-08-13T00:00:00+00:00")
 
-    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha1"
+    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha2"
     generated_at = datetime.fromisoformat(bundle["generated_at"])
     assert generated_at.tzinfo == UTC
     assert bundle["manifest"] == manifest.as_dict()

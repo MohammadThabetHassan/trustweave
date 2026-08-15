@@ -55,7 +55,9 @@ def test_risk_lifecycle_schemas_validate_required_entries(
 
 
 def test_risk_review_schema_requires_generated_lifecycle_summary_shape() -> None:
-    schema = json.loads((ROOT / "schemas" / "risk-review.schema.json").read_text(encoding="utf-8"))
+    schema = json.loads(
+        (ROOT / "schemas" / "risk-review-v1alpha2.schema.json").read_text(encoding="utf-8")
+    )
     review = review_risks([], reviewed_at="2026-08-14T00:00:00+00:00")
     jsonschema.validate(review, schema)
 
@@ -67,7 +69,9 @@ def test_risk_review_schema_requires_generated_lifecycle_summary_shape() -> None
 def test_risk_review_schema_accepts_generated_v3_normalized_finding() -> None:
     """Strict risk schemas must cover every emitted normalized finding field."""
 
-    schema = json.loads((ROOT / "schemas" / "risk-review.schema.json").read_text(encoding="utf-8"))
+    schema = json.loads(
+        (ROOT / "schemas" / "risk-review-v1alpha2.schema.json").read_text(encoding="utf-8")
+    )
     review = review_risks(
         [
             {

@@ -78,16 +78,16 @@ MUTATION_RECORD_MARKERS = (
     "not a cross-platform release-blocking gate",
 )
 GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
-    "agent-security-bundle-v1alpha1.schema.json": (
-        "trustweave.dev/bundle/v1alpha1",
-        "src/trustweave/engine.py",
+    "agent-security-bundle-v1alpha2.schema.json": (
+        "trustweave.dev/bundle/v1alpha2",
+        "src/trustweave/bundles.py",
     ),
     "attestation-v1alpha3.schema.json": (
         "trustweave.dev/attestation/v1alpha3",
         "src/trustweave/evidence.py",
     ),
-    "bundle-diff-v1alpha1.schema.json": (
-        "trustweave.dev/bundle-diff/v1alpha1",
+    "bundle-diff-v1alpha2.schema.json": (
+        "trustweave.dev/bundle-diff/v1alpha2",
         "src/trustweave/diff.py",
     ),
     "chain-review-v1alpha1.schema.json": (
@@ -126,8 +126,8 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
         "trustweave.dev/risk-baseline/v1alpha2",
         "src/trustweave/risk.py",
     ),
-    "risk-review.schema.json": (
-        "trustweave.dev/risk-review/v1alpha1",
+    "risk-review-v1alpha2.schema.json": (
+        "trustweave.dev/risk-review/v1alpha2",
         "src/trustweave/risk.py",
     ),
     "test-results-v1alpha1.schema.json": (
@@ -251,7 +251,7 @@ def _check_generated_artifact_schemas() -> list[str]:
         subject={"source": "customer_message", "tool": "send_mock_email"},
     )
     generated: list[tuple[str, dict[str, Any]]] = [
-        ("agent-security-bundle-v1alpha1.schema.json", bundle),
+        ("agent-security-bundle-v1alpha2.schema.json", bundle),
         ("finding-v1alpha1.schema.json", emitted_finding),
     ]
     with tempfile.TemporaryDirectory(prefix="trustweave-reality-") as temporary_directory:
