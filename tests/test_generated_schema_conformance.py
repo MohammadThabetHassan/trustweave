@@ -36,6 +36,20 @@ def test_real_generated_bundle_conforms_to_its_published_schema() -> None:
     Draft202012Validator(schema).validate(bundle)
 
 
+def test_bundle_schema_accepts_runtime_display_manifest_name() -> None:
+    """A bounded human-readable manifest display name remains schema-valid in evidence."""
+
+    manifest_document = dict(load_document(MANIFEST))
+    manifest_document["name"] = "Customer Support Agent"
+    bundle = build_bundle(
+        parse_manifest(manifest_document),
+        parse_policy(load_document(POLICY)),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    Draft202012Validator(load_document(SCHEMA)).validate(bundle)
+
+
 def test_bundle_schema_rejects_unknown_top_level_field() -> None:
     """Strict bundle schemas must not accept unversioned output extensions."""
 
