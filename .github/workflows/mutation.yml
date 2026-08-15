@@ -1,0 +1,81 @@
+name: Mutation quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  mutation-quality:
+    name: Mutation quality gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Install package and mutation tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run selected mutation scope
+        shell: bash
+        run: |
+          set -o pipefail
+          mutmut run 2>&1 | tee mutation-run.log
+          mutmut results --all true > mutation-results.txt
+
+      - name: Enforce 90 percent mutation quality
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import re
+          from pathlib import Path
+
+          output = Path("mutation-run.log").read_text(encoding="utf-8").replace("\r", "\n")
+          matches = re.findall(r"(\d+)/(\d+).*?🎉\s+(\d+).*?🙁\s+(\d+)", output)
+          if not matches:
+              raise SystemExit("Mutation run output did not contain final generated, killed, and survived totals")
+          completed, generated, killed, survived = map(int, matches[-1])
+          if completed != generated:
+              raise SystemExit(f"Mutation run did not complete: {completed}/{generated}")
+          score = killed * 100 / generated
+          evidence = {
+              "generated": generated,
+              "killed": killed,
+              "survived": survived,
+              "score_percent": round(score, 4),
+              "threshold_percent": 90,
+          }
+          Path("mutation-quality.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(evidence, sort_keys=True))
+          if killed * 100 < generated * 90:
+              raise SystemExit(
+                  f"Mutation quality gate failed: {killed}/{generated} killed ({score:.2f}%) < 90%"
+              )
+          PY
+
+      - name: Upload mutation evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: mutation-quality-evidence
+          path: |
+            mutation-run.log
+            mutation-results.txt
+            mutation-quality.json
+          if-no-files-found: warn

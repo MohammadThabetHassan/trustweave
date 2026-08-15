@@ -16,15 +16,17 @@ The configured scope covers twelve high-risk modules: bundle and policy-decision
 | Mutated source | `src/trustweave/engine.py`, `models.py`, `policy_predicates.py`, `policy_review.py`, `chain.py`, `findings.py`, `risk.py`, `evidence.py`, `config.py`, `schema_catalog.py`, `sarif.py`, and `commands/ci.py` |
 | Fixture copy | Repository workflows, Docker assets, executable scripts, contract fixtures, schemas, examples, policies, scenarios, documentation, and public README assets are copied into the mutation workspace. |
 | Test selection | `tests -k 'not repository_reality_check and not reality_check_contracts'`. The repository-reality subprocess test and its isolated-wheel contract test are excluded because instrumented source imports the mutation runtime, while those tests deliberately build a dependency-free isolated wheel. The ordinary release verification continues to execute both tests. |
-| Result | 6,063 generated mutants; 4,787 killed; 1,276 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
-| High-risk scope score | 78.95% killed (`4,787 / 6,063`) |
-| CI status | Informational and Linux-only; it is not a cross-platform release-blocking gate. |
+| Result | 6,126 generated mutants; 5,517 killed; 609 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
+| High-risk scope score | 90.06% killed (`5,517 / 6,126`) |
+| Hosted gate | `.github/workflows/mutation.yml` runs this Linux-only scope and fails the named **Mutation quality gate** when fewer than 90% of generated mutants are killed. |
 
 ## Interpretation and remaining work
 
-The expanded twelve-module run is a reproducible, honest measurement but **does not meet a 90% mutation threshold** for the measured high-risk scope. It therefore does not establish the audit's full 9.8 acceptance gate or a package-wide mutation-quality claim. The 1,276 surviving mutants remain untriaged and require maintainer classification as equivalent changes or additional behavioral assertions; none have been silently suppressed.
+The current twelve-module measurement exceeds the configured **90% mutation threshold** for the measured high-risk scope. It supports the hosted gate's threshold claim, but it is not a package-wide mutation-quality claim and does not establish that the package is secure.
 
-The prior four-module measurement is superseded by this broader configured run. It recorded 2,614 generated mutants, 2,128 killed, and 486 survivors, for 81.41%; it must not be compared as though it represented the twelve-module scope.
+The 609 surviving mutants are preserved in the generated mutation results for maintainer-by-maintainer classification. They have **not** been silently suppressed. The separate zero-untriaged-survivor audit condition remains outstanding until each remaining survivor has a recorded equivalent-change rationale or an added behavioral regression. TrustWeave therefore must not yet be described as having satisfied the complete 9.8 acceptance matrix solely on the basis of this score.
+
+The prior twelve-module measurements are superseded by this current configured run. Historical measurements must not be compared as though they represented the final high-risk scope result.
 
 ## Re-run procedure
 
@@ -38,11 +40,11 @@ mutmut results
 rm -rf mutants .mutmut-cache
 ```
 
-The project configuration in `pyproject.toml` defines the twelve-module source scope, workspace fixture copies, and selected tests. The `mutants/` directory and `.mutmut-cache/` directory are generated output and must not be committed.
+The project configuration in `pyproject.toml` defines the twelve-module source scope, workspace fixture copies, and selected tests. The `mutants/` directory and `.mutmut-cache/` directory are generated output and must not be committed. The hosted Linux gate records `mutation-run.log`, `mutation-results.txt`, and `mutation-quality.json` as workflow evidence.
 
-## Why this is not a mandatory compatibility job
+## Why this is Linux-only
 
-The mutmut documentation states that its current execution model requires fork support and therefore needs WSL on Windows. TrustWeave supports Windows for its ordinary test suite, so making mutation analysis a required Windows gate would be misleading and brittle. This record is an explicit Linux-only diagnostic, not a portability claim.
+The mutmut documentation states that its current execution model requires fork support and therefore needs WSL on Windows. TrustWeave supports Windows for its ordinary test suite, so making mutation analysis a required Windows gate would be misleading and brittle. The named hosted gate is Linux-only; it is a release-blocking quality check for the declared mutation scope, not a portability claim.
 
 ## References
 

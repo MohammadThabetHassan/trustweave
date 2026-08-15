@@ -69,13 +69,14 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "6,063 generated mutants; 4,787 killed; 1,276 survived; 0 without a selected test; "
+    "6,126 generated mutants; 5,517 killed; 609 survived; 0 without a selected test; "
     "0 timed out; 0 suspicious.",
-    "78.95% killed (`4,787 / 6,063`)",
+    "90.06% killed (`5,517 / 6,126`)",
     "Linux with fork support",
-    "**does not meet a 90% mutation threshold** for the measured high-risk scope",
-    "1,276 surviving mutants remain untriaged",
-    "not a cross-platform release-blocking gate",
+    "**90% mutation threshold** for the measured high-risk scope",
+    "609 surviving mutants are preserved",
+    "zero-untriaged-survivor audit condition remains outstanding",
+    "release-blocking quality check",
 )
 GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
     "agent-security-bundle-v1alpha2.schema.json": (
