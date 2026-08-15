@@ -134,7 +134,9 @@ The project also avoids unsupported security claims. A review finding is a deter
 
 `0.1.1` remains the currently published [PyPI release](https://pypi.org/project/trustweave/). The source tree is prepared for `0.2.0`, which remains subject to owner-approved TestPyPI validation, production publication, tagging, and a GitHub Release. Its enforced release path includes formatting, linting, strict type checks, static source-security scanning, a **95% branch-coverage gate**, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
 
-The current `v1alpha1` input and generated-artifact formats are suitable for the checked-in examples and CI but may evolve with documented migration guidance. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
+Current inputs retain their documented `v1alpha1`/`v1alpha2` contracts. Generated bundles use `trustweave.dev/bundle/v1alpha2`; risk decisions use canonical `trustweave/fingerprint/v3` identities and generated reviews use `trustweave.dev/risk-review/v1alpha2`. Historical v1alpha1 bundle and review resources remain available for bounded compatibility rather than being silently redefined. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
+
+The enforced local suite retains a **95% branch coverage** gate. The documented twelve-module mutation diagnostic measured 78.95% killed mutants with 1,276 surviving mutants still untriaged; it is evidence of remaining test-quality work, not a release-readiness claim.
 
 ## Contribute, get help, or report a concern
 

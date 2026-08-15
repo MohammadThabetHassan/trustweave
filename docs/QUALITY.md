@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TrustWeave makes security-related review claims only when they are linked to reproducible artifacts. This guide defines the checks that maintainers must execute before a direct commit to `main` and before a release.
+TrustWeave makes security-related review claims only when they are linked to reproducible artifacts. This guide defines the checks required on an open pull-request head before merge and before an owner-authorized release.
 
 ## Local verification
 
@@ -18,6 +18,7 @@ bandit -r src/trustweave -q
 pytest
 python -m build
 pip-audit -r requirements.txt
+twine check dist/*
 SOURCE_DATE_EPOCH=0 python -m build --wheel --outdir .wheel-repro-a
 SOURCE_DATE_EPOCH=0 python -m build --wheel --outdir .wheel-repro-b
 cmp .wheel-repro-a/*.whl .wheel-repro-b/*.whl
@@ -30,7 +31,7 @@ The declared core runtime dependency set is intentionally empty in v0.1. Optiona
 
 | Workflow | Command | Expected evidence |
 |---|---|---|
-| Core bundle | `trustweave scan` | A validated `agent-security-bundle.json` with explicit flow decisions and limits. |
+| Core bundle | `trustweave scan` | A validated `trustweave.dev/bundle/v1alpha2` `agent-security-bundle.json` with explicit flow decisions and limits. |
 | Synthetic regression | `trustweave test` | Passing `security-test-results.json` for the baseline and cited adversarial scenario packs. |
 | Scenario explanation | `trustweave explain` | Local Markdown explanation with declared taxonomy references and no model or network action. |
 | Static MCP snapshot inventory | `trustweave mcp-import` | Sorted local `mcp-tool-inventory.json` with no discovery, connection, authorization inference, or invocation. |
@@ -62,7 +63,7 @@ The adversarial scenario library must pass all **25** cited synthetic patterns u
 
 The high-risk mutation analysis recorded in [MUTATION_TESTING.md](MUTATION_TESTING.md) covers twelve high-risk modules on Linux because mutmut requires fork support. Its 78.95% measured score is additional test-quality evidence, is below a 90% high-risk-scope threshold, and is neither a release-blocking cross-platform control nor a claim about the entire package. The 1,276 surviving mutants remain untriaged, so this record does not satisfy the audit's 9.8 mutation acceptance condition.
 
-The repository-reality check requires every declared versioned generated artifact to have an exact public JSON Schema linked to its producer, and requires each published schema to be byte-identical to its packaged resource. The dedicated conformance suite validates real local output for policy review, synthetic tests, bundle diffs, trace review, MCP reviews and inventories, framework inventory, scaffolds, and unsigned statements.
+The repository-reality check requires every current generated artifact version to have an exact public JSON Schema linked to its producer, and requires each published schema to be byte-identical to its packaged resource. It also requires maintained documentation to name current bundle, risk-review, fingerprint, configuration, coverage, and mutation evidence markers. The dedicated conformance suite validates real local output for policy review, synthetic tests, current bundle diffs, trace review, MCP reviews and inventories, framework inventory, scaffolds, unsigned statements, and current risk-review outputs.
 
 A SARIF workflow must combine existing policy, diff, trace, and MCP review artifacts and retain `TW-POL-004`, `TW-DIFF-003`, `TW-TRACE-004`, and `TW-MCP-001` in `trustweave.sarif`. The artifact must declare SARIF version `2.1.0`. This is format-level interoperability evidence only; no hosted code-scanning upload occurs in the repository workflow.
 
@@ -72,7 +73,7 @@ A failing synthetic scenario, malformed manifest, unknown reference, invalid sch
 
 The `Quality and tests` workflow repeats formatting, linting, core type checking, a Bandit static source-security scan, the enforced 95% branch-coverage test suite, repository-reality validation, package build, isolated wheel invocation, deterministic wheel reproducibility, declared dependency audit, reproducible CycloneDX SBOM generation, the synthetic evidence workflow, cited adversarial-scenario checks, local MCP tools-list import, clear and review-required approval-boundary policy checks, baseline/candidate diff review, capability-growth diff review, clear-trace review, review-gate behavior, trace-report privacy assertions, clear MCP profile review, review-gate behavior, profile-URI hygiene assertions, and deterministic SARIF generation. Separate compatibility jobs run the test suite on Python 3.11 and 3.13. The workflow uploads generated evidence for inspection but does not upload SARIF to a code-scanning service.
 
-The repository’s `main` branch requires this status check, retains linear history, and blocks force pushes and deletion. Direct commits remain the authorized working model; maintainers must complete the local checks before pushing and must monitor hosted results on the exact pushed SHA.
+Maintainers must complete the local checks before pushing a pull-request head and monitor hosted results on that exact pushed SHA. Merge, tagging, signing, TestPyPI/PyPI publication, and GitHub Release creation remain owner-controlled actions and are outside ordinary quality verification.
 
 ## Intentional coverage limits
 

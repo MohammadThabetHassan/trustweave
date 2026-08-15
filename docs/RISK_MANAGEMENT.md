@@ -30,13 +30,13 @@ The command accepts one or more supported local review artifacts by exact schema
 | `subject` | Stable declared affected identity when the source artifact provides one. |
 | `fingerprint` | `trustweave/fingerprint/v3`: SHA-256 over evidence kind, identifier, and stable subject. Human-readable wording, review severity, timestamps, artifact paths, and output directories are intentionally excluded. |
 | `source_artifact_paths` | Optional sorted local input paths that contributed an exact duplicate semantic finding; paths do not change identity or authenticate a file. |
-| `risk_state` | `new`, `baselined`, `suppressed`, `expired_baseline`, or `expired_suppression`. |
+| `risk_state` | `new`, `baselined`, `suppressed`, `expired_baseline`, `expired_suppression`, `not_yet_applicable_baseline`, `not_yet_applicable_suppression`, `severity_escalated_baseline`, or `severity_escalated_suppression`. |
 
-The command writes both `risk-review.json` and a reviewer-facing `risk-review.md` summary by default. When multiple supplied findings have one semantic fingerprint, TrustWeave retains the **highest observed severity**. It then selects reviewer-facing title, message, rationale, and remediation by a documented lexical order among only the equally severe variants, so wording and input order cannot downgrade the gate. All distinct local source paths are retained in sorted order. A detected contradiction in the stable identity metadata fails closed rather than discarding one record.
+The command writes `trustweave.dev/risk-review/v1alpha2` JSON and a reviewer-facing `risk-review.md` summary by default. When multiple supplied findings have one semantic fingerprint, TrustWeave retains the **highest observed severity**. It then selects reviewer-facing title, message, rationale, and remediation by a documented lexical order among only the equally severe variants, so wording and input order cannot downgrade the gate. All distinct local source paths are retained in sorted order. A detected contradiction in stable identity metadata fails closed rather than discarding one record. A decision with a matching fingerprint but mismatched rule ID or subject digest is listed in `mismatched_decisions`; a decision with no observed fingerprint is listed in `orphaned_decisions`.
 
-The default `--fail-on high` exits with status `1` only for active `critical` or `high` findings. `--fail-on medium`, `low`, or `info` tightens the gate. `--fail-on none` reports the evidence without changing the exit code. A finding that is baselined or suppressed before its expiry is not active; an expired entry becomes active again deterministically.
+The default `--fail-on high` exits with status `1` only for active `critical` or `high` findings. `--fail-on medium`, `low`, or `info` tightens the gate. `--fail-on none` reports the evidence without changing the exit code. Baselined and suppressed findings are inactive only while the exact decision is applicable. Expired entries, future-created decisions (`not_yet_applicable_*`), and severity escalation (`severity_escalated_*`) remain active reviewer work.
 
-To retain active risk evidence in a separately authorized SARIF consumer, pass the local JSON output to `trustweave sarif --risk-review artifacts/risk-review.json`. Only `new`, `expired_baseline`, and `expired_suppression` findings are exported; baselined and suppressed entries remain visible in the local risk-review report but are intentionally omitted from the active SARIF results. The canonical semantic fingerprint is preserved as `trustweave/fingerprint/v3`.
+To retain active risk evidence in a separately authorized SARIF consumer, pass the local JSON output to `trustweave sarif --risk-review artifacts/risk-review.json`. Every active state is exported: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Baselined and suppressed entries remain visible in the local risk-review report but are intentionally omitted from active SARIF results. The canonical semantic fingerprint is preserved as `trustweave/fingerprint/v3`.
 
 ## Baseline contract
 
@@ -69,7 +69,7 @@ A suppression has the same identity, severity, owner, and provenance requirement
 
 1. Generate the policy, diff, trace, or MCP-profile review artifacts from checked-in local inputs.
 2. Run `risk-check` with a fixed `--generated-at` value in CI or a reproducible review record.
-3. Treat `new` and expired states as active review work. Address the declaration or control first.
+3. Treat `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*` states as active review work. Investigate `mismatched_decisions` and `orphaned_decisions` rather than ignoring them. Address the declaration or control first.
 4. If a temporary exception is genuinely necessary, add the exact fingerprint with a reason and expiry in the appropriate reviewed file.
 5. Keep baseline and suppression changes in a separate, reviewer-visible commit. Remove entries once the underlying finding is resolved.
 

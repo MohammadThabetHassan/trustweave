@@ -41,7 +41,7 @@ Before merging an agent change, a developer needs to decide whether a newly decl
 
 ## Explicit safety boundaries
 
-TrustWeave v0.1 **does not** execute MCP server commands, discover local credentials, make network connections, call models, analyze untrusted repositories, run exploit payloads, scan hosts, test live accounts, collect personal data, or send business actions. Its offline trace review reads only local structured metadata and deliberately excludes message content and tool arguments from review artifacts. Its MCP profile review accepts only local metadata and never performs server discovery, transport access, OAuth, token handling, or capability retrieval.
+TrustWeave 0.2 source **does not** execute MCP server commands, discover local credentials, make network connections, call models, analyze untrusted repositories, run exploit payloads, scan hosts, test live accounts, collect personal data, or send business actions. Its offline trace review reads only local structured metadata and deliberately excludes message content and tool arguments from review artifacts. Its MCP profile review accepts only local metadata and never performs server discovery, transport access, OAuth, token handling, or capability retrieval.
 
 The project accepts only a local YAML/JSON manifest and fixed synthetic scenarios. It produces deterministic findings based on rules visible in the repository. When data is missing or malformed, the tool reports an error and exits non-zero rather than guessing.
 
@@ -61,8 +61,8 @@ The initial release is complete only when:
 
 ## Delivery policy
 
-TrustWeave `0.1.1` is distributed on PyPI and maintained on GitHub through direct commits to `main` under explicitly authorized contributor identities. A future release must update its version and changelog, pass the documented local checks, pass hosted CI on the exact release commit, use an annotated tag, and follow the dedicated GitHub OIDC publishing workflow. Publication remains an explicit maintainer decision; a successful build alone is not release authorization.
+TrustWeave `0.1.1` remains the published PyPI package. Source is prepared for `0.2.0` through reviewed pull-request work, but it is not tagged, signed, merged, or published until the owner authorizes those actions. A future release must update version and changelog evidence, pass documented local checks and hosted CI on the exact approved head, use an owner-authorized annotated tag, and follow the dedicated publishing workflow. A successful build alone is not release authorization.
 
-## Future scope, deliberately excluded from v0.1
+## Future scope, deliberately excluded from the current local evidence contract
 
 The following items are valid roadmap candidates but not part of the first vertical slice: MCP proxying, OPA integration, OpenFGA integration, external signature services, automatic source discovery, framework SDKs, dashboards, hosted registries, production telemetry ingestion, and enterprise multitenancy.

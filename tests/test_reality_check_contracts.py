@@ -72,3 +72,11 @@ def test_reality_check_verifies_generated_schema_coverage_and_packaged_resource_
 
     assert reality_check._check_schema_resource_synchronization() == []
     assert reality_check._check_generated_artifact_schema_coverage() == []
+
+
+def test_reality_check_verifies_current_contract_documentation_markers() -> None:
+    """Current maintained guides must not silently drift from emitted versions and quality gates."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_current_contract_documentation() == []

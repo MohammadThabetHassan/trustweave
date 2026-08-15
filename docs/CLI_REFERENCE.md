@@ -204,20 +204,20 @@ trustweave risk-check \
   [--output PATH]
 ```
 
-`risk-check` accepts policy-review, trace-review, MCP-profile-review, bundle-diff, and declared-chain-review artifacts by exact schema version. It normalizes their documented finding collections (`findings` or bundle-diff `signals`) into semantic `trustweave/fingerprint/v2` identities, preserving supplied local source paths while excluding output-directory wording from identity. It then applies optional local baseline and suppression entries that must include a reviewer-visible reason and an ISO 8601 expiry timestamp. Expired entries become active again deterministically. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
+`risk-check` accepts policy-review, trace-review, MCP-profile-review, supported bundle-diff, and declared-chain-review artifacts by exact schema version. It normalizes documented finding collections (`findings` or bundle-diff `signals`) into wording-independent `trustweave/fingerprint/v3` identities, preserving supplied local source paths while excluding paths, timestamps, severity, and message text from identity. It applies optional v1alpha2 baseline and suppression documents bound to the fingerprint, `TW-` rule ID, stable subject digest, accepted severity, owner, creation time, and expiry. Expired, future-created, and severity-escalated decisions remain active and reviewer-visible. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
 
 | Input | Required | Description |
 |---|---:|---|
 | `--input` | Yes; repeatable | Existing local review artifact containing a `findings` array. |
-| `--baseline` | No | Local `trustweave.dev/risk-baseline/v1alpha1` JSON or safe YAML document. |
-| `--suppressions` | No | Local `trustweave.dev/risk-suppressions/v1alpha1` JSON or safe YAML document. |
+| `--baseline` | No | Local `trustweave.dev/risk-baseline/v1alpha2` JSON or safe YAML document. |
+| `--suppressions` | No | Local `trustweave.dev/risk-suppressions/v1alpha2` JSON or safe YAML document. |
 | `--fail-on` | No | Active-finding severity threshold; defaults to `high`. |
 | `--output` | No | Local JSON output path; defaults to `artifacts/risk-review.json`. |
 | `--markdown-output` | No | Local Markdown summary path; defaults beside the JSON output as `risk-review.md`. |
 
 | Output file | Content |
 |---|---|
-| `risk-review.json` | Normalized findings, stable fingerprints, risk states, expiry data, severity summary, and explicit limits. |
+| `risk-review.json` | `trustweave.dev/risk-review/v1alpha2` with normalized findings, fingerprint-v3 identity, explicit mismatch/orphan metadata, temporal and severity lifecycle states, summary, and limits. |
 | `risk-review.md` | Reviewer-facing risk-state, severity, expiry, and finding-decision summary. |
 
 A baseline or suppression records only a temporary reviewer decision about supplied local evidence. It does not remediate a finding, waive a security obligation, authenticate an approval, contact a ticketing system, or prove runtime security. See [Local Risk Management](RISK_MANAGEMENT.md) for the maintained workflow and safe templates.
@@ -240,10 +240,10 @@ trustweave sarif \
 | Input | Required | Description |
 |---|---:|---|
 | `--policy-review` | One or more review inputs required | `policy-review.json` using `trustweave.dev/policy-review/v1alpha1`. |
-| `--diff` | One or more review inputs required | `bundle-diff.json` using `trustweave.dev/bundle-diff/v1alpha1`. |
+| `--diff` | One or more review inputs required | Current `bundle-diff.json` uses `trustweave.dev/bundle-diff/v1alpha2`; the exporter also reads historical v1alpha1 diffs. |
 | `--trace-review` | One or more review inputs required | `trace-review.json` using `trustweave.dev/trace-review/v1alpha1`. |
 | `--mcp-profile-review` | One or more review inputs required | `mcp-profile-review.json` using `trustweave.dev/mcp-profile-review/v1alpha1`. |
-| `--risk-review` | One or more review inputs required | `risk-review.json` using `trustweave.dev/risk-review/v1alpha1`; only `new` or expired findings are exported. |
+| `--risk-review` | One or more review inputs required | Current `risk-review.json` uses `trustweave.dev/risk-review/v1alpha2`; historical v1alpha1 input remains readable and all active states are exported. |
 | `--chain-review` | One or more review inputs required | `chain-review.json` using `trustweave.dev/chain-review/v1alpha1`. |
 | `--output` | No | Local output path; defaults to `artifacts/trustweave.sarif`. |
 
@@ -254,7 +254,7 @@ trustweave sarif \
 | `locations` | The supplied local artifact path is recorded as the result location. |
 | `partialFingerprints` | A deterministic SHA-256 fingerprint derived from review kind, identifier, message, and artifact path. |
 
-The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. When a `risk-review.json` is supplied, only `new`, `expired_baseline`, and `expired_suppression` findings are included; its canonical risk fingerprint is retained as `trustweave/risk-v1`. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
+The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. When a `risk-review.json` is supplied, every active state is included: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Its canonical identity is retained as `trustweave/fingerprint/v3`. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
 
 ## `trace-review`
 

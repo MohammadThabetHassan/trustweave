@@ -2,7 +2,7 @@
 
 ## Design objective
 
-TrustWeave v0.1 is a local, deterministic evidence workflow. It consumes a declared agent manifest, a declared policy, and a synthetic scenario pack. It then writes structured artifacts that can be reviewed, checked into a CI build, or compared across revisions.
+TrustWeave 0.2 source is a local, deterministic evidence workflow. It consumes a declared agent manifest, a declared policy, and a synthetic scenario pack. It then writes structured artifacts that can be reviewed, retained as CI evidence, or compared across revisions.
 
 The design prioritizes **visibility, reproducibility, and safety** over autonomous discovery or broad runtime interception.
 
@@ -47,7 +47,7 @@ flowchart LR
 | `engine.py` | Builds a bundle and applies first-match deterministic rules to every declared flow. | Never calls a model, tool, subprocess, or network service. |
 | `scenarios.py` | Runs safe scenario assertions and renders cited local scenario explanations. | Does not execute a payload, prompt, model, tool, or configured server. |
 | `evidence.py` | Hash-links canonical stable evidence payloads and records exact local-file hashes in an unsigned attestation. | States explicit limits; no claim of external signing or non-repudiation. |
-| `risk.py` | Normalizes supplied local review findings, produces stable fingerprints, and applies expiry-enforced baselines and suppressions. | Does not remediate findings, contact ticketing systems, authenticate an approver, or inspect runtime behavior. |
+| `risk.py` | Normalizes supplied local review findings with `trustweave/fingerprint/v3`, emits v1alpha2 lifecycle and mismatch states, and applies expiry-enforced decisions. | Does not remediate findings, contact ticketing systems, authenticate an approver, or inspect runtime behavior. |
 | `policy_review.py` | Reviews ordered-rule shadowing and decisions that require human scrutiny. | Does not decide authorization or run a policy in a deployed runtime. |
 | `diff.py` | Compares two generated bundles for declared source, tool, path, and decision changes. | Does not discover behavior, execute tools, or issue a security verdict. |
 | `trace_review.py` | Compares local trace tool-call metadata with declared sources, tools, flows, and deterministic policy. | Does not execute a target, inspect message text/tool arguments, or treat a trace as an instruction. |
@@ -69,9 +69,9 @@ Synthetic results are intentionally simple. A scenario specifies only a source t
 
 ### Local attestation
 
-The attestation records SHA-256 digests of the exact bundle and test-results files, canonical stable-payload digests, the stated source revision, and an integrity chain derived from the stable digests. Volatile `generated_at` metadata is injected at the CLI boundary and excluded from the v1alpha2 chain. It is internally verifiable with `trustweave verify`.
+The attestation records SHA-256 digests of the exact bundle and test-results files, canonical stable-payload digests, the stated source revision, and an integrity chain derived from the stable digests. Volatile `generated_at` metadata is injected at the CLI boundary and excluded from the v1alpha3 stable integrity chain. It is internally verifiable with `trustweave verify`.
 
-> **Important:** The v0.1 attestation is not externally signed and is not backed by a transparency log. It proves only an internally consistent relationship among local artifacts after generation. Future DSSE, in-toto, or Sigstore integration is intentionally out of scope.
+> **Important:** The local v1alpha3 attestation is not externally signed and is not backed by a transparency log. It proves only an internally consistent relationship among supplied local artifacts after generation. Future DSSE, in-toto, or Sigstore integration is intentionally out of scope.
 
 ### Policy review
 
@@ -79,7 +79,7 @@ The policy-review artifact checks six deterministic conditions: whether an order
 
 ### Bundle diff
 
-The bundle-diff artifact compares a base and candidate bundle. It records additions, removals, and modifications to declared sources and tools; exact capability additions/removals for each existing changed tool; added and removed paths; and policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool, capability growth on an existing sensitive/external tool, and an untrusted-input path to a sensitive/external action that is not denied.
+The current v1alpha2 bundle-diff artifact compares compatible v1alpha1 or v1alpha2 bundle inputs and records both input versions. It records additions, removals, and modifications to declared sources and tools; exact capability additions/removals for each existing changed tool; added and removed paths; and policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool, capability growth on an existing sensitive/external tool, and an untrusted-input path to a sensitive/external action that is not denied.
 
 ### Offline trace review
 

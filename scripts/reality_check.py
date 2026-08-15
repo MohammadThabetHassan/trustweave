@@ -143,6 +143,45 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
         "src/trustweave/statement.py",
     ),
 }
+CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
+    "README.md": (
+        "trustweave.dev/bundle/v1alpha2",
+        "trustweave/fingerprint/v3",
+        "95% branch coverage",
+    ),
+    "docs/CLI_REFERENCE.md": (
+        "trustweave/fingerprint/v3",
+        "trustweave.dev/risk-review/v1alpha2",
+        "risk-baseline/v1alpha2",
+    ),
+    "docs/CONFIGURATION.md": (
+        "baseline_bundle",
+        "candidate_bundle",
+        "sarif_output",
+        "chain_review",
+    ),
+    "docs/QUALITY.md": (
+        "95% branch coverage",
+        "78.95%",
+        "1,276 surviving mutants remain untriaged",
+    ),
+    "docs/SCHEMA_AND_COMPATIBILITY.md": (
+        "trustweave.dev/bundle/v1alpha2",
+        "trustweave.dev/bundle-diff/v1alpha2",
+        "trustweave.dev/risk-review/v1alpha2",
+        "agent-security-bundle-v1alpha2.schema.json",
+        "risk-review-v1alpha2.schema.json",
+    ),
+    "docs/RISK_MANAGEMENT.md": (
+        "trustweave/fingerprint/v3",
+        "not_yet_applicable_baseline",
+        "risk-review/v1alpha2",
+    ),
+    "docs/site/SCHEMAS.md": (
+        "trustweave.dev/bundle/v1alpha2",
+        "trustweave.dev/risk-review/v1alpha2",
+    ),
+}
 MUTATION_SOURCE_SCOPE = [
     "src/trustweave/engine.py",
     "src/trustweave/models.py",
@@ -518,6 +557,24 @@ def _check_issue_templates() -> list[str]:
             failures.append(f"Issue form {relative_path} needs a non-empty description")
         if not isinstance(form.get("body"), list) or not form.get("body"):
             failures.append(f"Issue form {relative_path} needs a non-empty body list")
+    return failures
+
+
+def _check_current_contract_documentation() -> list[str]:
+    """Require concise maintained documentation to name the current emitted contracts."""
+
+    failures: list[str] = []
+    for relative_path, markers in CURRENT_CONTRACT_DOCUMENTATION.items():
+        path = ROOT / relative_path
+        if not path.is_file():
+            failures.append(f"Missing current-contract documentation: {relative_path}")
+            continue
+        content = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in content:
+                failures.append(
+                    f"{relative_path} lacks current-contract documentation marker: {marker}"
+                )
     return failures
 
 
@@ -955,6 +1012,7 @@ def main() -> int:
     failures = (
         _check_schema_resource_synchronization()
         + _check_generated_artifact_schema_coverage()
+        + _check_current_contract_documentation()
         + _check_json_documents()
         + _check_contract_examples()
         + _check_generated_artifact_schemas()
