@@ -328,6 +328,13 @@ def test_v1alpha2_decisions_fail_closed_on_mismatch_expiry_escalation_and_legacy
         == "expired_suppression"
     )
 
+    invalid_rule_id = {**accepted, "rule_id": "BAD"}
+    with pytest.raises(ValidationError, match="rule_id"):
+        validate_decision_document(
+            {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [invalid_rule_id]},
+            "baseline",
+        )
+
     with pytest.raises(ValidationError, match="requires explicit migration"):
         validate_decision_document(
             {"schema_version": "trustweave.dev/risk-baseline/v1alpha1", "baseline": []},

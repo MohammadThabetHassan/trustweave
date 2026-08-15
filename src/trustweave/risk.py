@@ -11,7 +11,7 @@ from types import MappingProxyType
 from typing import Any
 
 from trustweave.io import canonical_json
-from trustweave.models import ValidationError, reject_unknown_fields
+from trustweave.models import ValidationError, reject_unknown_fields, validate_rule_identifier
 from trustweave.provenance import add_generated_at
 
 RISK_REVIEW_SCHEMA_VERSION = "trustweave.dev/risk-review/v1alpha1"
@@ -293,7 +293,9 @@ def _decision_entries(
             raise ValidationError(
                 f"{path}.fingerprint_schema_version must be {FINGERPRINT_SCHEMA_VERSION}"
             )
-        rule_id = _text(entry.get("rule_id"), f"{path}.rule_id")
+        rule_id = validate_rule_identifier(entry.get("rule_id"), f"{path}.rule_id")
+        if not rule_id.startswith("TW-"):
+            raise ValidationError(f"{path}.rule_id must begin with TW-")
         subject_digest = _text(entry.get("subject_digest"), f"{path}.subject_digest")
         if len(subject_digest) != 64 or any(
             character not in "0123456789abcdef" for character in subject_digest
