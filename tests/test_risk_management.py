@@ -142,6 +142,36 @@ def test_baseline_and_suppression_expiry_are_enforced(
     assert suppressed["findings"][0]["risk_state"] == "suppressed"
 
 
+def test_future_created_decision_does_not_apply_to_earlier_review(
+    review_artifact: dict[str, object],
+) -> None:
+    """A decision cannot become applicable before its recorded creation instant."""
+
+    normalized = normalize_findings(review_artifact)[0]
+    entry = _decision_entry(normalized)
+    entry["created_at"] = "2027-01-01T00:00:00+00:00"
+    entry["expires_at"] = "2027-02-01T00:00:00+00:00"
+    review = review_risks(
+        [review_artifact],
+        baseline_document={"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [entry]},
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+
+    assert review["findings"][0]["risk_state"] == "new"
+    assert review["summary"]["status"] == "review_required"
+
+    suppressed = review_risks(
+        [review_artifact],
+        suppressions_document={
+            "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+            "suppressions": [entry],
+        },
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+    assert suppressed["findings"][0]["risk_state"] == "new"
+    assert suppressed["summary"]["status"] == "review_required"
+
+
 def test_baseline_does_not_mask_severity_escalation() -> None:
     """A severity-independent fingerprint must not make severity acceptance indefinite."""
 

@@ -368,6 +368,8 @@ def _status_for(
             finding.subject
         ):
             return "new", None, None
+        if decision.created_at > reviewed_at:
+            return "new", None, None
         if decision.expires_at < reviewed_at:
             return "expired_suppression", decision.reason, decision.expires_at.isoformat()
         if SEVERITY_RANK[finding.severity] >= SEVERITY_RANK[decision.accepted_severity]:
@@ -378,6 +380,8 @@ def _status_for(
         if decision.rule_id != finding.identifier or decision.subject_digest != _subject_digest(
             finding.subject
         ):
+            return "new", None, None
+        if decision.created_at > reviewed_at:
             return "new", None, None
         if decision.expires_at < reviewed_at:
             return "expired_baseline", decision.reason, decision.expires_at.isoformat()
