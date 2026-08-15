@@ -69,18 +69,27 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "2,614 generated mutants; 2,128 killed; 486 survived; 0 without a selected test; 0 timed out; "
-    "0 suspicious.",
-    "81.41% killed (`2,128 / 2,614`)",
+    "6,063 generated mutants; 4,787 killed; 1,276 survived; 0 without a selected test; "
+    "0 timed out; 0 suspicious.",
+    "78.95% killed (`4,787 / 6,063`)",
     "Linux with fork support",
     "**does not meet a 90% mutation threshold** for the measured high-risk scope",
+    "1,276 surviving mutants remain untriaged",
     "not a cross-platform release-blocking gate",
 )
 MUTATION_SOURCE_SCOPE = [
     "src/trustweave/engine.py",
     "src/trustweave/models.py",
     "src/trustweave/policy_predicates.py",
+    "src/trustweave/policy_review.py",
+    "src/trustweave/chain.py",
+    "src/trustweave/findings.py",
     "src/trustweave/risk.py",
+    "src/trustweave/evidence.py",
+    "src/trustweave/config.py",
+    "src/trustweave/schema_catalog.py",
+    "src/trustweave/sarif.py",
+    "src/trustweave/commands/ci.py",
 ]
 REPRODUCIBILITY_RECORD_MARKERS = (
     "Recorded staged-CI verification",
