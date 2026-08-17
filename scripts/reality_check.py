@@ -74,8 +74,11 @@ MUTATION_RECORD_MARKERS = (
     "90.06% killed (`5,517 / 6,126`)",
     "Linux with fork support",
     "**90% mutation threshold** for the measured high-risk scope",
-    "609 surviving mutants are preserved",
-    "zero-untriaged-survivor audit condition remains outstanding",
+    "609 classified survivors",
+    "0 untriaged survivors",
+    "121 equivalent mutations",
+    "1 defensive mutation",
+    "487 mutations marked `needs_regression`",
     "release-blocking quality check",
 )
 GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {

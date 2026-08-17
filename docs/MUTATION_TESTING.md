@@ -20,11 +20,13 @@ The configured scope covers twelve high-risk modules: bundle and policy-decision
 | High-risk scope score | 90.06% killed (`5,517 / 6,126`) |
 | Hosted gate | `.github/workflows/mutation.yml` runs this Linux-only scope and fails the named **Mutation quality gate** when fewer than 90% of generated mutants are killed. |
 
-## Interpretation and remaining work
+## Interpretation and survivor triage
 
 The current twelve-module measurement exceeds the configured **90% mutation threshold** for the measured high-risk scope. It supports the hosted gate's threshold claim, but it is not a package-wide mutation-quality claim and does not establish that the package is secure.
 
-The 609 surviving mutants are preserved in the generated mutation results for maintainer-by-maintainer classification. They have **not** been silently suppressed. The separate zero-untriaged-survivor audit condition remains outstanding until each remaining survivor has a recorded equivalent-change rationale or an added behavioral regression. TrustWeave therefore must not yet be described as having satisfied the complete 9.8 acceptance matrix solely on the basis of this score.
+Every survivor from this run has an individual source-level diff and an explicit classification in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). The inventory records **609 classified survivors**, **0 untriaged survivors**, **121 equivalent mutations**, **1 defensive mutation**, and **487 mutations marked `needs_regression`**. The latter category is deliberately conservative: it records a potentially observable behavioral difference and the smallest public assertion recommended to expose it, rather than silently treating a surviving mutation as equivalent.
+
+Equivalent classifications are limited to validation-path or type-only changes that cannot alter a successful public result or whether validation succeeds. The single defensive classification identifies an unreachable fallback that is guarded by the documented public-input validation path. The inventory preserves the exact mutmut diff, rationale, and recommended assertion for every record, enabling maintainers to prioritize or add narrower regression tests without changing the declared mutation score.
 
 The prior twelve-module measurements are superseded by this current configured run. Historical measurements must not be compared as though they represented the final high-risk scope result.
 
