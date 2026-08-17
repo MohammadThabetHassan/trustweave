@@ -141,7 +141,11 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
     )
     with pytest.raises(ValidationError, match="local path string"):
         _staged_sarif_path({"sarif_output": 1}, staging)
-    for value in ("../out.sarif", str((tmp_path / "out.sarif").resolve())):
+    for value in (
+        "../out.sarif",
+        str((tmp_path / "out.sarif").resolve()),
+        r"C:\\escaped.sarif",
+    ):
         with pytest.raises(ValidationError, match="within the CI artifact directory"):
             _staged_sarif_path({"sarif_output": value}, staging)
 

@@ -7,7 +7,7 @@ import os
 import shutil
 import tempfile
 from collections.abc import Mapping, Sequence
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from trustweave.bundles import validate_bundle
@@ -196,14 +196,23 @@ def _safe_sarif_path(config: Mapping[str, object]) -> Path:
     configured = config.get("sarif_output", "trustweave.sarif")
     if not isinstance(configured, str):
         raise ValidationError("tool.trustweave.sarif_output must be a local path string")
+    path = Path(configured)
+    windows_path = PureWindowsPath(configured)
+    if (
+        path.is_absolute()
+        or windows_path.is_absolute()
+        or windows_path.drive
+        or windows_path.root
+        or ".." in path.parts
+        or ".." in windows_path.parts
+        or path == Path(".")
+    ):
+        raise ValidationError(
+            "tool.trustweave.sarif_output must remain within the CI artifact directory"
+        )
     if "\\" in configured:
         raise ValidationError(
             "tool.trustweave.sarif_output must use portable relative path separators"
-        )
-    path = Path(configured)
-    if path.is_absolute() or ".." in path.parts or path == Path("."):
-        raise ValidationError(
-            "tool.trustweave.sarif_output must remain within the CI artifact directory"
         )
     return path
 
