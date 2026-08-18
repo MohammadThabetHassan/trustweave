@@ -23,11 +23,11 @@ Every supported local finding receives a `trustweave/fingerprint/v3` value. The 
 | `expired_baseline` | A matching baseline has reached expiry | Yes |
 | `expired_suppression` | A matching suppression has reached expiry | Yes |
 
-A baseline is a temporary, reviewer-visible acceptance of a known local finding. A suppression is a temporary record that a specific finding is inapplicable to the supplied evidence. Both use an exact finding fingerprint, a non-empty reason, and an ISO 8601 expiry with a UTC offset. Neither record proves remediation, identity, authorization, or production security.
+A baseline is a temporary, reviewer-visible acceptance of a known local finding. A suppression is a temporary record that a specific finding is inapplicable to the supplied evidence. Current `v1alpha2` documents bind the `trustweave/fingerprint/v3` fingerprint to the rule identifier and a digest of the stable subject, record the maximum `accepted_severity`, non-empty reason and owner, creation provenance, and an ISO 8601 expiry with a UTC offset. A decision applies only when the observed finding is no more severe than its accepted severity; an escalation remains active. Legacy `v1alpha1` decision documents are rejected for explicit migration rather than being silently reinterpreted. Neither record proves remediation, identity, authorization, or production security.
 
 ## Reviewer workflow
 
-Generate policy, diff, trace, or MCP-profile review artifacts from checked-in local inputs. Run `risk-check` with a fixed `--generated-at` value when a reproducible review record is needed. Treat `new` and expired records as active reviewer work. Correct the declaration or control first; add a temporary baseline or suppression only when a reviewer explicitly records the reason and short-lived expiry in a visible change.
+Generate policy, diff, trace, or MCP-profile review artifacts from checked-in local inputs. Run `risk-check` with a fixed `--generated-at` value when a reproducible review record is needed. Treat `new` and expired records as active reviewer work. Correct the declaration or control first; create a baseline with an explicit `--owner`, reason, and short-lived expiry only when a reviewer records the decision in a visible change. Validate or explicitly migrate older decision documents before using them.
 
 By default, `--fail-on high` exits nonzero for active critical or high findings. Tighten the gate with `medium`, `low`, or `info`, or use `none` to report without changing the exit code. `trustweave sarif --risk-review artifacts/risk-review.json` exports only active risk states; temporarily baselined and suppressed records remain visible in the local risk review but are not active SARIF results.
 

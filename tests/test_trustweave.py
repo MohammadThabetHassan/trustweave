@@ -98,7 +98,7 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
 
     bundle = build_bundle(manifest, policy, generated_at="2026-08-13T00:00:00+00:00")
 
-    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha1"
+    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha2"
     generated_at = datetime.fromisoformat(bundle["generated_at"])
     assert generated_at.tzinfo == UTC
     assert bundle["manifest"] == manifest.as_dict()
@@ -106,6 +106,12 @@ def test_bundle_contains_summary_and_explicit_limits() -> None:
         "schema_version": policy.schema_version,
         "name": policy.name,
         "default_decision": policy.default_decision,
+        "approval_control": {
+            "mechanism": policy.approval_control.mechanism,
+            "binds_to": list(policy.approval_control.binds_to),
+            "fail_closed": policy.approval_control.fail_closed,
+        },
+        "classification_taxonomy": list(policy.classification_taxonomy),
         "rules": [
             {
                 key: list(value) if isinstance(value, tuple) else value

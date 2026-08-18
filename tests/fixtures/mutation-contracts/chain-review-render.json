@@ -1,0 +1,4 @@
+{
+  "report": "# Declared Chain Review\n\n## Declared paths\n\n- `inbox -> records -> email`\n\n## Review findings\n\n- **TW-CHAIN-001** (high): An explicitly declared untrusted path reaches sensitive data and an external action.\n- **TW-CHAIN-002** (high): The declared sensitive-data path reaches an external action without a declared fail-closed approval boundary.\n\n> This report reviews supplied declared graph metadata only. It does not demonstrate a runtime path, exploitability, or deployed control behavior.\n"
+}
+

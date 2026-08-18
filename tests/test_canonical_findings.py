@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+import trustweave.findings as findings_module
 from trustweave.diff import diff_bundles
 from trustweave.findings import FINDING_SCHEMA_VERSION, LocalFinding, finding, parse_finding
 from trustweave.io import load_document
@@ -123,16 +124,10 @@ def test_policy_and_diff_producers_emit_additive_canonical_metadata() -> None:
     assert policy_finding["evidence_kind"] == "declared_policy_structure"
     assert policy_finding["subject"] == {"policy": policy.name}
 
-    base = {
-        "schema_version": "trustweave.dev/bundle/v1alpha1",
-        "manifest": parse_manifest(load_document(MANIFEST)).as_dict(),
-        "findings": [],
-    }
-    head = {
-        "schema_version": "trustweave.dev/bundle/v1alpha1",
-        "manifest": parse_manifest(load_document(CANDIDATE)).as_dict(),
-        "findings": [],
-    }
+    from trustweave.engine import build_bundle
+
+    base = build_bundle(parse_manifest(load_document(MANIFEST)), policy)
+    head = build_bundle(parse_manifest(load_document(CANDIDATE)), policy)
     signals = diff_bundles(base, head)["signals"]
     capability_signal = next(item for item in signals if item["id"] == "TW-DIFF-003")
     assert capability_signal["subject"] == {
@@ -204,3 +199,237 @@ def test_parse_finding_rejects_non_object_and_unknown_fields() -> None:
                 "unexpected": True,
             }
         )
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (
+            lambda document: document.pop("id"),
+            "canonical finding id must match ^TW-[A-Z0-9-]{1,120}$",
+        ),
+        (
+            lambda document: document.update({"severity": "urgent"}),
+            "unsupported canonical finding severity: urgent",
+        ),
+        (
+            lambda document: document.update({"message": ""}),
+            "canonical finding message must be a non-empty string up to 4096 characters",
+        ),
+        (
+            lambda document: document.update({"evidence_kind": "Not_valid"}),
+            "canonical finding evidence_kind must use lower_snake_case",
+        ),
+        (
+            lambda document: document.update({"subject": []}),
+            "canonical finding subject must be an object",
+        ),
+        (
+            lambda document: document.update({"location": []}),
+            "canonical finding location must be an object",
+        ),
+        (
+            lambda document: document.update({"references": "not-a-list"}),
+            "canonical finding references must be a list",
+        ),
+        (
+            lambda document: document.update({"properties": []}),
+            "canonical finding properties must be an object",
+        ),
+        (
+            lambda document: document.update({"title": ""}),
+            "canonical finding title must be a non-empty string up to 256 characters",
+        ),
+        (
+            lambda document: document.update({"rationale": ""}),
+            "canonical finding rationale must be a non-empty string up to 4096 characters",
+        ),
+        (
+            lambda document: document.update({"remediation": ""}),
+            "canonical finding remediation must be a non-empty string up to 4096 characters",
+        ),
+    ],
+)
+def test_parse_finding_preserves_exact_required_and_optional_diagnostics(
+    mutate: object, message: str
+) -> None:
+    """Serialized public findings retain literal parser diagnostics for every public field class."""
+
+    document: dict[str, object] = {
+        "id": "TW-TEST-PARSE",
+        "severity": "review",
+        "message": "A bounded parser fixture.",
+        "evidence_kind": "declared_configuration",
+    }
+    assert callable(mutate)
+    mutate(document)
+    with pytest.raises(ValueError) as error:
+        parse_finding(document)
+    assert str(error.value) == message
+
+
+def test_parse_finding_round_trips_all_bounded_optional_metadata_deterministically() -> None:
+    """Optional canonical evidence fields retain sorting, scalar types, and reviewer prose."""
+
+    parsed = parse_finding(
+        {
+            "id": "TW-TEST-ROUND-TRIP",
+            "severity": "high",
+            "message": "A complete bounded local finding.",
+            "evidence_kind": "declared_configuration",
+            "title": "Complete finding",
+            "rationale": "The declaration requires review.",
+            "remediation": "Review the supplied metadata.",
+            "subject": {"tools": ["zeta", "alpha"], "source": "customer"},
+            "location": {"path": "declared.json", "kind": "manifest"},
+            "references": [{"uri": "local://z"}, {"uri": "local://a"}],
+            "properties": {"labels": ["zeta", "alpha"], "count": 3, "reviewed": True},
+        }
+    )
+
+    assert parsed.as_dict() == {
+        "id": "TW-TEST-ROUND-TRIP",
+        "severity": "high",
+        "message": "A complete bounded local finding.",
+        "evidence_kind": "declared_configuration",
+        "title": "Complete finding",
+        "rationale": "The declaration requires review.",
+        "remediation": "Review the supplied metadata.",
+        "subject": {"source": "customer", "tools": ["alpha", "zeta"]},
+        "location": {"kind": "manifest", "path": "declared.json"},
+        "references": [{"uri": "local://a"}, {"uri": "local://z"}],
+        "properties": {"count": 3, "labels": ["alpha", "zeta"], "reviewed": True},
+    }
+
+
+def test_canonical_finding_reference_limit_is_inclusive_and_reference_values_are_scalar() -> None:
+    """Reference metadata admits exactly the bounded maximum and rejects unsafe value shapes."""
+
+    maximum_references = tuple({"uri": f"local://reference-{index}"} for index in range(64))
+    rendered = finding(
+        "TW-TEST-REFERENCE-LIMIT",
+        "low",
+        "A bounded reference fixture.",
+        "declared_configuration",
+        references=maximum_references,
+    )
+    assert len(rendered["references"]) == 64
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-REFERENCE-OVERFLOW",
+            "low",
+            "An overflowing reference fixture.",
+            "declared_configuration",
+            references=maximum_references + ({"uri": "local://overflow"},),
+        )
+    assert str(error.value) == "canonical finding references may contain at most 64 entries"
+
+    for value in (True, 1, ["local://nested"]):
+        with pytest.raises(ValueError) as error:
+            finding(
+                "TW-TEST-REFERENCE-SHAPE",
+                "low",
+                "An invalid reference metadata fixture.",
+                "declared_configuration",
+                references=({"uri": value},),
+            )
+        assert (
+            str(error.value) == "canonical finding references[].uri has an unsupported value type"
+        )
+
+
+def test_canonical_finding_metadata_bounds_are_inclusive_at_all_supported_endpoints() -> None:
+    """Subject/property metadata preserves exact field, integer, and string-array bounds."""
+
+    subject = {f"field_{index}": "value" for index in range(32)}
+    properties = {f"property_{index}": "value" for index in range(61)}
+    properties.update({"zero": 0, "maximum": 2_147_483_647, "labels": ["zeta", "alpha"]})
+    rendered = finding(
+        "TW-TEST-METADATA-BOUND",
+        "low",
+        "A metadata boundary fixture.",
+        "declared_configuration",
+        subject=subject,
+        properties=properties,
+    )
+    assert len(rendered["subject"]) == 32
+    assert rendered["properties"]["zero"] == 0
+    assert rendered["properties"]["maximum"] == 2_147_483_647
+    assert rendered["properties"]["labels"] == ["alpha", "zeta"]
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-SUBJECT-OVERFLOW",
+            "low",
+            "A subject overflow fixture.",
+            "declared_configuration",
+            subject={f"field_{index}": "value" for index in range(33)},
+        )
+    assert str(error.value) == "canonical finding subject may contain at most 32 fields"
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-PROPERTY-OVERFLOW",
+            "low",
+            "A property overflow fixture.",
+            "declared_configuration",
+            properties={f"property_{index}": "value" for index in range(65)},
+        )
+    assert str(error.value) == "canonical finding properties may contain at most 64 fields"
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-LABEL-OVERFLOW",
+            "low",
+            "A label overflow fixture.",
+            "declared_configuration",
+            properties={"labels": [f"label-{index}" for index in range(129)]},
+        )
+    assert (
+        str(error.value)
+        == "canonical finding properties.labels must be a string array with at most 128 entries"
+    )
+
+
+def test_parse_finding_preserves_exact_non_object_and_sorted_unknown_field_diagnostics() -> None:
+    """Canonical parser boundary errors remain explicit for object shape and sorted unknown keys."""
+
+    with pytest.raises(ValueError) as error:
+        parse_finding(42)  # type: ignore[arg-type]
+    assert str(error.value) == "canonical finding must be an object"
+
+    with pytest.raises(ValueError) as error:
+        parse_finding({"b": 1, "a": 2})
+    assert str(error.value) == "canonical finding has unknown fields: a, b"
+
+
+@pytest.mark.parametrize("invalid_value", [True, 1, ["nested"]])
+def test_canonical_references_accept_only_string_scalar_values(invalid_value: object) -> None:
+    """Reference identities cannot encode booleans, integers, or nested sequence values."""
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-REFERENCE-TYPE",
+            "low",
+            "Reference values remain scalar local identifiers.",
+            "declared_configuration",
+            references=({"uri": invalid_value},),  # type: ignore[arg-type]
+        )
+    assert str(error.value) == "canonical finding references[].uri has an unsupported value type"
+
+
+def test_canonical_finding_inclusive_boundary_lengths_are_accepted() -> None:
+    """Maximum permitted identifier, metadata sequence, and text lengths remain inclusive."""
+
+    findings_module._validate_identifier("TW-" + "A" * 120)
+    findings_module._validate_text("x" * 32, "boundary", maximum=32)
+    frozen = findings_module._freeze_metadata_mapping(
+        {"labels": ["x"] * findings_module._MAX_METADATA_ITEMS},
+        "properties",
+        findings_module._MAX_PROPERTY_FIELDS,
+        allow_boolean=True,
+        allow_integer=True,
+        allow_sequences=True,
+    )
+    assert len(frozen["labels"]) == findings_module._MAX_METADATA_ITEMS

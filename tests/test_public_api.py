@@ -22,7 +22,7 @@ def test_public_api_exports_only_documented_data_only_services() -> None:
         json.loads((ROOT / "policies" / "default-policy.json").read_text(encoding="utf-8"))
     )
     bundle = api.build_bundle(manifest, policy, generated_at="2026-08-13T00:00:00+00:00")
-    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha1"
+    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha2"
     assert bundle["summary"]["deny"] == 2
 
 

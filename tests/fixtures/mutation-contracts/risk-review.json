@@ -1,0 +1,42 @@
+{
+  "findings": [],
+  "generated_at": "2026-08-15T00:00:00+00:00",
+  "limits": [
+    "Risk decisions apply only to supplied local review findings. A baseline or suppression does not resolve, remediate, waive, or prove the absence of a security condition.",
+    "Expiry is evaluated against supplied generation provenance. TrustWeave does not contact a ticketing system, authenticate an approver, or enforce a deployed control."
+  ],
+  "mismatched_decisions": {
+    "baseline": [],
+    "suppressions": []
+  },
+  "orphaned_decisions": {
+    "baseline": [],
+    "suppressions": []
+  },
+  "schema_version": "trustweave.dev/risk-review/v1alpha2",
+  "summary": {
+    "active_by_severity": {
+      "critical": 0,
+      "high": 0,
+      "info": 0,
+      "low": 0,
+      "medium": 0
+    },
+    "baselined": 0,
+    "expired_baseline": 0,
+    "expired_suppression": 0,
+    "findings": 0,
+    "mismatched_baseline": 0,
+    "mismatched_suppressions": 0,
+    "new": 0,
+    "not_yet_applicable_baseline": 0,
+    "not_yet_applicable_suppression": 0,
+    "orphaned_baseline": 0,
+    "orphaned_suppressions": 0,
+    "severity_escalated_baseline": 0,
+    "severity_escalated_suppression": 0,
+    "status": "clear",
+    "suppressed": 0
+  }
+}
+

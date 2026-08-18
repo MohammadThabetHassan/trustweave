@@ -5,11 +5,13 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from trustweave.bundles import BUNDLE_SCHEMA_V1ALPHA1, validate_bundle
 from trustweave.models import ValidationError
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
-BUNDLE_SCHEMA_VERSION = "trustweave.dev/bundle/v1alpha1"
+BUNDLE_SCHEMA_VERSION = BUNDLE_SCHEMA_V1ALPHA1
+BUNDLE_DIFF_SCHEMA_VERSION = "trustweave.dev/bundle-diff/v1alpha2"
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 
 
@@ -60,11 +62,9 @@ def _findings_by_key(bundle: Mapping[str, Any]) -> dict[tuple[str, str, str], Ma
 
 
 def _assert_bundle(bundle: Mapping[str, Any], label: str) -> None:
-    if bundle.get("schema_version") != BUNDLE_SCHEMA_VERSION:
-        raise ValidationError(f"{label} must use {BUNDLE_SCHEMA_VERSION}")
-    manifest = _mapping(bundle.get("manifest"))
-    if not manifest:
-        raise ValidationError(f"{label} is missing a manifest")
+    """Validate the complete supplied bundle contract before computing a local diff."""
+
+    validate_bundle(bundle, label)
 
 
 def _named_changes(
@@ -239,14 +239,16 @@ def diff_bundles(
     signals = _review_signals(tool_changes, capability_changes, review_relevant_findings)
 
     diff: dict[str, object] = {
-        "schema_version": "trustweave.dev/bundle-diff/v1alpha1",
+        "schema_version": BUNDLE_DIFF_SCHEMA_VERSION,
         "base": {
             "agent": base_manifest.get("name", "unknown"),
             "bundle_generated_at": base_bundle.get("generated_at", "unknown"),
+            "bundle_schema_version": base_bundle["schema_version"],
         },
         "head": {
             "agent": head_manifest.get("name", "unknown"),
             "bundle_generated_at": head_bundle.get("generated_at", "unknown"),
+            "bundle_schema_version": head_bundle["schema_version"],
         },
         "changes": {
             "sources": source_changes,

@@ -83,24 +83,34 @@ only_mutate = [
   "src/trustweave/engine.py",
   "src/trustweave/models.py",
   "src/trustweave/policy_predicates.py",
+  "src/trustweave/policy_review.py",
+  "src/trustweave/chain.py",
+  "src/trustweave/findings.py",
   "src/trustweave/risk.py",
+  "src/trustweave/evidence.py",
+  "src/trustweave/config.py",
+  "src/trustweave/schema_catalog.py",
+  "src/trustweave/sarif.py",
+  "src/trustweave/commands/ci.py",
 ]
-also_copy = ["examples", "policies", "scenarios", "schemas", "docs"]
+also_copy = [
+  ".github",
+  ".dockerignore",
+  ".pre-commit-config.yaml",
+  "Dockerfile",
+  "README.md",
+  "examples",
+  "policies",
+  "scenarios",
+  "schemas",
+  "docs",
+  "scripts",
+]
 pytest_add_cli_args = ["--no-cov"]
 pytest_add_cli_args_test_selection = [
-  "tests/test_trustweave.py",
-  "tests/test_foundation_hardening.py",
-  "tests/test_engine_mutation_contracts.py",
-  "tests/test_policy_attributes.py",
-  "tests/test_policy_v2.py",
-  "tests/test_adversarial_scenarios.py",
-  "tests/test_canonical_findings.py",
-  "tests/test_models_contracts.py",
-  "tests/test_policy_review.py",
-  "tests/test_risk_management.py",
-  "tests/test_risk_schemas.py",
+  "tests",
   "-k",
-  "not repository_reality_check",
+  "not repository_reality_check and not reality_check_contracts",
 ]
 
 [tool.coverage.run]

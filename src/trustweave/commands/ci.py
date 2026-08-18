@@ -7,9 +7,10 @@ import os
 import shutil
 import tempfile
 from collections.abc import Mapping, Sequence
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
+from trustweave.bundles import validate_bundle
 from trustweave.chain import render_chain_review, review_declared_chains
 from trustweave.commands._shared import (
     ATTESTATION_FILE,
@@ -31,7 +32,12 @@ from trustweave.commands._shared import (
     TRACE_REVIEW_REPORT_FILE,
     configured_paths,
 )
-from trustweave.config import VALID_WORKFLOW_STAGES, find_project_config, load_project_config
+from trustweave.config import (
+    PATH_FIELDS,
+    VALID_WORKFLOW_STAGES,
+    find_project_config,
+    load_project_config,
+)
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
@@ -47,10 +53,16 @@ from trustweave.report import (
     render_risk_review_report,
     render_trace_review_report,
 )
-from trustweave.risk import VALID_SEVERITIES, review_risks, should_fail
+from trustweave.risk import (
+    ACTIVE_RISK_STATES,
+    VALID_SEVERITIES,
+    review_risks,
+    should_fail,
+    validate_decision_document,
+)
 from trustweave.sarif import build_sarif
 from trustweave.scenarios import parse_scenarios, run_scenarios
-from trustweave.trace_review import review_trace
+from trustweave.trace_review import parse_trace, review_trace
 
 CI_SUMMARY_FILE = "ci-summary.json"
 CI_SUMMARY_SCHEMA_VERSION = "trustweave.dev/ci-summary/v1alpha1"
@@ -101,8 +113,8 @@ def register(subcommands: Any) -> None:
     )
     ci.add_argument(
         "--fail-on",
-        choices=[*VALID_SEVERITIES, "none"],
-        help="Return status 1 for selected review findings at or above this severity.",
+        choices=[*VALID_SEVERITIES, "review", "none"],
+        help="Return status 1 at the selected severity, or for any finding with review.",
     )
     ci.add_argument(
         "--format",
@@ -178,26 +190,51 @@ def _required_paths(stages: Sequence[str]) -> set[str]:
     return required
 
 
-def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
-    """Return a configured SARIF path that cannot escape the staged artifact directory."""
+def _safe_sarif_path(config: Mapping[str, object]) -> Path:
+    """Validate one portable relative SARIF path without touching the filesystem."""
 
     configured = config.get("sarif_output", "trustweave.sarif")
     if not isinstance(configured, str):
         raise ValidationError("tool.trustweave.sarif_output must be a local path string")
     path = Path(configured)
-    if path.is_absolute() or ".." in path.parts:
+    windows_path = PureWindowsPath(configured)
+    if (
+        path.is_absolute()
+        or windows_path.is_absolute()
+        or windows_path.drive
+        or windows_path.root
+        or ".." in path.parts
+        or ".." in windows_path.parts
+        or path == Path(".")
+    ):
         raise ValidationError(
             "tool.trustweave.sarif_output must remain within the CI artifact directory"
         )
-    return staging / path
+    if "\\" in configured:
+        raise ValidationError(
+            "tool.trustweave.sarif_output must use portable relative path separators"
+        )
+    return path
+
+
+def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
+    """Return a configured SARIF path that cannot escape the staged artifact directory."""
+
+    return staging / _safe_sarif_path(config)
+
+
+def _validate_output_path(output: Path) -> None:
+    """Reject symbolic-link output boundaries without creating any path on disk."""
+
+    for candidate in (output, *output.parents):
+        if candidate.is_symlink():
+            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
 
 
 def _prepare_output_parent(output: Path) -> None:
     """Create a local output parent without accepting symbolic-link directory boundaries."""
 
-    for candidate in (output, *output.parents):
-        if candidate.is_symlink():
-            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
+    _validate_output_path(output)
     try:
         output.parent.mkdir(parents=True, exist_ok=True)
     except OSError as error:
@@ -270,11 +307,13 @@ def _fail_on_findings(
         return True
     if threshold == "none":
         return False
+    if threshold == "review":
+        return True
     minimum = SEVERITY_RANK[threshold]
     return any(
         isinstance(finding.get("severity"), str)
-        and finding["severity"] in SEVERITY_RANK
-        and SEVERITY_RANK[finding["severity"]] <= minimum
+        and (severity := finding["severity"]) in SEVERITY_RANK
+        and SEVERITY_RANK[severity] <= minimum
         for finding in findings
     )
 
@@ -312,17 +351,46 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             "is not deterministic"
         )
     required = _required_paths(stages)
-    paths = configured_paths(
-        config_path,
-        {
-            **{name: None for name in sorted(required)},
-            "output_dir": args.output_dir,
-        },
+    validation_inputs = (
+        {name for name in config if name in PATH_FIELDS - {"output_dir", "sarif_output"}}
+        if "validate" in stages
+        else set()
     )
+    path_values: dict[str, Path | None] = {
+        **{name: None for name in sorted(required | validation_inputs)},
+        "output_dir": args.output_dir,
+    }
+    if "risk" in stages:
+        for name in ("risk_baseline", "suppressions"):
+            if name in config:
+                path_values[name] = None
+    paths = configured_paths(config_path, path_values)
     output_dir = paths["output_dir"]
     if "validate" in stages:
-        for name in sorted(required):
-            load_document(paths[name])
+        validated_documents = {
+            name: load_document(paths[name]) for name in sorted(required | validation_inputs)
+        }
+        if "manifest" in validated_documents:
+            parse_manifest(validated_documents["manifest"])
+        if "policy" in validated_documents:
+            parse_policy(validated_documents["policy"])
+        if "scenarios" in validated_documents:
+            parse_scenarios(validated_documents["scenarios"])
+        if "mcp_profile" in validated_documents:
+            parse_mcp_profile(validated_documents["mcp_profile"])
+        if "chain_manifest" in validated_documents:
+            review_declared_chains(validated_documents["chain_manifest"], generated_at)
+        if "trace" in validated_documents:
+            parse_trace(validated_documents["trace"])
+        if "risk_baseline" in validated_documents:
+            validate_decision_document(validated_documents["risk_baseline"], "baseline")
+        if "suppressions" in validated_documents:
+            validate_decision_document(validated_documents["suppressions"], "suppressions")
+        for bundle_name in ("baseline_bundle", "candidate_bundle"):
+            if bundle_name in validated_documents:
+                validate_bundle(validated_documents[bundle_name], bundle_name)
+        _validate_output_path(output_dir)
+        _safe_sarif_path(config)
     configured_threshold = config.get("failure_threshold", "none")
     if not isinstance(configured_threshold, str):
         raise ValidationError("tool.trustweave.failure_threshold must be a severity string")
@@ -410,10 +478,10 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             risk_review = review_risks(
                 [review for _, review in raw_reviews.values()],
                 baseline_document=(
-                    load_document(paths["risk_baseline"]) if "risk_baseline" in config else None
+                    load_document(paths["risk_baseline"]) if "risk_baseline" in paths else None
                 ),
                 suppressions_document=(
-                    load_document(paths["suppressions"]) if "suppressions" in config else None
+                    load_document(paths["suppressions"]) if "suppressions" in paths else None
                 ),
                 reviewed_at=generated_at,
                 artifact_paths=[path for path, _ in raw_reviews.values()],
@@ -465,8 +533,7 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             and read_json(test_path).get("summary", {}).get("status") != "passed"
         )
         risk_has_active_finding = risk_review is not None and any(
-            isinstance(finding, Mapping)
-            and finding.get("risk_state") in {"new", "expired_baseline", "expired_suppression"}
+            isinstance(finding, Mapping) and finding.get("risk_state") in ACTIVE_RISK_STATES
             for finding in risk_review.get("findings", [])
         )
         review_failed = (
@@ -489,7 +556,7 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             [
                 finding
                 for finding in risk_findings
-                if finding.get("risk_state") in {"new", "expired_baseline", "expired_suppression"}
+                if finding.get("risk_state") in ACTIVE_RISK_STATES
             ]
             if risk_review is not None
             else raw_findings

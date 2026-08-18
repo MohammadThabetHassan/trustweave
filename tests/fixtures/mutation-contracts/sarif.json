@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "properties": {
+        "trustweaveScope": "Local declarative review evidence only; no runtime execution, network connection, credential access, or automatic upload occurred."
+      },
+      "results": [],
+      "tool": {
+        "driver": {
+          "informationUri": "https://github.com/MohammadThabetHassan/trustweave",
+          "name": "TrustWeave",
+          "rules": [],
+          "version": "0.2.0"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}
+

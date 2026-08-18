@@ -20,9 +20,9 @@ The roadmap favors improvements that make an existing reviewer decision more rep
 | Framework declaration normalization | Complete | Static proof fixtures for LangGraph, OpenAI Agents SDK, and CrewAI; no SDK import or execution. |
 | Cited synthetic adversarial scenarios | Complete | Twenty-five OWASP-, MITRE-, and MCP-shaped label-only scenarios with deterministic expectations. |
 | Interoperable review export | Complete | Deterministic local SARIF 2.1.0 generation with no automatic upload. |
-| Quality automation | Complete | 90% branch coverage, property-based fail-closed tests, formatting, linting, type checks, static source scanning, isolated package checks, wheel reproducibility, SBOM, dependency audit, and cross-platform compatibility jobs. |
-| Package release path | Complete | TestPyPI validation, production PyPI `0.1.1`, annotated release tag, GitHub OIDC trusted publishing, and clean-install validation. |
-| Governance baseline | Complete | Direct-main maintenance policy, review cadence, a release procedure, contribution guidance, and a private security-report route. |
+| Quality automation | Complete | 95% branch coverage, property-based fail-closed tests, formatting, linting, type checks, static source scanning, isolated package checks, wheel reproducibility, SBOM, dependency audit, cross-platform compatibility jobs, and a twelve-module mutation gate. The gate enforces a ≥95% score together with exact survivor-identifier and normalized-diff parity, zero untriaged records, and zero `needs_regression` classifications on the reviewed SHA. |
+| Package release path | Prepared | Production PyPI `0.1.1` is published. Source is prepared for `0.2.0`; TestPyPI/PyPI publication, tagging, signing, and release creation remain owner-authorized future actions. |
+| Governance baseline | Complete | Pull-request review, an owner-controlled release procedure, contribution guidance, and a private security-report route. |
 
 ## Current priorities
 
@@ -30,7 +30,7 @@ The roadmap favors improvements that make an existing reviewer decision more rep
 
 The first post-release priority is to collect feedback from maintainers and reviewers using the documented local workflows. Useful evidence includes whether the manifest and policy vocabulary is understandable, whether review signals are actionable, and whether the generated Markdown artifacts support an actual change-review decision. Feedback should be documented as issues or examples without publishing customer data, credentials, trace content, or third-party targets.
 
-Schema identifiers remain `v1alpha1` contracts. A future stabilization decision requires a written compatibility policy, representative migration evidence, and a clear statement of which artifact fields and review identifiers become stable.
+Input schemas retain their documented v1alpha1/v1alpha2 contracts. Current generated bundle, bundle-diff, and risk-review artifacts use explicit v1alpha2 versions while bounded historical v1alpha1 resources remain packaged. A future stabilization decision requires a written compatibility policy, representative migration evidence, and a clear statement of which artifact fields and review identifiers become stable.
 
 ### 2. Curated file-only declaration importers
 

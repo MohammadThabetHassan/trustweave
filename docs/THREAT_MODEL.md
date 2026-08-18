@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines what TrustWeave v0.1 is designed to help a developer review, what it does not defend, and how the project avoids creating an unsafe scanning or red-team capability.
+This document defines what the TrustWeave 0.2 source contract is designed to help a developer review, what it does not defend, and how the project avoids creating an unsafe scanning or red-team capability.
 
 TrustWeave is a **declarative architecture-review and synthetic-regression tool**, not a runtime defense product.
 
@@ -11,7 +11,7 @@ TrustWeave is a **declarative architecture-review and synthetic-regression tool*
 | Asset | Example | How TrustWeave treats it |
 |---|---|---|
 | Source trust label | A user request or retrieved document | Explicitly declared as trusted, untrusted, or conditional. |
-| Data classification | Public article or synthetic confidential record | Recorded as manifest context; v0.1 does not process the data itself. |
+| Data classification | Public article or synthetic confidential record | Recorded as manifest context; TrustWeave does not process the data itself. |
 | Tool capability | Read knowledge base, read customer record, send mock email | Declared as a named capability and action class. |
 | Flow | Untrusted document influencing an outbound tool action | Evaluated by an ordered, deterministic policy. |
 | Policy state | Rule requiring approval for a conditional-to-external path | Versioned input to the generated evidence. |
@@ -37,7 +37,7 @@ TrustWeave is a **declarative architecture-review and synthetic-regression tool*
 
 ## Out of scope threats
 
-TrustWeave v0.1 does not claim to detect, exploit, or prevent any of the following directly:
+TrustWeave does not claim to detect, exploit, or prevent any of the following directly:
 
 - Prompt-injection payloads in real documents or model context.
 - Malicious MCP servers, skills, packages, plugins, or repository content.

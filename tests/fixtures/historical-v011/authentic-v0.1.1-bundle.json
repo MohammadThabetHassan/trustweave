@@ -1,0 +1,241 @@
+{
+  "findings": [
+    {
+      "decision": "allow",
+      "flow": {
+        "purpose": "Find public support documentation relevant to a request.",
+        "source": "customer_request",
+        "tool": "search_knowledge_base"
+      },
+      "rationale": "Authenticated synthetic requests may invoke declared read-only retrieval paths.",
+      "rule_id": "TW-001",
+      "source": {
+        "data_classification": "customer-provided",
+        "description": "A direct support request from an authenticated synthetic customer.",
+        "name": "customer_request",
+        "trust": "trusted"
+      },
+      "tool": {
+        "action_class": "read",
+        "capabilities": [
+          "knowledge-base.read"
+        ],
+        "description": "Reads synthetic knowledge-base articles.",
+        "name": "search_knowledge_base"
+      }
+    },
+    {
+      "decision": "deny",
+      "flow": {
+        "purpose": "Retrieve the authenticated synthetic customer's support context.",
+        "source": "customer_request",
+        "tool": "lookup_customer_record"
+      },
+      "rationale": "No policy rule matched this declared path; the default decision was applied.",
+      "rule_id": null,
+      "source": {
+        "data_classification": "customer-provided",
+        "description": "A direct support request from an authenticated synthetic customer.",
+        "name": "customer_request",
+        "trust": "trusted"
+      },
+      "tool": {
+        "action_class": "sensitive",
+        "capabilities": [
+          "customer-record.read"
+        ],
+        "description": "Reads a synthetic confidential customer record.",
+        "name": "lookup_customer_record"
+      }
+    },
+    {
+      "decision": "require_approval",
+      "flow": {
+        "purpose": "Prepare a response that requires a human approval control.",
+        "source": "customer_record",
+        "tool": "send_mock_email"
+      },
+      "rationale": "Confidential synthetic records may influence an external mock action only with explicit human review.",
+      "rule_id": "TW-002",
+      "source": {
+        "data_classification": "confidential",
+        "description": "A synthetic customer record returned after an authorized lookup.",
+        "name": "customer_record",
+        "trust": "conditional"
+      },
+      "tool": {
+        "action_class": "external",
+        "capabilities": [
+          "email.send"
+        ],
+        "description": "Writes a local mock email event only; it never sends a real message.",
+        "name": "send_mock_email"
+      }
+    },
+    {
+      "decision": "deny",
+      "flow": {
+        "purpose": "Deliberately unsafe path used to demonstrate deterministic policy denial.",
+        "source": "knowledge_base_document",
+        "tool": "send_mock_email"
+      },
+      "rationale": "Untrusted retrieved content must not cause outbound or business-impacting actions.",
+      "rule_id": "TW-004",
+      "source": {
+        "data_classification": "public-content",
+        "description": "Retrieved knowledge-base text that may contain untrusted instructions.",
+        "name": "knowledge_base_document",
+        "trust": "untrusted"
+      },
+      "tool": {
+        "action_class": "external",
+        "capabilities": [
+          "email.send"
+        ],
+        "description": "Writes a local mock email event only; it never sends a real message.",
+        "name": "send_mock_email"
+      }
+    }
+  ],
+  "generated_at": "2026-08-18T01:01:10.774280+00:00",
+  "limits": [
+    "The bundle reflects declared architecture only; it does not discover or execute tools.",
+    "The bundle applies deterministic local rules; it does not establish security of a deployed system.",
+    "No model output, credential, network traffic, or external system was analyzed to create this bundle."
+  ],
+  "manifest": {
+    "description": "A deliberately safe, declarative demo with a knowledge base, a customer lookup, and a mock external email action.",
+    "flows": [
+      {
+        "purpose": "Find public support documentation relevant to a request.",
+        "source": "customer_request",
+        "tool": "search_knowledge_base"
+      },
+      {
+        "purpose": "Retrieve the authenticated synthetic customer's support context.",
+        "source": "customer_request",
+        "tool": "lookup_customer_record"
+      },
+      {
+        "purpose": "Prepare a response that requires a human approval control.",
+        "source": "customer_record",
+        "tool": "send_mock_email"
+      },
+      {
+        "purpose": "Deliberately unsafe path used to demonstrate deterministic policy denial.",
+        "source": "knowledge_base_document",
+        "tool": "send_mock_email"
+      }
+    ],
+    "name": "synthetic-customer-support-agent",
+    "schema_version": "trustweave.dev/v1alpha1",
+    "sources": [
+      {
+        "data_classification": "customer-provided",
+        "description": "A direct support request from an authenticated synthetic customer.",
+        "name": "customer_request",
+        "trust": "trusted"
+      },
+      {
+        "data_classification": "public-content",
+        "description": "Retrieved knowledge-base text that may contain untrusted instructions.",
+        "name": "knowledge_base_document",
+        "trust": "untrusted"
+      },
+      {
+        "data_classification": "confidential",
+        "description": "A synthetic customer record returned after an authorized lookup.",
+        "name": "customer_record",
+        "trust": "conditional"
+      }
+    ],
+    "tools": [
+      {
+        "action_class": "read",
+        "capabilities": [
+          "knowledge-base.read"
+        ],
+        "description": "Reads synthetic knowledge-base articles.",
+        "name": "search_knowledge_base"
+      },
+      {
+        "action_class": "sensitive",
+        "capabilities": [
+          "customer-record.read"
+        ],
+        "description": "Reads a synthetic confidential customer record.",
+        "name": "lookup_customer_record"
+      },
+      {
+        "action_class": "external",
+        "capabilities": [
+          "email.send"
+        ],
+        "description": "Writes a local mock email event only; it never sends a real message.",
+        "name": "send_mock_email"
+      }
+    ]
+  },
+  "policy": {
+    "default_decision": "deny",
+    "name": "support-agent-boundary-policy",
+    "rules": [
+      {
+        "decision": "allow",
+        "description": "Allow trusted requests to read-only tools.",
+        "id": "TW-001",
+        "rationale": "Authenticated synthetic requests may invoke declared read-only retrieval paths.",
+        "source_trust": [
+          "trusted"
+        ],
+        "tool_action_classes": [
+          "read"
+        ]
+      },
+      {
+        "decision": "require_approval",
+        "description": "Require approval before conditional confidential data reaches an external action.",
+        "id": "TW-002",
+        "rationale": "Confidential synthetic records may influence an external mock action only with explicit human review.",
+        "source_trust": [
+          "conditional"
+        ],
+        "tool_action_classes": [
+          "external"
+        ]
+      },
+      {
+        "decision": "deny",
+        "description": "Deny untrusted or conditional input to sensitive tools.",
+        "id": "TW-003",
+        "rationale": "Retrieved or conditionally trusted content must not directly authorize sensitive record access.",
+        "source_trust": [
+          "untrusted",
+          "conditional"
+        ],
+        "tool_action_classes": [
+          "sensitive"
+        ]
+      },
+      {
+        "decision": "deny",
+        "description": "Deny untrusted input to external actions.",
+        "id": "TW-004",
+        "rationale": "Untrusted retrieved content must not cause outbound or business-impacting actions.",
+        "source_trust": [
+          "untrusted"
+        ],
+        "tool_action_classes": [
+          "external"
+        ]
+      }
+    ],
+    "schema_version": "trustweave.dev/v1alpha1"
+  },
+  "schema_version": "trustweave.dev/bundle/v1alpha1",
+  "summary": {
+    "allow": 1,
+    "deny": 2,
+    "require_approval": 1
+  }
+}

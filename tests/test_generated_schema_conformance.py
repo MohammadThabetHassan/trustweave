@@ -14,13 +14,19 @@ from trustweave.evidence import build_attestation
 from trustweave.findings import finding
 from trustweave.io import load_document, write_json
 from trustweave.models import parse_manifest, parse_policy
+from trustweave.risk import review_risks
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
 POLICY = ROOT / "policies" / "default-policy.json"
-SCHEMA = ROOT / "schemas" / "agent-security-bundle-v1alpha1.schema.json"
+LEGACY_BUNDLE_SCHEMA = ROOT / "schemas" / "agent-security-bundle-v1alpha1.schema.json"
+HISTORICAL_V011_BUNDLE = (
+    ROOT / "tests" / "fixtures" / "historical-v011" / "authentic-v0.1.1-bundle.json"
+)
+CURRENT_BUNDLE_SCHEMA = ROOT / "schemas" / "agent-security-bundle-v1alpha2.schema.json"
 ATTESTATION_SCHEMA = ROOT / "schemas" / "attestation-v1alpha3.schema.json"
 FINDING_SCHEMA = ROOT / "schemas" / "finding-v1alpha1.schema.json"
+RISK_REVIEW_SCHEMA = ROOT / "schemas" / "risk-review-v1alpha2.schema.json"
 
 
 def test_real_generated_bundle_conforms_to_its_published_schema() -> None:
@@ -31,9 +37,37 @@ def test_real_generated_bundle_conforms_to_its_published_schema() -> None:
         parse_policy(load_document(POLICY)),
         generated_at="2026-08-13T00:00:00+00:00",
     )
-    schema = load_document(SCHEMA)
+    assert bundle["schema_version"] == "trustweave.dev/bundle/v1alpha2"
+    schema = load_document(CURRENT_BUNDLE_SCHEMA)
 
     Draft202012Validator(schema).validate(bundle)
+
+
+def test_bundle_schema_accepts_runtime_display_manifest_name() -> None:
+    """A bounded human-readable manifest display name remains schema-valid in evidence."""
+
+    manifest_document = dict(load_document(MANIFEST))
+    manifest_document["name"] = "Customer Support Agent"
+    bundle = build_bundle(
+        parse_manifest(manifest_document),
+        parse_policy(load_document(POLICY)),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    Draft202012Validator(load_document(CURRENT_BUNDLE_SCHEMA)).validate(bundle)
+
+
+def test_authentic_v011_bundle_remains_schema_valid_without_v1alpha2_policy_fields() -> None:
+    """The historical schema covers the exact published v0.1.1 generated bundle shape."""
+
+    bundle = load_document(HISTORICAL_V011_BUNDLE)
+    policy = bundle["policy"]
+    assert isinstance(policy, dict)
+    assert policy["schema_version"] == "trustweave.dev/v1alpha1"
+    assert "classification_taxonomy" not in policy
+    assert "approval_control" not in policy
+
+    Draft202012Validator(load_document(LEGACY_BUNDLE_SCHEMA)).validate(bundle)
 
 
 def test_bundle_schema_rejects_unknown_top_level_field() -> None:
@@ -46,7 +80,7 @@ def test_bundle_schema_rejects_unknown_top_level_field() -> None:
     bundle["unexpected"] = True
 
     with pytest.raises(JsonSchemaValidationError, match="Additional properties"):
-        Draft202012Validator(load_document(SCHEMA)).validate(bundle)
+        Draft202012Validator(load_document(CURRENT_BUNDLE_SCHEMA)).validate(bundle)
 
 
 def test_real_v1alpha3_attestation_conforms_to_its_published_schema(tmp_path: Path) -> None:
@@ -114,6 +148,30 @@ def test_emitted_canonical_finding_conforms_to_its_published_schema() -> None:
     Draft202012Validator(load_document(FINDING_SCHEMA)).validate(emitted)
 
 
+def test_risk_review_schema_accepts_runtime_absolute_artifact_paths_with_spaces() -> None:
+    """Published risk-review validation preserves bounded literal local provenance paths."""
+
+    review = review_risks(
+        [
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [
+                    {
+                        "id": "TW-POL-004",
+                        "severity": "high",
+                        "message": "A declared control requires review.",
+                        "subject": {"tool": "lookup"},
+                    }
+                ],
+            }
+        ],
+        reviewed_at="2026-08-15T00:00:00+00:00",
+        artifact_paths=["/workspace/release artifacts/policy review.json"],
+    )
+
+    Draft202012Validator(load_document(RISK_REVIEW_SCHEMA)).validate(review)
+
+
 def test_bundle_schema_rejects_placeholder_nested_contracts() -> None:
     """Bundle schemas must not permit generic nested objects in emitted evidence fields."""
 
@@ -125,4 +183,27 @@ def test_bundle_schema_rejects_placeholder_nested_contracts() -> None:
     bundle["manifest"] = {}
 
     with pytest.raises(JsonSchemaValidationError):
-        Draft202012Validator(load_document(SCHEMA)).validate(bundle)
+        Draft202012Validator(load_document(CURRENT_BUNDLE_SCHEMA)).validate(bundle)
+
+
+def test_current_risk_review_schema_accepts_bundle_diff_v1alpha2_findings() -> None:
+    """Risk normalization keeps current bundle-diff evidence schema-valid through v1alpha2."""
+
+    review = review_risks(
+        [
+            {
+                "schema_version": "trustweave.dev/bundle-diff/v1alpha2",
+                "signals": [
+                    {
+                        "id": "TW-DIFF-001",
+                        "severity": "review",
+                        "message": "A current bundle diff requires review.",
+                        "subject": {"tool": "archive"},
+                    }
+                ],
+            }
+        ],
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+
+    Draft202012Validator(load_document(RISK_REVIEW_SCHEMA)).validate(review)

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from trustweave.bundles import BUNDLE_SCHEMA_V1ALPHA2
 from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool
 from trustweave.policy_predicates import (
     PolicySubject,
@@ -140,12 +141,22 @@ def build_bundle(
         summary[finding.decision] += 1
 
     bundle: dict[str, object] = {
-        "schema_version": "trustweave.dev/bundle/v1alpha1",
+        "schema_version": BUNDLE_SCHEMA_V1ALPHA2,
         "manifest": manifest.as_dict(),
         "policy": {
             "schema_version": policy.schema_version,
             "name": policy.name,
             "default_decision": policy.default_decision,
+            "classification_taxonomy": list(policy.classification_taxonomy),
+            "approval_control": (
+                {
+                    "mechanism": policy.approval_control.mechanism,
+                    "binds_to": list(policy.approval_control.binds_to),
+                    "fail_closed": policy.approval_control.fail_closed,
+                }
+                if policy.approval_control is not None
+                else None
+            ),
             "rules": [_bundle_rule(rule) for rule in policy.rules],
         },
         "findings": [finding.as_dict() for finding in findings],

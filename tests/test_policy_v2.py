@@ -430,3 +430,110 @@ def test_policy_coverage_reports_a_redundant_shadowed_rule_separately() -> None:
         "shadowed_by": "TW-V2-001",
         "decision": "deny",
     }
+
+
+@pytest.mark.parametrize(
+    ("first_lower", "first_upper", "later_lower", "later_upper", "shadowed"),
+    [
+        (None, None, "restricted", None, True),
+        (None, "confidential", "restricted", None, False),
+        ("internal", "restricted", "confidential", "restricted", True),
+        ("internal", "confidential", None, "restricted", False),
+    ],
+)
+def test_policy_coverage_respects_classification_interval_containment_boundaries(
+    first_lower: str | None,
+    first_upper: str | None,
+    later_lower: str | None,
+    later_upper: str | None,
+    shadowed: bool,
+) -> None:
+    """Coverage only shadows a later rule when its full taxonomy interval is contained."""
+
+    document = _policy_document()
+    document["default_decision"] = "deny"
+    first = dict(document["rules"][0])
+    first.update(
+        {
+            "id": "TW-V2-BOUND-FIRST",
+            "source_identifiers": [],
+            "tool_identifiers": [],
+            "purpose_tags": [],
+            "tool_capabilities": [],
+            "required_controls": [],
+            "source_data_classification_at_least": first_lower,
+            "source_data_classification_at_most": first_upper,
+        }
+    )
+    later = dict(first)
+    later.update(
+        {
+            "id": "TW-V2-BOUND-LATER",
+            "source_data_classification_at_least": later_lower,
+            "source_data_classification_at_most": later_upper,
+        }
+    )
+    document["rules"] = [first, later]
+
+    coverage = review_policy(parse_policy(document), include_coverage=True)["coverage"]
+    later_coverage = coverage["rules"]["TW-V2-BOUND-LATER"]
+
+    assert later_coverage["shadowed_by"] == ("TW-V2-BOUND-FIRST" if shadowed else None)
+    assert later_coverage["reachable"] is not shadowed
+
+
+def test_policy_parser_preserves_taxonomy_and_exact_strict_rule_diagnostics() -> None:
+    """The v1alpha2 parser retains taxonomy ordering and stable field paths for strict failures."""
+
+    parsed = parse_policy(_policy_document())
+    assert parsed.classification_taxonomy == ("public", "internal", "confidential", "restricted")
+
+    cases: list[tuple[dict[str, object], str]] = []
+    empty_taxonomy = _policy_document()
+    empty_taxonomy["classification_taxonomy"] = []
+    cases.append((empty_taxonomy, "policy.classification_taxonomy must not be empty"))
+    duplicate_tool = _policy_document()
+    duplicate_tool_rule = duplicate_tool["rules"][0]
+    assert isinstance(duplicate_tool_rule, dict)
+    duplicate_tool_rule["tool_identifiers"] = ["send_email", "send_email"]
+    cases.append(
+        (
+            duplicate_tool,
+            "policy.rules[0].tool_identifiers contains duplicate values: send_email",
+        )
+    )
+    duplicate_purpose = _policy_document()
+    duplicate_purpose_rule = duplicate_purpose["rules"][0]
+    assert isinstance(duplicate_purpose_rule, dict)
+    duplicate_purpose_rule["purpose_tags"] = ["outbound", "outbound"]
+    cases.append(
+        (
+            duplicate_purpose,
+            "policy.rules[0].purpose_tags contains duplicate values: outbound",
+        )
+    )
+    blank_lower = _policy_document()
+    blank_lower_rule = blank_lower["rules"][0]
+    assert isinstance(blank_lower_rule, dict)
+    blank_lower_rule["source_data_classification_at_least"] = ""
+    cases.append(
+        (
+            blank_lower,
+            "policy.rules[0].source_data_classification_at_least must be a non-empty string",
+        )
+    )
+    blank_upper = _policy_document()
+    blank_upper_rule = blank_upper["rules"][0]
+    assert isinstance(blank_upper_rule, dict)
+    blank_upper_rule["source_data_classification_at_most"] = ""
+    cases.append(
+        (
+            blank_upper,
+            "policy.rules[0].source_data_classification_at_most must be a non-empty string",
+        )
+    )
+
+    for document, message in cases:
+        with pytest.raises(ValidationError) as error:
+            parse_policy(document)
+        assert str(error.value) == message

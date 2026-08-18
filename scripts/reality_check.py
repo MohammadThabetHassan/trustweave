@@ -69,18 +69,136 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "2,339 generated mutants; 1,911 killed; 428 survived; 0 without a selected test; 0 timed out; "
-    "0 suspicious.",
-    "81.70% killed (`1,911 / 2,339`)",
+    "6,140 generated mutants; 6,044 killed; 96 survived; 0 without a selected test; "
+    "0 timed out; 0 suspicious.",
+    "98.44% killed (`6,044 / 6,140`)",
     "Linux with fork support",
-    "**does not meet a 90% mutation threshold** for the measured high-risk scope",
-    "not a cross-platform release-blocking gate",
+    "**95% mutation threshold** for the measured high-risk scope",
+    "96 classified survivors",
+    "0 untriaged survivors",
+    "96 equivalent mutations",
+    "0 defensive mutations",
+    "0 mutations marked `needs_regression`",
+    "release-blocking quality check",
 )
+GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
+    "agent-security-bundle-v1alpha2.schema.json": (
+        "trustweave.dev/bundle/v1alpha2",
+        "src/trustweave/bundles.py",
+    ),
+    "attestation-v1alpha3.schema.json": (
+        "trustweave.dev/attestation/v1alpha3",
+        "src/trustweave/evidence.py",
+    ),
+    "bundle-diff-v1alpha2.schema.json": (
+        "trustweave.dev/bundle-diff/v1alpha2",
+        "src/trustweave/diff.py",
+    ),
+    "chain-review-v1alpha1.schema.json": (
+        "trustweave.dev/chain-review/v1alpha1",
+        "src/trustweave/chain.py",
+    ),
+    "ci-summary-v1alpha1.schema.json": (
+        "trustweave.dev/ci-summary/v1alpha1",
+        "src/trustweave/commands/ci.py",
+    ),
+    "framework-inventory-v1alpha1.schema.json": (
+        "trustweave.dev/framework-inventory/v1alpha1",
+        "src/trustweave/framework_import.py",
+    ),
+    "mcp-manifest-scaffold-v1alpha1.schema.json": (
+        "trustweave.dev/mcp-manifest-scaffold/v1alpha1",
+        "src/trustweave/mcp_import.py",
+    ),
+    "mcp-profile-review-v1alpha1.schema.json": (
+        "trustweave.dev/mcp-profile-review/v1alpha1",
+        "src/trustweave/mcp_profile.py",
+    ),
+    "mcp-tool-inventory-v1alpha1.schema.json": (
+        "trustweave.dev/mcp-tool-inventory/v1alpha1",
+        "src/trustweave/mcp_import.py",
+    ),
+    "policy-explanation-v1alpha1.schema.json": (
+        "trustweave.dev/policy-explanation/v1alpha1",
+        "src/trustweave/engine.py",
+    ),
+    "policy-review-v1alpha1.schema.json": (
+        "trustweave.dev/policy-review/v1alpha1",
+        "src/trustweave/policy_review.py",
+    ),
+    "risk-baseline-v1alpha2.schema.json": (
+        "trustweave.dev/risk-baseline/v1alpha2",
+        "src/trustweave/risk.py",
+    ),
+    "risk-review-v1alpha2.schema.json": (
+        "trustweave.dev/risk-review/v1alpha2",
+        "src/trustweave/risk.py",
+    ),
+    "test-results-v1alpha1.schema.json": (
+        "trustweave.dev/test-results/v1alpha1",
+        "src/trustweave/scenarios.py",
+    ),
+    "trace-review-v1alpha1.schema.json": (
+        "trustweave.dev/trace-review/v1alpha1",
+        "src/trustweave/trace_review.py",
+    ),
+    "unsigned-statement-v1alpha1.schema.json": (
+        "trustweave.dev/unsigned-statement/v1alpha1",
+        "src/trustweave/statement.py",
+    ),
+}
+CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
+    "README.md": (
+        "trustweave.dev/bundle/v1alpha2",
+        "trustweave/fingerprint/v3",
+        "95% branch coverage",
+    ),
+    "docs/CLI_REFERENCE.md": (
+        "trustweave/fingerprint/v3",
+        "trustweave.dev/risk-review/v1alpha2",
+        "risk-baseline/v1alpha2",
+    ),
+    "docs/CONFIGURATION.md": (
+        "baseline_bundle",
+        "candidate_bundle",
+        "sarif_output",
+        "chain_review",
+    ),
+    "docs/QUALITY.md": (
+        "95% branch coverage",
+        "exact survivor-identifier parity",
+        "zero `needs_regression` classifications",
+    ),
+    "docs/SCHEMA_AND_COMPATIBILITY.md": (
+        "trustweave.dev/bundle/v1alpha2",
+        "trustweave.dev/bundle-diff/v1alpha2",
+        "trustweave.dev/risk-review/v1alpha2",
+        "agent-security-bundle-v1alpha2.schema.json",
+        "risk-review-v1alpha2.schema.json",
+    ),
+    "docs/RISK_MANAGEMENT.md": (
+        "trustweave/fingerprint/v3",
+        "not_yet_applicable_baseline",
+        "risk-review/v1alpha2",
+    ),
+    "docs/site/SCHEMAS.md": (
+        "trustweave.dev/bundle/v1alpha2",
+        "trustweave.dev/risk-review/v1alpha2",
+    ),
+}
 MUTATION_SOURCE_SCOPE = [
     "src/trustweave/engine.py",
     "src/trustweave/models.py",
     "src/trustweave/policy_predicates.py",
+    "src/trustweave/policy_review.py",
+    "src/trustweave/chain.py",
+    "src/trustweave/findings.py",
     "src/trustweave/risk.py",
+    "src/trustweave/evidence.py",
+    "src/trustweave/config.py",
+    "src/trustweave/schema_catalog.py",
+    "src/trustweave/sarif.py",
+    "src/trustweave/commands/ci.py",
 ]
 REPRODUCIBILITY_RECORD_MARKERS = (
     "Recorded staged-CI verification",
@@ -100,6 +218,52 @@ def _declared_project_version() -> str | None:
         project = tomllib.load(project_file)
     version = project.get("project", {}).get("version")
     return version if isinstance(version, str) and version else None
+
+
+def _check_schema_resource_synchronization() -> list[str]:
+    """Require published schemas and packaged schema resources to remain byte-identical."""
+
+    failures: list[str] = []
+    source_schemas = {path.name: path for path in (ROOT / "schemas").glob("*.schema.json")}
+    packaged_schemas = {
+        path.name: path for path in (ROOT / "src" / "trustweave" / "schemas").glob("*.schema.json")
+    }
+    for name in sorted(set(source_schemas) - set(packaged_schemas)):
+        failures.append(f"Published schema is missing from package resources: schemas/{name}")
+    for name in sorted(set(packaged_schemas) - set(source_schemas)):
+        failures.append(f"Packaged schema lacks a matching published source resource: {name}")
+    for name in sorted(set(source_schemas) & set(packaged_schemas)):
+        if source_schemas[name].read_bytes() != packaged_schemas[name].read_bytes():
+            failures.append(f"Published and packaged schema resources differ: {name}")
+    return failures
+
+
+def _check_generated_artifact_schema_coverage() -> list[str]:
+    """Require every documented emitted artifact version to have its exact public contract."""
+
+    failures: list[str] = []
+    for schema_name, (version, producer) in sorted(GENERATED_ARTIFACT_SCHEMA_CONTRACTS.items()):
+        schema_path = ROOT / "schemas" / schema_name
+        producer_path = ROOT / producer
+        if not schema_path.is_file():
+            failures.append(f"Generated artifact lacks a published schema: schemas/{schema_name}")
+            continue
+        if not producer_path.is_file() or version not in producer_path.read_text(encoding="utf-8"):
+            failures.append(
+                f"Generated artifact schema contract is not linked to its producer: {producer}"
+            )
+            continue
+        try:
+            schema: Any = json.loads(schema_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            failures.append(f"Generated artifact schema is invalid JSON: {schema_name}: {error}")
+            continue
+        actual_version = schema.get("properties", {}).get("schema_version", {}).get("const")
+        if actual_version != version:
+            failures.append(
+                f"Generated artifact schema version differs from producer contract: {schema_name}"
+            )
+    return failures
 
 
 def _check_json_documents() -> list[str]:
@@ -130,7 +294,7 @@ def _check_generated_artifact_schemas() -> list[str]:
         subject={"source": "customer_message", "tool": "send_mock_email"},
     )
     generated: list[tuple[str, dict[str, Any]]] = [
-        ("agent-security-bundle-v1alpha1.schema.json", bundle),
+        ("agent-security-bundle-v1alpha2.schema.json", bundle),
         ("finding-v1alpha1.schema.json", emitted_finding),
     ]
     with tempfile.TemporaryDirectory(prefix="trustweave-reality-") as temporary_directory:
@@ -397,6 +561,24 @@ def _check_issue_templates() -> list[str]:
             failures.append(f"Issue form {relative_path} needs a non-empty description")
         if not isinstance(form.get("body"), list) or not form.get("body"):
             failures.append(f"Issue form {relative_path} needs a non-empty body list")
+    return failures
+
+
+def _check_current_contract_documentation() -> list[str]:
+    """Require concise maintained documentation to name the current emitted contracts."""
+
+    failures: list[str] = []
+    for relative_path, markers in CURRENT_CONTRACT_DOCUMENTATION.items():
+        path = ROOT / relative_path
+        if not path.is_file():
+            failures.append(f"Missing current-contract documentation: {relative_path}")
+            continue
+        content = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in content:
+                failures.append(
+                    f"{relative_path} lacks current-contract documentation marker: {marker}"
+                )
     return failures
 
 
@@ -832,7 +1014,10 @@ def main() -> int:
     """Print actionable repository reality-check failures and return an appropriate code."""
 
     failures = (
-        _check_json_documents()
+        _check_schema_resource_synchronization()
+        + _check_generated_artifact_schema_coverage()
+        + _check_current_contract_documentation()
+        + _check_json_documents()
         + _check_contract_examples()
         + _check_generated_artifact_schemas()
         + _check_installed_wheel_runtime_contract()

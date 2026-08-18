@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pytest
+
+import trustweave.engine as engine_module
 from trustweave.engine import (
     _default_severity,
     decision_for_scenario,
@@ -120,9 +123,51 @@ def test_explanation_contains_exact_input_rule_order_and_default_behavior() -> N
         ("TW-ENGINE-LATER", False),
         ("TW-ENGINE-APPROVAL", True),
     ]
+    assert matched["checked_rules"][2]["checks"] == {
+        "source_trust": {
+            "matched": True,
+            "actual": "conditional",
+            "expected_any_of": ["conditional"],
+        },
+        "tool_action_class": {
+            "matched": True,
+            "actual": "external",
+            "expected_any_of": ["external"],
+        },
+        "source_data_classification": {
+            "matched": True,
+            "actual": "restricted",
+            "expected_any_of": [],
+        },
+        "source_identifier": {"matched": True, "actual": "review-queue", "expected_any_of": []},
+        "tool_identifier": {
+            "matched": True,
+            "actual": "notification-api",
+            "expected_any_of": [],
+        },
+        "purpose_tags": {"matched": True, "actual": ["notify_customer"], "expected_any_of": []},
+        "source_data_classification_bounds": {
+            "matched": True,
+            "actual": "restricted",
+            "at_least": None,
+            "at_most": None,
+        },
+        "required_controls": {"matched": True, "actual": [], "expected_all_of": []},
+        "tool_capabilities": {
+            "matched": True,
+            "actual": ["notifications.send"],
+            "expected_any_of": [],
+        },
+    }
     assert matched["decision"] == "require_approval"
     assert matched["rule_id"] == "TW-ENGINE-APPROVAL"
     assert matched["rationale"] == "The declared conditional external path requires review."
+    assert matched["limits"] == [
+        (
+            "The explanation applies only to supplied synthetic labels and declared local "
+            "policy metadata; it does not inspect or enforce a deployed runtime."
+        )
+    ]
     assert defaulted["schema_version"] == "trustweave.dev/policy-explanation/v1alpha1"
     assert defaulted["policy"] == "engine-mutation-contract"
     assert defaulted["decision"] == "deny"
@@ -130,6 +175,12 @@ def test_explanation_contains_exact_input_rule_order_and_default_behavior() -> N
     assert defaulted["rationale"] == (
         "No policy rule matched this supplied local input; the default decision was applied."
     )
+    assert defaulted["limits"] == matched["limits"]
+    assert [(item["id"], item["matched"]) for item in defaulted["checked_rules"]] == [
+        ("TW-ENGINE-FIRST", False),
+        ("TW-ENGINE-LATER", False),
+        ("TW-ENGINE-APPROVAL", False),
+    ]
 
 
 def test_synthetic_defaults_are_stable_in_matching_and_explanations() -> None:
@@ -223,3 +274,105 @@ def test_synthetic_defaults_participate_in_identifier_and_purpose_predicates() -
         "deny",
         None,
     )
+
+
+def test_synthetic_matching_binds_complete_predicate_subject(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The synthetic matching API forwards the exact constructed declared subject to predicates."""
+
+    observed: list[tuple[object, object, object, object]] = []
+
+    def capture(_rule: object, source: object, tool: object, _policy: object, flow: object) -> bool:
+        observed.append((source, tool, _policy, flow))
+        return False
+
+    monkeypatch.setattr(engine_module, "_rule_matches", capture)
+    assert (
+        matching_rule(
+            _policy(),
+            "conditional",
+            "external",
+            source_data_classification=None,
+            tool_capabilities=("notifications.send",),
+            source_identifier="inbox",
+            tool_identifier="notifier",
+            purpose="notify_customer",
+        )
+        is None
+    )
+
+    source, tool, _, flow = observed[0]
+    assert source.name == "inbox"
+    assert source.trust == "conditional"
+    assert source.data_classification == "unspecified"
+    assert source.description == "Synthetic policy scenario input."
+    assert tool.name == "notifier"
+    assert tool.action_class == "external"
+    assert tool.capabilities == ("notifications.send",)
+    assert tool.description == "Synthetic policy scenario input."
+    assert flow.source == "inbox"
+    assert flow.tool == "notifier"
+    assert flow.purpose == "notify_customer"
+    assert flow.purpose_tags == ("notify_customer",)
+
+
+def test_synthetic_explanation_binds_complete_predicate_subject(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Explanation checks receive the same declared synthetic identity that it reports."""
+
+    observed: list[tuple[object, object, object]] = []
+
+    def capture_match(
+        _rule: object, source: object, tool: object, _policy: object, flow: object
+    ) -> bool:
+        observed.append((source, tool, flow))
+        return False
+
+    monkeypatch.setattr(engine_module, "_rule_matches", capture_match)
+    monkeypatch.setattr(engine_module, "_rule_match_checks", lambda *_arguments: {})
+    explanation = explain_policy_decision(
+        _policy(),
+        "trusted",
+        "read",
+        source_data_classification="internal",
+        tool_capabilities=("records.read",),
+        source_identifier="case-inbox",
+        tool_identifier="records-api",
+        purpose="case_lookup",
+    )
+
+    assert explanation["decision"] == "deny"
+    source, tool, flow = observed[0]
+    assert source.description == "Synthetic explanation input."
+    assert source.data_classification == "internal"
+    assert tool.description == "Synthetic explanation input."
+    assert tool.capabilities == ("records.read",)
+    assert flow.source == "case-inbox"
+    assert flow.tool == "records-api"
+    assert flow.purpose == "case_lookup"
+    assert flow.purpose_tags == ("case_lookup",)
+
+
+def test_policy_explanation_rejects_mismatched_rule_and_check_cardinality(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Explanation must not silently truncate declared rules when evidence cardinality diverges."""
+
+    policy = _policy()
+    original_rules = policy.rules
+    mutated = False
+
+    def shorten_declared_rules(*_arguments: object) -> dict[str, object]:
+        nonlocal mutated
+        if not mutated:
+            object.__setattr__(policy, "rules", original_rules[:-1])
+            mutated = True
+        return {}
+
+    monkeypatch.setattr(engine_module, "_rule_matches", lambda *_arguments: False)
+    monkeypatch.setattr(engine_module, "_rule_match_checks", shorten_declared_rules)
+
+    with pytest.raises(ValueError):
+        explain_policy_decision(policy, "trusted", "read")

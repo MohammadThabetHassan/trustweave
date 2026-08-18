@@ -1,0 +1,506 @@
+{
+  "$defs": {
+    "action": {
+      "enum": [
+        "read",
+        "write",
+        "sensitive",
+        "external"
+      ]
+    },
+    "decision": {
+      "enum": [
+        "allow",
+        "deny",
+        "require_approval"
+      ]
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/decision"
+        },
+        "flow": {
+          "$ref": "#/$defs/flow"
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rule_identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "severity": {
+          "$ref": "#/$defs/severity"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "tool": {
+          "$ref": "#/$defs/tool"
+        }
+      },
+      "required": [
+        "flow",
+        "source",
+        "tool",
+        "decision",
+        "severity",
+        "rule_id",
+        "rationale"
+      ],
+      "type": "object"
+    },
+    "flow": {
+      "additionalProperties": false,
+      "properties": {
+        "purpose": {
+          "$ref": "#/$defs/text"
+        },
+        "purpose_tags": {
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source": {
+          "$ref": "#/$defs/identifier"
+        },
+        "tool": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "source",
+        "tool",
+        "purpose",
+        "purpose_tags"
+      ],
+      "type": "object"
+    },
+    "identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,63}$",
+      "type": "string"
+    },
+    "manifest": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "flows": {
+          "items": {
+            "$ref": "#/$defs/flow"
+          },
+          "maxItems": 10000,
+          "type": "array"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "schema_version": {
+          "const": "trustweave.dev/v1alpha1"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "maxItems": 1000,
+          "type": "array"
+        },
+        "tools": {
+          "items": {
+            "$ref": "#/$defs/tool"
+          },
+          "maxItems": 1000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "name",
+        "description",
+        "sources",
+        "tools",
+        "flows"
+      ],
+      "type": "object"
+    },
+    "policy": {
+      "additionalProperties": false,
+      "properties": {
+        "approval_control": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "binds_to": {
+                  "items": {
+                    "maxLength": 64,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "maxItems": 32,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                "fail_closed": {
+                  "type": "boolean"
+                },
+                "mechanism": {
+                  "$ref": "#/$defs/text"
+                }
+              },
+              "required": [
+                "mechanism",
+                "binds_to",
+                "fail_closed"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "classification_taxonomy": {
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "default_decision": {
+          "$ref": "#/$defs/decision"
+        },
+        "name": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/rule"
+          },
+          "maxItems": 1000,
+          "type": "array"
+        },
+        "schema_version": {
+          "enum": [
+            "trustweave.dev/v1alpha1",
+            "trustweave.dev/policy/v1alpha2"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "name",
+        "default_decision",
+        "classification_taxonomy",
+        "approval_control",
+        "rules"
+      ],
+      "type": "object"
+    },
+    "rule": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/decision"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "id": {
+          "$ref": "#/$defs/rule_identifier"
+        },
+        "purpose_tags": {
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "maxItems": 128,
+          "type": "array"
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        },
+        "required_controls": {
+          "items": {
+            "enum": [
+              "approval",
+              "approval.fail_closed"
+            ]
+          },
+          "maxItems": 2,
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/severity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_data_classification_at_least": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_data_classification_at_most": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_data_classifications": {
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 32,
+          "type": "array"
+        },
+        "source_identifiers": {
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "maxItems": 128,
+          "type": "array"
+        },
+        "source_trust": {
+          "items": {
+            "$ref": "#/$defs/trust"
+          },
+          "maxItems": 3,
+          "type": "array"
+        },
+        "tool_action_classes": {
+          "items": {
+            "$ref": "#/$defs/action"
+          },
+          "maxItems": 4,
+          "type": "array"
+        },
+        "tool_capabilities": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 128,
+          "type": "array"
+        },
+        "tool_identifiers": {
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "maxItems": 128,
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "source_trust",
+        "tool_action_classes",
+        "decision",
+        "rationale",
+        "source_data_classifications",
+        "tool_capabilities",
+        "severity",
+        "source_identifiers",
+        "tool_identifiers",
+        "purpose_tags",
+        "source_data_classification_at_least",
+        "source_data_classification_at_most",
+        "required_controls"
+      ],
+      "type": "object"
+    },
+    "rule_identifier": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "type": "string"
+    },
+    "severity": {
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "data_classification": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "trust": {
+          "$ref": "#/$defs/trust"
+        }
+      },
+      "required": [
+        "name",
+        "trust",
+        "data_classification",
+        "description"
+      ],
+      "type": "object"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "allow": {
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "deny": {
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "require_approval": {
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "allow",
+        "deny",
+        "require_approval"
+      ],
+      "type": "object"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    },
+    "tool": {
+      "additionalProperties": false,
+      "properties": {
+        "action_class": {
+          "$ref": "#/$defs/action"
+        },
+        "capabilities": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "action_class",
+        "capabilities",
+        "description"
+      ],
+      "type": "object"
+    },
+    "trust": {
+      "enum": [
+        "trusted",
+        "untrusted",
+        "conditional"
+      ]
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/bundle/v1alpha2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "maxItems": 10000,
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "limits": {
+      "items": {
+        "$ref": "#/$defs/text"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "type": "array"
+    },
+    "manifest": {
+      "$ref": "#/$defs/manifest"
+    },
+    "policy": {
+      "$ref": "#/$defs/policy"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/bundle/v1alpha2"
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    }
+  },
+  "required": [
+    "schema_version",
+    "manifest",
+    "policy",
+    "findings",
+    "summary",
+    "limits"
+  ],
+  "title": "TrustWeave Agent Security Bundle v1alpha2",
+  "type": "object"
+}

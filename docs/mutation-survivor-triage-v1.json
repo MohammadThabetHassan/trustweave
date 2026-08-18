@@ -1,0 +1,686 @@
+{
+  "classification_counts": {
+    "defensive": 0,
+    "equivalent": 96,
+    "needs_regression": 0
+  },
+  "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
+  "mutation_run": "6,044 killed / 6,140 generated (98.44% killed)",
+  "schema_version": "v1",
+  "survivor_count": 96,
+  "survivors": [
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x__parse_chain_manifest__mutmut_199: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -58,7 +58,7 @@\n         covers = tuple(\n             _text(value, f\"{path}.covers_classifications\")\n             for value in _sequence(\n-                node.get(\"covers_classifications\", []), f\"{path}.covers_classifications\"\n+                node.get(\"covers_classifications\", []), None\n             )\n         )\n         if kind == \"source\" and trust is None:\n",
+      "id": "trustweave.chain.x__parse_chain_manifest__mutmut_199",
+      "rationale": "The only change is the second argument passed to the _sequence(...) call: f\"{path}.covers_classifications\" -> None. This is a validation-path / error-location argument (used only for error messages), not the data being validated. It cannot change validation success, the parsed values, or any serialized public output other than error path text. Therefore it cannot change a successful public result or validation decision.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x__parse_chain_manifest__mutmut_57: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -23,7 +23,7 @@\n                 \"fail_closed\",\n                 \"covers_classifications\",\n             },\n-            path,\n+            None,\n         )\n         identifier = _text(node.get(\"id\"), f\"{path}.id\")\n         if identifier in nodes:\n",
+      "id": "trustweave.chain.x__parse_chain_manifest__mutmut_57",
+      "rationale": "The call-site argument 'path' was replaced with None for a validation helper. This argument is used for constructing error-path messages only and does not change validation logic or returned manifest parsing results.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether parsing succeeds or the produced chain manifest. The mutation only alters the path argument used for error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x__parse_chain_manifest__mutmut_87: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -28,7 +28,7 @@\n         identifier = _text(node.get(\"id\"), f\"{path}.id\")\n         if identifier in nodes:\n             raise ValidationError(f\"chain_manifest.nodes contains duplicate id: {identifier}\")\n-        kind = _text(node.get(\"kind\"), f\"{path}.kind\")\n+        kind = _text(node.get(\"kind\"), None)\n         if kind not in VALID_NODE_KINDS:\n             raise ValidationError(f\"{path}.kind must be one of {sorted(VALID_NODE_KINDS)}\")\n         allowed_fields_by_kind = {\n",
+      "id": "trustweave.chain.x__parse_chain_manifest__mutmut_87",
+      "rationale": "Only the path argument passed to _text when reading node.kind was replaced with None. This is a validation-path label for error messages and does not affect the validation predicate or output manifest.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether parsing succeeds or the produced chain manifest. The mutation only alters the path argument passed to _text used for error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_70: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -17,7 +17,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, None).get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_70",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_73: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -17,7 +17,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, 'XXfindingXX').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_73",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_74: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -17,7 +17,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, 'FINDING').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_74",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_79: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -18,7 +18,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, None).get('message')}\"\n             for finding in findings\n         )\n     else:\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_79",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_82: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -18,7 +18,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, 'XXfindingXX').get('message')}\"\n             for finding in findings\n         )\n     else:\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_82",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_83: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -18,7 +18,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, 'FINDING').get('message')}\"\n             for finding in findings\n         )\n     else:\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_83",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_review_declared_chains__mutmut_65: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -52,7 +52,7 @@\n                 state.incomplete_sanitizers,\n             )\n             if identity in seen_states:\n-                continue\n+                break\n             if states_explored >= max_states:\n                 budget_name = \"max_states\"\n                 break\n",
+      "id": "trustweave.chain.x_review_declared_chains__mutmut_65",
+      "rationale": "Traversal-state identity includes the complete path tuple. Each queued transition appends one node to that tuple, and starting nodes are unique, so no reachable traversal can enqueue the same identity twice. The mutated duplicate-state handling is therefore unreachable without changing parsing or traversal construction.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_review_declared_chains__mutmut_71: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -56,7 +56,7 @@\n             if states_explored >= max_states:\n                 budget_name = \"max_states\"\n                 break\n-            seen_states.add(identity)\n+            seen_states.add(None)\n             states_explored += 1\n             if node.action_class == \"external\":\n                 if state.path not in terminals and len(terminals) >= max_paths:\n",
+      "id": "trustweave.chain.x_review_declared_chains__mutmut_71",
+      "rationale": "Traversal-state identity includes the complete path tuple. Each queued transition appends one node to that tuple, and starting nodes are unique, so no reachable traversal can enqueue the same identity twice. The mutated duplicate-state handling is therefore unreachable without changing parsing or traversal construction.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__config_path__mutmut_4: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -3,7 +3,7 @@\n \n     if args.config is not None:\n         if not isinstance(args.config, Path):\n-            raise ValidationError(\"--config must identify a local configuration path\")\n+            raise ValidationError(\"XX--config must identify a local configuration pathXX\")\n         return args.config\n     if args.no_config_discovery:\n         raise ValidationError(\"--no-config-discovery requires an explicit --config path\")\n",
+      "id": "trustweave.commands.ci.x__config_path__mutmut_4",
+      "rationale": "Only the ValidationError message text was changed; the control flow and validation decision (raising ValidationError when args.config is not a Path) are unchanged. The mutation only affects the textual error message in the validation path and cannot change whether validation succeeds or the successful result.",
+      "regression_assertion": "The change is limited to the validation-path exception message and does not alter validation behavior."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__config_path__mutmut_7: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -6,5 +6,5 @@\n             raise ValidationError(\"--config must identify a local configuration path\")\n         return args.config\n     if args.no_config_discovery:\n-        raise ValidationError(\"--no-config-discovery requires an explicit --config path\")\n+        raise ValidationError(\"XX--no-config-discovery requires an explicit --config pathXX\")\n     return find_project_config(Path.cwd())\n",
+      "id": "trustweave.commands.ci.x__config_path__mutmut_7",
+      "rationale": "This mutation only changes the string passed to ValidationError when args.no_config_discovery is true and no config is provided. It does not alter control flow or the validation decision, only the exception message text.",
+      "regression_assertion": "The change is limited to the validation-path exception message and does not alter validation behavior."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_10: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -9,7 +9,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = True\n     try:\n         if output.exists():\n             output.replace(backup)\n",
+      "id": "trustweave.commands.ci.x__publish_directory__mutmut_10",
+      "rationale": "`backup` is removed before publication. If an output existed, both original and mutant set `replaced` true immediately after moving it to backup; if it did not, no backup remains for restoration. Consequently the altered initial flag and restoration boolean cannot change the only reachable recovery states.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_16: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -16,7 +16,7 @@\n             replaced = True\n         staging.replace(output)\n     except OSError as error:\n-        if replaced and backup.exists() and not output.exists():\n+        if replaced or backup.exists() and not output.exists():\n             backup.replace(output)\n         raise InputOutputError(f\"Could not publish CI artifacts to {output}: {error}\") from error\n     if backup.exists():\n",
+      "id": "trustweave.commands.ci.x__publish_directory__mutmut_16",
+      "rationale": "`backup` is removed before publication. If an output existed, both original and mutant set `replaced` true immediately after moving it to backup; if it did not, no backup remains for restoration. Consequently the altered initial flag and restoration boolean cannot change the only reachable recovery states.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_9: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -9,7 +9,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = None\n     try:\n         if output.exists():\n             output.replace(backup)\n",
+      "id": "trustweave.commands.ci.x__publish_directory__mutmut_9",
+      "rationale": "`backup` is removed before publication. If an output existed, both original and mutant set `replaced` true immediately after moving it to backup; if it did not, no backup remains for restoration. Consequently the altered initial flag and restoration boolean cannot change the only reachable recovery states.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__review_findings__mutmut_11: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -1,7 +1,7 @@\n def _review_findings(review: Mapping[str, Any]) -> list[Mapping[str, Any]]:\n     \"\"\"Return canonical review findings or diff signals from one selected local artifact.\"\"\"\n \n-    raw = review.get(\"findings\", review.get(\"signals\", []))\n+    raw = review.get(\"findings\", review.get(\"signals\", ))\n     if not isinstance(raw, list):\n         return []\n     return [finding for finding in raw if isinstance(finding, Mapping)]\n",
+      "id": "trustweave.commands.ci.x__review_findings__mutmut_11",
+      "rationale": "The mutation omits the inner default in review.get('signals', ) which makes that inner get default to None. As with other variants, when both 'findings' and 'signals' are missing raw becomes None but the subsequent isinstance check returns []\u2014the same public behavior as the original. When 'signals' exists its value is used the same way. Thus this syntactic change does not alter the documented public boundary.",
+      "regression_assertion": "The change only affects an internal default evaluation; the function still returns list of mapping results and returns [] for missing or non-list data. (No further public-behavior assertion beyond existing behavior.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__review_findings__mutmut_9: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -1,7 +1,7 @@\n def _review_findings(review: Mapping[str, Any]) -> list[Mapping[str, Any]]:\n     \"\"\"Return canonical review findings or diff signals from one selected local artifact.\"\"\"\n \n-    raw = review.get(\"findings\", review.get(\"signals\", []))\n+    raw = review.get(\"findings\", review.get(\"signals\", None))\n     if not isinstance(raw, list):\n         return []\n     return [finding for finding in raw if isinstance(finding, Mapping)]\n",
+      "id": "trustweave.commands.ci.x__review_findings__mutmut_9",
+      "rationale": "The mutation alters the inner default from [] to None (review.get('signals', None)). In the calling code, if both 'findings' and 'signals' are absent raw becomes None, and the subsequent isinstance(raw, list) check causes the function to return [] just like the original. For reviews that include 'signals' the value is returned identically. Therefore the change cannot affect the public return value or validation outcome.",
+      "regression_assertion": "The change only affects an internal default value; downstream the code rejects non-lists and returns [], so there is no change to the function's public return. (No regression assertion needed beyond verifying the function returns the same list results for inputs with and without 'findings'/'signals'.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__safe_sarif_path__mutmut_23: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -7,8 +7,7 @@\n     path = Path(configured)\n     windows_path = PureWindowsPath(configured)\n     if (\n-        path.is_absolute()\n-        or windows_path.is_absolute()\n+        path.is_absolute() and windows_path.is_absolute()\n         or windows_path.drive\n         or windows_path.root\n         or \"..\" in path.parts\n",
+      "id": "trustweave.commands.ci.x__safe_sarif_path__mutmut_23",
+      "rationale": "The mutated absolute/traversal predicates are redundant with later disjuncts in the same guard: a Windows root is independently rejected by `windows_path.root`, and a `..` component in a portable Path is also present in `PureWindowsPath(configured).parts`. The same containment exception is raised for every reachable input.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__safe_sarif_path__mutmut_24: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -11,7 +11,7 @@\n         or windows_path.is_absolute()\n         or windows_path.drive\n         or windows_path.root\n-        or \"..\" in path.parts\n+        or \"XX..XX\" in path.parts\n         or \"..\" in windows_path.parts\n         or path == Path(\".\")\n     ):\n",
+      "id": "trustweave.commands.ci.x__safe_sarif_path__mutmut_24",
+      "rationale": "The mutated absolute/traversal predicates are redundant with later disjuncts in the same guard: a Windows root is independently rejected by `windows_path.root`, and a `..` component in a portable Path is also present in `PureWindowsPath(configured).parts`. The same containment exception is raised for every reachable input.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__selected_stages__mutmut_11: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -5,7 +5,7 @@\n     if configured is None:\n         return DEFAULT_STAGES\n     if not isinstance(configured, tuple) or not all(isinstance(stage, str) for stage in configured):\n-        raise ValidationError(\"tool.trustweave.enabled_stages must be a validated stage list\")\n+        raise ValidationError(\"XXtool.trustweave.enabled_stages must be a validated stage listXX\")\n     unsupported = sorted(set(configured) - CI_SUPPORTED_STAGES)\n     if unsupported:\n         raise ValidationError(\n",
+      "id": "trustweave.commands.ci.x__selected_stages__mutmut_11",
+      "rationale": "Only the ValidationError message text for an invalid configured value was changed. The type check and raising of ValidationError remain the same, so successful results and validation decisions are unchanged; only the error string is affected.",
+      "regression_assertion": "The change is limited to the validation-path exception message and does not alter validation behavior."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__validate_stage_dependencies__mutmut_28: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -8,7 +8,7 @@\n             raise ValidationError(f\"{stage} stage requires selected stages: {missing}\")\n     if \"risk\" in selected and not (selected & REVIEW_STAGES):\n         raise ValidationError(\"risk stage requires at least one selected local review stage\")\n-    if \"sarif\" in selected and not (\"risk\" in selected or selected & REVIEW_STAGES):\n+    if \"sarif\" in selected and not (\"XXriskXX\" in selected or selected & REVIEW_STAGES):\n         raise ValidationError(\n             \"sarif stage requires risk or at least one selected local review stage\"\n         )\n",
+      "id": "trustweave.commands.ci.x__validate_stage_dependencies__mutmut_28",
+      "rationale": "The only possible distinguishing selection is `{risk, sarif}` without a review stage, but the preceding risk prerequisite rejects that set before the SARIF predicate executes. Whenever the SARIF predicate is reached with `risk`, either a review stage is also selected or the prior guard has already failed; the changed literal is unreachable.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x__validate_stage_dependencies__mutmut_29: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -8,7 +8,7 @@\n             raise ValidationError(f\"{stage} stage requires selected stages: {missing}\")\n     if \"risk\" in selected and not (selected & REVIEW_STAGES):\n         raise ValidationError(\"risk stage requires at least one selected local review stage\")\n-    if \"sarif\" in selected and not (\"risk\" in selected or selected & REVIEW_STAGES):\n+    if \"sarif\" in selected and not (\"RISK\" in selected or selected & REVIEW_STAGES):\n         raise ValidationError(\n             \"sarif stage requires risk or at least one selected local review stage\"\n         )\n",
+      "id": "trustweave.commands.ci.x__validate_stage_dependencies__mutmut_29",
+      "rationale": "The only possible distinguishing selection is `{risk, sarif}` without a review stage, but the preceding risk prerequisite rejects that set before the SARIF predicate executes. Whenever the SARIF predicate is reached with `risk`, either a review stage is also selected or the prior guard has already failed; the changed literal is unreachable.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_180: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -63,7 +63,7 @@\n     with tempfile.TemporaryDirectory(prefix=\".trustweave-ci-\", dir=output_dir.parent) as temporary:\n         staging = Path(temporary) / \"artifacts\"\n         staging.mkdir()\n-        manifest = None\n+        manifest = \"\"\n         policy = None\n         bundle_path: Path | None = None\n         test_path: Path | None = None\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_180",
+      "rationale": "`manifest` and `policy` are initialized only as lazy stage-local caches and subsequently read through `cache or parse_*`. Both `None` and the mutated empty string are falsy, so every reachable stage parses the same local input and produces identical artifacts.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_181: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -64,7 +64,7 @@\n         staging = Path(temporary) / \"artifacts\"\n         staging.mkdir()\n         manifest = None\n-        policy = None\n+        policy = \"\"\n         bundle_path: Path | None = None\n         test_path: Path | None = None\n         attestation_path: Path | None = None\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_181",
+      "rationale": "`manifest` and `policy` are initialized only as lazy stage-local caches and subsequently read through `cache or parse_*`. Both `None` and the mutated empty string are falsy, so every reachable stage parses the same local input and produces identical artifacts.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_182: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -65,7 +65,7 @@\n         staging.mkdir()\n         manifest = None\n         policy = None\n-        bundle_path: Path | None = None\n+        bundle_path: Path | None = \"\"\n         test_path: Path | None = None\n         attestation_path: Path | None = None\n         policy_review: Mapping[str, Any] | None = None\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_182",
+      "rationale": "The mutated path variables are guarded by stage dependencies: attestation requires scan and scenarios, and report requires attestation. A reachable attestation/report therefore replaces these initial values with paths; the only states where the initial value remains are rejected before any public artifact is produced. The altered `is None` behavior is unreachable.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_184: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -67,7 +67,7 @@\n         policy = None\n         bundle_path: Path | None = None\n         test_path: Path | None = None\n-        attestation_path: Path | None = None\n+        attestation_path: Path | None = \"\"\n         policy_review: Mapping[str, Any] | None = None\n         diff_review: Mapping[str, Any] | None = None\n         trace_review: Mapping[str, Any] | None = None\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_184",
+      "rationale": "The mutated path variables are guarded by stage dependencies: attestation requires scan and scenarios, and report requires attestation. A reachable attestation/report therefore replaces these initial values with paths; the only states where the initial value remains are rejected before any public artifact is produced. The altered `is None` behavior is unreachable.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_185: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -68,7 +68,7 @@\n         bundle_path: Path | None = None\n         test_path: Path | None = None\n         attestation_path: Path | None = None\n-        policy_review: Mapping[str, Any] | None = None\n+        policy_review: Mapping[str, Any] | None = \"\"\n         diff_review: Mapping[str, Any] | None = None\n         trace_review: Mapping[str, Any] | None = None\n         mcp_profile_review: Mapping[str, Any] | None = None\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_185",
+      "rationale": "These stage-local review variables are assigned only in their selected stage and are not read afterward; `raw_reviews` is the sole source for later review, SARIF, risk, and summary logic. When a stage is absent its initialized value is dead state, so changing `None` to an empty string cannot affect a reachable result.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_186: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -69,7 +69,7 @@\n         test_path: Path | None = None\n         attestation_path: Path | None = None\n         policy_review: Mapping[str, Any] | None = None\n-        diff_review: Mapping[str, Any] | None = None\n+        diff_review: Mapping[str, Any] | None = \"\"\n         trace_review: Mapping[str, Any] | None = None\n         mcp_profile_review: Mapping[str, Any] | None = None\n         chain_review: Mapping[str, Any] | None = None\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_186",
+      "rationale": "These stage-local review variables are assigned only in their selected stage and are not read afterward; `raw_reviews` is the sole source for later review, SARIF, risk, and summary logic. When a stage is absent its initialized value is dead state, so changing `None` to an empty string cannot affect a reachable result.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_187: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -70,7 +70,7 @@\n         attestation_path: Path | None = None\n         policy_review: Mapping[str, Any] | None = None\n         diff_review: Mapping[str, Any] | None = None\n-        trace_review: Mapping[str, Any] | None = None\n+        trace_review: Mapping[str, Any] | None = \"\"\n         mcp_profile_review: Mapping[str, Any] | None = None\n         chain_review: Mapping[str, Any] | None = None\n         risk_review: Mapping[str, Any] | None = None\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_187",
+      "rationale": "These stage-local review variables are assigned only in their selected stage and are not read afterward; `raw_reviews` is the sole source for later review, SARIF, risk, and summary logic. When a stage is absent its initialized value is dead state, so changing `None` to an empty string cannot affect a reachable result.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_188: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -71,7 +71,7 @@\n         policy_review: Mapping[str, Any] | None = None\n         diff_review: Mapping[str, Any] | None = None\n         trace_review: Mapping[str, Any] | None = None\n-        mcp_profile_review: Mapping[str, Any] | None = None\n+        mcp_profile_review: Mapping[str, Any] | None = \"\"\n         chain_review: Mapping[str, Any] | None = None\n         risk_review: Mapping[str, Any] | None = None\n         raw_reviews: dict[str, tuple[str, Mapping[str, Any]]] = {}\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_188",
+      "rationale": "These stage-local review variables are assigned only in their selected stage and are not read afterward; `raw_reviews` is the sole source for later review, SARIF, risk, and summary logic. When a stage is absent its initialized value is dead state, so changing `None` to an empty string cannot affect a reachable result.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_189: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -72,7 +72,7 @@\n         diff_review: Mapping[str, Any] | None = None\n         trace_review: Mapping[str, Any] | None = None\n         mcp_profile_review: Mapping[str, Any] | None = None\n-        chain_review: Mapping[str, Any] | None = None\n+        chain_review: Mapping[str, Any] | None = \"\"\n         risk_review: Mapping[str, Any] | None = None\n         raw_reviews: dict[str, tuple[str, Mapping[str, Any]]] = {}\n         artifacts: list[str] = []\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_189",
+      "rationale": "These stage-local review variables are assigned only in their selected stage and are not read afterward; `raw_reviews` is the sole source for later review, SARIF, risk, and summary logic. When a stage is absent its initialized value is dead state, so changing `None` to an empty string cannot affect a reachable result.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_505: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -179,7 +179,7 @@\n             )\n             artifacts.append(ATTESTATION_FILE)\n         if \"report\" in stages:\n-            if bundle_path is None or test_path is None or attestation_path is None:\n+            if bundle_path is None and test_path is None or attestation_path is None:\n                 raise ValidationError(\n                     \"report stage requires selected scan, scenarios, and attestation stages\"\n                 )\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_505",
+      "rationale": "The mutated path variables are guarded by stage dependencies: attestation requires scan and scenarios, and report requires attestation. A reachable attestation/report therefore replaces these initial values with paths; the only states where the initial value remains are rejected before any public artifact is produced. The altered `is None` behavior is unreachable.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_532: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -193,7 +193,7 @@\n \n         test_failed = (\n             test_path is not None\n-            and read_json(test_path).get(\"summary\", {}).get(\"status\") != \"passed\"\n+            and read_json(test_path).get(\"summary\", None).get(\"status\") != \"passed\"\n         )\n         risk_has_active_finding = risk_review is not None and any(\n             isinstance(finding, Mapping) and finding.get(\"risk_state\") in ACTIVE_RISK_STATES\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_532",
+      "rationale": "`test_path` is assigned only from `write_json(run_scenarios(...))`; the deterministic scenario producer always emits a mapping with `summary.status`. The missing-summary fallback is a defensive guard for an internally impossible artifact shape, so this mutation cannot affect any reachable coordinator output.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.commands.ci.x_handle__mutmut_534: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -193,7 +193,7 @@\n \n         test_failed = (\n             test_path is not None\n-            and read_json(test_path).get(\"summary\", {}).get(\"status\") != \"passed\"\n+            and read_json(test_path).get(\"summary\", ).get(\"status\") != \"passed\"\n         )\n         risk_has_active_finding = risk_review is not None and any(\n             isinstance(finding, Mapping) and finding.get(\"risk_state\") in ACTIVE_RISK_STATES\n",
+      "id": "trustweave.commands.ci.x_handle__mutmut_534",
+      "rationale": "`test_path` is assigned only from `write_json(run_scenarios(...))`; the deterministic scenario producer always emits a mapping with `summary.status`. The missing-summary fallback is a defensive guard for an internally impossible artifact shape, so this mutation cannot affect any reachable coordinator output.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.config.x__enabled_stages__mutmut_15: survived\n--- src/trustweave/config.py\n+++ src/trustweave/config.py\n@@ -8,7 +8,7 @@\n             \"tool.trustweave.enabled_stages must contain between 1 and \"\n             f\"{MAX_ENABLED_STAGES} stage names\"\n         )\n-    stages = tuple(_string(stage, \"tool.trustweave.enabled_stages[]\") for stage in value)\n+    stages = tuple(_string(stage, None) for stage in value)\n     unknown = sorted(set(stages) - VALID_WORKFLOW_STAGES)\n     if unknown:\n         raise ValidationError(\n",
+      "id": "trustweave.config.x__enabled_stages__mutmut_15",
+      "rationale": "Only the second argument passed to the internal _string(...) helper was changed from the validation-path 'tool.trustweave.enabled_stages[]' to None. That argument is used for error-path/context formatting; it does not affect successful return values or whether validation accepts or rejects input.",
+      "regression_assertion": "''\n\n(Changed value is a validation-path/context string only; no public behavior or decision is affected.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.config.x__enabled_stages__mutmut_18: survived\n--- src/trustweave/config.py\n+++ src/trustweave/config.py\n@@ -8,7 +8,7 @@\n             \"tool.trustweave.enabled_stages must contain between 1 and \"\n             f\"{MAX_ENABLED_STAGES} stage names\"\n         )\n-    stages = tuple(_string(stage, \"tool.trustweave.enabled_stages[]\") for stage in value)\n+    stages = tuple(_string(stage, \"XXtool.trustweave.enabled_stages[]XX\") for stage in value)\n     unknown = sorted(set(stages) - VALID_WORKFLOW_STAGES)\n     if unknown:\n         raise ValidationError(\n",
+      "id": "trustweave.config.x__enabled_stages__mutmut_18",
+      "rationale": "Only the validation-path/context string passed to _string(...) was altered. This only affects wording of internal error-path context, not validation success/failure or returned data.",
+      "regression_assertion": "''\n\n(Only error-path/context text changed; no public decision or result changes.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.config.x__enabled_stages__mutmut_19: survived\n--- src/trustweave/config.py\n+++ src/trustweave/config.py\n@@ -8,7 +8,7 @@\n             \"tool.trustweave.enabled_stages must contain between 1 and \"\n             f\"{MAX_ENABLED_STAGES} stage names\"\n         )\n-    stages = tuple(_string(stage, \"tool.trustweave.enabled_stages[]\") for stage in value)\n+    stages = tuple(_string(stage, \"TOOL.TRUSTWEAVE.ENABLED_STAGES[]\") for stage in value)\n     unknown = sorted(set(stages) - VALID_WORKFLOW_STAGES)\n     if unknown:\n         raise ValidationError(\n",
+      "id": "trustweave.config.x__enabled_stages__mutmut_19",
+      "rationale": "Only the path/context string argument to _string(...) was changed (case/formatting of the path). That cannot change validation outcomes or returned values, only error message content.",
+      "regression_assertion": "''\n\n(Only error-path/context text changed; no public decision or result changes.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.config.x__enabled_stages__mutmut_8: survived\n--- src/trustweave/config.py\n+++ src/trustweave/config.py\n@@ -3,7 +3,7 @@\n \n     if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):\n         raise ValidationError(\"tool.trustweave.enabled_stages must be a list of stage names\")\n-    if not value or len(value) > MAX_ENABLED_STAGES:\n+    if not value or len(value) >= MAX_ENABLED_STAGES:\n         raise ValidationError(\n             \"tool.trustweave.enabled_stages must contain between 1 and \"\n             f\"{MAX_ENABLED_STAGES} stage names\"\n",
+      "id": "trustweave.config.x__enabled_stages__mutmut_8",
+      "rationale": "The strict stage vocabulary contains fourteen unique values while MAX_ENABLED_STAGES is sixteen. A length-sixteen selection must contain either an unsupported stage or a duplicate, both rejected by later validation; thus no accepted configuration can distinguish the inclusive size bound.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.config.x_load_project_config__mutmut_70: survived\n--- src/trustweave/config.py\n+++ src/trustweave/config.py\n@@ -38,5 +38,5 @@\n                 raise ValidationError(f\"{path_name} must be a boolean\")\n             result[key] = value\n         else:  # pragma: no cover - reject_unknown_fields guards the contract above.\n-            raise ValidationError(f\"tool.trustweave: unsupported field {key!r}\")\n+            raise ValidationError(None)\n     return result\n",
+      "id": "trustweave.config.x_load_project_config__mutmut_70",
+      "rationale": "The `else` branch is statically unreachable because `reject_unknown_fields` runs before the configuration loop and raises for every key outside CONFIG_FIELDS. The changed exception payload cannot be observed on a reachable configuration.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.evidence.x__chain_digest_v1_or_v2__mutmut_7: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -2,4 +2,4 @@\n     schema_version: str, bundle_hash: str, test_hash: str, source_revision: str\n ) -> str:\n     chain_input = \"|\".join([schema_version, bundle_hash, test_hash, source_revision])\n-    return sha256(chain_input.encode(\"utf-8\")).hexdigest()\n+    return sha256(chain_input.encode(\"UTF-8\")).hexdigest()\n",
+      "id": "trustweave.evidence.x__chain_digest_v1_or_v2__mutmut_7",
+      "rationale": "Only the encoding name string was changed from 'utf-8' to 'UTF-8'. Encoding names are case-insensitive in Python and this does not change the bytes produced or the resulting digest, so public outputs are unchanged.",
+      "regression_assertion": "[]() => no-op"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.evidence.x__chain_digest_v3__mutmut_13: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -6,4 +6,4 @@\n         \"predicate\": predicate,\n         \"subject\": list(subjects),\n     }\n-    return sha256(canonical_json(material).encode(\"utf-8\")).hexdigest()\n+    return sha256(canonical_json(material).encode(\"UTF-8\")).hexdigest()\n",
+      "id": "trustweave.evidence.x__chain_digest_v3__mutmut_13",
+      "rationale": "Only the encoding name string was changed from 'utf-8' to 'UTF-8'. Encoding names are case-insensitive in Python and this does not change the bytes produced or the resulting digest, so public outputs are unchanged.",
+      "regression_assertion": "[]() => no-op"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.evidence.x__logical_name__mutmut_18: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -10,7 +10,7 @@\n         or \"\\\\\" in name\n         or candidate.is_absolute()\n         or len(candidate.parts) != 1\n-        or name in {\".\", \"..\"}\n+        or name in {\"XX.XX\", \"..\"}\n     ):\n         raise ValidationError(f\"{role} logical artifact name must be one relative file name\")\n     return name\n",
+      "id": "trustweave.evidence.x__logical_name__mutmut_18",
+      "rationale": "`Path('.')` has zero components, so the independent `len(candidate.parts) != 1` predicate rejects the dot logical name even if its explicit literal comparison is mutated. The same diagnostic is raised for every reachable input.",
+      "regression_assertion": "No regression assertion is required: the adjacent structural predicate provides a code-level proof that this changed literal cannot affect validation behavior."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.evidence.x__logical_name__mutmut_6: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -8,8 +8,7 @@\n         not name\n         or \"/\" in name\n         or \"\\\\\" in name\n-        or candidate.is_absolute()\n-        or len(candidate.parts) != 1\n+        or candidate.is_absolute() and len(candidate.parts) != 1\n         or name in {\".\", \"..\"}\n     ):\n         raise ValidationError(f\"{role} logical artifact name must be one relative file name\")\n",
+      "id": "trustweave.evidence.x__logical_name__mutmut_6",
+      "rationale": "The new separator guards reject every portable absolute or multi-component logical name before the mutated conjunction is relevant. A remaining non-separator one-component name is not absolute and has exactly one component, so both conditions are false; no accepted or rejected logical artifact name can distinguish the expressions.",
+      "regression_assertion": "No regression assertion is required: separator regressions exercise the reachable platform distinction, while this combined predicate is source-proven semantically redundant."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.evidence.x__verify_v1alpha3_attestation__mutmut_75: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -35,7 +35,7 @@\n             return False\n         name = file_binding.get(\"name\")\n         digest = file_binding.get(\"sha256\")\n-        if not isinstance(name, str) or not _valid_digest(digest):\n+        if not isinstance(name, str) and not _valid_digest(digest):\n             return False\n         if subjects_by_name.get(name) != digest:\n             return False\n",
+      "id": "trustweave.evidence.x__verify_v1alpha3_attestation__mutmut_75",
+      "rationale": "Subject bindings are populated only after a preceding validation loop that admits string names and valid digests. A non-string exact-file name either fails the original guard or cannot match the string-keyed subject map in the following comparison; an invalid digest still fails both forms of the guard. The AND mutation cannot make a malformed binding verify.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x__freeze_metadata_mapping__mutmut_14: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -17,7 +17,7 @@\n             raise ValueError(f\"canonical finding {path} keys must use lower_snake_case\")\n         item = value[key]\n         if isinstance(item, str):\n-            _validate_text(item, f\"{path}.{key}\")\n+            _validate_text(item, None)\n             frozen[key] = item\n         elif allow_boolean and isinstance(item, bool):\n             frozen[key] = item\n",
+      "id": "trustweave.findings.x__freeze_metadata_mapping__mutmut_14",
+      "rationale": "Only the path argument passed to _validate_text was changed (from f\"{path}.{key}\" to None). The path parameter is used for contextualizing error messages; it does not affect validation logic or successful results. Therefore this cannot change whether validation succeeds or the serialized/frozen output.",
+      "regression_assertion": "The changed argument is only used for error context; no regression assertion necessary."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x__freeze_metadata_mapping__mutmut_43: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -39,7 +39,7 @@\n                 )\n             normalized = tuple(item) if key in _ORDERED_SEQUENCE_FIELDS else tuple(sorted(item))\n             for entry in normalized:\n-                _validate_text(entry, f\"{path}.{key}[]\")\n+                _validate_text(entry, None)\n             frozen[key] = normalized\n         else:\n             raise ValueError(f\"canonical finding {path}.{key} has an unsupported value type\")\n",
+      "id": "trustweave.findings.x__freeze_metadata_mapping__mutmut_43",
+      "rationale": "Only the path argument passed to _validate_text for each entry (f\"{path}.{key}[]\") was changed to None. That argument only affects error message content; it does not change validation logic or the normalized output, so it cannot affect the public validation outcome.",
+      "regression_assertion": "The changed argument is only used for error context; no regression assertion necessary."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x__freeze_references__mutmut_13: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -10,7 +10,7 @@\n             entry,\n             \"references[]\",\n             _MAX_SUBJECT_FIELDS,\n-            allow_boolean=False,\n+            allow_boolean=None,\n             allow_integer=False,\n             allow_sequences=False,\n         )\n",
+      "id": "trustweave.findings.x__freeze_references__mutmut_13",
+      "rationale": "The three option values are consumed only as truth conditions in `_freeze_metadata_mapping`. Replacing literal `False` with `None` leaves each condition falsy, so reference acceptance, rejection, and serialization are identical for all inputs.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x__freeze_references__mutmut_14: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -11,7 +11,7 @@\n             \"references[]\",\n             _MAX_SUBJECT_FIELDS,\n             allow_boolean=False,\n-            allow_integer=False,\n+            allow_integer=None,\n             allow_sequences=False,\n         )\n         for entry in value\n",
+      "id": "trustweave.findings.x__freeze_references__mutmut_14",
+      "rationale": "The three option values are consumed only as truth conditions in `_freeze_metadata_mapping`. Replacing literal `False` with `None` leaves each condition falsy, so reference acceptance, rejection, and serialization are identical for all inputs.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x__freeze_references__mutmut_15: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -12,7 +12,7 @@\n             _MAX_SUBJECT_FIELDS,\n             allow_boolean=False,\n             allow_integer=False,\n-            allow_sequences=False,\n+            allow_sequences=None,\n         )\n         for entry in value\n     )\n",
+      "id": "trustweave.findings.x__freeze_references__mutmut_15",
+      "rationale": "The three option values are consumed only as truth conditions in `_freeze_metadata_mapping`. Replacing literal `False` with `None` leaves each condition falsy, so reference acceptance, rejection, and serialization are identical for all inputs.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x_parse_finding__mutmut_57: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -20,7 +20,7 @@\n     if unknown:\n         raise ValueError(f\"canonical finding has unknown fields: {', '.join(unknown)}\")\n     return LocalFinding(\n-        identifier=cast(str, document.get(\"id\")),\n+        identifier=cast(None, document.get(\"id\")),\n         severity=cast(str, document.get(\"severity\")),\n         message=cast(str, document.get(\"message\")),\n         evidence_kind=cast(str, document.get(\"evidence_kind\")),\n",
+      "id": "trustweave.findings.x_parse_finding__mutmut_57",
+      "rationale": "Only the typing.cast target was changed from cast(str, ...) to cast(None, ...). typing.cast is a runtime no-op (it returns the value unchanged), so this change cannot affect the function's runtime result or validation behavior.",
+      "regression_assertion": "[]() no-op"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x_parse_finding__mutmut_64: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -21,7 +21,7 @@\n         raise ValueError(f\"canonical finding has unknown fields: {', '.join(unknown)}\")\n     return LocalFinding(\n         identifier=cast(str, document.get(\"id\")),\n-        severity=cast(str, document.get(\"severity\")),\n+        severity=cast(None, document.get(\"severity\")),\n         message=cast(str, document.get(\"message\")),\n         evidence_kind=cast(str, document.get(\"evidence_kind\")),\n         subject=document.get(\"subject\", {}),\n",
+      "id": "trustweave.findings.x_parse_finding__mutmut_64",
+      "rationale": "Only the typing.cast type argument for severity was changed to None. typing.cast does not affect runtime behavior, so this mutation cannot change public results or validation decisions.",
+      "regression_assertion": "[]() no-op"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x_parse_finding__mutmut_71: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -22,7 +22,7 @@\n     return LocalFinding(\n         identifier=cast(str, document.get(\"id\")),\n         severity=cast(str, document.get(\"severity\")),\n-        message=cast(str, document.get(\"message\")),\n+        message=cast(None, document.get(\"message\")),\n         evidence_kind=cast(str, document.get(\"evidence_kind\")),\n         subject=document.get(\"subject\", {}),\n         location=document.get(\"location\"),\n",
+      "id": "trustweave.findings.x_parse_finding__mutmut_71",
+      "rationale": "Only the typing.cast type argument for message was changed to None. casting is a static hint and has no runtime effect, so the mutation cannot change returned values or validation.",
+      "regression_assertion": "[]() no-op"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.findings.x_parse_finding__mutmut_78: survived\n--- src/trustweave/findings.py\n+++ src/trustweave/findings.py\n@@ -23,7 +23,7 @@\n         identifier=cast(str, document.get(\"id\")),\n         severity=cast(str, document.get(\"severity\")),\n         message=cast(str, document.get(\"message\")),\n-        evidence_kind=cast(str, document.get(\"evidence_kind\")),\n+        evidence_kind=cast(None, document.get(\"evidence_kind\")),\n         subject=document.get(\"subject\", {}),\n         location=document.get(\"location\"),\n         references=document.get(\"references\", ()),\n",
+      "id": "trustweave.findings.x_parse_finding__mutmut_78",
+      "rationale": "Only the typing.cast type argument for evidence_kind was changed to None. typing.cast is a runtime no-op; therefore this mutation cannot alter public results or validation decisions.",
+      "regression_assertion": "[]() no-op"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_manifest__mutmut_171: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -57,7 +57,7 @@\n             )\n         capabilities = tuple(\n             validate_capability_pattern(\n-                capability, f\"manifest.tools[{index}].capabilities\", allow_namespace=False\n+                capability, f\"manifest.tools[{index}].capabilities\", allow_namespace=None\n             )\n             for capability in _sequence(\n                 tool.get(\"capabilities\"), f\"manifest.tools[{index}].capabilities\"\n",
+      "id": "trustweave.models.x_parse_manifest__mutmut_171",
+      "rationale": "`allow_namespace` is consumed only as a truth condition by capability validation. Both literal False and None are falsy, so strict manifest capability parsing accepts and rejects exactly the same values.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_376: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -184,7 +184,7 @@\n                 upper_rank = (\n                     classification_taxonomy.index(classification_at_most)\n                     if classification_at_most is not None\n-                    else len(classification_taxonomy) - 1\n+                    else len(classification_taxonomy) + 1\n                 )\n                 if not any(\n                     lower_rank <= classification_taxonomy.index(value) <= upper_rank\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_376",
+      "rationale": "The mutation changes the computed upper_rank from len(classification_taxonomy) - 1 to len(classification_taxonomy) + 1. For any value present in classification_taxonomy, its index() is in range 0..len-1, so the inclusive comparison lower_rank <= index <= upper_rank yields the same truth value. Therefore this numeric widening cannot change whether validation succeeds for values in the taxonomy and does not affect the documented public boundary.",
+      "regression_assertion": "Increasing the upper bound to len+1 cannot make any classification within the provided taxonomy change its acceptance because indices returned by classification_taxonomy.index(value) are always <= len-1."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_reject_unknown_fields__mutmut_14: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -8,6 +8,6 @@\n                 f\"{type(field).__name__} key {field!r}\"\n             )\n     for field in sorted(set(value) - allowed):\n-        suggestions = get_close_matches(field, sorted(allowed), n=1, cutoff=0.6)\n+        suggestions = get_close_matches(field, sorted(allowed), cutoff=0.6)\n         suggestion = f\"; did you mean {suggestions[0]!r}?\" if suggestions else \"\"\n         raise ValidationError(f\"{path}: unknown field {field!r}{suggestion}\")\n",
+      "id": "trustweave.models.x_reject_unknown_fields__mutmut_14",
+      "rationale": "The mutation changes only the requested number of close-match suggestions. The implementation always reads `suggestions[0]`, and `get_close_matches` orders the same best suggestion first regardless of whether one, two, or its default count is requested. The public diagnostic is therefore identical for every unknown field.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_reject_unknown_fields__mutmut_15: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -8,6 +8,6 @@\n                 f\"{type(field).__name__} key {field!r}\"\n             )\n     for field in sorted(set(value) - allowed):\n-        suggestions = get_close_matches(field, sorted(allowed), n=1, cutoff=0.6)\n+        suggestions = get_close_matches(field, sorted(allowed), n=1, )\n         suggestion = f\"; did you mean {suggestions[0]!r}?\" if suggestions else \"\"\n         raise ValidationError(f\"{path}: unknown field {field!r}{suggestion}\")\n",
+      "id": "trustweave.models.x_reject_unknown_fields__mutmut_15",
+      "rationale": "The change only removes the explicit cutoff keyword while leaving n=1; difflib.get_close_matches default cutoff is 0.6, so behavior is unchanged. This is only a formatting/argument-list change and cannot affect the public validation boundary.",
+      "regression_assertion": "Removing the explicit cutoff argument does not change behavior because get_close_matches(..., n=1) uses the same default cutoff=0.6; therefore the produced suggestion and ValidationError text remain unchanged."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_reject_unknown_fields__mutmut_17: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -8,6 +8,6 @@\n                 f\"{type(field).__name__} key {field!r}\"\n             )\n     for field in sorted(set(value) - allowed):\n-        suggestions = get_close_matches(field, sorted(allowed), n=1, cutoff=0.6)\n+        suggestions = get_close_matches(field, sorted(allowed), n=2, cutoff=0.6)\n         suggestion = f\"; did you mean {suggestions[0]!r}?\" if suggestions else \"\"\n         raise ValidationError(f\"{path}: unknown field {field!r}{suggestion}\")\n",
+      "id": "trustweave.models.x_reject_unknown_fields__mutmut_17",
+      "rationale": "The mutation changes only the requested number of close-match suggestions. The implementation always reads `suggestions[0]`, and `get_close_matches` orders the same best suggestion first regardless of whether one, two, or its default count is requested. The public diagnostic is therefore identical for every unknown field.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.policy_predicates.x__bounds_cover__mutmut_19: survived\n--- src/trustweave/policy_predicates.py\n+++ src/trustweave/policy_predicates.py\n@@ -22,7 +22,7 @@\n     first_upper = (\n         ranks[first.source_data_classification_at_most]\n         if first.source_data_classification_at_most is not None\n-        else len(ranks) - 1\n+        else len(ranks) + 1\n     )\n     later_upper = (\n         ranks[later.source_data_classification_at_most]\n",
+      "id": "trustweave.policy_predicates.x__bounds_cover__mutmut_19",
+      "rationale": "With a validated taxonomy, every `later_upper` rank is at most `len(ranks) - 1`. For an unbounded first upper bound, both the original `len(ranks) - 1` and mutated `len(ranks) + 1` are greater than or equal to every valid later upper rank, leaving the interval-containment result identical.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.policy_review.x_review_policy__mutmut_212: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -145,7 +145,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(None, {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
+      "id": "trustweave.policy_review.x_review_policy__mutmut_212",
+      "rationale": "Every finding constructed by `review_policy` contains only `id`, `severity`, and `message`; the function never creates a `subject` key before canonicalization. Each mutant therefore takes the same documented fallback `{'policy': policy.name}` for every reachable internal finding and cannot change the public review artifact.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.policy_review.x_review_policy__mutmut_216: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -145,7 +145,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(\"XXsubjectXX\", {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
+      "id": "trustweave.policy_review.x_review_policy__mutmut_216",
+      "rationale": "Every finding constructed by `review_policy` contains only `id`, `severity`, and `message`; the function never creates a `subject` key before canonicalization. Each mutant therefore takes the same documented fallback `{'policy': policy.name}` for every reachable internal finding and cannot change the public review artifact.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.policy_review.x_review_policy__mutmut_217: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -145,7 +145,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(\"SUBJECT\", {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
+      "id": "trustweave.policy_review.x_review_policy__mutmut_217",
+      "rationale": "Every finding constructed by `review_policy` contains only `id`, `severity`, and `message`; the function never creates a `subject` key before canonicalization. Each mutant therefore takes the same documented fallback `{'policy': policy.name}` for every reachable internal finding and cannot change the public review artifact.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_115: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -52,7 +52,7 @@\n             character not in \"0123456789abcdef\" for character in subject_digest\n         ):\n             raise ValidationError(f\"{path}.subject_digest must be a SHA-256 hex digest\")\n-        accepted_severity = _text(entry.get(\"accepted_severity\"), f\"{path}.accepted_severity\")\n+        accepted_severity = _text(entry.get(\"accepted_severity\"), None)\n         if accepted_severity not in SEVERITY_RANK:\n             raise ValidationError(\n                 f\"{path}.accepted_severity must be one of {list(VALID_SEVERITIES)}\"\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_115",
+      "rationale": "Only the second argument (error/path label) passed to the _text(...) validator was changed from a path string to None. This only affects the validation error path/message, not whether validation succeeds or the validated value returned, so it cannot change the public result or validation decision.",
+      "regression_assertion": "''\n\n(Equivalent change: no regression assertion required.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_168: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -69,7 +69,7 @@\n         entries[fingerprint] = RiskDecision(\n             fingerprint=fingerprint,\n             accepted_severity=accepted_severity,\n-            reason=_text(entry.get(\"reason\"), f\"{path}.reason\"),\n+            reason=_text(entry.get(\"reason\"), None),\n             owner=_text(entry.get(\"owner\"), f\"{path}.owner\"),\n             created_at=created_at,\n             expires_at=expires_at,\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_168",
+      "rationale": "Only the validation-path argument passed to _text(...) for the reason field was changed from a path string to None. That affects only error messages, not the validated value or whether validation passes.",
+      "regression_assertion": "''\n\n(Equivalent change: no regression assertion required.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_175: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -70,7 +70,7 @@\n             fingerprint=fingerprint,\n             accepted_severity=accepted_severity,\n             reason=_text(entry.get(\"reason\"), f\"{path}.reason\"),\n-            owner=_text(entry.get(\"owner\"), f\"{path}.owner\"),\n+            owner=_text(entry.get(\"owner\"), None),\n             created_at=created_at,\n             expires_at=expires_at,\n             rule_id=rule_id,\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_175",
+      "rationale": "Only the validation-path argument passed to _text(...) for the owner field was changed from a path string to None. This affects only error/reporting text and cannot change the validated owner value returned for valid input.",
+      "regression_assertion": "''\n\n(Equivalent change: no regression assertion required.)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_4: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -8,7 +8,7 @@\n \n     if document is None:\n         return {}\n-    root = _mapping(document, collection_name)\n+    root = _mapping(document, None)\n     document_schema_version = root.get(\"schema_version\")\n     if document_schema_version == legacy_schema_version:\n         raise ValidationError(\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_4",
+      "rationale": "Only the 'path' argument passed to the internal helper _mapping was changed from collection_name to None. This only affects the path used in error messages (validation-path context) and does not change validation logic, return values, or deterministic outputs.",
+      "regression_assertion": "\"\"\u00a0\n\nNote: change only affects error-path text; no assertion needed."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_59: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -34,7 +34,7 @@\n     for index, raw_entry in enumerate(_sequence(root.get(collection_name), collection_name)):\n         path = f\"{collection_name}[{index}]\"\n         entry = _mapping(raw_entry, path)\n-        reject_unknown_fields(entry, required, path)\n+        reject_unknown_fields(entry, required, None)\n         fingerprint = _text(entry.get(\"fingerprint\"), f\"{path}.fingerprint\")\n         if len(fingerprint) != 64 or any(\n             character not in \"0123456789abcdef\" for character in fingerprint\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_59",
+      "rationale": "Only the path argument given to reject_unknown_fields was changed from the concrete path to None. That only changes which path appears in error messages; it cannot alter validation decisions or public outputs.",
+      "regression_assertion": "\"\"\u00a0\n\nNote: change only affects error-path text; no assertion needed."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_65: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -35,7 +35,7 @@\n         path = f\"{collection_name}[{index}]\"\n         entry = _mapping(raw_entry, path)\n         reject_unknown_fields(entry, required, path)\n-        fingerprint = _text(entry.get(\"fingerprint\"), f\"{path}.fingerprint\")\n+        fingerprint = _text(entry.get(\"fingerprint\"), None)\n         if len(fingerprint) != 64 or any(\n             character not in \"0123456789abcdef\" for character in fingerprint\n         ):\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_65",
+      "rationale": "Only the path argument passed to the _text helper for the fingerprint field was removed (changed to None). This only affects error message path context and not validation logic or return values.",
+      "regression_assertion": "\"\"\u00a0\n\nNote: change only affects error-path text; no assertion needed."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_86: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -44,7 +44,7 @@\n             raise ValidationError(\n                 f\"{path}.fingerprint_schema_version must be {FINGERPRINT_SCHEMA_VERSION}\"\n             )\n-        rule_id = validate_rule_identifier(entry.get(\"rule_id\"), f\"{path}.rule_id\")\n+        rule_id = validate_rule_identifier(entry.get(\"rule_id\"), None)\n         if not rule_id.startswith(\"TW-\"):\n             raise ValidationError(f\"{path}.rule_id must begin with TW-\")\n         subject_digest = _text(entry.get(\"subject_digest\"), f\"{path}.subject_digest\")\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_86",
+      "rationale": "Only the path argument passed into validate_rule_identifier was changed from the per-entry path to None. That affects only the error/path context and not the validation semantics or outputs.",
+      "regression_assertion": "\"\"\u00a0\n\nNote: change only affects error-path text; no assertion needed."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__decision_entries__mutmut_99: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -47,7 +47,7 @@\n         rule_id = validate_rule_identifier(entry.get(\"rule_id\"), f\"{path}.rule_id\")\n         if not rule_id.startswith(\"TW-\"):\n             raise ValidationError(f\"{path}.rule_id must begin with TW-\")\n-        subject_digest = _text(entry.get(\"subject_digest\"), f\"{path}.subject_digest\")\n+        subject_digest = _text(entry.get(\"subject_digest\"), None)\n         if len(subject_digest) != 64 or any(\n             character not in \"0123456789abcdef\" for character in subject_digest\n         ):\n",
+      "id": "trustweave.risk.x__decision_entries__mutmut_99",
+      "rationale": "Only the path argument passed to _text for subject_digest was changed to None. This only changes error-path text and cannot change validation results or serialized outputs.",
+      "regression_assertion": "\"\"\u00a0\n\nNote: change only affects error-path text; no assertion needed."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__fingerprint__mutmut_14: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -7,4 +7,4 @@\n         \"id\": identifier,\n         \"subject\": subject,\n     }\n-    return sha256(canonical_json(material).encode(\"utf-8\")).hexdigest()\n+    return sha256(canonical_json(material).encode(\"UTF-8\")).hexdigest()\n",
+      "id": "trustweave.risk.x__fingerprint__mutmut_14",
+      "rationale": "Only the encoding name string for .encode() was changed from \"utf-8\" to \"UTF-8\". Python codec names are case-insensitive and this cannot change validation decisions, canonicalization, or the returned fingerprint digest.",
+      "regression_assertion": "Encoding name case is canonical-only; this cannot affect public boundary. No functional change: using 'utf-8' vs 'UTF-8' yields identical bytes and digest."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__stable_subject__mutmut_4: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -3,7 +3,7 @@\n \n     if value is None:\n         return {}\n-    subject = _mapping(value, path)\n+    subject = _mapping(value, None)\n     normalized: dict[str, Any] = {}\n     for key in sorted(subject):\n         if not isinstance(key, str):\n",
+      "id": "trustweave.risk.x__stable_subject__mutmut_4",
+      "rationale": "Only the path argument passed into an internal helper (_mapping) was changed from the local 'path' variable to None. This is a validation-path argument used for constructing error messages; it does not change validation logic, returned normalized structure, or serialized fields, so it cannot affect public results except possibly error message contents. Because this is a validation-path-only argument change, classify as equivalent.",
+      "regression_assertion": "N/A: equivalent change (validation-path argument only)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__subject_digest__mutmut_6: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -1,4 +1,4 @@\n def _subject_digest(subject: Mapping[str, Any]) -> str:\n     \"\"\"Bind a decision to the normalized subject identity without retaining mutable content.\"\"\"\n \n-    return sha256(canonical_json(dict(subject)).encode(\"utf-8\")).hexdigest()\n+    return sha256(canonical_json(dict(subject)).encode(\"UTF-8\")).hexdigest()\n",
+      "id": "trustweave.risk.x__subject_digest__mutmut_6",
+      "rationale": "Only the encoding name string for .encode() changed from \"utf-8\" to \"UTF-8\". Codec names are case-insensitive in Python, so the produced bytes and SHA256 digest are identical and public outputs cannot change.",
+      "regression_assertion": "Encoding name case is canonical-only; this cannot affect public boundary. No functional change: using 'utf-8' vs 'UTF-8' yields identical bytes and digest."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__timestamp__mutmut_12: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -1,7 +1,7 @@\n def _timestamp(value: Any, path: str) -> datetime:\n     text = _text(value, path)\n     try:\n-        parsed = datetime.fromisoformat(text.replace(\"Z\", \"+00:00\"))\n+        parsed = datetime.fromisoformat(text.replace(\"XXZXX\", \"+00:00\"))\n     except ValueError as error:\n         raise ValidationError(f\"{path} must be an ISO 8601 timestamp\") from error\n     if parsed.tzinfo is None:\n",
+      "id": "trustweave.risk.x__timestamp__mutmut_12",
+      "rationale": "The supported Python baseline is 3.11+, where `datetime.fromisoformat` natively accepts an uppercase trailing `Z`. Replacing `Z` before parsing is therefore semantically redundant for every accepted timestamp, while malformed inputs still raise the same validation error.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x__timestamp__mutmut_13: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -1,7 +1,7 @@\n def _timestamp(value: Any, path: str) -> datetime:\n     text = _text(value, path)\n     try:\n-        parsed = datetime.fromisoformat(text.replace(\"Z\", \"+00:00\"))\n+        parsed = datetime.fromisoformat(text.replace(\"z\", \"+00:00\"))\n     except ValueError as error:\n         raise ValidationError(f\"{path} must be an ISO 8601 timestamp\") from error\n     if parsed.tzinfo is None:\n",
+      "id": "trustweave.risk.x__timestamp__mutmut_13",
+      "rationale": "The supported Python baseline is 3.11+, where `datetime.fromisoformat` natively accepts an uppercase trailing `Z`. Replacing `Z` before parsing is therefore semantically redundant for every accepted timestamp, while malformed inputs still raise the same validation error.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_110: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -38,7 +38,7 @@\n             raise ValidationError(\n                 f\"{path}.fingerprint_schema_version must be {FINGERPRINT_SCHEMA_VERSION}\"\n             )\n-        accepted_severity = _text(finding.get(\"severity\"), f\"{path}.severity\")\n+        accepted_severity = _text(finding.get(\"severity\"), None)\n         if accepted_severity not in SEVERITY_RANK:\n             raise ValidationError(f\"{path}.severity must be one of {list(VALID_SEVERITIES)}\")\n         subject = _stable_subject(finding.get(\"subject\"), f\"{path}.subject\")\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_110",
+      "rationale": "Only the path argument to _text for severity was changed to None. This alteration only changes the error-path label and cannot affect validation logic or the produced baseline.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path argument passed to _text used for error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_121: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -41,7 +41,7 @@\n         accepted_severity = _text(finding.get(\"severity\"), f\"{path}.severity\")\n         if accepted_severity not in SEVERITY_RANK:\n             raise ValidationError(f\"{path}.severity must be one of {list(VALID_SEVERITIES)}\")\n-        subject = _stable_subject(finding.get(\"subject\"), f\"{path}.subject\")\n+        subject = _stable_subject(finding.get(\"subject\"), None)\n         if not subject:\n             raise ValidationError(f\"{path}.subject must bind a v1alpha2 decision\")\n         if fingerprint not in seen:\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_121",
+      "rationale": "Only the path argument passed to _stable_subject was changed to None. This is only used for error messages (validation-path) and does not modify validation decisions or output binding behavior.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path argument passed to _stable_subject used for error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_36: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -15,7 +15,7 @@\n     normalized_owner = _text(owner, \"baseline.owner\")\n     created = _timestamp(created_at, \"baseline.created_at\")\n     expiry = _timestamp(expires_at, \"baseline.expires_at\")\n-    review_timestamp = _timestamp(review.get(\"generated_at\"), \"risk_review.generated_at\")\n+    review_timestamp = _timestamp(review.get(\"generated_at\"), None)\n     if created < review_timestamp:\n         raise ValidationError(\"baseline.created_at must not precede review timestamp\")\n     if expiry <= created:\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_36",
+      "rationale": "Only the field name argument passed into _timestamp was changed from \"risk_review.generated_at\" to None. That argument is used for validation context/error messages; it does not change timestamp parsing or the success/failure of validation itself, so it cannot change successful public results or whether validation succeeds.",
+      "regression_assertion": "\"\"\"\"\"\"\"\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_42: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -15,7 +15,7 @@\n     normalized_owner = _text(owner, \"baseline.owner\")\n     created = _timestamp(created_at, \"baseline.created_at\")\n     expiry = _timestamp(expires_at, \"baseline.expires_at\")\n-    review_timestamp = _timestamp(review.get(\"generated_at\"), \"risk_review.generated_at\")\n+    review_timestamp = _timestamp(review.get(\"generated_at\"), \"XXrisk_review.generated_atXX\")\n     if created < review_timestamp:\n         raise ValidationError(\"baseline.created_at must not precede review timestamp\")\n     if expiry <= created:\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_42",
+      "rationale": "Only the field-name string passed to _timestamp was changed to a different literal. This only affects the phrasing of any validation error context and does not affect behavior or validation decisions.",
+      "regression_assertion": "\"\"\"\"\"\"\"\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_43: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -15,7 +15,7 @@\n     normalized_owner = _text(owner, \"baseline.owner\")\n     created = _timestamp(created_at, \"baseline.created_at\")\n     expiry = _timestamp(expires_at, \"baseline.expires_at\")\n-    review_timestamp = _timestamp(review.get(\"generated_at\"), \"risk_review.generated_at\")\n+    review_timestamp = _timestamp(review.get(\"generated_at\"), \"RISK_REVIEW.GENERATED_AT\")\n     if created < review_timestamp:\n         raise ValidationError(\"baseline.created_at must not precede review timestamp\")\n     if expiry <= created:\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_43",
+      "rationale": "Only the field-name string passed into _timestamp was changed (capitalization and punctuation). This is a validation-path argument change affecting only error context text, not validation outcome or public results.",
+      "regression_assertion": "\"\"\"\"\"\"\"\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_63: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -23,7 +23,7 @@\n     normalized_reference = _optional_text(reference, \"baseline.reference\")\n     entries: list[dict[str, str]] = []\n     seen: set[str] = set()\n-    for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), \"risk_review.findings\")):\n+    for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), None)):\n         path = f\"risk_review.findings[{index}]\"\n         finding = _mapping(raw_finding, path)\n         state = _text(finding.get(\"risk_state\"), f\"{path}.risk_state\")\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_63",
+      "rationale": "Only the second argument passed to _sequence was changed from the path string \"risk_review.findings\" to None. This is a validation-path argument used for error messages and does not affect validation logic or successful return values.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path string passed to _sequence used in error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_69: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -23,7 +23,7 @@\n     normalized_reference = _optional_text(reference, \"baseline.reference\")\n     entries: list[dict[str, str]] = []\n     seen: set[str] = set()\n-    for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), \"risk_review.findings\")):\n+    for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), \"XXrisk_review.findingsXX\")):\n         path = f\"risk_review.findings[{index}]\"\n         finding = _mapping(raw_finding, path)\n         state = _text(finding.get(\"risk_state\"), f\"{path}.risk_state\")\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_69",
+      "rationale": "Only the validation-path string passed to _sequence was changed (\"risk_review.findings\" -> \"XXrisk_review.findingsXX\"). This affects only error-path text, not validation decisions or returned data.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path string passed to _sequence used in error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_70: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -23,7 +23,7 @@\n     normalized_reference = _optional_text(reference, \"baseline.reference\")\n     entries: list[dict[str, str]] = []\n     seen: set[str] = set()\n-    for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), \"risk_review.findings\")):\n+    for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), \"RISK_REVIEW.FINDINGS\")):\n         path = f\"risk_review.findings[{index}]\"\n         finding = _mapping(raw_finding, path)\n         state = _text(finding.get(\"risk_state\"), f\"{path}.risk_state\")\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_70",
+      "rationale": "Only the validation-path string passed to _sequence was changed (\"risk_review.findings\" -> \"RISK_REVIEW.FINDINGS\"). This is purely a path/label for error messages and does not change validation behavior or outputs.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path string passed to _sequence used in error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_74: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -25,7 +25,7 @@\n     seen: set[str] = set()\n     for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), \"risk_review.findings\")):\n         path = f\"risk_review.findings[{index}]\"\n-        finding = _mapping(raw_finding, path)\n+        finding = _mapping(raw_finding, None)\n         state = _text(finding.get(\"risk_state\"), f\"{path}.risk_state\")\n         if state not in ACTIVE_RISK_STATES:\n             continue\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_74",
+      "rationale": "Only the second argument to _mapping was changed from the path variable to None. This is a validation-path argument for error messages and does not alter validation logic or return values.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path argument passed to _mapping used for error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_79: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -26,7 +26,7 @@\n     for index, raw_finding in enumerate(_sequence(review.get(\"findings\"), \"risk_review.findings\")):\n         path = f\"risk_review.findings[{index}]\"\n         finding = _mapping(raw_finding, path)\n-        state = _text(finding.get(\"risk_state\"), f\"{path}.risk_state\")\n+        state = _text(finding.get(\"risk_state\"), None)\n         if state not in ACTIVE_RISK_STATES:\n             continue\n         fingerprint = _text(finding.get(\"fingerprint\"), f\"{path}.fingerprint\")\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_79",
+      "rationale": "Only the path argument passed to _text was replaced with None. That argument is used for error-path text; the change does not affect validation decisions or successful outputs.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path argument passed to _text used for error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_create_baseline__mutmut_89: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -29,7 +29,7 @@\n         state = _text(finding.get(\"risk_state\"), f\"{path}.risk_state\")\n         if state not in ACTIVE_RISK_STATES:\n             continue\n-        fingerprint = _text(finding.get(\"fingerprint\"), f\"{path}.fingerprint\")\n+        fingerprint = _text(finding.get(\"fingerprint\"), None)\n         if len(fingerprint) != 64 or any(\n             character not in \"0123456789abcdef\" for character in fingerprint\n         ):\n",
+      "id": "trustweave.risk.x_create_baseline__mutmut_89",
+      "rationale": "Only the path argument passed to _text for the fingerprint was changed to None. This is strictly the validation-path used in error messages and does not change the acceptance or normalization logic.",
+      "regression_assertion": "Change only a validation-path argument; cannot affect whether validation succeeds or the produced baseline. The mutation only alters the path argument passed to _text used for error reporting."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.risk.x_normalize_findings__mutmut_55: survived\n--- src/trustweave/risk.py\n+++ src/trustweave/risk.py\n@@ -18,7 +18,7 @@\n         identifier = _text(finding.get(\"id\"), f\"{path}.id\")\n         severity = _LEGACY_SEVERITY_MAP.get(\n             _text(finding.get(\"severity\"), f\"{path}.severity\"),\n-            _text(finding.get(\"severity\"), f\"{path}.severity\"),\n+            _text(finding.get(\"severity\"), None),\n         )\n         if severity not in SEVERITY_RANK:\n             raise ValidationError(\n",
+      "id": "trustweave.risk.x_normalize_findings__mutmut_55",
+      "rationale": "The first `_text` call validates and returns the severity before the mutated second call is reached. For every reachable input, the second call receives the same already-valid value; for invalid input the first unmutated call raises. Its diagnostic-path change is therefore unobservable.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x__fingerprint__mutmut_7: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -1,3 +1,3 @@\n def _fingerprint(kind: str, identifier: str, message: str, artifact_uri: str) -> str:\n     material = \"\\0\".join((kind, identifier, message, artifact_uri))\n-    return sha256(material.encode(\"utf-8\")).hexdigest()\n+    return sha256(material.encode(\"UTF-8\")).hexdigest()\n",
+      "id": "trustweave.sarif.x__fingerprint__mutmut_7",
+      "rationale": "The only change is the case of the encoding name from 'utf-8' to 'UTF-8'. Python codec names are case-insensitive and both refer to the same encoding; this cannot affect the produced digest or any public behavior.",
+      "regression_assertion": "Encoding names are case-insensitive in Python; changing 'utf-8' to 'UTF-8' does not alter the produced hash or observable behavior."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_171: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -70,7 +70,7 @@\n                 results_by_fingerprint[canonical_fingerprint] = result\n                 continue\n \n-            locations = cast(list[dict[str, Any]], result[\"locations\"])\n+            locations = cast(None, result[\"locations\"])\n             if location not in locations:\n                 locations.append(location)\n             properties = cast(dict[str, Any], result[\"properties\"])\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_171",
+      "rationale": "The change only alters the first argument to typing.cast (the static type annotation expression). typing.cast is a no-op at runtime and returns the original value unchanged, so this cannot affect runtime behavior, validation decisions, serialized fields, or ordering of results.",
+      "regression_assertion": "N/A: equivalent change (static type annotation only)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_180: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -73,7 +73,7 @@\n             locations = cast(list[dict[str, Any]], result[\"locations\"])\n             if location not in locations:\n                 locations.append(location)\n-            properties = cast(dict[str, Any], result[\"properties\"])\n+            properties = cast(None, result[\"properties\"])\n             source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n             if kind not in source_kinds:\n                 source_kinds.append(kind)\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_180",
+      "rationale": "Only the type argument to typing.cast was changed. typing.cast performs no runtime behavior and does not modify the value, so this cannot change public results or validation outcomes.",
+      "regression_assertion": "N/A: equivalent change (static type annotation only)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_187: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -74,7 +74,7 @@\n             if location not in locations:\n                 locations.append(location)\n             properties = cast(dict[str, Any], result[\"properties\"])\n-            source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n+            source_kinds = cast(None, properties[\"trustweaveSourceKinds\"])\n             if kind not in source_kinds:\n                 source_kinds.append(kind)\n \n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_187",
+      "rationale": "This replaces a static typing argument to typing.cast with a different expression. typing.cast is a runtime no-op, so there is no effect on behavior, ordering, serialization, or validation.",
+      "regression_assertion": "N/A: equivalent change (static type annotation only)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_199: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -80,7 +80,7 @@\n \n     results = list(results_by_fingerprint.values())\n     for result in results:\n-        locations = cast(list[dict[str, Any]], result[\"locations\"])\n+        locations = cast(None, result[\"locations\"])\n         locations.sort(\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_199",
+      "rationale": "Only the type parameter passed to typing.cast was changed. casting is a static typing aid with no runtime effect; the subsequent sort and data access remain unchanged, so public output cannot be affected.",
+      "regression_assertion": "N/A: equivalent change (static type annotation only)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_217: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -84,7 +84,7 @@\n         locations.sort(\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n-        properties = cast(dict[str, Any], result[\"properties\"])\n+        properties = cast(None, result[\"properties\"])\n         source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n         source_kinds.sort()\n \n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_217",
+      "rationale": "The mutation only alters the type argument to typing.cast when extracting properties. typing.cast does nothing at runtime, so this change cannot affect the produced SARIF properties or their ordering.",
+      "regression_assertion": "N/A: equivalent change (static type annotation only)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_224: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -85,7 +85,7 @@\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n         properties = cast(dict[str, Any], result[\"properties\"])\n-        source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n+        source_kinds = cast(None, properties[\"trustweaveSourceKinds\"])\n         source_kinds.sort()\n \n     results.sort(\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_224",
+      "rationale": "Only the static typing argument of typing.cast was changed for source_kinds. Because typing.cast is a runtime no-op, this cannot change behavior, ordering, or serialized fields.",
+      "regression_assertion": "N/A: equivalent change (static type annotation only)"
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_242: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -92,7 +92,7 @@\n         key=lambda result: (\n             str(result[\"ruleId\"]),\n             str(result[\"message\"][\"text\"]),\n-            str(result[\"locations\"][0][\"physicalLocation\"][\"artifactLocation\"][\"uri\"]),\n+            str(None),\n         )\n     )\n     rules = [rules_by_id[identifier] for identifier in sorted(rules_by_id)]\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_242",
+      "rationale": "The third SARIF sort key is reached only when rule ID and rendered message are equal. Rendered messages include the review kind, and there is exactly one artifact URI per kind in the input mapping; equal first two keys therefore imply the same URI. Replacing that unreachable tie-breaker cannot alter result ordering.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    }
+  ],
+  "untriaged_count": 0
+}

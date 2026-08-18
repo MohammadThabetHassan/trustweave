@@ -15,6 +15,9 @@ from trustweave.report import render_diff_report
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
 POLICY = ROOT / "policies" / "default-policy.json"
+HISTORICAL_V011_BUNDLE = (
+    ROOT / "tests" / "fixtures" / "historical-v011" / "authentic-v0.1.1-bundle.json"
+)
 
 
 def _copy_document(path: Path) -> dict[str, object]:
@@ -77,7 +80,7 @@ def test_bundle_diff_rejects_unsupported_bundle_schema() -> None:
     invalid_bundle = json.loads(json.dumps(bundle))
     invalid_bundle["schema_version"] = "invalid"
 
-    with pytest.raises(ValidationError, match="base bundle must use"):
+    with pytest.raises(ValidationError, match="base bundle.schema_version"):
         diff_bundles(invalid_bundle, bundle)
 
 
@@ -148,24 +151,24 @@ def test_bundle_diff_inventories_sensitive_capability_growth() -> None:
 @pytest.mark.parametrize(
     ("mutate", "message"),
     [
-        (lambda bundle: bundle.pop("manifest"), "missing a manifest"),
+        (lambda bundle: bundle.pop("manifest"), "manifest"),
         (
             lambda bundle: bundle["manifest"].update({"sources": [{"trust": "trusted"}]}),
-            "named objects",
+            "sources",
         ),
         (
             lambda bundle: bundle["manifest"].update(
                 {"tools": [bundle["manifest"]["tools"][0], bundle["manifest"]["tools"][0]]}
             ),
-            "duplicate item name",
+            "tools",
         ),
         (
             lambda bundle: bundle.update({"findings": [{"flow": {"source": "source"}}]}),
-            "named tool",
+            "findings",
         ),
         (
             lambda bundle: bundle["manifest"]["tools"][0].update({"capabilities": [""]}),
-            "non-empty capability",
+            "capabilities",
         ),
     ],
 )
@@ -181,3 +184,18 @@ def test_bundle_diff_rejects_malformed_declared_artifact_components(
 
     with pytest.raises(ValidationError, match=message):
         diff_bundles(bundle, head)
+
+
+def test_bundle_diff_supports_historical_and_current_bundle_versions() -> None:
+    """A v1alpha2 diff explicitly records a compatible v1alpha1-to-v1alpha2 comparison."""
+
+    manifest = parse_manifest(_copy_document(MANIFEST))
+    policy = parse_policy(_copy_document(POLICY))
+    current = build_bundle(manifest, policy, generated_at="2026-08-15T00:00:00+00:00")
+    historical = _copy_document(HISTORICAL_V011_BUNDLE)
+
+    diff = diff_bundles(historical, current, generated_at="2026-08-15T00:00:00+00:00")
+
+    assert diff["schema_version"] == "trustweave.dev/bundle-diff/v1alpha2"
+    assert diff["base"]["bundle_schema_version"] == "trustweave.dev/bundle/v1alpha1"
+    assert diff["head"]["bundle_schema_version"] == "trustweave.dev/bundle/v1alpha2"

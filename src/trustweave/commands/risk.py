@@ -36,6 +36,12 @@ def register(subcommands: Any) -> None:
     )
     baseline_create.add_argument("--expires-at", required=True, help="ISO 8601 expiry timestamp.")
     baseline_create.add_argument(
+        "--owner", required=True, help="Explicit local decision owner label."
+    )
+    baseline_create.add_argument(
+        "--reference", help="Optional local ticket or reviewer reference identifier."
+    )
+    baseline_create.add_argument(
         "--output", type=Path, required=True, help="Baseline JSON output path."
     )
     baseline_validate = baseline_commands.add_parser(
@@ -97,7 +103,14 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
 
     if args.command == "baseline":
         if args.baseline_command == "create":
-            baseline = create_baseline(read_json(args.review), args.reason, args.expires_at)
+            baseline = create_baseline(
+                read_json(args.review),
+                args.reason,
+                args.expires_at,
+                owner=args.owner,
+                created_at=generated_at,
+                reference=args.reference,
+            )
             path = write_json(args.output, baseline)
             return f"Wrote local risk baseline: {path}", 0
         validate_decision_document(load_document(args.input), "baseline")

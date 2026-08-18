@@ -46,7 +46,14 @@ def _logical_name(name: str | None, path: Path, role: str) -> str:
     if name is None:
         return str(path)
     candidate = Path(name)
-    if not name or candidate.is_absolute() or len(candidate.parts) != 1 or name in {".", ".."}:
+    if (
+        not name
+        or "/" in name
+        or "\\" in name
+        or candidate.is_absolute()
+        or len(candidate.parts) != 1
+        or name in {".", ".."}
+    ):
         raise ValidationError(f"{role} logical artifact name must be one relative file name")
     return name
 

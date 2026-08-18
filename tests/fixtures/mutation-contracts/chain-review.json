@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "evidence_kind": "declared_chain_configuration",
+      "id": "TW-CHAIN-001",
+      "location": {
+        "path_identity": "inbox -> records -> email"
+      },
+      "message": "An explicitly declared untrusted path reaches sensitive data and an external action.",
+      "properties": {
+        "classifications": [
+          "confidential"
+        ]
+      },
+      "severity": "high",
+      "subject": {
+        "path": [
+          "inbox",
+          "records",
+          "email"
+        ]
+      }
+    },
+    {
+      "evidence_kind": "declared_chain_configuration",
+      "id": "TW-CHAIN-002",
+      "location": {
+        "path_identity": "inbox -> records -> email"
+      },
+      "message": "The declared sensitive-data path reaches an external action without a declared fail-closed approval boundary.",
+      "properties": {
+        "classifications": [
+          "confidential"
+        ]
+      },
+      "severity": "high",
+      "subject": {
+        "path": [
+          "inbox",
+          "records",
+          "email"
+        ]
+      }
+    }
+  ],
+  "generated_at": "2026-08-15T00:00:00+00:00",
+  "limits": [
+    "Chain findings reflect only supplied declared nodes, edges, and bounded static metadata propagation. They do not prove a runtime data path, tool behavior, vulnerability, or deployed control state."
+  ],
+  "paths": [
+    {
+      "identity": [
+        "inbox",
+        "records",
+        "email"
+      ]
+    }
+  ],
+  "schema_version": "trustweave.dev/chain-review/v1alpha1",
+  "summary": {
+    "declared_nodes": 3,
+    "edges_traversed": 2,
+    "paths": 1,
+    "review_findings": 2,
+    "states_explored": 3
+  }
+}
+

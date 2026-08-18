@@ -1,0 +1,38 @@
+{
+  "findings": [],
+  "generated_at": "2026-08-15T00:00:00+00:00",
+  "limits": [
+    "This review validates a user-supplied local metadata profile only. It does not discover, connect to, authenticate with, or execute an MCP server.",
+    "The resource URI is treated as an identifier. No token, authorization header, server metadata, or remote capability is retrieved or validated.",
+    "A review finding is an invitation to confirm configuration and authorization design; it is not an MCP conformance or security verdict."
+  ],
+  "mappings": [
+    {
+      "declared_action_class": "read",
+      "manifest_action_class": "read",
+      "manifest_tool": "search_knowledge_base",
+      "mcp_tool": "knowledge.search",
+      "status": "clear"
+    },
+    {
+      "declared_action_class": "sensitive",
+      "manifest_action_class": "sensitive",
+      "manifest_tool": "lookup_customer_record",
+      "mcp_tool": "customer.lookup",
+      "status": "clear"
+    }
+  ],
+  "profile": {
+    "authorization_expected": true,
+    "name": "synthetic-support-service",
+    "resource_uri": "https://mcp.synthetic.invalid/support",
+    "transport": "http"
+  },
+  "schema_version": "trustweave.dev/mcp-profile-review/v1alpha1",
+  "summary": {
+    "review_findings": 0,
+    "status": "clear",
+    "tools_reviewed": 2
+  }
+}
+

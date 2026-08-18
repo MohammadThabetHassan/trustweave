@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-08-15T00:00:00+00:00",
+  "limits": [
+    "Scenarios are synthetic policy assertions and do not invoke tools, models, or network resources.",
+    "A passing scenario demonstrates this policy's local decision only, not deployed-system security."
+  ],
+  "policy": "support-agent-boundary-policy",
+  "results": [
+    {
+      "category": "general",
+      "description": "A trusted request may use a declared read-only retrieval action.",
+      "expected_decision": "allow",
+      "id": "TW-SC-001",
+      "input": {
+        "source_trust": "trusted",
+        "tool_action_class": "read"
+      },
+      "observed_decision": "allow",
+      "rationale": "A trusted request may use a declared read-only retrieval action.",
+      "references": [],
+      "rule_id": "TW-001",
+      "status": "passed",
+      "title": "TW-SC-001"
+    },
+    {
+      "category": "general",
+      "description": "Conditional confidential context requires approval before a mock external action.",
+      "expected_decision": "require_approval",
+      "id": "TW-SC-002",
+      "input": {
+        "source_trust": "conditional",
+        "tool_action_class": "external"
+      },
+      "observed_decision": "require_approval",
+      "rationale": "Conditional confidential context requires approval before a mock external action.",
+      "references": [],
+      "rule_id": "TW-002",
+      "status": "passed",
+      "title": "TW-SC-002"
+    },
+    {
+      "category": "general",
+      "description": "Untrusted retrieved text cannot directly cause an external mock action.",
+      "expected_decision": "deny",
+      "id": "TW-SC-003",
+      "input": {
+        "source_trust": "untrusted",
+        "tool_action_class": "external"
+      },
+      "observed_decision": "deny",
+      "rationale": "Untrusted retrieved text cannot directly cause an external mock action.",
+      "references": [],
+      "rule_id": "TW-004",
+      "status": "passed",
+      "title": "TW-SC-003"
+    },
+    {
+      "category": "general",
+      "description": "Untrusted content cannot directly cause sensitive data access.",
+      "expected_decision": "deny",
+      "id": "TW-SC-004",
+      "input": {
+        "source_trust": "untrusted",
+        "tool_action_class": "sensitive"
+      },
+      "observed_decision": "deny",
+      "rationale": "Untrusted content cannot directly cause sensitive data access.",
+      "references": [],
+      "rule_id": "TW-003",
+      "status": "passed",
+      "title": "TW-SC-004"
+    },
+    {
+      "category": "general",
+      "description": "An unmatched conditional write flow fails closed under the default policy.",
+      "expected_decision": "deny",
+      "id": "TW-SC-005",
+      "input": {
+        "source_trust": "conditional",
+        "tool_action_class": "write"
+      },
+      "observed_decision": "deny",
+      "rationale": "An unmatched conditional write flow fails closed under the default policy.",
+      "references": [],
+      "rule_id": null,
+      "status": "passed",
+      "title": "TW-SC-005"
+    }
+  ],
+  "schema_version": "trustweave.dev/test-results/v1alpha1",
+  "summary": {
+    "failed": 0,
+    "passed": 5,
+    "status": "passed",
+    "total": 5
+  }
+}
+

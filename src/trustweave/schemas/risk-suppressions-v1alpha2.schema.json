@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustweave.dev/schemas/risk-suppressions/v1alpha2",
+  "title": "TrustWeave Local Risk Suppressions v1alpha2",
+  "type": "object",
+  "required": ["schema_version", "suppressions"],
+  "properties": {
+    "schema_version": {"const": "trustweave.dev/risk-suppressions/v1alpha2"},
+    "suppressions": {
+      "type": "array",
+      "maxItems": 1000000,
+      "items": {"$ref": "#/$defs/decision"}
+    }
+  },
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "rule_id": {"type": "string", "pattern": "^TW-[A-Z0-9-]{1,120}$"},
+    "severity": {"enum": ["critical", "high", "medium", "low", "info"]},
+    "decision": {
+      "type": "object",
+      "required": ["fingerprint", "fingerprint_schema_version", "rule_id", "subject_digest", "accepted_severity", "reason", "owner", "created_at", "expires_at"],
+      "properties": {
+        "fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "fingerprint_schema_version": {"const": "trustweave/fingerprint/v3"},
+        "rule_id": {"$ref": "#/$defs/rule_id"},
+        "subject_digest": {"$ref": "#/$defs/fingerprint"},
+        "accepted_severity": {"$ref": "#/$defs/severity"},
+        "reason": {"$ref": "#/$defs/text"},
+        "owner": {"$ref": "#/$defs/text"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "reference": {"$ref": "#/$defs/text"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

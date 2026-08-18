@@ -1,0 +1,22 @@
+usage: trustweave ci [-h] [--config CONFIG] [--no-config-discovery] [--output-dir OUTPUT_DIR]
+                     [--source-revision SOURCE_REVISION] [--coverage] [--exit-on-review]
+                     [--fail-on {critical,high,medium,low,info,review,none}]
+                     [--format {text,json,markdown}] [--quiet]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       Explicit local trustweave.toml path.
+  --no-config-discovery
+                        Require --config instead of discovering trustweave.toml from the current
+                        directory.
+  --output-dir OUTPUT_DIR
+                        Override the configured local artifact directory.
+  --source-revision SOURCE_REVISION
+                        Source revision recorded in the local evidence attestation.
+  --coverage            Include policy rule coverage diagnostics.
+  --exit-on-review      Return status 1 when a selected review stage reports any finding.
+  --fail-on {critical,high,medium,low,info,review,none}
+                        Return status 1 at the selected severity, or for any finding with review.
+  --format {text,json,markdown}
+                        Render the final local CI summary as text, JSON, or Markdown.
+  --quiet               Suppress the final CI summary message.

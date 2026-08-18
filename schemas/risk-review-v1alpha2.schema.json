@@ -1,0 +1,394 @@
+{
+  "$defs": {
+    "count": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_schema_version": {
+          "enum": [
+            "trustweave.dev/policy-review/v1alpha1",
+            "trustweave.dev/trace-review/v1alpha1",
+            "trustweave.dev/mcp-profile-review/v1alpha1",
+            "trustweave.dev/bundle-diff/v1alpha1",
+            "trustweave.dev/chain-review/v1alpha1",
+            "trustweave.dev/bundle-diff/v1alpha2"
+          ]
+        },
+        "evidence_kind": {
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "fingerprint_schema_version": {
+          "const": "trustweave/fingerprint/v3"
+        },
+        "id": {
+          "pattern": "^TW-[A-Z0-9-]{1,120}$",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/metadata"
+        },
+        "message": {
+          "$ref": "#/$defs/text"
+        },
+        "properties": {
+          "$ref": "#/$defs/metadata"
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        },
+        "reason": {
+          "$ref": "#/$defs/text"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/reference"
+          },
+          "maxItems": 64,
+          "type": "array"
+        },
+        "remediation": {
+          "$ref": "#/$defs/text"
+        },
+        "risk_state": {
+          "enum": [
+            "new",
+            "baselined",
+            "suppressed",
+            "expired_baseline",
+            "expired_suppression",
+            "not_yet_applicable_baseline",
+            "not_yet_applicable_suppression",
+            "severity_escalated_baseline",
+            "severity_escalated_suppression"
+          ]
+        },
+        "severity": {
+          "$ref": "#/$defs/severity"
+        },
+        "source_artifact_paths": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "pattern": "^[^\\u0000-\\u001F\\u007F]{1,4096}$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "subject": {
+          "$ref": "#/$defs/metadata"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "artifact_schema_version",
+        "evidence_kind",
+        "id",
+        "severity",
+        "message",
+        "fingerprint_schema_version",
+        "fingerprint",
+        "risk_state"
+      ],
+      "type": "object"
+    },
+    "fingerprint": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "$ref": "#/$defs/metadata_value"
+      },
+      "maxProperties": 64,
+      "propertyNames": {
+        "$ref": "#/$defs/metadata_key"
+      },
+      "type": "object"
+    },
+    "metadata_key": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "type": "string"
+    },
+    "metadata_value": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/text"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/text"
+          },
+          "maxItems": 128,
+          "type": "array"
+        }
+      ]
+    },
+    "mismatched_decision": {
+      "additionalProperties": false,
+      "properties": {
+        "fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "mismatches": {
+          "items": {
+            "enum": [
+              "rule_id",
+              "subject_digest"
+            ]
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "fingerprint",
+        "mismatches"
+      ],
+      "type": "object"
+    },
+    "mismatched_decisions": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline": {
+          "items": {
+            "$ref": "#/$defs/mismatched_decision"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "suppressions": {
+          "items": {
+            "$ref": "#/$defs/mismatched_decision"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "baseline",
+        "suppressions"
+      ],
+      "type": "object"
+    },
+    "orphaned_decisions": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline": {
+          "items": {
+            "$ref": "#/$defs/fingerprint"
+          },
+          "maxItems": 1000000,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "suppressions": {
+          "items": {
+            "$ref": "#/$defs/fingerprint"
+          },
+          "maxItems": 1000000,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "baseline",
+        "suppressions"
+      ],
+      "type": "object"
+    },
+    "reference": {
+      "additionalProperties": {
+        "$ref": "#/$defs/text"
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "$ref": "#/$defs/metadata_key"
+      },
+      "type": "object"
+    },
+    "severity": {
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "active_by_severity": {
+          "additionalProperties": false,
+          "properties": {
+            "critical": {
+              "$ref": "#/$defs/count"
+            },
+            "high": {
+              "$ref": "#/$defs/count"
+            },
+            "info": {
+              "$ref": "#/$defs/count"
+            },
+            "low": {
+              "$ref": "#/$defs/count"
+            },
+            "medium": {
+              "$ref": "#/$defs/count"
+            }
+          },
+          "required": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info"
+          ],
+          "type": "object"
+        },
+        "baselined": {
+          "$ref": "#/$defs/count"
+        },
+        "expired_baseline": {
+          "$ref": "#/$defs/count"
+        },
+        "expired_suppression": {
+          "$ref": "#/$defs/count"
+        },
+        "findings": {
+          "$ref": "#/$defs/count"
+        },
+        "mismatched_baseline": {
+          "$ref": "#/$defs/count"
+        },
+        "mismatched_suppressions": {
+          "$ref": "#/$defs/count"
+        },
+        "new": {
+          "$ref": "#/$defs/count"
+        },
+        "not_yet_applicable_baseline": {
+          "$ref": "#/$defs/count"
+        },
+        "not_yet_applicable_suppression": {
+          "$ref": "#/$defs/count"
+        },
+        "orphaned_baseline": {
+          "$ref": "#/$defs/count"
+        },
+        "orphaned_suppressions": {
+          "$ref": "#/$defs/count"
+        },
+        "severity_escalated_baseline": {
+          "$ref": "#/$defs/count"
+        },
+        "severity_escalated_suppression": {
+          "$ref": "#/$defs/count"
+        },
+        "status": {
+          "enum": [
+            "clear",
+            "review_required"
+          ]
+        },
+        "suppressed": {
+          "$ref": "#/$defs/count"
+        }
+      },
+      "required": [
+        "findings",
+        "new",
+        "baselined",
+        "suppressed",
+        "expired_baseline",
+        "expired_suppression",
+        "orphaned_baseline",
+        "orphaned_suppressions",
+        "active_by_severity",
+        "status",
+        "not_yet_applicable_baseline",
+        "not_yet_applicable_suppression",
+        "severity_escalated_baseline",
+        "severity_escalated_suppression"
+      ],
+      "type": "object"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/risk-review/v1alpha2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "maxItems": 1000000,
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "limits": {
+      "items": {
+        "$ref": "#/$defs/text"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "mismatched_decisions": {
+      "$ref": "#/$defs/mismatched_decisions"
+    },
+    "orphaned_decisions": {
+      "$ref": "#/$defs/orphaned_decisions"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/risk-review/v1alpha2"
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    }
+  },
+  "required": [
+    "schema_version",
+    "findings",
+    "summary",
+    "orphaned_decisions",
+    "limits",
+    "generated_at"
+  ],
+  "title": "TrustWeave Risk Review v1alpha2",
+  "type": "object"
+}

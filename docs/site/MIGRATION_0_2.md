@@ -24,7 +24,10 @@ At the time this documentation was prepared, 0.2.0 is release-prepared and await
 | Chain budgets | Paths, states, and edges stop before exceeding the configured budget | Treat `TW-CHAIN-004` as incomplete analysis and review or raise limits deliberately |
 | Policy v1alpha2 | Identifier, purpose-tag, classification-bound, capability, and control predicates are validated strictly | Correct invalid taxonomy references, duplicate predicates, unknown controls, and empty intersections |
 | Rule guidance | Built-in review rules are registry-backed in JSON, Markdown, SARIF, and the rule catalog | Keep local extensions separate from built-in `TW-*` review identifiers |
-| Configuration | `trustweave.toml` is strict, typed, local-only, and bounded in discovery | Remove unknown fields, remote includes, secret fields, and environment interpolation assumptions |
+| Historical bundle evidence | v1alpha1 bundles must satisfy the authentic historical semantic contract; v1alpha2 remains strict | Preserve valid historical artifacts, regenerate malformed evidence from source inputs, and generate current bundles rather than hand-editing them |
+| Risk lifecycle documents | v1alpha2 decisions require valid v3 fingerprints, provenance, duplicate-free entries, and exact expiry behavior | Recreate decisions through the strict local lifecycle workflow; an expiry equal to review time is expired |
+| Configuration | `trustweave.toml` is strict, typed, local-only, and bounded in discovery | Rename `baseline` / `candidate` to `baseline_bundle` / `candidate_bundle`; remove unknown fields, remote includes, secret fields, and environment interpolation assumptions |
+| CI stages | Fourteen named local stages are supported with declared input dependencies | Select only `validate`, `scan`, `scenarios`, `policy_review`, `policy_coverage`, `diff`, `trace_review`, `mcp_profile_review`, `chain_review`, `risk`, `sarif`, `attestation`, `report`, and `summary` |
 | SARIF | Exports use local pinned-schema conformance tests and canonical fingerprint deduplication | Rebuild SARIF from source review artifacts rather than hand-editing exports |
 
 ## Verify a migrated project

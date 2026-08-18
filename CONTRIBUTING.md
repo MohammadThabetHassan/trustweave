@@ -14,7 +14,7 @@ Thank you for helping improve TrustWeave. The project welcomes contributions tha
 
 Use the repository’s **Bug report** issue form for reproducible defects in TrustWeave and the **Bounded feature request** form for scoped ideas. For a larger change, describe the reviewer decision, deterministic evidence, tests, compatibility impact, and safety boundary before investing in an implementation. Suspected vulnerabilities must follow the private route in [SECURITY.md](SECURITY.md), not a public issue or pull request.
 
-External contributors should normally propose a pull request from a branch or fork. The repository owner may use documented direct-main maintenance for reviewed maintainer work; that policy does not grant direct-main access to other contributors.
+External contributors should propose a pull request from a branch or fork. Review, merge, tagging, signing, package publication, and GitHub Release creation remain owner-controlled actions; a successful local build or hosted check does not authorize them.
 
 ## Local development
 
@@ -26,7 +26,9 @@ ruff check .
 mypy src
 bandit -r src/trustweave -q
 pytest
+python scripts/reality_check.py
 python -m build
+twine check dist/*
 pip-audit -r requirements.txt
 cyclonedx-py environment "$(which python)" --pyproject pyproject.toml --mc-type library --output-reproducible --output-file artifacts/trustweave.cdx.json
 ```
@@ -73,7 +75,7 @@ Before requesting review, confirm the following statements are true.
 
 - [ ] The change is within the documented safety boundaries.
 - [ ] The change includes relevant tests or updates existing deterministic expectations.
-- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, `bandit -r src/trustweave -q`, `pytest` (including the 90% branch-coverage gate), `python -m build`, and `pip-audit -r requirements.txt` pass locally.
+- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, `bandit -r src/trustweave -q`, `pytest` (including the 95% branch-coverage gate), `python scripts/reality_check.py`, `python -m build`, `twine check dist/*`, and `pip-audit -r requirements.txt` pass locally.
 - [ ] Generated artifact directories, including `artifacts/` and `*-artifacts/`, are not committed.
 - [ ] Documentation and examples describe the actual implemented behavior.
 - [ ] Any new schema field includes validation and an explicit default/failure behavior.
