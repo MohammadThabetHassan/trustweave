@@ -750,3 +750,29 @@ def test_chain_renderer_uses_the_literal_finding_path_for_malformed_finding_entr
     with pytest.raises(ValidationError) as error:
         render_chain_review({"paths": [], "findings": ["not-a-finding"]})
     assert str(error.value) == "finding must be an object"
+
+
+def test_non_fail_closed_approval_does_not_approve_sensitive_data() -> None:
+    """Only a declared fail-closed approval can clear propagated sensitive classifications."""
+
+    document = _document(
+        [
+            {"id": "input", "kind": "source", "trust": "untrusted"},
+            {"id": "record", "kind": "data", "classification": "confidential"},
+            {"id": "approval", "kind": "approval", "fail_closed": False},
+            {"id": "external", "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "input", "to": "record"},
+            {"from": "record", "to": "approval"},
+            {"from": "approval", "to": "external"},
+        ],
+    )
+
+    review = review_declared_chains(document, generated_at="2026-08-18T00:00:00+00:00")
+
+    findings_by_id = {finding["id"]: finding for finding in review["findings"]}
+    assert set(findings_by_id) == {"TW-CHAIN-001", "TW-CHAIN-002"}
+    assert findings_by_id["TW-CHAIN-001"]["properties"]["classifications"] == ["confidential"]
+    assert findings_by_id["TW-CHAIN-002"]["properties"]["classifications"] == ["confidential"]
+    assert review["summary"]["review_findings"] == 2
