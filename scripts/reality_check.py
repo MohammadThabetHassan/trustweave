@@ -69,16 +69,16 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "6,126 generated mutants; 5,517 killed; 609 survived; 0 without a selected test; "
+    "6,134 generated mutants; 5,528 killed; 606 survived; 0 without a selected test; "
     "0 timed out; 0 suspicious.",
-    "90.06% killed (`5,517 / 6,126`)",
+    "90.12% killed (`5,528 / 6,134`)",
     "Linux with fork support",
     "**90% mutation threshold** for the measured high-risk scope",
-    "609 classified survivors",
+    "606 classified survivors",
     "0 untriaged survivors",
-    "121 equivalent mutations",
+    "127 equivalent mutations",
     "1 defensive mutation",
-    "487 mutations marked `needs_regression`",
+    "478 mutations marked `needs_regression`",
     "release-blocking quality check",
 )
 GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {

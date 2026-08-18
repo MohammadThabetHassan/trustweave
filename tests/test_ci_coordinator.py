@@ -184,6 +184,55 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
     assert "# TrustWeave Local CI Summary" in _render_summary(summary, "markdown")
 
 
+@pytest.mark.parametrize(
+    ("sarif_output", "message"),
+    [
+        (1, "tool.trustweave.sarif_output must be a local path string"),
+        (
+            "../escape.sarif",
+            "tool.trustweave.sarif_output must remain within the CI artifact directory",
+        ),
+        (
+            r"..\\escape.sarif",
+            "tool.trustweave.sarif_output must remain within the CI artifact directory",
+        ),
+        (".", "tool.trustweave.sarif_output must remain within the CI artifact directory"),
+        (
+            "/escape.sarif",
+            "tool.trustweave.sarif_output must remain within the CI artifact directory",
+        ),
+        (
+            r"\\escape.sarif",
+            "tool.trustweave.sarif_output must remain within the CI artifact directory",
+        ),
+        (
+            "C:/escape.sarif",
+            "tool.trustweave.sarif_output must remain within the CI artifact directory",
+        ),
+        (
+            r"C:\\escape.sarif",
+            "tool.trustweave.sarif_output must remain within the CI artifact directory",
+        ),
+        (
+            "C:escape.sarif",
+            "tool.trustweave.sarif_output must remain within the CI artifact directory",
+        ),
+        (
+            r"nested\\escape.sarif",
+            "tool.trustweave.sarif_output must use portable relative path separators",
+        ),
+    ],
+)
+def test_safe_sarif_path_has_exact_cross_platform_validation_errors(
+    tmp_path: Path, sarif_output: object, message: str
+) -> None:
+    """Every portable path category has a stable fail-closed public validation error."""
+
+    with pytest.raises(ValidationError) as error:
+        _staged_sarif_path({"sarif_output": sarif_output}, tmp_path)
+    assert str(error.value) == message
+
+
 def test_ci_directory_publication_replaces_only_complete_staged_artifacts(tmp_path: Path) -> None:
     """The publish primitive replaces directories atomically and rejects file destinations."""
 
