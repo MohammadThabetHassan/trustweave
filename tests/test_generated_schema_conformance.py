@@ -20,6 +20,9 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
 POLICY = ROOT / "policies" / "default-policy.json"
 LEGACY_BUNDLE_SCHEMA = ROOT / "schemas" / "agent-security-bundle-v1alpha1.schema.json"
+HISTORICAL_V011_BUNDLE = (
+    ROOT / "tests" / "fixtures" / "historical-v011" / "authentic-v0.1.1-bundle.json"
+)
 CURRENT_BUNDLE_SCHEMA = ROOT / "schemas" / "agent-security-bundle-v1alpha2.schema.json"
 ATTESTATION_SCHEMA = ROOT / "schemas" / "attestation-v1alpha3.schema.json"
 FINDING_SCHEMA = ROOT / "schemas" / "finding-v1alpha1.schema.json"
@@ -54,31 +57,15 @@ def test_bundle_schema_accepts_runtime_display_manifest_name() -> None:
     Draft202012Validator(load_document(CURRENT_BUNDLE_SCHEMA)).validate(bundle)
 
 
-def test_historical_v1alpha1_bundle_remains_schema_valid_without_v1alpha2_policy_fields() -> None:
-    """The historical version retains its original policy-only shape and no v1alpha2 fields."""
+def test_authentic_v011_bundle_remains_schema_valid_without_v1alpha2_policy_fields() -> None:
+    """The historical schema covers the exact published v0.1.1 generated bundle shape."""
 
-    bundle = build_bundle(
-        parse_manifest(load_document(MANIFEST)),
-        parse_policy(load_document(POLICY)),
-        generated_at="2026-08-13T00:00:00+00:00",
-    )
-    bundle["schema_version"] = "trustweave.dev/bundle/v1alpha1"
-    bundle.pop("limits")
+    bundle = load_document(HISTORICAL_V011_BUNDLE)
     policy = bundle["policy"]
     assert isinstance(policy, dict)
-    policy.pop("classification_taxonomy")
-    policy.pop("approval_control")
-    for rule in policy["rules"]:
-        assert isinstance(rule, dict)
-        for field in (
-            "source_identifiers",
-            "tool_identifiers",
-            "purpose_tags",
-            "source_data_classification_at_least",
-            "source_data_classification_at_most",
-            "required_controls",
-        ):
-            rule.pop(field)
+    assert policy["schema_version"] == "trustweave.dev/v1alpha1"
+    assert "classification_taxonomy" not in policy
+    assert "approval_control" not in policy
 
     Draft202012Validator(load_document(LEGACY_BUNDLE_SCHEMA)).validate(bundle)
 

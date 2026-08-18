@@ -15,6 +15,9 @@ from trustweave.report import render_diff_report
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
 POLICY = ROOT / "policies" / "default-policy.json"
+HISTORICAL_V011_BUNDLE = (
+    ROOT / "tests" / "fixtures" / "historical-v011" / "authentic-v0.1.1-bundle.json"
+)
 
 
 def _copy_document(path: Path) -> dict[str, object]:
@@ -189,9 +192,7 @@ def test_bundle_diff_supports_historical_and_current_bundle_versions() -> None:
     manifest = parse_manifest(_copy_document(MANIFEST))
     policy = parse_policy(_copy_document(POLICY))
     current = build_bundle(manifest, policy, generated_at="2026-08-15T00:00:00+00:00")
-    historical = json.loads(json.dumps(current))
-    historical["schema_version"] = "trustweave.dev/bundle/v1alpha1"
-    historical.pop("limits")
+    historical = _copy_document(HISTORICAL_V011_BUNDLE)
 
     diff = diff_bundles(historical, current, generated_at="2026-08-15T00:00:00+00:00")
 
