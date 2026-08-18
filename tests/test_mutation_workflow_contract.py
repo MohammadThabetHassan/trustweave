@@ -22,10 +22,10 @@ def test_hosted_mutation_workflow_enforces_final_survivor_triage_acceptance_gate
         "generated * 95",
         'threshold_percent": 95',
         "docs/mutation-survivor-triage-v1.json",
-        "Survivor-triage parity failed",
+        "Survivor-triage exact diff parity failed",
         "untriaged_count",
         "needs_regression",
         "Equivalent/defensive survivor lacks a rationale",
-        'survivor_triage_parity": "exact"',
+        'survivor_triage_parity": "exact_normalized_diff"',
     ):
         assert required_contract in script

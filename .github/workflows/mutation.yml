@@ -40,8 +40,10 @@ jobs:
           python - <<'PY'
           from __future__ import annotations
 
+          import hashlib
           import json
           import re
+          import subprocess
           from collections import Counter
           from pathlib import Path
 
@@ -68,14 +70,16 @@ jobs:
                   f"Mutation quality gate failed: {killed}/{generated} killed ({score:.2f}%) < 95%"
               )
 
-          result_survivors = set(
-              re.findall(r"^\s*([A-Za-z0-9_.]+__mutmut_\d+): survived$", result_output, re.MULTILINE)
+          result_survivors = re.findall(
+              r"^\s*([A-Za-z0-9_.]+__mutmut_\d+): survived$", result_output, re.MULTILINE
           )
           if len(result_survivors) != survived:
               raise SystemExit(
                   "Mutation result survivor count does not equal final run total: "
                   f"results={len(result_survivors)}, run={survived}"
               )
+          if len(set(result_survivors)) != len(result_survivors):
+              raise SystemExit("Mutation results contain duplicate survivor identifiers")
 
           triage = json.loads(triage_path.read_text(encoding="utf-8"))
           required_top_level = {
@@ -97,13 +101,6 @@ jobs:
               raise SystemExit("Every survivor triage record must have a string id")
           if len(set(triage_ids)) != len(triage_ids):
               raise SystemExit("Survivor triage inventory contains duplicate mutant ids")
-          if set(triage_ids) != result_survivors:
-              missing_from_triage = sorted(result_survivors - set(triage_ids))
-              stale_in_triage = sorted(set(triage_ids) - result_survivors)
-              raise SystemExit(
-                  "Survivor-triage parity failed: "
-                  f"missing_from_triage={missing_from_triage}; stale_in_triage={stale_in_triage}"
-              )
           if triage["survivor_count"] != len(records):
               raise SystemExit(
                   "Survivor triage count is inconsistent: "
@@ -114,11 +111,32 @@ jobs:
                   f"Survivor triage inventory has unresolved entries: {triage['untriaged_count']}"
               )
 
+          def normalized_diff(text: str) -> str:
+              lines = text.splitlines(keepends=True)
+              if lines and lines[0].startswith("# ") and ": survived" in lines[0]:
+                  lines = lines[1:]
+              return "".join(lines)
+
+          def diff_digest(text: str) -> str:
+              return hashlib.sha256(normalized_diff(text).encode("utf-8")).hexdigest()
+
+          current_digests: Counter[str] = Counter()
+          for mutant_id in result_survivors:
+              shown = subprocess.run(
+                  ["mutmut", "show", mutant_id], check=True, capture_output=True, text=True
+              )
+              current_digests[diff_digest(shown.stdout)] += 1
+
           allowed = {"equivalent", "defensive", "needs_regression"}
           classifications: list[str] = []
+          triage_digests: Counter[str] = Counter()
           for record in records:
               classification = record.get("classification")
               rationale = record.get("rationale")
+              diff = record.get("diff")
+              if not isinstance(diff, str) or not diff.strip():
+                  raise SystemExit(f"Survivor triage diff is empty for {record['id']!r}")
+              triage_digests[diff_digest(diff)] += 1
               if classification not in allowed:
                   raise SystemExit(f"Invalid survivor classification for {record['id']!r}: {classification!r}")
               if not isinstance(rationale, str) or not rationale.strip():
@@ -136,6 +154,15 @@ jobs:
                   "Survivor triage classification counts are inconsistent: "
                   f"declared={declared_counts}, actual={expected_counts}"
               )
+          if triage_digests != current_digests:
+              missing_from_triage = sorted((current_digests - triage_digests).elements())
+              stale_in_triage = sorted((triage_digests - current_digests).elements())
+              raise SystemExit(
+                  "Survivor-triage exact diff parity failed: "
+                  f"missing_diff_digests={missing_from_triage}; "
+                  f"stale_diff_digests={stale_in_triage}"
+              )
+
           unresolved = actual_counts.get("needs_regression", 0)
           if unresolved:
               raise SystemExit(
@@ -152,7 +179,7 @@ jobs:
               "triage_survivor_count": len(records),
               "triage_untriaged_count": triage["untriaged_count"],
               "triage_classification_counts": expected_counts,
-              "survivor_triage_parity": "exact",
+              "survivor_triage_parity": "exact_normalized_diff",
           }
           Path("mutation-quality.json").write_text(
               json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
