@@ -407,7 +407,7 @@ def _status_for(
             return "new", None, None
         if decision.created_at > reviewed_at:
             return "not_yet_applicable_suppression", None, None
-        if decision.expires_at < reviewed_at:
+        if decision.expires_at <= reviewed_at:
             return "expired_suppression", decision.reason, decision.expires_at.isoformat()
         if SEVERITY_RANK[finding.severity] >= SEVERITY_RANK[decision.accepted_severity]:
             return "suppressed", decision.reason, decision.expires_at.isoformat()
@@ -418,7 +418,7 @@ def _status_for(
             return "new", None, None
         if decision.created_at > reviewed_at:
             return "not_yet_applicable_baseline", None, None
-        if decision.expires_at < reviewed_at:
+        if decision.expires_at <= reviewed_at:
             return "expired_baseline", decision.reason, decision.expires_at.isoformat()
         if SEVERITY_RANK[finding.severity] >= SEVERITY_RANK[decision.accepted_severity]:
             return "baselined", decision.reason, decision.expires_at.isoformat()

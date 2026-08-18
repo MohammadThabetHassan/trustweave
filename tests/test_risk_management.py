@@ -1296,3 +1296,578 @@ def test_should_fail_validates_review_finding_paths_and_skips_resolved_entries()
         ]
     }
     assert should_fail(resolved_before_active, "high") is True
+
+
+def test_baseline_creation_rejects_expiry_equal_to_created_at() -> None:
+    """A reviewer decision must have a strictly future expiry rather than a zero-length lifetime."""
+
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-14T12:00:00+00:00",
+        "findings": [],
+    }
+
+    with pytest.raises(ValidationError, match="later than created_at"):
+        create_baseline(
+            review,
+            "Explicit local reviewer decision.",
+            "2026-08-14T12:00:00+00:00",
+            owner="security-review",
+            created_at="2026-08-14T12:00:00+00:00",
+        )
+
+
+def test_risk_review_treats_expiry_equal_to_review_time_as_expired(
+    review_artifact: dict[str, object],
+) -> None:
+    """A decision expires at its recorded expiry instant and cannot apply through that boundary."""
+
+    normalized = normalize_findings(review_artifact)[0]
+    entry = _decision_entry(normalized, expires_at="2026-08-15T00:00:00+00:00")
+    review = review_risks(
+        [review_artifact],
+        baseline_document={"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [entry]},
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+
+    assert review["findings"][0]["risk_state"] == "expired_baseline"
+    assert review["summary"]["expired_baseline"] == 1
+    assert should_fail(review, "review")
+
+
+@pytest.mark.parametrize("fingerprint", ("a" * 63, "z" * 64))
+def test_baseline_creation_rejects_every_invalid_fingerprint_form(fingerprint: str) -> None:
+    """Both SHA-256 length and hexadecimal alphabet are public decision-identity requirements."""
+
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-14T00:00:00+00:00",
+        "findings": [
+            {
+                "fingerprint": fingerprint,
+                "fingerprint_schema_version": "trustweave/fingerprint/v3",
+                "id": "TW-POL-004",
+                "severity": "high",
+                "subject": {"tool": "lookup"},
+                "risk_state": "new",
+            }
+        ],
+    }
+
+    with pytest.raises(ValidationError, match="SHA-256"):
+        create_baseline(
+            review,
+            "Explicit local reviewer decision.",
+            "2026-09-01T00:00:00+00:00",
+            owner="security-review",
+            created_at="2026-08-14T00:00:00+00:00",
+        )
+
+
+def test_baseline_creation_retains_every_distinct_active_fingerprint() -> None:
+    """Baseline generation must not stop after the first active finding with a distinct identity."""
+
+    findings = [
+        {
+            "fingerprint": character * 64,
+            "fingerprint_schema_version": "trustweave/fingerprint/v3",
+            "id": f"TW-POL-00{index}",
+            "severity": "high",
+            "subject": {"tool": f"lookup-{index}"},
+            "risk_state": "new",
+        }
+        for index, character in ((1, "a"), (2, "b"))
+    ]
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-14T00:00:00+00:00",
+        "findings": findings,
+    }
+
+    baseline = create_baseline(
+        review,
+        "Explicit local reviewer decision.",
+        "2026-09-01T00:00:00+00:00",
+        owner="security-review",
+        created_at="2026-08-14T00:00:00+00:00",
+    )
+
+    assert [entry["fingerprint"] for entry in baseline["baseline"]] == ["a" * 64, "b" * 64]
+
+
+def test_risk_review_reports_exact_counts_for_multiple_active_severities() -> None:
+    """The public severity summary counts each active finding once in its exact severity bucket."""
+
+    artifact = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "policy": "support-policy",
+        "findings": [
+            {
+                "id": "TW-POL-004",
+                "severity": "high",
+                "message": "A high local condition requires review.",
+                "subject": {"tool": "lookup"},
+            },
+            {
+                "id": "TW-POL-005",
+                "severity": "low",
+                "message": "A low local condition requires review.",
+                "subject": {"tool": "archive"},
+            },
+        ],
+    }
+
+    review = review_risks([artifact], reviewed_at="2026-08-15T00:00:00+00:00")
+
+    assert review["summary"]["active_by_severity"] == {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 1,
+        "info": 0,
+    }
+    assert review["summary"]["findings"] == 2
+    assert review["summary"]["new"] == 2
+    assert should_fail(review, "high")
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("subject_digest", "a" * 63, "subject_digest must be a SHA-256 hex digest"),
+        ("subject_digest", "z" * 64, "subject_digest must be a SHA-256 hex digest"),
+        ("accepted_severity", "review", "accepted_severity must be one of"),
+        ("created_at", "not-a-timestamp", "created_at must be an ISO 8601 timestamp"),
+        ("expires_at", "2026-08-14T00:00:00", "expires_at must include a UTC offset"),
+    ],
+)
+def test_v1alpha2_decision_validation_rejects_each_identity_and_lifecycle_boundary(
+    review_artifact: dict[str, object], field: str, value: str, message: str
+) -> None:
+    """Decision documents fail closed for every declared identity and lifecycle field boundary."""
+
+    entry = _decision_entry(normalize_findings(review_artifact)[0])
+    entry[field] = value
+    document = {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [entry]}
+
+    with pytest.raises(ValidationError, match=message):
+        validate_decision_document(document, "baseline")
+
+
+def test_v1alpha2_decision_validation_rejects_duplicate_fingerprint_entries(
+    review_artifact: dict[str, object],
+) -> None:
+    """One decision collection cannot contain multiple reviewer records for one fingerprint."""
+
+    entry = _decision_entry(normalize_findings(review_artifact)[0])
+    document = {
+        "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+        "suppressions": [entry, dict(entry)],
+    }
+
+    with pytest.raises(ValidationError) as error:
+        validate_decision_document(document, "suppressions")
+    assert (
+        str(error.value) == f"suppressions contains duplicate fingerprint: {entry['fingerprint']}"
+    )
+
+
+def test_v1alpha2_decision_validation_rejects_expiry_equal_to_creation(
+    review_artifact: dict[str, object],
+) -> None:
+    """A decision cannot have an empty duration even when both timestamps are well formed."""
+
+    entry = _decision_entry(normalize_findings(review_artifact)[0])
+    entry["expires_at"] = entry["created_at"]
+    document = {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [entry]}
+
+    with pytest.raises(ValidationError) as error:
+        validate_decision_document(document, "baseline")
+    assert str(error.value) == "baseline[0].expires_at must be later than created_at"
+
+
+def test_baseline_creation_skips_inactive_findings_before_later_active_evidence() -> None:
+    """Inactive historical findings do not prevent later active evidence from being baselined."""
+
+    inactive = {
+        "fingerprint": "a" * 64,
+        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "id": "TW-POL-004",
+        "severity": "high",
+        "subject": {"tool": "lookup"},
+        "risk_state": "baselined",
+    }
+    active = {
+        "fingerprint": "b" * 64,
+        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "id": "TW-POL-005",
+        "severity": "low",
+        "subject": {"tool": "archive"},
+        "risk_state": "new",
+    }
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-18T00:00:00+00:00",
+        "findings": [inactive, active],
+    }
+
+    baseline = create_baseline(
+        review,
+        "Explicit local reviewer decision.",
+        "2026-09-01T00:00:00+00:00",
+        owner="security-review",
+        created_at="2026-08-18T00:00:00+00:00",
+    )
+
+    assert [entry["fingerprint"] for entry in baseline["baseline"]] == ["b" * 64]
+    assert baseline["baseline"][0]["rule_id"] == "TW-POL-005"
+    assert baseline["baseline"][0]["accepted_severity"] == "low"
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        (
+            "fingerprint",
+            "a" * 63,
+            "risk_review.findings[0].fingerprint must be a SHA-256 hex digest",
+        ),
+        (
+            "fingerprint",
+            "z" * 64,
+            "risk_review.findings[0].fingerprint must be a SHA-256 hex digest",
+        ),
+        (
+            "fingerprint_schema_version",
+            "unknown",
+            "risk_review.findings[0].fingerprint_schema_version must be trustweave/fingerprint/v3",
+        ),
+        ("severity", "review", "risk_review.findings[0].severity must be one of"),
+        ("subject", {}, "risk_review.findings[0].subject must bind a v1alpha2 decision"),
+        ("id", "", "risk_review.findings[0].id must be a non-empty string"),
+    ],
+)
+def test_baseline_creation_preserves_exact_active_finding_diagnostics(
+    field: str, value: object, message: str
+) -> None:
+    """Active review findings must retain all v1alpha2 decision identity inputs before output."""
+
+    finding: dict[str, object] = {
+        "fingerprint": "a" * 64,
+        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "id": "TW-POL-004",
+        "severity": "high",
+        "subject": {"tool": "lookup"},
+        "risk_state": "new",
+    }
+    finding[field] = value
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-18T00:00:00+00:00",
+        "findings": [finding],
+    }
+
+    with pytest.raises(ValidationError) as error:
+        create_baseline(
+            review,
+            "Explicit local reviewer decision.",
+            "2026-09-01T00:00:00+00:00",
+            owner="security-review",
+            created_at="2026-08-18T00:00:00+00:00",
+        )
+    assert str(error.value).startswith(message)
+
+
+def test_decision_document_validates_optional_reviewer_reference(
+    review_artifact: dict[str, object],
+) -> None:
+    """A recorded reviewer reference is optional but, when supplied, must be meaningful text."""
+
+    entry = _decision_entry(normalize_findings(review_artifact)[0])
+    entry["reference"] = 42  # type: ignore[assignment]
+
+    with pytest.raises(ValidationError) as error:
+        validate_decision_document(
+            {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [entry]}, "baseline"
+        )
+    assert str(error.value) == "baseline[0].reference must be a non-empty string"
+
+
+@pytest.mark.parametrize(
+    ("document", "expected_message"),
+    [
+        (
+            {"schema_version": "invalid", "baseline": []},
+            "baseline.schema_version must be trustweave.dev/risk-baseline/v1alpha2",
+        ),
+        (
+            {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": {}, "extra": True},
+            "baseline: unknown field 'extra'",
+        ),
+        (
+            {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": {}},
+            "baseline must be a list",
+        ),
+        (
+            {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": ["invalid"]},
+            "baseline[0] must be an object",
+        ),
+    ],
+)
+def test_decision_document_validation_reports_exact_document_paths(
+    document: dict[str, object], expected_message: str
+) -> None:
+    """Malformed decision documents cannot lose their reviewer-visible diagnostics."""
+
+    with pytest.raises(ValidationError) as error:
+        validate_decision_document(document, "baseline")
+    assert str(error.value) == expected_message
+
+
+def test_legacy_artifact_fallback_subjects_preserve_declared_identity_fields() -> None:
+    """Risk fingerprints retain stable identity for every supported legacy review family."""
+
+    artifacts = (
+        (
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "policy": "support-policy",
+                "findings": [{"id": "TW-POL-001", "severity": "low", "message": "Policy."}],
+            },
+            {"policy": "support-policy"},
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/trace-review/v1alpha1",
+                "agent": "support-agent",
+                "policy": "support-policy",
+                "findings": [{"id": "TW-TRACE-001", "severity": "low", "message": "Trace."}],
+            },
+            {"agent": "support-agent", "policy": "support-policy"},
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/mcp-profile-review/v1alpha1",
+                "profile": {"name": "support-profile"},
+                "findings": [{"id": "TW-MCP-001", "severity": "low", "message": "Profile."}],
+            },
+            {"profile": "support-profile"},
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/bundle-diff/v1alpha1",
+                "head": {"agent": "candidate-agent"},
+                "signals": [{"id": "TW-DIFF-001", "severity": "low", "message": "Delta."}],
+            },
+            {"agent": "candidate-agent", "legacy_message": "Delta."},
+        ),
+    )
+
+    subjects = [normalize_findings(artifact)[0].as_dict()["subject"] for artifact, _ in artifacts]
+
+    assert subjects == [expected for _, expected in artifacts]
+    assert len({normalize_findings(artifact)[0].fingerprint for artifact, _ in artifacts}) == len(
+        artifacts
+    )
+
+
+def test_risk_normalization_preserves_optional_reviewer_text_and_fingerprint_material() -> None:
+    """Normalized evidence binds its public evidence kind and reviewer-facing optional text."""
+
+    artifact = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "policy": "support-policy",
+        "findings": [
+            {
+                "id": "TW-POL-042",
+                "severity": "high",
+                "message": "Approval is required before escalation.",
+                "subject": {"tool": "lookup"},
+                "title": "Approval boundary",
+                "rationale": "External impact requires an explicit approval control.",
+                "remediation": "Add a fail-closed approval step.",
+            }
+        ],
+    }
+
+    normalized = normalize_findings(artifact)[0]
+    expected_material = {
+        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "evidence_kind": "declared_configuration",
+        "id": "TW-POL-042",
+        "subject": {"tool": "lookup"},
+    }
+
+    assert normalized.evidence_kind == "declared_configuration"
+    assert normalized.title == "Approval boundary"
+    assert normalized.rationale == "External impact requires an explicit approval control."
+    assert normalized.remediation == "Add a fail-closed approval step."
+    assert (
+        normalized.fingerprint
+        == sha256(canonical_json(expected_material).encode("utf-8")).hexdigest()
+    )
+
+
+@pytest.mark.parametrize(
+    ("artifact", "message"),
+    [
+        (
+            {"schema_version": "", "findings": []},
+            "artifact.schema_version must be a non-empty string",
+        ),
+        (
+            {"schema_version": "trustweave.dev/policy-review/v1alpha1", "findings": {}},
+            "artifact.findings must be a list",
+        ),
+        (
+            {"schema_version": "trustweave.dev/policy-review/v1alpha1", "findings": ["bad"]},
+            "artifact.findings[0] must be an object",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [{"id": "", "severity": "low", "message": "Message."}],
+            },
+            "artifact.findings[0].id must be a non-empty string",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [{"id": "TW-POL-001", "severity": "", "message": "Message."}],
+            },
+            "artifact.findings[0].severity must be a non-empty string",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [{"id": "TW-POL-001", "severity": "low", "message": ""}],
+            },
+            "artifact.findings[0].message must be a non-empty string",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [
+                    {"id": "TW-POL-001", "severity": "low", "message": "Message.", "title": ""}
+                ],
+            },
+            "artifact.findings[0].title must be a non-empty string",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [
+                    {"id": "TW-POL-001", "severity": "low", "message": "Message.", "rationale": ""}
+                ],
+            },
+            "artifact.findings[0].rationale must be a non-empty string",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [
+                    {
+                        "id": "TW-POL-001",
+                        "severity": "low",
+                        "message": "Message.",
+                        "remediation": "",
+                    }
+                ],
+            },
+            "artifact.findings[0].remediation must be a non-empty string",
+        ),
+    ],
+)
+def test_risk_normalization_reports_exact_malformed_artifact_paths(
+    artifact: dict[str, object], message: str
+) -> None:
+    """Malformed supported evidence retains exact field paths for automated remediation."""
+
+    with pytest.raises(ValidationError) as error:
+        normalize_findings(artifact)
+    assert str(error.value) == message
+
+
+def test_risk_review_preserves_exact_boundary_and_conflict_diagnostics(
+    review_artifact: dict[str, object],
+) -> None:
+    """Risk orchestration retains exact provenance, decision, and review-time diagnostics."""
+
+    normalized = normalize_findings(review_artifact)[0]
+    entry = _decision_entry(normalized)
+    baseline = {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [entry]}
+    suppressions = {"schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION, "suppressions": [entry]}
+
+    with pytest.raises(ValidationError) as error:
+        review_risks([review_artifact], reviewed_at="invalid")
+    assert str(error.value) == "reviewed_at must be an ISO 8601 timestamp"
+
+    with pytest.raises(ValidationError) as error:
+        review_risks([], reviewed_at="2026-08-15T00:00:00+00:00", artifact_paths=["artifact.json"])
+    assert str(error.value) == "artifact_paths must align one-to-one with artifacts"
+
+    with pytest.raises(ValidationError) as error:
+        review_risks(
+            [review_artifact],
+            reviewed_at="2026-08-15T00:00:00+00:00",
+            artifact_paths=[""],
+        )
+    assert str(error.value) == "artifact_paths[0] must be a non-empty string"
+
+    with pytest.raises(ValidationError) as error:
+        review_risks(
+            [review_artifact],
+            baseline_document=baseline,
+            suppressions_document=suppressions,
+            reviewed_at="2026-08-15T00:00:00+00:00",
+        )
+    assert str(error.value) == (
+        "baseline and suppressions conflict for fingerprint: " + normalized.fingerprint
+    )
+
+    with pytest.raises(ValidationError) as error:
+        review_risks(
+            [review_artifact],
+            baseline_document={
+                "schema_version": "trustweave.dev/risk-baseline/v1alpha1",
+                "baseline": [],
+            },
+            reviewed_at="2026-08-15T00:00:00+00:00",
+        )
+    assert str(error.value) == (
+        "baseline.schema_version trustweave.dev/risk-baseline/v1alpha1 requires explicit migration "
+        "to trustweave.dev/risk-baseline/v1alpha2"
+    )
+
+    with pytest.raises(ValidationError) as error:
+        review_risks(
+            [review_artifact],
+            suppressions_document={
+                "schema_version": "trustweave.dev/risk-suppressions/v1alpha1",
+                "suppressions": [],
+            },
+            reviewed_at="2026-08-15T00:00:00+00:00",
+        )
+    assert str(error.value) == (
+        "suppressions.schema_version trustweave.dev/risk-suppressions/v1alpha1 requires "
+        "explicit migration to trustweave.dev/risk-suppressions/v1alpha2"
+    )
+
+
+def test_risk_review_counts_severity_escalated_suppressions(
+    review_artifact: dict[str, object],
+) -> None:
+    """A suppression cannot mask a finding that became more severe than it accepted."""
+
+    entry = _decision_entry(normalize_findings(review_artifact)[0], accepted_severity="low")
+    review = review_risks(
+        [review_artifact],
+        suppressions_document={
+            "schema_version": RISK_SUPPRESSIONS_SCHEMA_VERSION,
+            "suppressions": [entry],
+        },
+        reviewed_at="2026-08-15T00:00:00+00:00",
+    )
+
+    assert review["findings"][0]["risk_state"] == "severity_escalated_suppression"
+    assert review["summary"]["severity_escalated_suppression"] == 1
