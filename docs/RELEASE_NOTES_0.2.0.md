@@ -13,7 +13,7 @@ TrustWeave 0.2.0 hardens the local, declarative evidence workflow around strict 
 | CI coordination | The fourteen supported stages have typed configuration, staged atomic publication, safe artifact paths, reproducible provenance checks, and deterministic summaries. |
 | Evidence integrity | Attestations bind logical names, exact local files, stable digests, source revision, and strict v1alpha3 subject/predicate structure. |
 | Findings and SARIF | Canonical finding metadata is bounded and immutable; SARIF output has strict input validation, deterministic ordering, stable fingerprints, and active-risk filtering. |
-| Mutation evidence | The twelve-module run killed 6,043 of 6,140 mutants (98.42%). The exact 97-survivor inventory preserves diffs, classifications, and code-level equivalence proofs. |
+| Mutation evidence | The twelve-module run killed 6,044 of 6,140 mutants (98.44%). The exact 96-survivor inventory preserves diffs, classifications, and code-level equivalence proofs; the hosted gate enforces exact survivor-identifier and normalized-diff parity. |
 
 ## Security and correctness hardening
 
@@ -41,8 +41,8 @@ The following evidence is recorded for this source target. It is local verificat
 | Check | Recorded status |
 | --- | --- |
 | Branch coverage gate | Passed in the maintained test suite at or above the enforced 95% branch threshold. |
-| Twelve-module mutation run | 6,043 killed / 6,140 generated / 97 survived = 98.42% killed. |
-| Survivor inventory | 97 exact mutant IDs, zero untriaged records, zero `needs_regression` records, source diffs, and code-level rationales preserved in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). |
+| Twelve-module mutation run | 6,044 killed / 6,140 generated / 96 survived = 98.44% killed. |
+| Survivor inventory | 96 exact mutant IDs, zero untriaged records, zero `needs_regression` records, source diffs, and code-level rationales preserved in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). |
 | Reproducibility | Existing staged-CI byte-identical evidence remains recorded in [REPRODUCIBILITY.md](REPRODUCIBILITY.md). |
 | Static and contract checks | The normal quality command, strict schemas, and repository reality check remain required before owner review. |
 
@@ -50,7 +50,7 @@ The following evidence is recorded for this source target. It is local verificat
 
 TrustWeave remains a local deterministic review tool. It does not prove that a deployed agent, policy, approval workflow, model, MCP server, tool, or external system behaves as declared. A passing result does not constitute a security certification, authorization decision, remediation, signature, transparency-log assertion, or production release.
 
-The current 98.42% mutation measurement satisfies the numeric threshold and the local survivor-triage requirement: the preserved inventory has zero untriaged and zero `needs_regression` classifications. The strengthened hosted workflow must still confirm the same result through exact survivor-triage parity on the final commit SHA. This source target must not be presented as merge-ready or release-ready until that hosted gate and all remaining local and hosted checks are green.
+The current 98.44% mutation measurement satisfies the numeric threshold and the local survivor-triage requirement: the preserved inventory has zero untriaged and zero `needs_regression` classifications. Merge readiness requires the hosted mutation workflow on the exact reviewed SHA to report the same 6,044/6,140/96 result, exact survivor-identifier parity, exact normalized-diff parity, and a green status alongside every other required local and hosted check.
 
 ## Owner-controlled next steps
 

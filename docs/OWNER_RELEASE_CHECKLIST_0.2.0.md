@@ -15,7 +15,7 @@
 | Local checks | Formatter, lint, types, Bandit, tests, and repository reality check all pass. | Exact local command output. |
 | Hosted checks | All required checks are green on the exact final head SHA. | Check names and URLs. |
 
-Do **not** approve merge readiness while any gate is incomplete. At the time this checklist was prepared, the numeric mutation threshold had been reached but the final inventory still contained unresolved `needs_regression` classifications; that is an explicit blocker until eliminated.
+Do **not** approve merge readiness unless the final hosted mutation gate reports zero untriaged and zero `needs_regression` survivors on the exact reviewed SHA.
 
 ## B. Required final verification commands
 

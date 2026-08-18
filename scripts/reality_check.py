@@ -69,14 +69,14 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "6,140 generated mutants; 6,043 killed; 97 survived; 0 without a selected test; "
+    "6,140 generated mutants; 6,044 killed; 96 survived; 0 without a selected test; "
     "0 timed out; 0 suspicious.",
-    "98.42% killed (`6,043 / 6,140`)",
+    "98.44% killed (`6,044 / 6,140`)",
     "Linux with fork support",
     "**95% mutation threshold** for the measured high-risk scope",
-    "97 classified survivors",
+    "96 classified survivors",
     "0 untriaged survivors",
-    "97 equivalent mutations",
+    "96 equivalent mutations",
     "0 defensive mutations",
     "0 mutations marked `needs_regression`",
     "release-blocking quality check",
@@ -166,8 +166,8 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     ),
     "docs/QUALITY.md": (
         "95% branch coverage",
-        "78.95%",
-        "1,276 surviving mutants remain untriaged",
+        "exact survivor-identifier parity",
+        "zero `needs_regression` classifications",
     ),
     "docs/SCHEMA_AND_COMPATIBILITY.md": (
         "trustweave.dev/bundle/v1alpha2",

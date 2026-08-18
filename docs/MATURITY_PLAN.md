@@ -14,17 +14,17 @@ This plan identifies the evidence required for TrustWeave to improve release qua
 | Quality engineering | Ruff, strict mypy, Bandit, property-based tests, **95% branch coverage**, isolated wheel checks, fixed-epoch wheel reproducibility, dependency audit, SBOM generation, and Python 3.11/3.13 compatibility jobs. | These controls do not replace human review or validate external deployment. |
 | Schema and compatibility | Byte-synchronized source/package schemas, exact current-output conformance, v1alpha2 bundle/diff/risk-review contracts, bounded historical v1alpha1 compatibility, and reality-check documentation markers. | Historical evidence is not silently redefined; migration means regenerating current evidence. |
 | Distribution | PyPI `0.1.1` is published. Source is prepared for `0.2.0`, but it is neither tagged nor published. | Publication, tagging, signing, and release creation remain owner-controlled. |
-| Mutation diagnostic | Twelve-module Linux mutmut run: 6,063 generated, 4,787 killed, 1,276 survived, 0 untested, timed out, or suspicious; **78.95%** killed. | The result is below the required ≥90% acceptance target and survivors are untriaged. |
+| Mutation diagnostic | Twelve-module Linux mutmut run with a ≥95% quality gate, exact survivor-identifier parity, exact normalized-diff parity, zero untriaged records, and zero `needs_regression` classifications. | Mutation testing remains a bounded diagnostic; it does not prove that the package or a deployed agent is secure. |
 
-## Open 9.8 acceptance blocker
+## Mutation acceptance control
 
-The expanded mutation analysis is the remaining stated 9.8 acceptance blocker. The audit requires a ≥90% killed score over the configured twelve-module scope and zero untriaged survivors. The recorded 78.95% result does **not** meet that requirement. Documentation must preserve this limitation until new measured evidence, survivor triage, and corresponding regression tests demonstrate otherwise.
+The twelve-module mutation diagnostic is no longer the stated 9.8 blocker when the exact reviewed SHA satisfies the gate. The control requires a fresh run with the checked-in scope, a score of at least **95%**, exact survivor-identifier parity, exact normalized-diff parity, non-empty equivalence rationales, zero untriaged records, and zero `needs_regression` classifications. Any newly observed potentially reachable mutation must receive a public behavioral regression rather than a convenience reclassification.
 
-| Required next evidence | Completion condition |
+| Required evidence | Completion condition |
 |---|---|
-| Survivor classification | Every surviving mutant is killed by a meaningful regression, proven equivalent with a repository-visible rationale, or otherwise handled by an owner-approved policy that does not weaken tests or coverage. |
-| Reproducible re-run | A fresh twelve-module mutmut run uses the checked-in `pyproject.toml` scope and retains exact counts, tool version, platform limitation, selected test set, and commands. |
-| Acceptance result | The measured killed score is ≥90% and no survivor remains untriaged. |
+| Survivor classification | Every surviving mutant retains an exact diff and a source-level proof of semantic equivalence; a reachable reviewer-visible difference is killed by a meaningful public regression. |
+| Reproducible re-run | A fresh twelve-module mutmut run uses the checked-in `pyproject.toml` scope and records exact counts, tool version, platform limitation, selected test set, and commands. |
+| Acceptance result | The measured killed score is ≥95%, identifier and diff parity both pass, and no survivor is untriaged or marked `needs_regression`. |
 | Release verification | Strict local gate, package build, distribution metadata validation, reproducibility proof, local attestation verification, and hosted checks pass on the same PR head. |
 
 ## Compatibility and documentation discipline
