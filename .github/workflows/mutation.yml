@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   mutation-quality:
-    name: Mutation quality gate
+    name: Mutation quality and survivor gate
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -34,7 +34,7 @@ jobs:
           mutmut run 2>&1 | tee mutation-run.log
           mutmut results --all true > mutation-results.txt
 
-      - name: Enforce 90 percent mutation quality
+      - name: Mutation quality and survivor gate
         shell: bash
         run: |
           python - <<'PY'
@@ -42,31 +42,122 @@ jobs:
 
           import json
           import re
+          from collections import Counter
           from pathlib import Path
 
-          output = Path("mutation-run.log").read_text(encoding="utf-8").replace("\r", "\n")
-          matches = re.findall(r"(\d+)/(\d+).*?🎉\s+(\d+).*?🙁\s+(\d+)", output)
+          run_output = Path("mutation-run.log").read_text(encoding="utf-8").replace("\r", "\n")
+          result_output = Path("mutation-results.txt").read_text(encoding="utf-8")
+          triage_path = Path("docs/mutation-survivor-triage-v1.json")
+          if not triage_path.is_file():
+              raise SystemExit(f"Missing survivor triage inventory: {triage_path}")
+
+          matches = re.findall(r"(\d+)/(\d+).*?🎉\s+(\d+).*?🙁\s+(\d+)", run_output)
           if not matches:
               raise SystemExit("Mutation run output did not contain final generated, killed, and survived totals")
           completed, generated, killed, survived = map(int, matches[-1])
           if completed != generated:
               raise SystemExit(f"Mutation run did not complete: {completed}/{generated}")
+          if killed + survived != generated:
+              raise SystemExit(
+                  "Mutation totals are inconsistent: "
+                  f"generated={generated}, killed={killed}, survived={survived}"
+              )
+          if killed * 100 < generated * 95:
+              score = killed * 100 / generated
+              raise SystemExit(
+                  f"Mutation quality gate failed: {killed}/{generated} killed ({score:.2f}%) < 95%"
+              )
+
+          result_survivors = set(
+              re.findall(r"^\s*([A-Za-z0-9_.]+__mutmut_\d+): survived$", result_output, re.MULTILINE)
+          )
+          if len(result_survivors) != survived:
+              raise SystemExit(
+                  "Mutation result survivor count does not equal final run total: "
+                  f"results={len(result_survivors)}, run={survived}"
+              )
+
+          triage = json.loads(triage_path.read_text(encoding="utf-8"))
+          required_top_level = {
+              "schema_version",
+              "mutation_run",
+              "survivor_count",
+              "untriaged_count",
+              "classification_counts",
+              "survivors",
+          }
+          missing = sorted(required_top_level - set(triage))
+          if missing:
+              raise SystemExit(f"Survivor triage inventory is missing fields: {missing}")
+          records = triage["survivors"]
+          if not isinstance(records, list):
+              raise SystemExit("Survivor triage inventory survivors must be a list")
+          triage_ids = [record.get("id") for record in records if isinstance(record, dict)]
+          if len(triage_ids) != len(records) or any(not isinstance(item, str) for item in triage_ids):
+              raise SystemExit("Every survivor triage record must have a string id")
+          if len(set(triage_ids)) != len(triage_ids):
+              raise SystemExit("Survivor triage inventory contains duplicate mutant ids")
+          if set(triage_ids) != result_survivors:
+              missing_from_triage = sorted(result_survivors - set(triage_ids))
+              stale_in_triage = sorted(set(triage_ids) - result_survivors)
+              raise SystemExit(
+                  "Survivor-triage parity failed: "
+                  f"missing_from_triage={missing_from_triage}; stale_in_triage={stale_in_triage}"
+              )
+          if triage["survivor_count"] != len(records):
+              raise SystemExit(
+                  "Survivor triage count is inconsistent: "
+                  f"declared={triage['survivor_count']}, actual={len(records)}"
+              )
+          if triage["untriaged_count"] != 0:
+              raise SystemExit(
+                  f"Survivor triage inventory has unresolved entries: {triage['untriaged_count']}"
+              )
+
+          allowed = {"equivalent", "defensive", "needs_regression"}
+          classifications: list[str] = []
+          for record in records:
+              classification = record.get("classification")
+              rationale = record.get("rationale")
+              if classification not in allowed:
+                  raise SystemExit(f"Invalid survivor classification for {record['id']!r}: {classification!r}")
+              if not isinstance(rationale, str) or not rationale.strip():
+                  raise SystemExit(f"Survivor triage rationale is empty for {record['id']!r}")
+              if classification in {"equivalent", "defensive"} and not rationale.strip():
+                  raise SystemExit(
+                      f"Equivalent/defensive survivor lacks a rationale for {record['id']!r}"
+                  )
+              classifications.append(classification)
+          actual_counts = Counter(classifications)
+          declared_counts = triage["classification_counts"]
+          expected_counts = {label: actual_counts.get(label, 0) for label in sorted(allowed)}
+          if declared_counts != expected_counts:
+              raise SystemExit(
+                  "Survivor triage classification counts are inconsistent: "
+                  f"declared={declared_counts}, actual={expected_counts}"
+              )
+          unresolved = actual_counts.get("needs_regression", 0)
+          if unresolved:
+              raise SystemExit(
+                  f"Mutation survivor gate failed: {unresolved} needs_regression classifications remain"
+              )
+
           score = killed * 100 / generated
           evidence = {
               "generated": generated,
               "killed": killed,
               "survived": survived,
               "score_percent": round(score, 4),
-              "threshold_percent": 90,
+              "threshold_percent": 95,
+              "triage_survivor_count": len(records),
+              "triage_untriaged_count": triage["untriaged_count"],
+              "triage_classification_counts": expected_counts,
+              "survivor_triage_parity": "exact",
           }
           Path("mutation-quality.json").write_text(
               json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
           )
           print(json.dumps(evidence, sort_keys=True))
-          if killed * 100 < generated * 90:
-              raise SystemExit(
-                  f"Mutation quality gate failed: {killed}/{generated} killed ({score:.2f}%) < 90%"
-              )
           PY
 
       - name: Upload mutation evidence
@@ -78,4 +169,5 @@ jobs:
             mutation-run.log
             mutation-results.txt
             mutation-quality.json
+            docs/mutation-survivor-triage-v1.json
           if-no-files-found: warn

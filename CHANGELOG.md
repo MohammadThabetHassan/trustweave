@@ -4,11 +4,14 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [0.2.0] - Pending owner-controlled publication
 
-> This source release target is prepared for TestPyPI validation and production publication. It is not a claim that the package has already been published, tagged, or released.
+> This is an owner-controlled **pre-merge release-preparation target**. No tag, signature, package publication, GitHub Release, merge, or production deployment is created by this changelog entry.
 
 
 ### Fixed
 
+- Added strict semantic validation for historical `agent-security-bundle/v1alpha1` evidence while preserving explicitly documented safe compatibility behavior for authentic v0.1.1 local bundles. Current v1alpha2 bundle validation remains strict.
+- Enforced the exact risk-decision expiry boundary: a baseline or suppression expiring at the local review timestamp is expired rather than active.
+- Hardened strict risk, SARIF, chain, attestation, canonical-finding, policy, configuration, and staged-CI contracts with malformed-input, field-path, lifecycle, ordering, and provenance regressions.
 - Enforced strict declared-chain node roles, removed the ambiguous `output` node kind, and applied path, state, and edge budgets before retaining limit-plus-one work in partial local analysis.
 - Preserved ordered declared chain paths in risk fingerprints and deeply froze normalized risk subjects, preventing a mutable caller or a reversed path from inheriting another local decision identity.
 - Unified built-in review observations behind a bounded, deeply immutable canonical finding contract. Ordered chain paths, safe integer analysis metadata, producer conformance, and published finding-schema validation now agree without permitting arbitrary nested evidence.
@@ -40,7 +43,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - Added an additive `trustweave.dev/finding/v1alpha1` contract for canonical local policy-review and bundle-diff entries. Stable evidence kinds and declared subjects support wording-independent local correlation while retaining existing review fields and the non-executing privacy boundary.
 - Added `trustweave.dev/attestation/v1alpha3`, which binds stable payload hashes, exact file hashes, subject names, and source revision. `verify --bundle --test-results` now checks supplied local evidence bytes; readers retain `v1alpha1` and `v1alpha2` compatibility.
-- Made `risk-check` schema-aware for policy, trace, MCP-profile, and bundle-diff review evidence. It now normalizes documented `findings` and diff `signals` into semantic `trustweave/fingerprint/v2` identities, preserves local input paths, and deterministically deduplicates exact identities.
+- Made `risk-check` schema-aware for policy, trace, MCP-profile, and bundle-diff review evidence. It now normalizes documented `findings` and diff `signals` into semantic `trustweave/fingerprint/v3` identities, preserves local input paths, and deterministically deduplicates exact identities.
 - Restricted policy capability matching to exact capabilities or one final namespace wildcard, made shadow analysis conservative across classification and capability constraints, and made optional scenario attributes use the same deterministic matcher as declared manifest flows.
 - Added reviewer-facing `risk-review.md` output and active-risk-only SARIF export that retains a canonical local risk fingerprint while omitting currently baselined or suppressed entries.
 - Added `risk-check`, a local deterministic risk-review command that normalizes supplied review artifacts into stable fingerprints and applies explicit expiry-enforced baselines and suppressions.
@@ -76,6 +79,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Quality
 
+- Completed a twelve-module mutmut measurement with **5,828 of 6,134 mutants killed (95.00%)**. The survivor inventory is regenerated from the run, preserves exact diffs, and records zero untriaged entries; unresolved `needs_regression` classifications remain an explicit pre-merge acceptance blocker until eliminated.
+- Strengthened the hosted mutation workflow to require a 95% score, internally consistent evidence, exact survivor-to-triage ID parity, non-empty equivalent/defensive rationales, zero untriaged records, and zero `needs_regression` classifications.
 - Raised the enforced branch-coverage gate to 95% after expanding deterministic boundary and property-based regression coverage for local configuration, public review envelopes, manifests, policies, chains, traces, MCP profiles, risk lifecycle decisions, bundle diffs, CLI error handling, and unsigned statements.
 
 - Corrected the stale adversarial-scenario claim in `docs/QUALITY.md` from ten to the source-derived count of 25.

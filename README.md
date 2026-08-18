@@ -129,6 +129,9 @@ The project also avoids unsupported security claims. A review finding is a deter
 | [Supply-chain evidence](docs/SUPPLY_CHAIN.md) | Workflow-action pinning, OIDC release controls, reproducibility, SBOM evidence, and deliberate non-claims. |
 | [Schema and compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) | Versioned contracts and migration expectations. |
 | [Release guide](docs/RELEASE.md) | The evidence and authorization required to publish a package. |
+| [0.2.0 release notes](docs/RELEASE_NOTES_0.2.0.md) | Material hardening, compatibility impact, verification evidence, known limitations, and pre-merge status. |
+| [0.2.0 migration guide](docs/MIGRATION_GUIDE_0.2.0.md) | Moving configuration, bundles, and risk-decision documents from 0.1.1 safely. |
+| [0.2.0 owner checklist](docs/OWNER_RELEASE_CHECKLIST_0.2.0.md) | Owner-controlled pre-merge, artifact-verification, release, and rollback gates. |
 
 ## Built to be inspected
 
@@ -136,7 +139,7 @@ The project also avoids unsupported security claims. A review finding is a deter
 
 Current inputs retain their documented `v1alpha1`/`v1alpha2` contracts. Generated bundles use `trustweave.dev/bundle/v1alpha2`; risk decisions use canonical `trustweave/fingerprint/v3` identities and generated reviews use `trustweave.dev/risk-review/v1alpha2`. Historical v1alpha1 bundle and review resources remain available for bounded compatibility rather than being silently redefined. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
 
-The enforced local suite retains a **95% branch coverage** gate. The documented twelve-module mutation diagnostic measured 78.95% killed mutants with 1,276 surviving mutants still untriaged; it is evidence of remaining test-quality work, not a release-readiness claim.
+The enforced local suite retains a **95% branch coverage** gate. The documented twelve-module mutation diagnostic killed **5,828 of 6,134 mutants (95.00%)** and preserves an exact 306-survivor inventory with zero untriaged records. That inventory still contains unresolved `needs_regression` classifications, so the source target is **not** merge-ready or release-ready until exact hosted survivor-triage parity is green and the remaining classifications are eliminated.
 
 ## Contribute, get help, or report a concern
 

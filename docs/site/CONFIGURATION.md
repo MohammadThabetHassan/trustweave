@@ -16,7 +16,7 @@ The configuration loader accepts a strict `[tool.trustweave]` table. Relative pa
 | --- | --- |
 | `manifest`, `policy`, `scenarios` | Declared architecture, deterministic policy, and synthetic scenario inputs |
 | `chain_manifest`, `trace`, `mcp_profile` | Optional supplied local metadata reviews |
-| `baseline`, `candidate`, `risk_baseline`, `suppressions` | Optional local comparison and reviewer-decision artifacts |
+| `baseline_bundle`, `candidate_bundle`, `risk_baseline`, `suppressions` | Optional local comparison and reviewer-decision artifacts |
 | `output_dir`, `sarif_output` | Explicit local artifact destinations |
 | `failure_threshold`, `enabled_stages`, `reproducible` | Deterministic local coordinator behavior |
 
@@ -29,6 +29,6 @@ trustweave --generated-at 2026-08-14T00:00:00+00:00 \
   ci --config trustweave.toml --format markdown
 ```
 
-The coordinator resolves one timestamp for the run, stages artifacts in a temporary directory, and publishes the completed local output directory atomically. It supports scan, synthetic scenarios, policy review and coverage, optional chain review, SARIF, attestation, report, and deterministic summary stages. Unsupported configured stages fail closed.
+The coordinator resolves one timestamp for the run, stages artifacts in a temporary directory, and publishes the completed local output directory atomically. Its complete supported stage list is `validate`, `scan`, `scenarios`, `policy_review`, `policy_coverage`, `diff`, `trace_review`, `mcp_profile_review`, `chain_review`, `risk`, `sarif`, `attestation`, `report`, and `summary`. Unsupported configured stages fail closed.
 
 > A successful local review describes only the supplied declarations and local metadata. It does not prove deployed behavior, authenticate a declaration, authorize an action, or establish operational security.
