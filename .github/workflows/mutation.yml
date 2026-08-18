@@ -101,6 +101,15 @@ jobs:
               raise SystemExit("Every survivor triage record must have a string id")
           if len(set(triage_ids)) != len(triage_ids):
               raise SystemExit("Survivor triage inventory contains duplicate mutant ids")
+          result_id_set = set(result_survivors)
+          triage_id_set = set(triage_ids)
+          if triage_id_set != result_id_set:
+              missing_from_triage = sorted(result_id_set - triage_id_set)
+              stale_in_triage = sorted(triage_id_set - result_id_set)
+              raise SystemExit(
+                  "Survivor-triage exact identifier parity failed: "
+                  f"missing={missing_from_triage}; stale={stale_in_triage}"
+              )
           if triage["survivor_count"] != len(records):
               raise SystemExit(
                   "Survivor triage count is inconsistent: "
@@ -179,6 +188,7 @@ jobs:
               "triage_survivor_count": len(records),
               "triage_untriaged_count": triage["untriaged_count"],
               "triage_classification_counts": expected_counts,
+              "survivor_identifier_parity": "exact",
               "survivor_triage_parity": "exact_normalized_diff",
           }
           Path("mutation-quality.json").write_text(
