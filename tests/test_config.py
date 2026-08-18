@@ -234,3 +234,29 @@ def test_ci_runs_selected_chain_and_sarif_stages(tmp_path: Path) -> None:
     assert (output_dir / "chain-review.json").is_file()
     assert (output_dir / "chain-review.md").is_file()
     assert (output_dir / "trustweave.sarif").is_file()
+
+
+@pytest.mark.parametrize(
+    ("fragment", "message"),
+    [
+        ("manifest = 1\n", "tool.trustweave.manifest must be a non-empty string"),
+        (
+            'failure_threshold = "urgent"\n',
+            "tool.trustweave.failure_threshold must be one of "
+            "['critical', 'high', 'info', 'low', 'medium', 'none', 'review']",
+        ),
+        ('reproducible = "true"\n', "tool.trustweave.reproducible must be a boolean"),
+        ('unknown = "value"\n', "tool.trustweave: unknown field 'unknown'"),
+    ],
+)
+def test_project_config_preserves_exact_malformed_field_paths(
+    tmp_path: Path, fragment: str, message: str
+) -> None:
+    """Strict local configuration failures retain their full field paths for remediation."""
+
+    path = tmp_path / CONFIG_FILE_NAME
+    path.write_text("[tool.trustweave]\n" + fragment, encoding="utf-8")
+
+    with pytest.raises(ValidationError) as error:
+        load_project_config(path)
+    assert str(error.value) == message

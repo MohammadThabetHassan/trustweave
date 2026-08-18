@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pytest
+
+import trustweave.engine as engine_module
 from trustweave.engine import (
     _default_severity,
     decision_for_scenario,
@@ -271,3 +274,82 @@ def test_synthetic_defaults_participate_in_identifier_and_purpose_predicates() -
         "deny",
         None,
     )
+
+
+def test_synthetic_matching_binds_complete_predicate_subject(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The synthetic matching API forwards the exact constructed declared subject to predicates."""
+
+    observed: list[tuple[object, object, object, object]] = []
+
+    def capture(_rule: object, source: object, tool: object, _policy: object, flow: object) -> bool:
+        observed.append((source, tool, _policy, flow))
+        return False
+
+    monkeypatch.setattr(engine_module, "_rule_matches", capture)
+    assert (
+        matching_rule(
+            _policy(),
+            "conditional",
+            "external",
+            source_data_classification=None,
+            tool_capabilities=("notifications.send",),
+            source_identifier="inbox",
+            tool_identifier="notifier",
+            purpose="notify_customer",
+        )
+        is None
+    )
+
+    source, tool, _, flow = observed[0]
+    assert source.name == "inbox"
+    assert source.trust == "conditional"
+    assert source.data_classification == "unspecified"
+    assert source.description == "Synthetic policy scenario input."
+    assert tool.name == "notifier"
+    assert tool.action_class == "external"
+    assert tool.capabilities == ("notifications.send",)
+    assert tool.description == "Synthetic policy scenario input."
+    assert flow.source == "inbox"
+    assert flow.tool == "notifier"
+    assert flow.purpose == "notify_customer"
+    assert flow.purpose_tags == ("notify_customer",)
+
+
+def test_synthetic_explanation_binds_complete_predicate_subject(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Explanation checks receive the same declared synthetic identity that it reports."""
+
+    observed: list[tuple[object, object, object]] = []
+
+    def capture_match(
+        _rule: object, source: object, tool: object, _policy: object, flow: object
+    ) -> bool:
+        observed.append((source, tool, flow))
+        return False
+
+    monkeypatch.setattr(engine_module, "_rule_matches", capture_match)
+    monkeypatch.setattr(engine_module, "_rule_match_checks", lambda *_arguments: {})
+    explanation = explain_policy_decision(
+        _policy(),
+        "trusted",
+        "read",
+        source_data_classification="internal",
+        tool_capabilities=("records.read",),
+        source_identifier="case-inbox",
+        tool_identifier="records-api",
+        purpose="case_lookup",
+    )
+
+    assert explanation["decision"] == "deny"
+    source, tool, flow = observed[0]
+    assert source.description == "Synthetic explanation input."
+    assert source.data_classification == "internal"
+    assert tool.description == "Synthetic explanation input."
+    assert tool.capabilities == ("records.read",)
+    assert flow.source == "case-inbox"
+    assert flow.tool == "records-api"
+    assert flow.purpose == "case_lookup"
+    assert flow.purpose_tags == ("case_lookup",)

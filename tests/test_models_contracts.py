@@ -930,3 +930,53 @@ def test_remaining_manifest_and_policy_parser_diagnostics_are_literal() -> None:
         "policy.rules[0].source_data_classification_at_least must be in "
         "policy.classification_taxonomy"
     )
+
+
+def test_capability_parser_preserves_final_namespace_and_rejects_dot_segment_gaps() -> None:
+    """Capability grammar accepts a one-character namespace and rejects every empty dot segment."""
+
+    assert validate_capability_pattern("a.*", "capability", allow_namespace=True) == "a.*"
+
+    for invalid in (".records", "records.", "records..read"):
+        with pytest.raises(ValidationError) as error:
+            validate_capability_pattern(invalid, "capability")
+        assert (
+            str(error.value)
+            == "capability must not contain empty, leading, or trailing dot segments"
+        )
+
+
+def test_manifest_parser_preserves_exact_schema_tool_and_capability_diagnostics() -> None:
+    """Manifest validation preserves stable paths for schema, tool fields, and capabilities."""
+
+    invalid_schema = _manifest()
+    invalid_schema["schema_version"] = "trustweave.dev/v1alpha0"
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(invalid_schema)
+    assert str(error.value) == "manifest.schema_version must be trustweave.dev/v1alpha1"
+
+    unknown_tool_field = _manifest()
+    unknown_tool_field["tools"][0]["unexpected"] = True
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(unknown_tool_field)
+    assert str(error.value) == "manifest.tools[0]: unknown field 'unexpected'"
+
+    namespace_capability = _manifest()
+    namespace_capability["tools"][0]["capabilities"] = ["records.*"]
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(namespace_capability)
+    assert (
+        str(error.value)
+        == "manifest.tools[0].capabilities must be an exact capability, not a namespace wildcard"
+    )
+
+
+def test_manifest_parser_rejects_non_string_field_names_with_exact_type_diagnostic() -> None:
+    """Manifest mappings expose only string field names for deterministic parsing."""
+
+    document = _manifest()
+    document[1] = "invalid-key"
+
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(document)
+    assert str(error.value) == "manifest: field names must be strings; received int key 1"
