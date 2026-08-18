@@ -139,7 +139,7 @@ The project also avoids unsupported security claims. A review finding is a deter
 
 Current inputs retain their documented `v1alpha1`/`v1alpha2` contracts. Generated bundles use `trustweave.dev/bundle/v1alpha2`; risk decisions use canonical `trustweave/fingerprint/v3` identities and generated reviews use `trustweave.dev/risk-review/v1alpha2`. Historical v1alpha1 bundle and review resources remain available for bounded compatibility rather than being silently redefined. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
 
-The enforced local suite retains a **95% branch coverage** gate. The documented twelve-module mutation diagnostic killed **6,038 of 6,134 mutants (98.43%)** and preserves an exact 96-survivor inventory with **zero untriaged** and **zero `needs_regression`** records. The source target remains pending exact hosted survivor-triage parity on the final commit SHA; no merge or release action is implied by this local evidence.
+The enforced local suite retains a **95% branch coverage** gate. The documented twelve-module mutation diagnostic killed **6,043 of 6,140 mutants (98.42%)** and preserves an exact 97-survivor inventory with **zero untriaged** and **zero `needs_regression`** records. The source target remains pending exact hosted survivor-triage parity on the final commit SHA; no merge or release action is implied by this local evidence.
 
 ## Contribute, get help, or report a concern
 

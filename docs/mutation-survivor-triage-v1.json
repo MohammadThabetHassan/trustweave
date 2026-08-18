@@ -1,13 +1,13 @@
 {
   "classification_counts": {
     "defensive": 0,
-    "equivalent": 96,
+    "equivalent": 97,
     "needs_regression": 0
   },
   "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
-  "mutation_run": "6,038 killed / 6,134 generated (98.43% killed)",
+  "mutation_run": "6,043 killed / 6,140 generated (98.42% killed)",
   "schema_version": "v1",
-  "survivor_count": 96,
+  "survivor_count": 97,
   "survivors": [
     {
       "classification": "equivalent",
@@ -312,10 +312,17 @@
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.evidence.x__logical_name__mutmut_12: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -4,6 +4,6 @@\n     if name is None:\n         return str(path)\n     candidate = Path(name)\n-    if not name or candidate.is_absolute() or len(candidate.parts) != 1 or name in {\".\", \"..\"}:\n+    if not name or candidate.is_absolute() or len(candidate.parts) != 1 or name in {\"XX.XX\", \"..\"}:\n         raise ValidationError(f\"{role} logical artifact name must be one relative file name\")\n     return name\n",
-      "id": "trustweave.evidence.x__logical_name__mutmut_12",
-      "rationale": "`Path('.')` has zero components, so the independent `len(candidate.parts) != 1` predicate rejects the dot logical name even when its explicit literal comparison is mutated. The same validation message is raised for every reachable input.",
-      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+      "diff": "# trustweave.evidence.x__logical_name__mutmut_18: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -10,7 +10,7 @@\n         or \"\\\\\" in name\n         or candidate.is_absolute()\n         or len(candidate.parts) != 1\n-        or name in {\".\", \"..\"}\n+        or name in {\"XX.XX\", \"..\"}\n     ):\n         raise ValidationError(f\"{role} logical artifact name must be one relative file name\")\n     return name\n",
+      "id": "trustweave.evidence.x__logical_name__mutmut_18",
+      "rationale": "`Path('.')` has zero components, so the independent `len(candidate.parts) != 1` predicate rejects the dot logical name even if its explicit literal comparison is mutated. The same diagnostic is raised for every reachable input.",
+      "regression_assertion": "No regression assertion is required: the adjacent structural predicate provides a code-level proof that this changed literal cannot affect validation behavior."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.evidence.x__logical_name__mutmut_6: survived\n--- src/trustweave/evidence.py\n+++ src/trustweave/evidence.py\n@@ -8,8 +8,7 @@\n         not name\n         or \"/\" in name\n         or \"\\\\\" in name\n-        or candidate.is_absolute()\n-        or len(candidate.parts) != 1\n+        or candidate.is_absolute() and len(candidate.parts) != 1\n         or name in {\".\", \"..\"}\n     ):\n         raise ValidationError(f\"{role} logical artifact name must be one relative file name\")\n",
+      "id": "trustweave.evidence.x__logical_name__mutmut_6",
+      "rationale": "The new separator guards reject every portable absolute or multi-component logical name before the mutated conjunction is relevant. A remaining non-separator one-component name is not absolute and has exactly one component, so both conditions are false; no accepted or rejected logical artifact name can distinguish the expressions.",
+      "regression_assertion": "No regression assertion is required: separator regressions exercise the reachable platform distinction, while this combined predicate is source-proven semantically redundant."
     },
     {
       "classification": "equivalent",

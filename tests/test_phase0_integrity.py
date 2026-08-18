@@ -6,7 +6,7 @@ import sys
 import venv
 import zipfile
 from hashlib import sha256
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import pytest
 
@@ -752,6 +752,18 @@ def test_v1alpha3_default_revision_and_internal_malformed_digest_checks(tmp_path
         {},
         {},
     )
+
+
+def test_evidence_logical_names_reject_windows_rooted_separator_forms(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Logical artifact names reject separators independent of the host path parser."""
+
+    monkeypatch.setattr(evidence_module, "Path", PureWindowsPath)
+    for name in ("/", "\\"):
+        with pytest.raises(ValidationError) as error:
+            evidence_module._logical_name(name, PureWindowsPath("bundle.json"), "bundle")
+        assert str(error.value) == "bundle logical artifact name must be one relative file name"
 
 
 def test_evidence_helpers_reject_invalid_logical_names_and_digest_halves(tmp_path: Path) -> None:
