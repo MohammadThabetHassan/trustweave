@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+import trustweave.findings as findings_module
 from trustweave.diff import diff_bundles
 from trustweave.findings import FINDING_SCHEMA_VERSION, LocalFinding, finding, parse_finding
 from trustweave.io import load_document
@@ -389,3 +390,46 @@ def test_canonical_finding_metadata_bounds_are_inclusive_at_all_supported_endpoi
         str(error.value)
         == "canonical finding properties.labels must be a string array with at most 128 entries"
     )
+
+
+def test_parse_finding_preserves_exact_non_object_and_sorted_unknown_field_diagnostics() -> None:
+    """Canonical parser boundary errors remain explicit for object shape and sorted unknown keys."""
+
+    with pytest.raises(ValueError) as error:
+        parse_finding(42)  # type: ignore[arg-type]
+    assert str(error.value) == "canonical finding must be an object"
+
+    with pytest.raises(ValueError) as error:
+        parse_finding({"b": 1, "a": 2})
+    assert str(error.value) == "canonical finding has unknown fields: a, b"
+
+
+@pytest.mark.parametrize("invalid_value", [True, 1, ["nested"]])
+def test_canonical_references_accept_only_string_scalar_values(invalid_value: object) -> None:
+    """Reference identities cannot encode booleans, integers, or nested sequence values."""
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-REFERENCE-TYPE",
+            "low",
+            "Reference values remain scalar local identifiers.",
+            "declared_configuration",
+            references=({"uri": invalid_value},),  # type: ignore[arg-type]
+        )
+    assert str(error.value) == "canonical finding references[].uri has an unsupported value type"
+
+
+def test_canonical_finding_inclusive_boundary_lengths_are_accepted() -> None:
+    """Maximum permitted identifier, metadata sequence, and text lengths remain inclusive."""
+
+    findings_module._validate_identifier("TW-" + "A" * 120)
+    findings_module._validate_text("x" * 32, "boundary", maximum=32)
+    frozen = findings_module._freeze_metadata_mapping(
+        {"labels": ["x"] * findings_module._MAX_METADATA_ITEMS},
+        "properties",
+        findings_module._MAX_PROPERTY_FIELDS,
+        allow_boolean=True,
+        allow_integer=True,
+        allow_sequences=True,
+    )
+    assert len(frozen["labels"]) == findings_module._MAX_METADATA_ITEMS

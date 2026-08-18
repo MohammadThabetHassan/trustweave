@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+import trustweave.config as config_module
 from trustweave.cli import main
 from trustweave.config import (
     CONFIG_FILE_NAME,
@@ -260,3 +261,88 @@ def test_project_config_preserves_exact_malformed_field_paths(
     with pytest.raises(ValidationError) as error:
         load_project_config(path)
     assert str(error.value) == message
+
+
+def test_project_config_stage_and_discovery_boundaries_preserve_exact_diagnostics(
+    tmp_path: Path,
+) -> None:
+    """Configuration stage and discovery validation remains explicit at each public boundary."""
+
+    from trustweave.config import _enabled_stages
+
+    with pytest.raises(ValidationError) as error:
+        _enabled_stages("scan")
+    assert str(error.value) == "tool.trustweave.enabled_stages must be a list of stage names"
+
+    with pytest.raises(ValidationError) as error:
+        _enabled_stages(["a", "b"])
+    assert str(error.value) == "tool.trustweave.enabled_stages contains unsupported stages: a, b"
+
+    with pytest.raises(ValidationError) as error:
+        _enabled_stages(["scan", "scan"])
+    assert str(error.value) == "tool.trustweave.enabled_stages must not contain duplicates"
+
+    config_path = tmp_path / CONFIG_FILE_NAME
+    config_path.write_text("[tool.trustweave]\n", encoding="utf-8")
+    assert find_project_config(tmp_path, max_parents=0) == config_path
+    with pytest.raises(ValidationError) as error:
+        find_project_config(tmp_path, max_parents=-1)
+    assert str(error.value) == "config discovery max_parents must be non-negative"
+
+
+def test_project_config_preserves_exact_utf8_threshold_and_unknown_key_diagnostics(
+    tmp_path: Path,
+) -> None:
+    """Strict local configuration failures retain stable reviewer-facing diagnostics."""
+
+    path = tmp_path / CONFIG_FILE_NAME
+    path.write_bytes(b"\xff")
+    with pytest.raises(InputOutputError) as error:
+        load_project_config(path)
+    assert str(error.value) == f"Project configuration is not valid UTF-8: {path}"
+
+    path.write_text("[tool.trustweave]\nfailure_threshold = 'invalid'\n", encoding="utf-8")
+    with pytest.raises(ValidationError) as error:
+        load_project_config(path)
+    assert str(error.value) == (
+        "tool.trustweave.failure_threshold must be one of "
+        "['critical', 'high', 'info', 'low', 'medium', 'none', 'review']"
+    )
+
+    path.write_text("[tool.trustweave]\nsome_unknown = true\n", encoding="utf-8")
+    with pytest.raises(ValidationError) as error:
+        load_project_config(path)
+    assert str(error.value) == "tool.trustweave: unknown field 'some_unknown'"
+
+
+def test_project_config_requires_utf8_decoding_a_top_level_table_and_typed_threshold_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Configuration decoding and malformed-value diagnostics remain explicit."""
+
+    path = tmp_path / CONFIG_FILE_NAME
+    observed_encodings: list[str | None] = []
+
+    def capture_read_text(
+        _path: Path, *, encoding: str | None = None, errors: str | None = None
+    ) -> str:
+        observed_encodings.append(encoding)
+        return "[tool.trustweave]\n"
+
+    monkeypatch.setattr(Path, "read_text", capture_read_text)
+    assert load_project_config(path) == {}
+    assert observed_encodings == ["utf-8"]
+
+    monkeypatch.setattr(config_module.tomllib, "loads", lambda _document: 42)
+    with pytest.raises(ValidationError) as error:
+        load_project_config(path)
+    assert str(error.value) == "project configuration must be a TOML table"
+
+    monkeypatch.setattr(
+        config_module.tomllib,
+        "loads",
+        lambda _document: {"tool": {"trustweave": {"failure_threshold": 1}}},
+    )
+    with pytest.raises(ValidationError) as error:
+        load_project_config(path)
+    assert str(error.value) == "tool.trustweave.failure_threshold must be a non-empty string"

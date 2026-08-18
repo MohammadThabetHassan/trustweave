@@ -180,3 +180,19 @@ def test_ci_parser_preserves_declared_argument_types_defaults_and_flags(
     assert parsed.fail_on == "medium"
     assert parsed.format == "markdown"
     assert parsed.quiet is True
+
+
+def test_ci_registration_preserves_top_level_description_and_local_revision_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """CI registration exposes local-only intent and a deterministic no-environment revision."""
+
+    from trustweave.cli import _parser
+
+    monkeypatch.delenv("GITHUB_SHA", raising=False)
+    parser = _parser()
+    assert (
+        "Run configured local evidence stages without executing an agent or contacting services."
+        in _normalized_help(parser.format_help())
+    )
+    assert parser.parse_args(["ci"]).source_revision == "local-uncommitted"

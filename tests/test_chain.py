@@ -146,6 +146,29 @@ def test_chain_review_respects_declared_fail_closed_approval_and_reports_incompl
         generated_at="2026-08-13T00:00:00+00:00",
     )
     assert [item["id"] for item in review["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-003"]
+    sanitizer_finding = review["findings"][1]
+    assert sanitizer_finding == {
+        "id": "TW-CHAIN-003",
+        "severity": "medium",
+        "evidence_kind": "declared_chain_configuration",
+        "message": (
+            "A declared sanitizer does not list coverage for every propagated sensitive "
+            "classification."
+        ),
+        "subject": {"path": ["inbox", "records", "approval", "redactor", "email"]},
+        "properties": {"classifications": ["confidential"], "sanitizer": "redactor"},
+        "location": {"path_identity": "inbox -> records -> approval -> redactor -> email"},
+    }
+
+
+def test_chain_review_rejects_every_non_positive_traversal_budget() -> None:
+    """All declared traversal budgets are strictly positive before graph parsing begins."""
+
+    document = _document(_unsafe_nodes(), [])
+    for budget_name in ("max_nodes", "max_paths", "max_edges", "max_depth", "max_states"):
+        with pytest.raises(ValidationError) as error:
+            review_declared_chains(document, **{budget_name: 0})
+        assert str(error.value) == "chain analysis budgets must be positive"
 
 
 def test_chain_check_cli_writes_local_json_and_markdown(tmp_path: Path) -> None:
@@ -343,6 +366,7 @@ def test_chain_review_rejects_a_document_at_the_exact_default_node_limit() -> No
     assert finding["properties"]["max_edges"] == 5000
     assert finding["properties"]["max_paths"] == 1000
     assert finding["properties"]["max_states"] == 5000
+    assert finding["location"] == {"path_identity": "analysis_budget"}
 
 
 @pytest.mark.parametrize(
@@ -623,3 +647,106 @@ def test_chain_manifest_rejects_duplicate_node_identifiers_with_exact_contract()
     with pytest.raises(ValidationError) as error:
         review_declared_chains(document)
     assert str(error.value) == "chain_manifest.nodes contains duplicate id: source"
+
+
+def test_chain_renderer_preserves_exact_single_finding_fields() -> None:
+    """A rendered reviewer finding preserves canonical identifier, severity, and message fields."""
+
+    review = {
+        "paths": [{"identity": ["inbox", "records", "email"]}],
+        "findings": [
+            {
+                "id": "TW-CHAIN-EXACT",
+                "severity": "high",
+                "message": "EXPECTED CHAIN REVIEW MESSAGE.",
+            }
+        ],
+    }
+
+    assert render_chain_review(review) == (
+        "# Declared Chain Review\n\n"
+        "## Declared paths\n\n"
+        "- `inbox -> records -> email`\n\n"
+        "## Review findings\n\n"
+        "- **TW-CHAIN-EXACT** (high): EXPECTED CHAIN REVIEW MESSAGE.\n\n"
+        "> This report reviews supplied declared graph metadata only. It does not demonstrate "
+        "a runtime path, exploitability, or deployed control behavior.\n"
+    )
+
+
+def test_chain_renderer_preserves_exact_findings_and_empty_state_prose() -> None:
+    """Chain output retains exact paths, findings, and safe empty-state prose."""
+
+    rendered = render_chain_review(
+        {
+            "paths": [{"identity": ["inbox", "external"]}],
+            "findings": [
+                {
+                    "id": "TW-CHAIN-RENDER",
+                    "severity": "high",
+                    "message": "EXPECTED chain review message.",
+                }
+            ],
+        }
+    )
+    assert rendered == "\n".join(
+        [
+            "# Declared Chain Review",
+            "",
+            "## Declared paths",
+            "",
+            "- `inbox -> external`",
+            "",
+            "## Review findings",
+            "",
+            "- **TW-CHAIN-RENDER** (high): EXPECTED chain review message.",
+            "",
+            "> This report reviews supplied declared graph metadata only. It does not demonstrate "
+            "a runtime path, exploitability, or deployed control behavior.",
+            "",
+        ]
+    )
+    assert (
+        render_chain_review({"paths": [], "findings": []}).count(
+            "No reviewer-facing findings were produced from the supplied declarations."
+        )
+        == 1
+    )
+
+
+def test_chain_review_processes_sensitive_terminals_after_a_clear_terminal_path() -> None:
+    """A clear terminal cannot stop review of later sensitive terminal paths."""
+
+    review = review_declared_chains(
+        _document(
+            [
+                {"id": "a-clear", "kind": "source", "trust": "untrusted"},
+                {"id": "b-sensitive", "kind": "source", "trust": "untrusted"},
+                {"id": "records", "kind": "data", "classification": "confidential"},
+                {"id": "external", "kind": "sink", "action_class": "external"},
+            ],
+            [
+                {"from": "a-clear", "to": "external"},
+                {"from": "b-sensitive", "to": "records"},
+                {"from": "records", "to": "external"},
+            ],
+        )
+    )
+
+    assert review["paths"] == [
+        {"identity": ["a-clear", "external"]},
+        {"identity": ["b-sensitive", "records", "external"]},
+    ]
+    assert [finding["id"] for finding in review["findings"]] == [
+        "TW-CHAIN-001",
+        "TW-CHAIN-002",
+    ]
+    assert review["findings"][0]["subject"] == {"path": ["b-sensitive", "records", "external"]}
+
+
+def test_chain_renderer_uses_the_literal_finding_path_for_malformed_finding_entries() -> None:
+    """Renderer diagnostics identify each malformed finding as `finding`, not an internal alias."""
+
+    with pytest.raises(ValidationError) as error:
+        render_chain_review({"paths": [], "findings": ["not-a-finding"]})
+    assert str(error.value) == "finding must be an object"

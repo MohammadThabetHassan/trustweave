@@ -9,10 +9,12 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
+import trustweave.models as models_module
 from trustweave.models import (
     ValidationError,
     parse_manifest,
     parse_policy,
+    reject_unknown_fields,
     validate_capability_pattern,
     validate_identifier,
     validate_rule_identifier,
@@ -60,6 +62,34 @@ def _policy() -> dict[str, Any]:
             }
         ],
     }
+
+
+def test_policy_parser_preserves_taxonomy_and_typed_constraint_diagnostics() -> None:
+    """Policy taxonomy remains declared data and typed constraints retain their field paths."""
+
+    document = _policy()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["classification_taxonomy"] = ["public", "internal", "restricted"]
+    parsed = parse_policy(document)
+    assert parsed.classification_taxonomy == ("public", "internal", "restricted")
+
+    invalid = _policy()
+    invalid["rules"][0]["source_data_classifications"] = [1]
+    with pytest.raises(ValidationError) as error:
+        parse_policy(invalid)
+    assert "policy.rules[0].source_data_classifications" in str(error.value)
+
+
+def test_unknown_field_suggestions_remain_exact_and_deterministic() -> None:
+    """Unknown field diagnostics retain nearest-field suggestions for local remediation."""
+
+    with pytest.raises(ValidationError) as error:
+        reject_unknown_fields({"g0od": True}, {"good"}, "obj")
+    assert str(error.value) == "obj: unknown field 'g0od'; did you mean 'good'?"
+
+    with pytest.raises(ValidationError) as error:
+        reject_unknown_fields({"alphx": True}, {"alpha", "beta"}, "obj")
+    assert str(error.value) == "obj: unknown field 'alphx'; did you mean 'alpha'?"
 
 
 @pytest.mark.parametrize(
@@ -980,3 +1010,25 @@ def test_manifest_parser_rejects_non_string_field_names_with_exact_type_diagnost
     with pytest.raises(ValidationError) as error:
         parse_manifest(document)
     assert str(error.value) == "manifest: field names must be strings; received int key 1"
+
+
+def test_unique_name_diagnostics_list_sorted_duplicates_exactly() -> None:
+    """Duplicate local names retain a deterministic, comma-separated remediation diagnostic."""
+
+    with pytest.raises(ValidationError) as error:
+        models_module._unique_names(("a", "b", "a", "b"), "names")
+    assert str(error.value) == "names contains duplicate values: a, b"
+
+
+def test_manifest_tool_capabilities_reject_namespace_separators() -> None:
+    """Declared manifest capabilities must remain single local dotted identifiers."""
+
+    document = _manifest()
+    document["tools"][0]["capabilities"] = ["namespace/capability"]
+
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(document)
+    assert str(error.value) == (
+        "manifest.tools[0].capabilities must use lowercase ASCII letters, numbers, '.', '_', "
+        "or '-' only"
+    )

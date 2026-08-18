@@ -353,3 +353,26 @@ def test_synthetic_explanation_binds_complete_predicate_subject(
     assert flow.tool == "records-api"
     assert flow.purpose == "case_lookup"
     assert flow.purpose_tags == ("case_lookup",)
+
+
+def test_policy_explanation_rejects_mismatched_rule_and_check_cardinality(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Explanation must not silently truncate declared rules when evidence cardinality diverges."""
+
+    policy = _policy()
+    original_rules = policy.rules
+    mutated = False
+
+    def shorten_declared_rules(*_arguments: object) -> dict[str, object]:
+        nonlocal mutated
+        if not mutated:
+            object.__setattr__(policy, "rules", original_rules[:-1])
+            mutated = True
+        return {}
+
+    monkeypatch.setattr(engine_module, "_rule_matches", lambda *_arguments: False)
+    monkeypatch.setattr(engine_module, "_rule_match_checks", shorten_declared_rules)
+
+    with pytest.raises(ValueError):
+        explain_policy_decision(policy, "trusted", "read")

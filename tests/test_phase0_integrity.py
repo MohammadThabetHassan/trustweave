@@ -653,3 +653,130 @@ def test_v1alpha3_verifier_fails_closed_for_every_required_binding_shape(tmp_pat
             "v1alpha3 attestation bindings do not match their predicate",
             "v1alpha3 attestation integrity does not match its bindings",
         }
+
+
+@pytest.mark.parametrize("logical_name", ("", ".", "..", "/", "nested/bundle.json"))
+def test_v1alpha3_attestation_rejects_non_file_logical_artifact_names(
+    tmp_path: Path, logical_name: str
+) -> None:
+    """Logical artifact names are single stable file identities, never paths or dot segments."""
+
+    bundle_path = write_json(tmp_path / "bundle.json", {"bundle": 1})
+    results_path = write_json(tmp_path / "results.json", {"results": 1})
+
+    with pytest.raises(ValidationError) as error:
+        build_attestation(
+            bundle_path,
+            results_path,
+            source_revision="logical-name-boundary",
+            bundle_name=logical_name,
+        )
+    assert str(error.value) == "bundle logical artifact name must be one relative file name"
+
+
+def test_v1alpha3_attestation_rejects_each_malformed_top_level_binding_half(
+    tmp_path: Path,
+) -> None:
+    """Verification must reject a malformed predicate or integrity envelope independently."""
+
+    bundle_path = write_json(tmp_path / "bundle.json", {"bundle": 1})
+    results_path = write_json(tmp_path / "results.json", {"results": 1})
+    attestation = build_attestation(bundle_path, results_path, source_revision="malformed-half")
+
+    malformed_predicate = {**attestation, "predicate": "not-a-mapping"}
+    malformed_integrity = {**attestation, "integrity": "not-a-mapping"}
+    expected = (False, "Attestation is missing predicate or integrity data")
+
+    assert verify_attestation(malformed_predicate) == expected
+    assert verify_attestation(malformed_integrity) == expected
+
+
+def test_v1alpha3_attestation_preserves_exact_test_results_mismatch_diagnostic(
+    tmp_path: Path,
+) -> None:
+    """Supplied test-results byte drift remains distinguishable from bundle drift."""
+
+    bundle_path = write_json(tmp_path / "bundle.json", {"bundle": 1})
+    results_path = write_json(tmp_path / "results.json", {"results": 1})
+    attestation = build_attestation(
+        bundle_path,
+        results_path,
+        source_revision="test-results-mismatch",
+        generated_at="2026-08-18T00:00:00+00:00",
+    )
+    results_path.write_text('{"results":2}\n', encoding="utf-8")
+
+    assert verify_attestation(attestation, test_results_path=results_path) == (
+        False,
+        "Supplied test-results file does not match v1alpha3 exact-file and stable-payload digests",
+    )
+
+
+def test_evidence_digest_and_required_file_validation_boundaries(tmp_path: Path) -> None:
+    """Integrity helpers accept only lowercase 64-character SHA-256 strings and real files."""
+
+    assert evidence_module._valid_digest("0" * 64)
+    assert not evidence_module._valid_digest(list("0" * 64))
+    assert not evidence_module._valid_digest("short")
+    assert not evidence_module._valid_digest("X" * 64)
+
+    missing = tmp_path / "missing.json"
+    with pytest.raises(ValidationError) as error:
+        evidence_module._file_hash(missing)
+    assert str(error.value) == f"Required generated artifact is missing: {missing}"
+
+
+def test_v1alpha3_default_revision_and_internal_malformed_digest_checks(tmp_path: Path) -> None:
+    """Default provenance and malformed digest branches remain explicit and fail closed."""
+
+    bundle_path = write_json(tmp_path / "bundle.json", {"bundle": 1})
+    results_path = write_json(tmp_path / "results.json", {"results": 1})
+    attestation = build_attestation(bundle_path, results_path)
+    assert attestation["predicate"]["source_revision"] == "local-uncommitted"
+
+    assert not evidence_module._verify_supplied_file(bundle_path, "bad", "a" * 64)
+    assert not evidence_module._verify_supplied_file(bundle_path, "bad", "also_bad")
+    assert not evidence_module._verify_v1alpha3_attestation(
+        {
+            "stable_payload": {"bundle_sha256": "bad", "test_results_sha256": "a" * 64},
+            "exact_files": {},
+        },
+        {},
+        {},
+    )
+    assert not evidence_module._verify_v1alpha3_attestation(
+        {
+            "stable_payload": {"bundle_sha256": "a" * 64, "test_results_sha256": "a" * 64},
+            "exact_files": {"files": [{"name": 123, "sha256": "a" * 64}]},
+        },
+        {},
+        {},
+    )
+
+
+def test_evidence_helpers_reject_invalid_logical_names_and_digest_halves(tmp_path: Path) -> None:
+    """Evidence helpers fail closed for dot logical names and either invalid digest half."""
+
+    with pytest.raises(ValidationError) as error:
+        evidence_module._logical_name(".", tmp_path / "bundle.json", "bundle")
+    assert str(error.value) == "bundle logical artifact name must be one relative file name"
+
+    assert not evidence_module._verify_supplied_file(tmp_path / "missing.json", "bad", "a" * 64)
+
+    subjects = [
+        {"name": "bundle.json", "digest": {"sha256": "a" * 64}},
+        {"name": "test-results.json", "digest": {"sha256": "b" * 64}},
+    ]
+    predicate = {
+        "source_revision": "local-revision",
+        "stable_payload": {
+            "bundle_sha256": "invalid",
+            "test_results_sha256": "c" * 64,
+        },
+        "exact_files": {
+            "bundle": {"name": "bundle.json", "sha256": "a" * 64},
+            "test_results": {"name": "test-results.json", "sha256": "b" * 64},
+        },
+    }
+    integrity = {"chain_sha256": evidence_module._chain_digest_v3(predicate, subjects)}
+    assert not evidence_module._verify_v1alpha3_attestation(predicate, integrity, subjects)

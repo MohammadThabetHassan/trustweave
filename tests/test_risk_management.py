@@ -1871,3 +1871,346 @@ def test_risk_review_counts_severity_escalated_suppressions(
 
     assert review["findings"][0]["risk_state"] == "severity_escalated_suppression"
     assert review["summary"]["severity_escalated_suppression"] == 1
+
+
+@pytest.mark.parametrize(
+    ("value", "valid"),
+    [
+        ("artifact.json", True),
+        ("a" * 4096, True),
+        ("a" * 4097, False),
+        ("artifact\x00.json", False),
+        ("artifact\x7f.json", False),
+    ],
+)
+def test_risk_artifact_paths_enforce_exact_control_and_length_boundaries(
+    value: str, valid: bool
+) -> None:
+    """Risk provenance paths reject every control character and values beyond 4,096 characters."""
+
+    if valid:
+        assert risk_module._artifact_path(value, "artifact_path") == value
+    else:
+        with pytest.raises(ValidationError) as error:
+            risk_module._artifact_path(value, "artifact_path")
+        assert str(error.value) == (
+            "artifact_path must be at most 4096 characters without control characters"
+        )
+
+
+def _strict_baseline_entry() -> dict[str, str]:
+    return {
+        "fingerprint": "a" * 64,
+        "fingerprint_schema_version": risk_module.FINGERPRINT_SCHEMA_VERSION,
+        "rule_id": "TW-STRICT-001",
+        "subject_digest": "b" * 64,
+        "accepted_severity": "medium",
+        "reason": "Explicit bounded local decision.",
+        "owner": "alice",
+        "created_at": "2026-08-14T00:00:00+00:00",
+        "expires_at": "2026-09-01T00:00:00+00:00",
+        "reference": "SEC-123",
+    }
+
+
+def test_risk_decision_entries_preserve_identity_and_reject_non_hex_digests() -> None:
+    """Reviewer decisions retain full identity fields and accept only lowercase SHA-256 digests."""
+
+    entry = _strict_baseline_entry()
+    document = {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [entry]}
+    decisions = risk_module._decision_entries(
+        document,
+        RISK_BASELINE_SCHEMA_VERSION,
+        risk_module.LEGACY_RISK_BASELINE_SCHEMA_VERSION,
+        "baseline",
+    )
+    decision = decisions[entry["fingerprint"]]
+    assert decision.fingerprint == "a" * 64
+    assert decision.owner == "alice"
+    assert decision.reference == "SEC-123"
+    assert decision.subject_digest == "b" * 64
+
+    invalid_cases = (
+        ("fingerprint", "a" * 63, "baseline[0].fingerprint must be a SHA-256 hex digest"),
+        ("fingerprint", "X" * 64, "baseline[0].fingerprint must be a SHA-256 hex digest"),
+        ("subject_digest", "X" * 64, "baseline[0].subject_digest must be a SHA-256 hex digest"),
+    )
+    for field, value, message in invalid_cases:
+        malformed = _strict_baseline_entry()
+        malformed[field] = value
+        with pytest.raises(ValidationError) as error:
+            risk_module._decision_entries(
+                {"schema_version": RISK_BASELINE_SCHEMA_VERSION, "baseline": [malformed]},
+                RISK_BASELINE_SCHEMA_VERSION,
+                risk_module.LEGACY_RISK_BASELINE_SCHEMA_VERSION,
+                "baseline",
+            )
+        assert str(error.value) == message
+
+
+def test_risk_reviewer_selection_key_is_complete_and_stable() -> None:
+    """Equal-severity findings deterministically select reviewer-facing text.
+
+    The selection must not vary with input order.
+    """
+
+    complete = risk_module.CanonicalFinding(
+        artifact_schema_version="trustweave.dev/policy-review/v1alpha1",
+        evidence_kind="declared_configuration",
+        identifier="TW-SELECT-001",
+        severity="high",
+        message="Stable message.",
+        subject={"policy": "support"},
+        fingerprint="c" * 64,
+        title="Stable title.",
+        rationale="Stable rationale.",
+        remediation="Stable remediation.",
+    )
+    absent_optional = risk_module.CanonicalFinding(
+        artifact_schema_version="trustweave.dev/policy-review/v1alpha1",
+        evidence_kind="declared_configuration",
+        identifier="TW-SELECT-002",
+        severity="high",
+        message="Stable message.",
+        subject={"policy": "support"},
+        fingerprint="d" * 64,
+    )
+
+    assert risk_module._reviewer_selection_key(complete) == (
+        risk_module.SEVERITY_RANK["high"],
+        "Stable title.",
+        "Stable message.",
+        "Stable rationale.",
+        "Stable remediation.",
+    )
+    assert risk_module._reviewer_selection_key(absent_optional) == (
+        risk_module.SEVERITY_RANK["high"],
+        "",
+        "Stable message.",
+        "",
+        "",
+    )
+
+
+def test_baseline_creation_preserves_exact_lifecycle_and_lowercase_fingerprint_contracts() -> None:
+    """Baseline creation fails closed on stale creation, non-later expiry, and uppercase digests."""
+
+    review = {
+        "schema_version": RISK_REVIEW_SCHEMA_VERSION,
+        "generated_at": "2026-08-14T12:00:00+00:00",
+        "findings": [
+            {
+                "fingerprint": "a" * 64,
+                "fingerprint_schema_version": risk_module.FINGERPRINT_SCHEMA_VERSION,
+                "id": "TW-BASELINE-STRICT",
+                "severity": "high",
+                "subject": {"tool": "lookup"},
+                "risk_state": "new",
+            }
+        ],
+    }
+    common = {"owner": "security-review", "created_at": "2026-08-14T12:00:00+00:00"}
+
+    with pytest.raises(ValidationError) as error:
+        create_baseline(
+            review,
+            "Explicit local reviewer decision.",
+            "2026-08-14T12:00:00+00:00",
+            **common,
+        )
+    assert str(error.value) == "baseline.expires_at must be later than created_at"
+
+    with pytest.raises(ValidationError) as error:
+        create_baseline(
+            review,
+            "Explicit local reviewer decision.",
+            "2026-09-01T00:00:00+00:00",
+            owner="security-review",
+            created_at="2026-08-13T00:00:00+00:00",
+        )
+    assert str(error.value) == "baseline.created_at must not precede review timestamp"
+
+    uppercase = {**review, "findings": [{**review["findings"][0], "fingerprint": "X" + "0" * 63}]}
+    with pytest.raises(ValidationError) as error:
+        create_baseline(
+            uppercase, "Explicit local reviewer decision.", "2026-09-01T00:00:00+00:00", **common
+        )
+    assert str(error.value) == "risk_review.findings[0].fingerprint must be a SHA-256 hex digest"
+
+
+def test_risk_timestamp_and_normalization_preserve_strict_utc_and_schema_diagnostics() -> None:
+    """Risk parsing normalizes Z timestamps and preserves schema diagnostics."""
+
+    timestamp = risk_module._timestamp("2020-01-01T00:00:00Z", "timestamp")
+    assert timestamp.isoformat() == "2020-01-01T00:00:00+00:00"
+
+    with pytest.raises(ValidationError) as error:
+        normalize_findings({"schema_version": "unsupported", "findings": []})
+    assert str(error.value) == (
+        "artifact.schema_version 'unsupported' is unsupported for risk review; supported schemas: "
+        + ", ".join(sorted(risk_module._ARTIFACT_CONTRACTS))
+    )
+
+    with pytest.raises(ValidationError) as error:
+        normalize_findings(
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [{"id": "TW-RISK-TYPE", "severity": 1, "message": "Type boundary."}],
+            }
+        )
+    assert str(error.value) == "artifact.findings[0].severity must be a non-empty string"
+
+
+def test_risk_review_requires_explicit_review_time_and_orders_conflict_fingerprints(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Risk orchestration rejects implicit time and renders multi-fingerprint conflicts stably."""
+
+    with pytest.raises(ValidationError) as error:
+        review_risks([], reviewed_at=None)
+    assert str(error.value) == "reviewed_at must be supplied by the application boundary"
+
+    decisions = iter(({"b": object(), "a": object()}, {"a": object(), "b": object()}))
+    monkeypatch.setattr(risk_module, "_decision_entries", lambda *_args: next(decisions))
+    with pytest.raises(ValidationError) as error:
+        review_risks([], reviewed_at="2026-08-18T00:00:00+00:00")
+    assert str(error.value) == "baseline and suppressions conflict for fingerprint: a, b"
+
+
+def test_risk_review_preserves_first_equal_finding_and_rejects_metadata_conflicts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fingerprint de-duplication must retain first equal findings but reject identity conflicts."""
+
+    first = risk_module.CanonicalFinding(
+        artifact_schema_version="trustweave.dev/policy-review/v1alpha1",
+        evidence_kind="declared_configuration",
+        identifier="TW-TIE-001",
+        severity="high",
+        message="Stable reviewer text.",
+        subject={"policy": "support"},
+        fingerprint="a" * 64,
+    )
+    equal_second = risk_module.CanonicalFinding(
+        artifact_schema_version="trustweave.dev/policy-review/v1alpha1",
+        evidence_kind="declared_configuration",
+        identifier="TW-TIE-001",
+        severity="high",
+        message="Stable reviewer text.",
+        subject={"policy": "support"},
+        fingerprint="a" * 64,
+    )
+    selected: list[risk_module.CanonicalFinding] = []
+    monkeypatch.setattr(risk_module, "normalize_findings", lambda _artifact: (first, equal_second))
+    monkeypatch.setattr(
+        risk_module,
+        "_status_for",
+        lambda finding, *_args: selected.append(finding) or ("new", None, None),
+    )
+
+    review_risks([{}], reviewed_at="2026-08-18T00:00:00+00:00")
+    assert selected == [first]
+    assert selected[0] is first
+
+    contradictory = risk_module.CanonicalFinding(
+        artifact_schema_version="trustweave.dev/policy-review/v1alpha1",
+        evidence_kind="declared_configuration",
+        identifier="TW-TIE-002",
+        severity="high",
+        message="Stable reviewer text.",
+        subject={"policy": "support"},
+        fingerprint="a" * 64,
+    )
+    monkeypatch.setattr(risk_module, "normalize_findings", lambda _artifact: (first, contradictory))
+    with pytest.raises(ValidationError) as error:
+        review_risks([{}], reviewed_at="2026-08-18T00:00:00+00:00")
+    assert (
+        str(error.value) == "risk findings with one fingerprint have contradictory stable metadata"
+    )
+
+
+def test_risk_timestamp_preserves_invalid_value_path_and_utc_singleton_identity() -> None:
+    """Risk timestamps retain invalid-input paths and normalized UTC identity."""
+
+    with pytest.raises(ValidationError) as error:
+        risk_module._timestamp(None, "reviewed_at")
+    assert str(error.value) == "reviewed_at must be a non-empty string"
+
+    normalized = risk_module._timestamp("2026-08-18T04:00:00+04:00", "reviewed_at")
+    assert normalized.isoformat() == "2026-08-18T00:00:00+00:00"
+    assert normalized.tzinfo is risk_module.UTC
+
+
+def test_risk_status_marks_a_suppression_expiring_at_review_time_as_expired() -> None:
+    """Expiry is inclusive at the review boundary so stale suppressions cannot remain active."""
+
+    finding = risk_module.CanonicalFinding(
+        artifact_schema_version="trustweave.dev/policy-review/v1alpha1",
+        evidence_kind="declared_configuration",
+        identifier="TW-EXPIRY-BOUNDARY",
+        severity="high",
+        message="A review-time boundary fixture.",
+        subject={"policy": "support"},
+        fingerprint="a" * 64,
+    )
+    reviewed_at = risk_module._timestamp("2026-08-18T00:00:00+00:00", "reviewed_at")
+    decision = risk_module.RiskDecision(
+        fingerprint=finding.fingerprint,
+        accepted_severity="high",
+        reason="The reviewer decision has reached its expiry boundary.",
+        owner="security-review",
+        created_at=risk_module._timestamp("2026-08-17T00:00:00+00:00", "created_at"),
+        expires_at=reviewed_at,
+        rule_id=finding.identifier,
+        subject_digest=risk_module._subject_digest(finding.subject),
+    )
+
+    assert risk_module._status_for(finding, {}, {finding.fingerprint: decision}, reviewed_at) == (
+        "expired_suppression",
+        decision.reason,
+        decision.expires_at.isoformat(),
+    )
+
+
+def test_risk_helpers_preserve_legacy_subject_metadata_and_decision_diagnostics() -> None:
+    """Risk helpers retain stable legacy identity and explicit decision-validation diagnostics."""
+
+    assert risk_module._fallback_subject({}, "trustweave.dev/bundle-diff/v1alpha1", "legacy") == {
+        "legacy_message": "legacy"
+    }
+    finding = risk_module.CanonicalFinding(
+        artifact_schema_version="trustweave.dev/policy-review/v1alpha1",
+        evidence_kind="declared_configuration",
+        identifier="TW-STABLE-METADATA",
+        severity="high",
+        message="Stable metadata fixture.",
+        subject={"policy": "support"},
+        fingerprint="b" * 64,
+    )
+    assert risk_module._stable_metadata(finding) == (
+        "trustweave.dev/policy-review/v1alpha1",
+        "declared_configuration",
+        "TW-STABLE-METADATA",
+        canonical_json({"subject": {"policy": "support"}}),
+    )
+
+    with pytest.raises(ValidationError) as error:
+        risk_module._stable_subject({1: "invalid"}, "subject")
+    assert str(error.value) == "subject: subject keys must be strings"
+
+    with pytest.raises(ValidationError) as error:
+        validate_decision_document(
+            {
+                "schema_version": risk_module.LEGACY_RISK_SUPPRESSIONS_SCHEMA_VERSION,
+                "suppressions": [],
+            },
+            "suppressions",
+        )
+    assert str(error.value) == (
+        "suppressions.schema_version trustweave.dev/risk-suppressions/v1alpha1 requires explicit "
+        "migration to trustweave.dev/risk-suppressions/v1alpha2"
+    )
+
+    with pytest.raises(ValidationError) as error:
+        validate_decision_document({}, "unsupported")
+    assert str(error.value) == "decision_kind must be baseline or suppressions"

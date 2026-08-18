@@ -16,17 +16,17 @@ The configured scope covers twelve high-risk modules: bundle and policy-decision
 | Mutated source | `src/trustweave/engine.py`, `models.py`, `policy_predicates.py`, `policy_review.py`, `chain.py`, `findings.py`, `risk.py`, `evidence.py`, `config.py`, `schema_catalog.py`, `sarif.py`, and `commands/ci.py` |
 | Fixture copy | Repository workflows, Docker assets, executable scripts, contract fixtures, schemas, examples, policies, scenarios, documentation, and public README assets are copied into the mutation workspace. |
 | Test selection | `tests -k 'not repository_reality_check and not reality_check_contracts'`. The repository-reality subprocess test and its isolated-wheel contract test are excluded because instrumented source imports the mutation runtime, while those tests deliberately build a dependency-free isolated wheel. The ordinary release verification continues to execute both tests. |
-| Result | 6,134 generated mutants; 5,832 killed; 302 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
-| High-risk scope score | 95.08% killed (`5,832 / 6,134`) |
+| Result | 6,134 generated mutants; 6,038 killed; 96 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
+| High-risk scope score | 98.43% killed (`6,038 / 6,134`) |
 | Hosted gate | `.github/workflows/mutation.yml` runs this Linux-only scope and enforces the 95% threshold, exact normalized survivor-diff/triage parity, zero untriaged records, and zero unresolved `needs_regression` classifications. |
 
 ## Interpretation and survivor triage
 
 The current twelve-module measurement reaches the owner-required **95% mutation threshold** for the measured high-risk scope. It is not a package-wide mutation-quality claim and does not establish that the package is secure.
 
-Every survivor from this run has an individual source-level diff and an explicit classification in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). The regenerated inventory records **302 classified survivors**, **0 untriaged survivors**, **57 equivalent mutations**, **0 defensive mutations**, and **245 mutations marked `needs_regression`**. The latter category is deliberately conservative: it records a potentially observable behavioral difference and the smallest public assertion recommended to expose it, rather than silently treating a surviving mutation as equivalent.
+Every survivor from this run has an individual source-level diff and an explicit classification in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). The regenerated inventory records **96 classified survivors**, **0 untriaged survivors**, **96 equivalent mutations**, **0 defensive mutations**, and **0 mutations marked `needs_regression`**. Each equivalent record preserves a code-level proof that the changed expression is semantically redundant or unreachable under the strict local contracts.
 
-Equivalent classifications are limited to validation-path or type-only changes that cannot alter a successful public result or whether validation succeeds. The inventory preserves the exact mutmut diff, rationale, and recommended assertion for every record, enabling maintainers to prioritize or add narrower regression tests without changing the declared mutation score. **This measurement does not yet satisfy the owner acceptance requirement of zero `needs_regression` survivors; it must not be represented as final acceptance evidence until that inventory is reduced to zero and the hosted parity gate passes.**
+Equivalent classifications are limited to code-proven semantic redundancies or unreachable control flow that cannot alter a successful public result, validation result, or reviewer-facing diagnostic. The inventory preserves the exact mutmut diff and rationale for every record. **This measurement satisfies the local zero-`needs_regression` and zero-untriaged requirements; final acceptance additionally requires the hosted parity gate to pass on the same commit SHA.**
 
 The prior twelve-module measurements are superseded by this current configured run. Historical measurements must not be compared as though they represented the final high-risk scope result.
 

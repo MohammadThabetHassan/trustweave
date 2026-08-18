@@ -9,7 +9,15 @@ import pytest
 from trustweave.cli import main
 from trustweave.models import ValidationError
 from trustweave.risk import review_risks
-from trustweave.sarif import SARIF_SCHEMA_URI, SARIF_VERSION, build_sarif
+from trustweave.sarif import (
+    REVIEW_INPUT_MAP,
+    SARIF_SCHEMA_URI,
+    SARIF_VERSION,
+    _canonical_fingerprint,
+    _review_findings,
+    _sequence,
+    build_sarif,
+)
 
 
 def _review_documents() -> dict[str, tuple[str, dict[str, object]]]:
@@ -430,3 +438,156 @@ def test_sarif_canonical_result_order_uses_rule_message_uri_and_fallback_fingerp
         ("TW-ORDER-001", "[trace] Alpha finding.", "artifacts/a-trace.json"),
     ]
     assert len({next(iter(result["partialFingerprints"].values())) for result in results}) == 3
+
+
+def test_sarif_preserves_exact_input_diagnostics_and_canonical_raw_deduplication() -> None:
+    """SARIF requires recognized reviews and collapses canonical-identity duplicates."""
+
+    with pytest.raises(ValidationError) as error:
+        build_sarif({})
+    assert (
+        str(error.value) == "At least one TrustWeave review artifact is required for SARIF export"
+    )
+
+    with pytest.raises(ValidationError) as error:
+        build_sarif({"b": ("b.json", {}), "a": ("a.json", {})})
+    assert str(error.value) == "Unsupported SARIF review kinds: a, b"
+
+    duplicate_identity = {
+        "policy": (
+            "artifacts/policy-review.json",
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "policy": "support-policy",
+                "findings": [
+                    {"id": "TW-CANONICAL-001", "severity": "high", "message": "First wording."},
+                    {"id": "TW-CANONICAL-001", "severity": "high", "message": "Second wording."},
+                ],
+            },
+        )
+    }
+    results = build_sarif(duplicate_identity)["runs"][0]["results"]
+    assert len(results) == 1
+    assert results[0]["ruleId"] == "TW-CANONICAL-001"
+    assert results[0]["message"] == {"text": "[policy] First wording."}
+
+    ordered = build_sarif(
+        {
+            "policy": (
+                "artifacts/b-policy.json",
+                {
+                    "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                    "findings": [
+                        {"id": "TW-ORDER-B", "severity": "low", "message": "Same message."},
+                        {"id": "TW-ORDER-A", "severity": "low", "message": "Same message."},
+                    ],
+                },
+            )
+        }
+    )["runs"][0]["results"]
+    assert [result["ruleId"] for result in ordered] == ["TW-ORDER-A", "TW-ORDER-B"]
+
+
+def test_sarif_helper_fallbacks_are_strict_for_non_sequences_and_invalid_normalization() -> None:
+    """SARIF helpers return safe empty fallbacks for invalid local review shapes."""
+
+    assert _sequence(5) == ()
+    assert (
+        _canonical_fingerprint(
+            {"schema_version": "trustweave.dev/policy-review/v1alpha1", "findings": []},
+            "findings",
+            {
+                "id": "TW-INVALID",
+                "severity": "high",
+                "message": "Invalid normalization.",
+                "subject": {"invalid": 1},
+            },
+        )
+        == ""
+    )
+
+
+def test_sarif_risk_review_filtering_preserves_schema_and_field_diagnostics() -> None:
+    """Risk SARIF conversion validates state paths and continues after inactive findings."""
+
+    supported = ", ".join(sorted(REVIEW_INPUT_MAP["risk"][0]))
+    with pytest.raises(ValidationError) as error:
+        _review_findings("risk", {"schema_version": "unsupported", "findings": []})
+    assert str(error.value) == f"risk review must use one of: {supported}"
+
+    malformed_state = {
+        "schema_version": "trustweave.dev/risk-review/v1alpha2",
+        "findings": [
+            {
+                "id": "TW-RISK-STATE",
+                "severity": "high",
+                "message": "Risk state is required.",
+                "fingerprint": "a" * 64,
+            }
+        ],
+    }
+    with pytest.raises(ValidationError) as error:
+        _review_findings("risk", malformed_state)
+    assert str(error.value) == "risk.findings[0].risk_state must be a non-empty string"
+
+    review = {
+        "schema_version": "trustweave.dev/risk-review/v1alpha2",
+        "findings": [
+            {
+                "id": "TW-RISK-INACTIVE",
+                "severity": "low",
+                "message": "An approved decision remains recorded.",
+                "risk_state": "baselined",
+                "fingerprint": "b" * 64,
+            },
+            {
+                "id": "TW-RISK-ACTIVE",
+                "severity": "high",
+                "message": "An active decision needs reviewer attention.",
+                "risk_state": "new",
+                "fingerprint": "c" * 64,
+            },
+        ],
+    }
+    assert _review_findings("risk", review) == [
+        {
+            "id": "TW-RISK-ACTIVE",
+            "message": "An active decision needs reviewer attention.",
+            "severity": "high",
+            "fingerprint": "c" * 64,
+        }
+    ]
+
+
+def test_sarif_fallback_fingerprints_preserve_distinct_results() -> None:
+    """Fallback fingerprints retain distinct raw findings when normalization is unavailable."""
+
+    invalid_subject = {"invalid": 1}
+    distinct = build_sarif(
+        {
+            "policy": (
+                "artifacts/policy.json",
+                {
+                    "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                    "findings": [
+                        {
+                            "id": "TW-FALLBACK-A",
+                            "severity": "high",
+                            "message": "First fallback finding.",
+                            "subject": invalid_subject,
+                        },
+                        {
+                            "id": "TW-FALLBACK-B",
+                            "severity": "high",
+                            "message": "Second fallback finding.",
+                            "subject": invalid_subject,
+                        },
+                    ],
+                },
+            )
+        }
+    )
+    assert [result["ruleId"] for result in distinct["runs"][0]["results"]] == [
+        "TW-FALLBACK-A",
+        "TW-FALLBACK-B",
+    ]
