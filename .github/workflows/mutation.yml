@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          mutmut run 2>&1 | tee mutation-run.log
+          env -u GITHUB_SHA mutmut run 2>&1 | tee mutation-run.log
           mutmut results --all true > mutation-results.txt
 
       - name: Mutation quality and survivor gate

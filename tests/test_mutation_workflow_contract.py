@@ -13,6 +13,11 @@ def test_hosted_mutation_workflow_enforces_final_survivor_triage_acceptance_gate
     workflow = yaml.safe_load((ROOT / ".github/workflows/mutation.yml").read_text(encoding="utf-8"))
     job = workflow["jobs"]["mutation-quality"]
     assert job["name"] == "Mutation quality and survivor gate"
+    mutation_run = next(
+        step for step in job["steps"] if step["name"] == "Run selected mutation scope"
+    )
+    assert "env -u GITHUB_SHA mutmut run" in mutation_run["run"]
+
     gate = next(
         step for step in job["steps"] if step["name"] == "Mutation quality and survivor gate"
     )
