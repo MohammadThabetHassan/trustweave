@@ -79,8 +79,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Quality
 
-- Completed a twelve-module mutmut measurement with **5,828 of 6,134 mutants killed (95.00%)**. The survivor inventory is regenerated from the run, preserves exact diffs, and records zero untriaged entries; unresolved `needs_regression` classifications remain an explicit pre-merge acceptance blocker until eliminated.
-- Strengthened the hosted mutation workflow to require a 95% score, internally consistent evidence, exact survivor-to-triage ID parity, non-empty equivalent/defensive rationales, zero untriaged records, and zero `needs_regression` classifications.
+- Completed a twelve-module mutmut measurement with **5,832 of 6,134 mutants killed (95.08%)**. The regenerated 302-survivor inventory preserves exact normalized source diffs and records zero untriaged entries; unresolved `needs_regression` classifications remain an explicit pre-merge acceptance blocker until eliminated.
+- Strengthened the hosted mutation workflow to require a 95% score, internally consistent evidence, exact normalized survivor-diff/triage parity, non-empty equivalent/defensive rationales, zero untriaged records, and zero `needs_regression` classifications.
 - Raised the enforced branch-coverage gate to 95% after expanding deterministic boundary and property-based regression coverage for local configuration, public review envelopes, manifests, policies, chains, traces, MCP profiles, risk lifecycle decisions, bundle diffs, CLI error handling, and unsigned statements.
 
 - Corrected the stale adversarial-scenario claim in `docs/QUALITY.md` from ten to the source-derived count of 25.

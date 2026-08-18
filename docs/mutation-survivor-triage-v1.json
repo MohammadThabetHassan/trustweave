@@ -2,12 +2,12 @@
   "classification_counts": {
     "defensive": 0,
     "equivalent": 57,
-    "needs_regression": 249
+    "needs_regression": 245
   },
   "classification_policy": "Every record preserves the mutmut source diff. Classifications are conservative: only unambiguously validation-path-only or type-only changes are equivalent; any potentially observable effect is marked needs_regression.",
-  "mutation_run": "5,828 killed / 6,134 generated (95.00% killed)",
+  "mutation_run": "5,832 killed / 6,134 generated (95.08% killed)",
   "schema_version": "v1",
-  "survivor_count": 306,
+  "survivor_count": 302,
   "survivors": [
     {
       "classification": "needs_regression",
@@ -603,34 +603,6 @@
       "id": "trustweave.commands.ci.x_handle__mutmut_189",
       "rationale": "The variable 'chain_review' is changed from None to the empty string. That changes value/type semantics and can affect review assembly and serialization, altering public outputs (written review files and their contents).",
       "regression_assertion": "Run CI in a configuration that would produce/omit a chain review and assert that the chain_review entry in the produced reviews JSON is null/absent (not an empty string) when no chain review exists. e.g., assert json.load(reviews_path).get('chain_review') is None or 'chain_review' not in json.load(reviews_path)"
-    },
-    {
-      "classification": "needs_regression",
-      "diff": "# trustweave.commands.ci.x_handle__mutmut_23: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -8,7 +8,7 @@\n     reproducible = config.get(\"reproducible\", False)\n     if not isinstance(reproducible, bool):\n         raise ValidationError(\"tool.trustweave.reproducible must be a boolean\")\n-    if reproducible and getattr(args, \"generated_at_source\", \"clock\") == \"clock\":\n+    if reproducible and getattr(args, \"generated_at_source\", None) == \"clock\":\n         raise ValidationError(\n             \"reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance \"\n             \"is not deterministic\"\n",
-      "id": "trustweave.commands.ci.x_handle__mutmut_23",
-      "rationale": "The getattr default for args.generated_at_source was changed from 'clock' to None. That changes validation semantics: previously a missing attribute counted as 'clock' and could trigger a ValidationError when reproducible is true; now it will not. This alters the validation decision (error contract).",
-      "regression_assertion": "with pytest.raises(ValidationError): handle(types.SimpleNamespace(), config={'reproducible': True})  # args has no generated_at_source"
-    },
-    {
-      "classification": "needs_regression",
-      "diff": "# trustweave.commands.ci.x_handle__mutmut_26: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -8,7 +8,7 @@\n     reproducible = config.get(\"reproducible\", False)\n     if not isinstance(reproducible, bool):\n         raise ValidationError(\"tool.trustweave.reproducible must be a boolean\")\n-    if reproducible and getattr(args, \"generated_at_source\", \"clock\") == \"clock\":\n+    if reproducible and getattr(args, \"generated_at_source\", ) == \"clock\":\n         raise ValidationError(\n             \"reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance \"\n             \"is not deterministic\"\n",
-      "id": "trustweave.commands.ci.x_handle__mutmut_26",
-      "rationale": "The call to getattr was changed to omit the default argument (effectively defaulting to None). This changes validation behavior in the same way as mutmut_23: missing generated_at_source no longer compares equal to 'clock', altering the error path.",
-      "regression_assertion": "with pytest.raises(ValidationError): handle(types.SimpleNamespace(), config={'reproducible': True})  # args has no generated_at_source"
-    },
-    {
-      "classification": "needs_regression",
-      "diff": "# trustweave.commands.ci.x_handle__mutmut_29: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -8,7 +8,7 @@\n     reproducible = config.get(\"reproducible\", False)\n     if not isinstance(reproducible, bool):\n         raise ValidationError(\"tool.trustweave.reproducible must be a boolean\")\n-    if reproducible and getattr(args, \"generated_at_source\", \"clock\") == \"clock\":\n+    if reproducible and getattr(args, \"generated_at_source\", \"XXclockXX\") == \"clock\":\n         raise ValidationError(\n             \"reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance \"\n             \"is not deterministic\"\n",
-      "id": "trustweave.commands.ci.x_handle__mutmut_29",
-      "rationale": "The getattr default was changed from 'clock' to 'XXclockXX'. If args lacks generated_at_source, the comparison to 'clock' now yields False, changing whether the ValidationError is raised when reproducible is true. This alters the validation contract.",
-      "regression_assertion": "with pytest.raises(ValidationError): handle(types.SimpleNamespace(), config={'reproducible': True})  # args has no generated_at_source"
-    },
-    {
-      "classification": "needs_regression",
-      "diff": "# trustweave.commands.ci.x_handle__mutmut_30: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -8,7 +8,7 @@\n     reproducible = config.get(\"reproducible\", False)\n     if not isinstance(reproducible, bool):\n         raise ValidationError(\"tool.trustweave.reproducible must be a boolean\")\n-    if reproducible and getattr(args, \"generated_at_source\", \"clock\") == \"clock\":\n+    if reproducible and getattr(args, \"generated_at_source\", \"CLOCK\") == \"clock\":\n         raise ValidationError(\n             \"reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance \"\n             \"is not deterministic\"\n",
-      "id": "trustweave.commands.ci.x_handle__mutmut_30",
-      "rationale": "The getattr default was changed from 'clock' to 'CLOCK' (different case). A missing attribute now yields 'CLOCK' which != 'clock', changing validation behavior and whether ValidationError is raised. This affects the public error contract.",
-      "regression_assertion": "with pytest.raises(ValidationError): handle(types.SimpleNamespace(), config={'reproducible': True})  # args has no generated_at_source"
     },
     {
       "classification": "needs_regression",
