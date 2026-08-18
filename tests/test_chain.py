@@ -386,3 +386,240 @@ def test_chain_renderer_preserves_clear_review_explanatory_boundary() -> None:
         "> This report reviews supplied declared graph metadata only. It does not demonstrate "
         "a runtime path, exploitability, or deployed control behavior.\n"
     )
+
+
+def test_chain_review_accepts_a_document_at_the_exact_default_node_limit() -> None:
+    """The inclusive node budget accepts exactly 1,000 nodes without an incomplete review."""
+
+    nodes = [
+        {"id": f"node-{index}", "kind": "tool", "action_class": "read"} for index in range(1_000)
+    ]
+
+    review = review_declared_chains(_document(nodes, []), generated_at="2026-08-18T00:00:00+00:00")
+
+    assert review["paths"] == []
+    assert review["findings"] == []
+
+
+@pytest.mark.parametrize(
+    ("document", "kwargs", "message"),
+    [
+        (
+            _document(
+                [
+                    {"id": "source", "kind": "source", "trust": "trusted"},
+                    {"id": "sink", "kind": "sink"},
+                ],
+                [{"from": "source", "to": "sink"}],
+            ),
+            {},
+            "action_class is required",
+        ),
+        (
+            _document(
+                [
+                    {"id": "source", "kind": "source", "trust": "trusted"},
+                    {"id": "approval", "kind": "approval", "fail_closed": "yes"},
+                ],
+                [{"from": "source", "to": "approval"}],
+            ),
+            {},
+            "fail_closed must be a boolean",
+        ),
+        (_document([], []), {}, "nodes must not be empty"),
+        (_document(_unsafe_nodes(), []), {"max_paths": 0}, "budgets must be positive"),
+    ],
+)
+def test_chain_review_rejects_required_node_and_budget_boundary_values(
+    document: dict[str, object], kwargs: dict[str, int], message: str
+) -> None:
+    """Declared graph validation fails before a public review can omit required semantics."""
+
+    with pytest.raises(ValidationError, match=message):
+        review_declared_chains(document, **kwargs)
+
+
+@pytest.mark.parametrize(
+    ("edges", "message"),
+    [
+        ("not-a-list", "chain_manifest.edges must be a list"),
+        (["not-an-object"], "chain_manifest.edges[0] must be an object"),
+        (
+            [{"from": "source", "to": "sink", "unexpected": True}],
+            "chain_manifest.edges[0]: unknown field 'unexpected'",
+        ),
+        ([{"from": "", "to": "sink"}], "chain_manifest.edges[0].from must be a non-empty string"),
+        ([{"from": "source", "to": ""}], "chain_manifest.edges[0].to must be a non-empty string"),
+        (
+            [{"from": "source", "to": "unknown"}],
+            "chain_manifest.edges[0] references an unknown declared node",
+        ),
+    ],
+)
+def test_chain_manifest_rejects_malformed_declared_edges(edges: object, message: str) -> None:
+    """Every edge must have a bounded object shape and reference declared node identifiers."""
+
+    document = _document(
+        [
+            {"id": "source", "kind": "source", "trust": "trusted"},
+            {"id": "sink", "kind": "sink", "action_class": "read"},
+        ],
+        [],
+    )
+    document["edges"] = edges
+
+    with pytest.raises(ValidationError) as error:
+        review_declared_chains(document)
+    assert str(error.value) == message
+
+
+def test_chain_manifest_accepts_declared_conditional_source_trust() -> None:
+    """Conditional trust is an explicit supported source posture, not an unknown label."""
+
+    review = review_declared_chains(
+        _document(
+            [
+                {
+                    "id": "conditional-ingress",
+                    "kind": "source",
+                    "trust": "conditional",
+                    "classification": "internal",
+                },
+                {"id": "archive", "kind": "sink", "action_class": "write"},
+            ],
+            [{"from": "conditional-ingress", "to": "archive"}],
+        ),
+        generated_at="2026-08-18T00:00:00+00:00",
+    )
+
+    assert review["paths"] == []
+    assert review["findings"] == []
+
+
+@pytest.mark.parametrize(
+    ("nodes", "message"),
+    [
+        (
+            [{"id": "ingress", "kind": "source", "trust": "unknown"}],
+            "chain_manifest.nodes[0].trust must be a declared trust label",
+        ),
+        (
+            [{"id": "ingress", "kind": "source", "trust": "trusted", "classification": ""}],
+            "chain_manifest.nodes[0].classification must be a non-empty string",
+        ),
+        (
+            [{"id": "email", "kind": "tool", "action_class": "network"}],
+            "chain_manifest.nodes[0].action_class must be one of "
+            "['external', 'read', 'sensitive', 'write']",
+        ),
+        (
+            [{"id": "redact", "kind": "sanitizer", "covers_classifications": [""]}],
+            "chain_manifest.nodes[0].covers_classifications must be a non-empty string",
+        ),
+    ],
+)
+def test_chain_manifest_preserves_exact_node_field_diagnostics(
+    nodes: list[dict[str, object]], message: str
+) -> None:
+    """Invalid declared node fields fail closed using stable manifest paths."""
+
+    with pytest.raises(ValidationError) as error:
+        review_declared_chains(_document(nodes, []))
+    assert str(error.value) == message
+
+
+@pytest.mark.parametrize(
+    ("document", "message"),
+    [
+        ([], "chain_manifest must be an object"),
+        (
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "chain",
+                "nodes": [],
+                "edges": [],
+                "unexpected": True,
+            },
+            "chain_manifest: unknown field 'unexpected'",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "",
+                "nodes": [],
+                "edges": [],
+            },
+            "chain_manifest.name must be a non-empty string",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "chain",
+                "nodes": {},
+                "edges": [],
+            },
+            "chain_manifest.nodes must be a list",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "chain",
+                "nodes": ["invalid"],
+                "edges": [],
+            },
+            "chain_manifest.nodes[0] must be an object",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "chain",
+                "nodes": [{"id": "", "kind": "source", "trust": "trusted"}],
+                "edges": [],
+            },
+            "chain_manifest.nodes[0].id must be a non-empty string",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "chain",
+                "nodes": [{"id": "node", "kind": "unknown"}],
+                "edges": [],
+            },
+            "chain_manifest.nodes[0].kind must be one of "
+            "['approval', 'data', 'sanitizer', 'sink', 'source', 'tool']",
+        ),
+        (
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "chain",
+                "nodes": [],
+                "edges": [],
+            },
+            "chain_manifest.nodes must not be empty",
+        ),
+    ],
+)
+def test_chain_manifest_preserves_exact_root_and_node_structure_diagnostics(
+    document: object, message: str
+) -> None:
+    """Malformed manifest structure retains precise root and indexed-node remediation paths."""
+
+    with pytest.raises(ValidationError) as error:
+        review_declared_chains(document)
+    assert str(error.value) == message
+
+
+def test_chain_manifest_rejects_duplicate_node_identifiers_with_exact_contract() -> None:
+    """Each declared node identifier names one unique fixed topology position."""
+
+    document = _document(
+        [
+            {"id": "source", "kind": "source", "trust": "trusted"},
+            {"id": "source", "kind": "sink", "action_class": "write"},
+        ],
+        [],
+    )
+
+    with pytest.raises(ValidationError) as error:
+        review_declared_chains(document)
+    assert str(error.value) == "chain_manifest.nodes contains duplicate id: source"

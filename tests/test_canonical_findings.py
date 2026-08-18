@@ -299,3 +299,93 @@ def test_parse_finding_round_trips_all_bounded_optional_metadata_deterministical
         "references": [{"uri": "local://a"}, {"uri": "local://z"}],
         "properties": {"count": 3, "labels": ["alpha", "zeta"], "reviewed": True},
     }
+
+
+def test_canonical_finding_reference_limit_is_inclusive_and_reference_values_are_scalar() -> None:
+    """Reference metadata admits exactly the bounded maximum and rejects unsafe value shapes."""
+
+    maximum_references = tuple({"uri": f"local://reference-{index}"} for index in range(64))
+    rendered = finding(
+        "TW-TEST-REFERENCE-LIMIT",
+        "low",
+        "A bounded reference fixture.",
+        "declared_configuration",
+        references=maximum_references,
+    )
+    assert len(rendered["references"]) == 64
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-REFERENCE-OVERFLOW",
+            "low",
+            "An overflowing reference fixture.",
+            "declared_configuration",
+            references=maximum_references + ({"uri": "local://overflow"},),
+        )
+    assert str(error.value) == "canonical finding references may contain at most 64 entries"
+
+    for value in (True, 1, ["local://nested"]):
+        with pytest.raises(ValueError) as error:
+            finding(
+                "TW-TEST-REFERENCE-SHAPE",
+                "low",
+                "An invalid reference metadata fixture.",
+                "declared_configuration",
+                references=({"uri": value},),
+            )
+        assert (
+            str(error.value) == "canonical finding references[].uri has an unsupported value type"
+        )
+
+
+def test_canonical_finding_metadata_bounds_are_inclusive_at_all_supported_endpoints() -> None:
+    """Subject/property metadata preserves exact field, integer, and string-array bounds."""
+
+    subject = {f"field_{index}": "value" for index in range(32)}
+    properties = {f"property_{index}": "value" for index in range(61)}
+    properties.update({"zero": 0, "maximum": 2_147_483_647, "labels": ["zeta", "alpha"]})
+    rendered = finding(
+        "TW-TEST-METADATA-BOUND",
+        "low",
+        "A metadata boundary fixture.",
+        "declared_configuration",
+        subject=subject,
+        properties=properties,
+    )
+    assert len(rendered["subject"]) == 32
+    assert rendered["properties"]["zero"] == 0
+    assert rendered["properties"]["maximum"] == 2_147_483_647
+    assert rendered["properties"]["labels"] == ["alpha", "zeta"]
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-SUBJECT-OVERFLOW",
+            "low",
+            "A subject overflow fixture.",
+            "declared_configuration",
+            subject={f"field_{index}": "value" for index in range(33)},
+        )
+    assert str(error.value) == "canonical finding subject may contain at most 32 fields"
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-PROPERTY-OVERFLOW",
+            "low",
+            "A property overflow fixture.",
+            "declared_configuration",
+            properties={f"property_{index}": "value" for index in range(65)},
+        )
+    assert str(error.value) == "canonical finding properties may contain at most 64 fields"
+
+    with pytest.raises(ValueError) as error:
+        finding(
+            "TW-TEST-LABEL-OVERFLOW",
+            "low",
+            "A label overflow fixture.",
+            "declared_configuration",
+            properties={"labels": [f"label-{index}" for index in range(129)]},
+        )
+    assert (
+        str(error.value)
+        == "canonical finding properties.labels must be a string array with at most 128 entries"
+    )

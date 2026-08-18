@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
@@ -257,3 +258,175 @@ def test_cli_sarif_accepts_active_risk_review(tmp_path: Path) -> None:
     assert exported["runs"][0]["results"][0]["partialFingerprints"] == {
         "trustweave/risk-v1": "c" * 64
     }
+
+
+def test_sarif_unknown_declared_signal_uses_note_fallback_and_stable_result_identity() -> None:
+    """Uncatalogued declared signals retain their message and receive the safe SARIF note level."""
+
+    reviews = {
+        "policy": (
+            "artifacts/custom-policy-review.json",
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [
+                    {
+                        "id": "TW-CUSTOM-001",
+                        "severity": "unrecognized",
+                        "message": "A custom local signal requires an explicit reviewer decision.",
+                    }
+                ],
+            },
+        )
+    }
+
+    exported = build_sarif(reviews)
+    run = exported["runs"][0]
+    assert run["tool"]["driver"]["rules"] == [
+        {
+            "id": "TW-CUSTOM-001",
+            "name": "tw_custom_001",
+            "shortDescription": {"text": "TrustWeave TW-CUSTOM-001 review signal"},
+            "fullDescription": {
+                "text": "A custom local signal requires an explicit reviewer decision."
+            },
+            "defaultConfiguration": {"level": "note"},
+        }
+    ]
+    assert run["results"] == [
+        {
+            "ruleId": "TW-CUSTOM-001",
+            "level": "note",
+            "message": {
+                "text": "[policy] A custom local signal requires an explicit reviewer decision."
+            },
+            "locations": [
+                {
+                    "physicalLocation": {
+                        "artifactLocation": {"uri": "artifacts/custom-policy-review.json"}
+                    }
+                }
+            ],
+            "partialFingerprints": {
+                "trustweave/v1": sha256(
+                    "\0".join(
+                        (
+                            "policy",
+                            "TW-CUSTOM-001",
+                            "A custom local signal requires an explicit reviewer decision.",
+                            "artifacts/custom-policy-review.json",
+                        )
+                    ).encode("utf-8")
+                ).hexdigest()
+            },
+            "properties": {"trustweaveSourceKinds": ["policy"]},
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    ("artifact_uri", "finding", "message"),
+    [
+        (
+            "",
+            {"id": "TW-POL-004", "severity": "high", "message": "Review."},
+            "policy artifact URI must be a non-empty string",
+        ),
+        (
+            "artifacts/policy.json",
+            {"id": "", "severity": "high", "message": "Review."},
+            "policy.findings[0].id must be a non-empty string",
+        ),
+        (
+            "artifacts/policy.json",
+            {"id": "TW-POL-004", "severity": "high", "message": ""},
+            "policy.findings[0].message must be a non-empty string",
+        ),
+        (
+            "artifacts/policy.json",
+            {"id": "TW-POL-004", "severity": "", "message": "Review."},
+            "policy.findings[0].severity must be a non-empty string",
+        ),
+    ],
+)
+def test_sarif_rejects_empty_public_artifact_and_finding_fields(
+    artifact_uri: str, finding: dict[str, str], message: str
+) -> None:
+    """SARIF conversion fails closed before emitting incomplete reviewer-facing evidence."""
+
+    reviews = {
+        "policy": (
+            artifact_uri,
+            {"schema_version": "trustweave.dev/policy-review/v1alpha1", "findings": [finding]},
+        )
+    }
+
+    with pytest.raises(ValidationError) as error:
+        build_sarif(reviews)
+    assert str(error.value) == message
+
+
+def test_sarif_rejects_active_risk_findings_without_a_canonical_fingerprint() -> None:
+    """Active risk output must retain its lifecycle fingerprint when converted to SARIF."""
+
+    reviews = {
+        "risk": (
+            "artifacts/risk-review.json",
+            {
+                "schema_version": "trustweave.dev/risk-review/v1alpha2",
+                "findings": [
+                    {
+                        "id": "TW-POL-004",
+                        "severity": "high",
+                        "message": "Approval control is not declared.",
+                        "risk_state": "new",
+                    }
+                ],
+            },
+        )
+    }
+
+    with pytest.raises(ValidationError) as error:
+        build_sarif(reviews)
+    assert str(error.value) == "risk.findings[0].fingerprint must be a non-empty string"
+
+
+def test_sarif_canonical_result_order_uses_rule_message_uri_and_fallback_fingerprint() -> None:
+    """Same-rule raw findings retain distinct fallback identities and canonical result ordering."""
+
+    reviews = {
+        "policy": (
+            "artifacts/z-policy.json",
+            {
+                "schema_version": "trustweave.dev/policy-review/v1alpha1",
+                "findings": [
+                    {"id": "TW-ORDER-001", "severity": "low", "message": "Zulu finding."},
+                    {"id": "TW-ORDER-001", "severity": "low", "message": "Alpha finding."},
+                ],
+            },
+        ),
+        "trace": (
+            "artifacts/a-trace.json",
+            {
+                "schema_version": "trustweave.dev/trace-review/v1alpha1",
+                "findings": [
+                    {"id": "TW-ORDER-001", "severity": "low", "message": "Alpha finding."}
+                ],
+            },
+        ),
+    }
+
+    results = build_sarif(reviews)["runs"][0]["results"]
+
+    assert [
+        (
+            result["ruleId"],
+            result["message"]["text"],
+            result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
+        )
+        for result in results
+    ] == [
+        ("TW-ORDER-001", "[policy] Alpha finding.", "artifacts/z-policy.json"),
+        ("TW-ORDER-001", "[policy] Zulu finding.", "artifacts/z-policy.json"),
+        ("TW-ORDER-001", "[trace] Alpha finding.", "artifacts/a-trace.json"),
+    ]
+    assert len({next(iter(result["partialFingerprints"].values())) for result in results}) == 3
