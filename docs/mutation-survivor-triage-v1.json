@@ -1,21 +1,14 @@
 {
   "classification_counts": {
     "defensive": 0,
-    "equivalent": 97,
+    "equivalent": 96,
     "needs_regression": 0
   },
   "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
-  "mutation_run": "6,043 killed / 6,140 generated (98.42% killed)",
+  "mutation_run": "6,044 killed / 6,140 generated (98.44% killed)",
   "schema_version": "v1",
-  "survivor_count": 97,
+  "survivor_count": 96,
   "survivors": [
-    {
-      "classification": "equivalent",
-      "diff": "# trustweave.chain.x__advance_state__mutmut_8: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -6,7 +6,7 @@\n     incomplete_sanitizers = state.incomplete_sanitizers\n     if node.classification in SENSITIVE_CLASSIFICATIONS:\n         classifications = classifications | {node.classification}\n-    if node.kind == \"approval\" and node.fail_closed is True and classifications:\n+    if node.kind == \"approval\" or node.fail_closed is True and classifications:\n         approved_classifications = classifications\n     if node.kind == \"sanitizer\" and classifications:\n         missing = tuple(sorted(classifications - set(node.covers_classifications)))\n",
-      "id": "trustweave.chain.x__advance_state__mutmut_8",
-      "rationale": "Every reachable traversal state maintains `approved_classifications` as a subset of the current classifications. If the mutated approval disjunct differs because classifications are empty, the assignment writes the same empty set already required by that invariant; if classifications are non-empty, the original fail-closed condition governs the same observable state. No parsed chain can produce a different public result.",
-      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
-    },
     {
       "classification": "equivalent",
       "diff": "# trustweave.chain.x__parse_chain_manifest__mutmut_199: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -58,7 +58,7 @@\n         covers = tuple(\n             _text(value, f\"{path}.covers_classifications\")\n             for value in _sequence(\n-                node.get(\"covers_classifications\", []), f\"{path}.covers_classifications\"\n+                node.get(\"covers_classifications\", []), None\n             )\n         )\n         if kind == \"source\" and trust is None:\n",
