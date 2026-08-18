@@ -1050,3 +1050,573 @@ def test_ci_validate_stage_semantically_rejects_every_configured_decision_input(
         == 2
     )
     assert not output_dir.exists()
+
+
+def test_ci_scenario_failure_drives_review_exit_and_summary_status(tmp_path: Path) -> None:
+    """A failed supplied scenario must remain visible in test evidence and produce review status."""
+
+    root = Path(__file__).resolve().parents[1]
+    scenarios = tmp_path / "failing-scenarios.json"
+    scenarios.write_text(
+        "{\n"
+        '  "schema_version": "trustweave.dev/v1alpha1",\n'
+        '  "name": "failing-scenario",\n'
+        '  "scenarios": [{\n'
+        '    "id": "TW-SC-FAIL",\n'
+        '    "description": "A deliberately mismatched declared decision.",\n'
+        '    "source_trust": "trusted",\n'
+        '    "tool_action_class": "read",\n'
+        '    "expected_decision": "deny"\n'
+        "  }]\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{(root / "examples/support-agent.manifest.json").as_posix()}"\n'
+        f'policy = "{(root / "policies/default-policy.json").as_posix()}"\n'
+        f'scenarios = "{scenarios.name}"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["scan", "scenarios", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-18T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == EXIT_REVIEW
+    )
+    summary = load_document(output_dir / "ci-summary.json")
+    results = load_document(output_dir / "security-test-results.json")
+    assert results["summary"]["status"] == "failed"
+    assert summary["status"] == "review_required"
+    assert summary["artifacts"] == [
+        "agent-security-bundle.json",
+        "ci-summary.json",
+        "security-test-results.json",
+    ]
+
+
+def test_ci_suppression_lifecycle_preserves_provenance_and_removes_active_gate(
+    tmp_path: Path,
+) -> None:
+    """A matching suppression remains visible but removes its finding from active CI gating."""
+
+    generated_at = "2026-08-18T00:00:00+00:00"
+    chain_document = {
+        "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+        "name": "suppressed-chain",
+        "nodes": [
+            {"id": "inbox", "kind": "source", "trust": "untrusted"},
+            {"id": "records", "kind": "data", "classification": "confidential"},
+            {"id": "email", "kind": "tool", "action_class": "external"},
+        ],
+        "edges": [
+            {"from": "inbox", "to": "records"},
+            {"from": "records", "to": "email"},
+        ],
+    }
+    chain_path = write_json(tmp_path / "chain.json", chain_document)
+    initial_review = review_risks(
+        [review_declared_chains(chain_document, generated_at=generated_at)],
+        reviewed_at=generated_at,
+        artifact_paths=["chain-review.json"],
+    )
+    baseline = create_baseline(
+        initial_review,
+        "Explicit temporary local suppression.",
+        "2026-09-01T00:00:00+00:00",
+        owner="security-review",
+        created_at=generated_at,
+    )
+    suppressions = {
+        "schema_version": "trustweave.dev/risk-suppressions/v1alpha2",
+        "suppressions": baseline["baseline"],
+    }
+    suppressions_path = write_json(tmp_path / "suppressions.json", suppressions)
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_path.as_posix()}"\n'
+        f'suppressions = "{suppressions_path.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "risk", "summary"]\n'
+        'failure_threshold = "high"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    summary = load_document(output_dir / "ci-summary.json")
+    risk_review = load_document(output_dir / "risk-review.json")
+    assert summary["status"] == "clear"
+    assert summary["finding_counts"]["high"] > 0
+    assert summary["active_severity_counts"]["high"] == 0
+    assert summary["applied_decisions"] == {
+        "baselined": 0,
+        "suppressed": len(initial_review["findings"]),
+        "expired_baseline": 0,
+        "expired_suppression": 0,
+    }
+    assert all(finding["risk_state"] == "suppressed" for finding in risk_review["findings"])
+    assert all(
+        finding["source_artifact_paths"] == ["chain-review.json"]
+        for finding in risk_review["findings"]
+    )
+
+
+def test_project_config_required_sections_and_declared_values_are_strict(tmp_path: Path) -> None:
+    """Local configuration preserves explicit sections, values, and bounded-stage contracts."""
+
+    path = tmp_path / CONFIG_FILE_NAME
+    cases = [
+        ("", "project configuration requires [tool.trustweave]"),
+        ("[tool]\n", "project configuration requires [tool.trustweave]"),
+        ('[tool.trustweave]\nunknown = "value"\n', "tool.trustweave: unknown field 'unknown'"),
+        (
+            "[tool.trustweave]\n"
+            'enabled_stages = ["scan", "scan", "scan", "scan", "scan", "scan", "scan", '
+            '"scan", "scan", "scan", "scan", "scan", "scan", "scan", "scan", "scan", "scan"]\n',
+            "tool.trustweave.enabled_stages must contain between 1 and 16 stage names",
+        ),
+    ]
+    for contents, message in cases:
+        path.write_text(contents, encoding="utf-8")
+        with pytest.raises(ValidationError) as error:
+            load_project_config(path)
+        assert str(error.value) == message
+
+    path.write_text(
+        "[tool.trustweave]\n"
+        'output_dir = "  artifacts  "\n'
+        'failure_threshold = "review"\n'
+        'enabled_stages = ["scan", "summary"]\n'
+        "reproducible = false\n",
+        encoding="utf-8",
+    )
+    assert load_project_config(path) == {
+        "output_dir": "artifacts",
+        "failure_threshold": "review",
+        "enabled_stages": ("scan", "summary"),
+        "reproducible": False,
+    }
+
+
+@pytest.mark.parametrize(
+    ("stages", "message"),
+    [
+        (["policy_coverage"], "policy_coverage stage requires selected stages: policy_review"),
+        (["attestation"], "attestation stage requires selected stages: scan, scenarios"),
+        (
+            ["report"],
+            "report stage requires selected stages: attestation, scan, scenarios",
+        ),
+        (["risk"], "risk stage requires at least one selected local review stage"),
+        (["sarif"], "sarif stage requires risk or at least one selected local review stage"),
+    ],
+)
+def test_ci_stage_dependencies_fail_closed_with_exact_public_diagnostics(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    stages: list[str],
+    message: str,
+) -> None:
+    """Impossible selected-stage combinations fail before a local artifact directory is created."""
+
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    rendered_stages = ", ".join(f'"{stage}"' for stage in stages)
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'output_dir = "{output_dir.name}"\n'
+        f"enabled_stages = [{rendered_stages}]\n"
+        "reproducible = false\n",
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 2
+    assert capsys.readouterr().err == f"Validation error: {message}\n"
+    assert not output_dir.exists()
+
+
+def test_ci_uses_documented_none_threshold_when_configuration_omits_it(tmp_path: Path) -> None:
+    """An omitted local failure threshold defaults to `none` and does not gate review findings."""
+
+    root = Path(__file__).resolve().parents[1]
+    policy_document = dict(load_document(root / "policies" / "default-policy.json"))
+    policy_document.pop("approval_control")
+    policy_path = write_json(tmp_path / "review-required-policy.json", policy_document)
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'policy = "{policy_path.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["policy_review", "summary"]\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-18T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 0
+    )
+    summary = load_document(output_dir / "ci-summary.json")
+    assert summary["status"] == "clear"
+    assert summary["finding_counts"]["review"] == 1
+    assert summary["active_severity_counts"]["review"] == 1
+
+
+@pytest.mark.parametrize("bundle_field", ("baseline_bundle", "candidate_bundle"))
+def test_ci_validate_stage_preserves_exact_configured_bundle_field_diagnostic(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    bundle_field: str,
+) -> None:
+    """Validate-only CI names the malformed configured bundle field before publishing output."""
+
+    malformed = tmp_path / f"{bundle_field}.json"
+    malformed.write_text('{"not": "a supported bundle"}', encoding="utf-8")
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'{bundle_field} = "{malformed.name}"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["validate", "summary"]\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-18T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 2
+    )
+    assert capsys.readouterr().err.startswith(f"Validation error: {bundle_field}.")
+    assert not output_dir.exists()
+
+
+@pytest.mark.parametrize(
+    ("field", "schema_version", "collection", "summary_key"),
+    [
+        (
+            "risk_baseline",
+            "trustweave.dev/risk-baseline/v1alpha2",
+            "baseline",
+            "expired_baseline",
+        ),
+        (
+            "suppressions",
+            "trustweave.dev/risk-suppressions/v1alpha2",
+            "suppressions",
+            "expired_suppression",
+        ),
+    ],
+)
+def test_ci_expired_reviewer_decisions_remain_active_and_counted(
+    tmp_path: Path,
+    field: str,
+    schema_version: str,
+    collection: str,
+    summary_key: str,
+) -> None:
+    """Expired local decisions remain reviewer-visible and cannot suppress the active risk gate."""
+
+    generated_at = "2026-08-18T00:00:00+00:00"
+    chain_document = {
+        "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+        "name": "expired-decision-chain",
+        "nodes": [
+            {"id": "inbox", "kind": "source", "trust": "untrusted"},
+            {"id": "records", "kind": "data", "classification": "confidential"},
+            {"id": "email", "kind": "tool", "action_class": "external"},
+        ],
+        "edges": [
+            {"from": "inbox", "to": "records"},
+            {"from": "records", "to": "email"},
+        ],
+    }
+    chain_path = write_json(tmp_path / "chain.json", chain_document)
+    initial_review = review_risks(
+        [review_declared_chains(chain_document, generated_at="2026-08-16T00:00:00+00:00")],
+        reviewed_at="2026-08-16T00:00:00+00:00",
+        artifact_paths=["chain-review.json"],
+    )
+    decision = create_baseline(
+        initial_review,
+        "A previously approved local decision that has now expired.",
+        "2026-08-17T00:00:00+00:00",
+        owner="security-review",
+        created_at="2026-08-16T00:00:00+00:00",
+    )
+    document = {"schema_version": schema_version, collection: decision["baseline"]}
+    decision_path = write_json(tmp_path / f"{field}.json", document)
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_path.as_posix()}"\n'
+        f'{field} = "{decision_path.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "risk", "summary"]\n'
+        'failure_threshold = "high"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                generated_at,
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == EXIT_REVIEW
+    )
+    summary = load_document(output_dir / "ci-summary.json")
+    risk_review = load_document(output_dir / "risk-review.json")
+    assert summary["status"] == "review_required"
+    assert summary["applied_decisions"] == {
+        "baselined": 0,
+        "suppressed": 0,
+        "expired_baseline": (
+            len(initial_review["findings"]) if summary_key == "expired_baseline" else 0
+        ),
+        "expired_suppression": (
+            len(initial_review["findings"]) if summary_key == "expired_suppression" else 0
+        ),
+    }
+    assert summary["active_severity_counts"]["high"] > 0
+    assert all(finding["risk_state"] == summary_key for finding in risk_review["findings"])
+
+
+def test_ci_validate_stage_dispatches_every_configured_document_and_stages_locally(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Validate-only CI semantically dispatches each declared local document before publication."""
+
+    names = (
+        "manifest",
+        "policy",
+        "scenarios",
+        "mcp_profile",
+        "chain_manifest",
+        "trace",
+        "risk_baseline",
+        "suppressions",
+        "baseline_bundle",
+        "candidate_bundle",
+    )
+    config_path = tmp_path / "trustweave.toml"
+    config_path.write_text("[tool.trustweave]\n", encoding="utf-8")
+    output_dir = tmp_path / "nested" / "artifacts"
+    paths = {name: tmp_path / f"{name}.json" for name in names}
+    paths["output_dir"] = output_dir
+    documents = {path: {"document": name} for name, path in paths.items() if name != "output_dir"}
+    config: dict[str, object] = {
+        "enabled_stages": ("validate", "summary"),
+        "reproducible": False,
+        "failure_threshold": "none",
+        **{name: path.as_posix() for name, path in paths.items() if name != "output_dir"},
+        "output_dir": output_dir.as_posix(),
+    }
+    calls: list[tuple[str, object]] = []
+    original_temporary_directory = ci_command.tempfile.TemporaryDirectory
+
+    monkeypatch.setattr(ci_command, "load_project_config", lambda _path: config)
+    monkeypatch.setattr(ci_command, "configured_paths", lambda _path, _values: paths)
+    monkeypatch.setattr(ci_command, "load_document", lambda path: documents[path])
+    monkeypatch.setattr(
+        ci_command, "parse_manifest", lambda document: calls.append(("manifest", document))
+    )
+    monkeypatch.setattr(
+        ci_command, "parse_policy", lambda document: calls.append(("policy", document))
+    )
+    monkeypatch.setattr(
+        ci_command, "parse_scenarios", lambda document: calls.append(("scenarios", document))
+    )
+    monkeypatch.setattr(
+        ci_command, "parse_mcp_profile", lambda document: calls.append(("mcp_profile", document))
+    )
+    monkeypatch.setattr(
+        ci_command,
+        "review_declared_chains",
+        lambda document, generated_at: calls.append(("chain_manifest", (document, generated_at))),
+    )
+    monkeypatch.setattr(
+        ci_command, "parse_trace", lambda document: calls.append(("trace", document))
+    )
+    monkeypatch.setattr(
+        ci_command,
+        "validate_decision_document",
+        lambda document, kind: calls.append((kind, document)),
+    )
+    monkeypatch.setattr(
+        ci_command,
+        "validate_bundle",
+        lambda document, name: calls.append((name, document)),
+    )
+
+    temporary_calls: list[tuple[object, object]] = []
+
+    def temporary_directory(*, prefix: object = None, dir: object = None) -> object:
+        temporary_calls.append((prefix, dir))
+        return original_temporary_directory(prefix=prefix, dir=dir)
+
+    monkeypatch.setattr(ci_command.tempfile, "TemporaryDirectory", temporary_directory)
+    args = argparse.Namespace(
+        config=config_path,
+        no_config_discovery=False,
+        output_dir=None,
+        source_revision="dispatch-contract",
+        coverage=False,
+        exit_on_review=False,
+        fail_on=None,
+        quiet=True,
+        format="text",
+        generated_at_source="explicit",
+    )
+
+    rendered, code = ci_command.handle(args, "2026-08-15T00:00:00+00:00")
+    assert rendered == ""
+    assert code == 0
+    assert [name for name, _ in calls] == [
+        "manifest",
+        "policy",
+        "scenarios",
+        "mcp_profile",
+        "chain_manifest",
+        "trace",
+        "baseline",
+        "suppressions",
+        "baseline_bundle",
+        "candidate_bundle",
+    ]
+    assert calls[4][1] == (
+        documents[paths["chain_manifest"]],
+        "2026-08-15T00:00:00+00:00",
+    )
+    assert temporary_calls == [(".trustweave-ci-", output_dir.parent)]
+    assert (output_dir / "ci-summary.json").is_file()
+
+
+def test_ci_summary_only_uses_clock_default_and_requested_rendering_for_embedded_callers(
+    tmp_path: Path,
+) -> None:
+    """Summary-only CI callers without CLI provenance metadata receive stable safe defaults."""
+
+    output_dir = tmp_path / "artifacts"
+    config_path = tmp_path / "trustweave.toml"
+    config_path.write_text(
+        "[tool.trustweave]\n"
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["summary"]\n'
+        'failure_threshold = "none"\n',
+        encoding="utf-8",
+    )
+    args = argparse.Namespace(
+        config=config_path,
+        no_config_discovery=False,
+        output_dir=None,
+        source_revision="summary-default-contract",
+        coverage=False,
+        exit_on_review=False,
+        fail_on=None,
+        quiet=False,
+        format="markdown",
+    )
+
+    rendered, code = ci_command.handle(args, "2026-08-18T00:00:00+00:00")
+    summary = load_document(output_dir / "ci-summary.json")
+
+    assert code == 0
+    assert rendered.startswith("# TrustWeave Local CI Summary")
+    assert summary["provenance"] == {
+        "generated_at_source": "clock",
+        "source_revision": "summary-default-contract",
+    }
+    assert summary["artifacts"] == ["ci-summary.json"]
+    assert summary["applied_decisions"] == {
+        "baselined": 0,
+        "suppressed": 0,
+        "expired_baseline": 0,
+        "expired_suppression": 0,
+    }
+
+
+def test_ci_reproducible_embedded_callers_reject_implicit_clock_provenance(tmp_path: Path) -> None:
+    """Reproducible CI never accepts an embedded invocation that omits generated-at provenance."""
+
+    config_path = tmp_path / "trustweave.toml"
+    config_path.write_text(
+        "[tool.trustweave]\n"
+        f'output_dir = "{(tmp_path / "artifacts").as_posix()}"\n'
+        'enabled_stages = ["summary"]\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+    args = argparse.Namespace(
+        config=config_path,
+        no_config_discovery=False,
+        output_dir=None,
+        source_revision="reproducible-embedded",
+        coverage=False,
+        exit_on_review=False,
+        fail_on=None,
+        quiet=True,
+        format="json",
+    )
+
+    with pytest.raises(ValidationError) as error:
+        ci_command.handle(args, "2026-08-18T00:00:00+00:00")
+    assert str(error.value) == (
+        "reproducible CI requires --generated-at or SOURCE_DATE_EPOCH; wall-clock provenance "
+        "is not deterministic"
+    )
