@@ -8,6 +8,7 @@ import sys
 from collections.abc import Sequence
 from typing import Never
 
+from trustweave import __version__
 from trustweave.commands._shared import (
     EXIT_INPUT_OUTPUT,
     EXIT_INTERNAL,
@@ -50,6 +51,13 @@ def _parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--debug", action="store_true", help="Show a traceback for failures.")
+    parser.add_argument(
+        "--version",
+        "-V",
+        action="version",
+        version=__version__,
+        help="Print the TrustWeave package version and exit.",
+    )
     register_all(parser.add_subparsers(dest="command", required=True))
     return parser
 

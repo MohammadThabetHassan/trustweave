@@ -10,7 +10,7 @@ This record captures the state of `main` immediately after [PR #16](https://gith
 | Baseline branch | `origin/main` |
 | Merged predecessor | PR #16, `fix: complete TrustWeave 0.2.0 release hardening` |
 | Python | `3.12.3` |
-| Package version | `0.2.0` source-prepared; 0.1.1 remains the published PyPI version |
+| Package version | Historical baseline: `0.2.0` source-prepared; 0.1.1 was the published PyPI version at that point. The later `v0.2.0` tag is immutable unpublished audit evidence; corrected current target is `0.2.1`. |
 
 ## Executed baseline controls
 
@@ -27,7 +27,7 @@ python -m build
 twine check dist/*
 ```
 
-All commands above passed. The test suite reported **311 passed** with **95.09%** branch coverage against its enforced 95% threshold. The repository-reality check passed. The build produced and `twine check` accepted `trustweave-0.2.0-py3-none-any.whl` and `trustweave-0.2.0.tar.gz`.
+All commands above passed at this historical baseline. The test suite reported **311 passed** with **95.09%** branch coverage against its enforced 95% threshold. The repository-reality check passed. The build produced and `twine check` accepted baseline `trustweave-0.2.0-py3-none-any.whl` and `trustweave-0.2.0.tar.gz` evidence; those files were not published. Current release verification must use the corrected `0.2.1` target.
 
 | Tool | Version |
 | --- | --- |
