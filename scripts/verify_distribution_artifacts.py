@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 import tarfile
@@ -113,14 +114,23 @@ def _resource_check_script(path: Path) -> Path:
     return script
 
 
+def _venv_executables(venv: Path) -> tuple[Path, Path]:
+    """Return the interpreter and console-script paths for one platform-native venv."""
+
+    if os.name == "nt":
+        scripts = venv / "Scripts"
+        return scripts / "python.exe", scripts / f"{PACKAGE}.exe"
+    binaries = venv / "bin"
+    return binaries / "python", binaries / PACKAGE
+
+
 def _assert_isolated_install(artifact_path: Path, version: str, directory: Path) -> None:
     """Install one local artifact in a fresh venv and verify both supported CLI entry points."""
 
     directory.mkdir(parents=True, exist_ok=False)
     venv = directory / "venv"
     _run([sys.executable, "-m", "venv", str(venv)], cwd=directory)
-    python = venv / "bin" / "python"
-    console = venv / "bin" / PACKAGE
+    python, console = _venv_executables(venv)
     _run([str(python), "-m", "pip", "install", "--no-deps", str(artifact_path)], cwd=directory)
     for command in (
         [str(console), "--version"],

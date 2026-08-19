@@ -37,3 +37,28 @@ def test_distribution_verifier_rejects_path_traversal_archive_members() -> None:
 
     with pytest.raises(ValueError, match="unsafe archive members"):
         distribution._assert_safe_archive_names(["trustweave-0.2.3/../../outside.txt"], "source")
+
+
+def test_distribution_verifier_uses_posix_venv_executables(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    distribution = _distribution_verifier_module()
+    monkeypatch.setattr(distribution.os, "name", "posix")
+
+    python, console = distribution._venv_executables(Path("temporary-venv"))
+
+    assert python == Path("temporary-venv/bin/python")
+    assert console == Path("temporary-venv/bin/trustweave")
+
+
+def test_distribution_verifier_uses_windows_venv_executables(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    distribution = _distribution_verifier_module()
+    venv = Path("temporary-venv")
+    monkeypatch.setattr(distribution.os, "name", "nt")
+
+    python, console = distribution._venv_executables(venv)
+
+    assert python.as_posix() == "temporary-venv/Scripts/python.exe"
+    assert console.as_posix() == "temporary-venv/Scripts/trustweave.exe"
