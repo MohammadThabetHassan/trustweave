@@ -844,6 +844,20 @@ def _check_installed_wheel_schema_resources() -> list[str]:
                 if runtime_contract.get("typed") is not True:
                     failures.append("Installed-wheel package is missing its py.typed marker")
 
+        version = _declared_project_version()
+        for flag in ("--version", "-V"):
+            version_result = subprocess.run(
+                [str(command), flag], check=False, capture_output=True, text=True
+            )
+            if version_result.returncode != 0:
+                failures.append(
+                    f"Installed-wheel CLI {flag} failed: {version_result.stderr.strip()}"
+                )
+            elif version_result.stdout != f"{version}\n" or version_result.stderr:
+                failures.append(
+                    f"Installed-wheel CLI {flag} does not emit only the declared package version"
+                )
+
         help_result = subprocess.run(
             [str(command), "--help"], check=False, capture_output=True, text=True
         )
