@@ -10,14 +10,14 @@ The configured scope covers twelve high-risk modules: bundle and policy-decision
 
 | Field | Evidence |
 | --- | --- |
-| Date | 2026-08-18 |
+| Date | 2026-08-19 |
 | Tool | `mutmut 3.7.0` |
 | Platform | Linux with fork support |
 | Mutated source | `src/trustweave/engine.py`, `models.py`, `policy_predicates.py`, `policy_review.py`, `chain.py`, `findings.py`, `risk.py`, `evidence.py`, `config.py`, `schema_catalog.py`, `sarif.py`, and `commands/ci.py` |
 | Fixture copy | Repository workflows, Docker assets, executable scripts, contract fixtures, schemas, examples, policies, scenarios, documentation, and public README assets are copied into the mutation workspace. |
 | Test selection | `tests -k 'not repository_reality_check and not reality_check_contracts'`. The repository-reality subprocess test and its isolated-wheel contract test are excluded because instrumented source imports the mutation runtime, while those tests deliberately build a dependency-free isolated wheel. The ordinary release verification continues to execute both tests. |
-| Result | 6,140 generated mutants; 6,044 killed; 96 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
-| High-risk scope score | 98.44% killed (`6,044 / 6,140`) |
+| Result | 6,145 generated mutants; 6,049 killed; 96 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
+| High-risk scope score | 98.44% killed (`6,049 / 6,145`) |
 | Hosted gate | `.github/workflows/mutation.yml` runs this Linux-only scope and enforces the 95% threshold, exact survivor-identifier parity, exact normalized survivor-diff/triage parity, no duplicate IDs, zero untriaged records, and zero `needs_regression` classifications. |
 
 ## Interpretation and survivor triage

@@ -164,7 +164,7 @@ The current published package is [`trustweave==0.2.2`](https://pypi.org/project/
 
 Current inputs retain their documented `v1alpha1`/`v1alpha2` contracts. Generated bundles use `trustweave.dev/bundle/v1alpha2`; risk decisions use canonical `trustweave/fingerprint/v3` identities and generated reviews use `trustweave.dev/risk-review/v1alpha2`. Historical v1alpha1 bundle and review resources remain available for bounded compatibility rather than being silently redefined. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
 
-The enforced local suite retains a **95% branch coverage** gate. The documented twelve-module mutation diagnostic killed **6,044 of 6,140 mutants (98.44%)** and preserves an exact 96-survivor inventory with **zero untriaged** and **zero `needs_regression`** records. The hosted mutation workflow enforces exact survivor-identifier and normalized-diff parity on the reviewed commit SHA; no merge or release action is implied by this evidence.
+The enforced local suite retains a **95% branch coverage** gate. The documented twelve-module mutation diagnostic killed **6,049 of 6,145 mutants (98.44%)** and preserves an exact 96-survivor inventory with **zero untriaged** and **zero `needs_regression`** records. The hosted mutation workflow enforces exact survivor-identifier and normalized-diff parity on the reviewed commit SHA; no merge or release action is implied by this evidence.
 
 ## Contribute, get help, or report a concern
 

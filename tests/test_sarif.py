@@ -609,5 +609,8 @@ def test_sarif_rejects_unique_results_beyond_the_declared_cardinality_bound(
         ],
     }
 
-    with pytest.raises(ValidationError, match="maximum supported unique-result count of 1"):
+    with pytest.raises(
+        ValidationError,
+        match="SARIF export exceeds the maximum supported unique-result count of 1",
+    ):
         build_sarif({"policy": ("artifacts/policy-review.json", review)})

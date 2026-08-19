@@ -5,7 +5,7 @@
     "needs_regression": 0
   },
   "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
-  "mutation_run": "6,044 killed / 6,140 generated (98.44% killed)",
+  "mutation_run": "6,049 killed / 6,145 generated (98.44% killed)",
   "schema_version": "v1",
   "survivor_count": 96,
   "survivors": [
@@ -634,50 +634,50 @@
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.sarif.x_build_sarif__mutmut_171: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -70,7 +70,7 @@\n                 results_by_fingerprint[canonical_fingerprint] = result\n                 continue\n \n-            locations = cast(list[dict[str, Any]], result[\"locations\"])\n+            locations = cast(None, result[\"locations\"])\n             if location not in locations:\n                 locations.append(location)\n             properties = cast(dict[str, Any], result[\"properties\"])\n",
-      "id": "trustweave.sarif.x_build_sarif__mutmut_171",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_176: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -75,7 +75,7 @@\n                 results_by_fingerprint[canonical_fingerprint] = result\n                 continue\n \n-            locations = cast(list[dict[str, Any]], result[\"locations\"])\n+            locations = cast(None, result[\"locations\"])\n             if location not in locations:\n                 locations.append(location)\n             properties = cast(dict[str, Any], result[\"properties\"])\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_176",
       "rationale": "The change only alters the first argument to typing.cast (the static type annotation expression). typing.cast is a no-op at runtime and returns the original value unchanged, so this cannot affect runtime behavior, validation decisions, serialized fields, or ordering of results.",
       "regression_assertion": "N/A: equivalent change (static type annotation only)"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.sarif.x_build_sarif__mutmut_180: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -73,7 +73,7 @@\n             locations = cast(list[dict[str, Any]], result[\"locations\"])\n             if location not in locations:\n                 locations.append(location)\n-            properties = cast(dict[str, Any], result[\"properties\"])\n+            properties = cast(None, result[\"properties\"])\n             source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n             if kind not in source_kinds:\n                 source_kinds.append(kind)\n",
-      "id": "trustweave.sarif.x_build_sarif__mutmut_180",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_185: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -78,7 +78,7 @@\n             locations = cast(list[dict[str, Any]], result[\"locations\"])\n             if location not in locations:\n                 locations.append(location)\n-            properties = cast(dict[str, Any], result[\"properties\"])\n+            properties = cast(None, result[\"properties\"])\n             source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n             if kind not in source_kinds:\n                 source_kinds.append(kind)\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_185",
       "rationale": "Only the type argument to typing.cast was changed. typing.cast performs no runtime behavior and does not modify the value, so this cannot change public results or validation outcomes.",
       "regression_assertion": "N/A: equivalent change (static type annotation only)"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.sarif.x_build_sarif__mutmut_187: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -74,7 +74,7 @@\n             if location not in locations:\n                 locations.append(location)\n             properties = cast(dict[str, Any], result[\"properties\"])\n-            source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n+            source_kinds = cast(None, properties[\"trustweaveSourceKinds\"])\n             if kind not in source_kinds:\n                 source_kinds.append(kind)\n \n",
-      "id": "trustweave.sarif.x_build_sarif__mutmut_187",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_192: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -79,7 +79,7 @@\n             if location not in locations:\n                 locations.append(location)\n             properties = cast(dict[str, Any], result[\"properties\"])\n-            source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n+            source_kinds = cast(None, properties[\"trustweaveSourceKinds\"])\n             if kind not in source_kinds:\n                 source_kinds.append(kind)\n \n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_192",
       "rationale": "This replaces a static typing argument to typing.cast with a different expression. typing.cast is a runtime no-op, so there is no effect on behavior, ordering, serialization, or validation.",
       "regression_assertion": "N/A: equivalent change (static type annotation only)"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.sarif.x_build_sarif__mutmut_199: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -80,7 +80,7 @@\n \n     results = list(results_by_fingerprint.values())\n     for result in results:\n-        locations = cast(list[dict[str, Any]], result[\"locations\"])\n+        locations = cast(None, result[\"locations\"])\n         locations.sort(\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n",
-      "id": "trustweave.sarif.x_build_sarif__mutmut_199",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_204: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -85,7 +85,7 @@\n \n     results = list(results_by_fingerprint.values())\n     for result in results:\n-        locations = cast(list[dict[str, Any]], result[\"locations\"])\n+        locations = cast(None, result[\"locations\"])\n         locations.sort(\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_204",
       "rationale": "Only the type parameter passed to typing.cast was changed. casting is a static typing aid with no runtime effect; the subsequent sort and data access remain unchanged, so public output cannot be affected.",
       "regression_assertion": "N/A: equivalent change (static type annotation only)"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.sarif.x_build_sarif__mutmut_217: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -84,7 +84,7 @@\n         locations.sort(\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n-        properties = cast(dict[str, Any], result[\"properties\"])\n+        properties = cast(None, result[\"properties\"])\n         source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n         source_kinds.sort()\n \n",
-      "id": "trustweave.sarif.x_build_sarif__mutmut_217",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_222: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -89,7 +89,7 @@\n         locations.sort(\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n-        properties = cast(dict[str, Any], result[\"properties\"])\n+        properties = cast(None, result[\"properties\"])\n         source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n         source_kinds.sort()\n \n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_222",
       "rationale": "The mutation only alters the type argument to typing.cast when extracting properties. typing.cast does nothing at runtime, so this change cannot affect the produced SARIF properties or their ordering.",
       "regression_assertion": "N/A: equivalent change (static type annotation only)"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.sarif.x_build_sarif__mutmut_224: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -85,7 +85,7 @@\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n         properties = cast(dict[str, Any], result[\"properties\"])\n-        source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n+        source_kinds = cast(None, properties[\"trustweaveSourceKinds\"])\n         source_kinds.sort()\n \n     results.sort(\n",
-      "id": "trustweave.sarif.x_build_sarif__mutmut_224",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_229: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -90,7 +90,7 @@\n             key=lambda location: str(location[\"physicalLocation\"][\"artifactLocation\"][\"uri\"])\n         )\n         properties = cast(dict[str, Any], result[\"properties\"])\n-        source_kinds = cast(list[str], properties[\"trustweaveSourceKinds\"])\n+        source_kinds = cast(None, properties[\"trustweaveSourceKinds\"])\n         source_kinds.sort()\n \n     results.sort(\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_229",
       "rationale": "Only the static typing argument of typing.cast was changed for source_kinds. Because typing.cast is a runtime no-op, this cannot change behavior, ordering, or serialized fields.",
       "regression_assertion": "N/A: equivalent change (static type annotation only)"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.sarif.x_build_sarif__mutmut_242: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -92,7 +92,7 @@\n         key=lambda result: (\n             str(result[\"ruleId\"]),\n             str(result[\"message\"][\"text\"]),\n-            str(result[\"locations\"][0][\"physicalLocation\"][\"artifactLocation\"][\"uri\"]),\n+            str(None),\n         )\n     )\n     rules = [rules_by_id[identifier] for identifier in sorted(rules_by_id)]\n",
-      "id": "trustweave.sarif.x_build_sarif__mutmut_242",
+      "diff": "# trustweave.sarif.x_build_sarif__mutmut_247: survived\n--- src/trustweave/sarif.py\n+++ src/trustweave/sarif.py\n@@ -97,7 +97,7 @@\n         key=lambda result: (\n             str(result[\"ruleId\"]),\n             str(result[\"message\"][\"text\"]),\n-            str(result[\"locations\"][0][\"physicalLocation\"][\"artifactLocation\"][\"uri\"]),\n+            str(None),\n         )\n     )\n     rules = [rules_by_id[identifier] for identifier in sorted(rules_by_id)]\n",
+      "id": "trustweave.sarif.x_build_sarif__mutmut_247",
       "rationale": "The third SARIF sort key is reached only when rule ID and rendered message are equal. Rendered messages include the review kind, and there is exactly one artifact URI per kind in the input mapping; equal first two keys therefore imply the same URI. Replacing that unreachable tie-breaker cannot alter result ordering.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     }
