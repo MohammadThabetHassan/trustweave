@@ -88,3 +88,11 @@ def test_reality_check_verifies_assurance_contracts() -> None:
     reality_check = _reality_check_module()
 
     assert reality_check._check_assurance_contracts() == []
+
+
+def test_reality_check_verifies_golden_evidence() -> None:
+    """The repository integrity gate must execute the check-only golden corpus verifier."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_golden_evidence() == []

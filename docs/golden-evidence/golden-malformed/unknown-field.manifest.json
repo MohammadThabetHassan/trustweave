@@ -1,0 +1,8 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "golden-malformed-unknown-field",
+  "sources": [],
+  "tools": [],
+  "flows": [],
+  "unsupported_local_field": true
+}

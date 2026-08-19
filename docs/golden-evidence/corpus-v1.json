@@ -1,0 +1,472 @@
+{
+  "cases": [
+    {
+      "artifacts": [
+        {
+          "digest": "b06b3c315e956390770623dc5ebb6c645af76d69d8f4bd5fc3434905e13f9e2e",
+          "digest_kind": "canonical-json-sha256",
+          "path": "agent-security-bundle.json"
+        },
+        {
+          "digest": "ee6ba830eec11d9e276f19a9e5d6c8e35ed1cf58488133b343a9f1f8a7bd22e0",
+          "digest_kind": "canonical-json-sha256",
+          "path": "attestation.json"
+        },
+        {
+          "digest": "68f06480f2b2aa25273b5762063339439fff5ed6339e4be6ecf4a4723a3c394e",
+          "digest_kind": "canonical-json-sha256",
+          "path": "chain-review.json"
+        },
+        {
+          "digest": "ba12f3c8024a39b744b55fa047f13edede46cf74212f5b81cd23f11facf57bc5",
+          "digest_kind": "bytes-sha256",
+          "path": "chain-review.md"
+        },
+        {
+          "digest": "e6fcdf7fc4a9548cac89756e6e1f5301067dfa6cac634e5e263549878011f682",
+          "digest_kind": "canonical-json-sha256",
+          "path": "ci-summary.json"
+        },
+        {
+          "digest": "a2f1930004f82701b017b8edb7089a14bfe66de994f2ae8f216949e39e2b726f",
+          "digest_kind": "canonical-json-sha256",
+          "path": "policy-review.json"
+        },
+        {
+          "digest": "0856a45f937d99bc5b2a64b9fe7c21b91781ea1a32181dc16fca3943dbe37133",
+          "digest_kind": "bytes-sha256",
+          "path": "policy-review.md"
+        },
+        {
+          "digest": "0f1cca1d59312d47a21b49c393432c6202c1686220d06eb698a810287a05117c",
+          "digest_kind": "bytes-sha256",
+          "path": "report.md"
+        },
+        {
+          "digest": "f20223f836c1f400a4b536fbf42d9251c64c28bf4e5bd869fef16c5b5eed556f",
+          "digest_kind": "canonical-json-sha256",
+          "path": "reports/trustweave.sarif"
+        },
+        {
+          "digest": "068ee8c1684e6e8f7b734298290f68137bff78e2ebfa2202f1fbc32a0bea3f94",
+          "digest_kind": "canonical-json-sha256",
+          "path": "security-test-results.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "ci",
+            "--config",
+            "{temporary_config}",
+            "--source-revision",
+            "golden-evidence-v1",
+            "--quiet"
+          ],
+          "expected_exit": 0,
+          "label": "complete_staged_ci"
+        }
+      ],
+      "id": "baseline-ci",
+      "purpose": "Complete clear synthetic CI evidence bundle, including local attestation, report, policy review, chain review, SARIF, and summary."
+    },
+    {
+      "artifacts": [
+        {
+          "digest": "f81ffa5117ef59b93df7b5d022b36525fdad19eb039c4fc20eb629cf09ad4619",
+          "digest_kind": "canonical-json-sha256",
+          "path": "crewai/framework-inventory.json"
+        },
+        {
+          "digest": "0103cb2870609d5a70a7021298b6d8cb852987e2b05af2ba2f3ad39d86871e1e",
+          "digest_kind": "canonical-json-sha256",
+          "path": "langgraph/framework-inventory.json"
+        },
+        {
+          "digest": "6aeb9de280ddd0ddb5c8e0d0b5209f49e374aa5c8a9873c3daa8f1e640c92d63",
+          "digest_kind": "canonical-json-sha256",
+          "path": "openai-agents/framework-inventory.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "framework-import",
+            "--framework",
+            "langgraph",
+            "--input",
+            "{root}/examples/frameworks/langgraph.json",
+            "--output-dir",
+            "{output_dir}/langgraph"
+          ],
+          "expected_exit": 0,
+          "label": "langgraph"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "framework-import",
+            "--framework",
+            "openai-agents",
+            "--input",
+            "{root}/examples/frameworks/openai-agents-descriptor.json",
+            "--output-dir",
+            "{output_dir}/openai-agents"
+          ],
+          "expected_exit": 0,
+          "label": "openai_agents"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "framework-import",
+            "--framework",
+            "crewai",
+            "--input",
+            "{root}/examples/frameworks/crewai-crew.json",
+            "--output-dir",
+            "{output_dir}/crewai"
+          ],
+          "expected_exit": 0,
+          "label": "crewai"
+        }
+      ],
+      "id": "framework-imports",
+      "purpose": "Checked-in LangGraph, OpenAI Agents, and CrewAI declaration snapshots only."
+    },
+    {
+      "artifacts": [
+        {
+          "digest": "d5ed28b4fdc4042d11692b41c2ea48b5e05c35f34f30afb609ae8b308317ffb3",
+          "digest_kind": "canonical-json-sha256",
+          "path": "clear/mcp-profile-review.json"
+        },
+        {
+          "digest": "9f6c77e00738e1f79fa252748287e40c9dd53f066ca30630d7764ae082013c9c",
+          "digest_kind": "bytes-sha256",
+          "path": "clear/mcp-profile-review.md"
+        },
+        {
+          "digest": "760386bbca18138989728c82a85ef4229340edbdc9c149bbf01aa4de94bef2e3",
+          "digest_kind": "canonical-json-sha256",
+          "path": "inventory/mcp-tool-inventory.json"
+        },
+        {
+          "digest": "e3cdd2f9eda658aa0312cd37b6fa937de104d3f45c3a05e515933b4e36816dc5",
+          "digest_kind": "canonical-json-sha256",
+          "path": "review-required/mcp-profile-review.json"
+        },
+        {
+          "digest": "f8290a19977073715f05862e4fa7e7656099369420c740a1d3f00bc09dbd724a",
+          "digest_kind": "bytes-sha256",
+          "path": "review-required/mcp-profile-review.md"
+        }
+      ],
+      "commands": [
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "mcp-import",
+            "--tool-list",
+            "{root}/examples/mcp-tools/support-tools-list.json",
+            "--output-dir",
+            "{output_dir}/inventory"
+          ],
+          "expected_exit": 0,
+          "label": "saved_tools_list"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "mcp-profile-check",
+            "--manifest",
+            "{root}/examples/support-agent.manifest.json",
+            "--profile",
+            "{root}/examples/mcp-profiles/clear-support-profile.json",
+            "--output-dir",
+            "{output_dir}/clear",
+            "--exit-on-review"
+          ],
+          "expected_exit": 0,
+          "label": "clear_profile"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "mcp-profile-check",
+            "--manifest",
+            "{root}/examples/support-agent.manifest.json",
+            "--profile",
+            "{root}/examples/mcp-profiles/review-required-support-profile.json",
+            "--output-dir",
+            "{output_dir}/review-required",
+            "--exit-on-review"
+          ],
+          "expected_exit": 1,
+          "label": "review_required_profile"
+        }
+      ],
+      "id": "mcp-profile-review",
+      "purpose": "Saved MCP tools/list metadata plus clear and review-required profiles; no network connection, authentication, discovery, or invocation."
+    },
+    {
+      "artifacts": [
+        {
+          "digest": "01f48cedbd7bb55242f0246cb92b8812d56a8755d842339e9a462fe5c45f9dc8",
+          "digest_kind": "canonical-json-sha256",
+          "path": "clear/trace-review.json"
+        },
+        {
+          "digest": "bf434601a3b8473895c1c68371afb11f7fc8e0f0a33b075951ae309de7315d04",
+          "digest_kind": "bytes-sha256",
+          "path": "clear/trace-review.md"
+        },
+        {
+          "digest": "c5954d434048bc97e16ff7f6bc1354ba45af3ac12d69ca6b2041098b7201a660",
+          "digest_kind": "canonical-json-sha256",
+          "path": "review-required/trace-review.json"
+        },
+        {
+          "digest": "a1c3bb423a507218efb6c022c21859f0b63a985fc8608dc8321597878d81100d",
+          "digest_kind": "bytes-sha256",
+          "path": "review-required/trace-review.md"
+        },
+        {
+          "digest": "76bb03466c953b845b043c8ef01c0e6a33f57f275370e5476f727225379900fe",
+          "digest_kind": "canonical-json-sha256",
+          "path": "risk-review.json"
+        },
+        {
+          "digest": "7c924465dad94d34a5f94d1709e703445ff1c3b051cf7b14f95080b23eb25449",
+          "digest_kind": "bytes-sha256",
+          "path": "risk-review.md"
+        }
+      ],
+      "commands": [
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "trace-review",
+            "--manifest",
+            "{root}/examples/support-agent.manifest.json",
+            "--policy",
+            "{root}/policies/default-policy.json",
+            "--trace",
+            "{root}/examples/traces/clear-support-trace.json",
+            "--output-dir",
+            "{output_dir}/clear",
+            "--exit-on-review"
+          ],
+          "expected_exit": 0,
+          "label": "clear_trace"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "trace-review",
+            "--manifest",
+            "{root}/examples/support-agent.manifest.json",
+            "--policy",
+            "{root}/policies/default-policy.json",
+            "--trace",
+            "{root}/examples/traces/review-required-support-trace.json",
+            "--output-dir",
+            "{output_dir}/review-required",
+            "--exit-on-review"
+          ],
+          "expected_exit": 1,
+          "label": "review_required_trace"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "risk-check",
+            "--input",
+            "{output_dir}/review-required/trace-review.json",
+            "--baseline",
+            "{root}/docs/golden-evidence/golden-trace-risk/empty-baseline-v1alpha2.json",
+            "--suppressions",
+            "{root}/docs/golden-evidence/golden-trace-risk/empty-suppressions-v1alpha2.json",
+            "--output",
+            "{output_dir}/risk-review.json",
+            "--markdown-output",
+            "{output_dir}/risk-review.md",
+            "--fail-on",
+            "none"
+          ],
+          "expected_exit": 0,
+          "label": "risk_lifecycle"
+        }
+      ],
+      "id": "trace-risk-lifecycle",
+      "purpose": "Minimized clear and review-required trace metadata with a local risk lifecycle review that excludes message contents and tool arguments from rendered output."
+    },
+    {
+      "artifacts": [
+        {
+          "digest": "b06b3c315e956390770623dc5ebb6c645af76d69d8f4bd5fc3434905e13f9e2e",
+          "digest_kind": "canonical-json-sha256",
+          "path": "base/agent-security-bundle.json"
+        },
+        {
+          "digest": "68d3aaf694be981ffe777ace65f6051b13019dae7f4376204910433508fb7d2b",
+          "digest_kind": "canonical-json-sha256",
+          "path": "diff/bundle-diff.json"
+        },
+        {
+          "digest": "c311ee2e1d123a62918516ba3ad8f4db7bed5427a1f66e4d458f32f3cf7ba29b",
+          "digest_kind": "bytes-sha256",
+          "path": "diff/bundle-diff.md"
+        },
+        {
+          "digest": "02a606ea78b058cc255c30e1c67529d92edb42a86e4bc9cf1516b48330745e54",
+          "digest_kind": "canonical-json-sha256",
+          "path": "growth/agent-security-bundle.json"
+        },
+        {
+          "digest": "0ce07fe2b2a6f11e5340afaa57b0fee3022512dcee771f8e4aaecee049c73083",
+          "digest_kind": "canonical-json-sha256",
+          "path": "policy-review/policy-review.json"
+        },
+        {
+          "digest": "7e56bc16bf3056b060fe045020331cdd49c5376a0f72266f737b53e4c5db813a",
+          "digest_kind": "bytes-sha256",
+          "path": "policy-review/policy-review.md"
+        },
+        {
+          "digest": "18bea4c672a56db5b45db2df97457f903b46fc82f905439bccae0389b1c40cf3",
+          "digest_kind": "canonical-json-sha256",
+          "path": "trustweave.sarif"
+        }
+      ],
+      "commands": [
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "scan",
+            "--manifest",
+            "{root}/examples/support-agent.manifest.json",
+            "--policy",
+            "{root}/policies/default-policy.json",
+            "--output-dir",
+            "{output_dir}/base"
+          ],
+          "expected_exit": 0,
+          "label": "base_bundle"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "scan",
+            "--manifest",
+            "{root}/examples/support-agent.capability-growth.manifest.json",
+            "--policy",
+            "{root}/policies/default-policy.json",
+            "--output-dir",
+            "{output_dir}/growth"
+          ],
+          "expected_exit": 0,
+          "label": "capability_growth_bundle"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "diff",
+            "--base",
+            "{output_dir}/base/agent-security-bundle.json",
+            "--head",
+            "{output_dir}/growth/agent-security-bundle.json",
+            "--output-dir",
+            "{output_dir}/diff"
+          ],
+          "expected_exit": 0,
+          "label": "capability_diff"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "policy-check",
+            "--policy",
+            "{root}/examples/policies/approval-control-missing.policy.json",
+            "--output-dir",
+            "{output_dir}/policy-review",
+            "--exit-on-review"
+          ],
+          "expected_exit": 1,
+          "label": "approval_control_review"
+        },
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "sarif",
+            "--policy-review",
+            "{output_dir}/policy-review/policy-review.json",
+            "--diff",
+            "{output_dir}/diff/bundle-diff.json",
+            "--output",
+            "{output_dir}/trustweave.sarif"
+          ],
+          "expected_exit": 0,
+          "label": "local_sarif"
+        }
+      ],
+      "id": "change-review-sarif",
+      "purpose": "Synthetic declared policy, bundle-diff, and SARIF review artifacts for a local capability growth; no live target or external code-scanning upload."
+    },
+    {
+      "artifacts": [],
+      "commands": [
+        {
+          "argv_template": [
+            "--generated-at",
+            "2026-08-19T00:00:00+00:00",
+            "scan",
+            "--manifest",
+            "{root}/docs/golden-evidence/golden-malformed/unknown-field.manifest.json",
+            "--policy",
+            "{root}/policies/default-policy.json",
+            "--output-dir",
+            "{output_dir}"
+          ],
+          "expected_exit": 2,
+          "label": "unknown_field_rejected"
+        }
+      ],
+      "id": "malformed-input",
+      "purpose": "Unknown-field manifest rejection with no evidence-artifact publication."
+    }
+  ],
+  "fixed_generated_at": "2026-08-19T00:00:00+00:00",
+  "limits": {
+    "external_execution": "forbidden",
+    "forbidden_output_markers": [
+      ".trustweave-golden-",
+      ".trustweave-release-repro-",
+      "/tmp/",
+      "\\\\tmp\\\\",
+      "token=",
+      "synthetic@example.invalid"
+    ],
+    "local_only": true,
+    "snapshot_updates": "explicit-maintainer-confirmation-required"
+  },
+  "schema_version": "trustweave.dev/golden-evidence/v1alpha1",
+  "source_revision": "golden-evidence-v1"
+}
