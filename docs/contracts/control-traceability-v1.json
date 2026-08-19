@@ -1,0 +1,223 @@
+{
+  "schema_version": "trustweave.dev/control-traceability/v1alpha1",
+  "source_document": "docs/THREAT_MODEL.md",
+  "addressed_threats": [
+    {
+      "id": "TWT-DECL-001",
+      "statement_marker": "Untrusted content is declared as reaching an external action",
+      "control_ids": ["TWC-DECLARED-FLOW"],
+      "residual_limit_marker": "It cannot discover undeclared paths or stop a separate runtime."
+    },
+    {
+      "id": "TWT-DECL-002",
+      "statement_marker": "Confidential or conditional data is declared as reaching an external action",
+      "control_ids": ["TWC-DECLARED-FLOW", "TWC-APPROVAL-BOUNDARY"],
+      "residual_limit_marker": "It does not implement approval or verify real identity."
+    },
+    {
+      "id": "TWT-POLICY-001",
+      "statement_marker": "A high-impact path requires approval but lacks a clear boundary declaration",
+      "control_ids": ["TWC-APPROVAL-BOUNDARY"],
+      "residual_limit_marker": "It cannot prove a queue, approver identity, authorization artifact, or runtime validation exists."
+    },
+    {
+      "id": "TWT-DIFF-001",
+      "statement_marker": "A policy weakens or a new flow is added",
+      "control_ids": ["TWC-BUNDLE-DIFF"],
+      "residual_limit_marker": "PR diff rendering is a future integration."
+    },
+    {
+      "id": "TWT-SCENARIO-001",
+      "statement_marker": "A scenario unexpectedly changes decision",
+      "control_ids": ["TWC-SYNTHETIC-SCENARIOS"],
+      "residual_limit_marker": "The scenario covers only its declared labels, not full model behavior."
+    },
+    {
+      "id": "TWT-POLICY-002",
+      "statement_marker": "An ordered policy rule is unreachable or a default permits unmatched paths",
+      "control_ids": ["TWC-POLICY-REVIEW"],
+      "residual_limit_marker": "It does not establish whether the policy intent is correct or enforce a runtime decision."
+    },
+    {
+      "id": "TWT-DIFF-002",
+      "statement_marker": "A candidate manifest introduces an external/sensitive tool or changes a policy decision",
+      "control_ids": ["TWC-BUNDLE-DIFF"],
+      "residual_limit_marker": "It cannot discover undeclared behavior or determine business authorization."
+    },
+    {
+      "id": "TWT-TRACE-001",
+      "statement_marker": "A local trace records an undeclared source, tool, flow, denied call, or approval-required call",
+      "control_ids": ["TWC-TRACE-REVIEW"],
+      "residual_limit_marker": "It cannot establish trace authenticity, completeness, actor identity, or incident cause."
+    },
+    {
+      "id": "TWT-TRACE-002",
+      "statement_marker": "Trace evidence contains sensitive message content or tool arguments",
+      "control_ids": ["TWC-TRACE-PRIVACY"],
+      "residual_limit_marker": "The trace source itself may still require separate data-governance controls."
+    },
+    {
+      "id": "TWT-MCP-001",
+      "statement_marker": "MCP metadata drifts from manifest tool declarations or action classes",
+      "control_ids": ["TWC-MCP-PROFILE"],
+      "residual_limit_marker": "It cannot discover an undeclared server capability or prove runtime enforcement."
+    },
+    {
+      "id": "TWT-SARIF-001",
+      "statement_marker": "Review findings need to enter a compatible static-analysis evidence workflow",
+      "control_ids": ["TWC-LOCAL-SARIF"],
+      "residual_limit_marker": "It does not upload a finding, enable code scanning, prove consumer compatibility, or create a runtime control."
+    },
+    {
+      "id": "TWT-MCP-002",
+      "statement_marker": "An HTTP MCP profile omits an authorization expectation",
+      "control_ids": ["TWC-MCP-PROFILE"],
+      "residual_limit_marker": "It does not validate OAuth, token audience, consent, or a real server policy."
+    },
+    {
+      "id": "TWT-EVIDENCE-001",
+      "statement_marker": "A generated evidence document is manually edited",
+      "control_ids": ["TWC-LOCAL-INTEGRITY"],
+      "residual_limit_marker": "It cannot prove the original operator or protect unsigned files from replacement."
+    }
+  ],
+  "residual_risks": [
+    {
+      "id": "TWR-OUT-001",
+      "statement_marker": "Prompt-injection payloads in real documents or model context.",
+      "exclusion_reason": "TrustWeave evaluates supplied declarations and pre-recorded metadata; it does not parse live model context or execute a model."
+    },
+    {
+      "id": "TWR-OUT-002",
+      "statement_marker": "Malicious MCP servers, skills, packages, plugins, or repository content.",
+      "exclusion_reason": "TrustWeave does not connect to, discover, install, import, or invoke third-party servers or extensions."
+    },
+    {
+      "id": "TWR-OUT-003",
+      "statement_marker": "Credential theft, data exfiltration, endpoint compromise, persistence, or malware.",
+      "exclusion_reason": "The product does not access credentials, endpoints, or live execution environments."
+    },
+    {
+      "id": "TWR-OUT-004",
+      "statement_marker": "Network vulnerabilities, cloud misconfiguration, IAM errors, or authorization bypass in a live environment.",
+      "exclusion_reason": "Live infrastructure assessment is deliberately outside the local declaration-review boundary."
+    },
+    {
+      "id": "TWR-OUT-005",
+      "statement_marker": "Policy bypasses in an agent runtime that has not integrated a future TrustWeave enforcement adapter.",
+      "exclusion_reason": "TrustWeave generates evidence for human review and does not act as an enforcement adapter."
+    },
+    {
+      "id": "TWR-OUT-006",
+      "statement_marker": "Tampering by an actor that can modify all generated files and regenerate the local attestation.",
+      "exclusion_reason": "Unsigned local hash relationships cannot establish an external identity or resist full local replacement."
+    },
+    {
+      "id": "TWR-OUT-007",
+      "statement_marker": "Model deception, model hallucination, or agent-planning behavior.",
+      "exclusion_reason": "TrustWeave does not call, inspect, or control a model or agent planner."
+    }
+  ],
+  "controls": [
+    {
+      "id": "TWC-DECLARED-FLOW",
+      "control_statement": "Typed manifest and policy evaluation produces deterministic findings for declared source-to-tool flows.",
+      "implementation_paths": ["src/trustweave/models.py", "src/trustweave/engine.py", "src/trustweave/rules.py"],
+      "test_paths": ["tests/test_trustweave.py", "tests/test_models_contracts.py"],
+      "evidence_paths": ["docs/PRODUCT_CONTRACT.md", "docs/THREAT_MODEL.md", "schemas/agent-manifest.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any manifest, policy, rule, or decision-semantics change.",
+      "known_limit": "Findings cover only supplied declarations and do not discover or stop a live path."
+    },
+    {
+      "id": "TWC-APPROVAL-BOUNDARY",
+      "control_statement": "Policy review identifies declared high-impact flows that lack a clear approval-control boundary.",
+      "implementation_paths": ["src/trustweave/policy_review.py", "src/trustweave/policy_predicates.py"],
+      "test_paths": ["tests/test_policy_review.py", "tests/test_policy_attributes.py"],
+      "evidence_paths": ["docs/site/POLICY_REVIEW.md", "schemas/policy-review-v1alpha1.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any approval-control, policy-review, or high-impact action-class change.",
+      "known_limit": "The review cannot prove a queue, approver identity, authorization artifact, or runtime enforcement."
+    },
+    {
+      "id": "TWC-BUNDLE-DIFF",
+      "control_statement": "Bundle diff renders declared source, tool, path, rule, and decision changes as reviewable local evidence.",
+      "implementation_paths": ["src/trustweave/diff.py", "src/trustweave/commands/evidence.py"],
+      "test_paths": ["tests/test_diff.py", "tests/test_bundle_validation.py"],
+      "evidence_paths": ["docs/REVIEWER_WORKFLOW.md", "schemas/bundle-diff-v1alpha2.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any bundle identity, diff rendering, candidate-review, or output-schema change.",
+      "known_limit": "The diff cannot discover undeclared behavior or determine business authorization."
+    },
+    {
+      "id": "TWC-SYNTHETIC-SCENARIOS",
+      "control_statement": "Synthetic scenarios produce deterministic expected-decision regression evidence from declared labels.",
+      "implementation_paths": ["src/trustweave/scenarios.py", "src/trustweave/commands/test.py"],
+      "test_paths": ["tests/test_scenario_schema_contract.py", "tests/test_adversarial_scenarios.py"],
+      "evidence_paths": ["docs/SCENARIOS.md", "schemas/test-results-v1alpha1.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any scenario schema, expected-decision, or synthetic pattern-library change.",
+      "known_limit": "Scenario evidence covers only its declared labels and not full model behavior."
+    },
+    {
+      "id": "TWC-POLICY-REVIEW",
+      "control_statement": "Deterministic policy review detects shadowed rules and review-sensitive default decisions.",
+      "implementation_paths": ["src/trustweave/policy_review.py", "src/trustweave/policy_predicates.py"],
+      "test_paths": ["tests/test_policy_review.py", "tests/test_policy_v2.py"],
+      "evidence_paths": ["docs/site/POLICY_REVIEW.md", "schemas/policy-review-v1alpha1.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any policy ordering, default-decision, or rule-predicate change.",
+      "known_limit": "The review does not determine whether a declared policy intent is correct or enforce it."
+    },
+    {
+      "id": "TWC-TRACE-REVIEW",
+      "control_statement": "Offline trace review compares minimized local trace metadata with declared manifests and policy.",
+      "implementation_paths": ["src/trustweave/trace_review.py", "src/trustweave/commands/evidence.py"],
+      "test_paths": ["tests/test_trace_review.py", "tests/test_integrations.py"],
+      "evidence_paths": ["docs/TRACE_REVIEW.md", "schemas/trace-review-v1alpha1.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any trace schema, declaration comparison, review finding, or rendered trace-report change.",
+      "known_limit": "Trace review cannot establish trace authenticity, completeness, actor identity, or incident cause."
+    },
+    {
+      "id": "TWC-TRACE-PRIVACY",
+      "control_statement": "Trace-review reports retain only counts, declared names, action classes, decisions, and finding identifiers.",
+      "implementation_paths": ["src/trustweave/trace_review.py", "src/trustweave/report.py"],
+      "test_paths": ["tests/test_trace_review.py", "tests/test_generated_schema_conformance.py"],
+      "evidence_paths": ["docs/THREAT_MODEL.md", "docs/TRACE_REVIEW.md"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any trace field, report template, or privacy-minimization change.",
+      "known_limit": "The original local trace may still require separate data-governance controls."
+    },
+    {
+      "id": "TWC-MCP-PROFILE",
+      "control_statement": "MCP profile review compares saved local metadata and declared tool mappings without discovery, transport access, or token handling.",
+      "implementation_paths": ["src/trustweave/mcp_import.py", "src/trustweave/mcp_profile.py"],
+      "test_paths": ["tests/test_mcp_import.py", "tests/test_mcp_profile.py"],
+      "evidence_paths": ["docs/MCP_IMPORT.md", "docs/MCP_PROFILE.md", "schemas/mcp-profile-review-v1alpha1.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any MCP metadata, profile rule, transport-expectation, or tool-mapping change.",
+      "known_limit": "The review cannot discover undeclared server capability, validate OAuth, or prove runtime enforcement."
+    },
+    {
+      "id": "TWC-LOCAL-SARIF",
+      "control_statement": "Local SARIF conversion produces deterministic portable review evidence without upload or new security conclusions.",
+      "implementation_paths": ["src/trustweave/sarif.py", "src/trustweave/commands/evidence.py"],
+      "test_paths": ["tests/test_sarif.py", "tests/test_sarif_schema.py"],
+      "evidence_paths": ["docs/CI_INTEGRATIONS.md", "docs/SCHEMA_CATALOG.md"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any SARIF conversion, location, fingerprint, or static-analysis interoperability change.",
+      "known_limit": "Local SARIF does not upload a finding, enable code scanning, or create a runtime control."
+    },
+    {
+      "id": "TWC-LOCAL-INTEGRITY",
+      "control_statement": "Local attestation and verification bind canonical evidence payloads and, when supplied, exact local artifact bytes.",
+      "implementation_paths": ["src/trustweave/evidence.py", "src/trustweave/commands/evidence.py"],
+      "test_paths": ["tests/test_statement.py", "tests/test_contract_hardening.py"],
+      "evidence_paths": ["docs/REPRODUCIBILITY.md", "schemas/attestation-v1alpha3.schema.json"],
+      "ci_gate": "Quality and tests",
+      "maintenance_trigger": "Any attestation schema, canonicalization, verifier, or exact-file binding change.",
+      "known_limit": "Unsigned local integrity evidence cannot identify the original operator or resist complete local replacement."
+    }
+  ]
+}

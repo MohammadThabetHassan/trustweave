@@ -96,3 +96,11 @@ def test_reality_check_verifies_golden_evidence() -> None:
     reality_check = _reality_check_module()
 
     assert reality_check._check_golden_evidence() == []
+
+
+def test_reality_check_verifies_control_traceability() -> None:
+    """Threat/control/test linkage must remain a required repository integrity contract."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_control_traceability() == []

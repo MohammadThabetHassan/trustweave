@@ -49,6 +49,7 @@ PUBLIC_ASSETS = (
     "docs/SUPPORT_POLICY.md",
     "docs/ADR-0005-PACKAGE-RELEASE-PROVENANCE.md",
     "docs/GOLDEN_EVIDENCE.md",
+    "docs/CONTROL_TRACEABILITY.md",
 )
 REQUIRED_ISSUE_FORMS = (
     ".github/ISSUE_TEMPLATE/01-bug-report.yml",
@@ -69,6 +70,7 @@ REPRODUCIBILITY_RECORD_PATH = ROOT / "docs" / "REPRODUCIBILITY.md"
 RELEASE_REPRODUCIBILITY_HELPER_PATH = ROOT / "scripts" / "verify_release_reproducibility.py"
 ASSURANCE_CONTRACT_HELPER_PATH = ROOT / "scripts" / "verify_assurance_contracts.py"
 GOLDEN_EVIDENCE_HELPER_PATH = ROOT / "scripts" / "verify_golden_evidence.py"
+TRACEABILITY_HELPER_PATH = ROOT / "scripts" / "verify_control_traceability.py"
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -1040,6 +1042,24 @@ def _check_documentation_commands() -> list[str]:
     return failures
 
 
+def _check_control_traceability() -> list[str]:
+    """Run the source-to-control-to-test traceability validator without rewriting its guide."""
+
+    if not TRACEABILITY_HELPER_PATH.is_file():
+        return ["Missing scripts/verify_control_traceability.py"]
+    completed = subprocess.run(
+        [sys.executable, str(TRACEABILITY_HELPER_PATH)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode == 0:
+        return []
+    detail = completed.stderr.strip() or completed.stdout.strip()
+    return [f"Control traceability validation failed: {detail}"]
+
+
 def _check_golden_evidence() -> list[str]:
     """Run the check-only synthetic golden corpus verifier without snapshot updates."""
 
@@ -1113,6 +1133,7 @@ def main() -> int:
         + _check_rule_registry()
         + _check_documentation_site()
         + _check_documentation_commands()
+        + _check_control_traceability()
         + _check_golden_evidence()
         + _check_assurance_contracts()
         + _check_cli()
@@ -1127,7 +1148,8 @@ def main() -> int:
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
         "quality evidence, generated artifacts, installed-wheel runtime and schema resources, "
         "generated documentation, strict documentation-site builds, executed documentation "
-        "commands, golden evidence, assurance contracts, and CLI commands are connected."
+        "commands, control traceability, golden evidence, assurance contracts, and CLI commands "
+        "are connected."
     )
     return 0
 
