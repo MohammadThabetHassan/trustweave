@@ -1,13 +1,13 @@
 {
   "classification_counts": {
     "defensive": 0,
-    "equivalent": 96,
+    "equivalent": 107,
     "needs_regression": 0
   },
   "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
-  "mutation_run": "6,049 killed / 6,145 generated (98.44% killed)",
+  "mutation_run": "6,163 killed / 6,270 generated (98.29% killed)",
   "schema_version": "v1",
-  "survivor_count": 96,
+  "survivor_count": 107,
   "survivors": [
     {
       "classification": "equivalent",
@@ -396,10 +396,87 @@
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.models.x_parse_policy__mutmut_376: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -184,7 +184,7 @@\n                 upper_rank = (\n                     classification_taxonomy.index(classification_at_most)\n                     if classification_at_most is not None\n-                    else len(classification_taxonomy) - 1\n+                    else len(classification_taxonomy) + 1\n                 )\n                 if not any(\n                     lower_rank <= classification_taxonomy.index(value) <= upper_rank\n",
-      "id": "trustweave.models.x_parse_policy__mutmut_376",
-      "rationale": "The mutation changes the computed upper_rank from len(classification_taxonomy) - 1 to len(classification_taxonomy) + 1. For any value present in classification_taxonomy, its index() is in range 0..len-1, so the inclusive comparison lower_rank <= index <= upper_rank yields the same truth value. Therefore this numeric widening cannot change whether validation succeeds for values in the taxonomy and does not affect the documented public boundary.",
-      "regression_assertion": "Increasing the upper bound to len+1 cannot make any classification within the provided taxonomy change its acceptance because indices returned by classification_taxonomy.index(value) are always <= len-1."
+      "diff": "# trustweave.models.x_parse_policy__mutmut_199: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -68,7 +68,7 @@\n         raw_action_classes = _sequence(\n             rule.get(\"tool_action_classes\"), f\"policy.rules[{index}].tool_action_classes\"\n         )\n-        if schema_version == \"trustweave.dev/policy/v1alpha2\":\n+        if schema_version != \"trustweave.dev/policy/v1alpha2\":\n             _at_most(raw_source_trust, f\"policy.rules[{index}].source_trust\", 3)\n             _at_most(raw_action_classes, f\"policy.rules[{index}].tool_action_classes\", 4)\n         source_trust = tuple(\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_199",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_200: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -68,7 +68,7 @@\n         raw_action_classes = _sequence(\n             rule.get(\"tool_action_classes\"), f\"policy.rules[{index}].tool_action_classes\"\n         )\n-        if schema_version == \"trustweave.dev/policy/v1alpha2\":\n+        if schema_version == \"XXtrustweave.dev/policy/v1alpha2XX\":\n             _at_most(raw_source_trust, f\"policy.rules[{index}].source_trust\", 3)\n             _at_most(raw_action_classes, f\"policy.rules[{index}].tool_action_classes\", 4)\n         source_trust = tuple(\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_200",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_201: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -68,7 +68,7 @@\n         raw_action_classes = _sequence(\n             rule.get(\"tool_action_classes\"), f\"policy.rules[{index}].tool_action_classes\"\n         )\n-        if schema_version == \"trustweave.dev/policy/v1alpha2\":\n+        if schema_version == \"TRUSTWEAVE.DEV/POLICY/V1ALPHA2\":\n             _at_most(raw_source_trust, f\"policy.rules[{index}].source_trust\", 3)\n             _at_most(raw_action_classes, f\"policy.rules[{index}].tool_action_classes\", 4)\n         source_trust = tuple(\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_201",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_208: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -69,7 +69,7 @@\n             rule.get(\"tool_action_classes\"), f\"policy.rules[{index}].tool_action_classes\"\n         )\n         if schema_version == \"trustweave.dev/policy/v1alpha2\":\n-            _at_most(raw_source_trust, f\"policy.rules[{index}].source_trust\", 3)\n+            _at_most(raw_source_trust, f\"policy.rules[{index}].source_trust\", 4)\n             _at_most(raw_action_classes, f\"policy.rules[{index}].tool_action_classes\", 4)\n         source_trust = tuple(\n             _string(value, f\"policy.rules[{index}].source_trust\") for value in raw_source_trust\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_208",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_215: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -70,7 +70,7 @@\n         )\n         if schema_version == \"trustweave.dev/policy/v1alpha2\":\n             _at_most(raw_source_trust, f\"policy.rules[{index}].source_trust\", 3)\n-            _at_most(raw_action_classes, f\"policy.rules[{index}].tool_action_classes\", 4)\n+            _at_most(raw_action_classes, f\"policy.rules[{index}].tool_action_classes\", 5)\n         source_trust = tuple(\n             _string(value, f\"policy.rules[{index}].source_trust\") for value in raw_source_trust\n         )\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_215",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_350: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -136,7 +136,7 @@\n             )\n         )\n         bounded_fields = (\n-            (\"source_trust\", source_trust, 3),\n+            (\"XXsource_trustXX\", source_trust, 3),\n             (\"tool_action_classes\", action_classes, 4),\n             (\"source_data_classifications\", classifications, 32),\n             (\"tool_capabilities\", capabilities, 128),\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_350",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_351: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -136,7 +136,7 @@\n             )\n         )\n         bounded_fields = (\n-            (\"source_trust\", source_trust, 3),\n+            (\"SOURCE_TRUST\", source_trust, 3),\n             (\"tool_action_classes\", action_classes, 4),\n             (\"source_data_classifications\", classifications, 32),\n             (\"tool_capabilities\", capabilities, 128),\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_351",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_352: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -136,7 +136,7 @@\n             )\n         )\n         bounded_fields = (\n-            (\"source_trust\", source_trust, 3),\n+            (\"source_trust\", source_trust, 4),\n             (\"tool_action_classes\", action_classes, 4),\n             (\"source_data_classifications\", classifications, 32),\n             (\"tool_capabilities\", capabilities, 128),\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_352",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_353: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -137,7 +137,7 @@\n         )\n         bounded_fields = (\n             (\"source_trust\", source_trust, 3),\n-            (\"tool_action_classes\", action_classes, 4),\n+            (\"XXtool_action_classesXX\", action_classes, 4),\n             (\"source_data_classifications\", classifications, 32),\n             (\"tool_capabilities\", capabilities, 128),\n             (\"source_identifiers\", source_identifiers, 128),\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_353",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_354: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -137,7 +137,7 @@\n         )\n         bounded_fields = (\n             (\"source_trust\", source_trust, 3),\n-            (\"tool_action_classes\", action_classes, 4),\n+            (\"TOOL_ACTION_CLASSES\", action_classes, 4),\n             (\"source_data_classifications\", classifications, 32),\n             (\"tool_capabilities\", capabilities, 128),\n             (\"source_identifiers\", source_identifiers, 128),\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_354",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_355: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -137,7 +137,7 @@\n         )\n         bounded_fields = (\n             (\"source_trust\", source_trust, 3),\n-            (\"tool_action_classes\", action_classes, 4),\n+            (\"tool_action_classes\", action_classes, 5),\n             (\"source_data_classifications\", classifications, 32),\n             (\"tool_capabilities\", capabilities, 128),\n             (\"source_identifiers\", source_identifiers, 128),\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_355",
+      "rationale": "The mutated first-pass bound or diagnostic-field expression is redundant with an unmutated v1alpha2 bound later in parse_policy's bounded_fields loop. The later check applies the same public maximum after conversion, so no oversized declared collection can become accepted. For malformed members, the mutation can only change which validation error is produced; it cannot produce typed policy state or a successful public artifact.",
+      "regression_assertion": "The v1alpha2 parser/schema exact-boundary corpus asserts rejection of every oversized collection; the unmutated bounded_fields pass preserves that outcome."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.models.x_parse_policy__mutmut_450: survived\n--- src/trustweave/models.py\n+++ src/trustweave/models.py\n@@ -199,7 +199,7 @@\n                 upper_rank = (\n                     classification_taxonomy.index(classification_at_most)\n                     if classification_at_most is not None\n-                    else len(classification_taxonomy) - 1\n+                    else len(classification_taxonomy) + 1\n                 )\n                 if not any(\n                     lower_rank <= classification_taxonomy.index(value) <= upper_rank\n",
+      "id": "trustweave.models.x_parse_policy__mutmut_450",
+      "rationale": "The mutation changes the computed upper rank from len(classification_taxonomy) - 1 to len(classification_taxonomy) + 1. Every index returned by classification_taxonomy.index is between 0 and len-1, so the interval membership predicate has the same truth value for every declared taxonomy member. No policy acceptance or coverage result can change.",
+      "regression_assertion": "Classification interval tests cover the inclusive taxonomy endpoints; changing the upper rank above every possible index cannot alter membership."
     },
     {
       "classification": "equivalent",
@@ -431,23 +508,23 @@
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.policy_review.x_review_policy__mutmut_212: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -145,7 +145,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(None, {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
-      "id": "trustweave.policy_review.x_review_policy__mutmut_212",
-      "rationale": "Every finding constructed by `review_policy` contains only `id`, `severity`, and `message`; the function never creates a `subject` key before canonicalization. Each mutant therefore takes the same documented fallback `{'policy': policy.name}` for every reachable internal finding and cannot change the public review artifact.",
-      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
-    },
-    {
-      "classification": "equivalent",
-      "diff": "# trustweave.policy_review.x_review_policy__mutmut_216: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -145,7 +145,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(\"XXsubjectXX\", {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
-      "id": "trustweave.policy_review.x_review_policy__mutmut_216",
-      "rationale": "Every finding constructed by `review_policy` contains only `id`, `severity`, and `message`; the function never creates a `subject` key before canonicalization. Each mutant therefore takes the same documented fallback `{'policy': policy.name}` for every reachable internal finding and cannot change the public review artifact.",
-      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
-    },
-    {
-      "classification": "equivalent",
-      "diff": "# trustweave.policy_review.x_review_policy__mutmut_217: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -145,7 +145,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(\"SUBJECT\", {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
+      "diff": "# trustweave.policy_review.x_review_policy__mutmut_217: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -146,7 +146,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(None, {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
       "id": "trustweave.policy_review.x_review_policy__mutmut_217",
-      "rationale": "Every finding constructed by `review_policy` contains only `id`, `severity`, and `message`; the function never creates a `subject` key before canonicalization. Each mutant therefore takes the same documented fallback `{'policy': policy.name}` for every reachable internal finding and cannot change the public review artifact.",
+      "rationale": "review_policy constructs each internal finding with id, severity, and message only; it does not create a subject key before canonicalization. Each mutated lookup therefore takes the same {'policy': policy.name} fallback as the original and cannot change the public review artifact.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.policy_review.x_review_policy__mutmut_221: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -146,7 +146,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(\"XXsubjectXX\", {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
+      "id": "trustweave.policy_review.x_review_policy__mutmut_221",
+      "rationale": "review_policy constructs each internal finding with id, severity, and message only; it does not create a subject key before canonicalization. Each mutated lookup therefore takes the same {'policy': policy.name} fallback as the original and cannot change the public review artifact.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.policy_review.x_review_policy__mutmut_222: survived\n--- src/trustweave/policy_review.py\n+++ src/trustweave/policy_review.py\n@@ -146,7 +146,7 @@\n             str(item[\"id\"]),\n             str(item[\"severity\"]),\n             str(item[\"message\"]),\n-            subject=item.get(\"subject\", {\"policy\": policy.name}),\n+            subject=item.get(\"SUBJECT\", {\"policy\": policy.name}),\n         )\n         for item in findings\n     ]\n",
+      "id": "trustweave.policy_review.x_review_policy__mutmut_222",
+      "rationale": "review_policy constructs each internal finding with id, severity, and message only; it does not create a subject key before canonicalization. Each mutated lookup therefore takes the same {'policy': policy.name} fallback as the original and cannot change the public review artifact.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
