@@ -58,6 +58,7 @@ The initial release is complete only when:
 7. The MCP profile command produces a clear result for safe synthetic HTTP metadata and review findings for missing authorization expectation, unknown mapping, and action-class drift without contacting a server.
 8. Documentation states what the project does, what it does not do, how to verify it, and how to report a security concern.
 9. The GitHub workflow defines the exact automated checks without making unsupported production-readiness claims.
+10. Maintainers record the exact reviewed SHA, relevant hosted evidence, residual limits, and release-sensitive decision separately from ordinary check status; see [Maintainer Handoff](MAINTAINER_HANDOFF.md).
 
 ## Delivery policy
 
@@ -66,3 +67,7 @@ TrustWeave [`0.2.3`](https://pypi.org/project/trustweave/0.2.3/) is the publishe
 ## Future scope, deliberately excluded from the current local evidence contract
 
 The following items are valid roadmap candidates but not part of the first vertical slice: MCP proxying, OPA integration, OpenFGA integration, external signature services, automatic source discovery, framework SDKs, dashboards, hosted registries, production telemetry ingestion, and enterprise multitenancy.
+
+## Extension admission rule
+
+A future capability may enter the product contract only after its proposal identifies the user decision it improves, the local or external data boundary, failure behavior, deterministic evidence, compatibility impact, tests, documentation, residual limits, and the maintainer decision required to authorize it. Capabilities that add live execution, network access, credentials, data collection, identity claims, automatic merges, or publication require a separate threat model and owner-approved operating procedure before implementation. Until then, they remain excluded scope rather than hidden optional behavior.
