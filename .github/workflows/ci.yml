@@ -64,15 +64,15 @@ jobs:
 
       - name: Container build and smoke test
         run: |
-          docker build --pull=false -t trustweave:0.2.1 .
-          docker run --rm trustweave:0.2.1 --help
-          docker run --rm trustweave:0.2.1 schema list
-          docker run --rm --network none trustweave:0.2.1 schema list
-          docker run --rm --entrypoint sh trustweave:0.2.1 -c 'test "$(id -u)" -eq 10001'
-          docker run --rm --entrypoint python trustweave:0.2.1 -c 'import trustweave; assert trustweave.__version__ == "0.2.1"'
-          docker run --rm --entrypoint sh trustweave:0.2.1 -c 'test -d /usr/local/lib/python3.13/site-packages/trustweave/schemas'
-          docker run --rm --user 0 --entrypoint sh trustweave:0.2.1 -c '! find /app -type d -name "__pycache__" -print -quit | grep -q .'
-          docker run --rm --user 0 --entrypoint sh trustweave:0.2.1 -c '! test -e /root/.cache/pip && ! test -e /home/trustweave/.cache/pip'
+          docker build --pull=false -t trustweave:0.2.2 .
+          docker run --rm trustweave:0.2.2 --help
+          docker run --rm trustweave:0.2.2 schema list
+          docker run --rm --network none trustweave:0.2.2 schema list
+          docker run --rm --entrypoint sh trustweave:0.2.2 -c 'test "$(id -u)" -eq 10001'
+          docker run --rm --entrypoint python trustweave:0.2.2 -c 'import trustweave; assert trustweave.__version__ == "0.2.2"'
+          docker run --rm --entrypoint sh trustweave:0.2.2 -c 'test -d /usr/local/lib/python3.13/site-packages/trustweave/schemas'
+          docker run --rm --user 0 --entrypoint sh trustweave:0.2.2 -c '! find /app -type d -name "__pycache__" -print -quit | grep -q .'
+          docker run --rm --user 0 --entrypoint sh trustweave:0.2.2 -c '! test -e /root/.cache/pip && ! test -e /home/trustweave/.cache/pip'
 
       - name: Verify reproducible wheel build
         run: |

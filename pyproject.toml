@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trustweave"
-version = "0.2.1"
+version = "0.2.2"
 description = "Local-first security build evidence for AI agent trust boundaries."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -38,6 +38,7 @@ dev = [
   "cyclonedx-bom>=7.0",
   "ruff>=0.8",
   "mypy>=1.13",
+  "bandit>=1.8",
   "mutmut==3.7.0",
   "mkdocs-material>=9.5",
 ]

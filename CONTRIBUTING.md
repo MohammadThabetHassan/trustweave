@@ -19,7 +19,7 @@ External contributors should propose a pull request from a branch or fork. Revie
 ## Local development
 
 ```bash
-python -m pip install -e ".[dev]" bandit build pip-audit
+python -m pip install -e ".[dev]" pip-audit
 
 ruff format --check .
 ruff check .

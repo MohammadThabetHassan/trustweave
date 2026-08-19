@@ -25,6 +25,7 @@ nav:
   - Configuration: CONFIGURATION.md
   - Manifest, tags, and classifications: MANIFEST_CONTRACT.md
   - Local CI workflow: CI_WORKFLOW.md
+  - Developer integration routes: INTEGRATIONS.md
   - CLI:
       - Guide: CLI.md
       - Generated help: CLI_HELP.md

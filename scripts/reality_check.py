@@ -51,6 +51,8 @@ REQUIRED_ISSUE_FORMS = (
 )
 REQUIRED_README_MARKERS = (
     "python -m pip install --upgrade trustweave",
+    "python -m trustweave --help",
+    "[Developer integration routes](docs/site/INTEGRATIONS.md)",
     "[SUPPORT.md](SUPPORT.md)",
     "[SECURITY.md](SECURITY.md)",
     "[CONTRIBUTING.md](CONTRIBUTING.md)",
@@ -598,6 +600,10 @@ def _check_public_documents() -> list[str]:
                 failures.append(f"README.md lacks required public-readiness marker: {marker}")
         if "repository remains private" in readme.casefold():
             failures.append("README.md still claims that the repository remains private")
+        if "remains the currently published" in readme:
+            failures.append("README.md retains stale current-release wording")
+        if "remains subject to owner-approved production publication" in readme:
+            failures.append("README.md retains stale pre-publication wording")
 
     security_path = ROOT / "SECURITY.md"
     if security_path.exists():
@@ -868,6 +874,21 @@ def _check_installed_wheel_schema_resources() -> list[str]:
                 f"Installed-wheel CLI help lacks parser command: {command_name}"
                 for command_name in _parser_command_names()
                 if command_name not in help_result.stdout
+            )
+
+        module_help = subprocess.run(
+            [str(python), "-m", "trustweave", "--help"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if module_help.returncode != 0:
+            failures.append(f"Installed-wheel module CLI help failed: {module_help.stderr.strip()}")
+        else:
+            failures.extend(
+                f"Installed-wheel module CLI help lacks parser command: {command_name}"
+                for command_name in _parser_command_names()
+                if command_name not in module_help.stdout
             )
     return failures
 

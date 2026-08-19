@@ -18,6 +18,8 @@
 
 <p align="center">
   <a href="#quick-start">Quick start</a> ·
+  <a href="docs/site/INTEGRATIONS.md">Integration routes</a> ·
+  <a href="docs/CI_INTEGRATIONS.md">Local CI</a> ·
   <a href="docs/CLI_REFERENCE.md">CLI reference</a> ·
   <a href="docs/PRODUCT_CONTRACT.md">Product contract</a> ·
   <a href="docs/REVIEWER_WORKFLOW.md">Reviewer workflow</a> ·
@@ -46,6 +48,8 @@ TrustWeave supports **Python 3.11+**. Install the published package to inspect t
 ```bash
 python -m pip install --upgrade trustweave
 trustweave --help
+# Equivalent module invocation:
+python -m trustweave --help
 ```
 
 For a complete, safe first review, clone the repository and run the synthetic example. The workflow reads only checked-in local files; it does not interact with an agent, server, or external system.
@@ -91,6 +95,17 @@ python -m pip install "trustweave[yaml]"
 
 </details>
 
+## Pick the local input you already have
+
+| If you already have… | Start here | TrustWeave reads locally | It never does |
+| --- | --- | --- | --- |
+| A LangGraph, OpenAI Agents, or CrewAI declaration export | [Framework import](docs/FRAMEWORK_IMPORT.md) | A literal framework descriptor | Import code, install the framework, run an agent, model, or tool |
+| A saved MCP `tools/list` snapshot | [MCP import](docs/MCP_IMPORT.md) | A provided local JSON snapshot | Discover, connect to, authenticate with, or invoke an MCP server |
+| A repository CI job | [Local CI integration](docs/CI_INTEGRATIONS.md) | Checked-in manifests, policies, and scenarios | Upload evidence, post comments, merge, deploy, or enable a repository service |
+| A complete manifest and policy | [Five-minute local review](docs/site/INSTALLATION.md) | Declared flows and synthetic scenarios | Make a runtime-security or deployment decision |
+
+The [developer integration routes](docs/site/INTEGRATIONS.md) page gives copy-paste local commands for each path and explains the next reviewer action.
+
 ## Review workflows
 
 TrustWeave stays small by keeping every workflow local and deterministic. Start with the question you need to answer, then follow the linked contract for exact inputs, outputs, exit codes, and limitations.
@@ -117,6 +132,8 @@ The project also avoids unsupported security claims. A review finding is a deter
 | Read this | When you need it |
 | --- | --- |
 | [CLI reference](docs/CLI_REFERENCE.md) | Exact arguments, outputs, exit codes, and error behavior. |
+| [Developer integration routes](docs/site/INTEGRATIONS.md) | Copy-paste paths for local framework descriptors, MCP snapshots, and CI workflows. |
+| [Local CI integration assets](docs/CI_INTEGRATIONS.md) | A least-privilege composite action plus GitLab, Jenkins, and pre-commit starting points. |
 | [Reviewer workflow](docs/REVIEWER_WORKFLOW.md) | Turning an already-recorded MCP inventory into a human-resolved manifest. |
 | [Product contract](docs/PRODUCT_CONTRACT.md) | The user promise, evidence model, acceptance criteria, and safety boundary. |
 | [Architecture](docs/ARCHITECTURE.md) | Components, local data flow, invariants, and extension boundaries. |
@@ -131,12 +148,12 @@ The project also avoids unsupported security claims. A review finding is a deter
 | [Release guide](docs/RELEASE.md) | The evidence and authorization required to publish a package. |
 | [0.2.1 release notes](docs/RELEASE_NOTES_0.2.1.md) | Corrected public version contract, material hardening, verification evidence, known limitations, and owner-controlled release status. |
 | [0.2.1 owner checklist](docs/OWNER_RELEASE_CHECKLIST_0.2.1.md) | Owner-controlled pre-merge, artifact-verification, release, and rollback gates. |
-| [0.2 migration guide](docs/MIGRATION_GUIDE_0.2.0.md) | Moving configuration, bundles, and risk-decision documents from 0.1.1 safely before installing an owner-published 0.2.1 artifact. |
+| [0.2 migration guide](docs/MIGRATION_GUIDE_0.2.0.md) | Moving configuration, bundles, and risk-decision documents from 0.1.1 to the published 0.2-series package safely. |
 | [v0.2.0 audit record](docs/RELEASE_NOTES_0.2.0.md) | Immutable unpublished pre-publication tag evidence; it was never published to PyPI and has no GitHub Release. |
 
 ## Built to be inspected
 
-`0.1.1` remains the currently published [PyPI release](https://pypi.org/project/trustweave/). The corrected source target is `0.2.1`, which remains subject to owner-approved production publication, tagging, and a GitHub Release. Annotated `v0.2.0` is an immutable unpublished audit tag at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; it was never published to PyPI and has no GitHub Release. The `0.2.1` release path includes formatting, linting, strict type checks, static source-security scanning, a **95% branch-coverage gate**, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
+The current published package is available on [PyPI](https://pypi.org/project/trustweave/) and every public package release has a matching [GitHub Release](https://github.com/MohammadThabetHassan/trustweave/releases). Annotated `v0.2.0` remains an immutable unpublished audit tag at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; it was never published to PyPI and has no GitHub Release. The release path includes formatting, linting, strict type checks, static source-security scanning, a **95% branch-coverage gate**, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
 
 Current inputs retain their documented `v1alpha1`/`v1alpha2` contracts. Generated bundles use `trustweave.dev/bundle/v1alpha2`; risk decisions use canonical `trustweave/fingerprint/v3` identities and generated reviews use `trustweave.dev/risk-review/v1alpha2`. Historical v1alpha1 bundle and review resources remain available for bounded compatibility rather than being silently redefined. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
 

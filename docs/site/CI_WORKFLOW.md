@@ -45,8 +45,8 @@ The CodeQL workflow analyzes Python and GitHub Actions code through pinned actio
 The `Dockerfile` builds a minimal image from an immutable official Python digest, installs TrustWeave with no dependency resolution, and runs as the unprivileged `trustweave` user. The image’s health check invokes `trustweave --help`; normal commands remain local and read-only-compatible.
 
 ```shell
-docker build --tag trustweave:0.2.1 .
-docker run --rm --read-only trustweave:0.2.1 --help
+docker build --tag trustweave:0.2.2 .
+docker run --rm --read-only trustweave:0.2.2 --help
 ```
 
 Docker is required to execute these container commands. The image does not add a daemon, background job, network listener, credential integration, or automatic evidence publication.

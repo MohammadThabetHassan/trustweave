@@ -11,6 +11,8 @@ python -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip trustweave
 trustweave --help
+# Equivalent module invocation:
+python -m trustweave --help
 ```
 
 Safe YAML parsing is optional. Install it only when your supplied declarations use YAML:

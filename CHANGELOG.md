@@ -2,6 +2,23 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
+## [0.2.2] - Unreleased developer-experience patch candidate
+
+### Added
+
+- Added `python -m trustweave` as a standard module entry point alongside the installed `trustweave` console command, with source-checkout and installed-wheel regression coverage for matching version and help behavior.
+- Added a task-oriented developer integration-routes page with copy-paste local examples for LangGraph-style declarations, exported OpenAI Agents descriptors, saved MCP `tools/list` snapshots, and repository CI inputs.
+
+### Changed
+
+- Made the README and documentation-site installation path expose both supported CLI invocations, route developers by the local input they already have, and link directly to framework, MCP, and least-privilege CI guidance.
+- Updated the checked-in CI integration example to the currently reviewed immutable `actions/checkout` v7.0.1 pin.
+- Extended the repository reality check to validate module-style help from an isolated installed wheel and to reject the prior stale README release wording.
+
+### Release status
+
+- `0.2.2` is an unreleased source candidate pending the documented evidence, tag, TestPyPI, PyPI, and GitHub Release sequence. It does not change the non-executing, local-only product boundary.
+
 ## [0.2.1] - 2026-08-19
 
 > This corrected public release was authorized and published from annotated tag [`v0.2.1`](https://github.com/MohammadThabetHassan/trustweave/tree/v0.2.1), which targets `f1394d5fba8a0fbc24e3a18f45702e83aa65645e`. The protected trusted-publishing workflows completed successfully, and the exact package was validated from both TestPyPI and PyPI.
