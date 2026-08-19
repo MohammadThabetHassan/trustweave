@@ -321,12 +321,12 @@
           "path": "base/agent-security-bundle.json"
         },
         {
-          "digest": "68d3aaf694be981ffe777ace65f6051b13019dae7f4376204910433508fb7d2b",
+          "digest": "974cc82495c20dba26bf6b8bf6359397f75f7507dafc2e5572e8f17dce21281a",
           "digest_kind": "canonical-json-sha256",
           "path": "diff/bundle-diff.json"
         },
         {
-          "digest": "c311ee2e1d123a62918516ba3ad8f4db7bed5427a1f66e4d458f32f3cf7ba29b",
+          "digest": "3bd30e1c0483fdd63989018126d2cc3f3105e9ddd49c24bf756e2c355fe5a7d6",
           "digest_kind": "bytes-sha256",
           "path": "diff/bundle-diff.md"
         },

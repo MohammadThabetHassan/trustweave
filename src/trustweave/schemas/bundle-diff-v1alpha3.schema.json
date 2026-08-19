@@ -1,0 +1,774 @@
+{
+  "$defs": {
+    "bundle_finding": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "enum": [
+            "allow",
+            "deny",
+            "require_approval"
+          ]
+        },
+        "flow": {
+          "$ref": "#/$defs/flow"
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        },
+        "rule_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "tool": {
+          "$ref": "#/$defs/tool"
+        }
+      },
+      "required": [
+        "flow",
+        "source",
+        "tool",
+        "decision",
+        "severity",
+        "rule_id",
+        "rationale"
+      ],
+      "type": "object"
+    },
+    "bundle_reference": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "$ref": "#/$defs/text"
+        },
+        "bundle_generated_at": {
+          "$ref": "#/$defs/text"
+        },
+        "bundle_schema_version": {
+          "enum": [
+            "trustweave.dev/bundle/v1alpha1",
+            "trustweave.dev/bundle/v1alpha2"
+          ]
+        }
+      },
+      "required": [
+        "agent",
+        "bundle_generated_at",
+        "bundle_schema_version"
+      ],
+      "type": "object"
+    },
+    "capability_change": {
+      "additionalProperties": false,
+      "properties": {
+        "action_class": {
+          "oneOf": [
+            {
+              "enum": [
+                "read",
+                "write",
+                "sensitive",
+                "external"
+              ]
+            },
+            {
+              "const": "unknown"
+            }
+          ]
+        },
+        "added": {
+          "$ref": "#/$defs/string_list"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "removed": {
+          "$ref": "#/$defs/string_list"
+        }
+      },
+      "required": [
+        "name",
+        "action_class",
+        "added",
+        "removed"
+      ],
+      "type": "object"
+    },
+    "count": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "pattern": "^[a-z][a-z0-9_]{0,127}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^TW-[A-Z0-9-]{1,120}$",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/string_map"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/property_map"
+        },
+        "rationale": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/string_map"
+          },
+          "maxItems": 64,
+          "type": "array"
+        },
+        "remediation": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info",
+            "review"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/subject"
+        },
+        "title": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "message",
+        "evidence_kind"
+      ],
+      "type": "object"
+    },
+    "flow": {
+      "additionalProperties": false,
+      "properties": {
+        "purpose": {
+          "$ref": "#/$defs/text"
+        },
+        "purpose_tags": {
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source": {
+          "$ref": "#/$defs/identifier"
+        },
+        "tool": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "source",
+        "tool",
+        "purpose",
+        "purpose_tags"
+      ],
+      "type": "object"
+    },
+    "identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "path_changes": {
+      "additionalProperties": false,
+      "properties": {
+        "added": {
+          "items": {
+            "$ref": "#/$defs/bundle_finding"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "decision_changed": {
+          "items": {
+            "$ref": "#/$defs/path_decision_change"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "removed": {
+          "items": {
+            "$ref": "#/$defs/bundle_finding"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "added",
+        "removed",
+        "decision_changed"
+      ],
+      "type": "object"
+    },
+    "path_decision_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/bundle_finding"
+        },
+        "before": {
+          "$ref": "#/$defs/bundle_finding"
+        },
+        "key": {
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        }
+      },
+      "required": [
+        "key",
+        "before",
+        "after"
+      ],
+      "type": "object"
+    },
+    "policy_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {},
+        "before": {},
+        "path": {
+          "$ref": "#/$defs/text"
+        },
+        "security_relevant": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "before",
+        "after",
+        "security_relevant"
+      ],
+      "type": "object"
+    },
+    "policy_changes": {
+      "additionalProperties": false,
+      "properties": {
+        "changed": {
+          "items": {
+            "$ref": "#/$defs/policy_change"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "changed"
+      ],
+      "type": "object"
+    },
+    "property_map": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "rule_id": {
+      "pattern": "^TW-[A-Z0-9-]{1,120}$",
+      "type": "string"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "data_classification": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "trust": {
+          "enum": [
+            "trusted",
+            "untrusted",
+            "conditional"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "trust",
+        "data_classification",
+        "description"
+      ],
+      "type": "object"
+    },
+    "source_add": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/source"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "after"
+      ],
+      "type": "object"
+    },
+    "source_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/source"
+        },
+        "before": {
+          "$ref": "#/$defs/source"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "before",
+        "after"
+      ],
+      "type": "object"
+    },
+    "source_changes": {
+      "additionalProperties": false,
+      "properties": {
+        "added": {
+          "items": {
+            "$ref": "#/$defs/source_add"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "changed": {
+          "items": {
+            "$ref": "#/$defs/source_change"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "removed": {
+          "items": {
+            "$ref": "#/$defs/source_remove"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "added",
+        "removed",
+        "changed"
+      ],
+      "type": "object"
+    },
+    "source_remove": {
+      "additionalProperties": false,
+      "properties": {
+        "before": {
+          "$ref": "#/$defs/source"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "before"
+      ],
+      "type": "object"
+    },
+    "string_list": {
+      "items": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "type": "array"
+    },
+    "string_map": {
+      "additionalProperties": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "subject": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    },
+    "tool": {
+      "additionalProperties": false,
+      "properties": {
+        "action_class": {
+          "enum": [
+            "read",
+            "write",
+            "sensitive",
+            "external"
+          ]
+        },
+        "capabilities": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "action_class",
+        "capabilities",
+        "description"
+      ],
+      "type": "object"
+    },
+    "tool_add": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/tool"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "after"
+      ],
+      "type": "object"
+    },
+    "tool_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/tool"
+        },
+        "before": {
+          "$ref": "#/$defs/tool"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "before",
+        "after"
+      ],
+      "type": "object"
+    },
+    "tool_changes": {
+      "additionalProperties": false,
+      "properties": {
+        "added": {
+          "items": {
+            "$ref": "#/$defs/tool_add"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "changed": {
+          "items": {
+            "$ref": "#/$defs/tool_change"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "removed": {
+          "items": {
+            "$ref": "#/$defs/tool_remove"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "added",
+        "removed",
+        "changed"
+      ],
+      "type": "object"
+    },
+    "tool_remove": {
+      "additionalProperties": false,
+      "properties": {
+        "before": {
+          "$ref": "#/$defs/tool"
+        },
+        "name": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "name",
+        "before"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/bundle-diff/v1alpha3",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "base": {
+      "$ref": "#/$defs/bundle_reference"
+    },
+    "changes": {
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "items": {
+            "$ref": "#/$defs/capability_change"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "paths": {
+          "$ref": "#/$defs/path_changes"
+        },
+        "policy": {
+          "$ref": "#/$defs/policy_changes"
+        },
+        "sources": {
+          "$ref": "#/$defs/source_changes"
+        },
+        "tools": {
+          "$ref": "#/$defs/tool_changes"
+        }
+      },
+      "required": [
+        "sources",
+        "tools",
+        "capabilities",
+        "paths",
+        "policy"
+      ],
+      "type": "object"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "head": {
+      "$ref": "#/$defs/bundle_reference"
+    },
+    "limits": {
+      "items": {
+        "maxLength": 4096,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/bundle-diff/v1alpha3"
+    },
+    "signals": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "maxItems": 1000000,
+      "type": "array"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "added_capabilities": {
+          "$ref": "#/$defs/count"
+        },
+        "added_paths": {
+          "$ref": "#/$defs/count"
+        },
+        "added_sources": {
+          "$ref": "#/$defs/count"
+        },
+        "added_tools": {
+          "$ref": "#/$defs/count"
+        },
+        "changed_sources": {
+          "$ref": "#/$defs/count"
+        },
+        "changed_tools": {
+          "$ref": "#/$defs/count"
+        },
+        "decision_changes": {
+          "$ref": "#/$defs/count"
+        },
+        "policy_changes": {
+          "$ref": "#/$defs/count"
+        },
+        "removed_capabilities": {
+          "$ref": "#/$defs/count"
+        },
+        "removed_paths": {
+          "$ref": "#/$defs/count"
+        },
+        "removed_sources": {
+          "$ref": "#/$defs/count"
+        },
+        "removed_tools": {
+          "$ref": "#/$defs/count"
+        },
+        "review_signals": {
+          "$ref": "#/$defs/count"
+        },
+        "tools_with_capability_changes": {
+          "$ref": "#/$defs/count"
+        }
+      },
+      "required": [
+        "added_sources",
+        "removed_sources",
+        "changed_sources",
+        "added_tools",
+        "removed_tools",
+        "changed_tools",
+        "tools_with_capability_changes",
+        "added_capabilities",
+        "removed_capabilities",
+        "added_paths",
+        "removed_paths",
+        "decision_changes",
+        "review_signals",
+        "policy_changes"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "base",
+    "head",
+    "changes",
+    "signals",
+    "summary",
+    "limits",
+    "generated_at"
+  ],
+  "title": "TrustWeave Bundle Diff v1alpha3",
+  "type": "object"
+}

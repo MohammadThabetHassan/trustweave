@@ -90,6 +90,26 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         ),
         "Review least-privilege scope and policy coverage.",
     ),
+    "TW-DIFF-004": RuleDefinition(
+        "TW-DIFF-004",
+        "declared_bundle_difference",
+        "Approval control changed from fail-closed to fail-open",
+        (
+            "A supplied policy-only delta weakens declared approval behavior even though "
+            "current declared flow outcomes may remain unchanged."
+        ),
+        "Review approval-boundary enforcement before accepting the policy change.",
+    ),
+    "TW-DIFF-005": RuleDefinition(
+        "TW-DIFF-005",
+        "declared_bundle_difference",
+        "Policy default decision changed to allow",
+        (
+            "A supplied policy-only delta changes unmatched declared paths from a non-allow "
+            "default to allow."
+        ),
+        "Review every unmatched-path assumption and the intended human-control boundary.",
+    ),
     "TW-MCP-001": RuleDefinition(
         "TW-MCP-001",
         "pre_recorded_mcp_metadata",

@@ -11,6 +11,9 @@
       "decision_changed": [],
       "removed": []
     },
+    "policy": {
+      "changed": []
+    },
     "sources": {
       "added": [],
       "changed": [],
@@ -32,7 +35,7 @@
     "The diff compares declared bundle content only; it does not discover runtime behavior or validate an external deployment.",
     "Review signals identify policy-relevant changes and require human judgment; they are not vulnerability findings or a security verdict."
   ],
-  "schema_version": "trustweave.dev/bundle-diff/v1alpha2",
+  "schema_version": "trustweave.dev/bundle-diff/v1alpha3",
   "signals": [],
   "summary": {
     "added_capabilities": 0,
@@ -42,6 +45,7 @@
     "changed_sources": 0,
     "changed_tools": 0,
     "decision_changes": 0,
+    "policy_changes": 0,
     "removed_capabilities": 0,
     "removed_paths": 0,
     "removed_sources": 0,

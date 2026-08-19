@@ -187,7 +187,7 @@ def test_bundle_diff_rejects_malformed_declared_artifact_components(
 
 
 def test_bundle_diff_supports_historical_and_current_bundle_versions() -> None:
-    """A v1alpha2 diff explicitly records a compatible v1alpha1-to-v1alpha2 comparison."""
+    """A v1alpha3 diff explicitly records a compatible v1alpha1-to-v1alpha2 comparison."""
 
     manifest = parse_manifest(_copy_document(MANIFEST))
     policy = parse_policy(_copy_document(POLICY))
@@ -196,6 +196,65 @@ def test_bundle_diff_supports_historical_and_current_bundle_versions() -> None:
 
     diff = diff_bundles(historical, current, generated_at="2026-08-15T00:00:00+00:00")
 
-    assert diff["schema_version"] == "trustweave.dev/bundle-diff/v1alpha2"
+    assert diff["schema_version"] == "trustweave.dev/bundle-diff/v1alpha3"
     assert diff["base"]["bundle_schema_version"] == "trustweave.dev/bundle/v1alpha1"
     assert diff["head"]["bundle_schema_version"] == "trustweave.dev/bundle/v1alpha2"
+
+
+def test_bundle_diff_reports_policy_only_fail_closed_weakening() -> None:
+    """A security-relevant approval control change is visible without an outcome change."""
+
+    base_policy_document = _copy_document(POLICY)
+    head_policy_document = _copy_document(POLICY)
+    approval_control = head_policy_document["approval_control"]
+    assert isinstance(approval_control, dict)
+    approval_control["fail_closed"] = False
+    manifest = parse_manifest(_copy_document(MANIFEST))
+
+    diff = diff_bundles(
+        build_bundle(manifest, parse_policy(base_policy_document)),
+        build_bundle(manifest, parse_policy(head_policy_document)),
+    )
+
+    assert diff["schema_version"] == "trustweave.dev/bundle-diff/v1alpha3"
+    assert diff["changes"]["paths"] == {
+        "added": [],
+        "removed": [],
+        "decision_changed": [],
+    }
+    assert diff["changes"]["policy"] == {
+        "changed": [
+            {
+                "path": "policy.approval_control.fail_closed",
+                "before": True,
+                "after": False,
+                "security_relevant": True,
+            }
+        ]
+    }
+    assert diff["summary"]["policy_changes"] == 1
+    assert {signal["id"] for signal in diff["signals"]} == {"TW-DIFF-004"}
+
+
+def test_bundle_diff_reports_default_allow_policy_weakening() -> None:
+    """Default-decision weakening receives a deterministic policy delta and review signal."""
+
+    base_policy_document = _copy_document(POLICY)
+    head_policy_document = _copy_document(POLICY)
+    head_policy_document["default_decision"] = "allow"
+    manifest = parse_manifest(_copy_document(MANIFEST))
+
+    diff = diff_bundles(
+        build_bundle(manifest, parse_policy(base_policy_document)),
+        build_bundle(manifest, parse_policy(head_policy_document)),
+    )
+
+    assert diff["changes"]["policy"]["changed"] == [
+        {
+            "path": "policy.default_decision",
+            "before": "deny",
+            "after": "allow",
+            "security_relevant": True,
+        }
+    ]
+    assert {signal["id"] for signal in diff["signals"]} == {"TW-DIFF-005"}

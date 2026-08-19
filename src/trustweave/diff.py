@@ -11,7 +11,7 @@ from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
 BUNDLE_SCHEMA_VERSION = BUNDLE_SCHEMA_V1ALPHA1
-BUNDLE_DIFF_SCHEMA_VERSION = "trustweave.dev/bundle-diff/v1alpha2"
+BUNDLE_DIFF_SCHEMA_VERSION = "trustweave.dev/bundle-diff/v1alpha3"
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 
 
@@ -121,10 +121,89 @@ def _capability_changes(
     return changes
 
 
+def _policy_changes(
+    base_bundle: Mapping[str, Any], head_bundle: Mapping[str, Any]
+) -> dict[str, list[dict[str, Any]]]:
+    """Return normalized, ordered semantic policy deltas independent of policy names."""
+
+    base_policy = _mapping(base_bundle.get("policy"))
+    head_policy = _mapping(head_bundle.get("policy"))
+    changes: list[dict[str, Any]] = []
+
+    for field, security_relevant in (
+        ("default_decision", True),
+        ("classification_taxonomy", True),
+        ("rules", True),
+    ):
+        before = base_policy.get(field)
+        after = head_policy.get(field)
+        if before != after:
+            changes.append(
+                {
+                    "path": f"policy.{field}",
+                    "before": before,
+                    "after": after,
+                    "security_relevant": security_relevant,
+                }
+            )
+
+    base_control = _mapping(base_policy.get("approval_control"))
+    head_control = _mapping(head_policy.get("approval_control"))
+    for field in ("mechanism", "binds_to", "fail_closed"):
+        before = (
+            base_control.get(field) if base_policy.get("approval_control") is not None else None
+        )
+        after = head_control.get(field) if head_policy.get("approval_control") is not None else None
+        if before != after:
+            changes.append(
+                {
+                    "path": f"policy.approval_control.{field}",
+                    "before": before,
+                    "after": after,
+                    "security_relevant": True,
+                }
+            )
+    return {"changed": changes}
+
+
+def _policy_review_signals(
+    policy_changes: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Emit reviewer-visible signals for policy weakenings independent of present flows."""
+
+    signals: list[dict[str, Any]] = []
+    for change in policy_changes:
+        path = change.get("path")
+        before = change.get("before")
+        after = change.get("after")
+        if path == "policy.approval_control.fail_closed" and before is True and after is False:
+            signals.append(
+                finding_for_rule(
+                    "TW-DIFF-004",
+                    "review",
+                    "The declared approval control changed from fail-closed to fail-open; review "
+                    "approval-boundary enforcement before accepting this policy change.",
+                    subject={"policy_field": "approval_control.fail_closed"},
+                )
+            )
+        elif path == "policy.default_decision" and after == "allow" and before != "allow":
+            signals.append(
+                finding_for_rule(
+                    "TW-DIFF-005",
+                    "review",
+                    "The policy default decision changed to allow; unmatched declared paths now "
+                    "require explicit human review.",
+                    subject={"policy_field": "default_decision"},
+                )
+            )
+    return signals
+
+
 def _review_signals(
     tool_changes: Mapping[str, Sequence[Mapping[str, Any]]],
     capability_changes: Sequence[Mapping[str, Any]],
     changed_findings: Sequence[Mapping[str, Any]],
+    policy_changes: Sequence[Mapping[str, Any]],
 ) -> list[dict[str, Any]]:
     signals: list[dict[str, Any]] = []
     for item in list(tool_changes["added"]) + list(tool_changes["changed"]):
@@ -194,6 +273,7 @@ def _review_signals(
                     },
                 )
             )
+    signals.extend(_policy_review_signals(policy_changes))
     return signals
 
 
@@ -235,8 +315,14 @@ def diff_bundles(
         ],
     }
     capability_changes = _capability_changes(tool_changes)
+    policy_changes = _policy_changes(base_bundle, head_bundle)
     review_relevant_findings = [head_findings[key] for key in added_paths + changed_paths]
-    signals = _review_signals(tool_changes, capability_changes, review_relevant_findings)
+    signals = _review_signals(
+        tool_changes,
+        capability_changes,
+        review_relevant_findings,
+        policy_changes["changed"],
+    )
 
     diff: dict[str, object] = {
         "schema_version": BUNDLE_DIFF_SCHEMA_VERSION,
@@ -255,6 +341,7 @@ def diff_bundles(
             "tools": tool_changes,
             "capabilities": capability_changes,
             "paths": path_changes,
+            "policy": policy_changes,
         },
         "signals": signals,
         "summary": {
@@ -270,6 +357,7 @@ def diff_bundles(
             "added_paths": len(path_changes["added"]),
             "removed_paths": len(path_changes["removed"]),
             "decision_changes": len(path_changes["decision_changed"]),
+            "policy_changes": len(policy_changes["changed"]),
             "review_signals": len(signals),
         },
         "limits": [

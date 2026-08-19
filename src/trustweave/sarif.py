@@ -20,7 +20,13 @@ REVIEW_INPUTS: tuple[tuple[str, frozenset[str], str], ...] = (
     ("policy", frozenset({"trustweave.dev/policy-review/v1alpha1"}), "findings"),
     (
         "diff",
-        frozenset({"trustweave.dev/bundle-diff/v1alpha1", "trustweave.dev/bundle-diff/v1alpha2"}),
+        frozenset(
+            {
+                "trustweave.dev/bundle-diff/v1alpha1",
+                "trustweave.dev/bundle-diff/v1alpha2",
+                "trustweave.dev/bundle-diff/v1alpha3",
+            }
+        ),
         "signals",
     ),
     ("trace", frozenset({"trustweave.dev/trace-review/v1alpha1"}), "findings"),
