@@ -31,7 +31,7 @@ The roadmap favors improvements that make an existing reviewer decision more rep
 
 The first post-release priority is to collect feedback from maintainers and reviewers using the documented local workflows. Useful evidence includes whether the manifest and policy vocabulary is understandable, whether review signals are actionable, and whether the generated Markdown artifacts support an actual change-review decision. Feedback should be documented as issues or examples without publishing customer data, credentials, trace content, or third-party targets.
 
-Input schemas retain their documented v1alpha1/v1alpha2 contracts. Current generated bundle, bundle-diff, and risk-review artifacts use explicit v1alpha2 versions while bounded historical v1alpha1 resources remain packaged. Published `0.2.3` adds a versioned compatibility contract, support/deprecation policy, synthetic golden corpus, and traceability map; the next maturity evidence is independent reviewer feedback on whether these records make real local change-review decisions clearer.
+Input schemas retain their documented v1alpha1/v1alpha2 contracts. Current generated bundles and risk-review artifacts use explicit v1alpha2 versions, while current generated bundle diffs use v1alpha3 to record policy-only deltas; bounded historical v1alpha1/v1alpha2 diff resources remain readable by documented consumers. Published `0.2.3` adds a versioned compatibility contract, support/deprecation policy, synthetic golden corpus, and traceability map; the next maturity evidence is independent reviewer feedback on whether these records make real local change-review decisions clearer.
 
 ### 2. Curated file-only declaration importers
 

@@ -79,7 +79,7 @@ The policy-review artifact checks six deterministic conditions: whether an order
 
 ### Bundle diff
 
-The current v1alpha2 bundle-diff artifact compares compatible v1alpha1 or v1alpha2 bundle inputs and records both input versions. It records additions, removals, and modifications to declared sources and tools; exact capability additions/removals for each existing changed tool; added and removed paths; and policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool, capability growth on an existing sensitive/external tool, and an untrusted-input path to a sensitive/external action that is not denied.
+The current v1alpha3 bundle-diff artifact compares compatible v1alpha1 or v1alpha2 bundle inputs and records both input versions. It records additions, removals, and modifications to declared sources and tools; exact capability additions/removals for each existing changed tool; added and removed paths; and a distinct policy delta for policy-decision or matching-rule changes. It emits review signals for a newly introduced or changed sensitive/external tool, capability growth on an existing sensitive/external tool, an untrusted-input path to a sensitive/external action that is not denied, a fail-closed-to-fail-open policy weakening, and a default-to-allow weakening. The retained v1alpha1/v1alpha2 schemas remain readable only by bounded historical consumers; new diff output is v1alpha3.
 
 ### Offline trace review
 
