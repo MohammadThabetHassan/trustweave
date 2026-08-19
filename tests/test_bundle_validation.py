@@ -308,3 +308,88 @@ def test_validate_bundle_rejects_semantically_invalid_nested_evidence(
     else:
         assert result is None
         validate_bundle(bundle)
+
+
+def test_validate_current_bundle_rejects_a_missing_declared_finding() -> None:
+    """An internally consistent summary cannot conceal a missing declared flow decision."""
+
+    bundle = _copy_bundle()
+    findings = bundle["findings"]
+    summary = bundle["summary"]
+    assert isinstance(findings, list) and findings
+    assert isinstance(summary, dict)
+    removed = findings.pop()
+    assert isinstance(removed, dict)
+    summary[str(removed["decision"])] -= 1
+
+    with pytest.raises(ValidationError, match="fresh evaluation"):
+        validate_bundle(bundle)
+
+
+def test_validate_current_bundle_rejects_a_fabricated_policy_result() -> None:
+    """Valid enums and a coherent summary do not make an altered policy result authentic."""
+
+    bundle = _copy_bundle()
+    findings = bundle["findings"]
+    summary = bundle["summary"]
+    assert isinstance(findings, list) and findings
+    assert isinstance(summary, dict)
+    finding = findings[0]
+    assert isinstance(finding, dict)
+    original_decision = str(finding["decision"])
+    fabricated_decision = "deny" if original_decision != "deny" else "allow"
+    finding["decision"] = fabricated_decision
+    finding["severity"] = "high" if fabricated_decision == "deny" else "info"
+    finding["rule_id"] = None
+    finding["rationale"] = "Fabricated but validly shaped local evidence."
+    summary[original_decision] -= 1
+    summary[fabricated_decision] += 1
+
+    with pytest.raises(ValidationError, match="fresh evaluation"):
+        validate_bundle(bundle)
+
+
+def test_validate_current_bundle_rejects_duplicate_substitution_for_a_declared_flow() -> None:
+    """Duplicating one finding cannot replace a different declared flow finding."""
+
+    bundle = _copy_bundle()
+    findings = bundle["findings"]
+    summary = bundle["summary"]
+    assert isinstance(findings, list) and len(findings) >= 2
+    assert isinstance(summary, dict)
+    replacement = json.loads(json.dumps(findings[0]))
+    removed = findings[1]
+    assert isinstance(replacement, dict) and isinstance(removed, dict)
+    findings[1] = replacement
+    summary[str(removed["decision"])] -= 1
+    summary[str(replacement["decision"])] += 1
+
+    with pytest.raises(ValidationError, match="fresh evaluation"):
+        validate_bundle(bundle)
+
+
+def test_validate_current_bundle_accepts_reordered_authentic_findings() -> None:
+    """Semantic collection equality allows ordering differences without allowing omissions."""
+
+    bundle = _copy_bundle()
+    findings = bundle["findings"]
+    assert isinstance(findings, list)
+    findings.reverse()
+
+    validate_bundle(bundle)
+
+
+def test_validate_current_bundle_rejects_changed_purpose_tags() -> None:
+    """Purpose tags are part of the declared flow identity and cannot be altered in evidence."""
+
+    bundle = _copy_bundle()
+    findings = bundle["findings"]
+    assert isinstance(findings, list) and findings
+    finding = findings[0]
+    assert isinstance(finding, dict)
+    flow = finding["flow"]
+    assert isinstance(flow, dict)
+    flow["purpose_tags"] = ["fabricated-purpose-tag"]
+
+    with pytest.raises(ValidationError, match="flow must match|fresh evaluation"):
+        validate_bundle(bundle)

@@ -345,6 +345,21 @@ def _validate_current_bundle(bundle: Mapping[str, Any], label: str) -> None:
         for index, item in enumerate(findings)
     )
 
+    # Import lazily because engine imports this module's schema-version constant while
+    # initializing. The shared oracle keeps build and validation semantics aligned.
+    from trustweave.engine import expected_finding_dicts
+    from trustweave.io import canonical_json
+
+    actual_findings = Counter(canonical_json(dict(item)) for item in findings)
+    expected_findings = Counter(
+        canonical_json(item) for item in expected_finding_dicts(manifest, policy)
+    )
+    if actual_findings != expected_findings:
+        raise ValidationError(
+            f"{label}.findings must exactly match fresh evaluation of the declared "
+            "manifest and policy"
+        )
+
     summary = _mapping(bundle.get("summary"), f"{label}.summary")
     summary_fields = {"allow", "deny", "require_approval"}
     reject_unknown_fields(summary, summary_fields, f"{label}.summary")
