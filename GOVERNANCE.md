@@ -18,7 +18,7 @@ The repository owner is currently the release manager and final decision-maker f
 
 ## Review cadence
 
-The maintainer reviews [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md), [docs/QUALITY.md](docs/QUALITY.md), [SECURITY.md](SECURITY.md), and this governance policy before each minor release and at least once every 90 days while active development continues. The review should record the source revision, changed assumptions, unresolved risks, completed release evidence, and whether existing claims need to be narrowed.
+The maintainer reviews [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md), [docs/QUALITY.md](docs/QUALITY.md), [SECURITY.md](SECURITY.md), and this governance policy before each minor release and at least once every 90 days while active development continues. The review should record the source revision, changed assumptions, unresolved risks, completed release evidence, and whether existing claims need to be narrowed. [Maintainer Handoff](docs/MAINTAINER_HANDOFF.md) defines the exact review-record template, owner-controlled setting checks, and failed-check response.
 
 Security-sensitive findings and proposed exceptions to the non-executing boundary require explicit repository-owner approval. A change that cannot be reviewed safely should remain out of scope rather than being merged behind an undocumented flag.
 
