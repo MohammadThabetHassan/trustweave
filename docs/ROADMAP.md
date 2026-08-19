@@ -21,9 +21,9 @@ The roadmap favors improvements that make an existing reviewer decision more rep
 | Cited synthetic adversarial scenarios | Complete | Twenty-five OWASP-, MITRE-, and MCP-shaped label-only scenarios with deterministic expectations. |
 | Interoperable review export | Complete | Deterministic local SARIF 2.1.0 generation with no automatic upload. |
 | Quality automation | Complete | 95% branch coverage, property-based fail-closed tests, formatting, linting, type checks, static source scanning, isolated package checks, wheel reproducibility, SBOM, dependency audit, cross-platform compatibility jobs, and a twelve-module mutation gate. The gate enforces a ≥95% score together with exact survivor-identifier and normalized-diff parity, zero untriaged records, and zero `needs_regression` classifications on the reviewed SHA. |
-| Package release path | Complete | [`trustweave==0.2.2`](https://pypi.org/project/trustweave/0.2.2/) is published through the protected OIDC path, validated from clean TestPyPI and PyPI installations, and recorded as [GitHub Release `v0.2.2`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.2). `v0.2.0` remains an immutable unpublished audit tag that must not be reused or published from. |
+| Package release path | Complete | [`trustweave==0.2.3`](https://pypi.org/project/trustweave/0.2.3/) is published through the protected OIDC path, validated from clean TestPyPI and PyPI installations, independently verified against the expected repository for its exact wheels, and recorded as [GitHub Release `v0.2.3`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.3). `v0.2.0` remains an immutable unpublished audit tag that must not be reused or published from. |
 | Governance baseline | Complete | Pull-request review, an owner-controlled release procedure, contribution guidance, and a private security-report route. |
-| Assurance contracts | Complete in unreleased `0.2.3` candidate | Machine-checked compatibility/support policy, synthetic golden evidence, threat-control-test traceability, local resource bounds, clean wheel/source-distribution assurance, and TestPyPI-first package-attestation generation controls. These are candidate controls, not a new public release or observed provenance record. |
+| Assurance contracts | Complete in published `0.2.3` | Machine-checked compatibility/support policy, synthetic golden evidence, threat-control-test traceability, local resource bounds, clean wheel/source-distribution assurance, and TestPyPI-first package-attestation controls. The exact published `0.2.3` wheels have observed expected-repository verification; see [Release Evidence 0.2.3](RELEASE_EVIDENCE_0.2.3.md). |
 
 ## Current priorities
 
@@ -31,7 +31,7 @@ The roadmap favors improvements that make an existing reviewer decision more rep
 
 The first post-release priority is to collect feedback from maintainers and reviewers using the documented local workflows. Useful evidence includes whether the manifest and policy vocabulary is understandable, whether review signals are actionable, and whether the generated Markdown artifacts support an actual change-review decision. Feedback should be documented as issues or examples without publishing customer data, credentials, trace content, or third-party targets.
 
-Input schemas retain their documented v1alpha1/v1alpha2 contracts. Current generated bundle, bundle-diff, and risk-review artifacts use explicit v1alpha2 versions while bounded historical v1alpha1 resources remain packaged. The unreleased `0.2.3` candidate adds a versioned compatibility contract, support/deprecation policy, synthetic golden corpus, and traceability map; the next maturity evidence is independent reviewer feedback on whether these records make real local change-review decisions clearer.
+Input schemas retain their documented v1alpha1/v1alpha2 contracts. Current generated bundle, bundle-diff, and risk-review artifacts use explicit v1alpha2 versions while bounded historical v1alpha1 resources remain packaged. Published `0.2.3` adds a versioned compatibility contract, support/deprecation policy, synthetic golden corpus, and traceability map; the next maturity evidence is independent reviewer feedback on whether these records make real local change-review decisions clearer.
 
 ### 2. Curated file-only declaration importers
 
@@ -41,9 +41,9 @@ TrustWeave can add narrowly scoped importers for carefully selected framework de
 
 A future adapter may render an existing local artifact as a pull-request-friendly summary or an explicit export file. Any service posting, repository annotation, or code-scanning upload must remain opt-in, use least-privilege permissions, preserve the privacy boundary, and receive separate maintainer authorization. The core must remain fully useful without the adapter.
 
-### 4. Observed package provenance
+### 4. Package-provenance evidence maintenance
 
-TrustWeave continues to produce local hash-linked evidence and explicitly unsigned statement-shaped exports. The unreleased `0.2.3` candidate configures the official PyPI project-attestation path in TestPyPI and PyPI trusted publishing, with an ADR and machine-checked non-claim. The remaining milestone is owner-authorized TestPyPI publication from an annotated tag, fresh clean installation, and official exact-file expected-repository verification before production promotion. This path must remain distinct from local integrity evidence and does not add DSSE, Sigstore, SLSA, or transparency-log claims.
+Published `0.2.3` completed the TestPyPI-first path: its exact TestPyPI and PyPI wheels were clean-installed and verified against the expected repository. [Release Evidence 0.2.3](RELEASE_EVIDENCE_0.2.3.md) preserves that limited observation. For every future release, maintainers must repeat the same independent exact-file verification and create a new record; no `0.2.3` provenance claim transfers to a later file. This path remains distinct from local integrity evidence and does not add DSSE, SLSA, or general transparency-log security claims.
 
 ## Maintainer decisions that require explicit authorization
 
@@ -51,7 +51,7 @@ TrustWeave continues to produce local hash-linked evidence and explicitly unsign
 | --- | --- |
 | Publish a new PyPI version | Distribution is permanent, versioned public release activity and must use the documented OIDC release path. |
 | Add a hosted integration or automatic result upload | It can create external effects, permissions, retention obligations, and privacy risk. |
-| Publish or claim observed package provenance | It creates exact-artifact identity, verification, release-record, and long-term documentation commitments beyond workflow configuration. |
+| Publish or claim observed package provenance for a new release | It creates exact-artifact identity, verification, release-record, and long-term documentation commitments beyond workflow configuration. |
 | Add runtime interception, live discovery, or remote analysis | It crosses the local, non-executing safety boundary and requires a different operational threat model. |
 | Apply for an external assessment, badge, sponsorship, or certification | It requires external assertions and ongoing maintainer commitments. |
 

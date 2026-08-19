@@ -130,9 +130,17 @@ def _check_compatibility_contract() -> list[str]:
 
     if package.get("name") != metadata.get("name"):
         failures.append("Compatibility package name does not match pyproject.toml")
-    if package.get("candidate_version") != metadata.get("version"):
+    current_release = package.get("current_public_release")
+    candidate_version = package.get("candidate_version")
+    if candidate_version is None:
+        if current_release != metadata.get("version"):
+            failures.append(
+                "Compatibility current_public_release does not match published "
+                "pyproject.toml version"
+            )
+    elif candidate_version != metadata.get("version"):
         failures.append("Compatibility candidate_version does not match pyproject.toml version")
-    if package.get("current_public_release") == package.get("candidate_version"):
+    elif current_release == candidate_version:
         failures.append(
             "Compatibility current_public_release must differ from unreleased candidate"
         )
@@ -255,16 +263,13 @@ def _check_compatibility_contract() -> list[str]:
         SUPPLY_CHAIN_PATH: (
             "ADR-0005",
             "TestPyPI-first procedure",
-            "0.2.2",
+            "Release Evidence 0.2.3",
             "0.2.3",
         ),
         PROVENANCE_ADR_PATH: (
             "TestPyPI",
             "MohammadThabetHassan/trustweave",
-            (
-                "Accepted as the design and verification policy for the next "
-                "TrustWeave package release."
-            ),
+            "Accepted as the design and verification policy applied to TrustWeave `0.2.3`",
         ),
     }
     for path, markers in required_document_markers.items():

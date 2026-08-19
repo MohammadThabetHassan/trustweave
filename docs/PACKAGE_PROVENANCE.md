@@ -2,9 +2,9 @@
 
 ## Current state
 
-TrustWeave’s **0.2.3 release workflows are configured to request PyPI project attestations** through the official pinned Trusted Publishing action for both TestPyPI and PyPI. This configuration is a release control, not observed release evidence.
+TrustWeave’s **0.2.3 release workflows requested PyPI project attestations** through the official pinned Trusted Publishing action for both TestPyPI and PyPI. The exact published wheels were independently verified against the expected repository; the complete observed record is [Release Evidence 0.2.3](RELEASE_EVIDENCE_0.2.3.md).
 
-> No TrustWeave release is described as having authenticated package provenance until a release-specific TestPyPI or PyPI artifact has been published from its reviewed immutable tag and independently verified against `MohammadThabetHassan/trustweave`.
+> The authenticated package-provenance claim applies only to the exact `0.2.3` TestPyPI and PyPI wheels documented in the release-evidence record. It is not a claim about future releases, local builds, arbitrary copies, or deployed systems.
 
 Local `trustweave attest` output remains unsigned local integrity evidence. It binds supplied local evidence payloads and may detect selected local-file changes, but it does not identify a publisher, authenticate a package release, or replace PyPI project attestations. GitHub build-provenance attestation is a distinct mechanism and is not enabled or claimed by this release control.
 
@@ -17,20 +17,33 @@ The TestPyPI flow is the required first observation for a release candidate.
 | Immutable target | An annotated version tag identifies the reviewed release commit. |
 | Workflow control | The SHA-pinned TestPyPI trusted-publishing workflow completes with `attestations: true`. |
 | Package identity | The published file URL, filename, package version, and SHA-256 are recorded. |
-| Trusted identity | Official PyPI-attestations verification accepts **only** `MohammadThabetHassan/trustweave` for that exact file URL. |
+| Trusted identity | Official PyPI-attestations verification accepts only `https://github.com/MohammadThabetHassan/trustweave` for the exact selected distribution and provenance object. |
 | Consumer path | A fresh environment installs the exact candidate and validates `trustweave --version`, `python -m trustweave --version`, and packaged schema resources. |
 | Production promotion | The PyPI workflow runs only after the TestPyPI record satisfies every preceding gate. |
 
-The release operator installs the official verifier in a temporary clean environment, obtains the exact published wheel URL from the TestPyPI or PyPI simple index, and verifies it against the expected repository:
+The release operator installs the official verifier in a temporary clean environment and verifies production-PyPI wheels directly against the expected repository:
 
 ```bash
 python -m pip install --upgrade pypi-attestations
 pypi-attestations verify pypi \
-  --repository MohammadThabetHassan/trustweave \
+  --repository https://github.com/MohammadThabetHassan/trustweave \
   https://files.pythonhosted.org/packages/.../trustweave-VERSION-py3-none-any.whl
 ```
 
-Use the actual index-hosted artifact URL; do not substitute a local build, a copied file, a mutable branch URL, or a generic project page. Preserve the verifier output, package URL, SHA-256, tag, workflow run URL, and clean-install result in the release record before changing present-tense provenance language.
+The verifier’s direct URL mode accepts the production `files.pythonhosted.org` host. For TestPyPI, download the exact wheel with its original filename and retrieve the matching TestPyPI Integrity API provenance object; then use the supported local-file mode:
+
+```bash
+pypi-attestations verify pypi \
+  --repository https://github.com/MohammadThabetHassan/trustweave \
+  --provenance-file trustweave-VERSION-py3-none-any.whl.provenance \
+  trustweave-VERSION-py3-none-any.whl
+```
+
+Do not substitute a local build, a modified copy, a mutable branch URL, or a generic project page. Preserve the verifier output, package URL, SHA-256, tag, workflow run URL, Integrity API provenance object, and clean-install result in the release record before changing present-tense provenance language.
+
+## Observed 0.2.3 evidence
+
+The `v0.2.3` tag targets `4aed7df9d16907804f8c2460c004a4dc685904bc`. TestPyPI and PyPI trusted-publishing workflows completed successfully, fresh environments installed `trustweave==0.2.3` from both indexes, and expected-repository verification returned `OK` for the exact wheel from each index. See [Release Evidence 0.2.3](RELEASE_EVIDENCE_0.2.3.md) for immutable URLs, hashes, workflow runs, and commands.
 
 ## Control and sources
 

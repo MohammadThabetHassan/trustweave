@@ -2,7 +2,7 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
-## [0.2.3] - Unreleased assurance candidate
+## [0.2.3] - 2026-08-19
 
 ### Added
 
@@ -17,12 +17,12 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - Extended the repository reality gate and hosted CI with golden-evidence, traceability, distribution-assurance, compatibility, and package-provenance control checks.
 - Expanded the README and documentation site with task-oriented assurance navigation and release guidance that distinguishes configured attestation generation from observed authenticated package provenance.
-- Bumped source and candidate metadata to `0.2.3` while retaining `0.2.2` as the current public package release in compatibility, release, and supply-chain records.
+- Bumped source metadata to `0.2.3`; published-state documentation and compatibility records now identify `0.2.3` as the current public package release.
 
 ### Release status
 
-- `0.2.3` is **unreleased**. It has no annotated `v0.2.3` tag, PyPI/TestPyPI publication, GitHub Release, or observed package-attestation verification record. Its configured provenance control must first pass the documented TestPyPI clean-install and expected-repository verification procedure.
-- `0.2.2` remains the current public release on [PyPI](https://pypi.org/project/trustweave/0.2.2/), [TestPyPI](https://test.pypi.org/project/trustweave/0.2.2/), and [GitHub Releases](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.2). The non-executing, local-only boundary remains unchanged.
+- `0.2.3` is published on [PyPI](https://pypi.org/project/trustweave/0.2.3/), [TestPyPI](https://test.pypi.org/project/trustweave/0.2.3/), and [GitHub Release `v0.2.3`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.3). Its exact TestPyPI and PyPI wheels passed clean-install and expected-repository provenance verification; see [the release evidence record](docs/RELEASE_EVIDENCE_0.2.3.md).
+- `0.2.2` remains available as the preceding public release. The non-executing, local-only boundary remains unchanged.
 
 ## [0.2.2] - 2026-08-19
 

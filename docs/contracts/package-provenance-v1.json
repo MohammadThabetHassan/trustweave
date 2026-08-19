@@ -1,7 +1,7 @@
 {
   "schema_version": "trustweave.dev/package-provenance/v1alpha1",
   "repository": "MohammadThabetHassan/trustweave",
-  "claim_state": "generation-enabled-observation-required",
+  "claim_state": "generation-enabled-observed-exact-files",
   "workflow_controls": [
     {
       "path": ".github/workflows/publish-testpypi.yml",
@@ -25,11 +25,18 @@
   "observation_requirements": [
     "A workflow run from the reviewed immutable release tag completes with attestation generation enabled.",
     "The published TestPyPI or PyPI file URL, filename, version, and SHA-256 are recorded in the release evidence.",
-    "Official pypi-attestations verification accepts only repository identity MohammadThabetHassan/trustweave for the exact published file URL.",
+    "Official pypi-attestations verification accepts only repository identity https://github.com/MohammadThabetHassan/trustweave for the exact published distribution and matching provenance object.",
     "A fresh environment clean-installs the exact released package before public claims are changed to authenticated package provenance."
   ],
+  "observed_release": {
+    "version": "0.2.3",
+    "tag": "v0.2.3",
+    "commit": "4aed7df9d16907804f8c2460c004a4dc685904bc",
+    "evidence_record": "docs/RELEASE_EVIDENCE_0.2.3.md",
+    "expected_repository": "https://github.com/MohammadThabetHassan/trustweave"
+  },
   "non_claims_until_observed": [
-    "No existing release is claimed to have authenticated package provenance solely because this workflow control exists.",
+    "The observed authenticated package-provenance claim is limited to the exact 0.2.3 TestPyPI and PyPI distributions recorded in the release evidence.",
     "Unsigned local TrustWeave attestation evidence is not package-release provenance.",
     "GitHub build-provenance attestations are not claimed because this contract enables PyPI project attestations only."
   ]

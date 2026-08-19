@@ -12,6 +12,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "docs" / "contracts" / "package-provenance-v1.json"
 GUIDE_PATH = ROOT / "docs" / "PACKAGE_PROVENANCE.md"
+RELEASE_EVIDENCE_PATH = ROOT / "docs" / "RELEASE_EVIDENCE_0.2.3.md"
 SUPPLY_CHAIN_PATH = ROOT / "docs" / "SUPPLY_CHAIN.md"
 ACTION_REFERENCE = "pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33"
 REPOSITORY = "MohammadThabetHassan/trustweave"
@@ -83,9 +84,9 @@ def _validate_contract(contract: dict[str, Any]) -> list[str]:
         failures.append("Package provenance contract has an unexpected schema_version")
     if contract.get("repository") != REPOSITORY:
         failures.append("Package provenance contract has an unexpected repository identity")
-    if contract.get("claim_state") != "generation-enabled-observation-required":
+    if contract.get("claim_state") != "generation-enabled-observed-exact-files":
         failures.append(
-            "Package provenance contract must retain the observation-required claim state"
+            "Package provenance contract must record the exact-file observed claim state"
         )
     controls = contract.get("workflow_controls")
     if not isinstance(controls, list) or len(controls) != 2:
@@ -105,23 +106,59 @@ def _validate_contract(contract: dict[str, Any]) -> list[str]:
     requirements = contract.get("observation_requirements")
     if not isinstance(requirements, list) or len(requirements) < 4:
         failures.append("Package provenance contract lacks complete observed-release requirements")
-    non_claims = contract.get("non_claims_until_observed")
-    if not isinstance(non_claims, list) or len(non_claims) < 3:
-        failures.append("Package provenance contract lacks complete pre-observation non-claims")
+    observed_release = contract.get("observed_release")
+    if not isinstance(observed_release, dict):
+        failures.append("Package provenance contract lacks an observed_release record")
+    else:
+        expected_observation = {
+            "version": "0.2.3",
+            "tag": "v0.2.3",
+            "commit": "4aed7df9d16907804f8c2460c004a4dc685904bc",
+            "evidence_record": "docs/RELEASE_EVIDENCE_0.2.3.md",
+            "expected_repository": f"https://github.com/{REPOSITORY}",
+        }
+        if observed_release != expected_observation:
+            failures.append(
+                "Package provenance observed_release record differs from 0.2.3 evidence"
+            )
+    limits = contract.get("non_claims_until_observed")
+    if not isinstance(limits, list) or len(limits) < 3:
+        failures.append("Package provenance contract lacks complete exact-file claim limits")
     for guide in (GUIDE_PATH, SUPPLY_CHAIN_PATH):
         if not guide.is_file():
             failures.append(f"Missing public provenance guide: {guide.relative_to(ROOT)}")
             continue
-        text = guide.read_text(encoding="utf-8")
-        for marker in ("authenticated package provenance", "unsigned local"):
-            if marker not in text.lower():
+        text = guide.read_text(encoding="utf-8").lower()
+        for marker in ("authenticated package-provenance", "unsigned local"):
+            if marker not in text:
                 failures.append(
-                    f"{guide.relative_to(ROOT)} lacks required provenance non-claim "
-                    f"marker: {marker}"
+                    f"{guide.relative_to(ROOT)} lacks required provenance-limit marker: {marker}"
                 )
+    if not RELEASE_EVIDENCE_PATH.is_file():
+        failures.append(
+            f"Missing observed release evidence: {RELEASE_EVIDENCE_PATH.relative_to(ROOT)}"
+        )
+    else:
+        evidence_text = RELEASE_EVIDENCE_PATH.read_text(encoding="utf-8")
+        for marker in (
+            "v0.2.3",
+            "4aed7df9d16907804f8c2460c004a4dc685904bc",
+            "https://github.com/MohammadThabetHassan/trustweave",
+            "pypi-attestations verify pypi",
+            "TestPyPI",
+            "PyPI",
+        ):
+            if marker not in evidence_text:
+                failures.append(f"Release evidence lacks required provenance marker: {marker}")
     if GUIDE_PATH.is_file():
         guide_text = GUIDE_PATH.read_text(encoding="utf-8")
-        for marker in ("attestations: true", REPOSITORY, "pypi-attestations verify pypi"):
+        for marker in (
+            "attestations: true",
+            REPOSITORY,
+            "https://github.com/MohammadThabetHassan/trustweave",
+            "pypi-attestations verify pypi",
+            "TestPyPI Integrity API",
+        ):
             if marker not in guide_text:
                 failures.append(
                     f"Package provenance guide lacks required verification marker: {marker}"
@@ -144,8 +181,8 @@ def main() -> int:
             print(f"- {failure}", file=sys.stderr)
         return 1
     print(
-        "Package provenance controls passed: generation is enabled and observation remains "
-        "required."
+        "Package provenance controls passed: attestation generation and the exact-file "
+        "0.2.3 observed release record match."
     )
     return 0
 

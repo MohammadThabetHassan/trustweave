@@ -40,3 +40,16 @@ def test_package_provenance_controls_reject_disabled_attestations(
     monkeypatch.setattr(provenance, "CONTRACT_PATH", replacement)
 
     assert provenance.main() == 1
+
+
+def test_package_provenance_controls_reject_observed_release_drift(
+    monkeypatch: object, tmp_path: Path
+) -> None:
+    provenance = _provenance_verifier_module()
+    contract = provenance._load_contract()
+    contract["observed_release"]["commit"] = "0" * 40
+    replacement = tmp_path / "package-provenance-v1.json"
+    replacement.write_text(json.dumps(contract), encoding="utf-8")
+    monkeypatch.setattr(provenance, "CONTRACT_PATH", replacement)
+
+    assert provenance.main() == 1
