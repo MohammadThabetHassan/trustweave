@@ -70,7 +70,7 @@ jobs:
           VERSION="$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")"
           IMAGE="trustweave:${VERSION}"
           docker build --pull=false --build-arg "TRUSTWEAVE_VERSION=${VERSION}" -t "${IMAGE}" .
-          test "$(docker image inspect "${IMAGE}" --format '{{ index .Config.Labels \"org.opencontainers.image.version\" }}')" = "${VERSION}"
+          test "$(docker image inspect "${IMAGE}" --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')" = "${VERSION}"
           docker run --rm "${IMAGE}" --help
           docker run --rm "${IMAGE}" schema list
           docker run --rm --network none "${IMAGE}" schema list
