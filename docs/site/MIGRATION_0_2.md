@@ -4,7 +4,7 @@ TrustWeave 0.2.1 carries forward the 0.2 hardening while preserving the product 
 
 ## Upgrade
 
-When 0.2.1 is owner-published, install it into a clean environment and confirm the package contract before using project artifacts:
+Install published 0.2.1 into a clean environment and confirm the package contract before using project artifacts:
 
 ```shell
 python -m pip install --upgrade trustweave==0.2.1
@@ -13,7 +13,7 @@ trustweave schema list
 trustweave schema show agent-security-bundle-v1alpha1.schema.json
 ```
 
-The corrected release target is 0.2.1 and remains owner-controlled until publication succeeds. Annotated v0.2.0 is an immutable unpublished audit tag, was never published to PyPI, and has no GitHub Release. Do not treat these commands as confirmation that either version is already available from a package index.
+TrustWeave [`0.2.1`](https://pypi.org/project/trustweave/0.2.1/) is published and available from PyPI. Annotated `v0.2.0` remains an immutable unpublished audit tag, was never published to PyPI, and has no GitHub Release; do not install, reuse, or treat it as a public release.
 
 ## Contract changes
 

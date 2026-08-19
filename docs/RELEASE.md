@@ -2,7 +2,7 @@
 
 ## Release status and contract
 
-TrustWeave `0.1.1` is the latest package published on [PyPI](https://pypi.org/project/trustweave/0.1.1/) and tagged as [`v0.1.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.1.1). The corrected source target is TrustWeave `0.2.1`; it is not published, tagged, or released until the owner approves every gate and the protected production publication. Annotated `v0.2.0` is retained at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` as immutable unpublished audit evidence: it was never published to PyPI and has no GitHub Release. The release path is deliberately manual: a maintainer validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
+TrustWeave `0.2.1` is the latest package published on [PyPI](https://pypi.org/project/trustweave/0.2.1/) and is available as [GitHub Release `v0.2.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.1), targeting `f1394d5fba8a0fbc24e3a18f45702e83aa65645e`. Annotated `v0.2.0` is retained at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` as immutable unpublished audit evidence: it was never published to PyPI and has no GitHub Release. The release path remains deliberately manual for every future version: a maintainer validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
 
 The GitHub repository is the source of truth for code, documentation, schemas, and release workflows. Every future release must use an explicitly authorized commit identity and retain the project’s non-executing boundary.
 

@@ -1,12 +1,12 @@
 # TrustWeave 0.2.1 Release Notes
 
-> **Release status:** `0.2.1` is the corrected owner-controlled release target. It does not authorize a tag, signature, package publication, GitHub Release, merge, deployment, or credential use. Those actions remain owner-controlled after every required local and hosted gate is green on the exact reviewed SHA.
+> **Release status:** `0.2.1` is the completed corrected public release. Annotated tag [`v0.2.1`](https://github.com/MohammadThabetHassan/trustweave/tree/v0.2.1) targets `f1394d5fba8a0fbc24e3a18f45702e83aa65645e`; the [GitHub Release](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.1), [TestPyPI package](https://test.pypi.org/project/trustweave/0.2.1/), and [PyPI package](https://pypi.org/project/trustweave/0.2.1/) are published. The protected trusted-publishing workflows and clean installations completed successfully.
 
 ## Why 0.2.1 exists
 
 The repository created annotated tag `v0.2.0` at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` during pre-publication verification. The verification process correctly stopped because `trustweave --version` was not available as a top-level command. The tag was never published to PyPI, and no GitHub Release was created for it.
 
-> `v0.2.0` remains an immutable unpublished audit record. It must not be moved, deleted, reused, or published from. TrustWeave `0.2.1` is the corrected public release target.
+> `v0.2.0` remains an immutable unpublished audit record. It must not be moved, deleted, reused, or published from. TrustWeave `0.2.1` is the corrected public release.
 
 ## Corrected public version contract
 
@@ -28,9 +28,9 @@ The complete twelve-module mutation campaign must continue to meet the documente
 
 ## Upgrade and migration guidance
 
-The functional evidence contracts prepared during 0.2.0 hardening remain the basis for 0.2.1. Users moving from `0.1.1` should follow [the migration guide](MIGRATION_GUIDE_0.2.0.md) for strict local declaration, bundle, and reviewer-decision handling, then install only an owner-published `0.2.1` artifact after verifying its release record.
+The functional evidence contracts prepared during 0.2.0 hardening remain the basis for 0.2.1. Users moving from `0.1.1` should follow [the migration guide](MIGRATION_GUIDE_0.2.0.md) for strict local declaration, bundle, and reviewer-decision handling, then install the published [`trustweave==0.2.1`](https://pypi.org/project/trustweave/0.2.1/) artifact.
 
-Before any publication, the owner must follow [the 0.2.1 checklist](OWNER_RELEASE_CHECKLIST_0.2.1.md). A green build, an unpublished tag, or a passing subset of checks does not authorize publication.
+The completed [0.2.1 release record](OWNER_RELEASE_CHECKLIST_0.2.1.md) retains the exact tag target, hosted-gate evidence, artifact verification, trusted-publication workflow records, and the preserved `v0.2.0` audit boundary.
 
 ## Known limits
 

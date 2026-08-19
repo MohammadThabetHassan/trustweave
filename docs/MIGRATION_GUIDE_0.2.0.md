@@ -4,7 +4,7 @@
 
 ## Migration overview
 
-TrustWeave 0.2.1 retains the local, declarative review boundary of 0.1.1 while carrying forward the 0.2 hardening for artifact validation and risk lifecycle handling. Migrate copies of local inputs in a branch or scratch directory first, run the validation commands below, and keep the 0.1.1 evidence unchanged until the owner has accepted the results. The prior `v0.2.0` tag remains an immutable unpublished audit record and is not an installable public release.
+TrustWeave 0.2.1 retains the local, declarative review boundary of 0.1.1 while carrying forward the 0.2 hardening for artifact validation and risk lifecycle handling. Migrate copies of local inputs in a branch or scratch directory first, run the validation commands below, and retain original 0.1.1 evidence unchanged as historical input until the local migration review is complete. The prior `v0.2.0` tag remains an immutable unpublished audit record and is not an installable public release; install published [`trustweave==0.2.1`](https://pypi.org/project/trustweave/0.2.1/) instead.
 
 | Surface | Required change | Validation command |
 | --- | --- | --- |
@@ -90,9 +90,9 @@ Inspect the generated `ci-summary.json`, expected selected artifacts, and the v1
 
 ## 5. Rollback and evidence preservation
 
-If a migrated configuration or document fails validation, restore the previous tracked input file rather than editing generated artifacts in place. Keep the 0.1.1 evidence as historical reference and regenerate current artifacts from declarations. Because `v0.2.0` was never published, there is no package yank or release rollback to perform; the corrected public target is `0.2.1`.
+If a migrated configuration or document fails validation, restore the previous tracked input file rather than editing generated artifacts in place. Keep the 0.1.1 evidence as historical reference and regenerate current artifacts from declarations. Because `v0.2.0` was never published, there is no package yank or release rollback to perform; the corrected public release is [`0.2.1`](https://pypi.org/project/trustweave/0.2.1/).
 
-If an owner later authorizes publication and an issue is discovered, follow the owner checklist’s release-specific rollback procedure: stop further publication, document the affected version, remove or yank only through the authorized registry controls, and publish a corrective release only after validation. Do not rewrite tags, force-push shared branches, delete evidence, or silently alter previously published artifacts.
+If an issue is discovered in published 0.2.1, follow the owner checklist’s release-specific rollback procedure: stop further publication, document the affected version, remove or yank only through the authorized registry controls, and publish a verified corrective release only after validation. Do not rewrite tags, force-push shared branches, delete evidence, or silently alter previously published artifacts.
 
 ## Migration completion criteria
 

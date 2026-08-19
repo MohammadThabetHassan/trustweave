@@ -92,23 +92,22 @@ If a defect is discovered before publication, stop the sequence and prepare a co
 | Defect after a tag but before publication | Leave the tag immutable and unpublished; document the blocker; issue a new corrected version only under owner policy. |
 | Defect after publication | Stop distribution, assess scope, preserve evidence, consider the authorized registry process, and publish a verified corrective version rather than replacing bytes or moving a tag. |
 
-## F. Final release record
+## F. Completed 0.2.1 release record
 
-Record the final values below in the owner release issue, approved PR description, or release record.
-
-| Record | Value |
+| Record | Completed value |
 | --- | --- |
-| Corrective PR | PR URL and number |
-| Final PR head | Full SHA |
-| Merge SHA | Full SHA after owner merge |
-| Version contract | Source, wheel, and import-visible version evidence for `0.2.1` |
-| Mutation result | Generated / killed / survived / exact parity result |
-| Local quality command | Timestamped output or archived log |
-| Hosted checks | Exact names, conclusions, and URLs |
-| Tag | Annotated `v0.2.1` and target SHA, if owner created one |
-| Artifact hashes | SHA-256 for each approved wheel, sdist, and SBOM |
-| Publication decision | Not published / PyPI, with owner authorization reference |
-| Preserved 0.2.0 audit tag | `v0.2.0` at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; never published and no GitHub Release |
-| Rollback contact | Maintainer or security route used if needed |
+| Corrective PR | [#19](https://github.com/MohammadThabetHassan/trustweave/pull/19) — `fix: prepare TrustWeave 0.2.1 version contract` |
+| Final PR head | `513d9b3cb65ff1e59175b93b71b3e0426f366cd0` |
+| Merge SHA | `f1394d5fba8a0fbc24e3a18f45702e83aa65645e` |
+| Version contract | Source metadata, tagged wheel, TestPyPI clean install, PyPI clean install, `trustweave --version`, `trustweave -V`, and `trustweave.__version__` each reported `0.2.1`. |
+| Mutation result | 6,140 generated / 6,044 killed / 96 survived / **98.4365%**; exact survivor identifier parity and exact normalized-diff triage parity; 0 untriaged and 0 `needs_regression`. |
+| Local quality evidence | The reviewed PR recorded formatter, lint, types, Bandit, tests, repository reality, strict documentation build, distribution metadata, dependency audit, fixed-epoch wheel comparison, and installed-wheel checks. The release tag was independently rebuilt, metadata-checked, SBOM-generated, clean-installed, and dependency-audited. |
+| Hosted checks | [CI](https://github.com/MohammadThabetHassan/trustweave/actions/runs/32236038422), [CodeQL](https://github.com/MohammadThabetHassan/trustweave/actions/runs/32236038471), and [Mutation quality](https://github.com/MohammadThabetHassan/trustweave/actions/runs/32236038484) completed successfully on the exact merge SHA. |
+| Tag | Annotated [`v0.2.1`](https://github.com/MohammadThabetHassan/trustweave/tree/v0.2.1) at `f1394d5fba8a0fbc24e3a18f45702e83aa65645e`. |
+| Artifact hashes | Wheel: `2a4cce41d6f2ad1782ac9910e3d7bb82cf481e65ace80038db9df7fe18976053`; sdist: `7ab843302573ceff60b1fb5b3886d421a9f02f60ebfc02241654c0596da7b287`; CycloneDX SBOM: `63b40104141dbcecefbea5e1f5431519f2abc19f6dda98eb6be8a8b41dba9602`. |
+| Publication decision | [TestPyPI trusted publishing](https://github.com/MohammadThabetHassan/trustweave/actions/runs/32237530524) and [PyPI trusted publishing](https://github.com/MohammadThabetHassan/trustweave/actions/runs/32237644011) completed successfully; `trustweave==0.2.1` is published on both indexes. |
+| GitHub Release | [TrustWeave 0.2.1](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.1) is public and includes the wheel, sdist, SBOM, and checksum evidence. |
+| Preserved 0.2.0 audit tag | `v0.2.0` at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; never published and no GitHub Release. |
+| Rollback contact | Follow [SECURITY.md](../SECURITY.md) for a security report or the project maintainer/support routes for a release defect; publish a verified corrective version rather than replacing released bytes. |
 
-Until this record is complete, treat `0.2.1` as a pre-release preparation target rather than a completed public release.
+This completed record supersedes the pre-release status for `0.2.1`. The preserved `v0.2.0` audit tag remains immutable and unpublished.
