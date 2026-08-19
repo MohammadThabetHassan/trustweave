@@ -67,15 +67,18 @@ jobs:
 
       - name: Container build and smoke test
         run: |
-          docker build --pull=false -t trustweave:0.2.3 .
-          docker run --rm trustweave:0.2.3 --help
-          docker run --rm trustweave:0.2.3 schema list
-          docker run --rm --network none trustweave:0.2.3 schema list
-          docker run --rm --entrypoint sh trustweave:0.2.3 -c 'test "$(id -u)" -eq 10001'
-          docker run --rm --entrypoint python trustweave:0.2.3 -c 'import trustweave; assert trustweave.__version__ == "0.2.3"'
-          docker run --rm --entrypoint sh trustweave:0.2.3 -c 'test -d /usr/local/lib/python3.13/site-packages/trustweave/schemas'
-          docker run --rm --user 0 --entrypoint sh trustweave:0.2.3 -c '! find /app -type d -name "__pycache__" -print -quit | grep -q .'
-          docker run --rm --user 0 --entrypoint sh trustweave:0.2.3 -c '! test -e /root/.cache/pip && ! test -e /home/trustweave/.cache/pip'
+          VERSION="$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")"
+          IMAGE="trustweave:${VERSION}"
+          docker build --pull=false --build-arg "TRUSTWEAVE_VERSION=${VERSION}" -t "${IMAGE}" .
+          test "$(docker image inspect "${IMAGE}" --format '{{ index .Config.Labels \"org.opencontainers.image.version\" }}')" = "${VERSION}"
+          docker run --rm "${IMAGE}" --help
+          docker run --rm "${IMAGE}" schema list
+          docker run --rm --network none "${IMAGE}" schema list
+          docker run --rm --entrypoint sh "${IMAGE}" -c 'test "$(id -u)" -eq 10001'
+          docker run --rm --entrypoint python "${IMAGE}" -c "import trustweave; assert trustweave.__version__ == '${VERSION}'"
+          docker run --rm --entrypoint sh "${IMAGE}" -c 'test -d /usr/local/lib/python3.13/site-packages/trustweave/schemas'
+          docker run --rm --user 0 --entrypoint sh "${IMAGE}" -c '! find /app -type d -name "__pycache__" -print -quit | grep -q .'
+          docker run --rm --user 0 --entrypoint sh "${IMAGE}" -c '! test -e /root/.cache/pip && ! test -e /home/trustweave/.cache/pip'
 
       - name: Verify reproducible wheel build
         run: |

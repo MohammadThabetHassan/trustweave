@@ -141,10 +141,10 @@
     },
     {
       "id": "TWC-BUNDLE-DIFF",
-      "control_statement": "Bundle diff renders declared source, tool, path, rule, and decision changes as reviewable local evidence.",
+      "control_statement": "Bundle diff renders declared source, tool, path, rule, decision, and policy-only security changes as reviewable local evidence.",
       "implementation_paths": ["src/trustweave/diff.py", "src/trustweave/commands/evidence.py"],
       "test_paths": ["tests/test_diff.py", "tests/test_bundle_validation.py"],
-      "evidence_paths": ["docs/REVIEWER_WORKFLOW.md", "schemas/bundle-diff-v1alpha2.schema.json"],
+      "evidence_paths": ["docs/REVIEWER_WORKFLOW.md", "schemas/bundle-diff-v1alpha3.schema.json"],
       "ci_gate": "Quality and tests",
       "maintenance_trigger": "Any bundle identity, diff rendering, candidate-review, or output-schema change.",
       "known_limit": "The diff cannot discover undeclared behavior or determine business authorization."

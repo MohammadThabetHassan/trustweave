@@ -48,7 +48,7 @@ The source tree contains a self-contained example. The following workflow reads 
 | `artifacts/security-test-results.json` | Results for fixed synthetic policy scenarios |
 | `artifacts/report.md` | Human-readable summary of findings and limitations |
 
-Run `trustweave attest --source-revision local --output-dir artifacts` only after reviewing the source revision you want to identify, then use `trustweave verify --attestation artifacts/attestation.json` to verify the artifact's local integrity links. An attestation is not a signature, identity proof, or statement about a deployed system.
+Run `trustweave attest --source-revision local --output-dir artifacts` only after reviewing the source revision you want to identify. Then verify the exact local files under review with `trustweave verify --attestation artifacts/attestation.json --bundle artifacts/agent-security-bundle.json --test-results artifacts/security-test-results.json`. Omitting the bundle and test-result paths checks only the statement’s internal consistency, not a reviewer’s current file bytes. An attestation is not a signature, identity proof, or statement about a deployed system.
 
 ## Continue with contracts
 

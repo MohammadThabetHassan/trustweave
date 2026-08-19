@@ -32,7 +32,7 @@ The `--version` and `-V` flags print the authoritative package version and exit 
 | Artifact family | Current writer | Historical behavior |
 | --- | --- | --- |
 | Agent Security Bundle | `trustweave.dev/bundle/v1alpha2` | Bundle comparison reads bounded `v1alpha1` and `v1alpha2` inputs. |
-| Bundle diff | `trustweave.dev/bundle-diff/v1alpha2` | Risk normalization reads bounded `v1alpha1` and `v1alpha2` diff inputs. |
+| Bundle diff | `trustweave.dev/bundle-diff/v1alpha3` | Risk normalization reads bounded `v1alpha1`, `v1alpha2`, and `v1alpha3` diff inputs. |
 | Risk review | `trustweave.dev/risk-review/v1alpha2` | The historical `v1alpha1` schema remains a bounded historical reader case; create current evidence for new decisions. |
 | Risk baseline and suppressions | `trustweave.dev/risk-baseline/v1alpha2` and `trustweave.dev/risk-suppressions/v1alpha2` | `v1alpha1` decision documents require explicit migration and are not silently reinterpreted. |
 | Local attestation | `trustweave.dev/attestation/v1alpha3` | The verifier retains documented local `v1alpha1`, `v1alpha2`, and `v1alpha3` readers. |

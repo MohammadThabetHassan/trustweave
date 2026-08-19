@@ -16,7 +16,10 @@ trustweave mcp-scaffold \
 trustweave scan --manifest reviewed.manifest.json --policy reviewed.policy.json --output-dir artifacts/review
 trustweave policy-check --policy reviewed.policy.json --output-dir artifacts/policy --exit-on-review
 trustweave attest --source-revision local-review --output-dir artifacts/review
-trustweave verify --attestation artifacts/review/attestation.json
+trustweave verify \
+  --attestation artifacts/review/attestation.json \
+  --bundle artifacts/review/agent-security-bundle.json \
+  --test-results artifacts/review/security-test-results.json
 ```
 
 | Artifact | Reviewer responsibility | TrustWeave boundary |

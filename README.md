@@ -72,16 +72,20 @@ trustweave test \
 
 trustweave attest --source-revision local --output-dir artifacts
 trustweave report --output-dir artifacts
-trustweave verify --attestation artifacts/attestation.json
+trustweave verify \
+  --attestation artifacts/attestation.json \
+  --bundle artifacts/agent-security-bundle.json \
+  --test-results artifacts/security-test-results.json
 ```
 
-The resulting local evidence is deliberately simple to review:
+The resulting local evidence is deliberately simple to review. The documented verification command supplies the bundle and test-result files, so it checks the exact local bytes under review. `trustweave verify --attestation artifacts/attestation.json` without those paths checks only the statement’s internal consistency; it cannot establish that a reviewer’s current files match the statement.
+
 
 | Artifact | Why it matters |
 | --- | --- |
 | `artifacts/agent-security-bundle.json` | Records deterministic decisions for declared flows. |
 | `artifacts/security-test-results.json` | Records fixed synthetic policy outcomes. |
-| `artifacts/attestation.json` | Links local evidence with internal hashes; it is not externally signed. |
+| `artifacts/attestation.json` | Records unsigned local hash links; use supplied bundle and test-result paths during verification to check exact local file bytes. |
 | `artifacts/report.md` | Summarizes the evidence, findings, and limits for a human reviewer. |
 
 <details>

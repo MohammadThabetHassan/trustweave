@@ -1,4 +1,4 @@
 {
-  "schema_version": "trustweave.dev/risk-baseline/v1alpha1",
+  "schema_version": "trustweave.dev/risk-baseline/v1alpha2",
   "baseline": []
 }

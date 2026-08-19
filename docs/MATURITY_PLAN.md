@@ -31,7 +31,7 @@ The twelve-module mutation diagnostic is no longer the stated 9.8 blocker when t
 
 ## Compatibility and documentation discipline
 
-A required-field or semantic output change receives a new versioned artifact contract. Current generation emits `trustweave.dev/bundle/v1alpha2`, `trustweave.dev/bundle-diff/v1alpha2`, and `trustweave.dev/risk-review/v1alpha2`. Historical v1alpha1 schema resources remain packaged rather than being redefined. The repository reality check verifies source/package schema synchronization, producer-linked current artifact schemas, real-output conformance, and current documentation markers.
+A required-field or semantic output change receives a new versioned artifact contract. Current generation emits `trustweave.dev/bundle/v1alpha2`, `trustweave.dev/bundle-diff/v1alpha3`, and `trustweave.dev/risk-review/v1alpha2`. Historical schema resources remain packaged rather than being redefined. The repository reality check verifies source/package schema synchronization, producer-linked current artifact schemas, real-output conformance, and current documentation markers.
 
 ## External evidence that repository work cannot create
 

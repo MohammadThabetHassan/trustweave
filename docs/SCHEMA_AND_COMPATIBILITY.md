@@ -7,7 +7,7 @@ TrustWeave treats local manifests, policies, scenarios, bundles, reviews, and at
 | Artifact | Current emitted version | Historical handling | Public schema |
 |---|---|---|---|
 | Agent Security Bundle | `trustweave.dev/bundle/v1alpha2` | `trustweave.dev/bundle/v1alpha1` remains a bounded historical envelope and is accepted by bundle comparison. | [`agent-security-bundle-v1alpha2.schema.json`](../schemas/agent-security-bundle-v1alpha2.schema.json) |
-| Bundle diff | `trustweave.dev/bundle-diff/v1alpha2` | `trustweave.dev/bundle-diff/v1alpha1` remains readable by SARIF and risk normalization. | [`bundle-diff-v1alpha2.schema.json`](../schemas/bundle-diff-v1alpha2.schema.json) |
+| Bundle diff | `trustweave.dev/bundle-diff/v1alpha3` | `trustweave.dev/bundle-diff/v1alpha1` and `trustweave.dev/bundle-diff/v1alpha2` remain readable by SARIF and risk normalization. | [`bundle-diff-v1alpha3.schema.json`](../schemas/bundle-diff-v1alpha3.schema.json) |
 | Risk review | `trustweave.dev/risk-review/v1alpha2` | `trustweave.dev/risk-review/v1alpha1` remains a historical schema; create a fresh review before creating new decisions. | [`risk-review-v1alpha2.schema.json`](../schemas/risk-review-v1alpha2.schema.json) |
 | Risk baseline | `trustweave.dev/risk-baseline/v1alpha2` | `trustweave.dev/risk-baseline/v1alpha1` decision documents require explicit migration and are not silently reinterpreted. | [`risk-baseline-v1alpha2.schema.json`](../schemas/risk-baseline-v1alpha2.schema.json) |
 | Risk suppressions | `trustweave.dev/risk-suppressions/v1alpha2` | `trustweave.dev/risk-suppressions/v1alpha1` decision documents require explicit migration and are not silently reinterpreted. | [`risk-suppressions-v1alpha2.schema.json`](../schemas/risk-suppressions-v1alpha2.schema.json) |
@@ -19,7 +19,7 @@ TrustWeave treats local manifests, policies, scenarios, bundles, reviews, and at
 
 Bundle v1alpha2 is the first bundle contract that makes the complete normalized policy payload part of the strict public artifact: classification taxonomy, approval control, advanced rule predicates, findings, limits, and summary counts are all validated. `trustweave scan` in TrustWeave 0.2.0 emits `trustweave.dev/bundle/v1alpha2`.
 
-Historical v1alpha1 bundles retain their original bounded schema and are not relabeled or augmented. `trustweave diff` accepts either supported bundle version and emits `trustweave.dev/bundle-diff/v1alpha2`, recording `base.bundle_schema_version` and `head.bundle_schema_version`. Regenerate a bundle with the current CLI to migrate it; do not edit its version string in place.
+Historical v1alpha1 bundles retain their original bounded schema and are not relabeled or augmented. `trustweave diff` accepts either supported bundle version and emits `trustweave.dev/bundle-diff/v1alpha3`, recording `base.bundle_schema_version`, `head.bundle_schema_version`, and a normalized policy-only delta. The v1alpha3 policy delta makes security-relevant changes, including approval-control fail-closed weakening, visible even when current declared flow outcomes do not change. Regenerate a bundle with the current CLI to migrate it; do not edit its version string in place.
 
 > A stable bundle payload changes when declared source or tool identifiers, trust, action classes, classifications, capabilities, policy decisions, severity, rule predicates, required controls, or approval bindings change. Provenance timestamps remain separate from that security-relevant evidence identity.
 

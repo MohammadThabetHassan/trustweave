@@ -51,7 +51,7 @@
   "artifact_contracts": {
     "current_writers": {
       "agent_security_bundle": "trustweave.dev/bundle/v1alpha2",
-      "bundle_diff": "trustweave.dev/bundle-diff/v1alpha2",
+      "bundle_diff": "trustweave.dev/bundle-diff/v1alpha3",
       "risk_review": "trustweave.dev/risk-review/v1alpha2",
       "risk_baseline": "trustweave.dev/risk-baseline/v1alpha2",
       "risk_suppressions": "trustweave.dev/risk-suppressions/v1alpha2",
@@ -62,7 +62,8 @@
       "bundle_comparison": ["trustweave.dev/bundle/v1alpha1", "trustweave.dev/bundle/v1alpha2"],
       "bundle_diff_risk_normalization": [
         "trustweave.dev/bundle-diff/v1alpha1",
-        "trustweave.dev/bundle-diff/v1alpha2"
+        "trustweave.dev/bundle-diff/v1alpha2",
+        "trustweave.dev/bundle-diff/v1alpha3"
       ],
       "risk_review": ["trustweave.dev/risk-review/v1alpha1", "trustweave.dev/risk-review/v1alpha2"],
       "local_attestation": [
