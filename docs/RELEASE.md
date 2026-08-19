@@ -19,7 +19,7 @@ The GitHub repository is the source of truth for code, documentation, schemas, a
 | Package build | `python -m build` and `twine check dist/*` pass. |
 | Isolated install | A fresh virtual environment installs the built wheel and verifies `trustweave --help` plus the package version. |
 | Dependency and SBOM checks | Hosted CI performs declared-dependency audit and reproducible CycloneDX SBOM generation. |
-| Reproducibility | Hosted CI verifies the fixed-epoch wheel build. |
+| Reproducibility | Hosted CI verifies the fixed-epoch wheel build; before tagging, run `python3 scripts/verify_release_reproducibility.py --source-revision "$(git rev-parse HEAD)" --generated-at 2026-08-19T00:00:00+00:00` to verify two temporary configured staged-CI runs, byte-identical artifacts, path hygiene, and supplied-file attestation bindings. |
 | Compatibility | Hosted CI passes on the configured Python 3.11/3.13 and operating-system matrix. |
 | Repository hygiene | The working tree is clean, generated artifacts are excluded, and documentation matches implementation. |
 

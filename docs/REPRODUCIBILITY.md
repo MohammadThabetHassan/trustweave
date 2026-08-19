@@ -36,17 +36,28 @@ SOURCE_DATE_EPOCH=0 trustweave test \
   --output-dir artifacts
 ```
 
-## Recorded staged-CI verification
+## Clean-checkout staged-CI release verification
 
-On 2026-08-14, the complete configured local CI workflow was run twice with the same declared local inputs, source revision `fixed-revision`, `reproducible = true`, and `--generated-at 2026-08-14T00:00:00+00:00`. Each run used scan, scenarios, policy review, chain review, SARIF, attestation, report, and summary stages. The two output trees were copied after each run and compared with `diff -qr`; all **10** emitted files were byte-identical.
+The owner-release procedure must be directly executable from a clean checkout and must not depend on a tracked root `trustweave.toml`. Run the following command from the exact reviewed checkout; replace neither the fixed timestamp nor the source revision with a different value between the two internal executions.
 
-| Check | Result |
+```bash
+python3 scripts/verify_release_reproducibility.py \
+  --source-revision "$(git rev-parse HEAD)" \
+  --generated-at 2026-08-19T00:00:00+00:00
+```
+
+The helper creates two temporary run directories beneath the checkout. In each, it writes an explicit temporary configuration with relative input paths to the tracked `examples/support-agent.manifest.json`, `policies/default-policy.json`, `scenarios/default-scenarios.json`, and `examples/chains/safe-sanitized-external.chain.json` files. Each temporary configuration sets `output_dir = "artifacts"`, a portable relative `sarif_output = "reports/trustweave.sarif"`, `failure_threshold = "none"`, and `reproducible = true`; it enables `scan`, `scenarios`, `policy_review`, `chain_review`, `sarif`, `attestation`, `report`, and `summary`.
+
+| Check | Required result |
 | --- | --- |
-| Artifact comparison | `diff -qr /tmp/repro-first /tmp/repro-second` completed with no differences. |
-| Temporary-path review | A recursive search of the second output found no `.trustweave-ci-`, `/tmp/`, or `/home/ubuntu/` strings. |
-| Emitted artifacts | `agent-security-bundle.json`, `attestation.json`, `chain-review.json`, `chain-review.md`, `ci-summary.json`, `policy-review.json`, `policy-review.md`, `report.md`, `security-test-results.json`, and `trustweave.sarif`. |
+| Temporary configuration | Both generated TOML files validate and use only documented, tracked local inputs plus relative output paths. |
+| Artifact comparison | Both ten-file output trees have exactly the same relative paths and byte content; a difference fails the command. |
+| Temporary-path review | Every emitted artifact is rejected if it contains `.trustweave-ci-`, `.trustweave-release-repro-`, `/tmp/`, the checkout path, or a run-directory path. |
+| Supplied-file attestation | Each generated v1alpha3 attestation is verified with its actual `agent-security-bundle.json` and `security-test-results.json` files. |
+| Cleanup | Both temporary run directories are removed and the repository working tree must be unchanged from command start. |
+| Emitted artifacts | `agent-security-bundle.json`, `attestation.json`, `chain-review.json`, `chain-review.md`, `ci-summary.json`, `policy-review.json`, `policy-review.md`, `report.md`, `reports/trustweave.sarif`, and `security-test-results.json`. |
 
-This is evidence for deterministic staging and artifact rendering when inputs and the configured destination are held fixed. It does not prove reproducibility across operating systems, Python versions, different source trees, different output destinations, or separately rebuilt distributions. It also remains unsigned local evidence and does not establish provenance, identity, or runtime security.
+This is evidence for deterministic staging and artifact rendering when the declared inputs, fixed provenance, and selected local stages are held constant. It does not prove reproducibility across operating systems, Python versions, different source trees, different output destinations, or separately rebuilt distributions. It also remains unsigned local evidence and does not establish provenance, identity, or runtime security.
 
 ## Attestation migration
 
