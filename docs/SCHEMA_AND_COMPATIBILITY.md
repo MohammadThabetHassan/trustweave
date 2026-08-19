@@ -6,12 +6,12 @@ TrustWeave treats local manifests, policies, scenarios, bundles, reviews, and at
 
 | Artifact | Current emitted version | Historical handling | Public schema |
 |---|---|---|---|
-| Agent Security Bundle | `trustweave.dev/bundle/v1alpha2` | `v1alpha1` remains a bounded historical envelope and is accepted by bundle comparison. | [`agent-security-bundle-v1alpha2.schema.json`](../schemas/agent-security-bundle-v1alpha2.schema.json) |
-| Bundle diff | `trustweave.dev/bundle-diff/v1alpha2` | `v1alpha1` remains readable by SARIF and risk normalization. | [`bundle-diff-v1alpha2.schema.json`](../schemas/bundle-diff-v1alpha2.schema.json) |
-| Risk review | `trustweave.dev/risk-review/v1alpha2` | `v1alpha1` remains a historical schema; create a fresh review before creating new decisions. | [`risk-review-v1alpha2.schema.json`](../schemas/risk-review-v1alpha2.schema.json) |
-| Risk baseline | `trustweave.dev/risk-baseline/v1alpha2` | `v1alpha1` decision documents require explicit migration and are not silently reinterpreted. | [`risk-baseline-v1alpha2.schema.json`](../schemas/risk-baseline-v1alpha2.schema.json) |
-| Risk suppressions | `trustweave.dev/risk-suppressions/v1alpha2` | `v1alpha1` decision documents require explicit migration and are not silently reinterpreted. | [`risk-suppressions-v1alpha2.schema.json`](../schemas/risk-suppressions-v1alpha2.schema.json) |
-| Local attestation | `trustweave.dev/attestation/v1alpha3` | The verifier retains documented local v1alpha1 and v1alpha2 readers. | [`attestation-v1alpha3.schema.json`](../schemas/attestation-v1alpha3.schema.json) |
+| Agent Security Bundle | `trustweave.dev/bundle/v1alpha2` | `trustweave.dev/bundle/v1alpha1` remains a bounded historical envelope and is accepted by bundle comparison. | [`agent-security-bundle-v1alpha2.schema.json`](../schemas/agent-security-bundle-v1alpha2.schema.json) |
+| Bundle diff | `trustweave.dev/bundle-diff/v1alpha2` | `trustweave.dev/bundle-diff/v1alpha1` remains readable by SARIF and risk normalization. | [`bundle-diff-v1alpha2.schema.json`](../schemas/bundle-diff-v1alpha2.schema.json) |
+| Risk review | `trustweave.dev/risk-review/v1alpha2` | `trustweave.dev/risk-review/v1alpha1` remains a historical schema; create a fresh review before creating new decisions. | [`risk-review-v1alpha2.schema.json`](../schemas/risk-review-v1alpha2.schema.json) |
+| Risk baseline | `trustweave.dev/risk-baseline/v1alpha2` | `trustweave.dev/risk-baseline/v1alpha1` decision documents require explicit migration and are not silently reinterpreted. | [`risk-baseline-v1alpha2.schema.json`](../schemas/risk-baseline-v1alpha2.schema.json) |
+| Risk suppressions | `trustweave.dev/risk-suppressions/v1alpha2` | `trustweave.dev/risk-suppressions/v1alpha1` decision documents require explicit migration and are not silently reinterpreted. | [`risk-suppressions-v1alpha2.schema.json`](../schemas/risk-suppressions-v1alpha2.schema.json) |
+| Local attestation | `trustweave.dev/attestation/v1alpha3` | The verifier retains documented local `trustweave.dev/attestation/v1alpha1` and `trustweave.dev/attestation/v1alpha2` readers. | [`attestation-v1alpha3.schema.json`](../schemas/attestation-v1alpha3.schema.json) |
 | Synthetic test results | `trustweave.dev/test-results/v1alpha1` | Current contract. | [`test-results-v1alpha1.schema.json`](../schemas/test-results-v1alpha1.schema.json) |
 | Policy, trace, MCP, chain, and framework reviews | Versioned `v1alpha1` contracts | Current contracts are listed in the schema catalog. | [`schemas/`](../schemas/) |
 

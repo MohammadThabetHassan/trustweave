@@ -80,3 +80,11 @@ def test_reality_check_verifies_current_contract_documentation_markers() -> None
     reality_check = _reality_check_module()
 
     assert reality_check._check_current_contract_documentation() == []
+
+
+def test_reality_check_verifies_assurance_contracts() -> None:
+    """Public assurance claims must agree with the machine-readable compatibility source."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_assurance_contracts() == []

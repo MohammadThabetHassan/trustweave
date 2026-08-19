@@ -1,0 +1,90 @@
+{
+  "contract_version": "trustweave.dev/compatibility/v1alpha1",
+  "package": {
+    "name": "trustweave",
+    "current_public_release": "0.2.2",
+    "requires_python": ">=3.11",
+    "supported_python": ["3.11", "3.12", "3.13"],
+    "continuous_integration": {
+      "python": ["3.11", "3.13"],
+      "platforms": ["ubuntu-latest", "macos-latest", "windows-latest"]
+    }
+  },
+  "interfaces": {
+    "console_command": "trustweave",
+    "module_command": "python -m trustweave",
+    "global_flags": ["--debug", "--generated-at", "--help", "--version", "-V"],
+    "top_level_commands": [
+      "attest",
+      "baseline",
+      "chain-check",
+      "ci",
+      "config",
+      "diff",
+      "explain",
+      "framework-import",
+      "init",
+      "mcp-import",
+      "mcp-profile-check",
+      "mcp-scaffold",
+      "policy-check",
+      "report",
+      "risk-check",
+      "sarif",
+      "scan",
+      "schema",
+      "statement",
+      "suppressions",
+      "test",
+      "trace-review",
+      "verify",
+      "why"
+    ],
+    "exit_codes": {
+      "0": "successful local command completion",
+      "1": "review-required result when a command explicitly requests review-gate behavior",
+      "2": "invalid input, configuration, or command syntax",
+      "3": "local input or output failure",
+      "4": "unexpected internal error"
+    }
+  },
+  "artifact_contracts": {
+    "current_writers": {
+      "agent_security_bundle": "trustweave.dev/bundle/v1alpha2",
+      "bundle_diff": "trustweave.dev/bundle-diff/v1alpha2",
+      "risk_review": "trustweave.dev/risk-review/v1alpha2",
+      "risk_baseline": "trustweave.dev/risk-baseline/v1alpha2",
+      "risk_suppressions": "trustweave.dev/risk-suppressions/v1alpha2",
+      "local_attestation": "trustweave.dev/attestation/v1alpha3",
+      "test_results": "trustweave.dev/test-results/v1alpha1"
+    },
+    "bounded_legacy_readers": {
+      "bundle_comparison": ["trustweave.dev/bundle/v1alpha1", "trustweave.dev/bundle/v1alpha2"],
+      "bundle_diff_risk_normalization": [
+        "trustweave.dev/bundle-diff/v1alpha1",
+        "trustweave.dev/bundle-diff/v1alpha2"
+      ],
+      "risk_review": ["trustweave.dev/risk-review/v1alpha1", "trustweave.dev/risk-review/v1alpha2"],
+      "local_attestation": [
+        "trustweave.dev/attestation/v1alpha1",
+        "trustweave.dev/attestation/v1alpha2",
+        "trustweave.dev/attestation/v1alpha3"
+      ]
+    },
+    "explicit_migration_required": [
+      "trustweave.dev/risk-baseline/v1alpha1",
+      "trustweave.dev/risk-suppressions/v1alpha1"
+    ]
+  },
+  "versioning_policy": {
+    "patch": "Documentation, assurance controls, deterministic test coverage, and additive fixes that preserve documented input, output, CLI, and reader behavior.",
+    "minor": "New user-visible command behavior, a new emitted artifact contract, changed semantics, or a compatibility change that requires a documented migration.",
+    "major": "Removal of a documented supported reader, incompatible CLI/output behavior, or a change to the product safety boundary."
+  },
+  "intentional_limits": [
+    "TrustWeave accepts only supplied local declarations and already-recorded metadata.",
+    "TrustWeave does not execute agents, tools, application code, MCP servers, or models.",
+    "TrustWeave does not contact remote systems, access credentials, upload results, or enforce runtime decisions.",
+    "Historical formats are read only where the named bounded reader contract and fixtures prove behavior; no historical document is silently redefined."
+  ]
+}

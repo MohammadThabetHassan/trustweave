@@ -44,6 +44,10 @@ PUBLIC_ASSETS = (
     "CITATION.cff",
     ".github/CODEOWNERS",
     "docs/SUPPLY_CHAIN.md",
+    "docs/ASSURANCE.md",
+    "docs/COMPATIBILITY.md",
+    "docs/SUPPORT_POLICY.md",
+    "docs/ADR-0005-PACKAGE-RELEASE-PROVENANCE.md",
 )
 REQUIRED_ISSUE_FORMS = (
     ".github/ISSUE_TEMPLATE/01-bug-report.yml",
@@ -62,6 +66,7 @@ QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
 MUTATION_RECORD_PATH = ROOT / "docs" / "MUTATION_TESTING.md"
 REPRODUCIBILITY_RECORD_PATH = ROOT / "docs" / "REPRODUCIBILITY.md"
 RELEASE_REPRODUCIBILITY_HELPER_PATH = ROOT / "scripts" / "verify_release_reproducibility.py"
+ASSURANCE_CONTRACT_HELPER_PATH = ROOT / "scripts" / "verify_assurance_contracts.py"
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -1033,6 +1038,24 @@ def _check_documentation_commands() -> list[str]:
     return failures
 
 
+def _check_assurance_contracts() -> list[str]:
+    """Run the standalone assurance validator as part of repository reality evidence."""
+
+    if not ASSURANCE_CONTRACT_HELPER_PATH.is_file():
+        return ["Missing scripts/verify_assurance_contracts.py"]
+    completed = subprocess.run(
+        [sys.executable, str(ASSURANCE_CONTRACT_HELPER_PATH)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode == 0:
+        return []
+    detail = completed.stderr.strip() or completed.stdout.strip()
+    return [f"Assurance contract validation failed: {detail}"]
+
+
 def _check_cli() -> list[str]:
     completed = subprocess.run(
         ["trustweave", "--help"],
@@ -1070,6 +1093,7 @@ def main() -> int:
         + _check_rule_registry()
         + _check_documentation_site()
         + _check_documentation_commands()
+        + _check_assurance_contracts()
         + _check_cli()
     )
     if failures:
@@ -1082,7 +1106,7 @@ def main() -> int:
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
         "quality evidence, generated artifacts, installed-wheel runtime and schema resources, "
         "generated documentation, strict documentation-site builds, executed documentation "
-        "commands, and CLI commands are connected."
+        "commands, assurance contracts, and CLI commands are connected."
     )
     return 0
 
