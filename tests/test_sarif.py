@@ -591,3 +591,23 @@ def test_sarif_fallback_fingerprints_preserve_distinct_results() -> None:
         "TW-FALLBACK-A",
         "TW-FALLBACK-B",
     ]
+
+
+def test_sarif_rejects_unique_results_beyond_the_declared_cardinality_bound(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The SARIF exporter must fail closed before a local result set can grow unbounded."""
+
+    import trustweave.sarif as sarif_module
+
+    monkeypatch.setattr(sarif_module, "MAX_SARIF_RESULTS", 1)
+    review = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "findings": [
+            {"id": "TW-BOUND-001", "severity": "high", "message": "First local finding."},
+            {"id": "TW-BOUND-002", "severity": "high", "message": "Second local finding."},
+        ],
+    }
+
+    with pytest.raises(ValidationError, match="maximum supported unique-result count of 1"):
+        build_sarif({"policy": ("artifacts/policy-review.json", review)})

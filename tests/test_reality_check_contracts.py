@@ -104,3 +104,11 @@ def test_reality_check_verifies_control_traceability() -> None:
     reality_check = _reality_check_module()
 
     assert reality_check._check_control_traceability() == []
+
+
+def test_reality_check_verifies_distribution_assurance() -> None:
+    """Temporary wheel and source-distribution validation must remain a release integrity gate."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_distribution_assurance() == []

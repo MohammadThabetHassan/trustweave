@@ -14,6 +14,7 @@ from trustweave.rules import RULES
 SARIF_VERSION = "2.1.0"
 SARIF_SCHEMA_URI = "https://json.schemastore.org/sarif-2.1.0.json"
 TOOL_INFORMATION_URI = "https://github.com/MohammadThabetHassan/trustweave"
+MAX_SARIF_RESULTS = 50_000
 
 REVIEW_INPUTS: tuple[tuple[str, frozenset[str], str], ...] = (
     ("policy", frozenset({"trustweave.dev/policy-review/v1alpha1"}), "findings"),
@@ -178,6 +179,11 @@ def build_sarif(reviews: Mapping[str, tuple[str, Mapping[str, Any]]]) -> dict[st
                 }
             }
             if result is None:
+                if len(results_by_fingerprint) >= MAX_SARIF_RESULTS:
+                    raise ValidationError(
+                        "SARIF export exceeds the maximum supported unique-result count of "
+                        f"{MAX_SARIF_RESULTS}"
+                    )
                 result = {
                     "ruleId": identifier,
                     "level": level,

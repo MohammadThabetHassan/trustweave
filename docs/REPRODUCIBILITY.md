@@ -59,6 +59,18 @@ The helper creates two temporary run directories beneath the checkout. In each, 
 
 This is evidence for deterministic staging and artifact rendering when the declared inputs, fixed provenance, and selected local stages are held constant. It does not prove reproducibility across operating systems, Python versions, different source trees, different output destinations, or separately rebuilt distributions. It also remains unsigned local evidence and does not establish provenance, identity, or runtime security.
 
+## Golden evidence and clean-environment assurance
+
+[`docs/golden-evidence/corpus-v1.json`](golden-evidence/corpus-v1.json) records a separately reviewed synthetic corpus for representative framework declarations, saved MCP metadata, trace/risk lifecycle review, change review, SARIF conversion, full staged CI, and malformed input. The default command is check-only:
+
+```bash
+python scripts/verify_golden_evidence.py
+```
+
+It creates a temporary case tree, runs only local TrustWeave commands against checked-in synthetic inputs, validates known generated JSON against shipped schemas, rejects temporary/check-out path leakage and selected privacy markers, and compares the exact approved artifact inventory and canonical digests. It removes the temporary tree before returning. Digest refresh requires an explicit maintainer confirmation; CI and the repository reality gate never update it automatically. See [Golden Deterministic Evidence Corpus](GOLDEN_EVIDENCE.md) for the review procedure.
+
+The local loader, declared-chain analyzer, and SARIF exporter also enforce deterministic resource boundaries. See [Local Resource Bounds](RESOURCE_BOUNDS.md) for the file-size, structural, traversal, and result-cardinality limits and their fail-closed behavior. These bounds describe local processing only; they do not provide a hosted-runner performance guarantee or a live-system availability claim.
+
 ## Attestation migration
 
 New attestations use `trustweave.dev/attestation/v1alpha3`. Their `chain_sha256` binds stable bundle/test-result payload digests, exact generated-file digests, subject names, and the stated source revision. Volatile `generated_at` metadata remains outside this integrity material. `trustweave verify --attestation PATH --bundle PATH --test-results PATH` checks both the actual supplied file bytes and their stable payloads against the recorded bindings.

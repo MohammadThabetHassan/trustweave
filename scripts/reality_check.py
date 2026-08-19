@@ -50,6 +50,8 @@ PUBLIC_ASSETS = (
     "docs/ADR-0005-PACKAGE-RELEASE-PROVENANCE.md",
     "docs/GOLDEN_EVIDENCE.md",
     "docs/CONTROL_TRACEABILITY.md",
+    "docs/DISTRIBUTION_ASSURANCE.md",
+    "docs/RESOURCE_BOUNDS.md",
 )
 REQUIRED_ISSUE_FORMS = (
     ".github/ISSUE_TEMPLATE/01-bug-report.yml",
@@ -71,6 +73,7 @@ RELEASE_REPRODUCIBILITY_HELPER_PATH = ROOT / "scripts" / "verify_release_reprodu
 ASSURANCE_CONTRACT_HELPER_PATH = ROOT / "scripts" / "verify_assurance_contracts.py"
 GOLDEN_EVIDENCE_HELPER_PATH = ROOT / "scripts" / "verify_golden_evidence.py"
 TRACEABILITY_HELPER_PATH = ROOT / "scripts" / "verify_control_traceability.py"
+DISTRIBUTION_ASSURANCE_HELPER_PATH = ROOT / "scripts" / "verify_distribution_artifacts.py"
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -1042,6 +1045,24 @@ def _check_documentation_commands() -> list[str]:
     return failures
 
 
+def _check_distribution_assurance() -> list[str]:
+    """Build and temporarily install both local distributions during repository verification."""
+
+    if not DISTRIBUTION_ASSURANCE_HELPER_PATH.is_file():
+        return ["Missing scripts/verify_distribution_artifacts.py"]
+    completed = subprocess.run(
+        [sys.executable, str(DISTRIBUTION_ASSURANCE_HELPER_PATH), "--allow-dirty"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode == 0:
+        return []
+    detail = completed.stderr.strip() or completed.stdout.strip()
+    return [f"Distribution assurance validation failed: {detail}"]
+
+
 def _check_control_traceability() -> list[str]:
     """Run the source-to-control-to-test traceability validator without rewriting its guide."""
 
@@ -1133,6 +1154,7 @@ def main() -> int:
         + _check_rule_registry()
         + _check_documentation_site()
         + _check_documentation_commands()
+        + _check_distribution_assurance()
         + _check_control_traceability()
         + _check_golden_evidence()
         + _check_assurance_contracts()
@@ -1148,8 +1170,8 @@ def main() -> int:
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
         "quality evidence, generated artifacts, installed-wheel runtime and schema resources, "
         "generated documentation, strict documentation-site builds, executed documentation "
-        "commands, control traceability, golden evidence, assurance contracts, and CLI commands "
-        "are connected."
+        "commands, distribution assurance, control traceability, golden evidence, assurance "
+        "contracts, and CLI commands are connected."
     )
     return 0
 
