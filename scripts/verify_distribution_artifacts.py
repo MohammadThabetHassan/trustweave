@@ -114,10 +114,10 @@ def _resource_check_script(path: Path) -> Path:
     return script
 
 
-def _venv_executables(venv: Path) -> tuple[Path, Path]:
+def _venv_executables(venv: Path, *, platform_name: str | None = None) -> tuple[Path, Path]:
     """Return the interpreter and console-script paths for one platform-native venv."""
 
-    if os.name == "nt":
+    if (os.name if platform_name is None else platform_name) == "nt":
         scripts = venv / "Scripts"
         return scripts / "python.exe", scripts / f"{PACKAGE}.exe"
     binaries = venv / "bin"
