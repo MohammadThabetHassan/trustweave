@@ -39,7 +39,8 @@ def review_policy(
             (
                 earlier_rule
                 for earlier_rule in policy.rules[:later_index]
-                if rule_covers(earlier_rule, later_rule, policy)
+                if rule_is_possible(earlier_rule, policy)
+                and rule_covers(earlier_rule, later_rule, policy)
             ),
             None,
         )

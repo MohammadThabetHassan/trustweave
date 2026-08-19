@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from trustweave.cli import main
 from trustweave.io import load_document
@@ -300,3 +301,89 @@ def test_policy_review_preserves_exact_missing_and_incomplete_approval_artifacts
         "review_findings": 2,
         "status": "review_required",
     }
+
+
+def test_policy_coverage_does_not_shadow_with_an_impossible_earlier_rule() -> None:
+    """Only a possible earlier rule can make a later first-match rule unreachable."""
+
+    document = {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "impossible-earlier-audit-policy",
+        "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+        "default_decision": "deny",
+        "rules": [
+            {
+                "id": "TW-AUDIT-IMPOSSIBLE",
+                "description": "An earlier rule requiring an absent declared control.",
+                "source_trust": ["trusted"],
+                "tool_action_classes": ["read"],
+                "required_controls": ["approval.fail_closed"],
+                "decision": "deny",
+                "rationale": "The required control is intentionally absent.",
+            },
+            {
+                "id": "TW-AUDIT-REACHABLE",
+                "description": "A later rule that remains possible and reachable.",
+                "source_trust": ["trusted"],
+                "tool_action_classes": ["read"],
+                "decision": "allow",
+                "rationale": "This rule has no impossible control requirement.",
+            },
+        ],
+    }
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    coverage = review["coverage"]["rules"]
+    assert coverage["TW-AUDIT-IMPOSSIBLE"]["possible"] is False
+    assert coverage["TW-AUDIT-REACHABLE"] == {
+        "reachable": True,
+        "possible": True,
+        "shadowed_by": None,
+        "decision": "allow",
+    }
+    assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"source_trust": ["untrusted", "untrusted"]}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"tool_action_classes": ["external", "external"]}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"source_data_classifications": ["confidential", "confidential"]}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"tool_capabilities": ["records.read", "records.read"]}
+        ),
+        lambda document: document.update({"name": "p" * 129}),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"description": "d" * 4097}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"source_identifiers": [f"source-{index}" for index in range(129)]}
+        ),
+        lambda document: document["approval_control"].update(  # type: ignore[index]
+            {"binds_to": [f"binding-{index}" for index in range(65)]}
+        ),
+    ],
+)
+def test_policy_parser_and_schema_reject_the_same_declared_boundary_violations(
+    mutate: object,
+) -> None:
+    """Public parser and schema constraints agree for representative audit boundary cases."""
+
+    document = _copy_policy_document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    assert callable(mutate)
+    mutate(document)
+
+    schema = json.loads((ROOT / "schemas" / "policy-v1alpha2.schema.json").read_text("utf-8"))
+    schema_errors = list(Draft202012Validator(schema).iter_errors(document))
+    assert schema_errors
+    with pytest.raises(ValidationError):
+        parse_policy(document)

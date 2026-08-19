@@ -146,6 +146,22 @@ def _string(value: Any, path: str) -> str:
     return value.strip()
 
 
+def _bounded_text(value: Any, path: str, maximum: int) -> str:
+    """Return non-empty text while enforcing a public schema's maximum length."""
+
+    text = _string(value, path)
+    if len(text) > maximum:
+        raise ValidationError(f"{path} must be at most {maximum} characters")
+    return text
+
+
+def _at_most(values: Sequence[Any], path: str, maximum: int) -> None:
+    """Enforce a bounded declared collection before constructing typed state."""
+
+    if len(values) > maximum:
+        raise ValidationError(f"{path} must contain at most {maximum} entries")
+
+
 def validate_identifier(value: Any, path: str) -> str:
     """Validate a bounded lowercase ASCII identifier used in declared local links."""
 
@@ -383,11 +399,11 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
         )
     classification_taxonomy: tuple[str, ...] = DEFAULT_CLASSIFICATION_TAXONOMY
     if "classification_taxonomy" in root:
+        raw_taxonomy = _sequence(root["classification_taxonomy"], "policy.classification_taxonomy")
+        if schema_version == "trustweave.dev/policy/v1alpha2":
+            _at_most(raw_taxonomy, "policy.classification_taxonomy", 32)
         classification_taxonomy = tuple(
-            _string(value, "policy.classification_taxonomy")
-            for value in _sequence(
-                root["classification_taxonomy"], "policy.classification_taxonomy"
-            )
+            _bounded_text(value, "policy.classification_taxonomy", 64) for value in raw_taxonomy
         )
         if not classification_taxonomy:
             raise ValidationError("policy.classification_taxonomy must not be empty")
@@ -396,8 +412,11 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
     if default_decision not in VALID_DECISIONS:
         raise ValidationError(f"policy.default_decision must be one of {sorted(VALID_DECISIONS)}")
 
+    raw_rules = _sequence(root.get("rules"), "policy.rules")
+    if schema_version == "trustweave.dev/policy/v1alpha2":
+        _at_most(raw_rules, "policy.rules", 1_000)
     rules: list[PolicyRule] = []
-    for index, raw_rule in enumerate(_sequence(root.get("rules"), "policy.rules")):
+    for index, raw_rule in enumerate(raw_rules):
         rule = _mapping(raw_rule, f"policy.rules[{index}]")
         allowed_rule_fields = {
             "id",
@@ -422,16 +441,21 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 }
             )
         reject_unknown_fields(rule, allowed_rule_fields, f"policy.rules[{index}]")
+        raw_source_trust = _sequence(
+            rule.get("source_trust"), f"policy.rules[{index}].source_trust"
+        )
+        raw_action_classes = _sequence(
+            rule.get("tool_action_classes"), f"policy.rules[{index}].tool_action_classes"
+        )
+        if schema_version == "trustweave.dev/policy/v1alpha2":
+            _at_most(raw_source_trust, f"policy.rules[{index}].source_trust", 3)
+            _at_most(raw_action_classes, f"policy.rules[{index}].tool_action_classes", 4)
         source_trust = tuple(
-            _string(value, f"policy.rules[{index}].source_trust")
-            for value in _sequence(rule.get("source_trust"), f"policy.rules[{index}].source_trust")
+            _string(value, f"policy.rules[{index}].source_trust") for value in raw_source_trust
         )
         action_classes = tuple(
             _string(value, f"policy.rules[{index}].tool_action_classes")
-            for value in _sequence(
-                rule.get("tool_action_classes"),
-                f"policy.rules[{index}].tool_action_classes",
-            )
+            for value in raw_action_classes
         )
         if not source_trust or not action_classes:
             raise ValidationError(
@@ -490,12 +514,19 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
                 rule.get("required_controls", []), f"policy.rules[{index}].required_controls"
             )
         )
-        for field_name, values in (
-            ("source_identifiers", source_identifiers),
-            ("tool_identifiers", tool_identifiers),
-            ("purpose_tags", purpose_tags),
-            ("required_controls", required_controls),
-        ):
+        bounded_fields = (
+            ("source_trust", source_trust, 3),
+            ("tool_action_classes", action_classes, 4),
+            ("source_data_classifications", classifications, 32),
+            ("tool_capabilities", capabilities, 128),
+            ("source_identifiers", source_identifiers, 128),
+            ("tool_identifiers", tool_identifiers, 128),
+            ("purpose_tags", purpose_tags, 128),
+            ("required_controls", required_controls, 2),
+        )
+        for field_name, values, maximum in bounded_fields:
+            if schema_version == "trustweave.dev/policy/v1alpha2":
+                _at_most(values, f"policy.rules[{index}].{field_name}", maximum)
             _unique_names(list(values), f"policy.rules[{index}].{field_name}")
         unknown_controls = set(required_controls) - DECLARED_CONTROL_CATALOG
         if unknown_controls:
@@ -566,11 +597,15 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
         rules.append(
             PolicyRule(
                 id=validate_rule_identifier(rule.get("id"), f"policy.rules[{index}].id"),
-                description=_string(rule.get("description"), f"policy.rules[{index}].description"),
+                description=_bounded_text(
+                    rule.get("description"), f"policy.rules[{index}].description", 4_096
+                ),
                 source_trust=source_trust,
                 tool_action_classes=action_classes,
                 decision=decision,
-                rationale=_string(rule.get("rationale"), f"policy.rules[{index}].rationale"),
+                rationale=_bounded_text(
+                    rule.get("rationale"), f"policy.rules[{index}].rationale", 4_096
+                ),
                 source_data_classifications=classifications,
                 tool_capabilities=capabilities,
                 severity=severity,
@@ -592,9 +627,12 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
             {"mechanism", "binds_to", "fail_closed"},
             "policy.approval_control",
         )
+        raw_binds_to = _sequence(control.get("binds_to"), "policy.approval_control.binds_to")
+        if schema_version == "trustweave.dev/policy/v1alpha2":
+            _at_most(raw_binds_to, "policy.approval_control.binds_to", 64)
         binds_to = tuple(
-            _string(value, "policy.approval_control.binds_to")
-            for value in _sequence(control.get("binds_to"), "policy.approval_control.binds_to")
+            _bounded_text(value, "policy.approval_control.binds_to", 4_096)
+            for value in raw_binds_to
         )
         if not binds_to:
             raise ValidationError("policy.approval_control.binds_to must not be empty")
@@ -603,14 +641,16 @@ def parse_policy(document: Mapping[str, Any]) -> Policy:
         if not isinstance(fail_closed, bool):
             raise ValidationError("policy.approval_control.fail_closed must be a boolean")
         approval_control = ApprovalControl(
-            mechanism=_string(control.get("mechanism"), "policy.approval_control.mechanism"),
+            mechanism=_bounded_text(
+                control.get("mechanism"), "policy.approval_control.mechanism", 4_096
+            ),
             binds_to=binds_to,
             fail_closed=fail_closed,
         )
 
     return Policy(
         schema_version=schema_version,
-        name=_string(root.get("name"), "policy.name"),
+        name=_bounded_text(root.get("name"), "policy.name", 128),
         default_decision=default_decision,
         rules=tuple(rules),
         approval_control=approval_control,
