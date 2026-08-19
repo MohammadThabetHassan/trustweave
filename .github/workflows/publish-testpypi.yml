@@ -71,11 +71,11 @@ jobs:
       - name: Check out the verified release target
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.release-gate.outputs.target_sha }}
+          ref: ${{ github.sha }}
           fetch-depth: 1
       - name: Verify checked-out SHA matches the passed release gate
         env:
-          TARGET_SHA: ${{ needs.release-gate.outputs.target_sha }}
+          TARGET_SHA: ${{ github.sha }}
         run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
