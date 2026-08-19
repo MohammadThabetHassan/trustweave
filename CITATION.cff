@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "TrustWeave 0.2.2 is the current developer-experience patch candidate; v0.2.0 remains an immutable unpublished audit tag and must not be cited as a public release."
+message: "TrustWeave 0.2.2 is the current published release; v0.2.0 remains an immutable unpublished audit tag and must not be cited as a public release."
 title: "TrustWeave"
 type: software
 authors:

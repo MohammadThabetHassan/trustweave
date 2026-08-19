@@ -2,7 +2,7 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
-## [0.2.2] - Unreleased developer-experience patch candidate
+## [0.2.2] - 2026-08-19
 
 ### Added
 
@@ -17,7 +17,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Release status
 
-- `0.2.2` is an unreleased source candidate pending the documented evidence, tag, TestPyPI, PyPI, and GitHub Release sequence. It does not change the non-executing, local-only product boundary.
+- `0.2.2` is published on [PyPI](https://pypi.org/project/trustweave/0.2.2/), validated from [TestPyPI](https://test.pypi.org/project/trustweave/0.2.2/) and PyPI clean installations, and available as [GitHub Release `v0.2.2`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.2). Its annotated tag targets `3b0817e732627a62a18be82e854a58fa085f0922`. It does not change the non-executing, local-only product boundary.
 
 ## [0.2.1] - 2026-08-19
 

@@ -1,6 +1,6 @@
 # Release process and owner-controlled publication
 
-TrustWeave [`0.2.1`](https://pypi.org/project/trustweave/0.2.1/) is the completed public release, available as [GitHub Release `v0.2.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.1). Its annotated tag targets `f1394d5fba8a0fbc24e3a18f45702e83aa65645e`; TestPyPI and PyPI trusted publishing completed successfully. A future pull request still does **not** authorize a tag, publication, or public release by itself. Annotated `v0.2.0` remains an immutable unpublished audit tag and must not be reused or published from.
+TrustWeave [`0.2.2`](https://pypi.org/project/trustweave/0.2.2/) is the completed public release, available as [GitHub Release `v0.2.2`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.2). Its annotated tag targets `3b0817e732627a62a18be82e854a58fa085f0922`; TestPyPI and PyPI trusted publishing completed successfully, and fresh installations from both indexes verified the console and module CLI entry points. A future pull request still does **not** authorize a tag, publication, or public release by itself. Annotated `v0.2.0` remains an immutable unpublished audit tag and must not be reused or published from.
 
 ## Repository-controlled evidence
 
