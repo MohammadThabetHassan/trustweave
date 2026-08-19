@@ -1,6 +1,6 @@
-# TrustWeave 0.2.0 Release Notes
+# TrustWeave 0.2.0 Unpublished Audit Record
 
-> **Release status:** This document prepares the `0.2.0` source target for owner review. It does **not** create a tag, signature, package publication, GitHub Release, merge, or deployment. Those actions remain owner-controlled after every required local and hosted acceptance gate is green.
+> **Audit status:** Annotated tag `v0.2.0` targets `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`, was created during pre-publication verification, was never published to PyPI, and has no GitHub Release. It remains immutable unpublished audit evidence and must not be moved, reused, or published from. The corrected current release target is [`0.2.1`](RELEASE_NOTES_0.2.1.md).
 
 ## Summary
 
@@ -54,4 +54,4 @@ The current 98.44% mutation measurement satisfies the numeric threshold and the 
 
 ## Owner-controlled next steps
 
-Before any merge or release action, the owner should use the checklist in [OWNER_RELEASE_CHECKLIST_0.2.0.md](OWNER_RELEASE_CHECKLIST_0.2.0.md). In particular, no version tag, package publication, release creation, artifact signing, or merge is authorized by these notes.
+This historical record preserves the 0.2.0 hardening evidence. For every current merge or release action, the owner must use [OWNER_RELEASE_CHECKLIST_0.2.1.md](OWNER_RELEASE_CHECKLIST_0.2.1.md); no version tag, package publication, release creation, artifact signing, or merge is authorized by this audit record.

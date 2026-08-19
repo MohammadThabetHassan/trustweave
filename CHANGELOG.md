@@ -2,9 +2,24 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
-## [0.2.0] - Pending owner-controlled publication
+## [0.2.1] - Pending owner-controlled publication
 
-> This is an owner-controlled **pre-merge release-preparation target**. No tag, signature, package publication, GitHub Release, merge, or production deployment is created by this changelog entry.
+> This is the corrected owner-controlled public release target. It remains unpublished until the exact merged main SHA passes every required local and hosted gate and the protected trusted-publishing workflow succeeds.
+
+### Fixed
+
+- Added top-level `trustweave --version` and `trustweave -V` commands. Both print only the authoritative import-visible package version, exit successfully without a subcommand, and do not discover configuration, write files, or access the network.
+- Added source-checkout and installed-wheel regression coverage for the version contract, including exact stdout, empty stderr, package-metadata synchronization, and installed console-script behavior.
+- Corrected the release procedure after the immutable `v0.2.0` pre-publication tag exposed the missing top-level version smoke command. The corrected clean-checkout staged-CI reproducibility procedure remains required and does not depend on a tracked root `trustweave.toml`.
+
+### Release status
+
+- `v0.2.0` targets `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` and remains an immutable **unpublished audit record**. It was never published to PyPI and has no GitHub Release; it must not be moved, reused, or published from.
+- The corrected release target is `0.2.1`. See [the 0.2.1 release notes](docs/RELEASE_NOTES_0.2.1.md) and [owner checklist](docs/OWNER_RELEASE_CHECKLIST_0.2.1.md).
+
+## [0.2.0] - Unpublished immutable audit record
+
+> `v0.2.0` was created during pre-publication verification and intentionally remains unpublished. No PyPI file and no GitHub Release was created for it. The tag is retained unchanged for auditability; `0.2.1` is the corrected release target.
 
 
 ### Fixed

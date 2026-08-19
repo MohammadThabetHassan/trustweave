@@ -1,6 +1,8 @@
-# Owner Release Checklist: TrustWeave 0.2.0
+# TrustWeave 0.2.0 Unpublished Audit Checklist
 
-> **Owner control:** This checklist is for the repository owner after review. It does not authorize an agent or contributor to merge, tag, sign, publish, create a GitHub Release, alter branch protection, or change release settings. Complete each gate in order and record the exact reviewed SHA.
+> **Audit status:** `v0.2.0` is an annotated immutable tag at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`. It was never published to PyPI and has no GitHub Release. Do not move, delete, reuse, or publish from it. This document preserves its historical release evidence; use [OWNER_RELEASE_CHECKLIST_0.2.1.md](OWNER_RELEASE_CHECKLIST_0.2.1.md) for the corrected current target.
+>
+> **Historical-only warning:** The retained commands and sequence below describe the superseded 0.2.0 preparation record. Do not execute them or treat them as authorization for any current tag, build, publication, or GitHub Release.
 
 ## A. Pre-merge acceptance gate
 
@@ -100,4 +102,4 @@ Record the final values below in the owner’s release issue, approved PR descri
 | Publication decision | Not published / TestPyPI / PyPI, with owner authorization reference |
 | Rollback contact | Maintainer or security route used if needed |
 
-Until this record is complete, treat 0.2.0 as a pre-release preparation target rather than a completed release.
+This historical record is complete only as an unpublished audit trail. Treat `0.2.1`, not `0.2.0`, as the current release-preparation target.

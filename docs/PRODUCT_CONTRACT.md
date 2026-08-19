@@ -61,7 +61,7 @@ The initial release is complete only when:
 
 ## Delivery policy
 
-TrustWeave `0.1.1` remains the published PyPI package. Source is prepared for `0.2.0` through reviewed pull-request work, but it is not tagged, signed, merged, or published until the owner authorizes those actions. A future release must update version and changelog evidence, pass documented local checks and hosted CI on the exact approved head, use an owner-authorized annotated tag, and follow the dedicated publishing workflow. A successful build alone is not release authorization.
+TrustWeave `0.1.1` remains the published PyPI package. The corrected source target is `0.2.1`, which is not tagged, signed, or published until the owner authorizes those actions. Annotated `v0.2.0` remains an immutable unpublished audit record at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; it must not be reused or published from. A future release must update version and changelog evidence, pass documented local checks and hosted CI on the exact approved head, use an owner-authorized annotated tag, and follow the dedicated publishing workflow. A successful build alone is not release authorization.
 
 ## Future scope, deliberately excluded from the current local evidence contract
 

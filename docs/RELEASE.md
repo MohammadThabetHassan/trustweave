@@ -2,7 +2,7 @@
 
 ## Release status and contract
 
-TrustWeave `0.1.1` is the latest package published on [PyPI](https://pypi.org/project/trustweave/0.1.1/) and tagged as [`v0.1.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.1.1). The source target is prepared as TrustWeave `0.2.0`, but it is not published, tagged, or released until the owner approves TestPyPI validation and production publication. The release path is deliberately manual: a maintainer validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
+TrustWeave `0.1.1` is the latest package published on [PyPI](https://pypi.org/project/trustweave/0.1.1/) and tagged as [`v0.1.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.1.1). The corrected source target is TrustWeave `0.2.1`; it is not published, tagged, or released until the owner approves every gate and the protected production publication. Annotated `v0.2.0` is retained at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` as immutable unpublished audit evidence: it was never published to PyPI and has no GitHub Release. The release path is deliberately manual: a maintainer validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
 
 The GitHub repository is the source of truth for code, documentation, schemas, and release workflows. Every future release must use an explicitly authorized commit identity and retain the project’s non-executing boundary.
 
@@ -17,7 +17,7 @@ The GitHub repository is the source of truth for code, documentation, schemas, a
 | Static source security | `bandit -r src/trustweave -q` passes. |
 | Repository reality | `python3 scripts/reality_check.py` passes for tracked docs, schemas, workflow YAML, and CLI references. |
 | Package build | `python -m build` and `twine check dist/*` pass. |
-| Isolated install | A fresh virtual environment installs the built wheel and verifies `trustweave --help` plus the package version. |
+| Isolated install | A fresh virtual environment installs the built wheel and verifies `trustweave --version`, `trustweave -V`, `trustweave --help`, `trustweave schema list`, and the import-visible package version. |
 | Dependency and SBOM checks | Hosted CI performs declared-dependency audit and reproducible CycloneDX SBOM generation. |
 | Reproducibility | Hosted CI verifies the fixed-epoch wheel build; before tagging, run `python3 scripts/verify_release_reproducibility.py --source-revision "$(git rev-parse HEAD)" --generated-at 2026-08-19T00:00:00+00:00` to verify two temporary configured staged-CI runs, byte-identical artifacts, path hygiene, and supplied-file attestation bindings. |
 | Compatibility | Hosted CI passes on the configured Python 3.11/3.13 and operating-system matrix. |
@@ -53,7 +53,7 @@ Production publishing uses `.github/workflows/publish-pypi.yml`. The workflow is
 
 The publish job runs in the GitHub Actions environment named `pypi`. PyPI must have a matching pending or active GitHub trusted publisher for owner `MohammadThabetHassan`, repository `trustweave`, workflow `publish-pypi.yml`, and environment `pypi`. The workflow uses the PyPA publishing action without a stored PyPI token.
 
-After publication, verify the production PyPI project page, install the exact version in a new virtual environment, assert that `trustweave.__version__` matches the release version, and run `trustweave --help` from the installed package.
+After publication, verify the production PyPI project page, install the exact version in a new virtual environment, assert that `trustweave.__version__` matches the release version, and run `trustweave --version`, `trustweave -V`, `trustweave --help`, and `trustweave schema list` from the installed package.
 
 ### 4. Create the GitHub release record
 
