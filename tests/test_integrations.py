@@ -82,6 +82,8 @@ def test_quality_workflow_smoke_tests_built_source_distribution() -> None:
     assert ".sdist-check/bin/pip install dist/*.tar.gz" in workflow
     assert ".sdist-check/bin/trustweave --help" in workflow
     assert "rm -rf .sdist-check" in workflow
+    assert "Verify clean distribution assurance" in workflow
+    assert "python scripts/verify_distribution_artifacts.py" in workflow
 
 
 def test_quality_workflow_executes_real_container_build_and_smoke_contract() -> None:
@@ -90,9 +92,9 @@ def test_quality_workflow_executes_real_container_build_and_smoke_contract() -> 
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
     assert "Container build and smoke test" in workflow
-    assert "docker build --pull=false -t trustweave:0.2.2 ." in workflow
-    assert "docker run --rm trustweave:0.2.2 --help" in workflow
-    assert "docker run --rm trustweave:0.2.2 schema list" in workflow
+    assert "docker build --pull=false -t trustweave:0.2.3 ." in workflow
+    assert "docker run --rm trustweave:0.2.3 --help" in workflow
+    assert "docker run --rm trustweave:0.2.3 schema list" in workflow
     assert "id -u" in workflow
     assert "trustweave.__version__" in workflow
     assert 'find /app -type d -name "__pycache__"' in workflow

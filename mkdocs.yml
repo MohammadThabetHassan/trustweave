@@ -26,6 +26,7 @@ nav:
   - Manifest, tags, and classifications: MANIFEST_CONTRACT.md
   - Local CI workflow: CI_WORKFLOW.md
   - Developer integration routes: INTEGRATIONS.md
+  - Assurance controls: ASSURANCE.md
   - CLI:
       - Guide: CLI.md
       - Generated help: CLI_HELP.md

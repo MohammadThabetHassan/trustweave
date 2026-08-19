@@ -2,6 +2,28 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
+## [0.2.3] - Unreleased assurance candidate
+
+### Added
+
+- Added a versioned machine-readable compatibility contract, public support/deprecation policy, and deterministic validator for the package version, Python matrix, CLI surface, exit statuses, current artifact writers, and bounded historical readers.
+- Added a reviewed synthetic golden evidence corpus covering complete staged CI, three framework descriptors, saved MCP metadata/profile review, trace/risk lifecycle review, declared change/SARIF review, and malformed-input refusal. The default verifier compares approved canonical digests and never refreshes snapshots implicitly.
+- Added a generated threat-control-test traceability guide and source contract linking every declaration-layer threat-model row and out-of-scope risk to real source, tests, evidence, maintenance triggers, or explicit residual limits.
+- Added explicit local resource-bound documentation and a fail-closed **50,000 unique-result** SARIF cardinality limit, alongside existing input-file, structural, and declared-chain budgets.
+- Added temporary clean-environment distribution assurance that builds, archive-checks, and installs both the wheel and source distribution with console, module-entry, and packaged-schema checks.
+- Added TestPyPI-first package-provenance controls: both trusted-publishing workflows request PyPI project attestations, and a versioned validator requires the configuration while preserving the pre-observation non-claim.
+
+### Changed
+
+- Extended the repository reality gate and hosted CI with golden-evidence, traceability, distribution-assurance, compatibility, and package-provenance control checks.
+- Expanded the README and documentation site with task-oriented assurance navigation and release guidance that distinguishes configured attestation generation from observed authenticated package provenance.
+- Bumped source and candidate metadata to `0.2.3` while retaining `0.2.2` as the current public package release in compatibility, release, and supply-chain records.
+
+### Release status
+
+- `0.2.3` is **unreleased**. It has no annotated `v0.2.3` tag, PyPI/TestPyPI publication, GitHub Release, or observed package-attestation verification record. Its configured provenance control must first pass the documented TestPyPI clean-install and expected-repository verification procedure.
+- `0.2.2` remains the current public release on [PyPI](https://pypi.org/project/trustweave/0.2.2/), [TestPyPI](https://test.pypi.org/project/trustweave/0.2.2/), and [GitHub Releases](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.2). The non-executing, local-only boundary remains unchanged.
+
 ## [0.2.2] - 2026-08-19
 
 ### Added

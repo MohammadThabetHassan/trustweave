@@ -26,6 +26,12 @@ ruff check .
 mypy src
 bandit -r src/trustweave -q
 pytest
+python scripts/verify_assurance_contracts.py
+python scripts/verify_golden_evidence.py
+python scripts/verify_control_traceability.py
+python scripts/verify_package_provenance_controls.py
+# Run this from a clean checkout before release work; --allow-dirty is test-only.
+python scripts/verify_distribution_artifacts.py
 python scripts/reality_check.py
 python -m build
 twine check dist/*
@@ -75,11 +81,12 @@ Before requesting review, confirm the following statements are true.
 
 - [ ] The change is within the documented safety boundaries.
 - [ ] The change includes relevant tests or updates existing deterministic expectations.
-- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, `bandit -r src/trustweave -q`, `pytest` (including the 95% branch-coverage gate), `python scripts/reality_check.py`, `python -m build`, `twine check dist/*`, and `pip-audit -r requirements.txt` pass locally.
+- [ ] `ruff format --check .`, `ruff check .`, `mypy src`, `bandit -r src/trustweave -q`, `pytest` (including the 95% branch-coverage gate), the check-only assurance validators, `python scripts/verify_distribution_artifacts.py` from a clean checkout, `python scripts/reality_check.py`, `python -m build`, `twine check dist/*`, and `pip-audit -r requirements.txt` pass locally.
 - [ ] Generated artifact directories, including `artifacts/` and `*-artifacts/`, are not committed.
 - [ ] Documentation and examples describe the actual implemented behavior.
 - [ ] Any new schema field includes validation and an explicit default/failure behavior.
 - [ ] The change does not add real credentials, personal data, third-party targets, unsafe execution paths, reports that reproduce trace message content/tool arguments, or MCP profiles that contain token-like URI components.
+- [ ] Any package-provenance wording distinguishes configured attestation generation from release-specific observed verification; no unpublished candidate is presented as a public package release.
 
 ## Governance
 

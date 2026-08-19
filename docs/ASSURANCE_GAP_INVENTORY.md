@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This inventory records the assurance baseline before the 0.2.3 enhancement cycle. It distinguishes what TrustWeave already demonstrates from work that can be verified inside the repository, controls that require an owner and an external platform, and capabilities the project deliberately excludes.
+This inventory records the assurance baseline after the unreleased 0.2.3 enhancement cycle. It distinguishes what TrustWeave demonstrates in the source tree from controls that still require an owner and an external platform, and capabilities the project deliberately excludes.
 
-The inventory is an engineering planning record, not a claim that a listed future control already exists.
+The inventory is an engineering record, not a publication, authenticated-provenance, or external-adoption claim. `0.2.2` remains the current public package release until an approved 0.2.3 tag and release record exist.
 
 ## Implemented baseline
 
@@ -17,23 +17,23 @@ The inventory is an engineering planning record, not a claim that a listed futur
 | Mutation diagnostic | Twelve-module hosted mutation gate with score, parity, and triage controls. | The selected scope is bounded and does not prove global security. |
 | Release controls | SHA-pinned workflows, separate build/publish jobs, OIDC trusted publishing, TestPyPI rehearsal, clean installation, annotated tags, and GitHub releases. | Current 0.2.2 package release does not claim authenticated package provenance. |
 
-## Measurable repository work for 0.2.3
+## Implemented 0.2.3 candidate assurance work
 
-| Gap | Planned control | Completion evidence |
+| Former gap | Implemented control | Present evidence and remaining limit |
 | --- | --- | --- |
-| Compatibility claims are distributed across prose and tests | Versioned compatibility source, generated policy pages, and exact contract validation. | A local validator proves agreement with package metadata, CI matrix, CLI surface, schemas, and retained reader fixtures. |
-| Deterministic outputs lack a curated public reference corpus | Synthetic golden evidence corpus and a check-only verifier. | A clean temporary regeneration matches approved inventory, canonical digests, schemas, paths, and expected failures. |
-| Threat model is narrative-first | Machine-readable threat-to-control-to-test traceability source and generated review map. | The validator rejects orphaned IDs, missing controls, missing tests, or missing residual limits. |
-| Parser/output resource bounds are not uniformly documented as contracts | Source-audited, generous file/structure/output budgets with fail-closed errors and boundary tests. | Positive/boundary/over-limit tests plus published limits and clean reproduction record. |
-| Release provenance readiness is not independently consumer-verifiable | TestPyPI-first official PyPI attestation verification procedure and synthetic verifier fixtures. | Observed TestPyPI package provenance verification before a production claim. |
-| Assurance documentation is not centrally discoverable | Public assurance map, README navigation, contributor checklist, and documentation contracts. | Reality and strict-site checks verify discoverability and truthful wording. |
+| Compatibility claims were distributed across prose and tests | Versioned compatibility source, support/deprecation policy, and exact contract validation. | A local validator proves agreement with candidate package metadata, CI matrix, CLI surface, schemas, and retained reader fixtures. `0.2.2` remains the separate public release record. |
+| Deterministic outputs lacked a curated public reference corpus | Synthetic golden evidence corpus and a check-only verifier. | Temporary regeneration matches approved inventory, canonical digests, schemas, paths, and expected failures. The synthetic corpus does not prove live-system behavior. |
+| Threat model was narrative-first | Machine-readable threat-to-control-to-test traceability source and generated review map. | The validator rejects orphaned IDs, missing controls, missing tests, missing evidence, or missing residual limits. It does not establish external assessment coverage. |
+| Parser/output resource bounds were not uniformly documented as contracts | Source-audited file/structure/chain budgets and a fail-closed SARIF result ceiling with boundary tests. | Published limits and regression tests restrict local evidence work; they are not a hosted-service performance guarantee. |
+| Release provenance readiness was not independently consumer-verifiable | TestPyPI-first PyPI project-attestation generation in both trusted-publishing workflows, an official exact-file verification procedure, and a workflow-control validator. | Generation is configured but no `0.2.3` package has been published or independently verified; observed TestPyPI expected-repository verification remains required before a production claim. |
+| Assurance documentation was not centrally discoverable | Public assurance map, README/site navigation, contributor checklist, and reality-gate documentation contracts. | Strict documentation and reality checks validate discoverability and truthful pre-release wording. |
 
 ## Owner-controlled settings and evidence
 
 | Control | Required owner action | Evidence required before a claim |
 | --- | --- | --- |
 | Trusted-publisher identity | Verify index configuration for owner, repository, workflow, environment, and release authorization. | Real TestPyPI and PyPI workflow records for the exact tag/version. |
-| Package attestations | Approve TestPyPI-first attestation enablement and production activation after rehearsal. | Clean-environment official consumer verification of exact published artifact and expected repository identity. |
+| Package attestations | Dispatch the configured TestPyPI workflow from an approved annotated tag, preserve the exact file identity, and approve production only after the TestPyPI observation passes. | Clean-environment official consumer verification of the exact published artifact and expected repository identity. |
 | Secret scanning, push protection, and Dependabot settings | Confirm repository settings and operational response model. | Publicly observable configured state or owner-approved evidence; no inference from documentation. |
 | Scorecard, badges, or external assessment | Review scope, permissions, retention, and published report. | Real report that supports each displayed result. |
 

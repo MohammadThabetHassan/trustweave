@@ -2,7 +2,7 @@
 
 ## Release status and contract
 
-TrustWeave `0.2.2` is the current published package, available from [PyPI](https://pypi.org/project/trustweave/0.2.2/) with matching [TestPyPI `0.2.2`](https://test.pypi.org/project/trustweave/0.2.2/) and [GitHub Release `v0.2.2`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.2). The annotated tag targets `3b0817e732627a62a18be82e854a58fa085f0922`; protected TestPyPI and PyPI trusted-publishing workflows completed successfully, and fresh installations from both indexes verified the console and module CLI entry points. Annotated `v0.2.0` is retained at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` as immutable unpublished audit evidence: it was never published to PyPI and has no GitHub Release. The release path remains deliberately manual for every future version: a maintainer validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
+TrustWeave `0.2.2` is the current published package, available from [PyPI](https://pypi.org/project/trustweave/0.2.2/) with matching [TestPyPI `0.2.2`](https://test.pypi.org/project/trustweave/0.2.2/) and [GitHub Release `v0.2.2`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.2). The annotated tag targets `3b0817e732627a62a18be82e854a58fa085f0922`; protected TestPyPI and PyPI trusted-publishing workflows completed successfully, and fresh installations from both indexes verified the console and module CLI entry points. The source tree’s declared package version is TrustWeave `0.2.3`, an unreleased assurance candidate; it must not be described as published until the exact annotated tag, TestPyPI candidate, provenance observation, PyPI artifact, and GitHub Release record exist. Annotated `v0.2.0` is retained at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` as immutable unpublished audit evidence: it was never published to PyPI and has no GitHub Release. The release path remains deliberately manual for every future version: a maintainer validates the exact commit, creates an annotated tag, and dispatches the dedicated publishing workflow. A green build does not by itself authorize publication.
 
 The GitHub repository is the source of truth for code, documentation, schemas, and release workflows. Every future release must use an explicitly authorized commit identity and retain the project’s non-executing boundary.
 
@@ -15,7 +15,11 @@ The GitHub repository is the source of truth for code, documentation, schemas, a
 | Type checking | `mypy src` passes. |
 | Test suite | `pytest` passes, including the 95% branch-coverage gate. |
 | Static source security | `bandit -r src/trustweave -q` passes. |
-| Repository reality | `python3 scripts/reality_check.py` passes for tracked docs, schemas, workflow YAML, and CLI references. |
+| Repository reality | `python3 scripts/reality_check.py` passes for tracked docs, schemas, workflow YAML, CLI references, golden evidence, traceability, clean distribution assurance, and configured package-provenance controls. |
+| Golden evidence | `python scripts/verify_golden_evidence.py` matches the reviewed synthetic case inventory and canonical output digests without updating snapshots. |
+| Traceability | `python scripts/verify_control_traceability.py` confirms every stated declaration-layer threat and out-of-scope risk is linked to its reviewed source contract. |
+| Clean distribution assurance | `python scripts/verify_distribution_artifacts.py` builds exactly one wheel and source distribution, checks archive/package contents, and installs both in fresh temporary environments. |
+| Package-attestation controls | `python scripts/verify_package_provenance_controls.py` confirms TestPyPI and PyPI workflows request attestations while the public non-claim remains in effect. |
 | Package build | `python -m build` and `twine check dist/*` pass. |
 | Isolated install | A fresh virtual environment installs the built wheel and verifies `trustweave --version`, `trustweave -V`, `trustweave --help`, `trustweave schema list`, and the import-visible package version. |
 | Dependency and SBOM checks | Hosted CI performs declared-dependency audit and reproducible CycloneDX SBOM generation. |
@@ -36,9 +40,9 @@ The GitHub repository is the source of truth for code, documentation, schemas, a
 
 ### 2. Validate a candidate on TestPyPI
 
-TestPyPI is the package-distribution rehearsal environment. The dedicated `.github/workflows/publish-testpypi.yml` workflow builds and checks distributions in an unprivileged job, then uploads them from a separate GitHub OIDC trusted-publishing job. It uses no stored upload token and disables package attestations pending separately authorized signing work.
+TestPyPI is the package-distribution rehearsal environment. The dedicated `.github/workflows/publish-testpypi.yml` workflow builds and checks distributions in an unprivileged job, then uploads them from a separate GitHub OIDC trusted-publishing job. It uses no stored upload token and requests PyPI project attestations for its distribution files.
 
-A TestPyPI candidate should be published from an annotated release-candidate tag, then installed in a fresh virtual environment with an exact version pin. The release record should note the TestPyPI workflow URL, tag, artifact version, and clean-install result.
+A TestPyPI candidate must be published from an annotated release-candidate tag, then installed in a fresh virtual environment with an exact version pin. Before production promotion, use the official `pypi-attestations verify pypi --repository MohammadThabetHassan/trustweave <exact-wheel-url>` procedure against the exact TestPyPI file URL. The release record must preserve the TestPyPI workflow URL, tag, artifact filename, version, SHA-256, verifier output, expected repository identity, and clean-install result. Attestation generation alone is not authenticated-provenance evidence until this observed verification succeeds.
 
 TrustWeave `0.1.1rc1` was intentionally retained as an immutable validation record after a clean install exposed an import-version mismatch. The corrected `0.1.1rc2` added a version-synchronization regression test and passed TestPyPI clean-install validation before the final `0.1.1` release target was prepared.
 
@@ -53,11 +57,11 @@ Production publishing uses `.github/workflows/publish-pypi.yml`. The workflow is
 
 The publish job runs in the GitHub Actions environment named `pypi`. PyPI must have a matching pending or active GitHub trusted publisher for owner `MohammadThabetHassan`, repository `trustweave`, workflow `publish-pypi.yml`, and environment `pypi`. The workflow uses the PyPA publishing action without a stored PyPI token.
 
-After publication, verify the production PyPI project page, install the exact version in a new virtual environment, assert that `trustweave.__version__` matches the release version, and run `trustweave --version`, `trustweave -V`, `trustweave --help`, and `trustweave schema list` from the installed package.
+After publication, verify the production PyPI project page, install the exact version in a new virtual environment, assert that `trustweave.__version__` matches the release version, and run `trustweave --version`, `trustweave -V`, `trustweave --help`, and `trustweave schema list` from the installed package. Then verify the exact PyPI file with the official `pypi-attestations` procedure and expected repository identity; only then may the release notes and provenance guide describe that exact package file as authenticated provenance evidence.
 
 ### 4. Create the GitHub release record
 
-After the production upload succeeds, create a non-draft GitHub release from the same annotated tag. Release notes must state material changes, verification evidence, intentional limits, and known compatibility impact. They must not claim production security certification, general prompt-injection prevention, externally signed provenance, or complete agent-system security.
+After the production upload succeeds, create a non-draft GitHub release from the same annotated tag. Release notes must state material changes, verification evidence, intentional limits, and known compatibility impact. They must not claim production security certification, general prompt-injection prevention, unobserved authenticated package provenance, or complete agent-system security.
 
 ## Post-release review
 
@@ -65,4 +69,4 @@ A release is complete only after the tag, GitHub release record, PyPI project pa
 
 ## Intentional release boundaries
 
-Publishing TrustWeave packages does not make the tool execute agent tools, connect to MCP servers, call models, access credentials, send network traffic, upload SARIF, or provide runtime enforcement. The release workflows do not create an external signing or provenance claim because package attestations are disabled. Those capabilities require separate design and explicit maintainer authorization.
+Publishing TrustWeave packages does not make the tool execute agent tools, connect to MCP servers, call models, access credentials, send network traffic, upload SARIF, or provide runtime enforcement. Configuring PyPI project-attestation generation does not itself create a release-provenance claim; that claim is limited to an exact published file only after its independent expected-repository verification is recorded. The package runtime boundary remains unchanged.

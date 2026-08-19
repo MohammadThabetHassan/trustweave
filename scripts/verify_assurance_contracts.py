@@ -130,9 +130,11 @@ def _check_compatibility_contract() -> list[str]:
 
     if package.get("name") != metadata.get("name"):
         failures.append("Compatibility package name does not match pyproject.toml")
-    if package.get("current_public_release") != metadata.get("version"):
+    if package.get("candidate_version") != metadata.get("version"):
+        failures.append("Compatibility candidate_version does not match pyproject.toml version")
+    if package.get("current_public_release") == package.get("candidate_version"):
         failures.append(
-            "Compatibility current_public_release does not match pyproject.toml version"
+            "Compatibility current_public_release must differ from unreleased candidate"
         )
     if package.get("requires_python") != metadata.get("requires-python"):
         failures.append("Compatibility requires_python does not match pyproject.toml")
@@ -254,6 +256,7 @@ def _check_compatibility_contract() -> list[str]:
             "ADR-0005",
             "TestPyPI-first procedure",
             "0.2.2",
+            "0.2.3",
         ),
         PROVENANCE_ADR_PATH: (
             "TestPyPI",
