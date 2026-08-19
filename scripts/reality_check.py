@@ -107,8 +107,8 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
         "trustweave.dev/attestation/v1alpha3",
         "src/trustweave/evidence.py",
     ),
-    "bundle-diff-v1alpha2.schema.json": (
-        "trustweave.dev/bundle-diff/v1alpha2",
+    "bundle-diff-v1alpha3.schema.json": (
+        "trustweave.dev/bundle-diff/v1alpha3",
         "src/trustweave/diff.py",
     ),
     "chain-review-v1alpha1.schema.json": (
@@ -169,11 +169,15 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "trustweave.dev/bundle/v1alpha2",
         "trustweave/fingerprint/v3",
         "95% branch coverage",
+        "--bundle artifacts/agent-security-bundle.json",
+        "checks only the statement’s internal consistency",
     ),
     "docs/CLI_REFERENCE.md": (
         "trustweave/fingerprint/v3",
         "trustweave.dev/risk-review/v1alpha2",
         "risk-baseline/v1alpha2",
+        "Recommended exact-file verification",
+        "statement-only result does not establish",
     ),
     "docs/CONFIGURATION.md": (
         "baseline_bundle",
@@ -188,9 +192,10 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     ),
     "docs/SCHEMA_AND_COMPATIBILITY.md": (
         "trustweave.dev/bundle/v1alpha2",
-        "trustweave.dev/bundle-diff/v1alpha2",
+        "trustweave.dev/bundle-diff/v1alpha3",
         "trustweave.dev/risk-review/v1alpha2",
         "agent-security-bundle-v1alpha2.schema.json",
+        "bundle-diff-v1alpha3.schema.json",
         "risk-review-v1alpha2.schema.json",
     ),
     "docs/RISK_MANAGEMENT.md": (
@@ -200,6 +205,7 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     ),
     "docs/site/SCHEMAS.md": (
         "trustweave.dev/bundle/v1alpha2",
+        "trustweave.dev/bundle-diff/v1alpha3",
         "trustweave.dev/risk-review/v1alpha2",
     ),
 }
@@ -695,8 +701,14 @@ def _check_changelog_version_synchronization() -> list[str]:
     headings = CHANGELOG_VERSION_HEADING.findall(changelog_path.read_text(encoding="utf-8"))
     if not headings:
         failures.append("CHANGELOG.md lacks a version heading")
-    elif headings[0] != version:
-        failures.append("CHANGELOG.md top version heading does not match pyproject.toml")
+    else:
+        released_headings = [heading for heading in headings if heading != "Unreleased"]
+        if not released_headings:
+            failures.append("CHANGELOG.md lacks a released version heading")
+        elif released_headings[0] != version:
+            failures.append(
+                "CHANGELOG.md first released version heading does not match pyproject.toml"
+            )
     return failures
 
 

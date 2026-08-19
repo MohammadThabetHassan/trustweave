@@ -16,6 +16,25 @@ RELEASE_EVIDENCE_PATH = ROOT / "docs" / "RELEASE_EVIDENCE_0.2.3.md"
 SUPPLY_CHAIN_PATH = ROOT / "docs" / "SUPPLY_CHAIN.md"
 ACTION_REFERENCE = "pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33"
 REPOSITORY = "MohammadThabetHassan/trustweave"
+REQUIRED_RELEASE_BINDING_MARKERS = (
+    "GITHUB_REF_TYPE: ${{ github.ref_type }}",
+    'test "$GITHUB_REF_TYPE" = "tag"',
+    'test "$GITHUB_REF_NAME" = "v${EXPECTED_VERSION}"',
+    "refs/tags/v${EXPECTED_VERSION}",
+    'git cat-file -t "refs/tags/${GITHUB_REF_NAME}"',
+    'tag_target_sha="$(git rev-parse "refs/tags/${GITHUB_REF_NAME}^{}")"',
+    'test "$tag_target_sha" = "$GITHUB_SHA"',
+    "needs: release-gate",
+    "needs.release-gate.outputs.target_sha == github.sha",
+    "ruff format --check .",
+    "ruff check .",
+    "mypy src",
+    "bandit -r src/trustweave -q",
+    "pytest",
+    "python scripts/reality_check.py",
+    "mkdocs build --strict",
+    "pip-audit -r requirements.txt",
+)
 
 
 def _load_contract() -> dict[str, Any]:
@@ -34,6 +53,16 @@ def _publish_job(workflow: str) -> str:
     if match is None:
         return ""
     return match.group("body")
+
+
+def _release_binding_failures(workflow: str) -> list[str]:
+    """Return missing fail-closed release-binding controls for one workflow."""
+
+    return [
+        f"missing release-binding control: {marker}"
+        for marker in REQUIRED_RELEASE_BINDING_MARKERS
+        if marker not in workflow
+    ]
 
 
 def _validate_control(control: dict[str, Any], failures: list[str]) -> None:
@@ -74,6 +103,8 @@ def _validate_control(control: dict[str, Any], failures: list[str]) -> None:
         failures.append(
             f"Package provenance workflow {path} unexpectedly adds a protected environment"
         )
+    for failure in _release_binding_failures(workflow):
+        failures.append(f"Package provenance workflow {path} {failure}")
 
 
 def _validate_contract(contract: dict[str, Any]) -> list[str]:

@@ -2,6 +2,24 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
+## [Unreleased]
+
+### Fixed
+
+- Enforced semantic authenticity and complete finding coverage for current Agent Security Bundles by regenerating the expected findings from the embedded manifest and policy during validation.
+- Corrected policy coverage analysis so an impossible earlier rule cannot shadow a possible later rule, and aligned typed-policy collection and text bounds with the published v1alpha2 schema.
+- Introduced `trustweave.dev/bundle-diff/v1alpha3`, which records normalized policy-only changes and review signals for security weakenings such as fail-closed-to-fail-open approval controls and allow defaults.
+- Repaired the risk-management quickstart with current v1alpha2 baseline and suppression examples, plus a clean-workspace command smoke regression.
+- Bound TestPyPI and PyPI publication workflows to an exact annotated `v<version>` tag, its immutable target SHA, and a successful complete quality gate before artifact build or isolated trusted publication.
+- Replaced overstated local “tamper-evident” wording with explicit unsigned-statement and external-provenance limits, and made supplied-file verification the primary documented verification command.
+- Replaced the Docker image’s stale hard-coded version label with a package-metadata-derived build argument that hosted CI verifies against the installed package version.
+
+### Changed
+
+- Regenerated deterministic golden evidence, mutation-contract snapshots, rule catalog, compatibility contracts, traceability records, and repository-reality checks for the current v1alpha3 diff output.
+
+> This corrective work does **not** change the package version. `0.2.3` remains the current published release until a separately authorized release process is completed.
+
 ## [0.2.3] - 2026-08-19
 
 ### Added

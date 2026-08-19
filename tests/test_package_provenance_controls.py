@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 PROVENANCE_VERIFIER = ROOT / "scripts" / "verify_package_provenance_controls.py"
 
@@ -40,6 +42,37 @@ def test_package_provenance_controls_reject_disabled_attestations(
     monkeypatch.setattr(provenance, "CONTRACT_PATH", replacement)
 
     assert provenance.main() == 1
+
+
+@pytest.mark.parametrize(
+    "required_marker",
+    (
+        'test "$GITHUB_REF_TYPE" = "tag"',
+        "refs/tags/v${EXPECTED_VERSION}",
+        'git cat-file -t "refs/tags/${GITHUB_REF_NAME}"',
+        'test "$tag_target_sha" = "$GITHUB_SHA"',
+        "needs.release-gate.outputs.target_sha == github.sha",
+        "pytest",
+    ),
+)
+def test_package_provenance_controls_reject_missing_release_binding_control(
+    required_marker: str,
+) -> None:
+    """Publication must fail closed if a required tag, SHA, or gate control disappears."""
+
+    provenance = _provenance_verifier_module()
+    for workflow_path in (
+        ROOT / ".github" / "workflows" / "publish-pypi.yml",
+        ROOT / ".github" / "workflows" / "publish-testpypi.yml",
+    ):
+        workflow = workflow_path.read_text(encoding="utf-8")
+        assert required_marker in workflow
+        weakened_workflow = workflow.replace(required_marker, "REMOVED_RELEASE_CONTROL")
+        assert provenance._release_binding_failures(workflow) == []
+        assert (
+            f"missing release-binding control: {required_marker}"
+            in provenance._release_binding_failures(weakened_workflow)
+        )
 
 
 def test_package_provenance_controls_reject_observed_release_drift(
