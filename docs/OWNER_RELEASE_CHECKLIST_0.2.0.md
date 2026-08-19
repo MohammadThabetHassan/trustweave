@@ -34,14 +34,15 @@ mutmut run
 mutmut results
 ```
 
-For reproducible staged-CI evidence, run two fixed-provenance executions into separate directories and compare every emitted byte:
+For reproducible staged-CI evidence, run the directly executable clean-checkout verifier. It creates two temporary run directories and a separate explicit temporary `trustweave.toml` in each directory; it never relies on or creates a repository-root configuration file.
 
 ```bash
-trustweave --generated-at 2026-08-18T00:00:00+00:00 \
-  ci --config trustweave.toml --source-revision owner-release-check --quiet
+python3 scripts/verify_release_reproducibility.py \
+  --source-revision "$(git rev-parse HEAD)" \
+  --generated-at 2026-08-19T00:00:00+00:00
 ```
 
-Follow the repository’s recorded reproducibility procedure in [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for the two-directory comparison. Verify that no temporary staging path is present in emitted artifacts.
+The helper uses the tracked manifest, policy, scenarios, and safe-sanitized chain fixture; enables `scan`, `scenarios`, `policy_review`, `chain_review`, `sarif`, `attestation`, `report`, and `summary`; writes only relative local artifact paths; compares all emitted bytes; rejects temporary, checkout, and machine-specific path leakage; verifies each v1alpha3 attestation against its supplied bundle and test-results files; cleans temporary directories; and confirms that the working tree remains unchanged. Follow [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for the complete scope and limits.
 
 ## C. Artifact verification after an owner-authorized release build
 

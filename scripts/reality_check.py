@@ -59,6 +59,7 @@ ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
 MUTATION_RECORD_PATH = ROOT / "docs" / "MUTATION_TESTING.md"
 REPRODUCIBILITY_RECORD_PATH = ROOT / "docs" / "REPRODUCIBILITY.md"
+RELEASE_REPRODUCIBILITY_HELPER_PATH = ROOT / "scripts" / "verify_release_reproducibility.py"
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -201,11 +202,12 @@ MUTATION_SOURCE_SCOPE = [
     "src/trustweave/commands/ci.py",
 ]
 REPRODUCIBILITY_RECORD_MARKERS = (
-    "Recorded staged-CI verification",
-    "source revision `fixed-revision`",
-    "all **10** emitted files were byte-identical",
-    "`diff -qr /tmp/repro-first /tmp/repro-second` completed with no differences.",
-    "no `.trustweave-ci-`, `/tmp/`, or `/home/ubuntu/` strings",
+    "Clean-checkout staged-CI release verification",
+    "scripts/verify_release_reproducibility.py",
+    "must not depend on a tracked root `trustweave.toml`",
+    "safe-sanitized-external.chain.json",
+    "Both ten-file output trees have exactly the same relative paths and byte content",
+    "Each generated v1alpha3 attestation",
     "does not prove reproducibility across operating systems",
 )
 CHANGELOG_VERSION_HEADING = re.compile(r"^## \[([^\]]+)\]", re.MULTILINE)
@@ -718,6 +720,8 @@ def _check_quality_evidence() -> list[str]:
             if marker not in mutation_record:
                 failures.append(f"Mutation-testing record lacks required evidence marker: {marker}")
 
+    if not RELEASE_REPRODUCIBILITY_HELPER_PATH.is_file():
+        failures.append("Missing scripts/verify_release_reproducibility.py")
     if not REPRODUCIBILITY_RECORD_PATH.exists():
         failures.append("Missing docs/REPRODUCIBILITY.md")
     else:
