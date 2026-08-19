@@ -2,7 +2,7 @@
 
 ## Scope
 
-TrustWeave is a Python package with an intentionally empty core runtime dependency set. This guide describes the release and repository controls that are actually implemented for the public `0.1.1` package. It does not claim a certification, SLSA level, authenticated artifact provenance, or OpenSSF badge.
+TrustWeave is a Python package with an intentionally empty core runtime dependency set. This guide describes the release and repository controls implemented for the current public `0.2.2` package. It does not claim a certification, SLSA level, authenticated artifact provenance, or OpenSSF badge unless a future published release has passed the documented consumer-verification procedure.
 
 ## Implemented controls
 
@@ -14,11 +14,11 @@ TrustWeave is a Python package with an intentionally empty core runtime dependen
 | Reproducible wheel evidence | CI compares two fixed-epoch wheel builds from the same working tree. This is wheel reproducibility evidence, not a claim that every distribution format is byte reproducible. |
 | SBOM evidence | CI generates a reproducible CycloneDX SBOM for the verified Python environment and project metadata. |
 | Dependency review | Pull requests receive dependency-review checks. The core runtime dependency set is empty, so a clean runtime audit does not describe the entire developer workstation. |
-| Package validation | CI builds, validates metadata, and invokes the installed wheel in an isolated environment. Production PyPI installation was separately validated in a fresh environment for `0.1.1`. |
+| Package validation | CI builds, validates metadata, and invokes the installed wheel in an isolated environment. Production PyPI installation was separately validated in a fresh environment for `0.2.2`, including console and module CLI entry points. |
 
 ## Deliberately not claimed
 
-TrustWeave does not currently publish signed release assets, authenticated package attestations, SLSA provenance, a transparency-log record, an OpenSSF Scorecard result, or an OpenSSF Best Practices badge. The PyPI workflows explicitly keep package attestations disabled pending a separately designed and authorized provenance model.
+TrustWeave `0.2.2` does not claim signed release assets, authenticated package attestations, SLSA provenance, a transparency-log record, an OpenSSF Scorecard result, or an OpenSSF Best Practices badge. The PyPI workflows currently keep package attestations disabled pending a separately designed, owner-authorized, and consumer-verified provenance model. [ADR-0005](ADR-0005-PACKAGE-RELEASE-PROVENANCE.md) defines a TestPyPI-first procedure; a future release may claim authenticated package provenance only after the exact published artifact passes that procedure.
 
 Repository-native secret scanning, push protection, Dependabot security updates, and code-scanning upload are maintainer configuration decisions. They can create alerts, block pushes, or open pull requests, so they are not silently enabled by this document or by the default CI workflow. The maturity plan records them as proposed controls requiring a maintainer decision.
 
