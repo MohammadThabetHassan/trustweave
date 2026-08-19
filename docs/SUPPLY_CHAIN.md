@@ -2,7 +2,7 @@
 
 ## Scope
 
-TrustWeave is a Python package with an intentionally empty core runtime dependency set. This guide describes the release and repository controls implemented for the current public `0.2.2` package. It does not claim a certification, SLSA level, authenticated artifact provenance, or OpenSSF badge unless a future published release has passed the documented consumer-verification procedure.
+TrustWeave is a Python package with an intentionally empty core runtime dependency set. This guide describes controls implemented for the current public `0.2.2` package and configured for the unreleased `0.2.3` candidate. It does not claim a certification, SLSA level, authenticated package provenance, or OpenSSF badge unless an exact future published artifact has passed the documented consumer-verification procedure.
 
 ## Implemented controls
 
@@ -18,7 +18,7 @@ TrustWeave is a Python package with an intentionally empty core runtime dependen
 
 ## Deliberately not claimed
 
-TrustWeave `0.2.2` does not claim signed release assets, authenticated package attestations, SLSA provenance, a transparency-log record, an OpenSSF Scorecard result, or an OpenSSF Best Practices badge. The PyPI workflows currently keep package attestations disabled pending a separately designed, owner-authorized, and consumer-verified provenance model. [ADR-0005](ADR-0005-PACKAGE-RELEASE-PROVENANCE.md) defines a TestPyPI-first procedure; a future release may claim authenticated package provenance only after the exact published artifact passes that procedure.
+TrustWeave `0.2.2` does not claim signed release assets, authenticated package attestations, SLSA provenance, a transparency-log record, an OpenSSF Scorecard result, or an OpenSSF Best Practices badge. The unreleased `0.2.3` candidate enables PyPI project-attestation generation in its TestPyPI and PyPI workflows, but no release-specific artifact has yet completed the required TestPyPI-first observed verification. Therefore no public TrustWeave release currently claims authenticated package provenance. [ADR-0005](ADR-0005-PACKAGE-RELEASE-PROVENANCE.md) and [Package Release Provenance](PACKAGE_PROVENANCE.md) define the required TestPyPI-first procedure. Unsigned local `trustweave attest` evidence remains distinct local integrity evidence and is not authenticated package provenance.
 
 Repository-native secret scanning, push protection, Dependabot security updates, and code-scanning upload are maintainer configuration decisions. They can create alerts, block pushes, or open pull requests, so they are not silently enabled by this document or by the default CI workflow. The maturity plan records them as proposed controls requiring a maintainer decision.
 

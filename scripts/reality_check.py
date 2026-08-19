@@ -52,6 +52,7 @@ PUBLIC_ASSETS = (
     "docs/CONTROL_TRACEABILITY.md",
     "docs/DISTRIBUTION_ASSURANCE.md",
     "docs/RESOURCE_BOUNDS.md",
+    "docs/PACKAGE_PROVENANCE.md",
 )
 REQUIRED_ISSUE_FORMS = (
     ".github/ISSUE_TEMPLATE/01-bug-report.yml",
@@ -74,6 +75,7 @@ ASSURANCE_CONTRACT_HELPER_PATH = ROOT / "scripts" / "verify_assurance_contracts.
 GOLDEN_EVIDENCE_HELPER_PATH = ROOT / "scripts" / "verify_golden_evidence.py"
 TRACEABILITY_HELPER_PATH = ROOT / "scripts" / "verify_control_traceability.py"
 DISTRIBUTION_ASSURANCE_HELPER_PATH = ROOT / "scripts" / "verify_distribution_artifacts.py"
+PACKAGE_PROVENANCE_HELPER_PATH = ROOT / "scripts" / "verify_package_provenance_controls.py"
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -1045,6 +1047,24 @@ def _check_documentation_commands() -> list[str]:
     return failures
 
 
+def _check_package_provenance_controls() -> list[str]:
+    """Validate configured attestation generation without making a release-time network call."""
+
+    if not PACKAGE_PROVENANCE_HELPER_PATH.is_file():
+        return ["Missing scripts/verify_package_provenance_controls.py"]
+    completed = subprocess.run(
+        [sys.executable, str(PACKAGE_PROVENANCE_HELPER_PATH)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode == 0:
+        return []
+    detail = completed.stderr.strip() or completed.stdout.strip()
+    return [f"Package provenance control validation failed: {detail}"]
+
+
 def _check_distribution_assurance() -> list[str]:
     """Build and temporarily install both local distributions during repository verification."""
 
@@ -1154,6 +1174,7 @@ def main() -> int:
         + _check_rule_registry()
         + _check_documentation_site()
         + _check_documentation_commands()
+        + _check_package_provenance_controls()
         + _check_distribution_assurance()
         + _check_control_traceability()
         + _check_golden_evidence()
@@ -1170,8 +1191,8 @@ def main() -> int:
         "links, workflows, CI assets, issue forms, public documentation, release metadata, "
         "quality evidence, generated artifacts, installed-wheel runtime and schema resources, "
         "generated documentation, strict documentation-site builds, executed documentation "
-        "commands, distribution assurance, control traceability, golden evidence, assurance "
-        "contracts, and CLI commands are connected."
+        "commands, package provenance controls, distribution assurance, control traceability, "
+        "golden evidence, assurance contracts, and CLI commands are connected."
     )
     return 0
 

@@ -112,3 +112,11 @@ def test_reality_check_verifies_distribution_assurance() -> None:
     reality_check = _reality_check_module()
 
     assert reality_check._check_distribution_assurance() == []
+
+
+def test_reality_check_verifies_package_provenance_controls() -> None:
+    """Configured PyPI attestation generation must remain a release integrity contract."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_package_provenance_controls() == []
