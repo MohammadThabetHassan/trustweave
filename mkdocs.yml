@@ -44,5 +44,6 @@ nav:
   - Policy versions and controls: POLICY_VERSIONS.md
   - Policy review and coverage: POLICY_REVIEW.md
   - Release process: RELEASE.md
+  - Release evidence 0.3.0: RELEASE_EVIDENCE_0.3.0.md
   - Release evidence 0.2.3: RELEASE_EVIDENCE_0.2.3.md
   - Declared chain model: CHAIN_MODEL.md

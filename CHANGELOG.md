@@ -2,7 +2,7 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
-## [0.3.0] - Unreleased release candidate
+## [0.3.0] - 2026-08-20
 
 ### Fixed
 
@@ -19,7 +19,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - Regenerated deterministic golden evidence, mutation-contract snapshots, rule catalog, compatibility contracts, traceability records, and repository-reality checks for the current v1alpha3 diff output.
 
-> Published `0.2.3` emits `trustweave.dev/bundle-diff/v1alpha2`; this `0.3.0` candidate introduces the `v1alpha3` writer. It remains **unreleased** until an annotated `v0.3.0` tag, exact-SHA release gates, TestPyPI validation, production PyPI publication, exact-file verification, and a GitHub Release record have completed. The non-executing, local-only product boundary remains unchanged.
+> Published `0.2.3` emits `trustweave.dev/bundle-diff/v1alpha2`; `0.3.0` introduces the reviewed `v1alpha3` writer. The annotated [`v0.3.0`](https://github.com/MohammadThabetHassan/trustweave/tree/v0.3.0) tag, exact-SHA release gates, TestPyPI and PyPI trusted publication, exact-file expected-repository verification, clean installations, and [GitHub Release](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.3.0) completed successfully. See [Release Evidence 0.3.0](docs/RELEASE_EVIDENCE_0.3.0.md). The non-executing, local-only product boundary remains unchanged.
 
 ## [0.2.3] - 2026-08-19
 

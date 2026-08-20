@@ -131,18 +131,9 @@ def _check_compatibility_contract() -> list[str]:
     if package.get("name") != metadata.get("name"):
         failures.append("Compatibility package name does not match pyproject.toml")
     current_release = package.get("current_public_release")
-    candidate_version = package.get("candidate_version")
-    if candidate_version is None:
-        if current_release != metadata.get("version"):
-            failures.append(
-                "Compatibility current_public_release does not match published "
-                "pyproject.toml version"
-            )
-    elif candidate_version != metadata.get("version"):
-        failures.append("Compatibility candidate_version does not match pyproject.toml version")
-    elif current_release == candidate_version:
+    if current_release != metadata.get("version"):
         failures.append(
-            "Compatibility current_public_release must differ from unreleased candidate"
+            "Compatibility current_public_release does not match published pyproject.toml version"
         )
     if package.get("requires_python") != metadata.get("requires-python"):
         failures.append("Compatibility requires_python does not match pyproject.toml")
@@ -233,29 +224,8 @@ def _check_compatibility_contract() -> list[str]:
         published_writers = published_release.get("writers")
         if not isinstance(published_writers, dict):
             failures.append("Compatibility published_release writers must be an object")
-        elif published_writers.get("bundle_diff") != "trustweave.dev/bundle-diff/v1alpha2":
-            failures.append("Compatibility published 0.2.3 bundle_diff writer must be v1alpha2")
-
-    unreleased_branch = artifacts.get("unreleased_branch")
-    if not isinstance(unreleased_branch, dict):
-        failures.append("Compatibility unreleased_branch must be an object")
-    else:
-        branch_writers = unreleased_branch.get("writers")
-        if not isinstance(branch_writers, dict):
-            failures.append("Compatibility unreleased_branch writers must be an object")
-        elif branch_writers.get("bundle_diff") != writers.get("bundle_diff"):
-            failures.append(
-                "Compatibility unreleased bundle_diff writer must match current_writers.bundle_diff"
-            )
-        if unreleased_branch.get("minimum_authorized_release_version") != "0.3.0":
-            failures.append(
-                "Compatibility v1alpha3 boundary must require minimum authorized release "
-                "version 0.3.0"
-            )
-        if unreleased_branch.get("status") != (
-            "unreleased; no tag, publication, or release record is authorized by this contract"
-        ):
-            failures.append("Compatibility unreleased_branch must state the no-release boundary")
+        elif published_writers.get("bundle_diff") != "trustweave.dev/bundle-diff/v1alpha3":
+            failures.append("Compatibility published 0.3.0 bundle_diff writer must be v1alpha3")
 
     schema_policy = SCHEMA_POLICY_PATH.read_text(encoding="utf-8")
     bounded_readers = artifacts.get("bounded_legacy_readers")
@@ -298,13 +268,13 @@ def _check_compatibility_contract() -> list[str]:
         SUPPLY_CHAIN_PATH: (
             "ADR-0005",
             "TestPyPI-first procedure",
-            "Release Evidence 0.2.3",
-            "0.2.3",
+            "Release Evidence 0.3.0",
+            "0.3.0",
         ),
         PROVENANCE_ADR_PATH: (
             "TestPyPI",
             "MohammadThabetHassan/trustweave",
-            "Accepted as the design and verification policy applied to TrustWeave `0.2.3`",
+            "Accepted as the design and verification policy applied to TrustWeave `0.3.0`",
         ),
     }
     for path, markers in required_document_markers.items():

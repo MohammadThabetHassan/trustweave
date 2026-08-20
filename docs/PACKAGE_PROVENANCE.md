@@ -2,9 +2,9 @@
 
 ## Current state
 
-TrustWeave’s **0.2.3 release workflows requested PyPI project attestations** through the official pinned Trusted Publishing action for both TestPyPI and PyPI. The exact published wheels were independently verified against the expected repository; the complete observed record is [Release Evidence 0.2.3](RELEASE_EVIDENCE_0.2.3.md).
+TrustWeave’s **0.3.0 release workflows requested PyPI project attestations** through the official pinned Trusted Publishing action for both TestPyPI and PyPI. The exact published wheels were independently verified against the expected repository; the complete observed record is [Release Evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md).
 
-> The authenticated package-provenance claim applies only to the exact `0.2.3` TestPyPI and PyPI wheels documented in the release-evidence record. It is not a claim about future releases, local builds, arbitrary copies, or deployed systems.
+> The authenticated package-provenance claim applies only to the exact `0.3.0` TestPyPI and PyPI wheels documented in the release-evidence record. It is not a claim about future releases, local builds, arbitrary copies, or deployed systems.
 
 Local `trustweave attest` output remains unsigned local integrity evidence. It binds supplied local evidence payloads and may detect selected local-file changes, but it does not identify a publisher, authenticate a package release, or replace PyPI project attestations. GitHub build-provenance attestation is a distinct mechanism and is not enabled or claimed by this release control.
 
@@ -41,9 +41,9 @@ pypi-attestations verify pypi \
 
 Do not substitute a local build, a modified copy, a mutable branch URL, or a generic project page. Preserve the verifier output, package URL, SHA-256, tag, workflow run URL, Integrity API provenance object, and clean-install result in the release record before changing present-tense provenance language.
 
-## Observed 0.2.3 evidence
+## Observed 0.3.0 evidence
 
-The `v0.2.3` tag targets `4aed7df9d16907804f8c2460c004a4dc685904bc`. TestPyPI and PyPI trusted-publishing workflows completed successfully, fresh environments installed `trustweave==0.2.3` from both indexes, and expected-repository verification returned `OK` for the exact wheel from each index. See [Release Evidence 0.2.3](RELEASE_EVIDENCE_0.2.3.md) for immutable URLs, hashes, workflow runs, and commands.
+The `v0.3.0` tag targets `30308f47e84025315de2083047039e7efe0fd0ae`. TestPyPI and PyPI trusted-publishing workflows completed successfully, fresh environments installed `trustweave==0.3.0` from both indexes, and expected-repository verification returned `OK` for the exact wheel from each index. See [Release Evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md) for immutable URLs, hashes, workflow runs, and commands.
 
 ## Control and sources
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as the design and verification policy applied to TrustWeave `0.2.3` and retained for future package releases. The exact `0.2.3` TestPyPI and PyPI wheels passed the policy’s consumer verification; [Release Evidence 0.2.3](RELEASE_EVIDENCE_0.2.3.md) records that limited observation. It does **not** assert authenticated package provenance for releases published before the policy was implemented or for any future file without its own verification.
+Accepted as the design and verification policy applied to TrustWeave `0.3.0` and retained for future package releases. The exact `0.3.0` TestPyPI and PyPI wheels passed the policy’s consumer verification; [Release Evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md) records that limited observation. It does **not** assert authenticated package provenance for releases published before the policy was implemented or for any future file without its own verification.
 
 ## Context
 
@@ -21,7 +21,7 @@ The release assurance model has two explicitly separate layers.
 | **Local TrustWeave evidence** | A supplied manifest, policy, scenario result, local review artifact, and source revision | Internal hash-linked consistency for local evidence. | Signer identity, external provenance, deployment behavior, or runtime security. |
 | **PyPI package provenance** | A wheel or source distribution uploaded through the reviewed release workflow | Cryptographically verifiable published-package provenance when the official PyPI mechanism is enabled and the observed artifact passes consumer verification. | That package code is defect-free, that a deployment is safe, or that an agent runtime is secure. |
 
-TrustWeave used the official PyPI Trusted Publishing attestation path for the `0.2.3` release rather than adding custom local signing, DSSE commands, or a runtime provenance dependency. The same strictly staged procedure remains required for every future release:
+TrustWeave used the official PyPI Trusted Publishing attestation path for the `0.3.0` release rather than adding custom local signing, DSSE commands, or a runtime provenance dependency. The same strictly staged procedure remains required for every future release:
 
 1. Revalidate the official PyPI and GitHub documentation immediately before workflow modification, including action behavior, trusted-publisher identity requirements, expected permissions, and the consumer verification command.[1] [2] [3]
 2. Review and SHA-pin every workflow action used by the changed publishing path. The release build job remains separate from the OIDC publish job.

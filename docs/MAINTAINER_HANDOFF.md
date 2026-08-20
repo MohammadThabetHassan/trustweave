@@ -43,7 +43,7 @@ The repository source can route ownership and validate workflow files, but GitHu
 | Review discipline | Require an owner or designated maintainer review for release-sensitive paths. | Inspect ruleset review requirements and the PR’s recorded reviews. | Review routing only; a repository file cannot manufacture an approval. |
 | Actions permissions | Use least privilege; keep trusted publishing separate from ordinary validation. | Inspect repository Actions settings and workflow `permissions` blocks. | Workflow-declared permissions and static workflow validation. |
 | Secret scanning, push protection, and Dependabot | Enable the controls appropriate to the repository plan and document response ownership. | Inspect GitHub Security settings and alerts. | No configured-state claim without an owner-observed setting or alert record. |
-| Trusted publishing | Bind the index publisher to the intended repository, workflow, environment, and release authorization. | Inspect the PyPI/TestPyPI trusted-publisher configuration before a release. | Future observation is required; existing `0.2.3` evidence does not transfer. |
+| Trusted publishing | Bind the index publisher to the intended repository, workflow, environment, and release authorization. | Inspect the PyPI/TestPyPI trusted-publisher configuration before a release. | Future observation is required; existing `0.3.0` evidence does not transfer. |
 
 If the owner cannot verify a setting, record it as an **owner-controlled gap** rather than claiming the control is active.
 
@@ -78,4 +78,4 @@ Keep the record in the relevant pull request, release checklist, or an issue vis
 
 ## Release boundary
 
-Release remains a separate owner-authorized procedure. Follow [Release Procedure](RELEASE.md), the current owner checklist, [Distribution Assurance](DISTRIBUTION_ASSURANCE.md), and [Package Provenance](PACKAGE_PROVENANCE.md). The exact published `0.2.3` evidence is historical; a later release must create fresh evidence from its own annotated tag and exact artifact bytes.
+Release remains a separate owner-authorized procedure. Follow [Release Procedure](RELEASE.md), the current owner checklist, [Distribution Assurance](DISTRIBUTION_ASSURANCE.md), and [Package Provenance](PACKAGE_PROVENANCE.md). The exact published `0.3.0` evidence is historical; a later release must create fresh evidence from its own annotated tag and exact artifact bytes.

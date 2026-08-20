@@ -29,14 +29,14 @@
     "A fresh environment clean-installs the exact released package before public claims are changed to authenticated package provenance."
   ],
   "observed_release": {
-    "version": "0.2.3",
-    "tag": "v0.2.3",
-    "commit": "4aed7df9d16907804f8c2460c004a4dc685904bc",
-    "evidence_record": "docs/RELEASE_EVIDENCE_0.2.3.md",
+    "version": "0.3.0",
+    "tag": "v0.3.0",
+    "commit": "30308f47e84025315de2083047039e7efe0fd0ae",
+    "evidence_record": "docs/RELEASE_EVIDENCE_0.3.0.md",
     "expected_repository": "https://github.com/MohammadThabetHassan/trustweave"
   },
   "non_claims_until_observed": [
-    "The observed authenticated package-provenance claim is limited to the exact 0.2.3 TestPyPI and PyPI distributions recorded in the release evidence.",
+    "The observed authenticated package-provenance claim is limited to the exact 0.3.0 TestPyPI and PyPI distributions recorded in the release evidence.",
     "Unsigned local TrustWeave attestation evidence is not package-release provenance.",
     "GitHub build-provenance attestations are not claimed because this contract enables PyPI project attestations only."
   ]

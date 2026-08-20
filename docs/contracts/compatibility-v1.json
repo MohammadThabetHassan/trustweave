@@ -2,8 +2,7 @@
   "contract_version": "trustweave.dev/compatibility/v1alpha1",
   "package": {
     "name": "trustweave",
-    "current_public_release": "0.2.3",
-    "candidate_version": "0.3.0",
+    "current_public_release": "0.3.0",
     "requires_python": ">=3.11",
     "supported_python": ["3.11", "3.12", "3.13"],
     "continuous_integration": {
@@ -60,17 +59,10 @@
       "test_results": "trustweave.dev/test-results/v1alpha1"
     },
     "published_release": {
-      "version": "0.2.3",
-      "writers": {
-        "bundle_diff": "trustweave.dev/bundle-diff/v1alpha2"
-      }
-    },
-    "unreleased_branch": {
+      "version": "0.3.0",
       "writers": {
         "bundle_diff": "trustweave.dev/bundle-diff/v1alpha3"
-      },
-      "minimum_authorized_release_version": "0.3.0",
-      "status": "unreleased; no tag, publication, or release record is authorized by this contract"
+      }
     },
     "bounded_legacy_readers": {
       "bundle_comparison": ["trustweave.dev/bundle/v1alpha1", "trustweave.dev/bundle/v1alpha2"],

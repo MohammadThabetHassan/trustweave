@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-TrustWeave `0.2.3` is the current released package line. Security fixes are assessed against the latest published version and the current `main` branch. The project keeps versioned manifest, policy, trace, MCP-profile, and generated-artifact contracts; current versions and retained compatibility readers are documented in [docs/SCHEMA_AND_COMPATIBILITY.md](docs/SCHEMA_AND_COMPATIBILITY.md).
+TrustWeave `0.3.0` is the current released package line. Security fixes are assessed against the latest published version and the current `main` branch. The project keeps versioned manifest, policy, trace, MCP-profile, and generated-artifact contracts; current versions and retained compatibility readers are documented in [docs/SCHEMA_AND_COMPATIBILITY.md](docs/SCHEMA_AND_COMPATIBILITY.md).
 
 ## Reporting a vulnerability
 
@@ -24,6 +24,6 @@ Maintainers aim to acknowledge a valid private report within **seven calendar da
 
 ## Security design limits
 
-TrustWeave `0.2.3` does not execute tools, configurations, or network traffic. It produces local evidence and does not provide external signing, deployment enforcement, external agent or infrastructure vulnerability scanning, or a guarantee that an agent system is secure.
+TrustWeave `0.3.0` does not execute tools, configurations, or network traffic. It produces local evidence and does not provide external signing, deployment enforcement, external agent or infrastructure vulnerability scanning, or a guarantee that an agent system is secure.
 
 The repository runs a static source-security scan and a declared dependency audit in CI. Those checks review this Python project and its declared dependency set; they do not scan a contributor’s workstation, a trace-producing system, an MCP server, a deployed agent, or a third-party dependency’s runtime environment. See [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) and [docs/QUALITY.md](docs/QUALITY.md) for complete scope boundaries.

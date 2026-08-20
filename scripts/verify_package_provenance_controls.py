@@ -14,7 +14,7 @@ import yaml  # type: ignore[import-untyped]
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "docs" / "contracts" / "package-provenance-v1.json"
 GUIDE_PATH = ROOT / "docs" / "PACKAGE_PROVENANCE.md"
-RELEASE_EVIDENCE_PATH = ROOT / "docs" / "RELEASE_EVIDENCE_0.2.3.md"
+RELEASE_EVIDENCE_PATH = ROOT / "docs" / "RELEASE_EVIDENCE_0.3.0.md"
 SUPPLY_CHAIN_PATH = ROOT / "docs" / "SUPPLY_CHAIN.md"
 ACTION_REFERENCE = "pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33"
 REPOSITORY = "MohammadThabetHassan/trustweave"
@@ -261,15 +261,15 @@ def _validate_contract(contract: dict[str, Any]) -> list[str]:
         failures.append("Package provenance contract lacks an observed_release record")
     else:
         expected_observation = {
-            "version": "0.2.3",
-            "tag": "v0.2.3",
-            "commit": "4aed7df9d16907804f8c2460c004a4dc685904bc",
-            "evidence_record": "docs/RELEASE_EVIDENCE_0.2.3.md",
+            "version": "0.3.0",
+            "tag": "v0.3.0",
+            "commit": "30308f47e84025315de2083047039e7efe0fd0ae",
+            "evidence_record": "docs/RELEASE_EVIDENCE_0.3.0.md",
             "expected_repository": f"https://github.com/{REPOSITORY}",
         }
         if observed_release != expected_observation:
             failures.append(
-                "Package provenance observed_release record differs from 0.2.3 evidence"
+                "Package provenance observed_release record differs from 0.3.0 evidence"
             )
     limits = contract.get("non_claims_until_observed")
     if not isinstance(limits, list) or len(limits) < 3:
@@ -291,8 +291,8 @@ def _validate_contract(contract: dict[str, Any]) -> list[str]:
     else:
         evidence_text = RELEASE_EVIDENCE_PATH.read_text(encoding="utf-8")
         for marker in (
-            "v0.2.3",
-            "4aed7df9d16907804f8c2460c004a4dc685904bc",
+            "v0.3.0",
+            "30308f47e84025315de2083047039e7efe0fd0ae",
             "https://github.com/MohammadThabetHassan/trustweave",
             "pypi-attestations verify pypi",
             "TestPyPI",
@@ -332,7 +332,7 @@ def main() -> int:
         return 1
     print(
         "Package provenance controls passed: parsed release workflow bindings and the exact-file "
-        "0.2.3 observed release record match."
+        "0.3.0 observed release record match."
     )
     return 0
 
