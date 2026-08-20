@@ -59,7 +59,7 @@ The following additional corrections address the assurance gaps independently re
 | Weakening coverage | Approval removal/binding loss, unexercised rule weakening, required-control removal, taxonomy change, and structural rule-set changes could remain reviewer-invisible. | Exact `TW-DIFF-004`–`TW-DIFF-010` category payload regressions and `TW-DIFF-011` structural rule addition/removal, matching-predicate, and potentially order-sensitive reordering regressions in `tests/test_diff.py`. `TW-DIFF-011` requests review and does not prove every listed change is insecure. |
 | v1alpha3 policy-delta schema | The policy `before`/`after` payload was unconstrained. | `tests/test_generated_schema_conformance.py::test_real_generated_v1alpha3_policy_delta_conforms_to_its_schema`, `::test_v1alpha3_policy_delta_schema_rejects_invalid_default_decision_changes`, `::test_v1alpha3_policy_delta_schema_rejects_oversized_approval_bindings_and_text`, and `::test_v1alpha3_policy_delta_schema_rejects_malformed_rule_payload`. |
 | Release-control claim | Documentation called the subset workflow a “complete” release-quality gate and the verifier used raw markers only. | Parsed workflow graph checks in `scripts/verify_package_provenance_controls.py`; regressions in `tests/test_package_provenance_controls.py`; documentation lists only the enforced commands. |
-| Mutation assurance | The critical bundle parser and diff classifier were outside the configured mutation scope. | Dedicated `bundle_policy.py` and `policy_weakening.py` are in `pyproject.toml` scope. Final clean campaign: **6,444 killed / 6,566 generated / 122 survived = 98.14%**, with zero untriaged and zero `needs_regression`; exact diffs and proofs are in `docs/mutation-survivor-triage-v1.json`. |
+| Mutation assurance | The critical bundle parser and diff classifier were outside the configured mutation scope. | Dedicated `bundle_policy.py` and `policy_weakening.py` are in `pyproject.toml` scope. Final clean campaign: **6,565 killed / 6,691 generated / 126 survived = 98.12%**, with zero untriaged and zero `needs_regression`; exact diffs and proofs are in `docs/mutation-survivor-triage-v1.json`. |
 | Version boundary | Compatibility metadata implied published `0.2.3` wrote v1alpha3. | `docs/contracts/compatibility-v1.json` distinguishes published `0.2.3` v1alpha2 from unreleased v1alpha3 and records `0.3.0` as the minimum authorized release version; `tests/test_assurance_contracts.py::test_assurance_contract_rejects_published_v1alpha3_boundary_drift` enforces it. |
 | Documentation consistency | Maintained descriptions mentioned only the first two policy weakening signals. | `CHANGELOG.md`, `docs/ARCHITECTURE.md`, `docs/SCHEMA_AND_COMPATIBILITY.md`, `docs/REVIEWER_WORKFLOW.md`, and generated `docs/site/RULE_CATALOG.md` distinguish `TW-DIFF-004` through `TW-DIFF-010` from the bounded structural-review signal `TW-DIFF-011`. |
 
@@ -76,8 +76,8 @@ Audit remediation verification passed: all ten audit IDs and separate hardening 
 The final clean configured mutation campaign also completed locally with `mutmut 3.7.0` on Linux with fork support:
 
 ```text
-6,566 generated; 6,444 killed; 122 survived; 0 without a selected test;
-0 timed out; 0 suspicious; 98.14% killed.
+6,691 generated; 6,565 killed; 126 survived; 0 without a selected test;
+0 timed out; 0 suspicious; 98.12% killed.
 ```
 
 The final full local quality gate is run after the final evidence commit. Hosted checks remain a separate observation and must be reported only for the exact pushed branch head.

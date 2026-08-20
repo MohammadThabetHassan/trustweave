@@ -1,13 +1,13 @@
 {
   "classification_counts": {
     "defensive": 0,
-    "equivalent": 122,
+    "equivalent": 126,
     "needs_regression": 0
   },
   "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
   "mutation_run": "6,444 killed / 6,566 generated (98.14% killed)",
   "schema_version": "v1",
-  "survivor_count": 122,
+  "survivor_count": 126,
   "survivors": [
     {
       "classification": "equivalent",
@@ -528,6 +528,34 @@
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
+      "id": "trustweave.policy_weakening.x__matching_values__mutmut_5",
+      "classification": "equivalent",
+      "rationale": "The policy parser accepts matching collections only as non-empty strings. Generated policy deltas therefore never contain a truthy non-string value, so replacing `and item` with `or item` cannot change a reachable normalized matching predicate.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x__matching_values__mutmut_5: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -2,5 +2,5 @@\n     \"\"\"Return a canonical set-like matching predicate without malformed values.\"\"\"\n \n     return tuple(\n-        sorted(item for item in _sequence(rule.get(field)) if isinstance(item, str) and item)\n+        sorted(item for item in _sequence(rule.get(field)) if isinstance(item, str) or item)\n     )\n"
+    },
+    {
+      "id": "trustweave.policy_weakening.x__reordered_overlapping_rule_ids__mutmut_21",
+      "classification": "equivalent",
+      "rationale": "Strict policy parsing requires unique rule identifiers, so distinct rule positions cannot be equal. For every compared pair, `<` and `<=` therefore produce the same ordering result.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x__reordered_overlapping_rule_ids__mutmut_21: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -11,7 +11,7 @@\n     reordered: set[str] = set()\n     common = sorted(set(before_positions) & set(after_positions))\n     for first_id, second_id in combinations(common, 2):\n-        before_order = before_positions[first_id] < before_positions[second_id]\n+        before_order = before_positions[first_id] <= before_positions[second_id]\n         after_order = after_positions[first_id] < after_positions[second_id]\n         if before_order != after_order and _rules_could_overlap(\n             before_rules[first_id], before_rules[second_id]\n"
+    },
+    {
+      "id": "trustweave.policy_weakening.x__reordered_overlapping_rule_ids__mutmut_23",
+      "classification": "equivalent",
+      "rationale": "Strict policy parsing requires unique rule identifiers, so distinct rule positions cannot be equal. For every compared pair, `<` and `<=` therefore produce the same ordering result.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x__reordered_overlapping_rule_ids__mutmut_23: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -12,7 +12,7 @@\n     common = sorted(set(before_positions) & set(after_positions))\n     for first_id, second_id in combinations(common, 2):\n         before_order = before_positions[first_id] < before_positions[second_id]\n-        after_order = after_positions[first_id] < after_positions[second_id]\n+        after_order = after_positions[first_id] <= after_positions[second_id]\n         if before_order != after_order and _rules_could_overlap(\n             before_rules[first_id], before_rules[second_id]\n         ):\n"
+    },
+    {
+      "id": "trustweave.policy_weakening.x__rule_identifiers__mutmut_2",
+      "classification": "equivalent",
+      "rationale": "Policy rule identifiers are validated as non-empty strings before bundle generation. A truthy non-string identifier is therefore unreachable in a normalized policy delta.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x__rule_identifiers__mutmut_2: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -4,5 +4,5 @@\n     return [\n         identifier\n         for rule in _sequence(value)\n-        if isinstance((identifier := _mapping(rule).get(\"id\")), str) and identifier\n+        if isinstance((identifier := _mapping(rule).get(\"id\")), str) or identifier\n     ]\n"
+    },
+    {
       "classification": "equivalent",
       "diff": "# trustweave.policy_weakening.x__rules_by_identifier__mutmut_9: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -5,6 +5,6 @@\n     for item in _sequence(value):\n         rule = _mapping(item)\n         identifier = rule.get(\"id\")\n-        if isinstance(identifier, str) and identifier:\n+        if isinstance(identifier, str) or identifier:\n             indexed[identifier] = rule\n     return indexed\n",
       "id": "trustweave.policy_weakening.x__rules_by_identifier__mutmut_9",
@@ -542,74 +570,74 @@
       "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
     },
     {
+      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_217",
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_216: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -97,7 +97,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, None)\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n",
-      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_216",
-      "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so the changed default argument to dict.get is unreachable and cannot affect the comparison.",
-      "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
+      "rationale": "Policy decisions are validated against the closed allow/require_approval/deny vocabulary. The changed dictionary default is unreachable for normalized rules, so reviewer-visible decision weakening classification is unchanged.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_217: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, None)\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_218: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -97,7 +97,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, )\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n",
-      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_218",
-      "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so omitting the dict.get default is unreachable and cannot affect the comparison.",
-      "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
-    },
-    {
-      "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_219: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -97,7 +97,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, +1)\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_219: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, )\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n",
       "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_219",
       "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so the replacement default value is unreachable and cannot affect the restriction ordering.",
       "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_220: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -97,7 +97,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, -2)\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_220: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, +1)\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n",
       "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_220",
       "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so the replacement default value is unreachable and cannot affect the restriction ordering.",
       "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
     },
     {
+      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_221",
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_223: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, None)\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n",
-      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_223",
-      "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so the changed default argument for the before-decision lookup is unreachable.",
-      "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
+      "rationale": "Policy decisions are validated against the closed allow/require_approval/deny vocabulary. The changed dictionary default is unreachable for normalized rules, so reviewer-visible decision weakening classification is unchanged.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_221: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n             if (\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n-                and _DECISION_RESTRICTION.get(after_decision, -1)\n+                and _DECISION_RESTRICTION.get(after_decision, -2)\n                 < _DECISION_RESTRICTION.get(before_decision, -1)\n             ):\n                 weakened_decisions.append(identifier)\n"
+    },
+    {
+      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_224",
+      "classification": "equivalent",
+      "rationale": "Policy decisions are validated against the closed allow/require_approval/deny vocabulary. The changed dictionary default is unreachable for normalized rules, so reviewer-visible decision weakening classification is unchanged.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_224: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -99,7 +99,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, None)\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n"
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_225: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, )\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n",
-      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_225",
-      "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so omitting the before-decision lookup default is unreachable.",
-      "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
-    },
-    {
-      "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_226: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, +1)\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_226: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -99,7 +99,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, )\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n",
       "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_226",
       "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so the replacement default value is unreachable and cannot affect the ordering comparison.",
       "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_227: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -98,7 +98,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, -2)\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_227: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -99,7 +99,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, +1)\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n",
       "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_227",
       "rationale": "Before and after rule decisions originate from parse_policy and are constrained to allow, require_approval, or deny. Each is present in _DECISION_RESTRICTION, so the replacement default value is unreachable and cannot affect the ordering comparison.",
       "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
     },
     {
+      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_228",
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_234: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -104,7 +104,7 @@\n             before_controls = {\n                 control\n                 for control in _sequence(before_rule.get(\"required_controls\"))\n-                if isinstance(control, str) and control\n+                if isinstance(control, str) or control\n             }\n             after_controls = {\n                 control\n",
-      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_234",
-      "rationale": "Required controls originate from parsed policy and are either absent (normalizing to an empty sequence) or non-empty str values. For every permitted control, the original and mutated predicates are both true, so the before-control set is identical.",
-      "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
+      "rationale": "Policy decisions are validated against the closed allow/require_approval/deny vocabulary. The changed dictionary default is unreachable for normalized rules, so reviewer-visible decision weakening classification is unchanged.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_228: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -99,7 +99,7 @@\n                 isinstance(before_decision, str)\n                 and isinstance(after_decision, str)\n                 and _DECISION_RESTRICTION.get(after_decision, -1)\n-                < _DECISION_RESTRICTION.get(before_decision, -1)\n+                < _DECISION_RESTRICTION.get(before_decision, -2)\n             ):\n                 weakened_decisions.append(identifier)\n             before_controls = {\n"
     },
     {
+      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_235",
       "classification": "equivalent",
-      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_240: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -109,7 +109,7 @@\n             after_controls = {\n                 control\n                 for control in _sequence(after_rule.get(\"required_controls\"))\n-                if isinstance(control, str) and control\n+                if isinstance(control, str) or control\n             }\n             if before_controls - after_controls:\n                 removed_controls.append(identifier)\n",
-      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_240",
-      "rationale": "Required controls originate from parsed policy and are either absent (normalizing to an empty sequence) or non-empty str values. For every permitted control, the original and mutated predicates are both true, so the after-control set is identical.",
-      "regression_assertion": "tests/test_diff.py policy-weakening payload, combined-delta, and neutral-delta regressions exercise the strict parsed-policy boundary described above."
+      "rationale": "Current policy parsing validates required-controls entries as non-empty strings. A truthy non-string control is unreachable in generated policy deltas, so the changed filter cannot alter a reachable removed-control signal.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_235: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -105,7 +105,7 @@\n             before_controls = {\n                 control\n                 for control in _sequence(before_rule.get(\"required_controls\"))\n-                if isinstance(control, str) and control\n+                if isinstance(control, str) or control\n             }\n             after_controls = {\n                 control\n"
+    },
+    {
+      "id": "trustweave.policy_weakening.x_policy_review_signals__mutmut_241",
+      "classification": "equivalent",
+      "rationale": "Current policy parsing validates required-controls entries as non-empty strings. A truthy non-string control is unreachable in generated policy deltas, so the changed filter cannot alter a reachable removed-control signal.",
+      "regression_assertion": "tests/test_diff.py structural-policy and category-specific regressions exercise the strict parsed-policy boundary described above.",
+      "diff": "# trustweave.policy_weakening.x_policy_review_signals__mutmut_241: survived\n--- src/trustweave/policy_weakening.py\n+++ src/trustweave/policy_weakening.py\n@@ -110,7 +110,7 @@\n             after_controls = {\n                 control\n                 for control in _sequence(after_rule.get(\"required_controls\"))\n-                if isinstance(control, str) and control\n+                if isinstance(control, str) or control\n             }\n             if before_controls - after_controls:\n                 removed_controls.append(identifier)\n"
     },
     {
       "classification": "equivalent",

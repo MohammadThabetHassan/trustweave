@@ -6,7 +6,7 @@ This record accompanies the final fourteen-module `mutmut` inventory. It is a **
 
 > The approval-boundary mutant `trustweave.chain.x__advance_state__mutmut_8` is **not equivalent**. A public regression now proves that `fail_closed=False` does not approve confidential data before an external action, and the focused mutation run reports that mutant as killed.
 
-The post-correction full run contains **122 survivors**. Each has an exact source diff, an individual rationale, and a recorded proof or behavioral assertion in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). The audit found **no retained survivor that changes a reachable finding ID or count, severity, risk state, policy decision, approval state, classification propagation, path-containment result, digest, fingerprint, schema selection, validation result, exit code, artifact content, or reproducible byte output**. The 15 survivors from the newly scoped policy-weakening classifier are restricted to unreachable dictionary-default variants, equivalent strict-contract predicates, and equivalent path-splitting forms.
+The post-correction full run contains **126 survivors**. Each has an exact source diff, an individual rationale, and a recorded proof or behavioral assertion in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). The audit found **no retained survivor that changes a reachable finding ID or count, severity, risk state, policy decision, approval state, classification propagation, path-containment result, digest, fingerprint, schema selection, validation result, exit code, artifact content, or reproducible byte output**. The 19 survivors from the newly scoped policy-weakening classifier are restricted to unreachable strict-parser defaults, equivalent unique-position ordering forms, and equivalent normalization predicates.
 
 ## Review method
 
@@ -21,10 +21,10 @@ Each survivor was checked against the following decision rule. A record remains 
 | Canonical findings | 9 | Validation-context values, runtime-no-op `typing.cast` expressions, and falsy option substitutions with identical filtering behavior. |
 | Models and policy predicates | 17 | Runtime-no-op casts, default arguments equal to library defaults, identical first-suggestion selection, and bounds outside every validated taxonomy index. |
 | Policy review | 3 | Subject fallbacks where internally produced findings never contain an alternate subject key. |
-| Policy-weakening classifier | 15 | Strict parsed-policy invariants make the changed mapping defaults, non-empty-string predicates, and approval-field split variants unreachable or observationally identical; exact proofs are in the inventory. |
+| Policy-weakening classifier | 19 | Strict parsed-policy invariants make the changed mapping defaults, unique-position ordering forms, non-empty-string predicates, and approval-field filters unreachable or observationally identical; exact proofs are in the inventory. |
 | Risk lifecycle and decision documents | 25 | Validation-context values, case-insensitive UTF-8 aliases, and ISO-8601 `Z` handling that is equivalent on the supported Python 3.11+ baseline. |
 | SARIF | 8 | Runtime-no-op casts, case-insensitive UTF-8 aliases, and a URI tiebreaker unreachable because equal rule/message pairs arise only within one source-kind artifact. |
-| **Total retained equivalents** | **122** | **All retain individual exact diffs and code-level rationales in the tracked triage inventory.** |
+| **Total retained equivalents** | **126** | **All retain individual exact diffs and code-level rationales in the tracked triage inventory.** |
 
 ## Gate relationship
 
