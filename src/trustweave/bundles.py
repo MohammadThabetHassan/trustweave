@@ -7,6 +7,7 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Any
 
+from trustweave.bundle_policy import normalize_rendered_policy
 from trustweave.models import (
     VALID_DECISIONS,
     VALID_SEVERITIES,
@@ -57,7 +58,7 @@ def _timestamp(value: Any, path: str) -> None:
 def _parse_bundle_policy(value: Any, path: str) -> Policy:
     """Parse the normalized policy payload rendered into a current local bundle."""
 
-    rendered = dict(_mapping(value, path))
+    rendered = normalize_rendered_policy(_mapping(value, path))
     schema_version = _text(rendered.get("schema_version"), f"{path}.schema_version")
     if schema_version == "trustweave.dev/v1alpha1":
         rendered["schema_version"] = "trustweave.dev/policy/v1alpha2"

@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from trustweave.bundle_policy import normalize_rendered_policy
 from trustweave.bundles import validate_bundle
 from trustweave.cli import main
 from trustweave.diff import diff_bundles
@@ -393,3 +394,96 @@ def test_validate_current_bundle_rejects_changed_purpose_tags() -> None:
 
     with pytest.raises(ValidationError, match="flow must match|fresh evaluation"):
         validate_bundle(bundle)
+
+
+def _bundle_without_approval_control() -> dict[str, object]:
+    policy_document = dict(load_document(POLICY))
+    policy_document.pop("approval_control", None)
+    return build_bundle(
+        parse_manifest(load_document(MANIFEST)),
+        parse_policy(policy_document),
+        "2026-08-20T00:00:00+00:00",
+    )
+
+
+def test_rendered_policy_normalization_preserves_an_omitted_approval_control() -> None:
+    """Only an explicit generated null is normalized; an omitted key remains omitted."""
+
+    normalized = normalize_rendered_policy({"schema_version": "trustweave.dev/policy/v1alpha2"})
+
+    assert normalized == {"schema_version": "trustweave.dev/policy/v1alpha2"}
+
+
+def test_current_bundle_without_approval_control_round_trips_and_self_diffs() -> None:
+    """A generated null control is normalized only as an absent declared control."""
+
+    bundle = _bundle_without_approval_control()
+    policy = bundle["policy"]
+    assert isinstance(policy, dict)
+    assert policy["approval_control"] is None
+
+    validate_bundle(bundle)
+    reloaded = json.loads(json.dumps(bundle, sort_keys=True))
+    validate_bundle(reloaded)
+    diff = diff_bundles(reloaded, reloaded, "2026-08-20T00:00:00+00:00")
+    assert diff["summary"]["policy_changes"] == 0
+    assert diff["signals"] == []
+
+
+def test_current_bundle_rejects_malformed_non_null_approval_control() -> None:
+    """Null normalization cannot turn malformed declared approval controls into valid policy."""
+
+    bundle = _bundle_without_approval_control()
+    policy = bundle["policy"]
+    assert isinstance(policy, dict)
+    policy["approval_control"] = {"mechanism": "manual", "binds_to": []}
+
+    with pytest.raises(ValidationError, match="binds_to must not be empty"):
+        validate_bundle(bundle)
+
+
+def test_cli_scan_and_self_diff_accept_policy_without_approval_control(tmp_path: Path) -> None:
+    """Public commands retain generated bundle compatibility when a control is absent."""
+
+    manifest_path = tmp_path / "manifest.json"
+    policy_path = tmp_path / "policy.json"
+    scan_dir = tmp_path / "scan"
+    diff_dir = tmp_path / "diff"
+    manifest_path.write_text(MANIFEST.read_text(encoding="utf-8"), encoding="utf-8")
+    policy_document = dict(load_document(POLICY))
+    policy_document.pop("approval_control", None)
+    policy_path.write_text(json.dumps(policy_document), encoding="utf-8")
+
+    assert (
+        main(
+            [
+                "scan",
+                "--manifest",
+                str(manifest_path),
+                "--policy",
+                str(policy_path),
+                "--output-dir",
+                str(scan_dir),
+            ]
+        )
+        == 0
+    )
+    bundle_path = scan_dir / "agent-security-bundle.json"
+    generated = json.loads(bundle_path.read_text(encoding="utf-8"))
+    validate_bundle(generated)
+    assert (
+        main(
+            [
+                "diff",
+                "--base",
+                str(bundle_path),
+                "--head",
+                str(bundle_path),
+                "--output-dir",
+                str(diff_dir),
+            ]
+        )
+        == 0
+    )
+    emitted = json.loads((diff_dir / "bundle-diff.json").read_text(encoding="utf-8"))
+    assert emitted["summary"]["policy_changes"] == 0
