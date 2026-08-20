@@ -93,6 +93,8 @@ only_mutate = [
   "src/trustweave/schema_catalog.py",
   "src/trustweave/sarif.py",
   "src/trustweave/commands/ci.py",
+  "src/trustweave/bundle_policy.py",
+  "src/trustweave/policy_weakening.py",
 ]
 also_copy = [
   ".github",
