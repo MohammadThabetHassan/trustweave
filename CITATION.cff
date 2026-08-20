@@ -1,11 +1,10 @@
 cff-version: 1.2.0
-message: "TrustWeave 0.2.3 is the current published release; v0.2.0 remains an immutable unpublished audit tag."
+message: "TrustWeave 0.3.0 is an unreleased assurance candidate; 0.2.3 remains the current published release, and v0.2.0 remains an immutable unpublished audit tag."
 title: "TrustWeave"
 type: software
 authors:
   - name: "TrustWeave Contributors"
-version: "0.2.3"
-date-released: 2026-08-19
+version: "0.3.0"
 license: Apache-2.0
 url: "https://github.com/MohammadThabetHassan/trustweave"
 repository-code: "https://github.com/MohammadThabetHassan/trustweave"

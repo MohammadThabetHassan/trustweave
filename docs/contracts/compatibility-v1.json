@@ -3,6 +3,7 @@
   "package": {
     "name": "trustweave",
     "current_public_release": "0.2.3",
+    "candidate_version": "0.3.0",
     "requires_python": ">=3.11",
     "supported_python": ["3.11", "3.12", "3.13"],
     "continuous_integration": {
