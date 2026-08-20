@@ -110,6 +110,44 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         ),
         "Review every unmatched-path assumption and the intended human-control boundary.",
     ),
+    "TW-DIFF-006": RuleDefinition(
+        "TW-DIFF-006",
+        "declared_bundle_difference",
+        "Approval control removed",
+        "A supplied policy-only delta removes the declared approval control.",
+        "Review every require-approval boundary and restore an explicit scoped control if needed.",
+    ),
+    "TW-DIFF-007": RuleDefinition(
+        "TW-DIFF-007",
+        "declared_bundle_difference",
+        "Approval control lost bindings",
+        "A supplied policy-only delta removes one or more declared approval binding fields.",
+        "Review whether approval remains bound to the required action context and timing.",
+    ),
+    "TW-DIFF-008": RuleDefinition(
+        "TW-DIFF-008",
+        "declared_bundle_difference",
+        "Policy rule became less restrictive",
+        "A supplied policy-only delta changes a declared rule to a less restrictive decision.",
+        "Review the changed rule even if no current manifest flow exercises its boundary.",
+    ),
+    "TW-DIFF-009": RuleDefinition(
+        "TW-DIFF-009",
+        "declared_bundle_difference",
+        "Policy rule lost required controls",
+        "A supplied policy-only delta removes one or more required controls from a declared rule.",
+        "Review the affected approval and fail-closed obligations before accepting the change.",
+    ),
+    "TW-DIFF-010": RuleDefinition(
+        "TW-DIFF-010",
+        "declared_bundle_difference",
+        "Classification taxonomy changed",
+        (
+            "A supplied policy-only delta changes the declared classification taxonomy ordering "
+            "or set."
+        ),
+        "Review classification bounds, coverage, and the intended protection ordering.",
+    ),
     "TW-MCP-001": RuleDefinition(
         "TW-MCP-001",
         "pre_recorded_mcp_metadata",

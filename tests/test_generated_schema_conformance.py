@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,7 @@ from jsonschema import Draft202012Validator
 from jsonschema import ValidationError as JsonSchemaValidationError
 
 from trustweave.chain import review_declared_chains
+from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
 from trustweave.findings import finding
@@ -27,6 +29,7 @@ CURRENT_BUNDLE_SCHEMA = ROOT / "schemas" / "agent-security-bundle-v1alpha2.schem
 ATTESTATION_SCHEMA = ROOT / "schemas" / "attestation-v1alpha3.schema.json"
 FINDING_SCHEMA = ROOT / "schemas" / "finding-v1alpha1.schema.json"
 RISK_REVIEW_SCHEMA = ROOT / "schemas" / "risk-review-v1alpha2.schema.json"
+BUNDLE_DIFF_SCHEMA = ROOT / "schemas" / "bundle-diff-v1alpha3.schema.json"
 
 
 def test_real_generated_bundle_conforms_to_its_published_schema() -> None:
@@ -207,3 +210,117 @@ def test_current_risk_review_schema_accepts_bundle_diff_v1alpha2_findings() -> N
     )
 
     Draft202012Validator(load_document(RISK_REVIEW_SCHEMA)).validate(review)
+
+
+def _policy_diff_with_default_allow() -> dict[str, object]:
+    manifest = parse_manifest(load_document(MANIFEST))
+    base_policy_document = dict(load_document(POLICY))
+    head_policy_document = json.loads(json.dumps(base_policy_document))
+    head_policy_document["default_decision"] = "allow"
+    return diff_bundles(
+        build_bundle(manifest, parse_policy(base_policy_document)),
+        build_bundle(manifest, parse_policy(head_policy_document)),
+        generated_at="2026-08-20T00:00:00+00:00",
+    )
+
+
+def test_real_generated_v1alpha3_policy_delta_conforms_to_its_schema() -> None:
+    """Current policy-only deltas are accepted by their exact strict published schema."""
+
+    diff = _policy_diff_with_default_allow()
+    Draft202012Validator(load_document(BUNDLE_DIFF_SCHEMA)).validate(diff)
+
+
+@pytest.mark.parametrize(
+    ("mutate", "label"),
+    [
+        (
+            lambda change: change.update({"before": {"arbitrary": {"nested": []}}}),
+            "arbitrary object",
+        ),
+        (
+            lambda change: change.update({"path": "policy.unknown"}),
+            "unknown path",
+        ),
+        (
+            lambda change: change.update({"unexpected": True}),
+            "unknown field",
+        ),
+    ],
+)
+def test_v1alpha3_policy_delta_schema_rejects_invalid_default_decision_changes(
+    mutate: object, label: str
+) -> None:
+    """Controlled policy paths cannot carry arbitrary recursive or unversioned values."""
+
+    diff = _policy_diff_with_default_allow()
+    policy_changes = diff["changes"]["policy"]["changed"]  # type: ignore[index]
+    assert isinstance(policy_changes, list) and policy_changes
+    change = policy_changes[0]
+    assert isinstance(change, dict) and callable(mutate)
+    mutate(change)
+
+    with pytest.raises(JsonSchemaValidationError, match="not valid|Additional properties"):
+        Draft202012Validator(load_document(BUNDLE_DIFF_SCHEMA)).validate(diff)
+
+
+def test_v1alpha3_policy_delta_schema_rejects_oversized_approval_bindings_and_text() -> None:
+    """Approval-control deltas retain public collection and text budgets after serialization."""
+
+    manifest = parse_manifest(load_document(MANIFEST))
+    base_policy_document = dict(load_document(POLICY))
+    head_policy_document = json.loads(json.dumps(base_policy_document))
+    control = head_policy_document["approval_control"]
+    assert isinstance(control, dict)
+    control["mechanism"] = "replacement-mechanism"
+    control["binds_to"] = ["actor", "tool", "target", "parameters", "issued_at"]
+    diff = diff_bundles(
+        build_bundle(manifest, parse_policy(base_policy_document)),
+        build_bundle(manifest, parse_policy(head_policy_document)),
+        generated_at="2026-08-20T00:00:00+00:00",
+    )
+    validator = Draft202012Validator(load_document(BUNDLE_DIFF_SCHEMA))
+    validator.validate(diff)
+
+    bindings_diff = json.loads(json.dumps(diff))
+    binding_changes = bindings_diff["changes"]["policy"]["changed"]
+    assert isinstance(binding_changes, list)
+    binding_change = next(
+        change for change in binding_changes if change["path"] == "policy.approval_control.binds_to"
+    )
+    binding_change["after"] = [f"binding-{index}" for index in range(65)]
+    with pytest.raises(JsonSchemaValidationError):
+        validator.validate(bindings_diff)
+
+    mechanism_diff = json.loads(json.dumps(diff))
+    mechanism_changes = mechanism_diff["changes"]["policy"]["changed"]
+    assert isinstance(mechanism_changes, list)
+    mechanism_change = next(
+        change
+        for change in mechanism_changes
+        if change["path"] == "policy.approval_control.mechanism"
+    )
+    mechanism_change["after"] = "x" * 4097
+    with pytest.raises(JsonSchemaValidationError):
+        validator.validate(mechanism_diff)
+
+
+def test_v1alpha3_policy_delta_schema_rejects_malformed_rule_payload() -> None:
+    """Rule-list deltas cannot bypass strict policy-rule object validation."""
+
+    manifest = parse_manifest(load_document(MANIFEST))
+    base_policy_document = dict(load_document(POLICY))
+    head_policy_document = json.loads(json.dumps(base_policy_document))
+    head_policy_document["rules"][0]["decision"] = "require_approval"
+    diff = diff_bundles(
+        build_bundle(manifest, parse_policy(base_policy_document)),
+        build_bundle(manifest, parse_policy(head_policy_document)),
+        generated_at="2026-08-20T00:00:00+00:00",
+    )
+    rule_changes = diff["changes"]["policy"]["changed"]  # type: ignore[index]
+    assert isinstance(rule_changes, list)
+    rules_change = next(change for change in rule_changes if change["path"] == "policy.rules")
+    rules_change["after"] = [{"id": "TW-MALFORMED"}]
+
+    with pytest.raises(JsonSchemaValidationError):
+        Draft202012Validator(load_document(BUNDLE_DIFF_SCHEMA)).validate(diff)

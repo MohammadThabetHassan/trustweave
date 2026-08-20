@@ -263,11 +263,20 @@
           "$ref": "#/$defs/bundle_finding"
         },
         "key": {
-          "items": {
-            "$ref": "#/$defs/identifier"
-          },
+          "items": false,
           "maxItems": 3,
           "minItems": 3,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "$ref": "#/$defs/text"
+            }
+          ],
           "type": "array"
         }
       },
@@ -278,16 +287,54 @@
       ],
       "type": "object"
     },
-    "policy_change": {
+    "policy_action_class": {
+      "enum": [
+        "read",
+        "write",
+        "sensitive",
+        "external"
+      ]
+    },
+    "policy_approval_binds_to_change": {
       "additionalProperties": false,
       "properties": {
-        "after": {},
-        "before": {},
+        "after": {
+          "oneOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/text"
+              },
+              "maxItems": 64,
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "before": {
+          "oneOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/text"
+              },
+              "maxItems": 64,
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "path": {
-          "$ref": "#/$defs/text"
+          "const": "policy.approval_control.binds_to"
         },
         "security_relevant": {
-          "type": "boolean"
+          "const": true
         }
       },
       "required": [
@@ -297,6 +344,110 @@
         "security_relevant"
       ],
       "type": "object"
+    },
+    "policy_approval_fail_closed_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "before": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "path": {
+          "const": "policy.approval_control.fail_closed"
+        },
+        "security_relevant": {
+          "const": true
+        }
+      },
+      "required": [
+        "path",
+        "before",
+        "after",
+        "security_relevant"
+      ],
+      "type": "object"
+    },
+    "policy_approval_mechanism_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "before": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "path": {
+          "const": "policy.approval_control.mechanism"
+        },
+        "security_relevant": {
+          "const": true
+        }
+      },
+      "required": [
+        "path",
+        "before",
+        "after",
+        "security_relevant"
+      ],
+      "type": "object"
+    },
+    "policy_capability": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9_.-]*(\\.\\*)?$",
+      "type": "string"
+    },
+    "policy_change": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/policy_default_decision_change"
+        },
+        {
+          "$ref": "#/$defs/policy_classification_taxonomy_change"
+        },
+        {
+          "$ref": "#/$defs/policy_rules_change"
+        },
+        {
+          "$ref": "#/$defs/policy_approval_mechanism_change"
+        },
+        {
+          "$ref": "#/$defs/policy_approval_binds_to_change"
+        },
+        {
+          "$ref": "#/$defs/policy_approval_fail_closed_change"
+        }
+      ]
     },
     "policy_changes": {
       "additionalProperties": false,
@@ -313,6 +464,316 @@
         "changed"
       ],
       "type": "object"
+    },
+    "policy_classification": {
+      "maxLength": 64,
+      "minLength": 1,
+      "type": "string"
+    },
+    "policy_classification_taxonomy": {
+      "items": {
+        "$ref": "#/$defs/policy_classification"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "policy_classification_taxonomy_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/policy_classification_taxonomy"
+        },
+        "before": {
+          "$ref": "#/$defs/policy_classification_taxonomy"
+        },
+        "path": {
+          "const": "policy.classification_taxonomy"
+        },
+        "security_relevant": {
+          "const": true
+        }
+      },
+      "required": [
+        "path",
+        "before",
+        "after",
+        "security_relevant"
+      ],
+      "type": "object"
+    },
+    "policy_current_rule": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/policy_decision"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "id": {
+          "$ref": "#/$defs/policy_rule_identifier"
+        },
+        "purpose_tags": {
+          "items": {
+            "$ref": "#/$defs/policy_identifier"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        },
+        "required_controls": {
+          "items": {
+            "enum": [
+              "approval",
+              "approval.fail_closed"
+            ]
+          },
+          "maxItems": 2,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "severity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/policy_severity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_data_classification_at_least": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/policy_classification"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_data_classification_at_most": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/policy_classification"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_data_classifications": {
+          "items": {
+            "$ref": "#/$defs/policy_classification"
+          },
+          "maxItems": 32,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source_identifiers": {
+          "items": {
+            "$ref": "#/$defs/policy_identifier"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source_trust": {
+          "items": {
+            "$ref": "#/$defs/policy_trust"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tool_action_classes": {
+          "items": {
+            "$ref": "#/$defs/policy_action_class"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tool_capabilities": {
+          "items": {
+            "$ref": "#/$defs/policy_capability"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tool_identifiers": {
+          "items": {
+            "$ref": "#/$defs/policy_identifier"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "source_trust",
+        "tool_action_classes",
+        "decision",
+        "rationale",
+        "source_data_classifications",
+        "tool_capabilities",
+        "severity",
+        "source_identifiers",
+        "tool_identifiers",
+        "purpose_tags",
+        "source_data_classification_at_least",
+        "source_data_classification_at_most",
+        "required_controls"
+      ],
+      "type": "object"
+    },
+    "policy_decision": {
+      "enum": [
+        "allow",
+        "deny",
+        "require_approval"
+      ]
+    },
+    "policy_default_decision_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/policy_decision"
+        },
+        "before": {
+          "$ref": "#/$defs/policy_decision"
+        },
+        "path": {
+          "const": "policy.default_decision"
+        },
+        "security_relevant": {
+          "const": true
+        }
+      },
+      "required": [
+        "path",
+        "before",
+        "after",
+        "security_relevant"
+      ],
+      "type": "object"
+    },
+    "policy_identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,63}$",
+      "type": "string"
+    },
+    "policy_legacy_rule": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/policy_decision"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "id": {
+          "$ref": "#/$defs/policy_rule_identifier"
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        },
+        "source_trust": {
+          "items": {
+            "$ref": "#/$defs/policy_trust"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tool_action_classes": {
+          "items": {
+            "$ref": "#/$defs/policy_action_class"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "source_trust",
+        "tool_action_classes",
+        "decision",
+        "rationale"
+      ],
+      "type": "object"
+    },
+    "policy_rule": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/policy_current_rule"
+        },
+        {
+          "$ref": "#/$defs/policy_legacy_rule"
+        }
+      ]
+    },
+    "policy_rule_identifier": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "type": "string"
+    },
+    "policy_rule_list": {
+      "items": {
+        "$ref": "#/$defs/policy_rule"
+      },
+      "maxItems": 1000,
+      "type": "array"
+    },
+    "policy_rules_change": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/policy_rule_list"
+        },
+        "before": {
+          "$ref": "#/$defs/policy_rule_list"
+        },
+        "path": {
+          "const": "policy.rules"
+        },
+        "security_relevant": {
+          "const": true
+        }
+      },
+      "required": [
+        "path",
+        "before",
+        "after",
+        "security_relevant"
+      ],
+      "type": "object"
+    },
+    "policy_severity": {
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "policy_trust": {
+      "enum": [
+        "trusted",
+        "untrusted",
+        "conditional"
+      ]
     },
     "property_map": {
       "additionalProperties": {

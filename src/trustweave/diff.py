@@ -7,6 +7,7 @@ from typing import Any
 
 from trustweave.bundles import BUNDLE_SCHEMA_V1ALPHA1, validate_bundle
 from trustweave.models import ValidationError
+from trustweave.policy_weakening import policy_review_signals as _policy_review_signals
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
@@ -164,39 +165,6 @@ def _policy_changes(
                 }
             )
     return {"changed": changes}
-
-
-def _policy_review_signals(
-    policy_changes: Sequence[Mapping[str, Any]],
-) -> list[dict[str, Any]]:
-    """Emit reviewer-visible signals for policy weakenings independent of present flows."""
-
-    signals: list[dict[str, Any]] = []
-    for change in policy_changes:
-        path = change.get("path")
-        before = change.get("before")
-        after = change.get("after")
-        if path == "policy.approval_control.fail_closed" and before is True and after is False:
-            signals.append(
-                finding_for_rule(
-                    "TW-DIFF-004",
-                    "review",
-                    "The declared approval control changed from fail-closed to fail-open; review "
-                    "approval-boundary enforcement before accepting this policy change.",
-                    subject={"policy_field": "approval_control.fail_closed"},
-                )
-            )
-        elif path == "policy.default_decision" and after == "allow" and before != "allow":
-            signals.append(
-                finding_for_rule(
-                    "TW-DIFF-005",
-                    "review",
-                    "The policy default decision changed to allow; unmatched declared paths now "
-                    "require explicit human review.",
-                    subject={"policy_field": "default_decision"},
-                )
-            )
-    return signals
 
 
 def _review_signals(
