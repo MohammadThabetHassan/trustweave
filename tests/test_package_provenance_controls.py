@@ -45,18 +45,18 @@ def test_package_provenance_controls_reject_disabled_attestations(
 
 
 @pytest.mark.parametrize(
-    "required_marker",
+    ("required_marker", "expected_failure"),
     (
-        'test "$GITHUB_REF_TYPE" = "tag"',
-        "refs/tags/v${EXPECTED_VERSION}",
-        'git cat-file -t "refs/tags/${GITHUB_REF_NAME}"',
-        'test "$tag_target_sha" = "$GITHUB_SHA"',
-        "needs.release-gate.outputs.target_sha == github.sha",
-        "pytest",
+        ('test "$GITHUB_REF_TYPE" = "tag"', "annotated tag target command"),
+        ("refs/tags/v${EXPECTED_VERSION}", "annotated tag target command"),
+        ('git cat-file -t "refs/tags/${GITHUB_REF_NAME}"', "annotated tag target command"),
+        ('test "$tag_target_sha" = "$GITHUB_SHA"', "annotated tag target command"),
+        ("needs.release-gate.outputs.target_sha == github.sha", "build exact target SHA condition"),
+        ("pytest", "local release gate command"),
     ),
 )
 def test_package_provenance_controls_reject_missing_release_binding_control(
-    required_marker: str,
+    required_marker: str, expected_failure: str
 ) -> None:
     """Publication must fail closed if a required tag, SHA, or gate control disappears."""
 
@@ -69,10 +69,45 @@ def test_package_provenance_controls_reject_missing_release_binding_control(
         assert required_marker in workflow
         weakened_workflow = workflow.replace(required_marker, "REMOVED_RELEASE_CONTROL")
         assert provenance._release_binding_failures(workflow) == []
-        assert (
-            f"missing release-binding control: {required_marker}"
-            in provenance._release_binding_failures(weakened_workflow)
+        assert any(
+            expected_failure in failure
+            for failure in provenance._release_binding_failures(weakened_workflow)
         )
+
+
+@pytest.mark.parametrize(
+    ("find", "replace", "expected_failure"),
+    (
+        (
+            "on:\n  workflow_dispatch:",
+            "on:\n  push:\n    branches: [main]\n  workflow_dispatch:",
+            "manual workflow_dispatch-only trigger",
+        ),
+        (
+            "needs: [release-gate, build]",
+            "needs: [release-gate]",
+            "publish needs release-gate and build",
+        ),
+        (
+            "needs: release-gate",
+            "needs: []",
+            "build needs only release-gate",
+        ),
+    ),
+)
+def test_package_provenance_controls_reject_semantically_weakened_job_graph(
+    find: str, replace: str, expected_failure: str
+) -> None:
+    """Parsed workflow validation rejects unsafe triggers and dependency graph changes."""
+
+    provenance = _provenance_verifier_module()
+    workflow = (ROOT / ".github" / "workflows" / "publish-pypi.yml").read_text(encoding="utf-8")
+    assert find in workflow
+    weakened = workflow.replace(find, replace, 1)
+
+    assert any(
+        expected_failure in failure for failure in provenance._release_binding_failures(weakened)
+    )
 
 
 def test_package_provenance_controls_reject_observed_release_drift(

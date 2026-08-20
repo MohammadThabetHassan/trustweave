@@ -222,6 +222,41 @@ def _check_compatibility_contract() -> list[str]:
                     f"resource: {version}"
                 )
 
+    published_release = artifacts.get("published_release")
+    if not isinstance(published_release, dict):
+        failures.append("Compatibility published_release must be an object")
+    else:
+        if published_release.get("version") != current_release:
+            failures.append(
+                "Compatibility published_release version must match current_public_release"
+            )
+        published_writers = published_release.get("writers")
+        if not isinstance(published_writers, dict):
+            failures.append("Compatibility published_release writers must be an object")
+        elif published_writers.get("bundle_diff") != "trustweave.dev/bundle-diff/v1alpha2":
+            failures.append("Compatibility published 0.2.3 bundle_diff writer must be v1alpha2")
+
+    unreleased_branch = artifacts.get("unreleased_branch")
+    if not isinstance(unreleased_branch, dict):
+        failures.append("Compatibility unreleased_branch must be an object")
+    else:
+        branch_writers = unreleased_branch.get("writers")
+        if not isinstance(branch_writers, dict):
+            failures.append("Compatibility unreleased_branch writers must be an object")
+        elif branch_writers.get("bundle_diff") != writers.get("bundle_diff"):
+            failures.append(
+                "Compatibility unreleased bundle_diff writer must match current_writers.bundle_diff"
+            )
+        if unreleased_branch.get("minimum_authorized_release_version") != "0.3.0":
+            failures.append(
+                "Compatibility v1alpha3 boundary must require minimum authorized release "
+                "version 0.3.0"
+            )
+        if unreleased_branch.get("status") != (
+            "unreleased; no tag, publication, or release record is authorized by this contract"
+        ):
+            failures.append("Compatibility unreleased_branch must state the no-release boundary")
+
     schema_policy = SCHEMA_POLICY_PATH.read_text(encoding="utf-8")
     bounded_readers = artifacts.get("bounded_legacy_readers")
     if not isinstance(bounded_readers, dict) or not bounded_readers:

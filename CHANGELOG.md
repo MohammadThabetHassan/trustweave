@@ -8,9 +8,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - Enforced semantic authenticity and complete finding coverage for current Agent Security Bundles by regenerating the expected findings from the embedded manifest and policy during validation.
 - Corrected policy coverage analysis so an impossible earlier rule cannot shadow a possible later rule, and aligned typed-policy collection and text bounds with the published v1alpha2 schema.
-- Introduced `trustweave.dev/bundle-diff/v1alpha3`, which records normalized policy-only changes and review signals for security weakenings such as fail-closed-to-fail-open approval controls and allow defaults.
+- Introduced `trustweave.dev/bundle-diff/v1alpha3`, which records normalized policy-only changes and review signals for fail-closed-to-fail-open approval controls (`TW-DIFF-004`), default-to-allow changes (`TW-DIFF-005`), approval-control removal (`TW-DIFF-006`), approval-binding removal (`TW-DIFF-007`), less-restrictive rule decisions (`TW-DIFF-008`), required-control removal (`TW-DIFF-009`), and classification-taxonomy changes (`TW-DIFF-010`).
 - Repaired the risk-management quickstart with current v1alpha2 baseline and suppression examples, plus a clean-workspace command smoke regression.
-- Bound TestPyPI and PyPI publication workflows to an exact annotated `v<version>` tag, its immutable target SHA, and a successful complete quality gate before artifact build or isolated trusted publication.
+- Bound TestPyPI and PyPI publication workflows to an exact annotated `v<version>` tag and immutable target SHA. Before artifact build or isolated trusted publication, the release-gate job executes exactly: formatting and lint checks, strict typing, Bandit, pytest, `reality_check`, strict documentation build, and dependency audit. CodeQL, dependency review, mutation testing, cross-Python compatibility, build reproducibility, and isolated-wheel smoke remain separate CI or release-process controls and are not claimed as release-gate steps.
 - Replaced overstated local “tamper-evident” wording with explicit unsigned-statement and external-provenance limits, and made supplied-file verification the primary documented verification command.
 - Replaced the Docker image’s stale hard-coded version label with a package-metadata-derived build argument that hosted CI verifies against the installed package version.
 
@@ -18,7 +18,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - Regenerated deterministic golden evidence, mutation-contract snapshots, rule catalog, compatibility contracts, traceability records, and repository-reality checks for the current v1alpha3 diff output.
 
-> This corrective work does **not** change the package version. `0.2.3` remains the current published release until a separately authorized release process is completed.
+> This corrective work does **not** change the package version. Published `0.2.3` emits `trustweave.dev/bundle-diff/v1alpha2`; this unreleased branch introduces the `v1alpha3` writer. Any authorized release containing `v1alpha3` must use a new version under the compatibility policy (expected minimum: `0.3.0`).
 
 ## [0.2.3] - 2026-08-19
 

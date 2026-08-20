@@ -58,6 +58,19 @@
       "local_attestation": "trustweave.dev/attestation/v1alpha3",
       "test_results": "trustweave.dev/test-results/v1alpha1"
     },
+    "published_release": {
+      "version": "0.2.3",
+      "writers": {
+        "bundle_diff": "trustweave.dev/bundle-diff/v1alpha2"
+      }
+    },
+    "unreleased_branch": {
+      "writers": {
+        "bundle_diff": "trustweave.dev/bundle-diff/v1alpha3"
+      },
+      "minimum_authorized_release_version": "0.3.0",
+      "status": "unreleased; no tag, publication, or release record is authorized by this contract"
+    },
     "bounded_legacy_readers": {
       "bundle_comparison": ["trustweave.dev/bundle/v1alpha1", "trustweave.dev/bundle/v1alpha2"],
       "bundle_diff_risk_normalization": [

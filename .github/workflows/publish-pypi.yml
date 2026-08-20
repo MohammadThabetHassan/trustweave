@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   release-gate:
-    name: Verify exact annotated release target and quality gate
+    name: Verify exact annotated release target and local release checks
     runs-on: ubuntu-latest
     outputs:
       target_sha: ${{ steps.release_target.outputs.sha }}
@@ -51,7 +51,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]" bandit build pip-audit twine
-      - name: Run complete release quality gate for the tag target
+      - name: Run required local release checks for the tag target
         run: |
           ruff format --check .
           ruff check .
