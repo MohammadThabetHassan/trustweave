@@ -811,3 +811,15 @@ def test_policy_weakening_classifier_ignores_exact_canonical_rule_equivalence() 
     signals = policy_review_signals([{"path": "policy.rules", "before": [rule], "after": [rule]}])
 
     assert signals == []
+
+
+def test_policy_weakening_classifier_ignores_unchanged_order_of_overlapping_rules() -> None:
+    """Overlapping rules require a changed relative order before structural review is emitted."""
+
+    first = _structural_rule("TW-AUDIT-STRUCTURAL-STABLE-A", "deny")
+    second = _structural_rule("TW-AUDIT-STRUCTURAL-STABLE-B", "allow")
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [first, second], "after": [first, second]}]
+    )
+
+    assert signals == []
