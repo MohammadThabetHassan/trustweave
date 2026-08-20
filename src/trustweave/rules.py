@@ -148,6 +148,20 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         ),
         "Review classification bounds, coverage, and the intended protection ordering.",
     ),
+    "TW-DIFF-011": RuleDefinition(
+        "TW-DIFF-011",
+        "declared_bundle_difference",
+        "Structural policy rule boundary changed",
+        (
+            "A supplied policy-only delta adds, removes, reorders potentially overlapping rules, "
+            "or changes matching predicates. The deterministic signal requests human review but "
+            "does not prove that every structural change is insecure."
+        ),
+        (
+            "Review the identified rule boundaries, ordering, and first-match coverage before "
+            "accepting the change."
+        ),
+    ),
     "TW-MCP-001": RuleDefinition(
         "TW-MCP-001",
         "pre_recorded_mcp_metadata",

@@ -556,8 +556,8 @@ def test_policy_weakening_classifier_ignores_neutral_default_and_control_deltas(
     assert signals == []
 
 
-def test_bundle_diff_does_not_compare_unmatched_rule_inventory_items() -> None:
-    """Rule additions and removals are policy deltas, not direct before/after rule comparisons."""
+def test_bundle_diff_reports_added_unexercised_rule_for_structural_review() -> None:
+    """A new unexercised rule remains review-visible without a current path decision change."""
 
     base = _copy_document(POLICY)
     head = _copy_document(POLICY)
@@ -579,7 +579,20 @@ def test_bundle_diff_does_not_compare_unmatched_rule_inventory_items() -> None:
     diff = _policy_only_diff(base, head)
 
     assert diff["summary"]["policy_changes"] == 1
-    assert _signal_ids(diff) == set()
+    assert diff["summary"]["decision_changes"] == 0
+    _policy_signal(
+        diff,
+        "TW-DIFF-011",
+        "Declared policy rule structure changed in a way that can alter first-match "
+        "coverage; review the listed rule boundaries. This review signal does not prove "
+        "that every listed change is insecure.",
+        {
+            "added_rule_ids": ["TW-AUDIT-ADDED"],
+            "removed_rule_ids": [],
+            "matching_predicate_changed_rule_ids": [],
+            "reordered_rule_ids": [],
+        },
+    )
 
 
 def test_bundle_diff_does_not_signal_neutral_rule_reordering() -> None:
@@ -595,3 +608,206 @@ def test_bundle_diff_does_not_signal_neutral_rule_reordering() -> None:
 
     assert diff["summary"]["policy_changes"] == 1
     assert _signal_ids(diff) == set()
+
+
+def _structural_rule(identifier: str, decision: str = "allow") -> dict[str, object]:
+    """Return a valid v1alpha2 rule deliberately unmatched by the support-agent manifest."""
+
+    return {
+        "id": identifier,
+        "description": "A deliberately unexercised structural-policy audit boundary.",
+        "source_trust": ["conditional"],
+        "tool_action_classes": ["write"],
+        "source_identifiers": ["audit_unexercised_source"],
+        "tool_identifiers": ["audit_unexercised_tool"],
+        "purpose_tags": ["audit_structural"],
+        "source_data_classifications": ["confidential"],
+        "source_data_classification_at_least": "internal",
+        "source_data_classification_at_most": "restricted",
+        "tool_capabilities": ["record.write"],
+        "decision": decision,
+        "rationale": "This local test rule is intentionally not exercised by current flows.",
+    }
+
+
+def _v2_policy_with_structural_rule(identifier: str, decision: str = "allow") -> dict[str, object]:
+    """Return a current policy with one unmatched v1alpha2 structural rule."""
+
+    policy = _copy_document(POLICY)
+    policy["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    rules = policy["rules"]
+    assert isinstance(rules, list)
+    rules.append(_structural_rule(identifier, decision))
+    return policy
+
+
+def _structural_signal(diff: dict[str, object]) -> dict[str, object]:
+    """Return the canonical single structural-policy review signal from a bundle diff."""
+
+    matching = [signal for signal in diff["signals"] if signal["id"] == "TW-DIFF-011"]
+    assert matching == [
+        {
+            "id": "TW-DIFF-011",
+            "severity": "review",
+            "message": (
+                "Declared policy rule structure changed in a way that can alter first-match "
+                "coverage; review the listed rule boundaries. This review signal does not prove "
+                "that every listed change is insecure."
+            ),
+            "evidence_kind": "declared_bundle_difference",
+            "subject": matching[0]["subject"],
+        }
+    ]
+    return matching[0]
+
+
+def test_bundle_diff_reports_removed_unexercised_deny_for_structural_review() -> None:
+    """Removing an unmatched deny rule remains visible even when its fallback is unexercised."""
+
+    base = _v2_policy_with_structural_rule("TW-AUDIT-STRUCTURAL-REMOVE", "deny")
+    head = _copy_document(POLICY)
+    head["schema_version"] = "trustweave.dev/policy/v1alpha2"
+
+    diff = _policy_only_diff(base, head)
+
+    assert diff["summary"]["policy_changes"] == 1
+    assert diff["summary"]["decision_changes"] == 0
+    assert _structural_signal(diff)["subject"] == {
+        "added_rule_ids": [],
+        "removed_rule_ids": ["TW-AUDIT-STRUCTURAL-REMOVE"],
+        "matching_predicate_changed_rule_ids": [],
+        "reordered_rule_ids": [],
+    }
+
+
+@pytest.mark.parametrize(
+    "field, after_value",
+    [
+        ("source_trust", ["conditional", "untrusted"]),
+        ("tool_action_classes", ["write", "external"]),
+        ("source_identifiers", ["audit_unexercised_source", "second_source"]),
+        ("tool_identifiers", ["audit_unexercised_tool", "second_tool"]),
+        ("purpose_tags", ["audit_structural", "second_purpose"]),
+        ("source_data_classifications", ["confidential", "restricted"]),
+        ("source_data_classification_at_least", "public"),
+        ("source_data_classification_at_most", "confidential"),
+        ("tool_capabilities", ["record.write", "record.update"]),
+    ],
+)
+def test_bundle_diff_reports_changed_unexercised_matching_predicate_for_structural_review(
+    field: str, after_value: object
+) -> None:
+    """Every declared matching predicate is independently reviewer-visible when it changes."""
+
+    identifier = "TW-AUDIT-STRUCTURAL-PREDICATE"
+    base = _v2_policy_with_structural_rule(identifier)
+    head = json.loads(json.dumps(base))
+    rules = head["rules"]
+    assert isinstance(rules, list)
+    rules[-1][field] = after_value
+
+    diff = _policy_only_diff(base, head)
+
+    assert diff["summary"]["decision_changes"] == 0
+    assert _structural_signal(diff)["subject"] == {
+        "added_rule_ids": [],
+        "removed_rule_ids": [],
+        "matching_predicate_changed_rule_ids": [identifier],
+        "reordered_rule_ids": [],
+    }
+
+
+def test_bundle_diff_reports_potentially_overlapping_rule_reordering_for_structural_review() -> (
+    None
+):
+    """First-match order changes are visible when two unexercised rule boundaries can overlap."""
+
+    base = _copy_document(POLICY)
+    base["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    base_rules = base["rules"]
+    assert isinstance(base_rules, list)
+    first = _structural_rule("TW-AUDIT-STRUCTURAL-ORDER-A", "deny")
+    second = _structural_rule("TW-AUDIT-STRUCTURAL-ORDER-B", "allow")
+    base_rules.extend((first, second))
+    head = json.loads(json.dumps(base))
+    head_rules = head["rules"]
+    assert isinstance(head_rules, list)
+    head["rules"] = [*head_rules[:-2], head_rules[-1], head_rules[-2]]
+
+    diff = _policy_only_diff(base, head)
+
+    assert diff["summary"]["decision_changes"] == 0
+    assert _structural_signal(diff)["subject"] == {
+        "added_rule_ids": [],
+        "removed_rule_ids": [],
+        "matching_predicate_changed_rule_ids": [],
+        "reordered_rule_ids": ["TW-AUDIT-STRUCTURAL-ORDER-A", "TW-AUDIT-STRUCTURAL-ORDER-B"],
+    }
+
+
+def test_bundle_diff_does_not_report_description_or_rationale_only_rule_edit() -> None:
+    """Text-only changes do not masquerade as a matching-boundary structural review signal."""
+
+    base = _v2_policy_with_structural_rule("TW-AUDIT-STRUCTURAL-TEXT")
+    head = json.loads(json.dumps(base))
+    rules = head["rules"]
+    assert isinstance(rules, list)
+    rules[-1]["description"] = "Updated local prose only."
+    rules[-1]["rationale"] = "Updated local rationale only."
+
+    diff = _policy_only_diff(base, head)
+
+    assert diff["summary"]["policy_changes"] == 1
+    assert _signal_ids(diff) == set()
+
+
+def test_policy_weakening_classifier_combines_specific_and_structural_review_once() -> None:
+    """Specific weakening evidence and broad structural review remain distinct and de-duplicated."""
+
+    before_rule = _structural_rule("TW-AUDIT-STRUCTURAL-COMBINED", "deny")
+    after_rule = json.loads(json.dumps(before_rule))
+    after_rule["decision"] = "allow"
+    after_rule["source_trust"] = ["conditional", "untrusted"]
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [before_rule], "after": [after_rule]}]
+    )
+
+    assert [signal["id"] for signal in signals] == ["TW-DIFF-008", "TW-DIFF-011"]
+    structural = next(signal for signal in signals if signal["id"] == "TW-DIFF-011")
+    assert structural["subject"] == {
+        "added_rule_ids": [],
+        "removed_rule_ids": [],
+        "matching_predicate_changed_rule_ids": ["TW-AUDIT-STRUCTURAL-COMBINED"],
+        "reordered_rule_ids": [],
+    }
+
+
+def test_policy_weakening_classifier_sorts_and_deduplicates_structural_rule_identifiers() -> None:
+    """One structural signal exposes stable sorted identifiers even across compound changes."""
+
+    before = [
+        _structural_rule("TW-AUDIT-STRUCTURAL-B", "deny"),
+        _structural_rule("TW-AUDIT-STRUCTURAL-A", "allow"),
+    ]
+    after = [
+        _structural_rule("TW-AUDIT-STRUCTURAL-A", "allow"),
+        _structural_rule("TW-AUDIT-STRUCTURAL-C", "deny"),
+    ]
+    signals = policy_review_signals([{"path": "policy.rules", "before": before, "after": after}])
+
+    assert [signal["id"] for signal in signals] == ["TW-DIFF-011"]
+    assert signals[0]["subject"] == {
+        "added_rule_ids": ["TW-AUDIT-STRUCTURAL-C"],
+        "removed_rule_ids": ["TW-AUDIT-STRUCTURAL-B"],
+        "matching_predicate_changed_rule_ids": [],
+        "reordered_rule_ids": [],
+    }
+
+
+def test_policy_weakening_classifier_ignores_exact_canonical_rule_equivalence() -> None:
+    """A canonical-equivalent rules delta cannot create a structural review signal."""
+
+    rule = _structural_rule("TW-AUDIT-STRUCTURAL-UNCHANGED")
+    signals = policy_review_signals([{"path": "policy.rules", "before": [rule], "after": [rule]}])
+
+    assert signals == []
