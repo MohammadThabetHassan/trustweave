@@ -27,6 +27,8 @@ trustweave verify \
 | MCP inventory | Compare local metadata with the intended integration and identify changes. | Does not contact or authenticate to an MCP server. |
 | Manifest scaffold | Resolve every `REVIEW_REQUIRED` action class and add sources, capabilities, and flows. | Does not create a valid manifest or select a policy decision. |
 | Resolved manifest and policy | Review explicitly declared scope, source trust, action classes, paths, approval controls, and denials. | Does not execute the described agent or tool. |
-| Bundle, policy review, and attestation | Inspect deterministic local evidence and retain it with the review record. | Does not sign, publish, or establish runtime enforcement. |
+| Bundle, policy review, and attestation | Inspect deterministic local evidence and retain it with the review record. When a bundle diff emits `TW-DIFF-011`, compare the listed added, removed, matching-boundary, or potentially order-sensitive rules before accepting the policy change. | Does not sign, publish, establish runtime enforcement, or prove that every structural policy change is insecure. |
+
+`TW-DIFF-004` through `TW-DIFF-010` retain their documented specific weakening or review categories. `TW-DIFF-011` is a deterministic structural-policy review signal: it identifies declared rule changes that can alter first-match coverage, including where current flows do not exercise the boundary. It does not prove that every listed change is insecure or that every possible policy weakening has been detected.
 
 A completed local review is evidence about the versioned declarations supplied to TrustWeave. It is not proof that a remote MCP server, framework runtime, or deployed agent behaves identically.
