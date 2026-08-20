@@ -121,6 +121,17 @@ def evaluate_manifest(manifest: AgentManifest, policy: Policy) -> tuple[Finding,
     )
 
 
+def expected_finding_dicts(manifest: AgentManifest, policy: Policy) -> tuple[dict[str, Any], ...]:
+    """Render the authoritative normalized current finding collection for supplied declarations.
+
+    Both bundle construction and current-bundle validation use this pure oracle.  Keeping
+    first-match evaluation in one place prevents a validly shaped but fabricated finding
+    collection from being accepted as local evidence.
+    """
+
+    return tuple(finding.as_dict() for finding in evaluate_manifest(manifest, policy))
+
+
 def _bundle_rule(rule: PolicyRule) -> dict[str, Any]:
     """Render a policy rule as JSON-compatible local bundle evidence."""
 
@@ -135,10 +146,10 @@ def build_bundle(
 ) -> dict[str, Any]:
     """Construct a portable bundle from stable declarations and optional provenance."""
 
-    findings = evaluate_manifest(manifest, policy)
+    findings = expected_finding_dicts(manifest, policy)
     summary = {decision: 0 for decision in ("allow", "deny", "require_approval")}
     for finding in findings:
-        summary[finding.decision] += 1
+        summary[str(finding["decision"])] += 1
 
     bundle: dict[str, object] = {
         "schema_version": BUNDLE_SCHEMA_V1ALPHA2,
@@ -159,7 +170,7 @@ def build_bundle(
             ),
             "rules": [_bundle_rule(rule) for rule in policy.rules],
         },
-        "findings": [finding.as_dict() for finding in findings],
+        "findings": list(findings),
         "summary": summary,
         "limits": [
             (

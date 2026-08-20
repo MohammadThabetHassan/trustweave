@@ -88,7 +88,7 @@ trustweave attest [--source-revision TEXT] [--output-dir DIR]
 |---|---|
 | `attestation.json` | Hashes of local artifacts, canonical-document digests, source revision, integrity chain, and limits. |
 
-New statements use `trustweave.dev/attestation/v1alpha3`: their integrity chain binds stable canonical bundle/test-result payload digests, exact generated-file digests, subject names, and the stated source revision while excluding volatile `generated_at` metadata. `trustweave verify --attestation PATH --bundle PATH --test-results PATH` additionally checks supplied local file bytes and their stable payloads. The verifier remains compatible with legacy `v1alpha1` and `v1alpha2` local statements. The statement is internally verifiable but is **not signed** and is not a DSSE, SLSA, Sigstore, or transparency-log claim.
+New statements use `trustweave.dev/attestation/v1alpha3`: their integrity chain binds stable canonical bundle/test-result payload digests, exact generated-file digests, subject names, and the stated source revision while excluding volatile `generated_at` metadata. The primary `trustweave verify --attestation PATH --bundle PATH --test-results PATH` command checks supplied local file bytes and their stable payloads. The verifier remains compatible with legacy `v1alpha1` and `v1alpha2` local statements. The statement is **unsigned** and is not a DSSE, SLSA, Sigstore, or transparency-log claim.
 
 ## `statement`
 
@@ -118,12 +118,16 @@ trustweave report [--output-dir DIR]
 ## `verify`
 
 ```bash
+# Recommended exact-file verification
+trustweave verify --attestation PATH --bundle PATH --test-results PATH
+
+# Statement-only consistency check; does not inspect current artifact bytes
 trustweave verify --attestation PATH
 ```
 
-`verify` checks the internal hash relationships recorded in a local attestation. It returns `0` for a consistent statement and `1` for a mismatch.
+With `--bundle` and `--test-results`, `verify` checks the supplied local file bytes and their canonical stable payloads against the statement. Use this mode whenever reviewing evidence. Without both supplied file paths, it checks only internal hash relationships recorded in the statement. It returns `0` for a consistent checked relationship and `1` for a mismatch.
 
-A successful result says only that the statement is internally consistent with its recorded local digests. It does not authenticate the author or prove that a trace, deployment, or external artifact is trustworthy.
+A successful statement-only result does not establish that a reviewer’s current files match the statement. Neither mode authenticates the author or proves that a trace, deployment, or external artifact is trustworthy.
 
 ## `chain-check`
 
@@ -240,7 +244,7 @@ trustweave sarif \
 | Input | Required | Description |
 |---|---:|---|
 | `--policy-review` | One or more review inputs required | `policy-review.json` using `trustweave.dev/policy-review/v1alpha1`. |
-| `--diff` | One or more review inputs required | Current `bundle-diff.json` uses `trustweave.dev/bundle-diff/v1alpha2`; the exporter also reads historical v1alpha1 diffs. |
+| `--diff` | One or more review inputs required | Current `bundle-diff.json` uses `trustweave.dev/bundle-diff/v1alpha3`; the exporter also reads bounded historical v1alpha1 and v1alpha2 diffs. |
 | `--trace-review` | One or more review inputs required | `trace-review.json` using `trustweave.dev/trace-review/v1alpha1`. |
 | `--mcp-profile-review` | One or more review inputs required | `mcp-profile-review.json` using `trustweave.dev/mcp-profile-review/v1alpha1`. |
 | `--risk-review` | One or more review inputs required | Current `risk-review.json` uses `trustweave.dev/risk-review/v1alpha2`; historical v1alpha1 input remains readable and all active states are exported. |

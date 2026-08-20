@@ -1,4 +1,4 @@
 {
-  "schema_version": "trustweave.dev/risk-suppressions/v1alpha1",
+  "schema_version": "trustweave.dev/risk-suppressions/v1alpha2",
   "suppressions": []
 }

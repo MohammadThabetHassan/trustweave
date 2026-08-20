@@ -4,7 +4,7 @@
 
 **TrustWeave is a local-first security build tool for developers who add tools or MCP-style integrations to AI agents and need verifiable evidence that a change did not introduce an unsafe trust-boundary path.**
 
-The first release is intentionally narrow. It inventories a declared agent architecture, evaluates deterministic policy invariants against that architecture, runs safe synthetic scenarios, produces a review-friendly Markdown report, and emits a tamper-evident local evidence bundle.
+The first release is intentionally narrow. It inventories a declared agent architecture, evaluates deterministic policy invariants against that architecture, runs safe synthetic scenarios, produces a review-friendly Markdown report, and emits a deterministic local evidence bundle. TrustWeave can also emit a separate unsigned hash-linked statement for exact supplied-file consistency; external signing or trusted publication is required for provenance beyond the local workspace.
 
 ## Primary user decision
 
@@ -33,7 +33,7 @@ Before merging an agent change, a developer needs to decide whether a newly decl
 | **Flow** | A declared source-to-tool route. | A policy evaluates every flow; missing labels fail closed. |
 | **Policy** | Deterministic allow/deny or approval rule for a flow. | The MVP never delegates enforcement decisions to a language model. |
 | **Scenario** | A safe synthetic test case that validates a policy assertion. | No scenario targets external infrastructure or handles real data. |
-| **Evidence bundle** | Hash-linked JSON document generated from local artifacts. | It proves local artifact integrity only; it is not a substitute for external signing or audit. |
+| **Evidence bundle** | Deterministic JSON document generated from local declarations and policy. | It is not self-authenticating; exact-file consistency is recorded separately in an unsigned hash-linked statement and external signing or trusted publication is required for provenance. |
 | **Policy review** | Static report over ordered rules and review-sensitive decisions. | It creates review obligations; it never approves, blocks, or enforces a deployment. |
 | **Bundle diff** | Structured comparison of two generated bundles. | It reports declared changes and signals; it never discovers runtime behavior or reports a vulnerability verdict. |
 | **Trace review** | Local review of recorded source/tool/event metadata against declared flows and policy. | It omits message content and tool arguments, executes nothing, and does not authenticate or establish completeness of a trace. |
@@ -58,6 +58,7 @@ The initial release is complete only when:
 7. The MCP profile command produces a clear result for safe synthetic HTTP metadata and review findings for missing authorization expectation, unknown mapping, and action-class drift without contacting a server.
 8. Documentation states what the project does, what it does not do, how to verify it, and how to report a security concern.
 9. The GitHub workflow defines the exact automated checks without making unsupported production-readiness claims.
+10. Maintainers record the exact reviewed SHA, relevant hosted evidence, residual limits, and release-sensitive decision separately from ordinary check status; see [Maintainer Handoff](MAINTAINER_HANDOFF.md).
 
 ## Delivery policy
 
@@ -66,3 +67,7 @@ TrustWeave [`0.2.3`](https://pypi.org/project/trustweave/0.2.3/) is the publishe
 ## Future scope, deliberately excluded from the current local evidence contract
 
 The following items are valid roadmap candidates but not part of the first vertical slice: MCP proxying, OPA integration, OpenFGA integration, external signature services, automatic source discovery, framework SDKs, dashboards, hosted registries, production telemetry ingestion, and enterprise multitenancy.
+
+## Extension admission rule
+
+A future capability may enter the product contract only after its proposal identifies the user decision it improves, the local or external data boundary, failure behavior, deterministic evidence, compatibility impact, tests, documentation, residual limits, and the maintainer decision required to authorize it. Capabilities that add live execution, network access, credentials, data collection, identity claims, automatic merges, or publication require a separate threat model and owner-approved operating procedure before implementation. Until then, they remain excluded scope rather than hidden optional behavior.

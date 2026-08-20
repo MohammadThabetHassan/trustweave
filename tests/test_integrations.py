@@ -92,9 +92,12 @@ def test_quality_workflow_executes_real_container_build_and_smoke_contract() -> 
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
     assert "Container build and smoke test" in workflow
-    assert "docker build --pull=false -t trustweave:0.2.3 ." in workflow
-    assert "docker run --rm trustweave:0.2.3 --help" in workflow
-    assert "docker run --rm trustweave:0.2.3 schema list" in workflow
+    assert "tomllib.load(open('pyproject.toml', 'rb'))['project']['version']" in workflow
+    assert '--build-arg "TRUSTWEAVE_VERSION=${VERSION}"' in workflow
+    assert 'docker image inspect "${IMAGE}"' in workflow
+    assert "org.opencontainers.image.version" in workflow
+    assert 'docker run --rm "${IMAGE}" --help' in workflow
+    assert 'docker run --rm "${IMAGE}" schema list' in workflow
     assert "id -u" in workflow
     assert "trustweave.__version__" in workflow
     assert 'find /app -type d -name "__pycache__"' in workflow

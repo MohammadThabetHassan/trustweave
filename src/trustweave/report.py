@@ -150,6 +150,7 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
         f"| Added paths | {summary.get('added_paths', 0)} |",
         f"| Removed paths | {summary.get('removed_paths', 0)} |",
         f"| Policy decision changes | {summary.get('decision_changes', 0)} |",
+        f"| Policy-only changes | {summary.get('policy_changes', 0)} |",
         f"| Review signals | {summary.get('review_signals', 0)} |",
         "",
         "## Review signals",
@@ -192,6 +193,23 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
                     action_class=change.get("action_class", "unknown"),
                     added=added,
                     removed=removed,
+                )
+            )
+
+    policy_changes = _as_sequence(_as_mapping(changes.get("policy")).get("changed"))
+    lines.extend(["", "## Policy-only changes", ""])
+    if not policy_changes:
+        lines.append("No policy-only semantic changes were recorded.")
+    else:
+        lines.extend(["| Field | Before | After | Security-relevant |", "|---|---|---|---|"])
+        for raw_change in policy_changes:
+            change = _as_mapping(raw_change)
+            lines.append(
+                "| {path} | `{before}` | `{after}` | {security_relevant} |".format(
+                    path=change.get("path", "unknown"),
+                    before=change.get("before"),
+                    after=change.get("after"),
+                    security_relevant=change.get("security_relevant", False),
                 )
             )
 

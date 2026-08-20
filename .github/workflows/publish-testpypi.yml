@@ -13,12 +13,70 @@ permissions:
   contents: read
 
 jobs:
+  release-gate:
+    name: Verify exact annotated release target and local release checks
+    runs-on: ubuntu-latest
+    outputs:
+      target_sha: ${{ steps.release_target.outputs.sha }}
+    steps:
+      - name: Check out the selected release ref
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+      - name: Verify annotated tag reference and target SHA
+        id: release_target
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+          GITHUB_REF_TYPE: ${{ github.ref_type }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -eu
+          expected_tag_ref="refs/tags/v${EXPECTED_VERSION}"
+          test "$GITHUB_REF_TYPE" = "tag"
+          test "$GITHUB_REF_NAME" = "v${EXPECTED_VERSION}"
+          test "$GITHUB_REF" = "$expected_tag_ref"
+          test "$(git cat-file -t "refs/tags/${GITHUB_REF_NAME}")" = "tag"
+          tag_target_sha="$(git rev-parse "refs/tags/${GITHUB_REF_NAME}^{}")"
+          test "$tag_target_sha" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$tag_target_sha"
+          printf 'sha=%s\n' "$tag_target_sha" >> "$GITHUB_OUTPUT"
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install release-gate tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" bandit build pip-audit twine
+      - name: Run required local release checks for the tag target
+        run: |
+          ruff format --check .
+          ruff check .
+          mypy src
+          bandit -r src/trustweave -q
+          pytest
+          python scripts/reality_check.py
+          mkdocs build --strict
+          pip-audit -r requirements.txt
+
   build:
     name: Build TestPyPI distributions
+    needs: release-gate
+    if: needs.release-gate.outputs.target_sha == github.sha
     runs-on: ubuntu-latest
     steps:
-      - name: Check out release candidate
+      - name: Check out the verified release target
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - name: Verify checked-out SHA matches the passed release gate
+        env:
+          TARGET_SHA: ${{ github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -31,7 +89,7 @@ jobs:
         run: |
           package_version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
           test "$package_version" = "$EXPECTED_VERSION"
-      - name: Build distributions
+      - name: Build distributions from the verified target
         run: python -m build
       - name: Validate distribution metadata
         run: twine check dist/*
@@ -44,7 +102,8 @@ jobs:
 
   publish:
     name: Publish distributions to TestPyPI
-    needs: build
+    needs: [release-gate, build]
+    if: needs.release-gate.outputs.target_sha == github.sha && needs.build.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       id-token: write

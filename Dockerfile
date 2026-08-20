@@ -1,9 +1,11 @@
 # syntax=docker/dockerfile:1
 FROM python:3.13-slim@sha256:ffb752e139c0a19692a43af8d8523b274222dd68eebad5d583b45c2201c6e30a
 
+ARG TRUSTWEAVE_VERSION
+
 LABEL org.opencontainers.image.title="TrustWeave" \
       org.opencontainers.image.description="Local deterministic security evidence for declared agent trust boundaries" \
-      org.opencontainers.image.version="0.2.0" \
+      org.opencontainers.image.version="${TRUSTWEAVE_VERSION}" \
       org.opencontainers.image.source="https://github.com/MohammadThabetHassan/trustweave"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

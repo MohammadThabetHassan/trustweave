@@ -55,7 +55,7 @@ def test_policy_review_and_synthetic_results_conform_to_published_schemas() -> N
     ("schema_name", "artifact_factory"),
     [
         (
-            "bundle-diff-v1alpha2.schema.json",
+            "bundle-diff-v1alpha3.schema.json",
             lambda: _bundle_diff(),
         ),
         (

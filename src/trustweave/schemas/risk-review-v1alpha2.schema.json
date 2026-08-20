@@ -15,7 +15,8 @@
             "trustweave.dev/mcp-profile-review/v1alpha1",
             "trustweave.dev/bundle-diff/v1alpha1",
             "trustweave.dev/chain-review/v1alpha1",
-            "trustweave.dev/bundle-diff/v1alpha2"
+            "trustweave.dev/bundle-diff/v1alpha2",
+            "trustweave.dev/bundle-diff/v1alpha3"
           ]
         },
         "evidence_kind": {

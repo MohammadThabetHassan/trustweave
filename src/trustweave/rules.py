@@ -90,6 +90,78 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         ),
         "Review least-privilege scope and policy coverage.",
     ),
+    "TW-DIFF-004": RuleDefinition(
+        "TW-DIFF-004",
+        "declared_bundle_difference",
+        "Approval control changed from fail-closed to fail-open",
+        (
+            "A supplied policy-only delta weakens declared approval behavior even though "
+            "current declared flow outcomes may remain unchanged."
+        ),
+        "Review approval-boundary enforcement before accepting the policy change.",
+    ),
+    "TW-DIFF-005": RuleDefinition(
+        "TW-DIFF-005",
+        "declared_bundle_difference",
+        "Policy default decision changed to allow",
+        (
+            "A supplied policy-only delta changes unmatched declared paths from a non-allow "
+            "default to allow."
+        ),
+        "Review every unmatched-path assumption and the intended human-control boundary.",
+    ),
+    "TW-DIFF-006": RuleDefinition(
+        "TW-DIFF-006",
+        "declared_bundle_difference",
+        "Approval control removed",
+        "A supplied policy-only delta removes the declared approval control.",
+        "Review every require-approval boundary and restore an explicit scoped control if needed.",
+    ),
+    "TW-DIFF-007": RuleDefinition(
+        "TW-DIFF-007",
+        "declared_bundle_difference",
+        "Approval control lost bindings",
+        "A supplied policy-only delta removes one or more declared approval binding fields.",
+        "Review whether approval remains bound to the required action context and timing.",
+    ),
+    "TW-DIFF-008": RuleDefinition(
+        "TW-DIFF-008",
+        "declared_bundle_difference",
+        "Policy rule became less restrictive",
+        "A supplied policy-only delta changes a declared rule to a less restrictive decision.",
+        "Review the changed rule even if no current manifest flow exercises its boundary.",
+    ),
+    "TW-DIFF-009": RuleDefinition(
+        "TW-DIFF-009",
+        "declared_bundle_difference",
+        "Policy rule lost required controls",
+        "A supplied policy-only delta removes one or more required controls from a declared rule.",
+        "Review the affected approval and fail-closed obligations before accepting the change.",
+    ),
+    "TW-DIFF-010": RuleDefinition(
+        "TW-DIFF-010",
+        "declared_bundle_difference",
+        "Classification taxonomy changed",
+        (
+            "A supplied policy-only delta changes the declared classification taxonomy ordering "
+            "or set."
+        ),
+        "Review classification bounds, coverage, and the intended protection ordering.",
+    ),
+    "TW-DIFF-011": RuleDefinition(
+        "TW-DIFF-011",
+        "declared_bundle_difference",
+        "Structural policy rule boundary changed",
+        (
+            "A supplied policy-only delta adds, removes, reorders potentially overlapping rules, "
+            "or changes matching predicates. The deterministic signal requests human review but "
+            "does not prove that every structural change is insecure."
+        ),
+        (
+            "Review the identified rule boundaries, ordering, and first-match coverage before "
+            "accepting the change."
+        ),
+    ),
     "TW-MCP-001": RuleDefinition(
         "TW-MCP-001",
         "pre_recorded_mcp_metadata",

@@ -7,6 +7,7 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Any
 
+from trustweave.bundle_policy import normalize_rendered_policy
 from trustweave.models import (
     VALID_DECISIONS,
     VALID_SEVERITIES,
@@ -57,7 +58,7 @@ def _timestamp(value: Any, path: str) -> None:
 def _parse_bundle_policy(value: Any, path: str) -> Policy:
     """Parse the normalized policy payload rendered into a current local bundle."""
 
-    rendered = dict(_mapping(value, path))
+    rendered = normalize_rendered_policy(_mapping(value, path))
     schema_version = _text(rendered.get("schema_version"), f"{path}.schema_version")
     if schema_version == "trustweave.dev/v1alpha1":
         rendered["schema_version"] = "trustweave.dev/policy/v1alpha2"
@@ -344,6 +345,21 @@ def _validate_current_bundle(bundle: Mapping[str, Any], label: str) -> None:
         _validate_finding(item, f"{label}.findings[{index}]", manifest, policy)
         for index, item in enumerate(findings)
     )
+
+    # Import lazily because engine imports this module's schema-version constant while
+    # initializing. The shared oracle keeps build and validation semantics aligned.
+    from trustweave.engine import expected_finding_dicts
+    from trustweave.io import canonical_json
+
+    actual_findings = Counter(canonical_json(dict(item)) for item in findings)
+    expected_findings = Counter(
+        canonical_json(item) for item in expected_finding_dicts(manifest, policy)
+    )
+    if actual_findings != expected_findings:
+        raise ValidationError(
+            f"{label}.findings must exactly match fresh evaluation of the declared "
+            "manifest and policy"
+        )
 
     summary = _mapping(bundle.get("summary"), f"{label}.summary")
     summary_fields = {"allow", "deny", "require_approval"}

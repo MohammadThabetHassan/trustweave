@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from trustweave.cli import main
 from trustweave.io import load_document
@@ -300,3 +302,253 @@ def test_policy_review_preserves_exact_missing_and_incomplete_approval_artifacts
         "review_findings": 2,
         "status": "review_required",
     }
+
+
+def test_policy_coverage_does_not_shadow_with_an_impossible_earlier_rule() -> None:
+    """Only a possible earlier rule can make a later first-match rule unreachable."""
+
+    document = {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "impossible-earlier-audit-policy",
+        "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+        "default_decision": "deny",
+        "rules": [
+            {
+                "id": "TW-AUDIT-IMPOSSIBLE",
+                "description": "An earlier rule requiring an absent declared control.",
+                "source_trust": ["trusted"],
+                "tool_action_classes": ["read"],
+                "required_controls": ["approval.fail_closed"],
+                "decision": "deny",
+                "rationale": "The required control is intentionally absent.",
+            },
+            {
+                "id": "TW-AUDIT-REACHABLE",
+                "description": "A later rule that remains possible and reachable.",
+                "source_trust": ["trusted"],
+                "tool_action_classes": ["read"],
+                "decision": "allow",
+                "rationale": "This rule has no impossible control requirement.",
+            },
+        ],
+    }
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    coverage = review["coverage"]["rules"]
+    assert coverage["TW-AUDIT-IMPOSSIBLE"]["possible"] is False
+    assert coverage["TW-AUDIT-REACHABLE"] == {
+        "reachable": True,
+        "possible": True,
+        "shadowed_by": None,
+        "decision": "allow",
+    }
+    assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"source_trust": ["untrusted", "untrusted"]}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"tool_action_classes": ["external", "external"]}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"source_data_classifications": ["confidential", "confidential"]}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"tool_capabilities": ["records.read", "records.read"]}
+        ),
+        lambda document: document.update({"name": "p" * 129}),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"description": "d" * 4097}
+        ),
+        lambda document: document["rules"][0].update(  # type: ignore[index]
+            {"source_identifiers": [f"source-{index}" for index in range(129)]}
+        ),
+        lambda document: document["approval_control"].update(  # type: ignore[index]
+            {"binds_to": [f"binding-{index}" for index in range(65)]}
+        ),
+    ],
+)
+def test_policy_parser_and_schema_reject_the_same_declared_boundary_violations(
+    mutate: object,
+) -> None:
+    """Public parser and schema constraints agree for representative audit boundary cases."""
+
+    document = _copy_policy_document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    assert callable(mutate)
+    mutate(document)
+
+    schema = json.loads((ROOT / "schemas" / "policy-v1alpha2.schema.json").read_text("utf-8"))
+    schema_errors = list(Draft202012Validator(schema).iter_errors(document))
+    assert schema_errors
+    with pytest.raises(ValidationError):
+        parse_policy(document)
+
+
+def _v1alpha2_policy() -> dict[str, object]:
+    document = _copy_policy_document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    return document
+
+
+def _first_rule(document: dict[str, object]) -> dict[str, object]:
+    rules = document["rules"]
+    assert isinstance(rules, list)
+    first_rule = rules[0]
+    assert isinstance(first_rule, dict)
+    return first_rule
+
+
+@pytest.mark.parametrize(
+    ("mutate", "expected_message"),
+    [
+        (
+            lambda document: document.update(
+                {
+                    "classification_taxonomy": ["confidential"]
+                    + [f"class-{index}" for index in range(32)]
+                }
+            ),
+            "policy.classification_taxonomy must contain at most 32 entries",
+        ),
+        (
+            lambda document: document.update({"classification_taxonomy": ["x" * 65]}),
+            "policy.classification_taxonomy must be at most 64 characters",
+        ),
+        (
+            lambda document: document.update({"name": "n" * 129}),
+            "policy.name must be at most 128 characters",
+        ),
+        (
+            lambda document: document.update(
+                {
+                    "rules": [
+                        {
+                            **_first_rule(document),
+                            "id": f"RULE-{index}",
+                        }
+                        for index in range(1_001)
+                    ]
+                }
+            ),
+            "policy.rules must contain at most 1000 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {"source_trust": ["trusted", "untrusted", "conditional", "trusted"]}
+            ),
+            "policy.rules[0].source_trust must contain at most 3 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {
+                    "tool_action_classes": [
+                        "read",
+                        "write",
+                        "sensitive",
+                        "external",
+                        "read",
+                    ]
+                }
+            ),
+            "policy.rules[0].tool_action_classes must contain at most 4 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {"source_data_classifications": ["confidential"] * 33}
+            ),
+            "policy.rules[0].source_data_classifications must contain at most 32 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {"tool_capabilities": ["records.read"] * 129}
+            ),
+            "policy.rules[0].tool_capabilities must contain at most 128 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {"source_identifiers": [f"source-{index}" for index in range(129)]}
+            ),
+            "policy.rules[0].source_identifiers must contain at most 128 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {"tool_identifiers": [f"tool-{index}" for index in range(129)]}
+            ),
+            "policy.rules[0].tool_identifiers must contain at most 128 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {"purpose_tags": [f"tag-{index}" for index in range(129)]}
+            ),
+            "policy.rules[0].purpose_tags must contain at most 128 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update(
+                {"required_controls": ["approval", "approval.fail_closed", "approval"]}
+            ),
+            "policy.rules[0].required_controls must contain at most 2 entries",
+        ),
+        (
+            lambda document: _first_rule(document).update({"description": "d" * 4_097}),
+            "policy.rules[0].description must be at most 4096 characters",
+        ),
+        (
+            lambda document: _first_rule(document).update({"rationale": "r" * 4_097}),
+            "policy.rules[0].rationale must be at most 4096 characters",
+        ),
+        (
+            lambda document: document["approval_control"].update(  # type: ignore[index]
+                {"binds_to": [f"binding-{index}" for index in range(65)]}
+            ),
+            "policy.approval_control.binds_to must contain at most 64 entries",
+        ),
+        (
+            lambda document: document["approval_control"].update(  # type: ignore[index]
+                {"mechanism": "m" * 4_097}
+            ),
+            "policy.approval_control.mechanism must be at most 4096 characters",
+        ),
+        (
+            lambda document: document["approval_control"].update(  # type: ignore[index]
+                {"binds_to": ["b" * 4_097]}
+            ),
+            "policy.approval_control.binds_to must be at most 4096 characters",
+        ),
+    ],
+)
+def test_policy_v1alpha2_parser_and_schema_enforce_all_exact_boundaries(
+    mutate: object, expected_message: str
+) -> None:
+    """Every newly mirrored public policy bound remains parser/schema-equivalent."""
+
+    document = _v1alpha2_policy()
+    assert callable(mutate)
+    mutate(document)
+    schema = json.loads((ROOT / "schemas" / "policy-v1alpha2.schema.json").read_text("utf-8"))
+    assert list(Draft202012Validator(schema).iter_errors(document))
+    with pytest.raises(ValidationError, match=re.escape(expected_message)):
+        parse_policy(document)
+
+
+def test_policy_v1alpha2_parser_accepts_values_at_exact_text_boundaries() -> None:
+    """Schema maxima are inclusive for current policy documents."""
+
+    document = _v1alpha2_policy()
+    document["name"] = "n" * 128
+    document["classification_taxonomy"] = ["c" * 64]
+    rule = _first_rule(document)
+    rule["description"] = "d" * 4_096
+    rule["rationale"] = "r" * 4_096
+    rule["source_data_classifications"] = ["c" * 64]
+    control = document["approval_control"]
+    assert isinstance(control, dict)
+    control["mechanism"] = "m" * 4_096
+    control["binds_to"] = ["b" * 4_096]
+
+    parse_policy(document)

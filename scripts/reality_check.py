@@ -86,14 +86,14 @@ RULE_PRODUCER_PATHS = (
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "6,145 generated mutants; 6,049 killed; 96 survived; 0 without a selected test; "
+    "6,691 generated mutants; 6,565 killed; 126 survived; 0 without a selected test; "
     "0 timed out; 0 suspicious.",
-    "98.44% killed (`6,049 / 6,145`)",
+    "98.12% killed (`6,565 / 6,691`)",
     "Linux with fork support",
     "**95% mutation threshold** for the measured high-risk scope",
-    "96 classified survivors",
+    "126 classified survivors",
     "0 untriaged survivors",
-    "96 equivalent mutations",
+    "126 equivalent mutations",
     "0 defensive mutations",
     "0 mutations marked `needs_regression`",
     "release-blocking quality check",
@@ -107,8 +107,8 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
         "trustweave.dev/attestation/v1alpha3",
         "src/trustweave/evidence.py",
     ),
-    "bundle-diff-v1alpha2.schema.json": (
-        "trustweave.dev/bundle-diff/v1alpha2",
+    "bundle-diff-v1alpha3.schema.json": (
+        "trustweave.dev/bundle-diff/v1alpha3",
         "src/trustweave/diff.py",
     ),
     "chain-review-v1alpha1.schema.json": (
@@ -169,11 +169,15 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "trustweave.dev/bundle/v1alpha2",
         "trustweave/fingerprint/v3",
         "95% branch coverage",
+        "--bundle artifacts/agent-security-bundle.json",
+        "checks only the statement’s internal consistency",
     ),
     "docs/CLI_REFERENCE.md": (
         "trustweave/fingerprint/v3",
         "trustweave.dev/risk-review/v1alpha2",
         "risk-baseline/v1alpha2",
+        "Recommended exact-file verification",
+        "statement-only result does not establish",
     ),
     "docs/CONFIGURATION.md": (
         "baseline_bundle",
@@ -188,9 +192,10 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     ),
     "docs/SCHEMA_AND_COMPATIBILITY.md": (
         "trustweave.dev/bundle/v1alpha2",
-        "trustweave.dev/bundle-diff/v1alpha2",
+        "trustweave.dev/bundle-diff/v1alpha3",
         "trustweave.dev/risk-review/v1alpha2",
         "agent-security-bundle-v1alpha2.schema.json",
+        "bundle-diff-v1alpha3.schema.json",
         "risk-review-v1alpha2.schema.json",
     ),
     "docs/RISK_MANAGEMENT.md": (
@@ -200,6 +205,7 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     ),
     "docs/site/SCHEMAS.md": (
         "trustweave.dev/bundle/v1alpha2",
+        "trustweave.dev/bundle-diff/v1alpha3",
         "trustweave.dev/risk-review/v1alpha2",
     ),
 }
@@ -216,6 +222,8 @@ MUTATION_SOURCE_SCOPE = [
     "src/trustweave/schema_catalog.py",
     "src/trustweave/sarif.py",
     "src/trustweave/commands/ci.py",
+    "src/trustweave/bundle_policy.py",
+    "src/trustweave/policy_weakening.py",
 ]
 REPRODUCIBILITY_RECORD_MARKERS = (
     "Clean-checkout staged-CI release verification",
@@ -695,8 +703,14 @@ def _check_changelog_version_synchronization() -> list[str]:
     headings = CHANGELOG_VERSION_HEADING.findall(changelog_path.read_text(encoding="utf-8"))
     if not headings:
         failures.append("CHANGELOG.md lacks a version heading")
-    elif headings[0] != version:
-        failures.append("CHANGELOG.md top version heading does not match pyproject.toml")
+    else:
+        released_headings = [heading for heading in headings if heading != "Unreleased"]
+        if not released_headings:
+            failures.append("CHANGELOG.md lacks a released version heading")
+        elif released_headings[0] != version:
+            failures.append(
+                "CHANGELOG.md first released version heading does not match pyproject.toml"
+            )
     return failures
 
 

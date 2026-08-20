@@ -4,5 +4,14 @@
 * @MohammadThabetHassan
 /src/ @MohammadThabetHassan
 /schemas/ @MohammadThabetHassan
+/policies/ @MohammadThabetHassan
+/scripts/ @MohammadThabetHassan
 /docs/ @MohammadThabetHassan
 /.github/ @MohammadThabetHassan
+/Dockerfile @MohammadThabetHassan
+/pyproject.toml @MohammadThabetHassan
+/README.md @MohammadThabetHassan
+/CHANGELOG.md @MohammadThabetHassan
+/CONTRIBUTING.md @MohammadThabetHassan
+/GOVERNANCE.md @MohammadThabetHassan
+/SECURITY.md @MohammadThabetHassan

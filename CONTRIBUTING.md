@@ -50,7 +50,10 @@ trustweave explain --scenarios scenarios/adversarial-scenarios.json --scenario-i
 trustweave mcp-import --tool-list examples/mcp-tools/support-tools-list.json --output-dir artifacts/mcp-inventory
 trustweave attest --source-revision contributor-check --output-dir artifacts
 trustweave report --output-dir artifacts
-trustweave verify --attestation artifacts/attestation.json
+trustweave verify \
+  --attestation artifacts/attestation.json \
+  --bundle artifacts/agent-security-bundle.json \
+  --test-results artifacts/security-test-results.json
 trustweave policy-check --policy policies/default-policy.json --output-dir artifacts
 trustweave trace-review \
   --manifest examples/support-agent.manifest.json \
