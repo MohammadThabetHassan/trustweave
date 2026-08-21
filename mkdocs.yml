@@ -27,6 +27,7 @@ nav:
   - Local CI workflow: CI_WORKFLOW.md
   - Developer integration routes: INTEGRATIONS.md
   - Assurance controls: ASSURANCE.md
+  - Synthetic evaluation framework: EVALUATION.md
   - Maintainer review and release boundary: MAINTAINERS.md
   - CLI:
       - Guide: CLI.md

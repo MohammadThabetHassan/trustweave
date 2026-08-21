@@ -23,6 +23,7 @@
   <a href="docs/CLI_REFERENCE.md">CLI reference</a> ·
   <a href="docs/PRODUCT_CONTRACT.md">Product contract</a> ·
   <a href="docs/REVIEWER_WORKFLOW.md">Reviewer workflow</a> ·
+  <a href="docs/evaluation/EVALUATION_CHARTER.md">Evaluation framework</a> ·
   <a href="SECURITY.md">Security</a>
 </p>
 
@@ -143,6 +144,8 @@ The project also avoids unsupported security claims. A review finding is a deter
 | [Architecture](docs/ARCHITECTURE.md) | Components, local data flow, invariants, and extension boundaries. |
 | [Threat model](docs/THREAT_MODEL.md) | Assumptions, non-goals, and the limits of review evidence. |
 | [Quality evidence](docs/QUALITY.md) | The test, compatibility, build, reproducibility, and scoped mutation-analysis controls. |
+| [Synthetic evaluation framework](docs/evaluation/EVALUATION_CHARTER.md) | The versioned local corpus, reviewer protocol, data-minimization rules, evidence status, and explicit non-claims. |
+| [Community feedback policy](docs/COMMUNITY_FEEDBACK.md) | How to submit safe, reproducible feedback without disclosing sensitive evidence or making unsupported claims. |
 | [Reproducibility and integrity](docs/REPRODUCIBILITY.md) | The exact distinction between stable evidence payloads, volatile provenance, byte reproducibility, and local file integrity. |
 | [Compatibility contract](docs/COMPATIBILITY.md) | The machine-readable CLI, Python, artifact-writer, bounded-reader, and deprecation expectations. |
 | [Golden deterministic evidence](docs/GOLDEN_EVIDENCE.md) | Six reviewed synthetic local cases, canonical artifact digests, check-only regeneration, and explicit update controls. |
@@ -164,7 +167,7 @@ The project also avoids unsupported security claims. A review finding is a deter
 
 ## Built to be inspected
 
-The current published package is [`trustweave==0.2.3`](https://pypi.org/project/trustweave/0.2.3/) with matching [GitHub Release `v0.2.3`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.3). Its exact TestPyPI and PyPI wheels were clean-installed and independently verified against the expected GitHub repository through PyPI provenance; see the [0.2.3 release evidence](docs/RELEASE_EVIDENCE_0.2.3.md). The release adds a versioned compatibility contract, synthetic golden evidence, threat-control-test traceability, explicit local resource bounds, clean-environment distribution assurance, and observed PyPI project-attestation verification. Annotated `v0.2.0` remains an immutable unpublished audit tag at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; it was never published to PyPI and has no GitHub Release. The release path includes formatting, linting, strict type checks, static source-security scanning, a **95% branch-coverage gate**, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
+The current published package is [`trustweave==0.3.0`](https://pypi.org/project/trustweave/0.3.0/) with matching [GitHub Release `v0.3.0`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.3.0). Its exact TestPyPI and PyPI wheels were clean-installed and independently verified against the expected GitHub repository through PyPI provenance; see the [0.3.0 release evidence](docs/site/RELEASE_EVIDENCE_0.3.0.md). Annotated `v0.2.0` remains an immutable unpublished audit tag at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; it was never published to PyPI and has no GitHub Release. The release path includes formatting, linting, strict type checks, static source-security scanning, a **95% branch-coverage gate**, isolated wheel installation, fixed-epoch wheel reproducibility, dependency auditing, CycloneDX SBOM generation, deterministic repository-reality checks, and cross-platform Python 3.11/3.13 compatibility jobs.
 
 Current inputs retain their documented `v1alpha1`/`v1alpha2` contracts. Generated bundles use `trustweave.dev/bundle/v1alpha2`; risk decisions use canonical `trustweave/fingerprint/v3` identities and generated reviews use `trustweave.dev/risk-review/v1alpha2`. Historical v1alpha1 bundle and review resources remain available for bounded compatibility rather than being silently redefined. Read the [compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md) before depending on a schema or review identifier outside the documented contract.
 
