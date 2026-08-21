@@ -22,6 +22,16 @@ The maintainer reviews [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md), [docs/QUALI
 
 Security-sensitive findings and proposed exceptions to the non-executing boundary require explicit repository-owner approval. A change that cannot be reviewed safely should remain out of scope rather than being merged behind an undocumented flag.
 
+## Branch protection and evidence-maintenance policy
+
+The repository’s protected `main` branch is a release-critical control. The owner should periodically confirm that force pushes and branch deletion remain blocked; that the quality, static-analysis, dependency, and mutation checks actually produced by the repository are required before normal integration; and that administrator enforcement, conversation resolution, linear history, and signed-commit requirements are configured only where they match the active contributor model.
+
+TrustWeave currently permits owner-controlled direct-main maintenance in limited circumstances. When pull requests are used, the final reviewer must confirm that relevant review conversations are resolved and that hosted checks are green on the exact proposed head. A successful check is not authorization to merge, tag, publish, or alter the safety boundary.
+
+This policy records the intended control review only. GitHub repository settings remain owner-controlled and must be verified in GitHub after any configuration change before the project claims that a control is enabled.
+
+Independent reviewer feedback, corpus observations, and future pilot evidence must be recorded using the evidence classes and status rules in [docs/evaluation/EVALUATION_CHARTER.md](docs/evaluation/EVALUATION_CHARTER.md) and [docs/evaluation/STATUS.md](docs/evaluation/STATUS.md). Public feedback is not automatically independent evidence, and planned infrastructure is not a completed study.
+
 ## Public contribution path
 
 Public contributors can use the repository’s issue forms for bugs and bounded feature proposals, and the pull-request template for implementation changes. Suspected vulnerabilities must follow the private route in [SECURITY.md](SECURITY.md), not a public issue. Contributions should start with [CONTRIBUTING.md](CONTRIBUTING.md) and must preserve the project’s synthetic-data, local-input, and no-execution boundaries.

@@ -1,0 +1,62 @@
+name: Evaluation feedback
+about: Report a safe corpus, reproducibility, or evidence-clarity observation
+title: "evaluation: "
+labels:
+  - evaluation-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for improving TrustWeave’s evaluation foundations. This form is for safe, reproducible observations about the synthetic corpus, local setup, or artifact clarity. It is not a security-reporting route and is not a request for study-participant data.
+
+        Do not include credentials, tokens, personal data, production traces, proprietary manifests, tool arguments, message content, live endpoint details, exploit payloads, or any material you are not authorized to disclose. Use the private route in SECURITY.md for a suspected vulnerability.
+  - type: input
+    id: version
+    attributes:
+      label: TrustWeave version or commit
+      description: Provide the release version or commit you evaluated.
+      placeholder: "0.3.0 or commit SHA"
+    validations:
+      required: true
+  - type: input
+    id: corpus_version
+    attributes:
+      label: Corpus case or manifest version
+      description: Provide a synthetic case ID when relevant.
+      placeholder: "TW-EVAL-..."
+  - type: dropdown
+    id: observation_type
+    attributes:
+      label: Observation type
+      options:
+        - Setup or reproducibility blocker
+        - Expected-output mismatch
+        - Evidence or report clarity concern
+        - Safe corpus-case proposal
+        - Documentation correction
+        - Other bounded observation
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: Safe reproduction or observation
+      description: Describe only synthetic local inputs, the command run, expected result, actual result, and why the result matters to human review.
+      placeholder: |
+        Command:
+        Expected category:
+        Actual category:
+        Safe explanation:
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Safety and evidence checks
+      options:
+        - label: I used only synthetic or authorized non-sensitive material and did not run TrustWeave against a live target.
+          required: true
+        - label: I understand that this public issue is not an independent-review study response and does not establish adoption or security efficacy.
+          required: true
+        - label: I did not include a secret, personal data, production artifact, proprietary source, message content, tool arguments, or exploit payload.
+          required: true
