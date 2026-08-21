@@ -61,7 +61,7 @@ Suspected vulnerabilities remain subject to [SECURITY.md](../SECURITY.md), not p
 
 ## Recurring assurance review
 
-At least every 90 days while the project is actively maintained, and before each minor release, the owner reviews [Governance](../GOVERNANCE.md), [Threat Model](THREAT_MODEL.md), [Quality](QUALITY.md), [Security](../SECURITY.md), [Compatibility](COMPATIBILITY.md), and [Assurance Gap Inventory](ASSURANCE_GAP_INVENTORY.md). The review record must state the date, reviewed SHA, changed assumptions, outstanding owner-controlled settings, completed evidence, and whether any public claim must be narrowed.
+At least every 90 days while the project is actively maintained, and before each minor release, the owner reviews [Governance](../GOVERNANCE.md), [Threat Model](THREAT_MODEL.md), [Quality](QUALITY.md), [Security](../SECURITY.md), [Compatibility](COMPATIBILITY.md), [Assurance Gap Inventory](ASSURANCE_GAP_INVENTORY.md), the [Evaluation Status Ledger](evaluation/STATUS.md), [Synthetic Corpus Lifecycle](evaluation/CORPUS_LIFECYCLE.md), [Community Feedback Policy](COMMUNITY_FEEDBACK.md), and [Public Issue Triage Procedure](ISSUE_TRIAGE.md). The review record must state the date, reviewed SHA, changed assumptions, outstanding owner-controlled settings, completed evidence, evaluation-corpus/feedback status, and whether any public claim must be narrowed.
 
 ```text
 Assurance review date: YYYY-MM-DD
@@ -70,6 +70,7 @@ Reviewer / release authority: <identity>
 Changed threat, dependency, release, or maintenance assumptions: <text>
 Owner-controlled settings verified: <settings or explicit gaps>
 Evidence reviewed: <workflow links, local commands, release record>
+Evaluation corpus and feedback status: <corpus version, open safe feedback, ledger changes, or no change>
 Claims narrowed or documentation updated: <text or none>
 Open follow-up and owner: <text or none>
 ```
