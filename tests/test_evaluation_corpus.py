@@ -109,3 +109,115 @@ def test_corpus_runner_remains_local_and_uses_the_established_cli() -> None:
     assert "httpx" not in source
     assert "urllib" not in source
     assert "socket" not in source
+
+
+def test_corpus_preflight_rejects_non_contiguous_case_identifiers() -> None:
+    runner = _runner_module()
+    corpus = _corpus_document()
+    cases = corpus["cases"]
+    assert isinstance(cases, list)
+    second_case = cases[1]
+    assert isinstance(second_case, dict)
+    second_case["id"] = "TW-EVAL-004"
+
+    with pytest.raises(runner.CorpusError, match="ordered and contiguous"):
+        runner._validate_corpus(corpus)
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement", "error"),
+    [
+        ("corpus_id", "other-corpus", "corpus_id"),
+        ("corpus_version", "v9alpha9", "corpus_version"),
+        ("description", "", "description"),
+    ],
+)
+def test_corpus_preflight_rejects_incompatible_metadata(
+    field: str, replacement: str, error: str
+) -> None:
+    runner = _runner_module()
+    corpus = _corpus_document()
+    corpus[field] = replacement
+
+    with pytest.raises(runner.CorpusError, match=error):
+        runner._validate_corpus(corpus)
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement", "error"),
+    [
+        ("exit_on_review", "true", "exit_on_review"),
+        ("expected_signal_ids", ["TW-DIFF-003", "TW-DIFF-003"], "unique non-empty"),
+    ],
+)
+def test_corpus_preflight_rejects_invalid_case_control_metadata(
+    field: str, replacement: object, error: str
+) -> None:
+    runner = _runner_module()
+    corpus = _corpus_document()
+    cases = corpus["cases"]
+    assert isinstance(cases, list)
+    case_index = 6 if field == "expected_signal_ids" else 3
+    case = cases[case_index]
+    assert isinstance(case, dict)
+    case[field] = replacement
+
+    with pytest.raises(runner.CorpusError, match=error):
+        runner._validate_corpus(corpus)
+
+
+def test_check_only_mode_validates_the_contract_without_running_cases(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    runner = _runner_module()
+
+    exit_code = runner.main_runner(["--check"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Evaluation corpus contract passed: 12 cases, v1alpha1." in captured.out
+
+
+def test_evaluation_lifecycle_and_public_guide_keep_the_local_evidence_boundary() -> None:
+    lifecycle = (ROOT / "docs" / "evaluation" / "CORPUS_LIFECYCLE.md").read_text(encoding="utf-8")
+    guide = (ROOT / "docs" / "site" / "EVALUATION.md").read_text(encoding="utf-8")
+
+    assert "python scripts/run_evaluation_corpus.py --check" in lifecycle
+    assert "Existing case IDs are immutable" in lifecycle
+    assert (
+        "No network, model, credential, agent, tool, server, target, or external-data behavior"
+        in lifecycle
+    )
+    assert "twelve checked-in synthetic cases" in guide
+    assert "not yet collected" in guide
+    assert "does not demonstrate runtime enforcement" in guide
+
+
+def test_reviewer_quickstart_and_archive_readiness_remain_reproducible_and_honest() -> None:
+    quickstart = (ROOT / "docs" / "evaluation" / "REVIEWER_QUICKSTART.md").read_text(
+        encoding="utf-8"
+    )
+    archive_readiness = (ROOT / "docs" / "evaluation" / "ARTIFACT_ARCHIVE_READINESS.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "python scripts/run_evaluation_corpus.py --check" in quickstart
+    assert "python scripts/run_evaluation_corpus.py --verify" in quickstart
+    assert "cannot establish source authenticity" in quickstart
+    assert "create an archive, reserve a DOI" in archive_readiness
+    assert "SHA-256" in archive_readiness
+    assert "A durable archive URL or DOI has not yet been recorded." in archive_readiness
+
+
+def test_public_feedback_triage_preserves_safe_evidence_and_owner_control() -> None:
+    triage = (ROOT / "docs" / "ISSUE_TRIAGE.md").read_text(encoding="utf-8")
+    feedback = (ROOT / "docs" / "COMMUNITY_FEEDBACK.md").read_text(encoding="utf-8")
+    handoff = (ROOT / "docs" / "MAINTAINER_HANDOFF.md").read_text(encoding="utf-8")
+
+    assert "does not create a response-time guarantee" in triage
+    assert "must not be processed through a public issue" in triage
+    assert "not an independently collected reviewer-study result" in triage
+    assert "automatic merge" in triage
+    assert "Public Issue Triage Procedure" in feedback
+    assert "not automatically a participant response" in feedback
+    assert "Evaluation corpus and feedback status:" in handoff

@@ -53,10 +53,24 @@ PUBLIC_ASSETS = (
     "docs/DISTRIBUTION_ASSURANCE.md",
     "docs/RESOURCE_BOUNDS.md",
     "docs/PACKAGE_PROVENANCE.md",
+    "docs/evaluation/EVALUATION_CHARTER.md",
+    "docs/evaluation/REVIEWER_PROTOCOL.md",
+    "docs/evaluation/DATA_MINIMIZATION_POLICY.md",
+    "docs/evaluation/CONFLICTS_AND_LIMITATIONS.md",
+    "docs/evaluation/STATUS.md",
+    "docs/evaluation/CORPUS_LIFECYCLE.md",
+    "docs/evaluation/REVIEWER_QUICKSTART.md",
+    "docs/evaluation/ARTIFACT_ARCHIVE_READINESS.md",
+    "docs/COMMUNITY_FEEDBACK.md",
+    "docs/ISSUE_TRIAGE.md",
+    "docs/site/EVALUATION.md",
+    "examples/evaluation-corpus/corpus.json",
+    "scripts/run_evaluation_corpus.py",
 )
 REQUIRED_ISSUE_FORMS = (
     ".github/ISSUE_TEMPLATE/01-bug-report.yml",
     ".github/ISSUE_TEMPLATE/02-feature-request.yml",
+    ".github/ISSUE_TEMPLATE/03-evaluation-feedback.yml",
 )
 REQUIRED_README_MARKERS = (
     "python -m pip install --upgrade trustweave",
@@ -65,6 +79,7 @@ REQUIRED_README_MARKERS = (
     "[SUPPORT.md](SUPPORT.md)",
     "[SECURITY.md](SECURITY.md)",
     "[CONTRIBUTING.md](CONTRIBUTING.md)",
+    "docs/evaluation/EVALUATION_CHARTER.md",
 )
 ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
@@ -207,6 +222,37 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "trustweave.dev/bundle/v1alpha2",
         "trustweave.dev/bundle-diff/v1alpha3",
         "trustweave.dev/risk-review/v1alpha2",
+    ),
+    "docs/evaluation/CORPUS_LIFECYCLE.md": (
+        "trustweave.dev/evaluation-corpus/v1alpha1",
+        "TW-EVAL-001",
+        "python scripts/run_evaluation_corpus.py --check",
+        "independent evaluation result",
+    ),
+    "docs/site/EVALUATION.md": (
+        "twelve checked-in synthetic cases",
+        "not yet collected",
+        "attack prevention",
+    ),
+    "docs/evaluation/REVIEWER_QUICKSTART.md": (
+        "python scripts/run_evaluation_corpus.py --check",
+        "python scripts/run_evaluation_corpus.py --verify",
+        "cannot establish source authenticity",
+        "must not be described as a study response",
+    ),
+    "docs/evaluation/ARTIFACT_ARCHIVE_READINESS.md": (
+        "A durable archive URL or DOI has not yet been recorded.",
+        "SHA-256",
+        "human maintainer has reviewed it",
+    ),
+    "docs/ISSUE_TRIAGE.md": (
+        "must not be processed through a public issue",
+        "not an independently collected reviewer-study result",
+        "automatic merge",
+    ),
+    "docs/MAINTAINER_HANDOFF.md": (
+        "Evaluation corpus and feedback status:",
+        "Public Issue Triage Procedure",
     ),
 }
 MUTATION_SOURCE_SCOPE = [

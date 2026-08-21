@@ -7,6 +7,7 @@ import argparse
 import contextlib
 import copy
 import io
+import re
 import tempfile
 from pathlib import Path
 from typing import Any, Final
@@ -19,6 +20,11 @@ from trustweave.models import parse_manifest, parse_policy
 ROOT: Final[Path] = Path(__file__).resolve().parents[1]
 DEFAULT_CORPUS: Final[Path] = ROOT / "examples" / "evaluation-corpus" / "corpus.json"
 FIXED_GENERATED_AT: Final[str] = "2026-08-20T00:00:00+00:00"
+CORPUS_SCHEMA_VERSION: Final[str] = "trustweave.dev/evaluation-corpus/v1alpha1"
+CORPUS_ID: Final[str] = "trustweave-synthetic-evaluation-corpus"
+CORPUS_VERSION: Final[str] = "v1alpha1"
+MINIMUM_CASES: Final[int] = 12
+CASE_ID_PATTERN: Final[re.Pattern[str]] = re.compile(r"TW-EVAL-(?P<number>\d{3})")
 VALID_OPERATIONS: Final[frozenset[str]] = frozenset(
     {"scan", "policy-check", "diff", "trace-review", "mcp-profile-check"}
 )
@@ -61,25 +67,38 @@ def _require_string(case: dict[str, Any], field: str) -> str:
 def _validate_corpus(corpus: dict[str, Any]) -> list[dict[str, Any]]:
     """Validate the narrow, local-only corpus manifest before executing any case."""
 
-    if corpus.get("schema_version") != "trustweave.dev/evaluation-corpus/v1alpha1":
+    if corpus.get("schema_version") != CORPUS_SCHEMA_VERSION:
         raise CorpusError("Unsupported evaluation corpus schema_version")
-    if not isinstance(corpus.get("non_claim"), str) or not corpus["non_claim"]:
-        raise CorpusError("Corpus requires a non-empty non_claim")
+    if corpus.get("corpus_id") != CORPUS_ID:
+        raise CorpusError("Unsupported evaluation corpus_id")
+    if corpus.get("corpus_version") != CORPUS_VERSION:
+        raise CorpusError("Unsupported evaluation corpus_version")
+    for field in ("description", "non_claim"):
+        value = corpus.get(field)
+        if not isinstance(value, str) or not value:
+            raise CorpusError(f"Corpus requires a non-empty {field}")
     cases = corpus.get("cases")
-    if not isinstance(cases, list) or len(cases) < 12:
-        raise CorpusError("Corpus must contain at least twelve cases")
+    if not isinstance(cases, list) or len(cases) < MINIMUM_CASES:
+        raise CorpusError(f"Corpus must contain at least {MINIMUM_CASES} cases")
 
     validated: list[dict[str, Any]] = []
     identifiers: set[str] = set()
     clear_controls = 0
-    for raw_case in cases:
+    for expected_number, raw_case in enumerate(cases, start=1):
         if not isinstance(raw_case, dict):
             raise CorpusError("Every corpus case must be an object")
         case = dict(raw_case)
         identifier = _require_string(case, "id")
+        identifier_match = CASE_ID_PATTERN.fullmatch(identifier)
+        if identifier_match is None or int(identifier_match["number"]) != expected_number:
+            expected_id = f"TW-EVAL-{expected_number:03d}"
+            raise CorpusError(
+                f"Corpus case IDs must be ordered and contiguous; expected {expected_id}"
+            )
         if identifier in identifiers:
             raise CorpusError(f"Duplicate corpus case id: {identifier}")
         identifiers.add(identifier)
+        _require_string(case, "title")
         operation = _require_string(case, "operation")
         if operation not in VALID_OPERATIONS:
             raise CorpusError(f"Unsupported corpus operation for {identifier}: {operation}")
@@ -88,6 +107,8 @@ def _validate_corpus(corpus: dict[str, Any]) -> list[dict[str, Any]]:
             raise CorpusError(f"Corpus case {identifier} requires expected_exit from 0 through 3")
         for field in ("rationale", "non_claim"):
             _require_string(case, field)
+        if "exit_on_review" in case and not isinstance(case["exit_on_review"], bool):
+            raise CorpusError(f"Corpus case {identifier} exit_on_review must be boolean")
         for path_field in ("manifest", "policy", "trace", "profile"):
             if path_field in case:
                 _inside_root(_require_string(case, path_field))
@@ -118,12 +139,20 @@ def _validate_corpus(corpus: dict[str, Any]) -> list[dict[str, Any]]:
         assertions = case.get("assertions", [])
         if not isinstance(assertions, list):
             raise CorpusError(f"Corpus case {identifier} assertions must be a list")
+        for raw_assertion in assertions:
+            if not isinstance(raw_assertion, dict):
+                raise CorpusError(f"Corpus case {identifier} has a non-object assertion")
+            path = raw_assertion.get("path")
+            if not isinstance(path, str) or not path or "equals" not in raw_assertion:
+                raise CorpusError(f"Corpus case {identifier} assertion requires path and equals")
         signal_ids = case.get("expected_signal_ids")
         if signal_ids is not None and (
             not isinstance(signal_ids, list)
-            or not all(isinstance(item, str) for item in signal_ids)
+            or not all(isinstance(item, str) and item for item in signal_ids)
+            or len(signal_ids) != len(set(signal_ids))
         ):
-            raise CorpusError(f"Corpus case {identifier} expected_signal_ids must be a string list")
+            message = "expected_signal_ids must be a unique non-empty string list"
+            raise CorpusError(f"Corpus case {identifier} {message}")
         if any("http://" in value or "https://" in value for value in _string_values(case)):
             raise CorpusError(f"Corpus case {identifier} must not contain an external URL")
         if case.get("expected_exit") == 0 and any(
@@ -420,7 +449,13 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--output-dir", type=Path, help="Local output directory; defaults to a temporary directory."
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate the checked-in local corpus contract without running any case.",
+    )
+    mode.add_argument(
         "--verify", action="store_true", help="Return non-zero when any corpus expectation fails."
     )
     return parser
@@ -433,6 +468,16 @@ def main_runner(argv: list[str] | None = None) -> int:
     corpus_path = args.corpus.resolve()
     try:
         _inside_root(corpus_path.relative_to(ROOT).as_posix())
+        if args.check:
+            corpus = load_document(corpus_path)
+            if not isinstance(corpus, dict):
+                raise CorpusError("Evaluation corpus root must be an object")
+            cases = _validate_corpus(corpus)
+            print(
+                "Evaluation corpus contract passed: "
+                f"{len(cases)} cases, {corpus['corpus_version']}."
+            )
+            return 0
         if args.output_dir is None:
             with tempfile.TemporaryDirectory(prefix="trustweave-evaluation-corpus-") as temporary:
                 summary = run_corpus(corpus_path, Path(temporary))
