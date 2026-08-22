@@ -84,4 +84,4 @@ def test_top_level_version_flags_bypass_dispatch_and_configuration_discovery(
 def test_package_and_build_metadata_expose_one_authoritative_version() -> None:
     """The top-level version output must be sourced from package metadata, not a second literal."""
 
-    assert __version__ == _declared_project_version() == "0.3.0"
+    assert __version__ == _declared_project_version() == "0.3.1"

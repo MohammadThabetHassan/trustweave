@@ -45,7 +45,19 @@ python -c "import trustweave; print(trustweave.__version__)"
 python --version
 sha256sum /tmp/trustweave-archive-review/evaluation-corpus-summary.json
 sha256sum /tmp/trustweave-archive-review/evaluation-corpus-summary.md
+
+python scripts/build_evaluation_artifact.py \
+  --kind technical-report-supplement \
+  --revision "$(git rev-parse HEAD)" \
+  --output-dir /tmp/trustweave-archive-package
+python scripts/build_evaluation_artifact.py \
+  --verify-manifest /tmp/trustweave-archive-package/evaluation-artifact-manifest.json
+sha256sum /tmp/trustweave-archive-package/evaluation-artifact-manifest.json
+sha256sum /tmp/trustweave-archive-package/trustweave-technical-report-supplement.zip
+unzip -Z1 /tmp/trustweave-archive-package/trustweave-technical-report-supplement.zip
 ```
+
+The artifact builder accepts only the checked-in allowlist, validates safe relative paths, rejects prohibited transient paths and credential-like content, records stable SHA-256 digests, and produces deterministic member ordering. It performs no network request, upload, archive-service action, model call, target interaction, or reviewer contact. The manifest verifier checks that the selected files still match the current approved repository bytes.
 
 A maintainer may then prepare a file inventory and checksums for the selected public files. The inventory must be reviewed before it is packaged. Do not archive transient virtual environments, test caches, local logs, untracked files, or entire home directories.
 

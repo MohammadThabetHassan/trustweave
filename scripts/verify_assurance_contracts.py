@@ -131,10 +131,23 @@ def _check_compatibility_contract() -> list[str]:
     if package.get("name") != metadata.get("name"):
         failures.append("Compatibility package name does not match pyproject.toml")
     current_release = package.get("current_public_release")
-    if current_release != metadata.get("version"):
-        failures.append(
-            "Compatibility current_public_release does not match published pyproject.toml version"
-        )
+    source_version = metadata.get("version")
+    if not isinstance(current_release, str) or not current_release:
+        failures.append("Compatibility current_public_release must be a non-empty string")
+    if not isinstance(source_version, str) or not source_version:
+        failures.append("pyproject.toml project.version must be a non-empty string")
+    release_candidate = package.get("release_candidate")
+    if not isinstance(release_candidate, dict):
+        failures.append("Compatibility package.release_candidate must be an object")
+    else:
+        if release_candidate.get("version") != source_version:
+            failures.append(
+                "Compatibility release_candidate version must match pyproject.toml source version"
+            )
+        if release_candidate.get("status") != "prepared-not-published":
+            failures.append(
+                "Compatibility release_candidate must remain prepared-not-published before release"
+            )
     if package.get("requires_python") != metadata.get("requires-python"):
         failures.append("Compatibility requires_python does not match pyproject.toml")
 
@@ -225,7 +238,7 @@ def _check_compatibility_contract() -> list[str]:
         if not isinstance(published_writers, dict):
             failures.append("Compatibility published_release writers must be an object")
         elif published_writers.get("bundle_diff") != "trustweave.dev/bundle-diff/v1alpha3":
-            failures.append("Compatibility published 0.3.0 bundle_diff writer must be v1alpha3")
+            failures.append("Compatibility published bundle_diff writer must be v1alpha3")
 
     schema_policy = SCHEMA_POLICY_PATH.read_text(encoding="utf-8")
     bounded_readers = artifacts.get("bounded_legacy_readers")

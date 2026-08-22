@@ -18,6 +18,8 @@ A reviewer receives the following materials from the same versioned TrustWeave r
 | Two selected case reports | Supports a short evidence-interpretation exercise. |
 | This protocol and feedback form | Keeps collection and analysis consistent. |
 
+The fixed [Offline Reviewer Packet](../../examples/evaluation-corpus/reviewer-packet/README.md) provides the safe local task sequence, feedback template, and owner-reviewable drafts. It is prepared infrastructure, not a recruitment event or a completed review.
+
 The default time budget is **45–60 minutes**. Reviewers may stop at any point and may report setup friction or uncertainty without providing an explanation.
 
 ## Required offline tasks

@@ -6,6 +6,10 @@ TrustWeave `0.3.0` is the current published package, available from [PyPI](https
 
 The GitHub repository is the source of truth for code, documentation, schemas, and release workflows. Every future release must use an explicitly authorized commit identity and retain the project’s non-executing boundary.
 
+### Prepared 0.3.1 candidate
+
+TrustWeave `0.3.1` is a prepared source candidate while the last observed public package remains `0.3.0`. This candidate contains substantive repository-controlled evaluation, reviewer-packet, archive-readiness, and governance-assessment work, but it is **not** a public release until the owner authorizes an annotated `v0.3.1` tag, TestPyPI publication, clean installation, exact-file provenance verification, PyPI publication, and GitHub Release record. Do not add a `0.3.1` provenance claim, artifact URL, release badge, package-index assertion, archive identifier, or tag reference before those actions have actually completed.
+
 ## Evidence checklist
 
 | Check | Required evidence |
@@ -25,6 +29,7 @@ The GitHub repository is the source of truth for code, documentation, schemas, a
 | Dependency and SBOM checks | Hosted CI performs declared-dependency audit and reproducible CycloneDX SBOM generation. |
 | Reproducibility | Hosted CI verifies the fixed-epoch wheel build; before tagging, run `python3 scripts/verify_release_reproducibility.py --source-revision "$(git rev-parse HEAD)" --generated-at 2026-08-19T00:00:00+00:00` to verify two temporary configured staged-CI runs, byte-identical artifacts, path hygiene, and supplied-file attestation bindings. |
 | Compatibility | Hosted CI passes on the configured Python 3.11/3.13 and operating-system matrix. |
+| Reviewer/archive readiness | `python scripts/build_evaluation_artifact.py --kind reviewer-packet --revision "$(git rev-parse HEAD)" --output-dir /tmp/trustweave-reviewer-packet` and the corresponding manifest verifier pass locally; no packet is shared or archived without owner approval. |
 | Repository hygiene | The working tree is clean, generated artifacts are excluded, and documentation matches implementation. |
 
 ## Release flow

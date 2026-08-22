@@ -43,7 +43,7 @@
           "path": "report.md"
         },
         {
-          "digest": "fb711dca6d061555754cfee6140cd5673eeea393ff6fe4fddd3ceeec42689108",
+          "digest": "3a0d3068fc04658e025964012bd0d235dc48dc04be64320cdfff048e6e6c4f71",
           "digest_kind": "canonical-json-sha256",
           "path": "reports/trustweave.sarif"
         },
@@ -346,7 +346,7 @@
           "path": "policy-review/policy-review.md"
         },
         {
-          "digest": "cc3257bae52a4e39e4cd996d4d5d29b71399c1400010b728bf98ad138af49b55",
+          "digest": "55e65271d64ea3f8b6074812fe897f6d72a9fee5cce7004bf1bb78dfb7dc84ed",
           "digest_kind": "canonical-json-sha256",
           "path": "trustweave.sarif"
         }

@@ -30,7 +30,7 @@ def test_assurance_contract_matches_repository_implementation() -> None:
 def test_assurance_contract_rejects_published_v1alpha3_boundary_drift(
     monkeypatch: object, tmp_path: Path
 ) -> None:
-    """Published 0.3.0 must retain its reviewed v1alpha3 bundle-diff writer."""
+    """The observed public release must retain its reviewed v1alpha3 bundle-diff writer."""
 
     assurance_contracts = _assurance_contract_module()
     contract = json.loads(assurance_contracts.COMPATIBILITY_PATH.read_text(encoding="utf-8"))
@@ -41,7 +41,7 @@ def test_assurance_contract_rejects_published_v1alpha3_boundary_drift(
     replacement.write_text(json.dumps(contract), encoding="utf-8")
     monkeypatch.setattr(assurance_contracts, "COMPATIBILITY_PATH", replacement)
 
-    assert "Compatibility published 0.3.0 bundle_diff writer must be v1alpha3" in (
+    assert "Compatibility published bundle_diff writer must be v1alpha3" in (
         assurance_contracts._check_compatibility_contract()
     )
 

@@ -2,6 +2,23 @@
 
 All notable changes to TrustWeave are documented in this file. The project follows a keep-a-changelog style and uses semantic versioning for authorized releases.
 
+## [0.3.1] - Unreleased release candidate
+
+### Added
+
+- Added versioned evaluation governance, a deterministic twelve-case synthetic corpus, local preflight validation, corpus lifecycle controls, reviewer quickstart, archive-readiness materials, and safe public-feedback/triage infrastructure. These are prepared repository-controlled foundations; no independent reviewer, pilot, adoption, benchmark, archive, or security-efficacy result is claimed.
+- Added an owner-facing GitHub governance decision record, a manually triggered least-privilege OpenSSF Scorecard assessment workflow that retains a local GitHub Actions artifact without publishing results, and a record template that prohibits score, badge, certification, or remediation claims before owner-reviewed evidence exists.
+- Added a fixed offline reviewer packet, consent-aware feedback and result-record templates, and a deterministic local artifact builder/verifier that allowlists public-safe files, records SHA-256 digests, rejects unsafe paths and credential-like content, and creates deterministic local ZIP packages without upload or network behavior.
+
+### Changed
+
+- Separated the prepared source version from the last observed public package release in the compatibility contract so an unreleased candidate cannot be presented as published provenance evidence.
+- Replaced fragile README release-version prose with durable PyPI and GitHub Releases references while retaining the exact historical `0.3.0` release-evidence limit.
+
+### Release status
+
+- Source metadata is prepared as `0.3.1`, but **`0.3.1` is not published, tagged, uploaded, or released**. The latest observed public package release remains `0.3.0` until a separately owner-authorized publication process completes and records new exact-file evidence.
+
 ## [0.3.0] - 2026-08-20
 
 ### Fixed

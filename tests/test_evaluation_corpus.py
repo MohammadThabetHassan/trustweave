@@ -221,3 +221,20 @@ def test_public_feedback_triage_preserves_safe_evidence_and_owner_control() -> N
     assert "Public Issue Triage Procedure" in feedback
     assert "not automatically a participant response" in feedback
     assert "Evaluation corpus and feedback status:" in handoff
+
+
+def test_manual_scorecard_assessment_remains_owner_gated_and_non_publishing() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "scorecard.yml").read_text(encoding="utf-8")
+    governance = (ROOT / "docs" / "GITHUB_GOVERNANCE_DECISION.md").read_text(encoding="utf-8")
+    assessment = (ROOT / "docs" / "EXTERNAL_ASSESSMENT.md").read_text(encoding="utf-8")
+
+    assert "workflow_dispatch:" in workflow
+    assert "reason:" in workflow
+    assert "publish_results: false" in workflow
+    assert "security-events: write" not in workflow
+    assert "id-token: write" not in workflow
+    assert "ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc" in workflow
+    assert "Choose one maintenance profile" in governance
+    assert "Do not claim a branch-protection rule" in governance
+    assert "Until an owner-approved run exists" in assessment
+    assert "Published externally by this workflow: no" in assessment

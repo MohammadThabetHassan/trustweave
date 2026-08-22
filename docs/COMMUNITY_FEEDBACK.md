@@ -16,7 +16,7 @@ TrustWeave welcomes genuine feedback that improves the clarity, reproducibility,
 
 ## Triage categories
 
-The [Public Issue Triage Procedure](ISSUE_TRIAGE.md) defines the required safety, disclosure, and provenance checks for these routes. It does not create an automated workflow or a response-time commitment.
+The [Public Issue Triage Procedure](ISSUE_TRIAGE.md) defines the required safety, disclosure, and provenance checks for these routes. External users should first follow the [Safe External Reproduction Guide](SAFE_EXTERNAL_REPRODUCTION.md); maintainers should apply the [External Communication Checklist](EXTERNAL_COMMUNICATION_CHECKLIST.md) before any owner-approved project update or outreach. These materials do not create an automated workflow or a response-time commitment.
 
 Maintainers may label a public item as `needs-reproduction`, `needs-scope-review`, `corpus-proposal`, `evaluation-feedback`, `accepted-limitation`, `security-private-route`, `documentation`, `duplicate`, or `deferred`. Labels communicate the current review state; they do not guarantee implementation, endorsement, release approval, or a response date.
 

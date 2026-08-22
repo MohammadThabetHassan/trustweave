@@ -1,0 +1,47 @@
+{
+  "schema_version": "trustweave.dev/evaluation-artifact-allowlist/v1alpha1",
+  "description": "Approved public-safe files for deterministic local reviewer-packet and technical-report artifact manifests. This list is not an archive, DOI, publication record, or external evidence claim.",
+  "kinds": {
+    "reviewer-packet": [
+      "examples/evaluation-corpus/corpus.json",
+      "examples/evaluation-corpus/README.md",
+      "examples/evaluation-corpus/fixtures/missing-trust.manifest.json",
+      "examples/evaluation-corpus/fixtures/missing-data-classification.manifest.json",
+      "examples/evaluation-corpus/reviewer-packet/README.md",
+      "examples/evaluation-corpus/reviewer-packet/FEEDBACK_TEMPLATE.md",
+      "scripts/run_evaluation_corpus.py",
+      "docs/evaluation/EVALUATION_CHARTER.md",
+      "docs/evaluation/REVIEWER_PROTOCOL.md",
+      "docs/evaluation/DATA_MINIMIZATION_POLICY.md",
+      "docs/evaluation/CONFLICTS_AND_LIMITATIONS.md",
+      "docs/evaluation/STATUS.md",
+      "docs/evaluation/REVIEWER_QUICKSTART.md"
+    ],
+    "technical-report-supplement": [
+      "README.md",
+      "LICENSE",
+      "CITATION.cff",
+      "pyproject.toml",
+      "examples/evaluation-corpus/corpus.json",
+      "examples/evaluation-corpus/README.md",
+      "examples/evaluation-corpus/fixtures/missing-trust.manifest.json",
+      "examples/evaluation-corpus/fixtures/missing-data-classification.manifest.json",
+      "examples/evaluation-corpus/reviewer-packet/README.md",
+      "examples/evaluation-corpus/reviewer-packet/FEEDBACK_TEMPLATE.md",
+      "examples/evaluation-corpus/reviewer-packet/OUTREACH_INVITATION_DRAFT.md",
+      "examples/evaluation-corpus/reviewer-packet/RESULT_RECORD_TEMPLATE.md",
+      "scripts/run_evaluation_corpus.py",
+      "scripts/build_evaluation_artifact.py",
+      "docs/evaluation/EVALUATION_CHARTER.md",
+      "docs/evaluation/REVIEWER_PROTOCOL.md",
+      "docs/evaluation/DATA_MINIMIZATION_POLICY.md",
+      "docs/evaluation/CONFLICTS_AND_LIMITATIONS.md",
+      "docs/evaluation/STATUS.md",
+      "docs/evaluation/CORPUS_LIFECYCLE.md",
+      "docs/evaluation/REVIEWER_QUICKSTART.md",
+      "docs/evaluation/ARTIFACT_ARCHIVE_READINESS.md",
+      "docs/GITHUB_GOVERNANCE_DECISION.md",
+      "docs/EXTERNAL_ASSESSMENT.md"
+    ]
+  }
+}

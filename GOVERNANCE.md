@@ -28,7 +28,7 @@ The repository’s protected `main` branch is a release-critical control. The ow
 
 TrustWeave currently permits owner-controlled direct-main maintenance in limited circumstances. When pull requests are used, the final reviewer must confirm that relevant review conversations are resolved and that hosted checks are green on the exact proposed head. A successful check is not authorization to merge, tag, publish, or alter the safety boundary.
 
-This policy records the intended control review only. GitHub repository settings remain owner-controlled and must be verified in GitHub after any configuration change before the project claims that a control is enabled.
+This policy records the intended control review only. GitHub repository settings remain owner-controlled and must be verified in GitHub after any configuration change before the project claims that a control is enabled. Before changing or describing these controls, use the [GitHub Governance Decision Record](docs/GITHUB_GOVERNANCE_DECISION.md) to select a maintenance profile and retain the owner-observed setting record.
 
 Independent reviewer feedback, corpus observations, and future pilot evidence must be recorded using the evidence classes and status rules in [docs/evaluation/EVALUATION_CHARTER.md](docs/evaluation/EVALUATION_CHARTER.md) and [docs/evaluation/STATUS.md](docs/evaluation/STATUS.md). Public feedback is not automatically independent evidence, and planned infrastructure is not a completed study.
 

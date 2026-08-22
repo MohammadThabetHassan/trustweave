@@ -53,6 +53,11 @@ PUBLIC_ASSETS = (
     "docs/DISTRIBUTION_ASSURANCE.md",
     "docs/RESOURCE_BOUNDS.md",
     "docs/PACKAGE_PROVENANCE.md",
+    "docs/RELEASE_CANDIDATE_0.3.1.md",
+    "docs/GITHUB_GOVERNANCE_DECISION.md",
+    "docs/EXTERNAL_ASSESSMENT.md",
+    "docs/SAFE_EXTERNAL_REPRODUCTION.md",
+    "docs/EXTERNAL_COMMUNICATION_CHECKLIST.md",
     "docs/evaluation/EVALUATION_CHARTER.md",
     "docs/evaluation/REVIEWER_PROTOCOL.md",
     "docs/evaluation/DATA_MINIMIZATION_POLICY.md",
@@ -61,11 +66,17 @@ PUBLIC_ASSETS = (
     "docs/evaluation/CORPUS_LIFECYCLE.md",
     "docs/evaluation/REVIEWER_QUICKSTART.md",
     "docs/evaluation/ARTIFACT_ARCHIVE_READINESS.md",
+    "docs/evaluation/artifact-allowlist.json",
     "docs/COMMUNITY_FEEDBACK.md",
     "docs/ISSUE_TRIAGE.md",
     "docs/site/EVALUATION.md",
     "examples/evaluation-corpus/corpus.json",
+    "examples/evaluation-corpus/reviewer-packet/README.md",
+    "examples/evaluation-corpus/reviewer-packet/FEEDBACK_TEMPLATE.md",
+    "examples/evaluation-corpus/reviewer-packet/OUTREACH_INVITATION_DRAFT.md",
+    "examples/evaluation-corpus/reviewer-packet/RESULT_RECORD_TEMPLATE.md",
     "scripts/run_evaluation_corpus.py",
+    "scripts/build_evaluation_artifact.py",
 )
 REQUIRED_ISSUE_FORMS = (
     ".github/ISSUE_TEMPLATE/01-bug-report.yml",
@@ -244,6 +255,8 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "A durable archive URL or DOI has not yet been recorded.",
         "SHA-256",
         "human maintainer has reviewed it",
+        "python scripts/build_evaluation_artifact.py",
+        "performs no network request, upload, archive-service action",
     ),
     "docs/ISSUE_TRIAGE.md": (
         "must not be processed through a public issue",
@@ -253,6 +266,36 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     "docs/MAINTAINER_HANDOFF.md": (
         "Evaluation corpus and feedback status:",
         "Public Issue Triage Procedure",
+    ),
+    "docs/GITHUB_GOVERNANCE_DECISION.md": (
+        "Current observed baseline",
+        "Choose one maintenance profile",
+        "Do not claim a branch-protection rule",
+    ),
+    "docs/EXTERNAL_ASSESSMENT.md": (
+        "manual only",
+        "no claim",
+        "Published externally by this workflow: no",
+    ),
+    "docs/RELEASE_CANDIDATE_0.3.1.md": (
+        "Prepared source candidate; not published.",
+        "The last observed public package release is `0.3.0`",
+        "TrustWeave 0.3.1 is released",
+    ),
+    "docs/SAFE_EXTERNAL_REPRODUCTION.md": (
+        "It is a reproducibility path, not a security test",
+        "Do not point it at a live agent",
+        "It cannot support",
+    ),
+    "docs/EXTERNAL_COMMUNICATION_CHECKLIST.md": (
+        "not an authorization to publish or contact anyone",
+        "No result is framed as a certification",
+        "A successful CI job, prepared document, public issue, or synthetic test result",
+    ),
+    "examples/evaluation-corpus/reviewer-packet/README.md": (
+        "prepared, not yet executed",
+        "Participation is optional.",
+        "does not establish runtime enforcement",
     ),
 }
 MUTATION_SOURCE_SCOPE = [
@@ -514,6 +557,79 @@ def _check_workflows() -> list[str]:
                     f"Workflow action is not pinned to a full commit SHA: "
                     f"{path.relative_to(ROOT)}:{line_number}"
                 )
+    return failures
+
+
+def _check_manual_scorecard_workflow() -> list[str]:
+    """Require the owner-approved assessment path to remain manual and non-publishing."""
+
+    failures: list[str] = []
+    relative_path = ".github/workflows/scorecard.yml"
+    path = ROOT / relative_path
+    if not path.is_file():
+        return [f"Missing manual Scorecard workflow: {relative_path}"]
+    try:
+        workflow = yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+    except yaml.YAMLError as error:
+        return [f"Invalid manual Scorecard workflow: {error}"]
+    if not isinstance(workflow, dict):
+        return ["Manual Scorecard workflow must be a YAML mapping"]
+
+    triggers = workflow.get("on")
+    if not isinstance(triggers, dict) or set(triggers) != {"workflow_dispatch"}:
+        failures.append("Manual Scorecard workflow must use workflow_dispatch as its only trigger")
+    dispatch = triggers.get("workflow_dispatch") if isinstance(triggers, dict) else None
+    inputs = dispatch.get("inputs") if isinstance(dispatch, dict) else None
+    reason = inputs.get("reason") if isinstance(inputs, dict) else None
+    if not isinstance(reason, dict) or reason.get("required") != "true":
+        failures.append("Manual Scorecard workflow requires an owner-recorded reason input")
+
+    if workflow.get("permissions") != {"contents": "read"}:
+        failures.append("Manual Scorecard workflow must use only contents: read permissions")
+    jobs = workflow.get("jobs")
+    analysis = jobs.get("analysis") if isinstance(jobs, dict) else None
+    if not isinstance(analysis, dict):
+        return failures + ["Manual Scorecard workflow lacks its analysis job"]
+    if "permissions" in analysis:
+        failures.append("Manual Scorecard analysis job must not add elevated permissions")
+    steps = analysis.get("steps")
+    if not isinstance(steps, list):
+        return failures + ["Manual Scorecard analysis job lacks steps"]
+
+    scorecard_step = next(
+        (
+            step
+            for step in steps
+            if isinstance(step, dict)
+            and step.get("uses") == "ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc"
+        ),
+        None,
+    )
+    if not isinstance(scorecard_step, dict):
+        failures.append("Manual Scorecard workflow lacks the expected pinned Scorecard Action")
+    else:
+        inputs = scorecard_step.get("with")
+        if not isinstance(inputs, dict) or inputs.get("publish_results") != "false":
+            failures.append("Manual Scorecard workflow must disable result publication")
+        if not isinstance(inputs, dict) or inputs.get("results_format") != "sarif":
+            failures.append("Manual Scorecard workflow must retain SARIF results")
+
+    artifact_step = next(
+        (
+            step
+            for step in steps
+            if isinstance(step, dict)
+            and step.get("uses")
+            == "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+        ),
+        None,
+    )
+    if not isinstance(artifact_step, dict):
+        failures.append("Manual Scorecard workflow lacks the expected pinned artifact uploader")
+    else:
+        inputs = artifact_step.get("with")
+        if not isinstance(inputs, dict) or inputs.get("retention-days") != "7":
+            failures.append("Manual Scorecard workflow must retain results for seven days")
     return failures
 
 
@@ -1226,6 +1342,7 @@ def main() -> int:
         + _check_installed_wheel_runtime_contract()
         + _check_markdown_links()
         + _check_workflows()
+        + _check_manual_scorecard_workflow()
         + _check_ci_assets()
         + _check_issue_templates()
         + _check_public_documents()

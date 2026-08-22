@@ -35,7 +35,7 @@ Reviewer: <maintainer identity>
 
 ## Owner-controlled GitHub settings
 
-The repository source can route ownership and validate workflow files, but GitHub settings are owner-controlled. Before relying on a protection as a release or merge assurance, the owner should confirm it in the repository settings and retain a dated review note.
+The repository source can route ownership and validate workflow files, but GitHub settings are owner-controlled. Before relying on a protection as a release or merge assurance, the owner should confirm it in the repository settings and retain a dated review note. The [GitHub Governance Decision Record](GITHUB_GOVERNANCE_DECISION.md) provides the profile-selection and observation template for this step.
 
 | Setting | Recommended state | Verification method | What this repository can prove |
 | --- | --- | --- | --- |
