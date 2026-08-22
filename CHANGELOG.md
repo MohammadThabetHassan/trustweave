@@ -14,6 +14,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - Separated the prepared source version from the last observed public package release in the compatibility contract so an unreleased candidate cannot be presented as published provenance evidence.
 - Replaced fragile README release-version prose with durable PyPI and GitHub Releases references while retaining the exact historical `0.3.0` release-evidence limit.
+- Rewrote the README around a verified two-minute quickstart with real output, a curated docs index, and a shorter plain-language explanation of the evidence-not-enforcement boundary.
+- Reorganized documentation: point-in-time release checklists, migration guides, audit records, and the maintainer handoff snapshot moved to `docs/archive/` with an index; ADRs moved to `docs/adr/`; the documentation site navigation is grouped by task (getting started, concepts, how-to, CLI, policies, assurance, releases).
+- Tightened the installation and troubleshooting pages, fixed stray code-block indentation, and made the missing-paths configuration error list exactly which paths it wants.
 
 ### Release status
 
