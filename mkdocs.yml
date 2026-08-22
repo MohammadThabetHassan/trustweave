@@ -26,6 +26,7 @@ nav:
       - Troubleshooting and limitations: TROUBLESHOOTING.md
   - Concepts:
       - Concepts: concepts.md
+      - How it compares: COMPARISON.md
       - Manifest, tags, and classifications: MANIFEST_CONTRACT.md
       - Declared chain model: CHAIN_MODEL.md
       - Threat model: THREAT_MODEL.md
