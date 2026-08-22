@@ -46,7 +46,7 @@ python3 scripts/verify_release_reproducibility.py \
   --generated-at 2026-08-19T00:00:00+00:00
 ```
 
-The helper uses tracked local fixtures, compares two ten-artifact trees byte-for-byte, rejects temporary and checkout-path leakage, verifies supplied-file v1alpha3 attestations, removes its temporary directories, and confirms that the working tree is unchanged. See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for scope and limits.
+The helper uses tracked local fixtures, compares two ten-artifact trees byte-for-byte, rejects temporary and checkout-path leakage, verifies supplied-file v1alpha3 attestations, removes its temporary directories, and confirms that the working tree is unchanged. See [REPRODUCIBILITY.md](../REPRODUCIBILITY.md) for scope and limits.
 
 ## C. Artifact verification after an owner-authorized release build
 
@@ -108,6 +108,6 @@ If a defect is discovered before publication, stop the sequence and prepare a co
 | Publication decision | [TestPyPI trusted publishing](https://github.com/MohammadThabetHassan/trustweave/actions/runs/32237530524) and [PyPI trusted publishing](https://github.com/MohammadThabetHassan/trustweave/actions/runs/32237644011) completed successfully; `trustweave==0.2.1` is published on both indexes. |
 | GitHub Release | [TrustWeave 0.2.1](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.1) is public and includes the wheel, sdist, SBOM, and checksum evidence. |
 | Preserved 0.2.0 audit tag | `v0.2.0` at `7232fe3a23d92f50a693903c0a6b7cb92d0a1426`; never published and no GitHub Release. |
-| Rollback contact | Follow [SECURITY.md](../SECURITY.md) for a security report or the project maintainer/support routes for a release defect; publish a verified corrective version rather than replacing released bytes. |
+| Rollback contact | Follow [SECURITY.md](../../SECURITY.md) for a security report or the project maintainer/support routes for a release defect; publish a verified corrective version rather than replacing released bytes. |
 
 This completed record supersedes the pre-release status for `0.2.1`. The preserved `v0.2.0` audit tag remains immutable and unpublished.

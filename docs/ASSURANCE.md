@@ -28,7 +28,7 @@ TrustWeave is a local, deterministic evidence tool. This map identifies what the
 
 The exact `0.3.0` TestPyPI and PyPI wheels passed official expected-repository verification against `https://github.com/MohammadThabetHassan/trustweave`. [Release Evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md) records the exact file URLs, hashes, provenance sources, verifier output, and clean-install results. This authenticated package-provenance claim is limited to those two exact distributions.
 
-Existing local `trustweave attest` artifacts remain unsigned local-integrity evidence and are not package-release attestations. [ADR-0005](ADR-0005-PACKAGE-RELEASE-PROVENANCE.md) and [Package Release Provenance](PACKAGE_PROVENANCE.md) define the TestPyPI-first path for future releases. The repository must not describe any future package release as signed, attested, or provenance-verified until its exact published distribution has passed consumer verification.
+Existing local `trustweave attest` artifacts remain unsigned local-integrity evidence and are not package-release attestations. [ADR-0005](adr/ADR-0005-PACKAGE-RELEASE-PROVENANCE.md) and [Package Release Provenance](PACKAGE_PROVENANCE.md) define the TestPyPI-first path for future releases. The repository must not describe any future package release as signed, attested, or provenance-verified until its exact published distribution has passed consumer verification.
 
 ## Owner-controlled external settings
 

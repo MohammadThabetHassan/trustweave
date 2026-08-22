@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_maintainer_handoff_preserves_review_and_owner_control_boundaries() -> None:
     """The operating guide must retain its exact-SHA and non-claim review controls."""
 
-    handoff = (ROOT / "docs" / "MAINTAINER_HANDOFF.md").read_text(encoding="utf-8")
+    handoff = (ROOT / "docs" / "archive" / "MAINTAINER_HANDOFF.md").read_text(encoding="utf-8")
     for marker in (
         "## Merge decision record",
         "exact head SHA",
@@ -60,12 +60,13 @@ def test_maintainer_operating_guidance_is_discoverable_from_quality_and_site_nav
     site_page = (ROOT / "docs" / "site" / "MAINTAINERS.md").read_text(encoding="utf-8")
     mkdocs = (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
 
-    assert "[Maintainer Handoff](MAINTAINER_HANDOFF.md)" in quality
-    assert "[Maintainer Handoff](docs/MAINTAINER_HANDOFF.md)" in governance
+    assert "[Maintainer Handoff](archive/MAINTAINER_HANDOFF.md)" in quality
+    assert "[Maintainer Handoff](docs/archive/MAINTAINER_HANDOFF.md)" in governance
     assert "The full versioned operating record is maintained" in site_page
     assert "cannot manufacture an approval" in site_page
+    assert "docs/archive/MAINTAINER_HANDOFF.md" in site_page
     assert "[release process](RELEASE.md)" in site_page
-    assert "Maintainer review and release boundary: MAINTAINERS.md" in mkdocs
+    assert "Reviewer workflow (site): MAINTAINERS.md" in mkdocs
 
 
 def test_product_contract_requires_maintainer_evidence_and_extension_admission() -> None:

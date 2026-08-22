@@ -46,4 +46,4 @@ If the simple index is still propagating immediately after a successful upload, 
 
 ## Boundaries
 
-This procedure publishes package artifacts only. It does not make the repository public, create production PyPI artifacts, enable runtime behavior in TrustWeave, add external signing, upload SARIF, connect to MCP servers, execute tools, access credentials, or call models. See the [release guide](RELEASE.md) for the production path.
+This procedure publishes package artifacts only. It does not make the repository public, create production PyPI artifacts, enable runtime behavior in TrustWeave, add external signing, upload SARIF, connect to MCP servers, execute tools, access credentials, or call models. See the [release guide](../RELEASE.md) for the production path.

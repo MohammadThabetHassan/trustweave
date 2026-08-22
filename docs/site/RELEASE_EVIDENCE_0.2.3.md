@@ -50,7 +50,7 @@ pypi-attestations verify pypi \
 
 A fresh environment also installed `trustweave==0.2.3` from PyPI; the console command, module entry point, and import-visible version each reported `0.2.3`, and `trustweave schema list` completed successfully.
 
-For the repository-maintained source record, see [Release Evidence 0.2.3](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/RELEASE_EVIDENCE_0.2.3.md).
+For the repository-maintained source record, see [Release Evidence 0.2.3](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/archive/RELEASE_EVIDENCE_0.2.3.md).
 
 ## References
 

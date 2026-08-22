@@ -18,7 +18,7 @@ The repository owner is currently the release manager and final decision-maker f
 
 ## Review cadence
 
-The maintainer reviews [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md), [docs/QUALITY.md](docs/QUALITY.md), [SECURITY.md](SECURITY.md), and this governance policy before each minor release and at least once every 90 days while active development continues. The review should record the source revision, changed assumptions, unresolved risks, completed release evidence, and whether existing claims need to be narrowed. [Maintainer Handoff](docs/MAINTAINER_HANDOFF.md) defines the exact review-record template, owner-controlled setting checks, and failed-check response.
+The maintainer reviews [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md), [docs/QUALITY.md](docs/QUALITY.md), [SECURITY.md](SECURITY.md), and this governance policy before each minor release and at least once every 90 days while active development continues. The review should record the source revision, changed assumptions, unresolved risks, completed release evidence, and whether existing claims need to be narrowed. [Maintainer Handoff](docs/archive/MAINTAINER_HANDOFF.md) defines the exact review-record template, owner-controlled setting checks, and failed-check response.
 
 Security-sensitive findings and proposed exceptions to the non-executing boundary require explicit repository-owner approval. A change that cannot be reviewed safely should remain out of scope rather than being merged behind an undocumented flag.
 
@@ -28,7 +28,7 @@ The repository’s protected `main` branch is a release-critical control. The ow
 
 TrustWeave currently permits owner-controlled direct-main maintenance in limited circumstances. When pull requests are used, the final reviewer must confirm that relevant review conversations are resolved and that hosted checks are green on the exact proposed head. A successful check is not authorization to merge, tag, publish, or alter the safety boundary.
 
-This policy records the intended control review only. GitHub repository settings remain owner-controlled and must be verified in GitHub after any configuration change before the project claims that a control is enabled. Before changing or describing these controls, use the [GitHub Governance Decision Record](docs/GITHUB_GOVERNANCE_DECISION.md) to select a maintenance profile and retain the owner-observed setting record.
+This policy records the intended control review only. GitHub repository settings remain owner-controlled and must be verified in GitHub after any configuration change before the project claims that a control is enabled. Before changing or describing these controls, use the [GitHub Governance Decision Record](docs/archive/GITHUB_GOVERNANCE_DECISION.md) to select a maintenance profile and retain the owner-observed setting record.
 
 Independent reviewer feedback, corpus observations, and future pilot evidence must be recorded using the evidence classes and status rules in [docs/evaluation/EVALUATION_CHARTER.md](docs/evaluation/EVALUATION_CHARTER.md) and [docs/evaluation/STATUS.md](docs/evaluation/STATUS.md). Public feedback is not automatically independent evidence, and planned infrastructure is not a completed study.
 

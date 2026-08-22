@@ -4,7 +4,7 @@
 
 TrustWeave is a **local-first, non-executing** evidence-review tool. This runbook turns the repository’s published quality, release, and safety boundaries into a repeatable maintainer procedure. It is intentionally an operating guide, not proof that a GitHub setting, package-index configuration, signing identity, or deployment exists.
 
-The repository owner remains the release authority described in [Governance](../GOVERNANCE.md). A successful CI run, a green pull request, or a contributor commit does not itself authorize a merge, tag, package publication, signature, GitHub Release, or a broader security claim.
+The repository owner remains the release authority described in [Governance](../../GOVERNANCE.md). A successful CI run, a green pull request, or a contributor commit does not itself authorize a merge, tag, package publication, signature, GitHub Release, or a broader security claim.
 
 ## Merge decision record
 
@@ -17,7 +17,7 @@ Before merging a pull request, the maintainer records the following facts in the
 | Quality | Required local and hosted checks completed successfully on the current head SHA. | `gh pr checks <number>` output or hosted workflow links. |
 | Security-sensitive paths | Changes to `.github/`, `src/`, `schemas/`, policies, release material, or provenance wording receive owner review. | A recorded approval or maintainer review note. |
 | Generated evidence | Golden evidence, mutation triage, schemas, catalogs, or snapshots changed only through their documented regeneration path and were reviewed as data. | Generator command, reviewed diff, and check-only verifier output. |
-| Claim boundary | Documentation does not turn local consistency, synthetic evidence, or configured controls into a claim of runtime enforcement, identity, certification, or future-release provenance. | Documentation review against [Product Contract](PRODUCT_CONTRACT.md) and [Assurance Gap Inventory](ASSURANCE_GAP_INVENTORY.md). |
+| Claim boundary | Documentation does not turn local consistency, synthetic evidence, or configured controls into a claim of runtime enforcement, identity, certification, or future-release provenance. | Documentation review against [Product Contract](../PRODUCT_CONTRACT.md) and [Assurance Gap Inventory](../ASSURANCE_GAP_INVENTORY.md). |
 
 Use the following minimum review record when GitHub review fields are insufficient:
 
@@ -57,11 +57,11 @@ If the owner cannot verify a setting, record it as an **owner-controlled gap** r
 | Reproducibility, golden-evidence, or traceability validation fails | Treat the change as a contract drift; review the source change and update the reviewed deterministic record only through its documented maintainer path. | Do not refresh a record implicitly or accept unexplained digest drift. |
 | Publication workflow fails | Stop before retrying publication. Verify tag identity, target SHA, environment approval, exact artifact bytes, and index state. | Never move a tag, overwrite a file, or publish a rebuilt artifact under the same version. |
 
-Suspected vulnerabilities remain subject to [SECURITY.md](../SECURITY.md), not public issue triage.
+Suspected vulnerabilities remain subject to [SECURITY.md](../../SECURITY.md), not public issue triage.
 
 ## Recurring assurance review
 
-At least every 90 days while the project is actively maintained, and before each minor release, the owner reviews [Governance](../GOVERNANCE.md), [Threat Model](THREAT_MODEL.md), [Quality](QUALITY.md), [Security](../SECURITY.md), [Compatibility](COMPATIBILITY.md), [Assurance Gap Inventory](ASSURANCE_GAP_INVENTORY.md), the [Evaluation Status Ledger](evaluation/STATUS.md), [Synthetic Corpus Lifecycle](evaluation/CORPUS_LIFECYCLE.md), [Community Feedback Policy](COMMUNITY_FEEDBACK.md), and [Public Issue Triage Procedure](ISSUE_TRIAGE.md). The review record must state the date, reviewed SHA, changed assumptions, outstanding owner-controlled settings, completed evidence, evaluation-corpus/feedback status, and whether any public claim must be narrowed.
+At least every 90 days while the project is actively maintained, and before each minor release, the owner reviews [Governance](../../GOVERNANCE.md), [Threat Model](../THREAT_MODEL.md), [Quality](../QUALITY.md), [Security](../../SECURITY.md), [Compatibility](../COMPATIBILITY.md), [Assurance Gap Inventory](../ASSURANCE_GAP_INVENTORY.md), the [Evaluation Status Ledger](../evaluation/STATUS.md), [Synthetic Corpus Lifecycle](../evaluation/CORPUS_LIFECYCLE.md), [Community Feedback Policy](../COMMUNITY_FEEDBACK.md), and [Public Issue Triage Procedure](../ISSUE_TRIAGE.md). The review record must state the date, reviewed SHA, changed assumptions, outstanding owner-controlled settings, completed evidence, evaluation-corpus/feedback status, and whether any public claim must be narrowed.
 
 ```text
 Assurance review date: YYYY-MM-DD
@@ -79,4 +79,4 @@ Keep the record in the relevant pull request, release checklist, or an issue vis
 
 ## Release boundary
 
-Release remains a separate owner-authorized procedure. Follow [Release Procedure](RELEASE.md), the current owner checklist, [Distribution Assurance](DISTRIBUTION_ASSURANCE.md), and [Package Provenance](PACKAGE_PROVENANCE.md). The exact published `0.3.0` evidence is historical; a later release must create fresh evidence from its own annotated tag and exact artifact bytes.
+Release remains a separate owner-authorized procedure. Follow [Release Procedure](../RELEASE.md), the current owner checklist, [Distribution Assurance](../DISTRIBUTION_ASSURANCE.md), and [Package Provenance](../PACKAGE_PROVENANCE.md). The exact published `0.3.0` evidence is historical; a later release must create fresh evidence from its own annotated tag and exact artifact bytes.

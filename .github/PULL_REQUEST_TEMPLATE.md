@@ -37,7 +37,7 @@ All local evidence and hosted checks cited below must refer to this exact head S
 Check every applicable item and describe the result below.
 
 - [ ] This change touches `.github/`, package metadata, `Dockerfile`, release material, attestations, provenance wording, source contracts, schemas, policies, or mutation/golden evidence.
-- [ ] I identified the corresponding maintainer decision and exact evidence required by [`docs/MAINTAINER_HANDOFF.md`](../docs/MAINTAINER_HANDOFF.md).
+- [ ] I identified the corresponding maintainer decision and exact evidence required by [`docs/MAINTAINER_HANDOFF.md`](../docs/archive/MAINTAINER_HANDOFF.md).
 - [ ] This pull request does **not** authorize tagging, signing, publication, or a GitHub Release.
 
 Describe the release-sensitive review or write `not applicable`:

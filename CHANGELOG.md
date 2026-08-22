@@ -57,7 +57,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Release status
 
-- `0.2.3` is published on [PyPI](https://pypi.org/project/trustweave/0.2.3/), [TestPyPI](https://test.pypi.org/project/trustweave/0.2.3/), and [GitHub Release `v0.2.3`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.3). Its exact TestPyPI and PyPI wheels passed clean-install and expected-repository provenance verification; see [the release evidence record](docs/RELEASE_EVIDENCE_0.2.3.md).
+- `0.2.3` is published on [PyPI](https://pypi.org/project/trustweave/0.2.3/), [TestPyPI](https://test.pypi.org/project/trustweave/0.2.3/), and [GitHub Release `v0.2.3`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.3). Its exact TestPyPI and PyPI wheels passed clean-install and expected-repository provenance verification; see [the release evidence record](docs/archive/RELEASE_EVIDENCE_0.2.3.md).
 - `0.2.2` remains available as the preceding public release. The non-executing, local-only boundary remains unchanged.
 
 ## [0.2.2] - 2026-08-19
@@ -90,7 +90,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 ### Release status
 
 - `v0.2.0` targets `7232fe3a23d92f50a693903c0a6b7cb92d0a1426` and remains an immutable **unpublished audit record**. It was never published to PyPI and has no GitHub Release; it must not be moved, reused, or published from.
-- `0.2.1` is published on [PyPI](https://pypi.org/project/trustweave/0.2.1/), validated on [TestPyPI](https://test.pypi.org/project/trustweave/0.2.1/), and available as [GitHub Release `v0.2.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.1). See [the 0.2.1 release notes](docs/RELEASE_NOTES_0.2.1.md) and [completed owner release record](docs/OWNER_RELEASE_CHECKLIST_0.2.1.md).
+- `0.2.1` is published on [PyPI](https://pypi.org/project/trustweave/0.2.1/), validated on [TestPyPI](https://test.pypi.org/project/trustweave/0.2.1/), and available as [GitHub Release `v0.2.1`](https://github.com/MohammadThabetHassan/trustweave/releases/tag/v0.2.1). See [the 0.2.1 release notes](docs/archive/RELEASE_NOTES_0.2.1.md) and [completed owner release record](docs/archive/OWNER_RELEASE_CHECKLIST_0.2.1.md).
 
 ## [0.2.0] - Unpublished immutable audit record
 

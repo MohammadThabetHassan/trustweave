@@ -42,8 +42,8 @@ The following evidence is recorded for this source target. It is local verificat
 | --- | --- |
 | Branch coverage gate | Passed in the maintained test suite at or above the enforced 95% branch threshold. |
 | Twelve-module mutation run | 6,044 killed / 6,140 generated / 96 survived = 98.44% killed. |
-| Survivor inventory | 96 exact mutant IDs, zero untriaged records, zero `needs_regression` records, source diffs, and code-level rationales preserved in [`mutation-survivor-triage-v1.json`](mutation-survivor-triage-v1.json). |
-| Reproducibility | Existing staged-CI byte-identical evidence remains recorded in [REPRODUCIBILITY.md](REPRODUCIBILITY.md). |
+| Survivor inventory | 96 exact mutant IDs, zero untriaged records, zero `needs_regression` records, source diffs, and code-level rationales preserved in [`mutation-survivor-triage-v1.json`](../mutation-survivor-triage-v1.json). |
+| Reproducibility | Existing staged-CI byte-identical evidence remains recorded in [REPRODUCIBILITY.md](../REPRODUCIBILITY.md). |
 | Static and contract checks | The normal quality command, strict schemas, and repository reality check remain required before owner review. |
 
 ## Known limitations and current acceptance blocker
