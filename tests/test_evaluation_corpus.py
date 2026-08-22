@@ -225,8 +225,9 @@ def test_public_feedback_triage_preserves_safe_evidence_and_owner_control() -> N
 
 def test_manual_scorecard_assessment_remains_owner_gated_and_non_publishing() -> None:
     workflow = (ROOT / ".github" / "workflows" / "scorecard.yml").read_text(encoding="utf-8")
-    governance = (ROOT / "docs" / "archive"
-                  / "GITHUB_GOVERNANCE_DECISION.md").read_text(encoding="utf-8")
+    governance = (ROOT / "docs" / "archive" / "GITHUB_GOVERNANCE_DECISION.md").read_text(
+        encoding="utf-8"
+    )
     assessment = (ROOT / "docs" / "EXTERNAL_ASSESSMENT.md").read_text(encoding="utf-8")
 
     assert "workflow_dispatch:" in workflow
