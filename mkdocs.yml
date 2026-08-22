@@ -22,6 +22,7 @@ nav:
   - Overview: index.md
   - Getting started:
       - Installation and quick start: INSTALLATION.md
+      - Walkthrough: WALKTHROUGH.md
       - Configuration: CONFIGURATION.md
       - Troubleshooting and limitations: TROUBLESHOOTING.md
   - Concepts:

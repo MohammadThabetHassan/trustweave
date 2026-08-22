@@ -72,7 +72,7 @@ trustweave verify \
   --test-results artifacts/security-test-results.json
 ```
 
-Everything above reads only checked-in local files. Inspect any command with `trustweave --help` or `python -m trustweave --help`.
+Everything above reads only checked-in local files. Inspect any command with `trustweave --help` or `python -m trustweave --help`. Want to see it on a realistic agent instead of the toy example? The [demo repository](https://github.com/MohammadThabetHassan/trustweave-demo) reviews a research-assistant end to end, or follow the [step-by-step walkthrough](docs/site/WALKTHROUGH.md) with expected output at each step.
 
 Under the hood, bundles use the `trustweave.dev/bundle/v1alpha2` contract and risk decisions carry canonical `trustweave/fingerprint/v3` identities, so evidence stays comparable across runs. Note that supplying the bundle and test-result paths to `verify` checks those exact local bytes; running `verify` with only the attestation checks only the statement’s internal consistency.
 
