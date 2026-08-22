@@ -51,8 +51,8 @@ def configured_paths(
             path = find_project_config(Path.cwd())
         except InputOutputError as error:
             raise ValidationError(
-                "required command paths were not supplied and no local trustweave.toml was "
-                "discovered"
+                f"required command paths ({', '.join(sorted(missing))}) were not supplied "
+                "and no local trustweave.toml was discovered"
             ) from error
     else:
         path = config_path

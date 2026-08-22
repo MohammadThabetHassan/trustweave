@@ -1,6 +1,6 @@
 # Troubleshooting and known limitations
 
-TrustWeave evaluates explicit local files. When a command fails, first preserve the failing input and command output, then correct the declaration or use the documented review process. Do not work around a finding by changing output artifacts or assuming that a local review result represents deployed behavior.
+TrustWeave only reads the files you give it, so most failures come down to the input: keep the failing command output handy, fix the declaration, and re-run. Don't edit generated artifacts to make a finding go away — that's the one thing the evidence chain is designed to catch.
 
 | Symptom | Likely cause | Safe next step |
 | --- | --- | --- |
