@@ -37,6 +37,7 @@ trustweave test \
   --policy policies/default-policy.json \
   --scenarios scenarios/default-scenarios.json \
   --output-dir artifacts
+trustweave attest --source-revision local --output-dir artifacts
 trustweave report --output-dir artifacts
 ```
 
