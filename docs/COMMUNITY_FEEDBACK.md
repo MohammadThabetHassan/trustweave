@@ -16,6 +16,8 @@ TrustWeave welcomes genuine feedback that improves the clarity, reproducibility,
 
 ## Triage categories
 
+The [Public Issue Triage Procedure](ISSUE_TRIAGE.md) defines the required safety, disclosure, and provenance checks for these routes. It does not create an automated workflow or a response-time commitment.
+
 Maintainers may label a public item as `needs-reproduction`, `needs-scope-review`, `corpus-proposal`, `evaluation-feedback`, `accepted-limitation`, `security-private-route`, `documentation`, `duplicate`, or `deferred`. Labels communicate the current review state; they do not guarantee implementation, endorsement, release approval, or a response date.
 
 When an item informs a future corpus or paper change, maintainers must preserve its origin and distinguish it from independently collected reviewer-study evidence. Public feedback is valuable project input, but it is not automatically a participant response or an adoption metric.
@@ -24,7 +26,7 @@ When an item informs a future corpus or paper change, maintainers must preserve 
 
 Maintainers should acknowledge clear, in-scope reports when capacity allows, request safe reproductions rather than private data, and close items with a concise rationale when they are out of scope. They must route vulnerabilities privately, decline sensitive attachments, and avoid collecting personal or production data in issue comments.
 
-The project does not promise a fixed response time. Release, merge, package publication, and security-sensitive decisions remain owner-controlled actions under the documented governance and release procedure.
+The project does not promise a fixed response time. Release, merge, package publication, and security-sensitive decisions remain owner-controlled actions under the documented governance and release procedure. At least every 90 days while active development continues, and before each minor release, the owner reviews open public feedback for safe routing, documentation drift, corpus proposals, and unresolved scope questions.
 
 ## Contributor expectations
 

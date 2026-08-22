@@ -1,5 +1,5 @@
 name: Evaluation feedback
-about: Report a safe corpus, reproducibility, or evidence-clarity observation
+description: Report a safe corpus, reproducibility, or evidence-clarity observation
 title: "evaluation: "
 labels:
   - evaluation-feedback

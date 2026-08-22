@@ -4,13 +4,19 @@ TrustWeave includes a versioned, local-only synthetic corpus for checking whethe
 
 ## Run the corpus
 
-From a local checkout with development dependencies installed:
+From a local checkout with development dependencies installed, validate the checked-in corpus contract before executing any case:
+
+```bash
+python scripts/run_evaluation_corpus.py --check
+```
+
+Then run the corpus:
 
 ```bash
 python scripts/run_evaluation_corpus.py --verify
 ```
 
-The command runs twelve checked-in synthetic cases in a temporary local directory and returns non-zero only when a corpus expectation does not match. Review-required cases are expected controls when their declared exit state and finding category match.
+The preflight validates the stable corpus identity, ordered case IDs, local path boundaries, and assertion shapes without running a case. The verification command runs twelve checked-in synthetic cases in a temporary local directory and returns non-zero only when a corpus expectation does not match. Review-required cases are expected controls when their declared exit state and finding category match.
 
 ## What the corpus covers
 
@@ -26,6 +32,6 @@ The command runs twelve checked-in synthetic cases in a temporary local director
 
 The corpus and future reviewer protocol are prepared foundations. Independent reviewer responses, pilots, comparative benchmark outcomes, adoption evidence, and a durable research archive are **not yet collected**. The project will report those only after they exist, are consented where required, and are reviewed against the stated evidence rules.
 
-For the complete operational materials, see the repository’s [evaluation charter](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/EVALUATION_CHARTER.md), [reviewer protocol](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/REVIEWER_PROTOCOL.md), [data-minimization policy](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/DATA_MINIMIZATION_POLICY.md), and [status ledger](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/STATUS.md).
+For the complete operational materials, see the repository’s [evaluation charter](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/EVALUATION_CHARTER.md), [reviewer quickstart](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/REVIEWER_QUICKSTART.md), [corpus lifecycle](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/CORPUS_LIFECYCLE.md), [archive-readiness checklist](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/ARTIFACT_ARCHIVE_READINESS.md), [data-minimization policy](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/DATA_MINIMIZATION_POLICY.md), and [status ledger](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/STATUS.md).
 
 > Passing this corpus demonstrates only conformance on supplied synthetic inputs. It does not demonstrate runtime enforcement, input authenticity, attack prevention, general security efficacy, user adoption, or productivity outcomes.
