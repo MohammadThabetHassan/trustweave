@@ -16,6 +16,12 @@ Use the repository’s **Bug report** issue form for reproducible defects in Tru
 
 External contributors should propose a pull request from a branch or fork. Review, merge, tagging, signing, package publication, and GitHub Release creation remain owner-controlled actions; a successful local build or hosted check does not authorize them.
 
+## Evaluation feedback and corpus proposals
+
+Use the **Evaluation feedback** issue form for a safe reproducibility observation, artifact-clarity concern, or proposal for a synthetic corpus case. Include the TrustWeave version, corpus case ID when relevant, a local command, expected category, actual category, and a concise non-sensitive explanation. See [Community Feedback Policy](docs/COMMUNITY_FEEDBACK.md) and [Evaluation Charter](docs/evaluation/EVALUATION_CHARTER.md).
+
+Public feedback is project input, not automatically independent-study evidence. Do not claim to be an independent reviewer unless you complete the published protocol and the maintainers record the required consent and independence information. Do not submit real agent traces, message content, tool arguments, credentials, production configuration, proprietary source, personal data, live targets, or exploit payloads. The corpus accepts only synthetic local fixtures.
+
 ## Local development
 
 ```bash

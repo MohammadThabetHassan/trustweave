@@ -1,0 +1,27 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-missing-trust-evaluation-case",
+  "description": "A synthetic validation-only fixture. It deliberately omits one required trust label and must fail before any review artifact is created.",
+  "sources": [
+    {
+      "name": "declared_source_without_trust",
+      "data_classification": "public-content",
+      "description": "Synthetic input used only to demonstrate fail-closed schema validation."
+    }
+  ],
+  "tools": [
+    {
+      "name": "local_read_only_review_target",
+      "action_class": "read",
+      "capabilities": ["review.read"],
+      "description": "A synthetic local read-only declaration."
+    }
+  ],
+  "flows": [
+    {
+      "source": "declared_source_without_trust",
+      "tool": "local_read_only_review_target",
+      "purpose": "Demonstrate required trust-label validation without executing a tool."
+    }
+  ]
+}
