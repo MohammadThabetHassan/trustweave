@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = ROOT / "scripts" / "verify_release_reproducibility.py"
 OWNER_CHECKLIST = ROOT / "docs" / "archive" / "OWNER_RELEASE_CHECKLIST_0.2.0.md"
@@ -33,6 +35,8 @@ def _git(*arguments: str) -> str:
 def test_clean_checkout_release_reproducibility_helper_is_self_contained() -> None:
     """The documented release procedure must not depend on a tracked root config file."""
 
+    if not (ROOT / ".git").exists():
+        pytest.skip("release reproducibility checks require a git checkout")
     assert not (ROOT / "trustweave.toml").exists()
     checklist = OWNER_CHECKLIST.read_text(encoding="utf-8")
     reproducibility_guide = REPRODUCIBILITY_GUIDE.read_text(encoding="utf-8")

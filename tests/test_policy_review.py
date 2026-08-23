@@ -149,9 +149,28 @@ def test_policy_coverage_reports_redundant_contradictory_and_impossible_rules() 
         "Rule TW-COVER-003 requires declared controls that this policy does not provide and cannot "
         "determine a decision."
     )
-    assert all(
-        finding["subject"] == {"policy": "support-agent-boundary-policy"}
-        for finding in findings_by_id.values()
+    expected_subjects = {
+        "TW-POL-002": {
+            "policy": "support-agent-boundary-policy",
+            "rule": "TW-COVER-003",
+            "shadowing_rule": "TW-001",
+        },
+        "TW-POL-003": {
+            "policy": "support-agent-boundary-policy",
+            "rule": "TW-COVER-002",
+        },
+        "TW-POL-007": {
+            "policy": "support-agent-boundary-policy",
+            "rule": "TW-COVER-002",
+            "shadowing_rule": "TW-004",
+        },
+        "TW-POL-008": {
+            "policy": "support-agent-boundary-policy",
+            "rule": "TW-COVER-003",
+        },
+    }
+    assert {finding_id: finding["subject"] for finding_id, finding in findings_by_id.items()} == (
+        expected_subjects
     )
 
 

@@ -18,6 +18,16 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Reorganized documentation: point-in-time release checklists, migration guides, audit records, and the maintainer handoff snapshot moved to `docs/archive/` with an index; ADRs moved to `docs/adr/`; the documentation site navigation is grouped by task (getting started, concepts, how-to, CLI, policies, assurance, releases).
 - Tightened the installation and troubleshooting pages, fixed stray code-block indentation, and made the missing-paths configuration error list exactly which paths it wants.
 
+### Fixed
+
+- Gave rule-level policy-review findings (`TW-POL-002`, `TW-POL-003`, `TW-POL-007`, `TW-POL-008`, `TW-POL-009`) rule-specific subjects so each instance keeps a distinct risk fingerprint. Previously every instance of a rule shared one identity per policy, so distinct shadowed or untrusted-allow conditions collapsed into a single baselineable entry.
+- Made risk-review deduplication tolerate the same logical signal reported by different supported bundle-diff schema versions. Identical fingerprints from differing artifact contract versions now deduplicate deterministically instead of failing with contradictory stable metadata, matching the version-independent v3 fingerprint definition.
+- Precomputed manifest and policy lookups during Agent Security Bundle validation so large finding collections validate in linear time instead of rebuilding lookups per finding.
+- Derived SARIF canonical fingerprints per finding without re-normalizing the entire review artifact, removing quadratic export cost while preserving the documented fallback for findings whose normalization is unavailable.
+- Raised domain validation errors instead of raw `KeyError` when the public engine API evaluates hand-built manifests that reference undeclared sources or tools, or hand-built policies with unknown decisions.
+- Skipped environment-dependent tests gracefully when symbolic links cannot be created (non-elevated Windows) or the tree is not a git checkout (archive installs), instead of failing.
+- Added Python 3.14 to the compatibility matrix, package classifiers, and compatibility contract.
+
 ### Release status
 
 - Source metadata is prepared as `0.3.1`, but **`0.3.1` is not published, tagged, uploaded, or released**. The latest observed public package release remains `0.3.0` until a separately owner-authorized publication process completes and records new exact-file evidence.

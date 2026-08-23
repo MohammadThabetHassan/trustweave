@@ -8,12 +8,11 @@ import pytest
 
 from trustweave.cli import main
 from trustweave.models import ValidationError
-from trustweave.risk import review_risks
+from trustweave.risk import finding_fingerprint, review_risks
 from trustweave.sarif import (
     REVIEW_INPUT_MAP,
     SARIF_SCHEMA_URI,
     SARIF_VERSION,
-    _canonical_fingerprint,
     _review_findings,
     _sequence,
     build_sarif,
@@ -489,13 +488,12 @@ def test_sarif_preserves_exact_input_diagnostics_and_canonical_raw_deduplication
 
 
 def test_sarif_helper_fallbacks_are_strict_for_non_sequences_and_invalid_normalization() -> None:
-    """SARIF helpers return safe empty fallbacks for invalid local review shapes."""
+    """SARIF helpers return safe empty fallbacks and reject invalid canonical identities."""
 
     assert _sequence(5) == ()
-    assert (
-        _canonical_fingerprint(
+    with pytest.raises(ValidationError, match="must be a string or list of strings"):
+        finding_fingerprint(
             {"schema_version": "trustweave.dev/policy-review/v1alpha1", "findings": []},
-            "findings",
             {
                 "id": "TW-INVALID",
                 "severity": "high",
@@ -503,8 +501,6 @@ def test_sarif_helper_fallbacks_are_strict_for_non_sequences_and_invalid_normali
                 "subject": {"invalid": 1},
             },
         )
-        == ""
-    )
 
 
 def test_sarif_risk_review_filtering_preserves_schema_and_field_diagnostics() -> None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -73,11 +74,39 @@ def _parse_bundle_policy(value: Any, path: str) -> Policy:
     return parse_policy(rendered)
 
 
+@dataclass(frozen=True)
+class _ManifestIndex:
+    """Precomputed manifest lookups that keep per-finding bundle validation linear."""
+
+    source_dicts: dict[str, dict[str, Any]]
+    tool_dicts: dict[str, dict[str, Any]]
+    source_trusts: dict[str, str]
+    tool_action_classes: dict[str, str]
+    flow_keys: frozenset[tuple[str, str, str, tuple[str, ...]]]
+    legacy_flow_keys: frozenset[tuple[str, str, str]]
+
+
+def _manifest_index(manifest: AgentManifest) -> _ManifestIndex:
+    return _ManifestIndex(
+        source_dicts={item.name: item.as_dict() for item in manifest.sources},
+        tool_dicts={item.name: item.as_dict() for item in manifest.tools},
+        source_trusts={item.name: item.trust for item in manifest.sources},
+        tool_action_classes={item.name: item.action_class for item in manifest.tools},
+        flow_keys=frozenset(
+            (flow.source, flow.tool, flow.purpose, tuple(flow.purpose_tags))
+            for flow in manifest.flows
+        ),
+        legacy_flow_keys=frozenset(
+            (flow.source, flow.tool, flow.purpose) for flow in manifest.flows
+        ),
+    )
+
+
 def _validate_finding(
     raw: Any,
     path: str,
-    manifest: AgentManifest,
-    policy: Policy,
+    policy_rule_ids: frozenset[str],
+    index: _ManifestIndex,
 ) -> str:
     finding = _mapping(raw, path)
     required = {"flow", "source", "tool", "decision", "severity", "rule_id", "rationale"}
@@ -108,21 +137,13 @@ def _validate_finding(
     if not all(isinstance(tag, str) and tag.strip() for tag in purpose_tags):
         raise ValidationError(f"{path}.flow.purpose_tags must contain non-empty strings")
 
-    source_by_name = {item.name: item for item in manifest.sources}
-    tool_by_name = {item.name: item for item in manifest.tools}
-    declared_source = source_by_name.get(source_name)
-    declared_tool = tool_by_name.get(tool_name)
+    declared_source = index.source_dicts.get(source_name)
+    declared_tool = index.tool_dicts.get(tool_name)
     if declared_source is None or declared_tool is None:
         raise ValidationError(f"{path}.flow must reference declared manifest source and tool")
-    if source != declared_source.as_dict() or tool != declared_tool.as_dict():
+    if source != declared_source or tool != declared_tool:
         raise ValidationError(f"{path} source and tool must match referenced manifest declarations")
-    if not any(
-        item.source == source_name
-        and item.tool == tool_name
-        and item.purpose == purpose
-        and tuple(purpose_tags) == item.purpose_tags
-        for item in manifest.flows
-    ):
+    if (source_name, tool_name, purpose, tuple(purpose_tags)) not in index.flow_keys:
         raise ValidationError(f"{path}.flow must match one declared manifest flow")
 
     decision = _text(finding.get("decision"), f"{path}.decision")
@@ -134,7 +155,7 @@ def _validate_finding(
     rule_id = finding.get("rule_id")
     if rule_id is not None:
         validated_rule = validate_rule_identifier(rule_id, f"{path}.rule_id")
-        if validated_rule not in {rule.id for rule in policy.rules}:
+        if validated_rule not in policy_rule_ids:
             raise ValidationError(f"{path}.rule_id must identify a declared policy rule")
     _text(finding.get("rationale"), f"{path}.rationale")
     return decision
@@ -206,8 +227,8 @@ def _legacy_expected_decision(
 def _validate_legacy_finding(
     raw: Any,
     path: str,
-    manifest: AgentManifest,
     policy: Policy,
+    index: _ManifestIndex,
 ) -> tuple[str, tuple[str, str, str]]:
     """Validate one authentic v0.1.1 finding snapshot without adding modern severity evidence."""
 
@@ -234,24 +255,21 @@ def _validate_legacy_finding(
     source_name = _text(flow.get("source"), f"{path}.flow.source")
     tool_name = _text(flow.get("tool"), f"{path}.flow.tool")
     purpose = _text(flow.get("purpose"), f"{path}.flow.purpose")
-    source_by_name = {item.name: item for item in manifest.sources}
-    tool_by_name = {item.name: item for item in manifest.tools}
-    declared_source = source_by_name.get(source_name)
-    declared_tool = tool_by_name.get(tool_name)
-    if declared_source is None or declared_tool is None:
+    declared_source_dict = index.source_dicts.get(source_name)
+    declared_tool_dict = index.tool_dicts.get(tool_name)
+    if declared_source_dict is None or declared_tool_dict is None:
         raise ValidationError(f"{path}.flow must reference declared manifest source and tool")
-    if source != declared_source.as_dict() or tool != declared_tool.as_dict():
+    if source != declared_source_dict or tool != declared_tool_dict:
         raise ValidationError(f"{path} source and tool must match referenced manifest declarations")
-    if not any(
-        item.source == source_name and item.tool == tool_name and item.purpose == purpose
-        for item in manifest.flows
-    ):
+    if (source_name, tool_name, purpose) not in index.legacy_flow_keys:
         raise ValidationError(f"{path}.flow must match one declared manifest flow")
     decision = _text(finding.get("decision"), f"{path}.decision")
     if decision not in VALID_DECISIONS:
         raise ValidationError(f"{path}.decision must be one of {sorted(VALID_DECISIONS)}")
     expected_decision, expected_rule_id, expected_rationale = _legacy_expected_decision(
-        policy, declared_source.trust, declared_tool.action_class
+        policy,
+        index.source_trusts[source_name],
+        index.tool_action_classes[tool_name],
     )
     if decision != expected_decision:
         raise ValidationError(f"{path}.decision must match the declared historical policy")
@@ -281,6 +299,7 @@ def _validate_legacy_bundle(bundle: Mapping[str, Any], label: str) -> None:
         _timestamp(bundle["generated_at"], f"{label}.generated_at")
     manifest = _parse_legacy_manifest(bundle["manifest"], f"{label}.manifest")
     policy = _parse_legacy_policy(bundle["policy"], f"{label}.policy")
+    index = _manifest_index(manifest)
     findings = _sequence(bundle["findings"], f"{label}.findings")
     if len(findings) > MAX_BUNDLE_FINDINGS:
         raise ValidationError(
@@ -288,9 +307,9 @@ def _validate_legacy_bundle(bundle: Mapping[str, Any], label: str) -> None:
         )
     decisions: Counter[str] = Counter()
     finding_flows: Counter[tuple[str, str, str]] = Counter()
-    for index, finding in enumerate(findings):
+    for index_number, finding in enumerate(findings):
         decision, flow_key = _validate_legacy_finding(
-            finding, f"{label}.findings[{index}]", manifest, policy
+            finding, f"{label}.findings[{index_number}]", policy, index
         )
         decisions[decision] += 1
         finding_flows[flow_key] += 1
@@ -318,8 +337,8 @@ def _validate_legacy_bundle(bundle: Mapping[str, Any], label: str) -> None:
         raise ValidationError(
             f"{label}.limits must contain between 1 and {MAX_BUNDLE_LIMITS} entries"
         )
-    for index, limit in enumerate(limits):
-        _text(limit, f"{label}.limits[{index}]")
+    for limit_index, limit in enumerate(limits):
+        _text(limit, f"{label}.limits[{limit_index}]")
 
 
 def _validate_current_bundle(bundle: Mapping[str, Any], label: str) -> None:
@@ -336,14 +355,16 @@ def _validate_current_bundle(bundle: Mapping[str, Any], label: str) -> None:
 
     manifest = parse_manifest(_mapping(bundle.get("manifest"), f"{label}.manifest"))
     policy = _parse_bundle_policy(bundle.get("policy"), f"{label}.policy")
+    index = _manifest_index(manifest)
+    policy_rule_ids = frozenset(rule.id for rule in policy.rules)
     findings = _sequence(bundle.get("findings"), f"{label}.findings")
     if len(findings) > MAX_BUNDLE_FINDINGS:
         raise ValidationError(
             f"{label}.findings must contain at most {MAX_BUNDLE_FINDINGS} entries"
         )
     decisions = Counter(
-        _validate_finding(item, f"{label}.findings[{index}]", manifest, policy)
-        for index, item in enumerate(findings)
+        _validate_finding(item, f"{label}.findings[{position}]", policy_rule_ids, index)
+        for position, item in enumerate(findings)
     )
 
     # Import lazily because engine imports this module's schema-version constant while
@@ -379,8 +400,8 @@ def _validate_current_bundle(bundle: Mapping[str, Any], label: str) -> None:
         raise ValidationError(
             f"{label}.limits must contain between 1 and {MAX_BUNDLE_LIMITS} entries"
         )
-    for index, limit in enumerate(limits):
-        _text(limit, f"{label}.limits[{index}]")
+    for limit_index, limit in enumerate(limits):
+        _text(limit, f"{label}.limits[{limit_index}]")
 
 
 def validate_bundle(document: Mapping[str, Any], label: str = "bundle") -> None:

@@ -2188,7 +2188,6 @@ def test_risk_helpers_preserve_legacy_subject_metadata_and_decision_diagnostics(
         fingerprint="b" * 64,
     )
     assert risk_module._stable_metadata(finding) == (
-        "trustweave.dev/policy-review/v1alpha1",
         "declared_configuration",
         "TW-STABLE-METADATA",
         canonical_json({"subject": {"policy": "support"}}),

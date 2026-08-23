@@ -8,7 +8,7 @@ from typing import Any, cast
 
 from trustweave import __version__
 from trustweave.models import ValidationError
-from trustweave.risk import ACTIVE_RISK_STATES, normalize_findings
+from trustweave.risk import ACTIVE_RISK_STATES, finding_fingerprint
 from trustweave.rules import RULES
 
 SARIF_VERSION = "2.1.0"
@@ -68,20 +68,6 @@ def _required_string(value: Any, path: str) -> str:
     return value
 
 
-def _canonical_fingerprint(
-    review: Mapping[str, Any], finding_key: str, finding: Mapping[str, Any]
-) -> str:
-    """Derive the risk identity when a SARIF finding is within the risk contract."""
-
-    isolated_review = dict(review)
-    isolated_review[finding_key] = [finding]
-    try:
-        normalized = normalize_findings(isolated_review)
-    except ValidationError:
-        return ""
-    return normalized[0].fingerprint
-
-
 def _review_findings(kind: str, review: Mapping[str, Any]) -> list[dict[str, str]]:
     schema_versions, finding_key = REVIEW_INPUT_MAP[kind]
     if review.get("schema_version") not in schema_versions:
@@ -114,12 +100,16 @@ def _review_findings(kind: str, review: Mapping[str, Any]) -> list[dict[str, str
                 }
             )
             continue
+        try:
+            canonical_fingerprint: str = finding_fingerprint(review, finding)
+        except ValidationError:
+            canonical_fingerprint = ""
         findings.append(
             {
                 "id": identifier,
                 "message": message,
                 "severity": severity,
-                "canonical_fingerprint": _canonical_fingerprint(review, finding_key, finding),
+                "canonical_fingerprint": canonical_fingerprint,
             }
         )
     return findings

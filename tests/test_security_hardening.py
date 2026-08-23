@@ -39,7 +39,10 @@ def test_loader_rejects_symbolic_link_inputs(tmp_path: Path) -> None:
     target = tmp_path / "target.json"
     target.write_text('{"declared": "local"}', encoding="utf-8")
     linked = tmp_path / "linked.json"
-    linked.symlink_to(target)
+    try:
+        linked.symlink_to(target)
+    except OSError:
+        pytest.skip("symlink creation requires privileges unavailable on this platform")
 
     with pytest.raises(InputOutputError, match="symbolic link"):
         load_document(linked)

@@ -24,6 +24,8 @@ def _declared_project_version() -> str:
 
 
 def _git_status() -> str:
+    if not (ROOT / ".git").exists():
+        pytest.skip("version side-effect checks require a git checkout")
     completed = subprocess.run(
         ["git", "status", "--porcelain"],
         cwd=ROOT,

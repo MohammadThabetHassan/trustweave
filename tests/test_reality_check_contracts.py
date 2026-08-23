@@ -6,10 +6,17 @@ import importlib.util
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+
 from trustweave.cli import _parser
 
 ROOT = Path(__file__).resolve().parents[1]
 REALITY_CHECK = ROOT / "scripts" / "reality_check.py"
+
+
+def _require_git_checkout() -> None:
+    if not (ROOT / ".git").exists():
+        pytest.skip("repository reality checks require a git checkout")
 
 
 def _reality_check_module() -> ModuleType:
@@ -60,6 +67,7 @@ def test_reality_check_validates_changelog_version_synchronization() -> None:
 
 
 def test_reality_check_executes_representative_documentation_commands() -> None:
+    _require_git_checkout()
     reality_check = _reality_check_module()
 
     assert reality_check._check_documentation_commands() == []
@@ -109,6 +117,7 @@ def test_reality_check_verifies_control_traceability() -> None:
 def test_reality_check_verifies_distribution_assurance() -> None:
     """Temporary wheel and source-distribution validation must remain a release integrity gate."""
 
+    _require_git_checkout()
     reality_check = _reality_check_module()
 
     assert reality_check._check_distribution_assurance() == []

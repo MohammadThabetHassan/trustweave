@@ -129,9 +129,38 @@ def checks_for_rule(
 
 
 def rule_matches(rule: PolicyRule, subject: PolicySubject, policy: Policy) -> bool:
-    """Return whether every declared predicate matches one supplied local subject."""
+    """Return whether every declared predicate matches one supplied local subject.
 
-    return all(bool(check["matched"]) for check in checks_for_rule(rule, subject, policy).values())
+    Evaluates the same predicates as :func:`checks_for_rule` in the same order without
+    building reviewer-facing evidence records, so flow evaluation stays linear.
+    """
+
+    if subject.source_trust not in rule.source_trust:
+        return False
+    if subject.tool_action_class not in rule.tool_action_classes:
+        return False
+    if (
+        rule.source_data_classifications
+        and subject.source_data_classification not in rule.source_data_classifications
+    ):
+        return False
+    if rule.source_identifiers and subject.source_identifier not in rule.source_identifiers:
+        return False
+    if rule.tool_identifiers and subject.tool_identifier not in rule.tool_identifiers:
+        return False
+    if rule.purpose_tags and not set(rule.purpose_tags).intersection(subject.purpose_tags):
+        return False
+    if not classification_matches(rule, subject, policy):
+        return False
+    if not set(rule.required_controls).issubset(subject.declared_controls):
+        return False
+    if rule.tool_capabilities:
+        return any(
+            capability_matches(pattern, capability)
+            for pattern in rule.tool_capabilities
+            for capability in subject.tool_capabilities
+        )
+    return True
 
 
 def declared_controls(policy: Policy) -> frozenset[str]:

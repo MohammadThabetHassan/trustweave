@@ -61,6 +61,11 @@ def review_policy(
                         f"Rule {later_rule.id} is shadowed by earlier rule {shadowing_rule.id} "
                         "under first-match semantics and cannot determine a decision."
                     ),
+                    "subject": {
+                        "policy": policy.name,
+                        "rule": later_rule.id,
+                        "shadowing_rule": shadowing_rule.id,
+                    },
                 }
             )
             if shadowing_rule.decision != later_rule.decision:
@@ -72,6 +77,11 @@ def review_policy(
                             f"Rule {later_rule.id} conflicts with shadowing rule "
                             f"{shadowing_rule.id}: their declared decisions differ."
                         ),
+                        "subject": {
+                            "policy": policy.name,
+                            "rule": later_rule.id,
+                            "shadowing_rule": shadowing_rule.id,
+                        },
                     }
                 )
             else:
@@ -83,6 +93,11 @@ def review_policy(
                             f"Rule {later_rule.id} is redundant because shadowing rule "
                             f"{shadowing_rule.id} specifies the same decision."
                         ),
+                        "subject": {
+                            "policy": policy.name,
+                            "rule": later_rule.id,
+                            "shadowing_rule": shadowing_rule.id,
+                        },
                     }
                 )
         if include_coverage and impossible:
@@ -94,6 +109,7 @@ def review_policy(
                         f"Rule {later_rule.id} requires declared controls that this policy does "
                         "not provide and cannot determine a decision."
                     ),
+                    "subject": {"policy": policy.name, "rule": later_rule.id},
                 }
             )
         if (
@@ -109,6 +125,7 @@ def review_policy(
                         f"Rule {later_rule.id} allows untrusted input to a sensitive or external "
                         "action class; review its authorization and human-control boundary."
                     ),
+                    "subject": {"policy": policy.name, "rule": later_rule.id},
                 }
             )
 

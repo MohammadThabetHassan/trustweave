@@ -244,6 +244,30 @@ def normalize_findings(artifact: Mapping[str, Any]) -> tuple[CanonicalFinding, .
     return tuple(sorted(findings, key=lambda item: (item.fingerprint, item.identifier)))
 
 
+def finding_fingerprint(artifact: Mapping[str, Any], finding: Mapping[str, Any]) -> str:
+    """Return the canonical v3 fingerprint for one raw finding of a supported artifact.
+
+    Uses exactly the normalization rules of :func:`normalize_findings` so callers can derive
+    one identity without re-normalizing the whole artifact per finding.
+    """
+
+    schema_version = _text(artifact.get("schema_version"), "artifact.schema_version")
+    contract = _ARTIFACT_CONTRACTS.get(schema_version)
+    if contract is None:
+        supported = ", ".join(sorted(_ARTIFACT_CONTRACTS))
+        raise ValidationError(
+            f"artifact.schema_version {schema_version!r} is unsupported for risk review; "
+            f"supported schemas: {supported}"
+        )
+    collection_name, evidence_kind = contract
+    identifier = _text(finding.get("id"), f"artifact.{collection_name}.id")
+    message = _text(finding.get("message"), f"artifact.{collection_name}.message")
+    subject = _stable_subject(finding.get("subject"), f"artifact.{collection_name}.subject")
+    if not subject:
+        subject = _fallback_subject(artifact, schema_version, message)
+    return _fingerprint(evidence_kind, identifier, subject)
+
+
 def _timestamp(value: Any, path: str) -> datetime:
     text = _text(value, path)
     try:
@@ -367,14 +391,18 @@ def _decision_entries(
     return entries
 
 
-def _stable_metadata(finding: CanonicalFinding) -> tuple[str, str, str, str]:
-    """Return the identity fields that must agree within one fingerprint group."""
+def _stable_metadata(finding: CanonicalFinding) -> tuple[str, str, str]:
+    """Return the identity fields that must agree within one fingerprint group.
+
+    The artifact schema version is deliberately excluded because v3 fingerprints are defined
+    across artifact contract versions; the same logical signal reported by different supported
+    versions must deduplicate instead of being rejected as contradictory.
+    """
 
     return (
-        finding.artifact_schema_version,
         finding.evidence_kind,
         finding.identifier,
-        canonical_json({"subject": finding.as_dict()["subject"]}),
+        canonical_json({"subject": dict(finding.subject)}),
     )
 
 

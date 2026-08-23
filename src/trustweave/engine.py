@@ -6,7 +6,15 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from trustweave.bundles import BUNDLE_SCHEMA_V1ALPHA2
-from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool
+from trustweave.models import (
+    AgentManifest,
+    Flow,
+    Policy,
+    PolicyRule,
+    Source,
+    Tool,
+    ValidationError,
+)
 from trustweave.policy_predicates import (
     PolicySubject,
     checks_for_rule,
@@ -40,8 +48,18 @@ class Finding:
         }
 
 
+_DEFAULT_SEVERITY_BY_DECISION = {
+    "deny": "high",
+    "require_approval": "medium",
+    "allow": "info",
+}
+
+
 def _default_severity(decision: str) -> str:
-    return {"deny": "high", "require_approval": "medium", "allow": "info"}[decision]
+    severity = _DEFAULT_SEVERITY_BY_DECISION.get(decision)
+    if severity is None:
+        raise ValidationError(f"decision must be one of {sorted(_DEFAULT_SEVERITY_BY_DECISION)}")
+    return severity
 
 
 def _policy_subject(
@@ -115,10 +133,16 @@ def evaluate_manifest(manifest: AgentManifest, policy: Policy) -> tuple[Finding,
 
     source_by_name = {source.name: source for source in manifest.sources}
     tool_by_name = {tool.name: tool for tool in manifest.tools}
-    return tuple(
-        evaluate_flow(flow, source_by_name[flow.source], tool_by_name[flow.tool], policy)
-        for flow in manifest.flows
-    )
+    findings: list[Finding] = []
+    for flow in manifest.flows:
+        source = source_by_name.get(flow.source)
+        tool = tool_by_name.get(flow.tool)
+        if source is None or tool is None:
+            raise ValidationError(
+                f"flow {flow.source}->{flow.tool} must reference declared manifest source and tool"
+            )
+        findings.append(evaluate_flow(flow, source, tool, policy))
+    return tuple(findings)
 
 
 def expected_finding_dicts(manifest: AgentManifest, policy: Policy) -> tuple[dict[str, Any], ...]:

@@ -2081,7 +2081,10 @@ def test_ci_output_path_rejects_symbolic_links_with_exact_diagnostic(tmp_path: P
     target = tmp_path / "target"
     target.mkdir()
     linked_parent = tmp_path / "linked"
-    linked_parent.symlink_to(target, target_is_directory=True)
+    try:
+        linked_parent.symlink_to(target, target_is_directory=True)
+    except OSError as error:
+        pytest.skip(f"symbolic links are unavailable: {error}")
     output = linked_parent / "artifacts"
 
     with pytest.raises(InputOutputError) as error:
