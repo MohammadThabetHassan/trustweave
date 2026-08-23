@@ -37,7 +37,8 @@ Point `scan` at a declared agent manifest and a policy:
 
 ```bash
 git clone https://github.com/MohammadThabetHassan/trustweave.git
-cd trustweave && pip install -e .
+cd trustweave
+python -m pip install -e .
 
 trustweave scan \
   --manifest examples/support-agent.manifest.json \
