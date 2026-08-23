@@ -1,0 +1,83 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "research-assistant-agent",
+  "description": "A research assistant that reads web pages and the user's notes, answers questions, can query an internal metrics database, and posts summaries to Slack.",
+  "sources": [
+    {
+      "name": "user_request",
+      "trust": "trusted",
+      "data_classification": "customer-provided",
+      "description": "A question typed by the authenticated user in the chat UI."
+    },
+    {
+      "name": "web_page_content",
+      "trust": "untrusted",
+      "data_classification": "public-content",
+      "description": "Text fetched from public web pages. Prompt-injection territory."
+    },
+    {
+      "name": "metrics_query_result",
+      "trust": "conditional",
+      "data_classification": "confidential",
+      "description": "Rows returned from the internal metrics database."
+    }
+  ],
+  "tools": [
+    {
+      "name": "fetch_web_page",
+      "action_class": "read",
+      "capabilities": ["network.read"],
+      "description": "Fetches a public URL and returns extracted text."
+    },
+    {
+      "name": "query_metrics_database",
+      "action_class": "sensitive",
+      "capabilities": ["metrics.read"],
+      "description": "Runs a read-only query against internal company metrics."
+    },
+    {
+      "name": "post_to_slack",
+      "action_class": "external",
+      "capabilities": ["slack.post"],
+      "description": "Posts a message to a company Slack channel."
+    },
+    {
+      "name": "summarize_notes",
+      "action_class": "read",
+      "capabilities": ["notes.summarize"],
+      "description": "Local summarization over retrieved content; no side effects."
+    }
+  ],
+  "flows": [
+    {
+      "source": "user_request",
+      "tool": "fetch_web_page",
+      "purpose": "Follow links from the user's question to gather sources."
+    },
+    {
+      "source": "user_request",
+      "tool": "summarize_notes",
+      "purpose": "Summarize gathered material into an answer."
+    },
+    {
+      "source": "user_request",
+      "tool": "query_metrics_database",
+      "purpose": "Answer questions about internal metrics."
+    },
+    {
+      "source": "metrics_query_result",
+      "tool": "post_to_slack",
+      "purpose": "Share a weekly summary after a human signs off on it."
+    },
+    {
+      "source": "web_page_content",
+      "tool": "query_metrics_database",
+      "purpose": "Deliberately unsafe path: injected web text must never drive database queries."
+    },
+    {
+      "source": "web_page_content",
+      "tool": "post_to_slack",
+      "purpose": "Deliberately unsafe path: web content must never post to Slack."
+    }
+  ]
+}

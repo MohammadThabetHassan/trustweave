@@ -1,0 +1,44 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "research-assistant-boundary-policy",
+  "default_decision": "deny",
+  "approval_control": {
+    "mechanism": "human-review-queue",
+    "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+    "fail_closed": true
+  },
+  "rules": [
+    {
+      "id": "RA-001",
+      "description": "Trusted user requests may use read-only tools.",
+      "source_trust": ["trusted"],
+      "tool_action_classes": ["read"],
+      "decision": "allow",
+      "rationale": "The authenticated user's own question may drive retrieval and summarization."
+    },
+    {
+      "id": "RA-002",
+      "description": "Confidential query results reach Slack only with human approval.",
+      "source_trust": ["conditional"],
+      "tool_action_classes": ["external"],
+      "decision": "require_approval",
+      "rationale": "Internal numbers leaving the company boundary needs a sign-off."
+    },
+    {
+      "id": "RA-003",
+      "description": "Deny untrusted or conditional input to sensitive tools.",
+      "source_trust": ["untrusted", "conditional"],
+      "tool_action_classes": ["sensitive"],
+      "decision": "deny",
+      "rationale": "Web text or query output must not be able to drive further database access."
+    },
+    {
+      "id": "RA-004",
+      "description": "Deny untrusted input to external actions.",
+      "source_trust": ["untrusted"],
+      "tool_action_classes": ["external"],
+      "decision": "deny",
+      "rationale": "A poisoned web page must never cause outbound messages."
+    }
+  ]
+}
