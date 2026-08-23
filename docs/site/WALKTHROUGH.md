@@ -105,4 +105,4 @@ Supplying all three paths checks those exact files against the attestation. Runn
 
 - Point `scan` at your own agent. If you have a LangGraph / OpenAI Agents / CrewAI setup or a saved MCP `tools/list` snapshot, see [integration routes](INTEGRATIONS.md) for import commands.
 - Something failed? Check [troubleshooting](TROUBLESHOOTING.md) — exit codes are stable and each maps to a cause.
-- Want to see what the decisions mean in practice? The [demo repository](https://github.com/MohammadThabetHassan/trustweave-demo) reviews a research-assistant agent end to end.
+- Want to see what the decisions mean in practice? The [research-assistant demo](../../demo/research-assistant/) reviews a realistic agent end to end, including a diff that catches a weakened approval control.
