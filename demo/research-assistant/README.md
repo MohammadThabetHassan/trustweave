@@ -2,6 +2,10 @@
 
 A worked TrustWeave review of a realistic agent, ending with the tool catching a security-relevant config change that looks innocent.
 
+![TrustWeave reviewing the research-assistant agent](demo.gif)
+
+*(The recording above is generated from an actual run of `./run.sh` — the [`demo.cast`](demo.cast) file plays in any asciinema-compatible terminal player.)*
+
 ## The setup
 
 A research assistant that answers questions by reading web pages and internal notes, queries company metrics on request, and posts summaries to Slack. Six declared flows connect three input sources to four tools:
