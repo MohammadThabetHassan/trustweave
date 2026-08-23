@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = ROOT / "scripts" / "verify_release_reproducibility.py"
-OWNER_CHECKLIST = ROOT / "docs" / "OWNER_RELEASE_CHECKLIST_0.2.0.md"
+OWNER_CHECKLIST = ROOT / "docs" / "archive" / "OWNER_RELEASE_CHECKLIST_0.2.0.md"
 REPRODUCIBILITY_GUIDE = ROOT / "docs" / "REPRODUCIBILITY.md"
 RELEASE_GUIDE = ROOT / "docs" / "RELEASE.md"
 TRACKED_RELEASE_INPUTS = (

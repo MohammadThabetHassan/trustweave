@@ -44,7 +44,7 @@ python3 scripts/verify_release_reproducibility.py \
   --generated-at 2026-08-19T00:00:00+00:00
 ```
 
-The helper uses the tracked manifest, policy, scenarios, and safe-sanitized chain fixture; enables `scan`, `scenarios`, `policy_review`, `chain_review`, `sarif`, `attestation`, `report`, and `summary`; writes only relative local artifact paths; compares all emitted bytes; rejects temporary, checkout, and machine-specific path leakage; verifies each v1alpha3 attestation against its supplied bundle and test-results files; cleans temporary directories; and confirms that the working tree remains unchanged. Follow [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for the complete scope and limits.
+The helper uses the tracked manifest, policy, scenarios, and safe-sanitized chain fixture; enables `scan`, `scenarios`, `policy_review`, `chain_review`, `sarif`, `attestation`, `report`, and `summary`; writes only relative local artifact paths; compares all emitted bytes; rejects temporary, checkout, and machine-specific path leakage; verifies each v1alpha3 attestation against its supplied bundle and test-results files; cleans temporary directories; and confirms that the working tree remains unchanged. Follow [REPRODUCIBILITY.md](../REPRODUCIBILITY.md) for the complete scope and limits.
 
 ## C. Artifact verification after an owner-authorized release build
 

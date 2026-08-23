@@ -212,7 +212,7 @@ def test_reviewer_quickstart_and_archive_readiness_remain_reproducible_and_hones
 def test_public_feedback_triage_preserves_safe_evidence_and_owner_control() -> None:
     triage = (ROOT / "docs" / "ISSUE_TRIAGE.md").read_text(encoding="utf-8")
     feedback = (ROOT / "docs" / "COMMUNITY_FEEDBACK.md").read_text(encoding="utf-8")
-    handoff = (ROOT / "docs" / "MAINTAINER_HANDOFF.md").read_text(encoding="utf-8")
+    handoff = (ROOT / "docs" / "archive" / "MAINTAINER_HANDOFF.md").read_text(encoding="utf-8")
 
     assert "does not create a response-time guarantee" in triage
     assert "must not be processed through a public issue" in triage
@@ -225,7 +225,9 @@ def test_public_feedback_triage_preserves_safe_evidence_and_owner_control() -> N
 
 def test_manual_scorecard_assessment_remains_owner_gated_and_non_publishing() -> None:
     workflow = (ROOT / ".github" / "workflows" / "scorecard.yml").read_text(encoding="utf-8")
-    governance = (ROOT / "docs" / "GITHUB_GOVERNANCE_DECISION.md").read_text(encoding="utf-8")
+    governance = (ROOT / "docs" / "archive" / "GITHUB_GOVERNANCE_DECISION.md").read_text(
+        encoding="utf-8"
+    )
     assessment = (ROOT / "docs" / "EXTERNAL_ASSESSMENT.md").read_text(encoding="utf-8")
 
     assert "workflow_dispatch:" in workflow

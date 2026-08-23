@@ -47,4 +47,4 @@ Only the owner may approve an external audience, change a GitHub setting, run a 
 
 ## Related controls
 
-Use [Safe External Reproduction Guide](SAFE_EXTERNAL_REPRODUCTION.md) for the public-safe path, [Community Feedback Policy](COMMUNITY_FEEDBACK.md) and [Issue Triage Procedure](ISSUE_TRIAGE.md) for incoming public material, [External Security-Process Assessment Record](EXTERNAL_ASSESSMENT.md) for manual assessment results, [Release Candidate Record](RELEASE_CANDIDATE_0.3.1.md) for candidate wording, and the [Evaluation Status Ledger](evaluation/STATUS.md) for evidence-state reporting.
+Use [Safe External Reproduction Guide](SAFE_EXTERNAL_REPRODUCTION.md) for the public-safe path, [Community Feedback Policy](COMMUNITY_FEEDBACK.md) and [Issue Triage Procedure](ISSUE_TRIAGE.md) for incoming public material, [External Security-Process Assessment Record](EXTERNAL_ASSESSMENT.md) for manual assessment results, [Release Candidate Record](archive/RELEASE_CANDIDATE_0.3.1.md) for candidate wording, and the [Evaluation Status Ledger](evaluation/STATUS.md) for evidence-state reporting.

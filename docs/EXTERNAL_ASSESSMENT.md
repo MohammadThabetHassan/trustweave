@@ -52,4 +52,4 @@ A finding should lead to one of three documented outcomes: a bounded remediation
 
 ## Related controls
 
-Use [GitHub Governance Decision Record](GITHUB_GOVERNANCE_DECISION.md) for branch and ruleset decisions, [Governance](../GOVERNANCE.md) for authority boundaries, [Maintainer Handoff](MAINTAINER_HANDOFF.md) for failed-check handling, and [Package Provenance](PACKAGE_PROVENANCE.md) for release-specific evidence. The official Scorecard Action documentation explains its own workflow and permissions; this repository records only the narrow local policy around its manual use.
+Use [GitHub Governance Decision Record](archive/GITHUB_GOVERNANCE_DECISION.md) for branch and ruleset decisions, [Governance](../GOVERNANCE.md) for authority boundaries, [Maintainer Handoff](archive/MAINTAINER_HANDOFF.md) for failed-check handling, and [Package Provenance](PACKAGE_PROVENANCE.md) for release-specific evidence. The official Scorecard Action documentation explains its own workflow and permissions; this repository records only the narrow local policy around its manual use.

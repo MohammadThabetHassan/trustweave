@@ -13,7 +13,7 @@ Before a maintainer merges a pull request, the reviewer should confirm the exact
 | What is deliberately excluded? | Runtime interception, model calls, live connections, credentials, tool invocation, hosted operation, identity proof, external provenance, and certification. |
 | What requires owner action? | Branch protection, review requirements, Actions permissions, secret-scanning settings, trusted-publisher configuration, and release authorization. |
 
-The full versioned operating record is maintained in the repository source as `docs/MAINTAINER_HANDOFF.md`. It requires an explicit human review decision; repository files and successful checks cannot manufacture an approval.
+The full versioned operating record is maintained in the repository source as `docs/archive/MAINTAINER_HANDOFF.md`. It requires an explicit human review decision; repository files and successful checks cannot manufacture an approval.
 
 ## Owner-controlled settings
 

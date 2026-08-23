@@ -72,7 +72,7 @@ Residual gaps and next review date:
 
 ## Reconciliation procedure
 
-After the owner changes a setting, verify the live state before editing public policy text. Update [Governance](../GOVERNANCE.md), [Maintainer Handoff](MAINTAINER_HANDOFF.md), and any automation contract only when the verified record supports the wording. Preserve prior records rather than silently rewriting history.
+After the owner changes a setting, verify the live state before editing public policy text. Update [Governance](../../GOVERNANCE.md), [Maintainer Handoff](MAINTAINER_HANDOFF.md), and any automation contract only when the verified record supports the wording. Preserve prior records rather than silently rewriting history.
 
 If the owner elects profile A, the repository must not describe itself as requiring reviews for every change. If the owner elects profile B, a direct-main exception must be removed or narrowly documented. Neither profile proves code correctness, runtime enforcement, external assessment, or security efficacy.
 

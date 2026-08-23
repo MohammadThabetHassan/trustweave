@@ -1,10 +1,8 @@
 # Installation and five-minute local review
 
-TrustWeave supports **Python 3.11 and later**. Its command-line interface reads explicit local declarations and writes deterministic evidence; it does not run an agent, invoke a declared tool, connect to an MCP server, call a model, or transmit supplied content.
+TrustWeave supports **Python 3.11 and later**. Every command reads local files and writes local artifacts — nothing runs, nothing phones home.
 
 ## Install the published package
-
-Install the current published package in an isolated environment, then inspect the parser.
 
 ```shell
 python -m venv .venv
@@ -26,20 +24,21 @@ python -m pip install 'trustweave[yaml]'
 The source tree contains a self-contained example. The following workflow reads only checked-in files and produces local artifacts under `artifacts/`.
 
 ```shell
- git clone https://github.com/MohammadThabetHassan/trustweave.git
- cd trustweave
- python -m pip install -e .
- rm -rf artifacts
+git clone https://github.com/MohammadThabetHassan/trustweave.git
+cd trustweave
+python -m pip install -e .
+rm -rf artifacts
 
- trustweave scan \
-   --manifest examples/support-agent.manifest.json \
-   --policy policies/default-policy.json \
-   --output-dir artifacts
- trustweave test \
-   --policy policies/default-policy.json \
-   --scenarios scenarios/default-scenarios.json \
-   --output-dir artifacts
- trustweave report --output-dir artifacts
+trustweave scan \
+  --manifest examples/support-agent.manifest.json \
+  --policy policies/default-policy.json \
+  --output-dir artifacts
+trustweave test \
+  --policy policies/default-policy.json \
+  --scenarios scenarios/default-scenarios.json \
+  --output-dir artifacts
+trustweave attest --source-revision local --output-dir artifacts
+trustweave report --output-dir artifacts
 ```
 
 | Artifact | Review purpose |

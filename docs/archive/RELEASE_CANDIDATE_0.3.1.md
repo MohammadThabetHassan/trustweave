@@ -2,7 +2,7 @@
 
 ## Status
 
-**Prepared source candidate; not published.** This record is not a tag, GitHub Release, TestPyPI upload, PyPI upload, archive record, provenance verification, or owner authorization. The last observed public package release is `0.3.0`; its exact-file evidence remains in [Release Evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md).
+**Prepared source candidate; not published.** This record is not a tag, GitHub Release, TestPyPI upload, PyPI upload, archive record, provenance verification, or owner authorization. The last observed public package release is `0.3.0`; its exact-file evidence remains in [Release Evidence 0.3.0](../RELEASE_EVIDENCE_0.3.0.md).
 
 The candidate source metadata declares `0.3.1`. The exact release-target SHA, annotated tag, artifact URLs, artifact hashes, workflow run URLs, package-index observations, clean-install outputs, and provenance-verifier results must be entered only after those events occur.
 

@@ -20,31 +20,39 @@ markdown_extensions:
       permalink: true
 nav:
   - Overview: index.md
-  - Concepts: concepts.md
-  - Installation and quick start: INSTALLATION.md
-  - Configuration: CONFIGURATION.md
-  - Manifest, tags, and classifications: MANIFEST_CONTRACT.md
-  - Local CI workflow: CI_WORKFLOW.md
-  - Developer integration routes: INTEGRATIONS.md
-  - Assurance controls: ASSURANCE.md
-  - Synthetic evaluation framework: EVALUATION.md
-  - Maintainer review and release boundary: MAINTAINERS.md
+  - Getting started:
+      - Installation and quick start: INSTALLATION.md
+      - Walkthrough: WALKTHROUGH.md
+      - Configuration: CONFIGURATION.md
+      - Troubleshooting and limitations: TROUBLESHOOTING.md
+  - Concepts:
+      - Concepts: concepts.md
+      - How it compares: COMPARISON.md
+      - Manifest, tags, and classifications: MANIFEST_CONTRACT.md
+      - Declared chain model: CHAIN_MODEL.md
+      - Threat model: THREAT_MODEL.md
+      - Public API and exports: PUBLIC_API.md
+  - How-to:
+      - Developer integration routes: INTEGRATIONS.md
+      - Local CI workflow: CI_WORKFLOW.md
+      - MCP metadata workflows: MCP_METADATA.md
+      - Reviewer workflow (site): MAINTAINERS.md
   - CLI:
       - Guide: CLI.md
       - Generated help: CLI_HELP.md
-  - Rule catalog: RULE_CATALOG.md
-  - Schema catalog: SCHEMAS.md
-  - Provenance design: PROVENANCE.md
-  - Performance gates: PERFORMANCE.md
-  - Risk identities and lifecycle: RISK_MANAGEMENT.md
-  - Migration to 0.2.0: MIGRATION_0_2.md
-  - Threat model: THREAT_MODEL.md
-  - Troubleshooting and limitations: TROUBLESHOOTING.md
-  - Public API and exports: PUBLIC_API.md
-  - MCP metadata workflows: MCP_METADATA.md
-  - Policy versions and controls: POLICY_VERSIONS.md
-  - Policy review and coverage: POLICY_REVIEW.md
-  - Release process: RELEASE.md
-  - Release evidence 0.3.0: RELEASE_EVIDENCE_0.3.0.md
-  - Release evidence 0.2.3: RELEASE_EVIDENCE_0.2.3.md
-  - Declared chain model: CHAIN_MODEL.md
+      - Rule catalog: RULE_CATALOG.md
+      - Schema catalog: SCHEMAS.md
+  - Policies and risk:
+      - Policy versions and controls: POLICY_VERSIONS.md
+      - Policy review and coverage: POLICY_REVIEW.md
+      - Risk identities and lifecycle: RISK_MANAGEMENT.md
+  - Assurance:
+      - Assurance controls: ASSURANCE.md
+      - Synthetic evaluation framework: EVALUATION.md
+      - Provenance design: PROVENANCE.md
+      - Performance gates: PERFORMANCE.md
+  - Releases:
+      - Release process: RELEASE.md
+      - Release evidence 0.3.0: RELEASE_EVIDENCE_0.3.0.md
+      - Release evidence 0.2.3: RELEASE_EVIDENCE_0.2.3.md
+      - Migration to 0.2.0: MIGRATION_0_2.md

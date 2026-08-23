@@ -47,14 +47,14 @@ PUBLIC_ASSETS = (
     "docs/ASSURANCE.md",
     "docs/COMPATIBILITY.md",
     "docs/SUPPORT_POLICY.md",
-    "docs/ADR-0005-PACKAGE-RELEASE-PROVENANCE.md",
+    "docs/adr/ADR-0005-PACKAGE-RELEASE-PROVENANCE.md",
     "docs/GOLDEN_EVIDENCE.md",
     "docs/CONTROL_TRACEABILITY.md",
     "docs/DISTRIBUTION_ASSURANCE.md",
     "docs/RESOURCE_BOUNDS.md",
     "docs/PACKAGE_PROVENANCE.md",
-    "docs/RELEASE_CANDIDATE_0.3.1.md",
-    "docs/GITHUB_GOVERNANCE_DECISION.md",
+    "docs/archive/RELEASE_CANDIDATE_0.3.1.md",
+    "docs/archive/GITHUB_GOVERNANCE_DECISION.md",
     "docs/EXTERNAL_ASSESSMENT.md",
     "docs/SAFE_EXTERNAL_REPRODUCTION.md",
     "docs/EXTERNAL_COMMUNICATION_CHECKLIST.md",
@@ -263,11 +263,11 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "not an independently collected reviewer-study result",
         "automatic merge",
     ),
-    "docs/MAINTAINER_HANDOFF.md": (
+    "docs/archive/MAINTAINER_HANDOFF.md": (
         "Evaluation corpus and feedback status:",
         "Public Issue Triage Procedure",
     ),
-    "docs/GITHUB_GOVERNANCE_DECISION.md": (
+    "docs/archive/GITHUB_GOVERNANCE_DECISION.md": (
         "Current observed baseline",
         "Choose one maintenance profile",
         "Do not claim a branch-protection rule",
@@ -277,7 +277,7 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "no claim",
         "Published externally by this workflow: no",
     ),
-    "docs/RELEASE_CANDIDATE_0.3.1.md": (
+    "docs/archive/RELEASE_CANDIDATE_0.3.1.md": (
         "Prepared source candidate; not published.",
         "The last observed public package release is `0.3.0`",
         "TrustWeave 0.3.1 is released",

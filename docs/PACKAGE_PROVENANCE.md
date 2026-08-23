@@ -47,7 +47,7 @@ The `v0.3.0` tag targets `30308f47e84025315de2083047039e7efe0fd0ae`. TestPyPI an
 
 ## Control and sources
 
-The exact workflow requirements are machine-checked by [`docs/contracts/package-provenance-v1.json`](contracts/package-provenance-v1.json). The design decision and provider research remain in [ADR-0005](ADR-0005-PACKAGE-RELEASE-PROVENANCE.md) and the [2026-08 research record](research/2026-08-pypi-attestations-and-github-provenance.md). The procedure follows the provider documentation for producing and consuming PyPI attestations.[1] [2]
+The exact workflow requirements are machine-checked by [`docs/contracts/package-provenance-v1.json`](contracts/package-provenance-v1.json). The design decision and provider research remain in [ADR-0005](adr/ADR-0005-PACKAGE-RELEASE-PROVENANCE.md) and the [2026-08 research record](research/2026-08-pypi-attestations-and-github-provenance.md). The procedure follows the provider documentation for producing and consuming PyPI attestations.[1] [2]
 
 ## Limits
 

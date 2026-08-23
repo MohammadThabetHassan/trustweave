@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as the design and verification policy applied to TrustWeave `0.3.0` and retained for future package releases. The exact `0.3.0` TestPyPI and PyPI wheels passed the policy’s consumer verification; [Release Evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md) records that limited observation. It does **not** assert authenticated package provenance for releases published before the policy was implemented or for any future file without its own verification.
+Accepted as the design and verification policy applied to TrustWeave `0.3.0` and retained for future package releases. The exact `0.3.0` TestPyPI and PyPI wheels passed the policy’s consumer verification; [Release Evidence 0.3.0](../RELEASE_EVIDENCE_0.3.0.md) records that limited observation. It does **not** assert authenticated package provenance for releases published before the policy was implemented or for any future file without its own verification.
 
 ## Context
 

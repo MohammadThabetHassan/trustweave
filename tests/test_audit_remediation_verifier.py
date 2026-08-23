@@ -10,7 +10,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 VERIFIER_PATH = ROOT / "scripts" / "verify_audit_remediation.py"
-AUDIT_RECORD_PATH = ROOT / "docs" / "AUDIT_REMEDIATION_2026-08-19.md"
+AUDIT_RECORD_PATH = ROOT / "docs" / "archive" / "AUDIT_REMEDIATION_2026-08-19.md"
 
 
 def _verifier_module() -> ModuleType:

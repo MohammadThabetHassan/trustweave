@@ -58,7 +58,7 @@ The initial release is complete only when:
 7. The MCP profile command produces a clear result for safe synthetic HTTP metadata and review findings for missing authorization expectation, unknown mapping, and action-class drift without contacting a server.
 8. Documentation states what the project does, what it does not do, how to verify it, and how to report a security concern.
 9. The GitHub workflow defines the exact automated checks without making unsupported production-readiness claims.
-10. Maintainers record the exact reviewed SHA, relevant hosted evidence, residual limits, and release-sensitive decision separately from ordinary check status; see [Maintainer Handoff](MAINTAINER_HANDOFF.md).
+10. Maintainers record the exact reviewed SHA, relevant hosted evidence, residual limits, and release-sensitive decision separately from ordinary check status; see [Maintainer Handoff](archive/MAINTAINER_HANDOFF.md).
 
 ## Delivery policy
 
