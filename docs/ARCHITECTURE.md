@@ -2,7 +2,7 @@
 
 ## Design objective
 
-TrustWeave 0.2 source is a local, deterministic evidence workflow. It consumes a declared agent manifest, a declared policy, and a synthetic scenario pack. It then writes structured artifacts that can be reviewed, retained as CI evidence, or compared across revisions.
+TrustWeave is a local, deterministic evidence workflow. It consumes a declared agent manifest, a declared policy, and a synthetic scenario pack. It then writes structured artifacts that can be reviewed, retained as CI evidence, or compared across revisions. The [current-evidence record](site/CURRENT_EVIDENCE.md) distinguishes source-candidate status, published-release status, and the scope of the recorded quality evidence.
 
 The design prioritizes **visibility, reproducibility, and safety** over autonomous discovery or broad runtime interception.
 

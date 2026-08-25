@@ -41,7 +41,7 @@ Before merging an agent change, a developer needs to decide whether a newly decl
 
 ## Explicit safety boundaries
 
-TrustWeave 0.2 source **does not** execute MCP server commands, discover local credentials, make network connections, call models, analyze untrusted repositories, run exploit payloads, scan hosts, test live accounts, collect personal data, or send business actions. Its offline trace review reads only local structured metadata and deliberately excludes message content and tool arguments from review artifacts. Its MCP profile review accepts only local metadata and never performs server discovery, transport access, OAuth, token handling, or capability retrieval.
+TrustWeave **does not** execute MCP server commands, discover local credentials, make network connections, call models, analyze untrusted repositories, run exploit payloads, scan hosts, test live accounts, collect personal data, or send business actions. Its offline trace review reads only local structured metadata and deliberately excludes message content and tool arguments from review artifacts. Its MCP profile review accepts only local metadata and never performs server discovery, transport access, OAuth, token handling, or capability retrieval. The [current-evidence record](site/CURRENT_EVIDENCE.md) states the separate source-candidate and published-release status for this contract.
 
 The project accepts only a local YAML/JSON manifest and fixed synthetic scenarios. It produces deterministic findings based on rules visible in the repository. When data is missing or malformed, the tool reports an error and exits non-zero rather than guessing.
 
