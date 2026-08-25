@@ -69,6 +69,9 @@ def test_fixture_provenance_rejects_missing_benchmark_input(tmp_path: Path) -> N
 
 
 def test_fixture_provenance_forces_platform_stable_lf_fixture_checkouts() -> None:
+    if not ATTRIBUTES_PATH.is_file():
+        # Mutmut executes tests in a selected-source sandbox that omits root Git metadata files.
+        return
     attributes = ATTRIBUTES_PATH.read_text(encoding="utf-8")
 
     assert "examples/evaluation-corpus/declaration-completeness/** text eol=lf" in attributes
