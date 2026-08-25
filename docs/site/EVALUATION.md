@@ -27,6 +27,9 @@ The preflight validates the stable corpus identity, ordered case IDs, local path
 | Bundle diff | Review signals for declared capability and approval-control changes. | It does not discover undeclared deployed changes. |
 | Trace review | Local comparison of minimized metadata with supplied flows and policy. | It does not inspect message content, tool arguments, or trace completeness. |
 | MCP metadata profile review | Local mapping and action-class review from supplied metadata. | It does not connect to, discover, or authenticate an MCP server. |
+| Declaration-completeness benchmark | Exact-label comparison of supplied framework metadata and a supplied manifest. | It does not inspect source code, establish either declaration's completeness, or observe runtime behavior. |
+
+A prepared [declaration-completeness benchmark](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/DECLARATION_COMPLETENESS_BENCHMARK.md) provides two reproducible, local-only agreement/disagreement controls. It is a fixture-level consistency demonstration, not an external benchmark result.
 
 ## Evidence status
 

@@ -1,0 +1,12 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_support_triage",
+      "tools": ["knowledge_search", "ticket_draft"]
+    },
+    {
+      "name": "synthetic_record_reviewer",
+      "tools": ["customer_lookup"]
+    }
+  ]
+}
