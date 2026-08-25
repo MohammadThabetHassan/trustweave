@@ -91,6 +91,9 @@ REQUIRED_README_MARKERS = (
     "[SECURITY.md](SECURITY.md)",
     "[CONTRIBUTING.md](CONTRIBUTING.md)",
     "docs/evaluation/EVALUATION_CHARTER.md",
+    "## How the local evidence workflow fits together",
+    "### Example policy decision matrix",
+    "**first matching rule wins**",
 )
 ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
