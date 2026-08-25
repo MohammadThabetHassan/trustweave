@@ -69,6 +69,7 @@ PUBLIC_ASSETS = (
     "docs/evaluation/DECLARATION_COMPLETENESS_BENCHMARK.md",
     "docs/evaluation/artifact-allowlist.json",
     "examples/evaluation-corpus/declaration-completeness/benchmark.json",
+    "examples/evaluation-corpus/declaration-completeness/provenance.json",
     "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
     "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
     "examples/evaluation-corpus/declaration-completeness/openai-agents-undeclared-tool.json",
@@ -76,6 +77,7 @@ PUBLIC_ASSETS = (
     "examples/evaluation-corpus/declaration-completeness/openai-agents-mixed.json",
     "examples/evaluation-corpus/declaration-completeness/mixed-reconciliation.manifest.json",
     "scripts/run_declaration_completeness_benchmark.py",
+    "scripts/verify_declaration_completeness_provenance.py",
     "docs/COMMUNITY_FEEDBACK.md",
     "docs/ISSUE_TRIAGE.md",
     "docs/site/EVALUATION.md",
@@ -116,6 +118,9 @@ GOLDEN_EVIDENCE_HELPER_PATH = ROOT / "scripts" / "verify_golden_evidence.py"
 TRACEABILITY_HELPER_PATH = ROOT / "scripts" / "verify_control_traceability.py"
 DISTRIBUTION_ASSURANCE_HELPER_PATH = ROOT / "scripts" / "verify_distribution_artifacts.py"
 PACKAGE_PROVENANCE_HELPER_PATH = ROOT / "scripts" / "verify_package_provenance_controls.py"
+DECLARATION_COMPLETENESS_PROVENANCE_HELPER_PATH = (
+    ROOT / "scripts" / "verify_declaration_completeness_provenance.py"
+)
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -254,6 +259,8 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "98.12%",
         "not yet collected",
         "does **not** establish",
+        "The documented merge policy requires green relevant checks",
+        "must be verified before a server-enforced control is claimed as enabled",
     ),
     "docs/evaluation/CORPUS_LIFECYCLE.md": (
         "trustweave.dev/evaluation-corpus/v1alpha1",
@@ -1309,6 +1316,24 @@ def _check_control_traceability() -> list[str]:
     return [f"Control traceability validation failed: {detail}"]
 
 
+def _check_declaration_completeness_provenance() -> list[str]:
+    """Verify the checked-in synthetic benchmark inputs against their digest record."""
+
+    if not DECLARATION_COMPLETENESS_PROVENANCE_HELPER_PATH.is_file():
+        return ["Missing scripts/verify_declaration_completeness_provenance.py"]
+    completed = subprocess.run(
+        [sys.executable, str(DECLARATION_COMPLETENESS_PROVENANCE_HELPER_PATH)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode == 0:
+        return []
+    detail = completed.stderr.strip() or completed.stdout.strip()
+    return [f"Declaration-completeness provenance validation failed: {detail}"]
+
+
 def _check_golden_evidence() -> list[str]:
     """Run the check-only synthetic golden corpus verifier without snapshot updates."""
 
@@ -1386,6 +1411,7 @@ def main() -> int:
         + _check_package_provenance_controls()
         + _check_distribution_assurance()
         + _check_control_traceability()
+        + _check_declaration_completeness_provenance()
         + _check_golden_evidence()
         + _check_assurance_contracts()
         + _check_cli()

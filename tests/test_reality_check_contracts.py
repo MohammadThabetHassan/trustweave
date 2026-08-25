@@ -90,6 +90,14 @@ def test_reality_check_verifies_assurance_contracts() -> None:
     assert reality_check._check_assurance_contracts() == []
 
 
+def test_reality_check_verifies_declaration_completeness_provenance() -> None:
+    """Synthetic benchmark inputs must remain bound to reviewed exact-file digest records."""
+
+    reality_check = _reality_check_module()
+
+    assert reality_check._check_declaration_completeness_provenance() == []
+
+
 def test_reality_check_verifies_golden_evidence() -> None:
     """The repository integrity gate must execute the check-only golden corpus verifier."""
 

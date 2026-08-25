@@ -98,6 +98,46 @@ def test_benchmark_outputs_are_byte_deterministic(tmp_path: Path) -> None:
         assert (first / filename).read_bytes() == (second / filename).read_bytes()
 
 
+def test_benchmark_check_mode_validates_without_running_cases(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    runner = _runner_module()
+
+    def should_not_run(*_args: object, **_kwargs: object) -> dict[str, object]:
+        raise AssertionError("--check must not run benchmark cases")
+
+    monkeypatch.setattr(runner, "run_benchmark", should_not_run)
+
+    assert runner.main_runner(["--check"]) == 0
+    assert "benchmark contract passed: 4 cases, v1alpha1" in capsys.readouterr().out
+
+
+def test_benchmark_verify_mode_returns_nonzero_for_failed_fixture(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    runner = _runner_module()
+
+    monkeypatch.setattr(
+        runner,
+        "run_benchmark",
+        lambda *_args, **_kwargs: {
+            "summary": {"status": "failed", "passed": 3, "cases": 4, "failed": 1}
+        },
+    )
+
+    assert runner.main_runner(["--verify"]) == 1
+    assert "failed: 3/4 cases passed; 1 failed" in capsys.readouterr().out
+
+
+def test_benchmark_cli_rejects_undocumented_abbreviated_option() -> None:
+    runner = _runner_module()
+
+    with pytest.raises(SystemExit) as raised:
+        runner.main_runner(["--output", "unused"])
+
+    assert raised.value.code == 2
+
+
 def test_benchmark_rejects_external_urls_before_reading_case_inputs() -> None:
     runner = _runner_module()
     definition = _definition()

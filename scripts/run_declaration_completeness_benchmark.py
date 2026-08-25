@@ -487,7 +487,7 @@ def run_benchmark(definition_path: Path, output_dir: Path) -> dict[str, object]:
 def _parser() -> argparse.ArgumentParser:
     """Build the small local-only benchmark runner interface."""
 
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument(
         "--definition",
         type=Path,

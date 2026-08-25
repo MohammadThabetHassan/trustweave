@@ -60,6 +60,18 @@ python scripts/run_declaration_completeness_benchmark.py \
 
 The command writes `declaration-consistency-summary.json` and `declaration-consistency-summary.md`. Both outputs retain raw differences, list any explicit declared reconciliations separately, and state the same non-claim boundary. They must not be uploaded, represented as reviewer results, or used to assert that TrustWeave analyzed a live application.
 
+## Fixture provenance and integrity
+
+`examples/evaluation-corpus/declaration-completeness/provenance.json` identifies this corpus as synthetic local data, records its maintainer/update rules, and binds the benchmark definition plus every referenced fixture to an exact-file SHA-256 digest. It is an integrity record for checked-in bytes; it does **not** authenticate an external export or create independent evaluation evidence.
+
+Verify the record before relying on a fixture update:
+
+```bash
+python scripts/verify_declaration_completeness_provenance.py
+```
+
+When a fixture changes, update the expected benchmark result, rationale, non-claim, focused regression coverage, and reviewed digest record together. Raw framework-only and manifest-only labels must remain visible; a declared mapping is still not verified semantic equivalence.
+
 ## How this can support future evaluation
 
 A future, separately authorized study could provide participants with a fixed, sanitized task in which framework metadata and a manifest agree, disagree, or include an explicit declared mapping. Before any collection, maintainers must predefine the task pack, success criteria, setup-time recording, reviewer independence checks, privacy treatment, comparator, and result ledger. Any independent result must follow the [evaluation charter](EVALUATION_CHARTER.md), [reviewer protocol](REVIEWER_PROTOCOL.md), and [status ledger](STATUS.md).

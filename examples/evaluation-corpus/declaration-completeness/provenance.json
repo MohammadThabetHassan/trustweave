@@ -1,0 +1,44 @@
+{
+  "schema_version": "trustweave.dev/declaration-completeness-provenance/v1alpha1",
+  "fixture_set": "trustweave-synthetic-declaration-completeness",
+  "fixture_version": "v1alpha1",
+  "maintainer": "TrustWeave maintainers",
+  "origin": "Synthetic local OpenAI Agents descriptor and TrustWeave manifest fixtures created solely to exercise bounded declaration-consistency controls.",
+  "update_policy": [
+    "Treat every listed input as synthetic local data; do not represent it as a real application export, independent evaluation input, pilot result, or adoption evidence.",
+    "Update a fixture only with its matching expected result, rationale, non-claim statement, focused regression test, and documented review of the raw label difference.",
+    "Recompute every exact-file SHA-256 value with scripts/verify_declaration_completeness_provenance.py before merging a fixture update.",
+    "Preserve raw framework-only and manifest-only labels; declared reconciliation mappings remain reviewer-supplied labels and never establish semantic equivalence."
+  ],
+  "non_claim": "This digest record binds only the checked-in synthetic fixture bytes. It does not authenticate a framework export, establish runtime reachability, prove declaration completeness or semantic equivalence, measure detection efficacy, or provide independent evidence.",
+  "files": [
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/benchmark.json",
+      "sha256": "c1b731350b07bc4fc8b2b7bcfe818483360a9b2c31458a74b4fc5b2492950940"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
+      "sha256": "3debb9f0c243d0e6e14d8229443ab60efffe10e1558a49839673bc22cb26ff49"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/manifest-only-tool.manifest.json",
+      "sha256": "fe26b6280bb60dfa5718b46cd0811dec4edc7371cf0ef234a0517942defbb1b6"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/mixed-reconciliation.manifest.json",
+      "sha256": "e0d8bd0d10c4903685264de3e8c47dc98243294d78440ee80155e962ea415f64"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
+      "sha256": "47d88e552085ad218d6fed5fbcd50eb0f01429e7fe5f4ed4375b2dd402d7d0e0"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-mixed.json",
+      "sha256": "f2dfabb52dd40b9ba881cfc04f7a3318ffe616c50e4f98d539bfeaa888a75619"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-undeclared-tool.json",
+      "sha256": "f2dfabb52dd40b9ba881cfc04f7a3318ffe616c50e4f98d539bfeaa888a75619"
+    }
+  ]
+}
