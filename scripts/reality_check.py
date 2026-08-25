@@ -72,6 +72,9 @@ PUBLIC_ASSETS = (
     "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
     "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
     "examples/evaluation-corpus/declaration-completeness/openai-agents-undeclared-tool.json",
+    "examples/evaluation-corpus/declaration-completeness/manifest-only-tool.manifest.json",
+    "examples/evaluation-corpus/declaration-completeness/openai-agents-mixed.json",
+    "examples/evaluation-corpus/declaration-completeness/mixed-reconciliation.manifest.json",
     "scripts/run_declaration_completeness_benchmark.py",
     "docs/COMMUNITY_FEEDBACK.md",
     "docs/ISSUE_TRIAGE.md",
@@ -261,9 +264,13 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     "docs/evaluation/DECLARATION_COMPLETENESS_BENCHMARK.md": (
         "TW-COMP-001",
         "TW-COMP-002",
+        "TW-COMP-003",
+        "TW-COMP-004",
         "python scripts/run_declaration_completeness_benchmark.py --check",
         "not yet an independent evaluation result",
         "does not prove that either declaration is complete",
+        "does not import or execute a framework",
+        "Declared reconciliation",
     ),
     "docs/site/EVALUATION.md": (
         "twelve checked-in synthetic cases",

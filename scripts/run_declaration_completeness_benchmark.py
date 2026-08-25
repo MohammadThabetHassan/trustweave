@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate synthetic framework-declaration coverage without network or runtime execution."""
+"""Evaluate supplied declaration consistency without network or runtime execution."""
 
 from __future__ import annotations
 
@@ -28,8 +28,14 @@ EXPECTED_FIELDS: Final[frozenset[str]] = frozenset(
         "manifest_tools",
         "missing_from_manifest",
         "manifest_only_tools",
+        "declared_reconciliations",
+        "unresolved_missing_from_manifest",
+        "unresolved_manifest_only_tools",
         "status",
     }
+)
+RECONCILIATION_FIELDS: Final[frozenset[str]] = frozenset(
+    {"framework_tool", "manifest_tool", "declared_by", "rationale"}
 )
 
 
@@ -81,6 +87,38 @@ def _tool_list(value: object, path: str) -> list[str]:
     return list(value)
 
 
+def _reconciliations(value: object, path: str) -> list[dict[str, str]]:
+    """Validate explicit reviewer-declared local label mappings without inferring equivalence."""
+
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise BenchmarkError(f"{path} must be a list when present")
+    mappings: list[dict[str, str]] = []
+    for index, raw_mapping in enumerate(value):
+        mapping_path = f"{path}[{index}]"
+        if not isinstance(raw_mapping, dict) or set(raw_mapping) != RECONCILIATION_FIELDS:
+            raise BenchmarkError(
+                f"{mapping_path} must contain exactly {', '.join(sorted(RECONCILIATION_FIELDS))}"
+            )
+        mappings.append(
+            {
+                field: _require_string(raw_mapping[field], f"{mapping_path}.{field}")
+                for field in sorted(RECONCILIATION_FIELDS)
+            }
+        )
+
+    def sort_key(item: dict[str, str]) -> tuple[str, str]:
+        return item["framework_tool"], item["manifest_tool"]
+
+    if mappings != sorted(mappings, key=sort_key):
+        raise BenchmarkError(f"{path} must be sorted by framework_tool then manifest_tool")
+    pairs = [(item["framework_tool"], item["manifest_tool"]) for item in mappings]
+    if len(pairs) != len(set(pairs)):
+        raise BenchmarkError(f"{path} contains duplicate declared reconciliation pairs")
+    return mappings
+
+
 def _validate_definition(document: object) -> list[dict[str, object]]:
     """Validate the narrow synthetic benchmark contract before reading a case input."""
 
@@ -97,13 +135,28 @@ def _validate_definition(document: object) -> list[dict[str, object]]:
     if any("http://" in item or "https://" in item for item in _string_values(document)):
         raise BenchmarkError("Benchmark definition must not contain an external URL")
     raw_cases = document.get("cases")
-    if not isinstance(raw_cases, list) or len(raw_cases) < 2:
-        raise BenchmarkError("Benchmark definition requires at least two cases")
+    if not isinstance(raw_cases, list) or len(raw_cases) < 4:
+        raise BenchmarkError("Benchmark definition requires at least four cases")
 
     cases: list[dict[str, object]] = []
     for expected_number, raw_case in enumerate(raw_cases, start=1):
         if not isinstance(raw_case, dict):
             raise BenchmarkError("Every benchmark case must be an object")
+        allowed_fields = {
+            "id",
+            "title",
+            "framework",
+            "framework_input",
+            "manifest",
+            "expected",
+            "rationale",
+            "non_claim",
+            "declared_reconciliations",
+        }
+        if set(raw_case) - allowed_fields:
+            raise BenchmarkError(
+                f"Benchmark case has unknown fields: {sorted(set(raw_case) - allowed_fields)}"
+            )
         case = dict(raw_case)
         identifier = _require_string(case.get("id"), "benchmark case id")
         identifier_match = CASE_ID_PATTERN.fullmatch(identifier)
@@ -119,19 +172,28 @@ def _validate_definition(document: object) -> list[dict[str, object]]:
         _inside_root(_require_string(case.get("manifest"), f"{identifier}.manifest"))
         _require_string(case.get("rationale"), f"{identifier}.rationale")
         _require_string(case.get("non_claim"), f"{identifier}.non_claim")
+        case["declared_reconciliations"] = _reconciliations(
+            case.get("declared_reconciliations"), f"{identifier}.declared_reconciliations"
+        )
         expected = case.get("expected")
         if not isinstance(expected, dict) or set(expected) != EXPECTED_FIELDS:
             raise BenchmarkError(f"{identifier}.expected must contain exactly the benchmark fields")
-        for field in EXPECTED_FIELDS - {"status"}:
+        for field in EXPECTED_FIELDS - {"status", "declared_reconciliations"}:
             _tool_list(expected[field], f"{identifier}.expected.{field}")
-        if expected.get("status") not in {"complete", "mismatch"}:
-            raise BenchmarkError(f"{identifier}.expected.status must be complete or mismatch")
+        _reconciliations(
+            expected["declared_reconciliations"], f"{identifier}.expected.declared_reconciliations"
+        )
+        if expected.get("status") not in {"complete", "declared_reconciliation", "mismatch"}:
+            raise BenchmarkError(
+                f"{identifier}.expected.status must be complete, "
+                "declared_reconciliation, or mismatch"
+            )
         cases.append(case)
     return cases
 
 
 def _inventory_tools(inventory: dict[str, Any]) -> list[str]:
-    """Return the exact supplied framework tool labels, without interpreting their behavior."""
+    """Return exact supplied framework tool labels without interpreting their behavior."""
 
     entries = inventory.get("entries")
     if not isinstance(entries, list):
@@ -145,6 +207,33 @@ def _inventory_tools(inventory: dict[str, Any]) -> list[str]:
             raise BenchmarkError("Framework inventory tools must be a string list")
         labels.update(tools)
     return sorted(labels)
+
+
+def _reconcile(
+    missing_from_manifest: list[str],
+    manifest_only_tools: list[str],
+    mappings: list[dict[str, str]],
+) -> tuple[list[dict[str, str]], list[str], list[str]]:
+    """Apply only explicit mappings that match raw supplied-label differences exactly."""
+
+    unresolved_missing = set(missing_from_manifest)
+    unresolved_manifest_only = set(manifest_only_tools)
+    reconciled: list[dict[str, str]] = []
+    for mapping in mappings:
+        framework_tool = mapping["framework_tool"]
+        manifest_tool = mapping["manifest_tool"]
+        if (
+            framework_tool not in unresolved_missing
+            or manifest_tool not in unresolved_manifest_only
+        ):
+            raise BenchmarkError(
+                "Declared reconciliation must pair one raw framework-only label with one raw "
+                "manifest-only label"
+            )
+        unresolved_missing.remove(framework_tool)
+        unresolved_manifest_only.remove(manifest_tool)
+        reconciled.append(mapping)
+    return reconciled, sorted(unresolved_missing), sorted(unresolved_manifest_only)
 
 
 def _evaluate_case(case: dict[str, object]) -> dict[str, object]:
@@ -164,14 +253,26 @@ def _evaluate_case(case: dict[str, object]) -> dict[str, object]:
         manifest_tools = sorted(tool.name for tool in manifest.tools)
         missing_from_manifest = sorted(set(inventory_tools) - set(manifest_tools))
         manifest_only_tools = sorted(set(manifest_tools) - set(inventory_tools))
+        mappings = case["declared_reconciliations"]
+        assert isinstance(mappings, list)
+        reconciled, unresolved_missing, unresolved_manifest_only = _reconcile(
+            missing_from_manifest, manifest_only_tools, mappings
+        )
         observed = {
             "inventory_tools": inventory_tools,
             "manifest_tools": manifest_tools,
             "missing_from_manifest": missing_from_manifest,
             "manifest_only_tools": manifest_only_tools,
-            "status": "complete"
-            if not missing_from_manifest and not manifest_only_tools
-            else "mismatch",
+            "declared_reconciliations": reconciled,
+            "unresolved_missing_from_manifest": unresolved_missing,
+            "unresolved_manifest_only_tools": unresolved_manifest_only,
+            "status": (
+                "complete"
+                if not missing_from_manifest and not manifest_only_tools
+                else "declared_reconciliation"
+                if not unresolved_missing and not unresolved_manifest_only
+                else "mismatch"
+            ),
         }
         expected = case["expected"]
         assert isinstance(expected, dict)
@@ -201,41 +302,156 @@ def _evaluate_case(case: dict[str, object]) -> dict[str, object]:
         }
 
 
+def _join(values: object) -> str:
+    """Render a sorted list of labels compactly for the local Markdown report."""
+
+    return ", ".join(values) if isinstance(values, list) and values else "—"
+
+
+def _mapping_text(mappings: object) -> str:
+    """Render declared mappings without implying verified semantic equivalence."""
+
+    if not isinstance(mappings, list) or not mappings:
+        return "—"
+    return (
+        ", ".join(
+            f"{item['framework_tool']} → {item['manifest_tool']}"
+            for item in mappings
+            if isinstance(item, dict)
+        )
+        or "—"
+    )
+
+
 def _markdown_summary(summary: dict[str, object]) -> str:
-    """Render a reviewer-friendly local report with the benchmark claim boundary."""
+    """Render a reviewer-friendly local report with raw and reconciled claim boundaries."""
 
     cases = summary["cases"]
     assert isinstance(cases, list)
+    details = summary["summary"]
+    assert isinstance(details, dict)
     lines = [
-        "# Synthetic declaration-completeness benchmark summary",
+        "# Synthetic declaration-consistency benchmark summary",
         "",
         (
             "This local synthetic output compares exact tool labels in supplied framework metadata "
-            "with exact tool names in a supplied TrustWeave manifest. It does not import or run a "
-            "framework, inspect application source, establish runtime reachability, authenticate "
-            "metadata, or prove that either declaration is complete."
+            "with exact tool names in a supplied TrustWeave manifest. Explicit declared "
+            "reconciliations are reviewer-provided labels, not inferred or verified semantic "
+            "equivalence. The runner does not import or run a framework, inspect application "
+            "source, establish runtime reachability, authenticate metadata, or prove that either "
+            "declaration is complete."
         ),
         "",
-        "| Case | Framework | Status | Missing from manifest | Manifest-only tools |",
-        "| --- | --- | --- | --- | --- |",
+        "## Fixture totals",
+        "",
+        (
+            "| Cases | Passed | Exact agreements | Declared reconciliations | Mismatches | "
+            "Raw missing labels | Raw manifest-only labels | Unresolved labels |"
+        ),
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        (
+            f"| {details['cases']} | {details['passed']} | {details['exact_agreement_cases']} | "
+            f"{details['declared_reconciliation_cases']} | {details['mismatch_cases']} | "
+            f"{details['raw_missing_from_manifest']} | {details['raw_manifest_only_tools']} | "
+            f"{details['unresolved_labels']} |"
+        ),
+        "",
+        "## Case results",
+        "",
+        (
+            "| Case | Framework | Fixture status | Raw missing from manifest | Raw manifest-only | "
+            "Declared reconciliation | Unresolved labels |"
+        ),
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for case in cases:
         assert isinstance(case, dict)
         observed = case.get("observed", {})
         if not isinstance(observed, dict):
             observed = {}
-        missing = ", ".join(observed.get("missing_from_manifest", [])) or "—"
-        manifest_only = ", ".join(observed.get("manifest_only_tools", [])) or "—"
-        lines.append(
-            f"| `{case['id']}` | `{case['framework']}` | {case['status']} | "
-            f"{missing} | {manifest_only} |"
+        unresolved = sorted(
+            [
+                *_tool_list(
+                    observed.get("unresolved_missing_from_manifest", []),
+                    "report.unresolved_missing_from_manifest",
+                ),
+                *_tool_list(
+                    observed.get("unresolved_manifest_only_tools", []),
+                    "report.unresolved_manifest_only_tools",
+                ),
+            ]
         )
-    lines.extend(["", "## Case limits", ""])
+        lines.append(
+            f"| `{case['id']}` | `{case['framework']}` | {observed.get('status', '—')} | "
+            f"{_join(observed.get('missing_from_manifest'))} | "
+            f"{_join(observed.get('manifest_only_tools'))} | "
+            f"{_mapping_text(observed.get('declared_reconciliations'))} | {_join(unresolved)} |"
+        )
+    lines.extend(["", "## Interpretation and limits", ""])
+    lines.extend(
+        [
+            (
+                "- Raw labels are always retained. A declared reconciliation never removes or "
+                "conceals a raw difference."
+            ),
+            (
+                "- `declared_reconciliation` means all raw differences in that fixture were paired "
+                "by an explicit local mapping. It does not mean the labels, endpoint behavior, "
+                "source code, or runtime paths were verified as equivalent."
+            ),
+            (
+                "- `mismatch` means one or more raw labels remain unresolved within the supplied "
+                "artifacts. It does not prove that a live tool exists, is reachable, or is unsafe."
+            ),
+            (
+                "- This fixture suite is planned local evidence only; it is not an independent "
+                "review, pilot, comparative benchmark result, adoption signal, or "
+                "security-efficacy study."
+            ),
+            "",
+            "## Case limits",
+            "",
+        ]
+    )
     for case in cases:
         assert isinstance(case, dict)
         lines.append(f"- **{case['id']}:** {case['non_claim']}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _summary_counts(results: list[dict[str, object]]) -> dict[str, int]:
+    """Count fixture-only raw and unresolved labels using deterministic aggregate fields."""
+
+    exact_agreement_cases = 0
+    declared_reconciliation_cases = 0
+    mismatch_cases = 0
+    raw_missing_from_manifest = 0
+    raw_manifest_only_tools = 0
+    unresolved_labels = 0
+    for result in results:
+        observed = result.get("observed", {})
+        if not isinstance(observed, dict):
+            continue
+        status = observed.get("status")
+        if status == "complete":
+            exact_agreement_cases += 1
+        elif status == "declared_reconciliation":
+            declared_reconciliation_cases += 1
+        elif status == "mismatch":
+            mismatch_cases += 1
+        raw_missing_from_manifest += len(observed.get("missing_from_manifest", []))
+        raw_manifest_only_tools += len(observed.get("manifest_only_tools", []))
+        unresolved_labels += len(observed.get("unresolved_missing_from_manifest", []))
+        unresolved_labels += len(observed.get("unresolved_manifest_only_tools", []))
+    return {
+        "exact_agreement_cases": exact_agreement_cases,
+        "declared_reconciliation_cases": declared_reconciliation_cases,
+        "mismatch_cases": mismatch_cases,
+        "raw_missing_from_manifest": raw_missing_from_manifest,
+        "raw_manifest_only_tools": raw_manifest_only_tools,
+        "unresolved_labels": unresolved_labels,
+    }
 
 
 def run_benchmark(definition_path: Path, output_dir: Path) -> dict[str, object]:
@@ -247,7 +463,7 @@ def run_benchmark(definition_path: Path, output_dir: Path) -> dict[str, object]:
     results = [_evaluate_case(case) for case in cases]
     passed = sum(result["status"] == "passed" for result in results)
     summary: dict[str, object] = {
-        "schema_version": "trustweave.dev/declaration-completeness-summary/v1alpha1",
+        "schema_version": "trustweave.dev/declaration-consistency-summary/v1alpha1",
         "benchmark_id": BENCHMARK_ID,
         "benchmark_version": BENCHMARK_VERSION,
         "generated_at": FIXED_GENERATED_AT,
@@ -256,12 +472,13 @@ def run_benchmark(definition_path: Path, output_dir: Path) -> dict[str, object]:
             "passed": passed,
             "failed": len(results) - passed,
             "status": "passed" if passed == len(results) else "failed",
+            **_summary_counts(results),
         },
         "non_claim": definition["non_claim"],
         "cases": results,
     }
-    write_json(output_dir / "declaration-completeness-summary.json", summary)
-    (output_dir / "declaration-completeness-summary.md").write_text(
+    write_json(output_dir / "declaration-consistency-summary.json", summary)
+    (output_dir / "declaration-consistency-summary.md").write_text(
         _markdown_summary(summary), encoding="utf-8"
     )
     return summary
@@ -289,7 +506,7 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main_runner(argv: list[str] | None = None) -> int:
-    """Validate or run the static synthetic benchmark without network or runtime execution."""
+    """Validate or run static local fixtures without network or runtime execution."""
 
     args = _parser().parse_args(argv)
     definition_path = args.definition.resolve()
@@ -299,24 +516,24 @@ def main_runner(argv: list[str] | None = None) -> int:
             definition = load_document(definition_path)
             cases = _validate_definition(definition)
             print(
-                "Declaration-completeness benchmark contract passed: "
+                "Declaration-consistency benchmark contract passed: "
                 f"{len(cases)} cases, {definition['benchmark_version']}."
             )
             return 0
         if args.output_dir is None:
             with tempfile.TemporaryDirectory(
-                prefix="trustweave-declaration-completeness-"
+                prefix="trustweave-declaration-consistency-"
             ) as temporary:
                 summary = run_benchmark(definition_path, Path(temporary))
         else:
             summary = run_benchmark(definition_path, args.output_dir.resolve())
     except (BenchmarkError, ValidationError, ValueError, OSError) as error:
-        print(f"Declaration-completeness benchmark error: {error}")
+        print(f"Declaration-consistency benchmark error: {error}")
         return 2
     details = summary["summary"]
     assert isinstance(details, dict)
     print(
-        "Declaration-completeness benchmark "
+        "Declaration-consistency benchmark "
         f"{details['status']}: {details['passed']}/{details['cases']} cases passed; "
         f"{details['failed']} failed."
     )

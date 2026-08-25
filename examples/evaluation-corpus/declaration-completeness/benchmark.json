@@ -2,8 +2,8 @@
   "schema_version": "trustweave.dev/declaration-completeness-benchmark/v1alpha1",
   "benchmark_id": "trustweave-synthetic-declaration-completeness",
   "benchmark_version": "v1alpha1",
-  "description": "Two safe local OpenAI Agents descriptor fixtures that test exact static tool-label comparison against an explicitly supplied TrustWeave manifest.",
-  "non_claim": "This benchmark compares supplied static labels only. It does not import or execute a framework, inspect application source, authenticate the inputs, establish runtime reachability, or prove either declaration is complete.",
+  "description": "Four safe local OpenAI Agents descriptor fixtures that compare exact supplied static tool labels with explicitly supplied TrustWeave manifests, including transparent maintainer-declared label reconciliations.",
+  "non_claim": "This benchmark compares supplied static labels and explicit local mappings only. It does not import or execute a framework, inspect application source, authenticate the inputs, establish runtime reachability, infer semantic equivalence, or prove either declaration is complete.",
   "cases": [
     {
       "id": "TW-COMP-001",
@@ -11,31 +11,105 @@
       "framework": "openai-agents",
       "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
       "manifest": "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
+      "declared_reconciliations": [],
       "expected": {
         "inventory_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
         "manifest_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
         "missing_from_manifest": [],
         "manifest_only_tools": [],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": [],
         "status": "complete"
       },
-      "rationale": "The supplied descriptor and supplied manifest use the same three exact static tool labels, providing a clear control for the bounded comparison.",
+      "rationale": "The supplied descriptor and supplied manifest use the same three exact static tool labels, providing a positive control for the bounded comparison.",
       "non_claim": "A complete label comparison does not prove that the supplied inputs represent the executable application or its reachable runtime behavior."
     },
     {
       "id": "TW-COMP-002",
-      "title": "Undeclared external-capable tool label",
+      "title": "Framework-only static tool label",
       "framework": "openai-agents",
       "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-undeclared-tool.json",
       "manifest": "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
+      "declared_reconciliations": [],
       "expected": {
         "inventory_tools": ["customer_lookup", "knowledge_search", "ticket_draft", "webhook_notify"],
         "manifest_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
         "missing_from_manifest": ["webhook_notify"],
         "manifest_only_tools": [],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": ["webhook_notify"],
+        "unresolved_manifest_only_tools": [],
         "status": "mismatch"
       },
-      "rationale": "The supplied descriptor adds one static tool label that is absent from the supplied manifest, so the bounded comparison records a declaration mismatch for human review.",
+      "rationale": "The supplied descriptor adds one static tool label that is absent from the supplied manifest, so the bounded comparison records an unresolved declaration mismatch for human review.",
       "non_claim": "The mismatch does not prove a live tool exists, that it is reachable, or that it is insecure; it only shows disagreement between the supplied local inputs."
+    },
+    {
+      "id": "TW-COMP-003",
+      "title": "Manifest-only static tool label",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/manifest-only-tool.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
+        "manifest_tools": ["audit_log", "customer_lookup", "knowledge_search", "ticket_draft"],
+        "missing_from_manifest": [],
+        "manifest_only_tools": ["audit_log"],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": ["audit_log"],
+        "status": "mismatch"
+      },
+      "rationale": "The supplied manifest adds one static tool name absent from the supplied descriptor, providing the reverse-direction mismatch control.",
+      "non_claim": "The mismatch does not prove the descriptor is stale, malicious, or incomplete; it only records a raw difference between the supplied local inputs."
+    },
+    {
+      "id": "TW-COMP-004",
+      "title": "Bidirectional differences with declared local reconciliation",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-mixed.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/mixed-reconciliation.manifest.json",
+      "declared_reconciliations": [
+        {
+          "framework_tool": "ticket_draft",
+          "manifest_tool": "draft_ticket",
+          "declared_by": "synthetic_fixture_maintainer",
+          "rationale": "The fixture declares these two supplied labels as a local alias pair for reviewer inspection only."
+        },
+        {
+          "framework_tool": "webhook_notify",
+          "manifest_tool": "audit_log",
+          "declared_by": "synthetic_fixture_maintainer",
+          "rationale": "The fixture declares this second supplied label pair solely to test transparent reconciliation reporting."
+        }
+      ],
+      "expected": {
+        "inventory_tools": ["customer_lookup", "knowledge_search", "ticket_draft", "webhook_notify"],
+        "manifest_tools": ["audit_log", "customer_lookup", "draft_ticket", "knowledge_search"],
+        "missing_from_manifest": ["ticket_draft", "webhook_notify"],
+        "manifest_only_tools": ["audit_log", "draft_ticket"],
+        "declared_reconciliations": [
+          {
+            "framework_tool": "ticket_draft",
+            "manifest_tool": "draft_ticket",
+            "declared_by": "synthetic_fixture_maintainer",
+            "rationale": "The fixture declares these two supplied labels as a local alias pair for reviewer inspection only."
+          },
+          {
+            "framework_tool": "webhook_notify",
+            "manifest_tool": "audit_log",
+            "declared_by": "synthetic_fixture_maintainer",
+            "rationale": "The fixture declares this second supplied label pair solely to test transparent reconciliation reporting."
+          }
+        ],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": [],
+        "status": "declared_reconciliation"
+      },
+      "rationale": "The fixture preserves raw bidirectional differences while separately recording two explicit maintainer-declared pairs, testing that reconciliation never hides raw evidence.",
+      "non_claim": "A declared reconciliation is not verified semantic equivalence and does not prove that either supplied label represents a real endpoint, behavior, or runtime path."
     }
   ]
 }

@@ -25,11 +25,12 @@ A reviewer may withdraw before the owner-declared analysis cutoff through the pr
 | T5 artifact-clarity rating | Integer 1–5. |
 | T5 boundary-clarity rating | Integer 1–5. |
 | T6 boundary confirmation | No sensitive/live material used: yes/no. |
+| T7 optional declaration-consistency outcome | Completed, blocked, not attempted, or withdrew; if completed, name one synthetic `TW-COMP-*` fixture and classify it as exact agreement, unresolved mismatch, declared reconciliation, uncertain, or not completed. |
 | Publication preference | Anonymous aggregate only, attributed quote permitted, or do not publish response. |
 
 ## Optional safe comment
 
-A reviewer may provide a short, redacted comment about synthetic setup friction, output clarity, or an explicitly identified corpus case. Do not include any material prohibited in the use conditions. A missing comment must not be interpreted negatively.
+A reviewer may provide a short, redacted comment about synthetic setup friction, output clarity, an explicitly identified corpus case, or an explicitly identified `TW-COMP-*` declaration-consistency fixture. Do not include any material prohibited in the use conditions. A missing comment must not be interpreted negatively.
 
 ## Maintainer handling note
 
