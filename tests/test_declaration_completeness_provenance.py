@@ -9,6 +9,7 @@ PROVENANCE_PATH = (
     ROOT / "examples" / "evaluation-corpus" / "declaration-completeness" / "provenance.json"
 )
 VERIFIER_PATH = ROOT / "scripts" / "verify_declaration_completeness_provenance.py"
+ATTRIBUTES_PATH = ROOT / ".gitattributes"
 
 
 def _verifier_module() -> ModuleType:
@@ -65,6 +66,12 @@ def test_fixture_provenance_rejects_missing_benchmark_input(tmp_path: Path) -> N
     failures = verifier.verify_provenance(path)
 
     assert any("must exactly match benchmark definition inputs" in failure for failure in failures)
+
+
+def test_fixture_provenance_forces_platform_stable_lf_fixture_checkouts() -> None:
+    attributes = ATTRIBUTES_PATH.read_text(encoding="utf-8")
+
+    assert "examples/evaluation-corpus/declaration-completeness/** text eol=lf" in attributes
 
 
 def test_fixture_provenance_verifier_is_local_and_does_not_write_inputs() -> None:
