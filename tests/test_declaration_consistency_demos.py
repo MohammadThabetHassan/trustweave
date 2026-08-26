@@ -26,6 +26,12 @@ def test_every_benchmark_case_has_a_checked_in_terminal_gif_and_cast() -> None:
         assert any(f"Case: {case_id}" in line for line in cast_lines[1:])
 
 
+def test_mutation_sandbox_copies_checked_in_demo_assets() -> None:
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+
+    assert '  "demo",' in pyproject
+
+
 def test_terminal_demo_runner_preserves_the_local_only_boundary() -> None:
     runner = (DEMO_DIR / "run-case.sh").read_text(encoding="utf-8")
     readme = (DEMO_DIR / "README.md").read_text(encoding="utf-8")

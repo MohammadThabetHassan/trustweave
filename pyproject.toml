@@ -112,6 +112,7 @@ also_copy = [
   "scenarios",
   "schemas",
   "docs",
+  "demo",
   "scripts",
 ]
 pytest_add_cli_args = ["--no-cov"]
