@@ -1,6 +1,6 @@
 # Declaration-consistency case demos
 
-This directory contains a terminal-style walkthrough for every checked-in declaration-consistency fixture. Each animation is generated from an actual local run of [`run-case.sh`](run-case.sh), and each matching `.cast` file records the captured terminal output in an asciinema-compatible format.
+This directory contains a terminal-style walkthrough for every checked-in declaration-consistency fixture. Each animation opens with a readable case briefing—its scenario, review question, expected bounded result, and reason for inclusion—then advances through an actual local run of [`run-case.sh`](run-case.sh), and ends with a scope reminder. Each matching `.cast` file records that same paced walkthrough in an asciinema-compatible format.
 
 > **Scope boundary:** These are synthetic local fixtures. They compare exact labels in supplied static descriptors and supplied TrustWeave manifests. They do not import or execute OpenAI Agents, LangGraph, or CrewAI; authenticate the inputs; inspect source; establish runtime reachability; or prove security.
 
@@ -10,7 +10,7 @@ This directory contains a terminal-style walkthrough for every checked-in declar
 ./run-case.sh TW-COMP-011
 ```
 
-The runner first validates the selected checked-in fixture, verifies the complete fixture-provenance record, evaluates exactly that case, and writes its local report to `artifacts/TW-COMP-011/`.
+The runner first validates the selected checked-in fixture, verifies the complete fixture-provenance record, evaluates exactly that case, and writes its local report to `artifacts/TW-COMP-011/`. In the GIFs, the case briefing and result screens remain visible for several seconds; command output advances in short, readable stages rather than as a rapid full transcript.
 
 ## Case walkthroughs
 
@@ -98,4 +98,4 @@ pip install -e '.[demo]'
 python3 scripts/render_declaration_consistency_demos.py
 ```
 
-It executes every case through `run-case.sh`, writes a matching terminal cast, and rebuilds each GIF from the captured local output. The generated files are review illustrations for this checked-in synthetic corpus only; they are not evidence of a live framework run.
+It executes every case through `run-case.sh`, writes a matching terminal cast, and rebuilds each GIF with a case-specific briefing, paced command stages, and a final limit reminder. The renderer uses the checked-in [`DejaVu Sans Mono` font asset](assets/DejaVuSansMono.ttf) and retains its [upstream license notice](assets/DEJAVU_FONT_LICENSE.txt), so contributors do not need a host-specific font path. The generated files are review illustrations for this checked-in synthetic corpus only; they are not evidence of a live framework run.
