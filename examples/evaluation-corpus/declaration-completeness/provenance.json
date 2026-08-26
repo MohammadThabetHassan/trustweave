@@ -3,7 +3,7 @@
   "fixture_set": "trustweave-synthetic-declaration-completeness",
   "fixture_version": "v1alpha1",
   "maintainer": "TrustWeave maintainers",
-  "origin": "Synthetic local OpenAI Agents descriptor and TrustWeave manifest fixtures created solely to exercise bounded declaration-consistency controls.",
+  "origin": "Synthetic local OpenAI Agents-style, LangGraph-style, and CrewAI-style descriptor fixtures plus TrustWeave manifests created solely to exercise bounded declaration-consistency controls.",
   "update_policy": [
     "Treat every listed input as synthetic local data; do not represent it as a real application export, independent evaluation input, pilot result, or adoption evidence.",
     "Update a fixture only with its matching expected result, rationale, non-claim statement, focused regression test, and documented review of the raw label difference.",

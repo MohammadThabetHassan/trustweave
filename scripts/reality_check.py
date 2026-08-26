@@ -281,6 +281,8 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     ),
     "docs/site/EVALUATION.md": (
         "twelve checked-in synthetic cases",
+        "fourteen reproducible, local-only controls",
+        "OpenAI Agents-style, LangGraph-style, and CrewAI-style descriptors",
         "not yet collected",
         "attack prevention",
     ),

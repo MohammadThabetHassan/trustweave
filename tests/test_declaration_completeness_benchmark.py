@@ -60,9 +60,7 @@ def test_benchmark_passes_and_records_all_fourteen_static_controls(tmp_path: Pat
     }
     cases = summary["cases"]
     assert isinstance(cases, list)
-    assert [case["id"] for case in cases] == [
-        f"TW-COMP-{i:03d}" for i in range(1, 15)
-    ]
+    assert [case["id"] for case in cases] == [f"TW-COMP-{i:03d}" for i in range(1, 15)]
     assert cases[0]["observed"]["status"] == "complete"
     assert cases[1]["observed"]["unresolved_missing_from_manifest"] == ["webhook_notify"]
     assert cases[2]["observed"]["unresolved_manifest_only_tools"] == ["audit_log"]
@@ -225,6 +223,9 @@ def test_benchmark_documentation_and_reviewer_assets_preserve_non_claims() -> No
     )
     status = (ROOT / "docs" / "evaluation" / "STATUS.md").read_text(encoding="utf-8")
     guide = (ROOT / "docs" / "site" / "EVALUATION.md").read_text(encoding="utf-8")
+    quickstart = (ROOT / "docs" / "evaluation" / "REVIEWER_QUICKSTART.md").read_text(
+        encoding="utf-8"
+    )
     packet = (ROOT / "examples" / "evaluation-corpus" / "reviewer-packet" / "README.md").read_text(
         encoding="utf-8"
     )
@@ -238,7 +239,13 @@ def test_benchmark_documentation_and_reviewer_assets_preserve_non_claims() -> No
     assert "does not import or execute a framework" in benchmark
     assert "does not prove that either declaration is complete" in benchmark
     assert "Declared reconciliation" in benchmark
+    assert "OpenAI Agents-style, LangGraph-style, or CrewAI-style" in benchmark
     assert "semantic-equivalence" in status
+    assert "fourteen reproducible, local-only controls" in guide
+    assert "OpenAI Agents-style, LangGraph-style, and CrewAI-style descriptors" in guide
     assert "fixture-level consistency demonstration" in guide
+    assert "14/14 cases passed" in quickstart
+    assert "verify_declaration_completeness_provenance.py" in quickstart
+    assert "not an authenticity record for a real framework export" in quickstart
     assert "14/14 cases passed" in packet
     assert "T7 optional declaration-consistency outcome" in feedback

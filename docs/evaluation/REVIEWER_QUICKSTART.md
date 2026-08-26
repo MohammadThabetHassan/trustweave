@@ -43,6 +43,23 @@ python scripts/run_evaluation_corpus.py --verify --output-dir /tmp/trustweave-re
 
 A successful run reports `12/12 cases passed` and exits with status `0`. A mismatch between a documented expectation and an observed local artifact exits with status `1`. An invalid corpus contract or unsafe path exits with status `2`.
 
+## Reproduce declaration-consistency fixtures
+
+The declaration-consistency benchmark is a separate, synthetic local fixture suite. It compares exact tool labels in supplied OpenAI Agents-style, LangGraph-style, and CrewAI-style descriptors with a supplied manifest. It neither imports a framework nor authenticates, executes, or proves the completeness of any descriptor.
+
+First validate its checked-in contract and the exact-file provenance record, then run the fixture suite into a separate disposable directory:
+
+```bash
+python scripts/run_declaration_completeness_benchmark.py --check
+python scripts/verify_declaration_completeness_provenance.py
+rm -rf /tmp/trustweave-declaration-consistency-review
+python scripts/run_declaration_completeness_benchmark.py \
+  --verify \
+  --output-dir /tmp/trustweave-declaration-consistency-review
+```
+
+A successful run reports `14/14 cases passed`. Inspect `declaration-consistency-summary.json` and `declaration-consistency-summary.md` to confirm that raw framework-only and manifest-only labels remain visible and that any declared reconciliation is reported separately. The fixture provenance record binds the checked-in synthetic bytes only; it is not an authenticity record for a real framework export or independent evaluation evidence.
+
 ## Inspect what was produced
 
 | Local artifact | Reviewer question | Safe interpretation |

@@ -12,7 +12,7 @@ Each benchmark case contains two checked-in inputs:
 
 | Input | Meaning | Trust boundary |
 | --- | --- | --- |
-| Framework descriptor | An already-provided OpenAI Agents-style JSON export containing agent names and static tool labels. | It is review data; its authenticity and completeness are not established. |
+| Framework descriptor | An already-provided OpenAI Agents-style, LangGraph-style, or CrewAI-style JSON descriptor containing static tool labels where the supported importer can derive them. | It is review data; its authenticity and completeness are not established. |
 | TrustWeave manifest | An explicitly supplied local manifest containing declared tool names. | It is a declaration; it is not a representation proven to match an executable agent. |
 | Declared reconciliation | An optional, explicit mapping supplied by the synthetic fixture maintainer. | It is a transparent reviewer-provided label pairing, not automatic matching or verified semantic equivalence. |
 
