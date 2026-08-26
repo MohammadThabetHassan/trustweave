@@ -81,6 +81,35 @@ def test_benchmark_passes_and_records_all_fourteen_static_controls(tmp_path: Pat
     assert (tmp_path / "declaration-consistency-summary.json").is_file()
 
 
+def test_benchmark_selects_one_exact_checked_in_case_for_a_local_walkthrough(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    runner = _runner_module()
+
+    summary = runner.run_benchmark(DEFINITION_PATH, tmp_path, "TW-COMP-004")
+
+    assert summary["summary"]["cases"] == 1
+    assert summary["summary"]["passed"] == 1
+    cases = summary["cases"]
+    assert isinstance(cases, list)
+    assert [case["id"] for case in cases] == ["TW-COMP-004"]
+    report = (tmp_path / "declaration-consistency-summary.md").read_text(encoding="utf-8")
+    assert "ticket_draft → draft_ticket" in report
+    assert "webhook_notify → audit_log" in report
+
+    assert runner.main_runner(["--case", "TW-COMP-004", "--check"]) == 0
+    assert "TW-COMP-004 contract passed: 1 cases" in capsys.readouterr().out
+
+
+def test_benchmark_rejects_unknown_exact_case_identifier(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    runner = _runner_module()
+
+    assert runner.main_runner(["--case", "TW-COMP-999", "--output-dir", str(tmp_path)]) == 2
+    assert "Unknown benchmark case: TW-COMP-999" in capsys.readouterr().out
+
+
 def test_benchmark_outputs_are_byte_deterministic(tmp_path: Path) -> None:
     runner = _runner_module()
     first = tmp_path / "first"

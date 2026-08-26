@@ -420,6 +420,17 @@ def _markdown_summary(summary: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def _select_cases(cases: list[dict[str, object]], case_id: str | None) -> list[dict[str, object]]:
+    """Return the full corpus or one exact checked-in case for a local walkthrough."""
+
+    if case_id is None:
+        return cases
+    selected = [case for case in cases if case["id"] == case_id]
+    if not selected:
+        raise BenchmarkError(f"Unknown benchmark case: {case_id}")
+    return selected
+
+
 def _summary_counts(results: list[dict[str, object]]) -> dict[str, int]:
     """Count fixture-only raw and unresolved labels using deterministic aggregate fields."""
 
@@ -454,11 +465,13 @@ def _summary_counts(results: list[dict[str, object]]) -> dict[str, int]:
     }
 
 
-def run_benchmark(definition_path: Path, output_dir: Path) -> dict[str, object]:
-    """Run all checked-in synthetic comparisons into a caller-selected local directory."""
+def run_benchmark(
+    definition_path: Path, output_dir: Path, case_id: str | None = None
+) -> dict[str, object]:
+    """Run all checked-in synthetic comparisons or one exact selected case locally."""
 
     definition = load_document(definition_path)
-    cases = _validate_definition(definition)
+    cases = _select_cases(_validate_definition(definition), case_id)
     output_dir.mkdir(parents=True, exist_ok=True)
     results = [_evaluate_case(case) for case in cases]
     passed = sum(result["status"] == "passed" for result in results)
@@ -497,6 +510,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--output-dir", type=Path, help="Local output directory; defaults to a temporary directory."
     )
+    parser.add_argument(
+        "--case",
+        metavar="TW-COMP-NNN",
+        help="Run or validate one exact checked-in synthetic case for a local walkthrough.",
+    )
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="Validate the benchmark contract only.")
     mode.add_argument(
@@ -514,27 +532,29 @@ def main_runner(argv: list[str] | None = None) -> int:
         _inside_root(definition_path.relative_to(ROOT).as_posix())
         if args.check:
             definition = load_document(definition_path)
-            cases = _validate_definition(definition)
+            cases = _select_cases(_validate_definition(definition), args.case)
+            scope = args.case if args.case is not None else "benchmark"
             print(
-                "Declaration-consistency benchmark contract passed: "
-                f"{len(cases)} cases, {definition['benchmark_version']}."
+                "Declaration-consistency "
+                f"{scope} contract passed: {len(cases)} cases, {definition['benchmark_version']}."
             )
             return 0
         if args.output_dir is None:
             with tempfile.TemporaryDirectory(
                 prefix="trustweave-declaration-consistency-"
             ) as temporary:
-                summary = run_benchmark(definition_path, Path(temporary))
+                summary = run_benchmark(definition_path, Path(temporary), args.case)
         else:
-            summary = run_benchmark(definition_path, args.output_dir.resolve())
+            summary = run_benchmark(definition_path, args.output_dir.resolve(), args.case)
     except (BenchmarkError, ValidationError, ValueError, OSError) as error:
         print(f"Declaration-consistency benchmark error: {error}")
         return 2
     details = summary["summary"]
     assert isinstance(details, dict)
+    scope = args.case if args.case is not None else "benchmark"
     print(
-        "Declaration-consistency benchmark "
-        f"{details['status']}: {details['passed']}/{details['cases']} cases passed; "
+        "Declaration-consistency "
+        f"{scope} {details['status']}: {details['passed']}/{details['cases']} cases passed; "
         f"{details['failed']} failed."
     )
     return 0 if details["status"] == "passed" or not args.verify else 1
