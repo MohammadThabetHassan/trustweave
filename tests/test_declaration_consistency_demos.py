@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 DEMO_DIR = ROOT / "demo" / "declaration-consistency"
@@ -35,6 +38,13 @@ def test_every_benchmark_case_has_a_checked_in_terminal_gif_and_cast() -> None:
         assert events[1][0] - events[0][0] >= 0.9
 
 
+@pytest.mark.skipif(
+    os.name == "nt",
+    reason=(
+        "The checked-in walkthrough runner is a Bash script; transcript execution is verified "
+        "on POSIX."
+    ),
+)
 def test_every_cast_preserves_its_captured_runner_output_exactly() -> None:
     start_marker = "== Captured terminal output begins (emitted by run-case.sh) =="
     end_marker = "== Captured terminal output ends (no lines altered by the renderer) =="
