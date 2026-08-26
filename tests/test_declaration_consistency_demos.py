@@ -42,7 +42,11 @@ def test_every_cast_preserves_its_captured_runner_output_exactly() -> None:
     try:
         for case_id in CASE_IDS:
             result = subprocess.run(
-                ["bash", str(DEMO_DIR / "run-case.sh"), case_id],
+                [
+                    "bash",
+                    (DEMO_DIR / "run-case.sh").relative_to(ROOT).as_posix(),
+                    case_id,
+                ],
                 cwd=ROOT,
                 check=True,
                 text=True,
