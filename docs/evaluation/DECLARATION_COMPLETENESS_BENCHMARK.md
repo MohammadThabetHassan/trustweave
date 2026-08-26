@@ -39,6 +39,19 @@ The runner normalizes the supplied descriptor with the existing `framework-impor
 | `TW-COMP-013` | CrewAI complete declared tool surface. | `complete` | Cross-framework positive control. |
 | `TW-COMP-014` | CrewAI framework-only mismatch. | `mismatch`; unresolved framework-only label. | Cross-framework mismatch control. |
 
+## Realism and bounded usefulness
+
+The cases are **synthetic, not real application exports or deployments**. Their value is that they represent plausible review questions involving declared tools: operational customer lookup and knowledge search, ticket drafting, notifications, audit logging, reporting, data export, compliance checks, alerting, deployment triggers, and rollback actions. Those concepts align with the role of callable tools in the represented ecosystems, but the fixture labels are deliberately local review data rather than copied production configurations. For example, [OpenAI Agents tools](https://openai.github.io/openai-agents-python/tools/) include function, hosted, local-runtime, and agent-as-tool surfaces; [LangGraph](https://langchain-ai.github.io/langgraph/concepts/tools/) uses tool-executing graph nodes; and [CrewAI tools](https://docs.crewai.com/en/concepts/tools/) are callable functions or skills available to agents.
+
+| Case group | Cases | Plausible declaration-review question | What the local result usefully shows | What it cannot establish |
+| --- | --- | --- | --- | --- |
+| Exact agreement | `TW-COMP-001`, `006`, `007`, `013` | Does a supplied manifest list the same static labels as the supplied inventory, including a multi-agent or CrewAI-style surface? | Whether exact supplied labels agree after normalization and deduplication. | That the inventory is authentic, complete, reachable, authorized, or safe at runtime. |
+| One-sided drift | `TW-COMP-002`, `003`, `005`, `008`, `009`, `012`, `014` | Is a supplied tool label present on only one side, including empty or graph-only inventory structures? | Which raw labels need a reviewer to explain before relying on the declaration. | Which supplied side is correct, whether a tool exists at runtime, or whether the difference is a security defect. |
+| Raw bidirectional drift | `TW-COMP-010` | Do both supplied declarations contain unpaired labels after a configuration or naming change? | That all raw differences remain visible rather than being silently normalized away. | Semantic equivalence, intent, deployment state, or exploitability. |
+| Declared reconciliation | `TW-COMP-004`, `011` | Can a maintainer record a transparent local alias pair while leaving remaining differences visible? | That declared mappings are separated from raw labels and partial mappings do not conceal unresolved differences. | That any pair has verified equivalent behavior or access scope. |
+
+The suite therefore helps a reviewer rehearse a **bounded pre-deployment declaration-review step**: compare supplied local snapshots, retain the raw differences, ask for evidence about differences, and avoid treating agreement as proof of runtime security. A real-world evaluation would require separately authorized, sanitized, provenance-bounded inputs and independent review; it cannot be created by relabeling these fixtures as real.
+
 The summary records only deterministic fixture metrics:
 
 | Metric | Definition | Excluded conclusion |

@@ -278,6 +278,8 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "does not prove that either declaration is complete",
         "does not import or execute a framework",
         "Declared reconciliation",
+        "synthetic, not real application exports or deployments",
+        "it cannot be created by relabeling these fixtures as real",
     ),
     "docs/site/EVALUATION.md": (
         "twelve checked-in synthetic cases",

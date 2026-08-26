@@ -240,6 +240,9 @@ def test_benchmark_documentation_and_reviewer_assets_preserve_non_claims() -> No
     assert "does not prove that either declaration is complete" in benchmark
     assert "Declared reconciliation" in benchmark
     assert "OpenAI Agents-style, LangGraph-style, or CrewAI-style" in benchmark
+    assert "## Realism and bounded usefulness" in benchmark
+    assert "synthetic, not real application exports or deployments" in benchmark
+    assert "it cannot be created by relabeling these fixtures as real" in benchmark
     assert "semantic-equivalence" in status
     assert "fourteen reproducible, local-only controls" in guide
     assert "OpenAI Agents-style, LangGraph-style, and CrewAI-style descriptors" in guide
