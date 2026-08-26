@@ -1,0 +1,34 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-partial-agent",
+  "description": "A local-only synthetic manifest with a subset of framework tools for multi-mismatch comparison; it does not describe a deployed application.",
+  "sources": [
+    {
+      "name": "synthetic_request",
+      "trust": "trusted",
+      "data_classification": "public",
+      "description": "A harmless synthetic request used only to satisfy the manifest contract."
+    }
+  ],
+  "tools": [
+    {
+      "name": "customer_lookup",
+      "action_class": "sensitive",
+      "capabilities": ["customer.read"],
+      "description": "A declared synthetic customer-record label; no record is accessed."
+    },
+    {
+      "name": "knowledge_search",
+      "action_class": "read",
+      "capabilities": ["knowledge.read"],
+      "description": "A declared synthetic retrieval label; no lookup is performed."
+    }
+  ],
+  "flows": [
+    {
+      "source": "synthetic_request",
+      "tool": "knowledge_search",
+      "purpose": "Provide a minimally valid local manifest for partial-surface comparison."
+    }
+  ]
+}

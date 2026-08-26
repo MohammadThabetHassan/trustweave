@@ -14,11 +14,27 @@
   "files": [
     {
       "path": "examples/evaluation-corpus/declaration-completeness/benchmark.json",
-      "sha256": "c1b731350b07bc4fc8b2b7bcfe818483360a9b2c31458a74b4fc5b2492950940"
+      "sha256": "33dafb87426a74008be764d43be57b8e7df51900616f678bcf5a9fbbe6dc579c"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/bidirectional-mismatch.manifest.json",
+      "sha256": "6085b6d7948cd19685adb5fd0eb686a5c85027421d413a8bb62d78c57030a698"
     },
     {
       "path": "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
       "sha256": "3debb9f0c243d0e6e14d8229443ab60efffe10e1558a49839673bc22cb26ff49"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/crewai-basic.json",
+      "sha256": "03374c313a199144a563cfbbbe281049469dda2e1b6092a7c2d96ef82d55b93f"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/langgraph-basic.json",
+      "sha256": "4e076d0aade9a343c23a9e8fc26d67ca5dab0427708f9bd6c42ab35a2f6d7aed"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/manifest-multiple-extra.manifest.json",
+      "sha256": "fa1f38cdf64efa479af860ea0b77143e03f70b44f19b921c43b2dfaeabba2d63"
     },
     {
       "path": "examples/evaluation-corpus/declaration-completeness/manifest-only-tool.manifest.json",
@@ -29,16 +45,56 @@
       "sha256": "e0d8bd0d10c4903685264de3e8c47dc98243294d78440ee80155e962ea415f64"
     },
     {
+      "path": "examples/evaluation-corpus/declaration-completeness/multi-overlap.manifest.json",
+      "sha256": "434d142cc5a49d1b4b847ddf534ab97f3b65d4294af803f1f6adf30f05168e69"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-bidirectional.json",
+      "sha256": "8bb09fa4000e2f4505c578a625c6e9b5a57de661193e7c2590aea9e4a2310e16"
+    },
+    {
       "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
       "sha256": "47d88e552085ad218d6fed5fbcd50eb0f01429e7fe5f4ed4375b2dd402d7d0e0"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-empty.json",
+      "sha256": "546e344e6147d86a3d64bd0afb2a23fe45b98011237a8562dd411915d233e796"
     },
     {
       "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-mixed.json",
       "sha256": "f2dfabb52dd40b9ba881cfc04f7a3318ffe616c50e4f98d539bfeaa888a75619"
     },
     {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-multi-overlap.json",
+      "sha256": "e523dea24f4fa6fc2a7c19b9039a59b4f608f83bcff255f888a0ee16ff651cf4"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-multiple-missing.json",
+      "sha256": "9fccc8848a52262a1f33b54f7c582b39bdba1ee4829c9fb0fb5f192494dc81f9"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-partial-reconciliation.json",
+      "sha256": "1082b389aa9b17e1d46162238c38b4fe5bfd23621d56f200a9dcd014156c6303"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-single.json",
+      "sha256": "8c050d29786954a98d1139cee5842f0e28c54d57df316d8721c9bb14e80481d7"
+    },
+    {
       "path": "examples/evaluation-corpus/declaration-completeness/openai-agents-undeclared-tool.json",
       "sha256": "f2dfabb52dd40b9ba881cfc04f7a3318ffe616c50e4f98d539bfeaa888a75619"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/partial-reconciliation.manifest.json",
+      "sha256": "e5d214ad2cb280fb5a25b00f8f2392450c4c3cc3e0a54f6e73d659d32d54300d"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/partial.manifest.json",
+      "sha256": "f2985731642d04e37c3c6147e37fcb187013c359aa55a902446fa8f9b591eb90"
+    },
+    {
+      "path": "examples/evaluation-corpus/declaration-completeness/single.manifest.json",
+      "sha256": "3784fd004b87b4b12406f4fb9ac837b7fe2a6a87c99945ecdbc229dc5a14ef78"
     }
   ]
 }

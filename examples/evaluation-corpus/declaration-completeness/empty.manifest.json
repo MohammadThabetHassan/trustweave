@@ -1,0 +1,15 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-empty-agent",
+  "description": "A local-only synthetic manifest with no tools for empty-surface comparison; it does not describe a deployed application.",
+  "sources": [
+    {
+      "name": "synthetic_request",
+      "trust": "trusted",
+      "data_classification": "public",
+      "description": "A harmless synthetic request used only to satisfy the manifest contract."
+    }
+  ],
+  "tools": [],
+  "flows": []
+}

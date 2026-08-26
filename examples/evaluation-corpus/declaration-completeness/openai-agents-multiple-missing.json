@@ -1,0 +1,8 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_full_agent",
+      "tools": ["customer_lookup", "data_export", "knowledge_search", "report_generate", "ticket_draft"]
+    }
+  ]
+}

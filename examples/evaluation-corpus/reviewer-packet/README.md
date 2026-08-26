@@ -52,7 +52,7 @@ python scripts/run_declaration_completeness_benchmark.py --verify \
 cat /tmp/trustweave-declaration-consistency-review/declaration-consistency-summary.md
 ```
 
-The corpus preflight validates corpus structure and local path safety without executing a case. The corpus verification invokes only TrustWeave’s established local CLI with checked-in synthetic inputs. A successful corpus run reports `12/12 cases passed`; review-required controls remain expected when their documented exit state and artifacts match. The optional declaration-consistency command reports `4/4 cases passed` for its static fixtures; it retains raw labels and shows any explicit declared reconciliation separately. Neither command imports a framework, reads application source, contacts a service, or establishes that a supplied declaration is complete.
+The corpus preflight validates corpus structure and local path safety without executing a case. The corpus verification invokes only TrustWeave’s established local CLI with checked-in synthetic inputs. A successful corpus run reports `12/12 cases passed`; review-required controls remain expected when their documented exit state and artifacts match. The optional declaration-consistency command reports `14/14 cases passed` for its static fixtures; it retains raw labels and shows any explicit declared reconciliation separately. Neither command imports a framework, reads application source, contacts a service, or establishes that a supplied declaration is complete.
 
 ## Feedback and data minimization
 

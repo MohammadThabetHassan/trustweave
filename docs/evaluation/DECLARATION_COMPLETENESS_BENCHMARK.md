@@ -28,6 +28,16 @@ The runner normalizes the supplied descriptor with the existing `framework-impor
 | `TW-COMP-002` | Supplied descriptor includes `webhook_notify`, absent from the supplied manifest. | `mismatch`; one unresolved framework-only label. | One-sided framework-to-manifest mismatch control. |
 | `TW-COMP-003` | Supplied manifest includes `audit_log`, absent from the supplied descriptor. | `mismatch`; one unresolved manifest-only label. | Reverse-direction mismatch control. |
 | `TW-COMP-004` | Supplied artifacts have two raw differences in each direction, paired by two explicit fixture mappings. | `declared_reconciliation`; raw differences retained, zero unresolved labels. | Tests transparent reconciliation without hiding the original disagreement. |
+| `TW-COMP-005` | Empty framework inventory against single-tool manifest. | `mismatch`; one unresolved manifest-only label. | Tests the empty-inventory edge case. |
+| `TW-COMP-006` | Single-tool exact agreement. | `complete` | Confirms comparison works at the smallest non-empty scale. |
+| `TW-COMP-007` | Multi-agent overlapping tool deduplication. | `complete` | Confirms deduplication produces the correct unique set. |
+| `TW-COMP-008` | Multiple framework-only static tool labels. | `mismatch`; multiple unresolved framework-only labels. | Multi-label framework-only mismatch control. |
+| `TW-COMP-009` | Multiple manifest-only static tool labels. | `mismatch`; multiple unresolved manifest-only labels. | Reverse multi-label mismatch control. |
+| `TW-COMP-010` | Bidirectional unresolved mismatch without reconciliation. | `mismatch`; unresolved labels on both sides. | Tests that raw differences remain visible. |
+| `TW-COMP-011` | Partial reconciliation with remaining unresolved labels. | `mismatch`; unresolved labels remain. | Tests partial reconciliation. |
+| `TW-COMP-012` | LangGraph empty tool inventory against single-tool manifest. | `mismatch`; one unresolved manifest-only label. | Tests cross-framework empty inventory mismatch. |
+| `TW-COMP-013` | CrewAI complete declared tool surface. | `complete` | Cross-framework positive control. |
+| `TW-COMP-014` | CrewAI framework-only mismatch. | `mismatch`; unresolved framework-only label. | Cross-framework mismatch control. |
 
 The summary records only deterministic fixture metrics:
 

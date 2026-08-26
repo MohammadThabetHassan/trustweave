@@ -1,0 +1,12 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_search_agent",
+      "tools": ["knowledge_search", "document_index"]
+    },
+    {
+      "name": "synthetic_action_agent",
+      "tools": ["knowledge_search", "ticket_draft", "email_send"]
+    }
+  ]
+}

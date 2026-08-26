@@ -40,31 +40,28 @@ def _cases(definition: dict[str, object]) -> list[dict[str, object]]:
     return cases
 
 
-def test_benchmark_passes_and_records_all_four_static_controls(tmp_path: Path) -> None:
+def test_benchmark_passes_and_records_all_fourteen_static_controls(tmp_path: Path) -> None:
     runner = _runner_module()
 
     summary = runner.run_benchmark(DEFINITION_PATH, tmp_path)
 
     assert summary["schema_version"] == "trustweave.dev/declaration-consistency-summary/v1alpha1"
     assert summary["summary"] == {
-        "cases": 4,
-        "passed": 4,
+        "cases": 14,
+        "passed": 14,
         "failed": 0,
         "status": "passed",
-        "exact_agreement_cases": 1,
+        "exact_agreement_cases": 4,
         "declared_reconciliation_cases": 1,
-        "mismatch_cases": 2,
-        "raw_missing_from_manifest": 3,
-        "raw_manifest_only_tools": 3,
-        "unresolved_labels": 2,
+        "mismatch_cases": 9,
+        "raw_missing_from_manifest": 12,
+        "raw_manifest_only_tools": 12,
+        "unresolved_labels": 16,
     }
     cases = summary["cases"]
     assert isinstance(cases, list)
     assert [case["id"] for case in cases] == [
-        "TW-COMP-001",
-        "TW-COMP-002",
-        "TW-COMP-003",
-        "TW-COMP-004",
+        f"TW-COMP-{i:03d}" for i in range(1, 15)
     ]
     assert cases[0]["observed"]["status"] == "complete"
     assert cases[1]["observed"]["unresolved_missing_from_manifest"] == ["webhook_notify"]
@@ -109,7 +106,7 @@ def test_benchmark_check_mode_validates_without_running_cases(
     monkeypatch.setattr(runner, "run_benchmark", should_not_run)
 
     assert runner.main_runner(["--check"]) == 0
-    assert "benchmark contract passed: 4 cases, v1alpha1" in capsys.readouterr().out
+    assert "benchmark contract passed: 14 cases, v1alpha1" in capsys.readouterr().out
 
 
 def test_benchmark_verify_mode_returns_nonzero_for_failed_fixture(
@@ -121,12 +118,12 @@ def test_benchmark_verify_mode_returns_nonzero_for_failed_fixture(
         runner,
         "run_benchmark",
         lambda *_args, **_kwargs: {
-            "summary": {"status": "failed", "passed": 3, "cases": 4, "failed": 1}
+            "summary": {"status": "failed", "passed": 13, "cases": 14, "failed": 1}
         },
     )
 
     assert runner.main_runner(["--verify"]) == 1
-    assert "failed: 3/4 cases passed; 1 failed" in capsys.readouterr().out
+    assert "failed: 13/14 cases passed; 1 failed" in capsys.readouterr().out
 
 
 def test_benchmark_cli_rejects_undocumented_abbreviated_option() -> None:
@@ -235,7 +232,7 @@ def test_benchmark_documentation_and_reviewer_assets_preserve_non_claims() -> No
         ROOT / "examples" / "evaluation-corpus" / "reviewer-packet" / "FEEDBACK_TEMPLATE.md"
     ).read_text(encoding="utf-8")
 
-    for identifier in ("TW-COMP-001", "TW-COMP-002", "TW-COMP-003", "TW-COMP-004"):
+    for identifier in (f"TW-COMP-{i:03d}" for i in range(1, 15)):
         assert identifier in benchmark
     assert "not yet an independent evaluation result" in benchmark
     assert "does not import or execute a framework" in benchmark
@@ -243,5 +240,5 @@ def test_benchmark_documentation_and_reviewer_assets_preserve_non_claims() -> No
     assert "Declared reconciliation" in benchmark
     assert "semantic-equivalence" in status
     assert "fixture-level consistency demonstration" in guide
-    assert "4/4 cases passed" in packet
+    assert "14/14 cases passed" in packet
     assert "T7 optional declaration-consistency outcome" in feedback

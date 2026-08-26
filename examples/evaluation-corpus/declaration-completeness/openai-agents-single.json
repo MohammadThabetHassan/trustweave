@@ -1,0 +1,8 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_minimal_agent",
+      "tools": ["status_check"]
+    }
+  ]
+}

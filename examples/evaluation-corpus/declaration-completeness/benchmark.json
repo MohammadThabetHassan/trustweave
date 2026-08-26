@@ -2,7 +2,7 @@
   "schema_version": "trustweave.dev/declaration-completeness-benchmark/v1alpha1",
   "benchmark_id": "trustweave-synthetic-declaration-completeness",
   "benchmark_version": "v1alpha1",
-  "description": "Four safe local OpenAI Agents descriptor fixtures that compare exact supplied static tool labels with explicitly supplied TrustWeave manifests, including transparent maintainer-declared label reconciliations.",
+  "description": "Fourteen safe local framework descriptor fixtures that compare exact supplied static tool labels with explicitly supplied TrustWeave manifests, including transparent maintainer-declared label reconciliations, across OpenAI Agents, LangGraph, and CrewAI frameworks.",
   "non_claim": "This benchmark compares supplied static labels and explicit local mappings only. It does not import or execute a framework, inspect application source, authenticate the inputs, establish runtime reachability, infer semantic equivalence, or prove either declaration is complete.",
   "cases": [
     {
@@ -110,6 +110,232 @@
       },
       "rationale": "The fixture preserves raw bidirectional differences while separately recording two explicit maintainer-declared pairs, testing that reconciliation never hides raw evidence.",
       "non_claim": "A declared reconciliation is not verified semantic equivalence and does not prove that either supplied label represents a real endpoint, behavior, or runtime path."
+    },
+    {
+      "id": "TW-COMP-005",
+      "title": "Empty framework inventory against single-tool manifest",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-empty.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/single.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": [],
+        "manifest_tools": ["status_check"],
+        "missing_from_manifest": [],
+        "manifest_only_tools": ["status_check"],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": ["status_check"],
+        "status": "mismatch"
+      },
+      "rationale": "A framework descriptor with no tools against a manifest with one tool produces a manifest-only mismatch, testing the empty-inventory edge case.",
+      "non_claim": "A manifest-only label from an empty inventory does not prove the manifest is wrong or that the framework truly has no capabilities."
+    },
+    {
+      "id": "TW-COMP-006",
+      "title": "Single-tool exact agreement",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-single.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/single.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["status_check"],
+        "manifest_tools": ["status_check"],
+        "missing_from_manifest": [],
+        "manifest_only_tools": [],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": [],
+        "status": "complete"
+      },
+      "rationale": "A minimal one-tool fixture confirms the comparison works at the smallest non-empty scale.",
+      "non_claim": "A single-tool agreement does not prove the supplied tool label represents a real capability or an enforced boundary."
+    },
+    {
+      "id": "TW-COMP-007",
+      "title": "Multi-agent overlapping tool deduplication",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-multi-overlap.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/multi-overlap.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["document_index", "email_send", "knowledge_search", "ticket_draft"],
+        "manifest_tools": ["document_index", "email_send", "knowledge_search", "ticket_draft"],
+        "missing_from_manifest": [],
+        "manifest_only_tools": [],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": [],
+        "status": "complete"
+      },
+      "rationale": "Two agents share overlapping tool labels; the comparison confirms deduplication produces the correct unique set for exact matching.",
+      "non_claim": "Tool deduplication is a label operation and does not verify that agents share an identical runtime capability."
+    },
+    {
+      "id": "TW-COMP-008",
+      "title": "Multiple framework-only static tool labels",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-multiple-missing.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/partial.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["customer_lookup", "data_export", "knowledge_search", "report_generate", "ticket_draft"],
+        "manifest_tools": ["customer_lookup", "knowledge_search"],
+        "missing_from_manifest": ["data_export", "report_generate", "ticket_draft"],
+        "manifest_only_tools": [],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": ["data_export", "report_generate", "ticket_draft"],
+        "unresolved_manifest_only_tools": [],
+        "status": "mismatch"
+      },
+      "rationale": "Three framework tool labels are absent from the supplied manifest, providing a multi-label framework-only mismatch control.",
+      "non_claim": "Multiple missing labels do not prove multiple live tools exist or that the manifest is incomplete; they record disagreement between supplied inputs."
+    },
+    {
+      "id": "TW-COMP-009",
+      "title": "Multiple manifest-only static tool labels",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/manifest-multiple-extra.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
+        "manifest_tools": ["audit_log", "compliance_check", "customer_lookup", "knowledge_search", "ticket_draft"],
+        "missing_from_manifest": [],
+        "manifest_only_tools": ["audit_log", "compliance_check"],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": ["audit_log", "compliance_check"],
+        "status": "mismatch"
+      },
+      "rationale": "Two manifest tool names are absent from the supplied descriptor, providing the reverse multi-label mismatch control.",
+      "non_claim": "Multiple manifest-only labels do not prove the descriptor is stale or that the manifest describes phantom capabilities."
+    },
+    {
+      "id": "TW-COMP-010",
+      "title": "Bidirectional unresolved mismatch without reconciliation",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-bidirectional.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/bidirectional-mismatch.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["alert_send", "config_read", "knowledge_search", "metric_push"],
+        "manifest_tools": ["config_read", "deploy_trigger", "knowledge_search", "rollback_action"],
+        "missing_from_manifest": ["alert_send", "metric_push"],
+        "manifest_only_tools": ["deploy_trigger", "rollback_action"],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": ["alert_send", "metric_push"],
+        "unresolved_manifest_only_tools": ["deploy_trigger", "rollback_action"],
+        "status": "mismatch"
+      },
+      "rationale": "Both sides have unique labels with no declared reconciliation, testing that all raw differences remain fully visible and unresolved.",
+      "non_claim": "Bidirectional mismatches do not prove either declaration is wrong; they record disagreement requiring human review."
+    },
+    {
+      "id": "TW-COMP-011",
+      "title": "Partial reconciliation with remaining unresolved labels",
+      "framework": "openai-agents",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/openai-agents-partial-reconciliation.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/partial-reconciliation.manifest.json",
+      "declared_reconciliations": [
+        {
+          "framework_tool": "create_issue",
+          "manifest_tool": "open_ticket",
+          "declared_by": "synthetic_fixture_maintainer",
+          "rationale": "The fixture declares this pair as a local alias for reviewer inspection only."
+        },
+        {
+          "framework_tool": "fetch_data",
+          "manifest_tool": "data_retrieve",
+          "declared_by": "synthetic_fixture_maintainer",
+          "rationale": "The fixture declares this pair as a local alias for reviewer inspection only."
+        }
+      ],
+      "expected": {
+        "inventory_tools": ["create_issue", "fetch_data", "knowledge_search", "send_notification"],
+        "manifest_tools": ["data_retrieve", "knowledge_search", "open_ticket", "push_alert"],
+        "missing_from_manifest": ["create_issue", "fetch_data", "send_notification"],
+        "manifest_only_tools": ["data_retrieve", "open_ticket", "push_alert"],
+        "declared_reconciliations": [
+          {
+            "framework_tool": "create_issue",
+            "manifest_tool": "open_ticket",
+            "declared_by": "synthetic_fixture_maintainer",
+            "rationale": "The fixture declares this pair as a local alias for reviewer inspection only."
+          },
+          {
+            "framework_tool": "fetch_data",
+            "manifest_tool": "data_retrieve",
+            "declared_by": "synthetic_fixture_maintainer",
+            "rationale": "The fixture declares this pair as a local alias for reviewer inspection only."
+          }
+        ],
+        "unresolved_missing_from_manifest": ["send_notification"],
+        "unresolved_manifest_only_tools": ["push_alert"],
+        "status": "mismatch"
+      },
+      "rationale": "Two of three raw differences per side are reconciled by explicit mappings, but one label on each side remains unresolved, testing partial reconciliation with remaining mismatches.",
+      "non_claim": "A partial reconciliation does not prove the remaining unresolved labels are errors; it only records which pairs a maintainer chose to map."
+    },
+    {
+      "id": "TW-COMP-012",
+      "title": "LangGraph empty tool inventory against single-tool manifest",
+      "framework": "langgraph",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/langgraph-basic.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/single.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": [],
+        "manifest_tools": ["status_check"],
+        "missing_from_manifest": [],
+        "manifest_only_tools": ["status_check"],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": ["status_check"],
+        "status": "mismatch"
+      },
+      "rationale": "LangGraph graph entries carry no tool labels in the framework inventory; pairing with a single-tool manifest produces a manifest-only mismatch.",
+      "non_claim": "An empty LangGraph tool inventory does not prove the graph has no runtime tools; it reflects only the static inventory structure."
+    },
+    {
+      "id": "TW-COMP-013",
+      "title": "CrewAI complete declared tool surface",
+      "framework": "crewai",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/crewai-basic.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
+        "manifest_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
+        "missing_from_manifest": [],
+        "manifest_only_tools": [],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": [],
+        "unresolved_manifest_only_tools": [],
+        "status": "complete"
+      },
+      "rationale": "A CrewAI descriptor with agents and tasks produces the same three tool labels as the supplied manifest, providing a cross-framework positive control.",
+      "non_claim": "A complete CrewAI label comparison does not prove the agents or tasks are executable or that their tools match runtime behavior."
+    },
+    {
+      "id": "TW-COMP-014",
+      "title": "CrewAI framework-only mismatch",
+      "framework": "crewai",
+      "framework_input": "examples/evaluation-corpus/declaration-completeness/crewai-basic.json",
+      "manifest": "examples/evaluation-corpus/declaration-completeness/partial.manifest.json",
+      "declared_reconciliations": [],
+      "expected": {
+        "inventory_tools": ["customer_lookup", "knowledge_search", "ticket_draft"],
+        "manifest_tools": ["customer_lookup", "knowledge_search"],
+        "missing_from_manifest": ["ticket_draft"],
+        "manifest_only_tools": [],
+        "declared_reconciliations": [],
+        "unresolved_missing_from_manifest": ["ticket_draft"],
+        "unresolved_manifest_only_tools": [],
+        "status": "mismatch"
+      },
+      "rationale": "A CrewAI descriptor has one tool label absent from the supplied manifest, providing a cross-framework mismatch control.",
+      "non_claim": "The mismatch does not prove the CrewAI tool exists at runtime; it records disagreement between the supplied local inputs."
     }
   ]
 }
