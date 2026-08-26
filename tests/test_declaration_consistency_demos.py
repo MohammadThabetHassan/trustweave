@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +35,34 @@ def test_every_benchmark_case_has_a_checked_in_terminal_gif_and_cast() -> None:
         assert events[1][0] - events[0][0] >= 0.9
 
 
+def test_every_cast_preserves_its_captured_runner_output_exactly() -> None:
+    start_marker = "== Captured terminal output begins (emitted by run-case.sh) =="
+    end_marker = "== Captured terminal output ends (no lines altered by the renderer) =="
+
+    try:
+        for case_id in CASE_IDS:
+            result = subprocess.run(
+                [str(DEMO_DIR / "run-case.sh"), case_id],
+                cwd=ROOT,
+                check=True,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            cast_lines = (
+                (DEMO_DIR / "cases" / f"{case_id}.cast")
+                .read_text(encoding="utf-8")
+                .splitlines()[1:]
+            )
+            rendered_lines = [json.loads(line)[2].removesuffix("\r\n") for line in cast_lines]
+            start = rendered_lines.index(start_marker)
+            end = rendered_lines.index(end_marker)
+
+            assert rendered_lines[start + 1 : end] == result.stdout.splitlines()
+    finally:
+        shutil.rmtree(DEMO_DIR / "artifacts", ignore_errors=True)
+
+
 def test_mutation_sandbox_copies_checked_in_demo_assets() -> None:
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
@@ -49,6 +79,8 @@ def test_terminal_demo_runner_preserves_the_local_only_boundary() -> None:
     assert (DEMO_DIR / "assets" / "DejaVuSansMono.ttf").is_file()
     assert (DEMO_DIR / "assets" / "DEJAVU_FONT_LICENSE.txt").is_file()
     assert "FONT_PATH" in renderer
+    assert "Captured terminal output begins" in renderer
+    assert "no lines altered by the renderer" in renderer
     assert "/usr/share/fonts" not in renderer
     assert "--case" in runner
     assert "verify_declaration_completeness_provenance.py" in runner

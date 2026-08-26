@@ -33,6 +33,10 @@ COMMAND_DURATION_MS: Final[int] = 2_400
 OUTRO_DURATION_MS: Final[int] = 6_000
 CAST_LINE_DELAY_SECONDS: Final[float] = 0.95
 FIXED_TIMESTAMP: Final[int] = 1_767_000_000
+CAPTURED_OUTPUT_START: Final[str] = "== Captured terminal output begins (emitted by run-case.sh) =="
+CAPTURED_OUTPUT_END: Final[str] = (
+    "== Captured terminal output ends (no lines altered by the renderer) =="
+)
 
 
 class _DemoFrame(tuple[list[str], int]):
@@ -173,9 +177,13 @@ def _frames(lines: list[str], case_id: str) -> list[_DemoFrame]:
     for index in range(0, len(selected), 4):
         window = selected[index : index + 4]
         visible = selected[: index + len(window)]
-        frame_lines = header + visible
+        frame_lines = header + [CAPTURED_OUTPUT_START] + visible
         if len(_wrap_lines(frame_lines)) > MAX_LINES:
-            frame_lines = header + selected[max(0, index - 12) : index + len(window)]
+            frame_lines = (
+                header
+                + [CAPTURED_OUTPUT_START]
+                + selected[max(0, index - 12) : index + len(window)]
+            )
         frames.append(_DemoFrame((_window(frame_lines), COMMAND_DURATION_MS)))
 
     frames.append(_DemoFrame((_window(_case_outro(case_id)), OUTRO_DURATION_MS)))
@@ -231,7 +239,13 @@ def _write_cast(case_id: str, lines: list[str], destination: Path) -> None:
 
 def render_case(case_id: str) -> None:
     output_lines = _capture_case(case_id)
-    walkthrough_lines = _case_brief(case_id) + [""] + output_lines + [""] + _case_outro(case_id)
+    walkthrough_lines = (
+        _case_brief(case_id)
+        + ["", CAPTURED_OUTPUT_START]
+        + output_lines
+        + [CAPTURED_OUTPUT_END, ""]
+        + _case_outro(case_id)
+    )
     CASE_DIR.mkdir(parents=True, exist_ok=True)
     _write_cast(case_id, walkthrough_lines, CASE_DIR / f"{case_id}.cast")
     frames = _frames(output_lines, case_id)

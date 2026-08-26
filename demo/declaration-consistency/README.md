@@ -10,7 +10,7 @@ This directory contains a terminal-style walkthrough for every checked-in declar
 ./run-case.sh TW-COMP-011
 ```
 
-The runner first validates the selected checked-in fixture, verifies the complete fixture-provenance record, evaluates exactly that case, and writes its local report to `artifacts/TW-COMP-011/`. In the GIFs, the case briefing and result screens remain visible for several seconds; command output advances in short, readable stages rather than as a rapid full transcript.
+The runner first validates the selected checked-in fixture, verifies the complete fixture-provenance record, evaluates exactly that case, and writes its local report to `artifacts/TW-COMP-011/`. In the GIFs, the case briefing and result screens remain visible for several seconds; command output advances in short, readable stages rather than as a rapid full transcript. The marked block between **“Captured terminal output begins”** and **“Captured terminal output ends”** is the unmodified output emitted by `run-case.sh`; the briefing, markers, pacing, and final reminder are renderer additions and are intentionally shown as such.
 
 ## Case walkthroughs
 
@@ -98,4 +98,4 @@ pip install -e '.[demo]'
 python3 scripts/render_declaration_consistency_demos.py
 ```
 
-It executes every case through `run-case.sh`, writes a matching terminal cast, and rebuilds each GIF with a case-specific briefing, paced command stages, and a final limit reminder. The renderer uses the checked-in [`DejaVu Sans Mono` font asset](assets/DejaVuSansMono.ttf) and retains its [upstream license notice](assets/DEJAVU_FONT_LICENSE.txt), so contributors do not need a host-specific font path. The generated files are review illustrations for this checked-in synthetic corpus only; they are not evidence of a live framework run.
+It executes every case through `run-case.sh`, writes a matching terminal cast, proves that each marked cast section exactly matches the current runner output, and rebuilds each GIF with a case-specific briefing, paced command stages, and a final limit reminder. The renderer uses the checked-in [`DejaVu Sans Mono` font asset](assets/DejaVuSansMono.ttf) and retains its [upstream license notice](assets/DEJAVU_FONT_LICENSE.txt), so contributors do not need a host-specific font path. The generated files are review illustrations for this checked-in synthetic corpus only; they are not evidence of a live framework run.
