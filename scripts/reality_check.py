@@ -66,10 +66,22 @@ PUBLIC_ASSETS = (
     "docs/evaluation/CORPUS_LIFECYCLE.md",
     "docs/evaluation/REVIEWER_QUICKSTART.md",
     "docs/evaluation/ARTIFACT_ARCHIVE_READINESS.md",
+    "docs/evaluation/DECLARATION_COMPLETENESS_BENCHMARK.md",
     "docs/evaluation/artifact-allowlist.json",
+    "examples/evaluation-corpus/declaration-completeness/benchmark.json",
+    "examples/evaluation-corpus/declaration-completeness/provenance.json",
+    "examples/evaluation-corpus/declaration-completeness/complete.manifest.json",
+    "examples/evaluation-corpus/declaration-completeness/openai-agents-complete.json",
+    "examples/evaluation-corpus/declaration-completeness/openai-agents-undeclared-tool.json",
+    "examples/evaluation-corpus/declaration-completeness/manifest-only-tool.manifest.json",
+    "examples/evaluation-corpus/declaration-completeness/openai-agents-mixed.json",
+    "examples/evaluation-corpus/declaration-completeness/mixed-reconciliation.manifest.json",
+    "scripts/run_declaration_completeness_benchmark.py",
+    "scripts/verify_declaration_completeness_provenance.py",
     "docs/COMMUNITY_FEEDBACK.md",
     "docs/ISSUE_TRIAGE.md",
     "docs/site/EVALUATION.md",
+    "docs/site/CURRENT_EVIDENCE.md",
     "examples/evaluation-corpus/corpus.json",
     "examples/evaluation-corpus/reviewer-packet/README.md",
     "examples/evaluation-corpus/reviewer-packet/FEEDBACK_TEMPLATE.md",
@@ -91,6 +103,10 @@ REQUIRED_README_MARKERS = (
     "[SECURITY.md](SECURITY.md)",
     "[CONTRIBUTING.md](CONTRIBUTING.md)",
     "docs/evaluation/EVALUATION_CHARTER.md",
+    "docs/site/CURRENT_EVIDENCE.md",
+    "## How the local evidence workflow fits together",
+    "### Example policy decision matrix",
+    "**first matching rule wins**",
 )
 ADVERSARIAL_SCENARIO_PATH = ROOT / "scenarios" / "adversarial-scenarios.json"
 QUALITY_GUIDE_PATH = ROOT / "docs" / "QUALITY.md"
@@ -102,6 +118,9 @@ GOLDEN_EVIDENCE_HELPER_PATH = ROOT / "scripts" / "verify_golden_evidence.py"
 TRACEABILITY_HELPER_PATH = ROOT / "scripts" / "verify_control_traceability.py"
 DISTRIBUTION_ASSURANCE_HELPER_PATH = ROOT / "scripts" / "verify_distribution_artifacts.py"
 PACKAGE_PROVENANCE_HELPER_PATH = ROOT / "scripts" / "verify_package_provenance_controls.py"
+DECLARATION_COMPLETENESS_PROVENANCE_HELPER_PATH = (
+    ROOT / "scripts" / "verify_declaration_completeness_provenance.py"
+)
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
     ROOT / "src" / "trustweave" / "diff.py",
@@ -234,14 +253,38 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "trustweave.dev/bundle-diff/v1alpha3",
         "trustweave.dev/risk-review/v1alpha2",
     ),
+    "docs/site/CURRENT_EVIDENCE.md": (
+        "0.3.1",
+        "0.3.0",
+        "98.12%",
+        "not yet collected",
+        "does **not** establish",
+        "The documented merge policy requires green relevant checks",
+        "must be verified before a server-enforced control is claimed as enabled",
+    ),
     "docs/evaluation/CORPUS_LIFECYCLE.md": (
         "trustweave.dev/evaluation-corpus/v1alpha1",
         "TW-EVAL-001",
         "python scripts/run_evaluation_corpus.py --check",
         "independent evaluation result",
     ),
+    "docs/evaluation/DECLARATION_COMPLETENESS_BENCHMARK.md": (
+        "TW-COMP-001",
+        "TW-COMP-002",
+        "TW-COMP-003",
+        "TW-COMP-004",
+        "python scripts/run_declaration_completeness_benchmark.py --check",
+        "not yet an independent evaluation result",
+        "does not prove that either declaration is complete",
+        "does not import or execute a framework",
+        "Declared reconciliation",
+        "synthetic, not real application exports or deployments",
+        "it cannot be created by relabeling these fixtures as real",
+    ),
     "docs/site/EVALUATION.md": (
         "twelve checked-in synthetic cases",
+        "fourteen reproducible, local-only controls",
+        "OpenAI Agents-style, LangGraph-style, and CrewAI-style descriptors",
         "not yet collected",
         "attack prevention",
     ),
@@ -1277,6 +1320,24 @@ def _check_control_traceability() -> list[str]:
     return [f"Control traceability validation failed: {detail}"]
 
 
+def _check_declaration_completeness_provenance() -> list[str]:
+    """Verify the checked-in synthetic benchmark inputs against their digest record."""
+
+    if not DECLARATION_COMPLETENESS_PROVENANCE_HELPER_PATH.is_file():
+        return ["Missing scripts/verify_declaration_completeness_provenance.py"]
+    completed = subprocess.run(
+        [sys.executable, str(DECLARATION_COMPLETENESS_PROVENANCE_HELPER_PATH)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode == 0:
+        return []
+    detail = completed.stderr.strip() or completed.stdout.strip()
+    return [f"Declaration-completeness provenance validation failed: {detail}"]
+
+
 def _check_golden_evidence() -> list[str]:
     """Run the check-only synthetic golden corpus verifier without snapshot updates."""
 
@@ -1354,6 +1415,7 @@ def main() -> int:
         + _check_package_provenance_controls()
         + _check_distribution_assurance()
         + _check_control_traceability()
+        + _check_declaration_completeness_provenance()
         + _check_golden_evidence()
         + _check_assurance_contracts()
         + _check_cli()

@@ -27,6 +27,9 @@ The preflight validates the stable corpus identity, ordered case IDs, local path
 | Bundle diff | Review signals for declared capability and approval-control changes. | It does not discover undeclared deployed changes. |
 | Trace review | Local comparison of minimized metadata with supplied flows and policy. | It does not inspect message content, tool arguments, or trace completeness. |
 | MCP metadata profile review | Local mapping and action-class review from supplied metadata. | It does not connect to, discover, or authenticate an MCP server. |
+| Declaration-consistency benchmark | Exact-label comparison of supplied framework metadata and a supplied manifest, with separately retained reviewer-declared local label pairings. | It does not inspect source code, infer semantic equivalence, establish either declaration's completeness, or observe runtime behavior. |
+
+A prepared [declaration-consistency benchmark](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/evaluation/DECLARATION_COMPLETENESS_BENCHMARK.md) provides fourteen reproducible, local-only controls across supplied OpenAI Agents-style, LangGraph-style, and CrewAI-style descriptors. The fixtures cover exact agreement, empty inventories, one- and multi-label differences in either direction, raw bidirectional differences, explicit reconciliation, and partial reconciliation; they retain raw labels even when a fixture declares a pairing. This remains a fixture-level consistency demonstration, not an external benchmark result or proof that any framework export is authentic or complete.
 
 ## Evidence status
 

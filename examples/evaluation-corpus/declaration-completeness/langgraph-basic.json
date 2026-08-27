@@ -1,0 +1,10 @@
+{
+  "graphs": {
+    "synthetic_support_graph": "support:graph"
+  },
+  "dependencies": [
+    "knowledge_search",
+    "ticket_draft",
+    "customer_lookup"
+  ]
+}

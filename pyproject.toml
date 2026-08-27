@@ -28,6 +28,7 @@ dependencies = []
 
 [project.optional-dependencies]
 yaml = ["PyYAML>=6.0"]
+demo = ["Pillow>=10.0"]
 dev = [
   "PyYAML>=6.0",
   "build>=1.0",
@@ -111,6 +112,7 @@ also_copy = [
   "scenarios",
   "schemas",
   "docs",
+  "demo",
   "scripts",
 ]
 pytest_add_cli_args = ["--no-cov"]

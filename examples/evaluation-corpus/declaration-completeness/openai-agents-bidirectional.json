@@ -1,0 +1,8 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_ops_agent",
+      "tools": ["alert_send", "config_read", "knowledge_search", "metric_push"]
+    }
+  ]
+}

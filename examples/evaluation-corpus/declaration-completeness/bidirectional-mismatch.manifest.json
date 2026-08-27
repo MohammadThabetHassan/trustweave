@@ -1,0 +1,46 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-bidirectional-mismatch-agent",
+  "description": "A local-only synthetic manifest for bidirectional unresolved mismatch comparison; it does not describe a deployed application.",
+  "sources": [
+    {
+      "name": "synthetic_request",
+      "trust": "trusted",
+      "data_classification": "public",
+      "description": "A harmless synthetic request used only to satisfy the manifest contract."
+    }
+  ],
+  "tools": [
+    {
+      "name": "config_read",
+      "action_class": "read",
+      "capabilities": ["config.read"],
+      "description": "A declared synthetic configuration label; no config is read."
+    },
+    {
+      "name": "deploy_trigger",
+      "action_class": "external",
+      "capabilities": ["deploy.trigger"],
+      "description": "A declared synthetic deploy label; no deployment is triggered."
+    },
+    {
+      "name": "knowledge_search",
+      "action_class": "read",
+      "capabilities": ["knowledge.read"],
+      "description": "A declared synthetic retrieval label; no lookup is performed."
+    },
+    {
+      "name": "rollback_action",
+      "action_class": "write",
+      "capabilities": ["rollback.write"],
+      "description": "A declared synthetic rollback label; no rollback is performed."
+    }
+  ],
+  "flows": [
+    {
+      "source": "synthetic_request",
+      "tool": "knowledge_search",
+      "purpose": "Provide a minimally valid local manifest for bidirectional mismatch comparison."
+    }
+  ]
+}

@@ -21,6 +21,7 @@
   <a href="#why">Why</a> ·
   <a href="docs/site/INTEGRATIONS.md">Integration routes</a> ·
   <a href="docs/CLI_REFERENCE.md">CLI reference</a> ·
+  <a href="docs/site/CURRENT_EVIDENCE.md">Current evidence</a> ·
   <a href="#docs">Docs</a> ·
   <a href="SECURITY.md">Security</a>
 </p>
@@ -88,6 +89,55 @@ A config change can open a new sensitive path — an untrusted source reaching a
 
 One honest boundary: TrustWeave reviews *declarations* — manifests, policies, saved snapshots. It never executes agents, calls tools, contacts servers, or tells you a deployed agent is secure. It gives you stable evidence to review; the judgment stays with you.
 
+## How the local evidence workflow fits together
+
+Every input below is either a declared local file or previously saved local metadata. The workflow turns those inputs into review artifacts; it does not connect to an agent, an MCP server, a tool, a model, or a CI service. The final review decision remains human-owned.
+
+```mermaid
+flowchart LR
+    M["Agent manifest<br/>sources, tools, and flows"] --> V["Strict local validation"]
+    P["Deterministic policy<br/>ordered rules and default decision"] --> V
+    V --> E["Policy engine<br/>first matching rule"]
+    E --> B["Agent Security Bundle"]
+
+    S["Synthetic scenarios"] --> T["Deterministic scenario runner"]
+    P --> T
+    T --> TR["Test results"]
+
+    B --> D["Bundle diff"]
+    B2["Candidate bundle"] --> D
+    L["Saved trace metadata"] --> RV["Offline trace review"]
+    MP["Saved MCP metadata"] --> MR["MCP import and profile review"]
+    P --> PC["Policy review<br/>rule order and approval controls"]
+
+    B --> A["Local hash-linked attestation"]
+    TR --> A
+    B --> R["Markdown report"]
+    TR --> R
+    A --> R
+
+    D --> RK["Finding normalization<br/>and human review"]
+    RV --> RK
+    MR --> RK
+    PC --> RK
+    RK --> SA["Local SARIF and CI summary"]
+```
+
+The diagram deliberately separates evidence production from enforcement. For example, `require_approval` records a policy decision and, when declared, the expected bindings for an approval control; it does **not** approve an action, authenticate a reviewer, or verify a deployed workflow.
+
+### Example policy decision matrix
+
+The quickstart's shipped support-agent policy is ordered: the **first matching rule wins**, and an unmatched declared path receives the explicit `default_decision`. The matrix shows why each example flow is permitted, requires review, or is denied.
+
+| Declared source → tool | Matching rule or fallback | Deterministic decision | Review meaning | Why it is safe to state |
+| --- | --- | --- | --- | --- |
+| `customer_request` (trusted) → `search_knowledge_base` (read) | `TW-001` | **allow** | Informational local finding | The declared path matches the read-only rule. This describes the manifest and policy; it does not execute a search. |
+| `customer_request` (trusted) → `lookup_customer_record` (sensitive) | Explicit default: `deny` | **deny** | High-severity local finding | No earlier rule permits this sensitive path, so the policy fails closed. |
+| `customer_record` (conditional) → `send_mock_email` (external) | `TW-002` | **require_approval** | Medium-severity local finding | The policy records a human-review requirement and declared approval bindings; TrustWeave does not implement the approval itself. |
+| `knowledge_base_document` (untrusted) → `send_mock_email` (external) | `TW-004` | **deny** | High-severity local finding | Untrusted retrieved content must not drive an external action. The demo tool writes only a local mock event; no email is sent. |
+
+Use `trustweave policy-check` to review ordered-rule shadowing, fail-open defaults, and incomplete approval-control declarations before relying on a policy in CI. For the full contract and artifact boundaries, see the [architecture guide](docs/ARCHITECTURE.md) and [policy review guide](docs/site/POLICY_REVIEW.md).
+
 ## Pick your entry point
 
 | You already have… | Start here |
@@ -106,7 +156,7 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 
 **Understanding it:** [Concepts](docs/site/concepts.md) · [How it compares](docs/site/COMPARISON.md) · [Architecture](docs/ARCHITECTURE.md) · [Threat model](docs/THREAT_MODEL.md) · [Product contract](docs/PRODUCT_CONTRACT.md) · [Reviewer workflow](docs/REVIEWER_WORKFLOW.md)
 
-**Trusting it:** [Quality & test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
+**Trusting it:** [Current evidence](docs/site/CURRENT_EVIDENCE.md) · [Quality & test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
 
 <details>
 <summary><strong>Everything else (schemas, risk, release records)</strong></summary>
@@ -123,7 +173,7 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 
 ## Quality, briefly
 
-95% branch coverage enforced in CI · 98.44% mutation score across twelve core modules, all survivors triaged · reproducible wheels with fixed epoch · SBOM + PyPI provenance attestations · zero runtime dependencies. Details in [QUALITY.md](docs/QUALITY.md).
+95% branch coverage enforced in CI · 98.12% mutation score across fourteen high-risk modules, all survivors triaged · reproducible wheels with fixed epoch · SBOM + PyPI provenance attestations · zero runtime dependencies. The mutation measurement is scoped, recorded on 2026-08-20, and does not establish package-wide security; see the [mutation testing record](docs/MUTATION_TESTING.md). Source metadata is prepared as the unpublished `0.3.1` candidate; [`0.3.0` remains the latest published release](docs/RELEASE.md). Details in [QUALITY.md](docs/QUALITY.md).
 
 Optional: YAML manifest support via `pip install "trustweave[yaml]"`.
 

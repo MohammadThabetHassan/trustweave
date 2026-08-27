@@ -1,0 +1,3 @@
+# Provenance-bound synthetic fixtures use exact-file SHA-256 digests.
+# Preserve LF bytes across developer and CI checkouts on every platform.
+examples/evaluation-corpus/declaration-completeness/** text eol=lf

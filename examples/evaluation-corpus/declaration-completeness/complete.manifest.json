@@ -1,0 +1,40 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-framework-completeness-agent",
+  "description": "A local-only synthetic manifest for exact framework-label completeness comparison; it does not describe a deployed application.",
+  "sources": [
+    {
+      "name": "synthetic_request",
+      "trust": "trusted",
+      "data_classification": "public",
+      "description": "A harmless synthetic request used only to satisfy the manifest contract."
+    }
+  ],
+  "tools": [
+    {
+      "name": "knowledge_search",
+      "action_class": "read",
+      "capabilities": ["knowledge.read"],
+      "description": "A declared synthetic retrieval label; no lookup is performed."
+    },
+    {
+      "name": "ticket_draft",
+      "action_class": "write",
+      "capabilities": ["ticket.draft"],
+      "description": "A declared synthetic drafting label; no ticket is created."
+    },
+    {
+      "name": "customer_lookup",
+      "action_class": "sensitive",
+      "capabilities": ["customer.read"],
+      "description": "A declared synthetic customer-record label; no record is accessed."
+    }
+  ],
+  "flows": [
+    {
+      "source": "synthetic_request",
+      "tool": "knowledge_search",
+      "purpose": "Provide a minimally valid local manifest for static label comparison."
+    }
+  ]
+}

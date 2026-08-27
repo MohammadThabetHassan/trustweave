@@ -1,0 +1,46 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-multi-overlap-agent",
+  "description": "A local-only synthetic manifest for multi-agent overlapping tool comparison; it does not describe a deployed application.",
+  "sources": [
+    {
+      "name": "synthetic_request",
+      "trust": "trusted",
+      "data_classification": "public",
+      "description": "A harmless synthetic request used only to satisfy the manifest contract."
+    }
+  ],
+  "tools": [
+    {
+      "name": "document_index",
+      "action_class": "read",
+      "capabilities": ["document.read"],
+      "description": "A declared synthetic indexing label; no index is built."
+    },
+    {
+      "name": "email_send",
+      "action_class": "external",
+      "capabilities": ["email.send"],
+      "description": "A declared synthetic email label; no message is sent."
+    },
+    {
+      "name": "knowledge_search",
+      "action_class": "read",
+      "capabilities": ["knowledge.read"],
+      "description": "A declared synthetic retrieval label; no lookup is performed."
+    },
+    {
+      "name": "ticket_draft",
+      "action_class": "write",
+      "capabilities": ["ticket.draft"],
+      "description": "A declared synthetic drafting label; no ticket is created."
+    }
+  ],
+  "flows": [
+    {
+      "source": "synthetic_request",
+      "tool": "knowledge_search",
+      "purpose": "Provide a minimally valid local manifest for multi-overlap comparison."
+    }
+  ]
+}

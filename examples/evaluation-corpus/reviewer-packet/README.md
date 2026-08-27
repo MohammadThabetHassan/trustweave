@@ -33,6 +33,7 @@ The fixed exercise is designed for **45–60 minutes**. A reviewer may stop at a
 | T4 — Decision support | State whether each selected synthetic artifact would prompt further human review, confirm an existing concern, or provide no decision support. | One fixed-choice response per selected case. |
 | T5 — Clarity | Rate setup instructions, output clarity, and boundary clarity. | Integer 1–5 ratings and optional redacted comment. |
 | T6 — Boundary confirmation | Confirm that no sensitive/live material was used. | Required yes/no response. |
+| T7 — Optional declaration consistency | Run the local four-case declaration-consistency fixture suite and identify raw differences versus any separately displayed declared reconciliation. | Completed, blocked, or not attempted; synthetic case ID and fixed-choice interpretation only. This is not a request to inspect source or a live framework. |
 
 ## Commands
 
@@ -43,9 +44,15 @@ python scripts/run_evaluation_corpus.py --check
 rm -rf /tmp/trustweave-review
 python scripts/run_evaluation_corpus.py --verify --output-dir /tmp/trustweave-review
 cat /tmp/trustweave-review/evaluation-corpus-summary.md
+
+python scripts/run_declaration_completeness_benchmark.py --check
+rm -rf /tmp/trustweave-declaration-consistency-review
+python scripts/run_declaration_completeness_benchmark.py --verify \
+  --output-dir /tmp/trustweave-declaration-consistency-review
+cat /tmp/trustweave-declaration-consistency-review/declaration-consistency-summary.md
 ```
 
-The preflight validates corpus structure and local path safety without executing a case. The verification command invokes only TrustWeave’s established local CLI with checked-in synthetic inputs. A successful run reports `12/12 cases passed`; review-required controls remain expected when their documented exit state and artifacts match.
+The corpus preflight validates corpus structure and local path safety without executing a case. The corpus verification invokes only TrustWeave’s established local CLI with checked-in synthetic inputs. A successful corpus run reports `12/12 cases passed`; review-required controls remain expected when their documented exit state and artifacts match. The optional declaration-consistency command reports `14/14 cases passed` for its static fixtures; it retains raw labels and shows any explicit declared reconciliation separately. Neither command imports a framework, reads application source, contacts a service, or establishes that a supplied declaration is complete.
 
 ## Feedback and data minimization
 

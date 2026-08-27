@@ -1,0 +1,28 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "synthetic-single-tool-agent",
+  "description": "A local-only synthetic manifest with one tool for minimal-surface comparison; it does not describe a deployed application.",
+  "sources": [
+    {
+      "name": "synthetic_request",
+      "trust": "trusted",
+      "data_classification": "public",
+      "description": "A harmless synthetic request used only to satisfy the manifest contract."
+    }
+  ],
+  "tools": [
+    {
+      "name": "status_check",
+      "action_class": "read",
+      "capabilities": ["status.read"],
+      "description": "A declared synthetic status label; no check is performed."
+    }
+  ],
+  "flows": [
+    {
+      "source": "synthetic_request",
+      "tool": "status_check",
+      "purpose": "Provide a minimally valid local manifest for single-tool comparison."
+    }
+  ]
+}

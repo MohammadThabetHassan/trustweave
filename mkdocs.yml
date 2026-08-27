@@ -47,6 +47,7 @@ nav:
       - Policy review and coverage: POLICY_REVIEW.md
       - Risk identities and lifecycle: RISK_MANAGEMENT.md
   - Assurance:
+      - Current evidence and release status: CURRENT_EVIDENCE.md
       - Assurance controls: ASSURANCE.md
       - Synthetic evaluation framework: EVALUATION.md
       - Provenance design: PROVENANCE.md

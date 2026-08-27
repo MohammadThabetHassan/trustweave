@@ -1,0 +1,8 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_hybrid_agent",
+      "tools": ["create_issue", "fetch_data", "knowledge_search", "send_notification"]
+    }
+  ]
+}

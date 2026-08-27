@@ -1,0 +1,19 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_researcher",
+      "tools": ["knowledge_search"]
+    },
+    {
+      "name": "synthetic_writer",
+      "tools": ["ticket_draft"]
+    }
+  ],
+  "tasks": [
+    {
+      "name": "synthetic_research_task",
+      "agent": "synthetic_researcher",
+      "tools": ["customer_lookup"]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "agents": [
+    {
+      "name": "synthetic_empty_agent",
+      "tools": []
+    }
+  ]
+}
