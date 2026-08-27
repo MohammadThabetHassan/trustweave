@@ -4,6 +4,16 @@ This directory contains a terminal-style walkthrough for every checked-in declar
 
 > **Scope boundary:** These are synthetic local fixtures. They compare exact labels in supplied static descriptors and supplied TrustWeave manifests. They do not import or execute OpenAI Agents, LangGraph, or CrewAI; authenticate the inputs; inspect source; establish runtime reachability; or prove security.
 
+## Optional developer-demo tooling boundary
+
+The checked-in GIFs and casts are **review illustrations**, not TrustWeave runtime output, and the `demo/` directory is not imported by the `trustweave` package or installed as a TrustWeave CLI command. The Bash walkthrough and Pillow renderer are optional maintainer tools for regenerating synthetic demonstrations on a POSIX host; Windows users may inspect the checked-in GIFs, casts, fixtures, and Python benchmark without running those helper scripts.
+
+`run-case.sh` accepts one exact checked-in `TW-COMP-NNN` identifier and creates or replaces only `demo/declaration-consistency/artifacts/<case-id>/`. It does not accept an output-path argument, read credentials, import a framework, contact a service, or operate on a deployed target. The renderer invokes that same local fixture command when an authorized maintainer deliberately regenerates illustrations.
+
+## Asset budget
+
+The project keeps the full visual catalog because each animation has a matching replayable cast and benchmark fixture. To keep that convenience proportionate, tests enforce an asset budget: each GIF must be at most **600 KiB**, each cast at most **12 KiB**, the complete GIF gallery at most **8 MiB**, and the checked-in font asset at most **400 KiB**. New cases must satisfy the same budget or use a deliberately reviewed alternative presentation design.
+
 ## Reproduce one case
 
 ```shell
@@ -31,7 +41,26 @@ The runner first validates the selected checked-in fixture, verifies the complet
 | `TW-COMP-013` | Exact agreement for a CrewAI-style agent/task descriptor. | [demo](cases/TW-COMP-013.gif) | [cast](cases/TW-COMP-013.cast) |
 | `TW-COMP-014` | A CrewAI-style framework-only static label. | [demo](cases/TW-COMP-014.gif) | [cast](cases/TW-COMP-014.cast) |
 
-## Gallery
+## Start with these four controls
+
+The full catalog is useful for a method review, but a first-time reader can understand the bounded workflow through four representative cases.
+
+| Start here | Why this case is representative | Result to inspect |
+| --- | --- | --- |
+| [`TW-COMP-002`](cases/TW-COMP-002.gif) | Shows a raw framework-only label that remains unresolved. | `webhook_notify` is listed only in supplied framework metadata. |
+| [`TW-COMP-004`](cases/TW-COMP-004.gif) | Shows raw bidirectional differences plus fully declared local reconciliation. | Raw labels remain visible even when every difference is paired. |
+| [`TW-COMP-011`](cases/TW-COMP-011.gif) | Shows that a partial reconciliation does not conceal remaining mismatches. | One label on each side remains unresolved. |
+| [`TW-COMP-014`](cases/TW-COMP-014.gif) | Shows the same bounded comparison against a CrewAI-style descriptor. | A framework-only label remains a review signal, not a runtime claim. |
+
+![Terminal walkthrough for TW-COMP-002](cases/TW-COMP-002.gif)
+
+![Terminal walkthrough for TW-COMP-004](cases/TW-COMP-004.gif)
+
+![Terminal walkthrough for TW-COMP-011](cases/TW-COMP-011.gif)
+
+![Terminal walkthrough for TW-COMP-014](cases/TW-COMP-014.gif)
+
+## Full gallery
 
 ### `TW-COMP-001` — complete declared tool surface
 
@@ -91,7 +120,7 @@ The runner first validates the selected checked-in fixture, verifies the complet
 
 ## Regenerate the gallery
 
-Install the small optional renderer extra, then run the deterministic renderer from the repository root:
+Install the small optional renderer extra on a POSIX developer host, then run the deterministic renderer from the repository root:
 
 ```shell
 pip install -e '.[demo]'

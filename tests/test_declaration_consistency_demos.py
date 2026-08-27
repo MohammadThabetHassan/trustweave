@@ -13,6 +13,10 @@ DEMO_DIR = ROOT / "demo" / "declaration-consistency"
 BENCHMARK_PATH = (
     ROOT / "examples" / "evaluation-corpus" / "declaration-completeness" / "benchmark.json"
 )
+MAX_GIF_BYTES = 600 * 1024
+MAX_CAST_BYTES = 12 * 1024
+MAX_GALLERY_GIF_BYTES = 8 * 1024 * 1024
+MAX_FONT_BYTES = 400 * 1024
 
 
 def _benchmark_case_ids() -> tuple[str, ...]:
@@ -48,6 +52,32 @@ def test_every_benchmark_case_has_a_checked_in_terminal_gif_and_cast() -> None:
         assert "Expected bounded result:" in output
         assert "Walkthrough complete:" in output
         assert events[1][0] - events[0][0] >= 0.9
+
+
+def test_demo_readme_keeps_a_representative_first_reading_path() -> None:
+    """Keep the initial gallery orientation concise while retaining every reproducible case."""
+
+    readme = (DEMO_DIR / "README.md").read_text(encoding="utf-8")
+
+    assert "## Start with these four controls" in readme
+    assert "## Full gallery" in readme
+    for case_id in ("TW-COMP-002", "TW-COMP-004", "TW-COMP-011", "TW-COMP-014"):
+        assert f"[`{case_id}`](cases/{case_id}.gif)" in readme
+        assert f"![Terminal walkthrough for {case_id}](cases/{case_id}.gif)" in readme
+
+
+def test_demo_assets_stay_within_the_reviewed_repository_budget() -> None:
+    """Keep optional visual review aids proportionate to the synthetic fixture suite."""
+
+    gif_paths = sorted((DEMO_DIR / "cases").glob("*.gif"))
+    cast_paths = sorted((DEMO_DIR / "cases").glob("*.cast"))
+
+    assert gif_paths
+    assert len(gif_paths) == len(cast_paths)
+    assert all(path.stat().st_size <= MAX_GIF_BYTES for path in gif_paths)
+    assert all(path.stat().st_size <= MAX_CAST_BYTES for path in cast_paths)
+    assert sum(path.stat().st_size for path in gif_paths) <= MAX_GALLERY_GIF_BYTES
+    assert (DEMO_DIR / "assets" / "DejaVuSansMono.ttf").stat().st_size <= MAX_FONT_BYTES
 
 
 @pytest.mark.skipif(
@@ -113,3 +143,6 @@ def test_terminal_demo_runner_preserves_the_local_only_boundary() -> None:
     assert "no framework execution" in runner
     assert "synthetic local fixtures" in readme
     assert "not evidence of a live framework run" in readme
+    assert "optional maintainer tools" in readme
+    assert "not imported by the `trustweave` package" in readme
+    assert "each GIF must be at most **600 KiB**" in readme
