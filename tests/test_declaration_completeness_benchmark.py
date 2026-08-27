@@ -116,7 +116,7 @@ def test_benchmark_cli_rejects_a_definition_outside_the_repository(
     external_definition.write_text("{}", encoding="utf-8")
 
     assert runner.main_runner(["--definition", str(external_definition), "--check"]) == 2
-    assert "Benchmark definition must be a checked-in in-repository file" in capsys.readouterr().out
+    assert "Benchmark definition must be a checked-in repository file" in capsys.readouterr().out
 
 
 def test_benchmark_rejects_unknown_exact_case_identifier(

@@ -51,7 +51,7 @@ def _definition_in_repository(value: Path) -> Path:
         relative = resolved.relative_to(ROOT)
     except ValueError as error:
         raise BenchmarkError(
-            f"Benchmark definition must be a checked-in in-repository file: {value}"
+            f"Benchmark definition must be a checked-in repository file: {value}"
         ) from error
     return _inside_root(relative.as_posix())
 
