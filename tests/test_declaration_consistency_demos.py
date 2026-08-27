@@ -10,13 +10,25 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 DEMO_DIR = ROOT / "demo" / "declaration-consistency"
-CASE_IDS = tuple(f"TW-COMP-{number:03d}" for number in range(1, 15))
+BENCHMARK_PATH = (
+    ROOT / "examples" / "evaluation-corpus" / "declaration-completeness" / "benchmark.json"
+)
+
+
+def _benchmark_case_ids() -> tuple[str, ...]:
+    benchmark = json.loads(BENCHMARK_PATH.read_text(encoding="utf-8"))
+    return tuple(case["id"] for case in benchmark["cases"])
 
 
 def test_every_benchmark_case_has_a_checked_in_terminal_gif_and_cast() -> None:
+    case_ids = _benchmark_case_ids()
     readme = (DEMO_DIR / "README.md").read_text(encoding="utf-8")
+    cases_dir = DEMO_DIR / "cases"
 
-    for case_id in CASE_IDS:
+    assert {path.stem for path in cases_dir.glob("*.cast")} == set(case_ids)
+    assert {path.stem for path in cases_dir.glob("*.gif")} == set(case_ids)
+
+    for case_id in case_ids:
         cast_path = DEMO_DIR / "cases" / f"{case_id}.cast"
         gif_path = DEMO_DIR / "cases" / f"{case_id}.gif"
         assert cast_path.is_file()
@@ -50,7 +62,7 @@ def test_every_cast_preserves_its_captured_runner_output_exactly() -> None:
     end_marker = "== Captured terminal output ends (no lines altered by the renderer) =="
 
     try:
-        for case_id in CASE_IDS:
+        for case_id in _benchmark_case_ids():
             result = subprocess.run(
                 [
                     "bash",
