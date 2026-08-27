@@ -1,5 +1,5 @@
 {
-  "schema_version": "trustweave.dev/declaration-completeness-benchmark/v1alpha1",
+  "schema_version": "trustweave.dev/declaration-consistency-benchmark/v1alpha1",
   "benchmark_id": "trustweave-synthetic-declaration-completeness",
   "benchmark_version": "v1alpha1",
   "description": "Fourteen safe local framework descriptor fixtures that compare exact supplied static tool labels with explicitly supplied TrustWeave manifests, including transparent maintainer-declared label reconciliations, across OpenAI Agents, LangGraph, and CrewAI frameworks.",

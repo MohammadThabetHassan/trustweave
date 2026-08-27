@@ -17,7 +17,7 @@ ROOT: Final[Path] = Path(__file__).resolve().parents[1]
 DEFAULT_DEFINITION: Final[Path] = (
     ROOT / "examples" / "evaluation-corpus" / "declaration-completeness" / "benchmark.json"
 )
-SCHEMA_VERSION: Final[str] = "trustweave.dev/declaration-completeness-benchmark/v1alpha1"
+SCHEMA_VERSION: Final[str] = "trustweave.dev/declaration-consistency-benchmark/v1alpha1"
 BENCHMARK_ID: Final[str] = "trustweave-synthetic-declaration-completeness"
 BENCHMARK_VERSION: Final[str] = "v1alpha1"
 FIXED_GENERATED_AT: Final[str] = "2026-08-25T00:00:00+00:00"
@@ -41,6 +41,19 @@ RECONCILIATION_FIELDS: Final[frozenset[str]] = frozenset(
 
 class BenchmarkError(ValueError):
     """Raised when the checked-in local benchmark definition is invalid."""
+
+
+def _definition_in_repository(value: Path) -> Path:
+    """Resolve a definition path and require one checked-in repository file."""
+
+    resolved = value.resolve()
+    try:
+        relative = resolved.relative_to(ROOT)
+    except ValueError as error:
+        raise BenchmarkError(
+            f"Benchmark definition must be a checked-in in-repository file: {value}"
+        ) from error
+    return _inside_root(relative.as_posix())
 
 
 def _inside_root(value: str) -> Path:
@@ -527,9 +540,8 @@ def main_runner(argv: list[str] | None = None) -> int:
     """Validate or run static local fixtures without network or runtime execution."""
 
     args = _parser().parse_args(argv)
-    definition_path = args.definition.resolve()
     try:
-        _inside_root(definition_path.relative_to(ROOT).as_posix())
+        definition_path = _definition_in_repository(args.definition)
         if args.check:
             definition = load_document(definition_path)
             cases = _select_cases(_validate_definition(definition), args.case)

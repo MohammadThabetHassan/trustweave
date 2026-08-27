@@ -81,6 +81,13 @@ def test_benchmark_passes_and_records_all_fourteen_static_controls(tmp_path: Pat
     assert (tmp_path / "declaration-consistency-summary.json").is_file()
 
 
+def test_benchmark_definition_uses_the_declaration_consistency_schema() -> None:
+    runner = _runner_module()
+
+    assert runner.SCHEMA_VERSION == "trustweave.dev/declaration-consistency-benchmark/v1alpha1"
+    assert _definition()["schema_version"] == runner.SCHEMA_VERSION
+
+
 def test_benchmark_selects_one_exact_checked_in_case_for_a_local_walkthrough(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -99,6 +106,17 @@ def test_benchmark_selects_one_exact_checked_in_case_for_a_local_walkthrough(
 
     assert runner.main_runner(["--case", "TW-COMP-004", "--check"]) == 0
     assert "TW-COMP-004 contract passed: 1 cases" in capsys.readouterr().out
+
+
+def test_benchmark_cli_rejects_a_definition_outside_the_repository(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    runner = _runner_module()
+    external_definition = tmp_path / "external-benchmark.json"
+    external_definition.write_text("{}", encoding="utf-8")
+
+    assert runner.main_runner(["--definition", str(external_definition), "--check"]) == 2
+    assert "Benchmark definition must be a checked-in in-repository file" in capsys.readouterr().out
 
 
 def test_benchmark_rejects_unknown_exact_case_identifier(

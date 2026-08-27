@@ -49,7 +49,7 @@ def _font(size: int) -> ImageFont.FreeTypeFont:
 
 def _capture_case(case_id: str) -> list[str]:
     result = subprocess.run(
-        [str(RUNNER), case_id],
+        ["bash", str(RUNNER), case_id],
         cwd=ROOT,
         text=True,
         stdout=subprocess.PIPE,

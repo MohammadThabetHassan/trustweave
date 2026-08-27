@@ -14,7 +14,7 @@
   "files": [
     {
       "path": "examples/evaluation-corpus/declaration-completeness/benchmark.json",
-      "sha256": "33dafb87426a74008be764d43be57b8e7df51900616f678bcf5a9fbbe6dc579c"
+      "sha256": "ddf1eb286a7ba4a720328e2d8fdc7160a25848ae22c1285589f459fb60fae878"
     },
     {
       "path": "examples/evaluation-corpus/declaration-completeness/bidirectional-mismatch.manifest.json",
