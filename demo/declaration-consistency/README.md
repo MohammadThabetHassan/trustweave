@@ -60,7 +60,12 @@ The full catalog is useful for a method review, but a first-time reader can unde
 
 ![Terminal walkthrough for TW-COMP-014](cases/TW-COMP-014.gif)
 
-## Full gallery
+## Full catalog
+
+The complete catalog is retained for reproducibility and method review. The four cases above are the recommended first reading path; open the disclosure below when you need to inspect every rendered walkthrough.
+
+<details>
+<summary><strong>Browse all 14 rendered case walkthroughs</strong></summary>
 
 ### `TW-COMP-001` — complete declared tool surface
 
@@ -117,6 +122,8 @@ The full catalog is useful for a method review, but a first-time reader can unde
 ### `TW-COMP-014` — CrewAI-style mismatch
 
 ![Terminal walkthrough for TW-COMP-014](cases/TW-COMP-014.gif)
+
+</details>
 
 ## Regenerate the gallery
 

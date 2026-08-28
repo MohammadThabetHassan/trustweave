@@ -74,9 +74,9 @@ trustweave verify \
   --test-results artifacts/security-test-results.json
 ```
 
-Everything above reads only checked-in local files. Inspect any command with `trustweave --help` or `python -m trustweave --help`. Want to see it on a realistic agent instead of the toy example? The [research-assistant demo](demo/research-assistant/) reviews a real-shaped agent end to end — including a diff that catches a policy change quietly removing an approval gate. There's also a [step-by-step walkthrough](docs/site/WALKTHROUGH.md) with expected output at each step.
+The example uses only checked-in local files. Inspect any command with `trustweave --help` or `python -m trustweave --help`. For a more involved walkthrough, see the [research-assistant demo](demo/research-assistant/) or the [step-by-step guide](docs/site/WALKTHROUGH.md).
 
-Under the hood, bundles use the `trustweave.dev/bundle/v1alpha2` contract and risk decisions carry canonical `trustweave/fingerprint/v3` identities, so evidence stays comparable across runs. Note that supplying the bundle and test-result paths to `verify` checks those exact local bytes; running `verify` with only the attestation checks only the statement’s internal consistency.
+Bundles follow the `trustweave.dev/bundle/v1alpha2` contract, and risk decisions use stable `trustweave/fingerprint/v3` identities. Passing bundle and test-result paths to `verify` checks those exact local bytes; with only an attestation, `verify` checks only the statement’s internal consistency.
 
 ## Why
 
@@ -87,11 +87,11 @@ A config change can open a new sensitive path — an untrusted source reaching a
 - **`test`** replays safe synthetic scenarios so policy regressions fail in CI, not in production.
 - **`trace-review`** and **`mcp-profile-check`** flag where recorded metadata drifts from the declaration.
 
-One honest boundary: TrustWeave reviews *declarations* — manifests, policies, saved snapshots. It never executes agents, calls tools, contacts servers, or tells you a deployed agent is secure. It gives you stable evidence to review; the judgment stays with you.
+TrustWeave reviews *declarations*—manifests, policies, and saved snapshots—not a live deployment. It produces stable evidence for a human reviewer; the final judgment stays with you.
 
 ## How the local evidence workflow fits together
 
-Every input below is either a declared local file or previously saved local metadata. The workflow turns those inputs into review artifacts; it does not connect to an agent, an MCP server, a tool, a model, or a CI service. The final review decision remains human-owned.
+The workflow turns declared local files and previously saved metadata into review artifacts. It is an evidence path, not an enforcement path; the final review decision remains human-owned.
 
 ```mermaid
 flowchart LR
@@ -123,7 +123,7 @@ flowchart LR
     RK --> SA["Local SARIF and CI summary"]
 ```
 
-The diagram deliberately separates evidence production from enforcement. For example, `require_approval` records a policy decision and, when declared, the expected bindings for an approval control; it does **not** approve an action, authenticate a reviewer, or verify a deployed workflow.
+The diagram separates evidence production from enforcement. For example, `require_approval` records the policy outcome and any declared approval bindings; the surrounding workflow—not TrustWeave—implements the actual approval.
 
 ### Example policy decision matrix
 

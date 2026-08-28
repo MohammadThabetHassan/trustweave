@@ -60,7 +60,8 @@ def test_demo_readme_keeps_a_representative_first_reading_path() -> None:
     readme = (DEMO_DIR / "README.md").read_text(encoding="utf-8")
 
     assert "## Start with these four controls" in readme
-    assert "## Full gallery" in readme
+    assert "## Full catalog" in readme
+    assert "<summary><strong>Browse all 14 rendered case walkthroughs</strong></summary>" in readme
     for case_id in ("TW-COMP-002", "TW-COMP-004", "TW-COMP-011", "TW-COMP-014"):
         assert f"[`{case_id}`](cases/{case_id}.gif)" in readme
         assert f"![Terminal walkthrough for {case_id}](cases/{case_id}.gif)" in readme
