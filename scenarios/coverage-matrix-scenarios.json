@@ -1,0 +1,126 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "policy-decision-coverage-matrix",
+  "scenarios": [
+    {
+      "id": "TW-MTX-001",
+      "title": "Trusted source to read action",
+      "category": "permitted-baseline",
+      "description": "A trusted source reaching a read action resolves to allow through rule TW-001.",
+      "rationale": "The agent's normal working path. A policy that denies this blocks all legitimate work, so this case is the control that detects an over-restrictive policy.",
+      "source_trust": "trusted",
+      "tool_action_class": "read",
+      "expected_decision": "allow"
+    },
+    {
+      "id": "TW-MTX-002",
+      "title": "Trusted source to write action",
+      "category": "fail-closed-default",
+      "description": "A trusted source reaching a write action resolves to deny through the default decision.",
+      "rationale": "Source trust alone does not grant write access. A write path must be declared by an explicit rule.",
+      "source_trust": "trusted",
+      "tool_action_class": "write",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-003",
+      "title": "Trusted source to sensitive action",
+      "category": "fail-closed-default",
+      "description": "A trusted source reaching a sensitive action resolves to deny through the default decision.",
+      "rationale": "Sensitive record access is never implied by a trusted source; it requires its own rule.",
+      "source_trust": "trusted",
+      "tool_action_class": "sensitive",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-004",
+      "title": "Trusted source to external action",
+      "category": "fail-closed-default",
+      "description": "A trusted source reaching a external action resolves to deny through the default decision.",
+      "rationale": "An outbound action is never authorized by source trust alone, even for a first-party request.",
+      "source_trust": "trusted",
+      "tool_action_class": "external",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-005",
+      "title": "Conditional source to read action",
+      "category": "fail-closed-default",
+      "description": "A conditional source reaching a read action resolves to deny through the default decision.",
+      "rationale": "Conditionally trusted context carries no declared read grant, so the default decision applies.",
+      "source_trust": "conditional",
+      "tool_action_class": "read",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-006",
+      "title": "Conditional source to write action",
+      "category": "fail-closed-default",
+      "description": "A conditional source reaching a write action resolves to deny through the default decision.",
+      "rationale": "No declared write grant exists for conditional sources; the flow fails closed.",
+      "source_trust": "conditional",
+      "tool_action_class": "write",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-007",
+      "title": "Conditional source to sensitive action",
+      "category": "explicit-deny",
+      "description": "A conditional source reaching a sensitive action resolves to deny through rule TW-003.",
+      "rationale": "Conditionally trusted content must not reach sensitive records without human review.",
+      "source_trust": "conditional",
+      "tool_action_class": "sensitive",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-008",
+      "title": "Conditional source to external action",
+      "category": "approval-boundary",
+      "description": "A conditional source reaching a external action resolves to require_approval through rule TW-002.",
+      "rationale": "Confidential context may influence an outbound action only behind a bound human approval.",
+      "source_trust": "conditional",
+      "tool_action_class": "external",
+      "expected_decision": "require_approval"
+    },
+    {
+      "id": "TW-MTX-009",
+      "title": "Untrusted source to read action",
+      "category": "fail-closed-default",
+      "description": "A untrusted source reaching a read action resolves to deny through the default decision.",
+      "rationale": "Untrusted input has no declared grant, including for reads.",
+      "source_trust": "untrusted",
+      "tool_action_class": "read",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-010",
+      "title": "Untrusted source to write action",
+      "category": "fail-closed-default",
+      "description": "A untrusted source reaching a write action resolves to deny through the default decision.",
+      "rationale": "Untrusted input must never reach a write path.",
+      "source_trust": "untrusted",
+      "tool_action_class": "write",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-011",
+      "title": "Untrusted source to sensitive action",
+      "category": "explicit-deny",
+      "description": "A untrusted source reaching a sensitive action resolves to deny through rule TW-003.",
+      "rationale": "Retrieved or third-party content must not directly authorize sensitive record access.",
+      "source_trust": "untrusted",
+      "tool_action_class": "sensitive",
+      "expected_decision": "deny"
+    },
+    {
+      "id": "TW-MTX-012",
+      "title": "Untrusted source to external action",
+      "category": "explicit-deny",
+      "description": "A untrusted source reaching a external action resolves to deny through rule TW-004.",
+      "rationale": "Untrusted content must not directly cause an outbound action.",
+      "source_trust": "untrusted",
+      "tool_action_class": "external",
+      "expected_decision": "deny"
+    }
+  ]
+}
