@@ -127,6 +127,9 @@ also_copy = [
   "docs",
   "demo",
   "scripts",
+  # scripts/evaluate_classifier.py reads the labelled benchmark; without it the
+  # mutation sandbox cannot collect.
+  "benchmark",
 ]
 pytest_add_cli_args = ["--no-cov"]
 pytest_add_cli_args_test_selection = [

@@ -99,3 +99,71 @@ def test_ci_still_publishes_over_its_own_previous_artifacts(tmp_path: Path) -> N
     _publish_directory(staging, output)
 
     assert (output / "report.md").read_text(encoding="utf-8") == "fresh"
+
+
+def test_the_publish_refusal_counts_and_names_the_entries_it_found(tmp_path: Path) -> None:
+    """The message must let a reviewer see what would have been destroyed."""
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    for index in range(8):
+        (output / f"file{index}.txt").write_text("work", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+
+    with pytest.raises(InputOutputError) as raised:
+        _publish_directory(staging, output)
+
+    message = str(raised.value)
+    assert "8 entries" in message
+    assert "file0.txt" in message
+    # Only the first five are listed; the rest are counted.
+    assert "and 3 more" in message
+
+
+def test_a_small_number_of_entries_is_listed_without_a_more_suffix(tmp_path: Path) -> None:
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    (output / "notes.txt").write_text("work", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+
+    with pytest.raises(InputOutputError) as raised:
+        _publish_directory(staging, output)
+
+    assert "more)" not in str(raised.value)
+
+
+def test_hidden_entries_do_not_block_publication(tmp_path: Path) -> None:
+    """Editor and tooling dotfiles are not a reason to refuse an artifact directory."""
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    (output / ".gitkeep").write_text("", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "report.md").write_text("fresh", encoding="utf-8")
+
+    _publish_directory(staging, output)
+
+    assert (output / "report.md").read_text(encoding="utf-8") == "fresh"
+
+
+def test_publication_into_a_missing_directory_is_allowed(tmp_path: Path) -> None:
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "report.md").write_text("fresh", encoding="utf-8")
+
+    _publish_directory(staging, tmp_path / "absent")
+
+    assert (tmp_path / "absent" / "report.md").exists()
+
+
+def test_the_artifact_allow_list_covers_both_shared_and_ci_owned_names() -> None:
+    from trustweave.commands.ci import _known_artifact_names
+
+    known = _known_artifact_names()
+
+    assert "agent-security-bundle.json" in known
+    assert "ci-summary.json" in known
+    assert "code-discovery.json" in known
