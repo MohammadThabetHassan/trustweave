@@ -82,6 +82,7 @@ PUBLIC_ASSETS = (
     "docs/ISSUE_TRIAGE.md",
     "docs/site/EVALUATION.md",
     "docs/site/CURRENT_EVIDENCE.md",
+    "docs/site/CURRENT_RESEARCH_EVIDENCE_DECISION.md",
     "examples/evaluation-corpus/corpus.json",
     "examples/evaluation-corpus/reviewer-packet/README.md",
     "examples/evaluation-corpus/reviewer-packet/FEEDBACK_TEMPLATE.md",
@@ -261,6 +262,18 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "does **not** establish",
         "The documented merge policy requires green relevant checks",
         "must be verified before a server-enforced control is claimed as enabled",
+    ),
+    "docs/site/CURRENT_RESEARCH_EVIDENCE_DECISION.md": (
+        "historical `0.2.3` technical-report draft",
+        "0.3.0",
+        "0.3.1",
+        (
+            "Independent reproduction, pilot, comparative benchmark, adoption, "
+            "and archive/DOI remain uncollected"
+        ),
+        "A current source checkout can be more mature than the version evaluated by a paper",
+        "must not be silently inserted",
+        "not established",
     ),
     "docs/evaluation/CORPUS_LIFECYCLE.md": (
         "trustweave.dev/evaluation-corpus/v1alpha1",
