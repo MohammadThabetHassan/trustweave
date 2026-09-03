@@ -263,3 +263,21 @@ def test_a_file_that_does_not_parse_is_surfaced_as_a_finding(tmp_path: Path) -> 
     review = review_code_discovery(collect_python_sources(tmp_path), None, FIXED_TIME)
 
     assert [finding["id"] for finding in review["findings"]] == ["TW-CODE-008"]
+
+
+def test_a_skipped_file_is_not_subtracted_from_the_analyzed_count(tmp_path: Path) -> None:
+    """Skipped files were never read, so they cannot reduce how many were analyzed.
+
+    Counting them twice produced a negative files_analyzed, which the artifact's own
+    schema rejects, on any tree holding an unreadable or oversized file.
+    """
+
+    (tmp_path / "ok.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "one.py").write_bytes(b"\xff\xfe\x00bad")
+    (tmp_path / "two.py").write_bytes(b"\xff\xfe\x00bad")
+
+    review = review_code_discovery(collect_python_sources(tmp_path), None, FIXED_TIME)
+
+    assert review["source"]["files_analyzed"] == 1
+    assert review["source"]["files_skipped"] == 2
+    assert review["source"]["files_analyzed"] >= 0

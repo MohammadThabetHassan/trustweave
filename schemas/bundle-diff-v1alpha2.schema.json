@@ -19,7 +19,7 @@
         "rule_id": {
           "oneOf": [
             {
-              "$ref": "#/$defs/identifier"
+              "$ref": "#/$defs/policy_rule_identifier"
             },
             {
               "type": "null"
@@ -277,6 +277,10 @@
         "after"
       ],
       "type": "object"
+    },
+    "policy_rule_identifier": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "type": "string"
     },
     "property_map": {
       "additionalProperties": {

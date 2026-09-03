@@ -276,6 +276,11 @@ def review_code_discovery(
     """Review one local Python source tree and return the discovery artifact."""
 
     tools, problems = analyze_sources(collection)
+    # Files that failed to parse were read and then rejected; files that were skipped were
+    # never read at all. Both belong in problems, but only the first were ever counted in
+    # collection.files, so the two populations must not be conflated when reporting how
+    # many files were analyzed.
+    parse_failures = len(problems)
     for skipped in collection.skipped:
         problems.append({"file": skipped.relative_path, "reason": skipped.reason})
     problems.sort(key=lambda problem: (problem["file"], problem["reason"]))
@@ -289,7 +294,7 @@ def review_code_discovery(
         "schema_version": CODE_DISCOVERY_SCHEMA_VERSION,
         "source": {
             "root_name": collection.root_name,
-            "files_analyzed": len(collection.files) - len(problems),
+            "files_analyzed": len(collection.files) - parse_failures,
             "files_skipped": len(problems),
             "catalog_version": CATALOG_VERSION,
         },

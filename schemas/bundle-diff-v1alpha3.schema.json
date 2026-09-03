@@ -19,7 +19,7 @@
         "rule_id": {
           "oneOf": [
             {
-              "$ref": "#/$defs/identifier"
+              "$ref": "#/$defs/policy_rule_identifier"
             },
             {
               "type": "null"

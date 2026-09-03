@@ -258,7 +258,7 @@ def _known_artifact_names() -> frozenset[str]:
     )
 
 
-def _refuse_to_replace_unrelated_content(output: Path) -> None:
+def _refuse_to_replace_unrelated_content(staging: Path, output: Path) -> None:
     """Refuse to publish over a directory holding anything TrustWeave did not write.
 
     Publishing moves the existing directory aside and then deletes it. A one-word config
@@ -268,7 +268,11 @@ def _refuse_to_replace_unrelated_content(output: Path) -> None:
 
     if not output.is_dir():
         return
-    known = _known_artifact_names()
+    # Whatever this run just staged is by definition ours, including a SARIF file the
+    # configuration renamed or nested. Deriving the list from _FILE constants alone made
+    # TrustWeave refuse to overwrite its own output whenever sarif_output was not the
+    # default, so a documented configuration was green once and exit 3 for ever after.
+    known = _known_artifact_names() | {entry.name for entry in staging.iterdir()}
     unrelated = sorted(
         entry.name
         for entry in output.iterdir()
@@ -291,7 +295,7 @@ def _publish_directory(staging: Path, output: Path) -> None:
         raise InputOutputError(f"CI output path must not be a symbolic link: {output}")
     if output.exists() and not output.is_dir():
         raise InputOutputError(f"CI output path must be a directory: {output}")
-    _refuse_to_replace_unrelated_content(output)
+    _refuse_to_replace_unrelated_content(staging, output)
     _prepare_output_parent(output)
     backup = output.parent / f".{output.name}.previous"
     if backup.exists():
