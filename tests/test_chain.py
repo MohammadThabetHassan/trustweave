@@ -802,7 +802,10 @@ def test_a_truncated_analysis_does_not_report_that_no_path_exists() -> None:
 
     rendered = render_chain_review(truncated)
 
-    assert "Analysis incomplete" in rendered
+    assert (
+        "- Analysis incomplete: a traversal budget was reached before the declared graph "
+        "was fully explored, so paths may exist that were not examined." in rendered
+    )
     assert "No path from an explicitly declared untrusted source" not in rendered
 
 
