@@ -10,7 +10,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 authors = [
-  { name = "TrustWeave Contributors" }
+  { name = "Mohammad Thabet Hassan", email = "MohammadThabetHassan@users.noreply.github.com" },
+  { name = "Ahmed Sami Alameri", email = "AhmedSamiAlameri@users.noreply.github.com" },
+  { name = "Fahad Sadek", email = "fahadALjazzeri@users.noreply.github.com" },
+  { name = "Omar Alraas", email = "omaralraas@users.noreply.github.com" },
+  { name = "Abdulrahman Rezki", email = "104144822+AbdulrahmanRezki@users.noreply.github.com" },
+  { name = "Lobna AbuSerrieh" },
 ]
 keywords = ["ai-agents", "security", "mcp", "policy", "supply-chain", "attestation"]
 classifiers = [
