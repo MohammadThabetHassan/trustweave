@@ -1,0 +1,11 @@
+name: TrustWeave CodeQL configuration
+
+# The classification benchmark holds deliberately unsafe agent code: hard-coded
+# credentials, subprocess launches, unpickling, eval on non-constants. Those properties
+# are the labels being tested, and the modules are parsed by the analyzer rather than
+# imported or executed by anything. Scanning them reports true findings about fixtures
+# and hides real findings about the product behind the noise.
+#
+# Nothing else is excluded. src/, scripts/, tests/ and examples/ are all analyzed.
+paths-ignore:
+  - benchmark/tool-classification/cases
