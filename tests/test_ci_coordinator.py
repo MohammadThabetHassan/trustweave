@@ -280,18 +280,18 @@ def test_ci_directory_publication_replaces_only_complete_staged_artifacts(tmp_pa
 
     output = tmp_path / "artifacts"
     output.mkdir()
-    (output / "old.txt").write_text("old", encoding="utf-8")
+    (output / "report.md").write_text("old", encoding="utf-8")
     stale_backup = tmp_path / ".artifacts.previous"
     stale_backup.mkdir()
     (stale_backup / "stale.txt").write_text("stale", encoding="utf-8")
     staging = tmp_path / "staging"
     staging.mkdir()
-    (staging / "new.txt").write_text("new", encoding="utf-8")
+    (staging / "bundle-diff.md").write_text("new", encoding="utf-8")
 
     _publish_directory(staging, output)
 
-    assert (output / "new.txt").read_text(encoding="utf-8") == "new"
-    assert not (output / "old.txt").exists()
+    assert (output / "bundle-diff.md").read_text(encoding="utf-8") == "new"
+    assert not (output / "report.md").exists()
     assert not stale_backup.exists()
     file_destination = tmp_path / "not-a-directory"
     file_destination.write_text("file", encoding="utf-8")
@@ -1807,18 +1807,18 @@ def test_ci_directory_publication_restores_only_replaced_output_after_staging_fa
 
     output = tmp_path / "artifacts"
     output.mkdir()
-    (output / "old.txt").write_text("old", encoding="utf-8")
+    (output / "report.md").write_text("old", encoding="utf-8")
     staging = tmp_path / "staging"
     staging.mkdir()
-    (staging / "new.txt").write_text("new", encoding="utf-8")
+    (staging / "bundle-diff.md").write_text("new", encoding="utf-8")
 
     with pytest.raises(InputOutputError) as error:
         _publish_directory(staging, output)
     assert str(error.value) == (
         f"Could not publish CI artifacts to {output}: simulated staged publish failure"
     )
-    assert (output / "old.txt").read_text(encoding="utf-8") == "old"
-    assert not (output / "new.txt").exists()
+    assert (output / "report.md").read_text(encoding="utf-8") == "old"
+    assert not (output / "bundle-diff.md").exists()
     assert not (tmp_path / ".artifacts.previous").exists()
 
     empty_output = tmp_path / "empty-artifacts"

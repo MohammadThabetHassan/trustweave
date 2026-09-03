@@ -600,7 +600,8 @@ def test_legacy_attestation_verification_preserves_exact_schema_specific_result_
 
     assert verify_attestation(v1alpha2) == (
         True,
-        "v1alpha2 attestation hash chain is internally consistent",
+        "v1alpha2 attestation hash chain is internally consistent; supplied files were "
+        "not verified",
     )
     assert verify_attestation({**v1alpha2, "integrity": {"chain_sha256": "invalid"}}) == (
         False,
@@ -608,12 +609,39 @@ def test_legacy_attestation_verification_preserves_exact_schema_specific_result_
     )
     assert verify_attestation(v1alpha1) == (
         True,
-        "v1alpha1 attestation hash chain is internally consistent",
+        "v1alpha1 attestation hash chain is internally consistent; supplied files were "
+        "not verified",
     )
     assert verify_attestation({**v1alpha1, "integrity": {"chain_sha256": "invalid"}}) == (
         False,
         "v1alpha1 attestation hash chain does not match its predicate",
     )
+
+
+def test_a_legacy_attestation_cannot_silently_skip_supplied_file_verification(
+    tmp_path: Path,
+) -> None:
+    """A statement chooses its own schema_version, so this check must not be opt-out.
+
+    Before this guard, `verify --attestation legacy.json --bundle anything.json` returned
+    True and exit 0 without opening the bundle at all.
+    """
+
+    chain = "|".join([LEGACY_ATTESTATION_SCHEMA_VERSION, "bundle", "tests", "legacy"])
+    legacy = {
+        "schema_version": LEGACY_ATTESTATION_SCHEMA_VERSION,
+        "predicate": {
+            "bundle_sha256": "bundle",
+            "test_results_sha256": "tests",
+            "source_revision": "legacy",
+        },
+        "integrity": {"chain_sha256": sha256(chain.encode("utf-8")).hexdigest()},
+    }
+
+    verified, message = verify_attestation(legacy, bundle_path=tmp_path / "never-opened.json")
+
+    assert verified is False
+    assert "do not bind exact file digests" in message
 
 
 def test_v1alpha3_verifier_fails_closed_for_every_required_binding_shape(tmp_path: Path) -> None:

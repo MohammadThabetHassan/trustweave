@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import sys
 import tempfile
 from collections.abc import Mapping, Sequence
 from pathlib import Path, PureWindowsPath
@@ -243,6 +244,46 @@ def _prepare_output_parent(output: Path) -> None:
         ) from error
 
 
+def _known_artifact_names() -> frozenset[str]:
+    """Every filename TrustWeave itself publishes into an output directory."""
+
+    from trustweave.commands import _shared
+
+    modules = (_shared, sys.modules[__name__])
+    return frozenset(
+        value
+        for module in modules
+        for name, value in vars(module).items()
+        if name.endswith("_FILE") and isinstance(value, str)
+    )
+
+
+def _refuse_to_replace_unrelated_content(output: Path) -> None:
+    """Refuse to publish over a directory holding anything TrustWeave did not write.
+
+    Publishing moves the existing directory aside and then deletes it. A one-word config
+    typo naming a source directory would therefore destroy real work with no prompt and
+    no warning, so an unrecognised entry stops the publish instead.
+    """
+
+    if not output.is_dir():
+        return
+    known = _known_artifact_names()
+    unrelated = sorted(
+        entry.name
+        for entry in output.iterdir()
+        if entry.name not in known and not entry.name.startswith(".")
+    )
+    if unrelated:
+        listed = ", ".join(unrelated[:5])
+        more = f" and {len(unrelated) - 5} more" if len(unrelated) > 5 else ""
+        raise InputOutputError(
+            f"Refusing to publish CI artifacts into {output}: it holds "
+            f"{len(unrelated)} entries TrustWeave did not write ({listed}{more}). "
+            "Point output_dir at a dedicated directory, or empty this one first."
+        )
+
+
 def _publish_directory(staging: Path, output: Path) -> None:
     """Atomically replace one artifact directory, restoring the prior directory on failure."""
 
@@ -250,6 +291,7 @@ def _publish_directory(staging: Path, output: Path) -> None:
         raise InputOutputError(f"CI output path must not be a symbolic link: {output}")
     if output.exists() and not output.is_dir():
         raise InputOutputError(f"CI output path must be a directory: {output}")
+    _refuse_to_replace_unrelated_content(output)
     _prepare_output_parent(output)
     backup = output.parent / f".{output.name}.previous"
     if backup.exists():

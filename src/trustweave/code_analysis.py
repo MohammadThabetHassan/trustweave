@@ -20,6 +20,7 @@ otherwise would put a guess behind an attestation.
 from __future__ import annotations
 
 import ast
+import sys
 from dataclasses import dataclass, field
 from typing import Final
 
@@ -56,6 +57,10 @@ _ENVIRON_READERS: Final[frozenset[str]] = frozenset(
 _ENVIRON_BULK: Final[frozenset[str]] = frozenset(
     {"os.environ.items", "os.environ.copy", "os.environ.values"}
 )
+_KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(
+    {"bool", "bytes", "dict", "float", "frozenset", "int", "list", "open", "set", "str", "tuple"}
+)
+_INSTANCE_RECEIVERS: Final[frozenset[str]] = frozenset({"self", "cls"})
 _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
     {"eval", "exec", "getattr", "globals", "importlib.import_module", "vars"}
 )
@@ -129,6 +134,12 @@ class _Module:
     bindings: dict[str, str]
     functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef]
     wildcard_import: bool
+    # Computed once per module. Recomputing it per tool made analysis quadratic in the
+    # number of discovered tools while every documented budget still reported "complete".
+    module_origins: dict[str, tuple[str, ast.Call]] = field(default_factory=dict)
+    # Class methods are discoverable as tools but deliberately absent from `functions`,
+    # so a bare call to `send` can never resolve to `SomeClass.send`.
+    methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = field(default_factory=list)
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -147,6 +158,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
     wildcard = False
 
+    # Imports may appear at any depth, so bindings are collected across the whole tree.
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
@@ -162,10 +174,24 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                 bindings[alias.asname or alias.name] = (
                     f"{module}.{alias.name}" if module else alias.name
                 )
-        elif isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
-            functions.setdefault(node.name, node)
 
-    return _Module(path, tree, bindings, functions, wildcard)
+    # Only module-level functions may be reached by a bare name. Indexing class methods
+    # and nested functions here would let `Class.send` satisfy a call to an imported
+    # `send`, and would let a method body be attributed to an unrelated caller.
+    methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+            functions.setdefault(node.name, node)
+        elif isinstance(node, ast.ClassDef):
+            methods.extend(
+                child
+                for child in node.body
+                if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef)
+            )
+
+    module = _Module(path, tree, bindings, functions, wildcard, methods=methods)
+    module.module_origins = _scope_origins(tree.body, module)
+    return module
 
 
 def _resolve(name: str | None, module: _Module) -> str | None:
@@ -191,6 +217,15 @@ def _keyword(call: ast.Call, name: str) -> ast.AST | None:
     return None
 
 
+def _is_instance_state_call(call: ast.Call) -> bool:
+    """True for a call reached through an attribute of ``self`` or ``cls``."""
+
+    func = call.func
+    if not isinstance(func, ast.Attribute) or not isinstance(func.value, ast.Attribute):
+        return False
+    return isinstance(func.value.value, ast.Name) and func.value.value.id in _INSTANCE_RECEIVERS
+
+
 def _root_name(node: ast.AST) -> str | None:
     """Return the leftmost ``Name`` of an attribute or call chain, if there is one."""
 
@@ -207,41 +242,90 @@ def _root_name(node: ast.AST) -> str | None:
         return None
 
 
-def _dynamic_locals(scope: ast.AST) -> set[str]:
+def _dynamic_locals(scope: ast.AST, module: _Module) -> set[str]:
     """Names bound from a subscript or an unresolved call: calling them is dispatch."""
 
     dynamic: set[str] = set()
     for node in ast.walk(scope):
         if not isinstance(node, ast.Assign):
             continue
-        if isinstance(node.value, ast.Subscript):
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    dynamic.add(target.id)
+        opaque = isinstance(node.value, ast.Subscript)
+        if isinstance(node.value, ast.Call):
+            root = _root_name(node.value.func)
+            opaque = root is None or (
+                root not in module.bindings
+                and root not in module.functions
+                and root not in _KNOWN_BUILTINS
+            )
+        if not opaque:
+            continue
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                dynamic.add(target.id)
     return dynamic
 
 
-def _receiver_origins(scope: ast.AST, module: _Module) -> dict[str, tuple[str, ast.Call]]:
-    """Map local variable names to the constructor call they were assigned from."""
+def _assigned_names(scope_body: list[ast.stmt]) -> set[str]:
+    """Names bound anywhere in this statement list, at this level or nested inside it."""
 
-    origins: dict[str, tuple[str, ast.Call]] = {}
-    for node in ast.walk(scope):
-        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Call):
-            continue
-        qualified = _resolve(_dotted(node.value.func), module)
-        if qualified is None:
-            continue
-        if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    origins[target.id] = (qualified, node.value)
-        elif isinstance(node.value.func, ast.Attribute):
-            # boto3.client("s3") and friends keep the constructor as the origin.
-            base = _resolve(_dotted(node.value.func), module)
-            if base in EXTERNAL_RECEIVERS:
+    bound: set[str] = set()
+    for statement in scope_body:
+        for node in ast.walk(statement):
+            if isinstance(node, ast.Assign):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
-                        origins[target.id] = (base, node.value)
+                        bound.add(target.id)
+            elif isinstance(
+                node, ast.AnnAssign | ast.AugAssign | ast.For | ast.AsyncFor | ast.comprehension
+            ) and isinstance(node.target, ast.Name):
+                bound.add(node.target.id)
+            elif isinstance(node, ast.withitem) and isinstance(node.optional_vars, ast.Name):
+                bound.add(node.optional_vars.id)
+    return bound
+
+
+def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    """Every name the function itself binds: parameters first, then local assignments."""
+
+    arguments = function.args
+    parameters = [
+        *arguments.posonlyargs,
+        *arguments.args,
+        *arguments.kwonlyargs,
+        *([arguments.vararg] if arguments.vararg else []),
+        *([arguments.kwarg] if arguments.kwarg else []),
+    ]
+    names = {parameter.arg for parameter in parameters}
+    return names | _assigned_names(function.body)
+
+
+def _scope_origins(scope_body: list[ast.stmt], module: _Module) -> dict[str, tuple[str, ast.Call]]:
+    """Track receiver constructors bound directly in one statement list.
+
+    Only assignments at this level count. Walking the whole tree would let a binding
+    inside an unrelated function decide what a name means here, which silently changes
+    another tool's classification.
+    """
+
+    origins: dict[str, tuple[str, ast.Call]] = {}
+    ambiguous: set[str] = set()
+    for statement in scope_body:
+        if not isinstance(statement, ast.Assign) or not isinstance(statement.value, ast.Call):
+            continue
+        qualified = _resolve(_dotted(statement.value.func), module)
+        if qualified is None:
+            continue
+        if qualified not in EXTERNAL_RECEIVERS and qualified not in PATH_RECEIVERS:
+            continue
+        for target in statement.targets:
+            if not isinstance(target, ast.Name):
+                continue
+            if target.id in origins and origins[target.id][0] != qualified:
+                # Rebound to a different receiver: neither reading is safe to assume.
+                ambiguous.add(target.id)
+            origins[target.id] = (qualified, statement.value)
+    for name in ambiguous:
+        origins.pop(name, None)
     return origins
 
 
@@ -351,6 +435,11 @@ def _classify_call(
             return None, None, "UNRESOLVED_CALLEE"
         return None, None, None
 
+    if _is_instance_state_call(call):
+        # self.session.post(...): the receiver lives on the instance, which this analyzer
+        # does not track. Reporting no effect here would publish an outbound call as read.
+        return None, None, "UNRESOLVED_CALLEE"
+
     qualified = _resolve(spelled, module)
     if qualified is None:  # pragma: no cover - _resolve returns None only for empty input
         return None, None, None
@@ -415,6 +504,19 @@ def _classify_call(
         # A recognised execute whose query is not a literal cannot be classified.
         return None, None, "NONLITERAL_ARGUMENT"
 
+    if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+        # Constructing a recognised receiver is not itself an effect; its methods are.
+        return None, None, None
+
+    # A call into a third-party package the catalog does not describe could do anything.
+    # Treating it as harmless would let an unrecognised HTTP client publish as `read`.
+    # Standard-library calls outside the catalog stay benign, or nearly every tool that
+    # formats a string or logs a line would be refused and `unknown` would lose meaning.
+    origin_root = qualified.split(".", 1)[0]
+    imported_roots = {binding.split(".", 1)[0] for binding in module.bindings.values()}
+    if origin_root in imported_roots and origin_root not in sys.stdlib_module_names:
+        return None, None, "UNRESOLVED_CALLEE"
+
     return None, None, None
 
 
@@ -447,9 +549,11 @@ def _collect_signals(
         tool.budget_state = "exhausted"
         return
 
-    origins = _receiver_origins(function, module)
-    origins.update(_receiver_origins(module.tree, module))
-    dynamic = _dynamic_locals(function)
+    # Module-level bindings are the fallback; the function's own bindings win over them.
+    origins = dict(module.module_origins)
+    origins.update(_scope_origins(function.body, module))
+    dynamic = _dynamic_locals(function, module)
+    shadowed = _local_names(function)
 
     for node in ast.walk(function):
         if not isinstance(node, ast.Call):
@@ -464,7 +568,15 @@ def _collect_signals(
             continue
         # Follow a call into a module-local helper so effects one hop away still count.
         spelled = _dotted(node.func)
-        if spelled and "." not in spelled and spelled in module.functions:
+        if spelled and "." not in spelled and spelled not in module.bindings:
+            if spelled in shadowed:
+                # The caller binds this name itself -- a parameter or a local. Whatever
+                # runs is supplied from outside, so following a module function of the
+                # same name would invent a call path that does not exist.
+                tool.reasons.add("UNRESOLVED_CALLEE")
+                continue
+            if spelled not in module.functions:
+                continue
             if spelled in visited:
                 continue
             visited.add(spelled)
@@ -508,7 +620,7 @@ def _tool_name_from_decorator(decorator: ast.AST, fallback: str) -> str:
 
 def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
     discovered: list[DiscoveredTool] = []
-    for function in module.functions.values():
+    for function in [*module.functions.values(), *module.methods]:
         for qualified, decorator in _decorator_names(function, module):
             framework: str | None = None
             if qualified in LANGCHAIN_TOOL_DECORATORS:
@@ -619,6 +731,15 @@ def analyze_sources(
 
         for tool in candidates:
             function = module.functions.get(tool.name)
+            if function is None:
+                function = next(
+                    (
+                        candidate
+                        for candidate in module.methods
+                        if candidate.lineno == tool.line or candidate.name == tool.name
+                    ),
+                    None,
+                )
             if function is None:
                 # A renamed tool still resolves through the function it decorated.
                 function = next(
