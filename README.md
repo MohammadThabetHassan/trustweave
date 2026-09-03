@@ -56,7 +56,7 @@ You get a decision for every declared trust-boundary path — which sources may 
 | customer_request | trusted | lookup_customer_record | **deny** |
 | knowledge_base_document | untrusted | send_mock_email | **deny** |
 
-Then check the policy against synthetic scenarios, and produce a report a human reviewer can actually read:
+Then check the policy against synthetic scenarios, and produce a report a human reviewer can actually read. Three suites ship with the project — the boundary regressions used below, 25 attack-shaped adversarial patterns, and a 12-case matrix covering every trust/action combination including the flows that must stay permitted. The [scenario catalogue](scenarios/README.md) tables each case, what it targets, and the rule that decides it.
 
 ```bash
 trustweave test \
