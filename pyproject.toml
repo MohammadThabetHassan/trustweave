@@ -76,7 +76,12 @@ line-length = 100
 target-version = "py311"
 # verify_distribution_artifacts.py builds throwaway wheels in ROOT/.trustweave-dist-*.
 # Generated probe scripts in there are not project source and must not be linted.
-extend-exclude = [".trustweave-dist-*"]
+extend-exclude = [
+  ".trustweave-dist-*",
+  # Labelled benchmark inputs. Deliberately odd agent code, parsed and never
+  # imported; linting it would be linting the test data.
+  "benchmark/tool-classification/cases",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

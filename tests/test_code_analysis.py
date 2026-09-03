@@ -515,3 +515,94 @@ def test_an_unrecognised_third_party_call_is_refused_but_stdlib_stays_read(
 
     assert by_name["relay"].proposed_action_class() == "unknown"
     assert by_name["clean"].proposed_action_class() == "read"
+
+
+# ---------------------------------------------------------------------------------------
+# Safe fallback: an unrecognised call must not become a benign verdict
+# ---------------------------------------------------------------------------------------
+
+
+def test_an_unrecognised_call_blocks_a_benign_verdict(tmp_path: Path) -> None:
+    """`read` is what the analyzer says when it recognised everything and saw no effect.
+
+    If part of the reachable set could not be placed, an unseen effect could outrank what
+    was observed, so answering would turn a gap in the catalog into a benign result.
+    """
+
+    (tmp_path / "agent.py").write_text(
+        "import mylib\n" + TOOL_PREAMBLE + "@tool\n"
+        "def relay(value: str) -> str:\n"
+        '    """Hand off to a package the catalog does not describe."""\n'
+        "    return mylib.dispatch(value)\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].confidence() == "review"
+
+
+def test_an_unrecognised_call_cannot_lower_a_sensitive_verdict(tmp_path: Path) -> None:
+    """Nothing outranks sensitive, so an unplaceable call alongside it changes nothing."""
+
+    (tmp_path / "agent.py").write_text(
+        "import mylib\nimport subprocess\n" + TOOL_PREAMBLE + "@tool\n"
+        "def run(value: str) -> str:\n"
+        '    """Launch a process and also call an unknown package."""\n'
+        "    subprocess.run(['/bin/true'], check=False)\n"
+        "    return mylib.dispatch(value)\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+
+
+def test_a_receiver_kept_through_a_context_manager_is_still_tracked(tmp_path: Path) -> None:
+    """`with client as session` once lost the receiver and published egress as read."""
+
+    (tmp_path / "agent.py").write_text(
+        "import httpx\n" + TOOL_PREAMBLE + "@tool\n"
+        "def fetch(path: str) -> str:\n"
+        '    """Fetch through a client used as a context manager."""\n'
+        "    client = httpx.Client(base_url='https://example.invalid')\n"
+        "    with client as session:\n"
+        "        return session.get(path).text\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_an_async_context_manager_receiver_is_tracked(tmp_path: Path) -> None:
+    (tmp_path / "agent.py").write_text(
+        "import aiohttp\n" + TOOL_PREAMBLE + "@tool\n"
+        "async def fetch(url: str) -> str:\n"
+        '    """Fetch through an async client session."""\n'
+        "    async with aiohttp.ClientSession() as session:\n"
+        "        async with session.get(url) as response:\n"
+        "            return await response.text()\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_decorator_is_registration_and_never_counts_as_behaviour(tmp_path: Path) -> None:
+    """Classifying `@mcp.tool()` made every decorated tool refuse on its own registration."""
+
+    (tmp_path / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n\n"
+        "mcp = FastMCP('synthetic')\n\n\n"
+        "@mcp.tool()\n"
+        "def summarize(text: str) -> str:\n"
+        '    """Pure formatting."""\n'
+        "    return text.strip().upper()\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.proposed_action_class() for tool in tools] == ["read"]
+    assert tools[0].reasons == set()

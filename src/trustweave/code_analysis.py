@@ -61,6 +61,8 @@ _KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(
     {"bool", "bytes", "dict", "float", "frozenset", "int", "list", "open", "set", "str", "tuple"}
 )
 _INSTANCE_RECEIVERS: Final[frozenset[str]] = frozenset({"self", "cls"})
+# Sentinel: a resolved call the catalog has no entry for.
+_UNRECOGNIZED: Final[str] = "\x00unrecognized"
 _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
     {"eval", "exec", "getattr", "globals", "importlib.import_module", "vars"}
 )
@@ -108,6 +110,10 @@ class DiscoveredTool:
     signals: list[EffectSignal] = field(default_factory=list)
     reasons: set[str] = field(default_factory=set)
     budget_state: str = "complete"
+    # A call that resolved to a real symbol the catalog does not describe. It is not a
+    # refusal on its own: it only matters when an unseen effect could outrank what was
+    # observed.
+    unrecognized_calls: int = 0
 
     def proposed_action_class(self) -> str:
         """Return the highest-precedence observed class, or ``unknown`` if refused."""
@@ -115,14 +121,22 @@ class DiscoveredTool:
         if self.reasons:
             return UNKNOWN_ACTION_CLASS
         observed = {signal.action_class for signal in self.signals}
-        for candidate in ACTION_CLASS_PRECEDENCE:
-            if candidate in observed:
-                return candidate
-        # No recognised effect at all is a positive read classification, not a refusal.
-        return "read"
+        highest = next(
+            (candidate for candidate in ACTION_CLASS_PRECEDENCE if candidate in observed),
+            "read",
+        )
+        if self.unrecognized_calls and highest != ACTION_CLASS_PRECEDENCE[0]:
+            # Something in the reachable set could not be placed, and an unseen effect
+            # could outrank what was observed. Answering here would turn a gap in the
+            # catalog into a benign verdict, which is the one direction a security review
+            # must never fail in.
+            return UNKNOWN_ACTION_CLASS
+        return highest
 
     def confidence(self) -> str:
-        return "review" if self.reasons else "high"
+        if self.reasons:
+            return "review"
+        return "review" if self.proposed_action_class() == UNKNOWN_ACTION_CLASS else "high"
 
 
 @dataclass
@@ -251,12 +265,12 @@ def _dynamic_locals(scope: ast.AST, module: _Module) -> set[str]:
             continue
         opaque = isinstance(node.value, ast.Subscript)
         if isinstance(node.value, ast.Call):
-            root = _root_name(node.value.func)
-            opaque = root is None or (
-                root not in module.bindings
-                and root not in module.functions
-                and root not in _KNOWN_BUILTINS
-            )
+            # Only a call that selects behaviour at runtime makes the bound name opaque.
+            # Treating every unresolved constructor as dispatch refused ordinary local
+            # classes and cost far more recall than it bought.
+            spelled = _dotted(node.value.func)
+            resolved = _resolve(spelled, module)
+            opaque = spelled in _DYNAMIC_SYMBOLS or resolved in _DYNAMIC_SYMBOLS
         if not opaque:
             continue
         for target in node.targets:
@@ -309,21 +323,51 @@ def _scope_origins(scope_body: list[ast.stmt], module: _Module) -> dict[str, tup
 
     origins: dict[str, tuple[str, ast.Call]] = {}
     ambiguous: set[str] = set()
+
+    def _bind(name: str, qualified: str, call: ast.Call) -> None:
+        if name in origins and origins[name][0] != qualified:
+            # Rebound to a different receiver: neither reading is safe to assume.
+            ambiguous.add(name)
+        origins[name] = (qualified, call)
+
+    def _receiver_of(value: ast.expr) -> str | None:
+        """Return the receiver origin a value carries, following one context-manager hop."""
+
+        if not isinstance(value, ast.Call):
+            # `with client as session`: the manager is a name already tracked above.
+            if isinstance(value, ast.Name) and value.id in origins:
+                return origins[value.id][0]
+            return None
+        qualified = _resolve(_dotted(value.func), module)
+        if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+            return qualified
+        # `async with session.get(url) as response`: the receiver is the caller.
+        root = _root_name(value.func)
+        if root is not None and root in origins:
+            return origins[root][0]
+        return None
+
     for statement in scope_body:
-        if not isinstance(statement, ast.Assign) or not isinstance(statement.value, ast.Call):
+        if isinstance(statement, ast.Assign) and isinstance(statement.value, ast.Call):
+            qualified = _resolve(_dotted(statement.value.func), module)
+            if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+                for target in statement.targets:
+                    if isinstance(target, ast.Name):
+                        _bind(target.id, qualified, statement.value)
             continue
-        qualified = _resolve(_dotted(statement.value.func), module)
-        if qualified is None:
-            continue
-        if qualified not in EXTERNAL_RECEIVERS and qualified not in PATH_RECEIVERS:
-            continue
-        for target in statement.targets:
-            if not isinstance(target, ast.Name):
-                continue
-            if target.id in origins and origins[target.id][0] != qualified:
-                # Rebound to a different receiver: neither reading is safe to assume.
-                ambiguous.add(target.id)
-            origins[target.id] = (qualified, statement.value)
+        if isinstance(statement, ast.With | ast.AsyncWith):
+            # A context manager keeps the receiver's identity; losing it here made an
+            # HTTP client used as `with client as session` look like an untracked local.
+            for item in statement.items:
+                origin = _receiver_of(item.context_expr)
+                if origin is None or not isinstance(item.optional_vars, ast.Name):
+                    continue
+                call = (
+                    item.context_expr
+                    if isinstance(item.context_expr, ast.Call)
+                    else ast.Call(func=ast.Name(id=origin), args=[], keywords=[])
+                )
+                _bind(item.optional_vars.id, origin, call)
     for name in ambiguous:
         origins.pop(name, None)
     return origins
@@ -515,7 +559,7 @@ def _classify_call(
     origin_root = qualified.split(".", 1)[0]
     imported_roots = {binding.split(".", 1)[0] for binding in module.bindings.values()}
     if origin_root in imported_roots and origin_root not in sys.stdlib_module_names:
-        return None, None, "UNRESOLVED_CALLEE"
+        return _UNRECOGNIZED, None, None
 
     return None, None, None
 
@@ -555,12 +599,21 @@ def _collect_signals(
     dynamic = _dynamic_locals(function, module)
     shadowed = _local_names(function)
 
+    decorator_nodes = {
+        id(inner) for decorator in function.decorator_list for inner in ast.walk(decorator)
+    }
     for node in ast.walk(function):
-        if not isinstance(node, ast.Call):
+        if not isinstance(node, ast.Call) or id(node) in decorator_nodes:
+            # A decorator registers the tool with a framework. It is not behaviour the tool
+            # performs, and classifying it made every decorated tool refuse on its own
+            # registration call.
             continue
         action, symbol, reason = _classify_call(node, module, origins, dynamic)
         if reason:
             tool.reasons.add(reason)
+        if action == _UNRECOGNIZED:
+            tool.unrecognized_calls += 1
+            continue
         if action and symbol:
             tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
             continue
