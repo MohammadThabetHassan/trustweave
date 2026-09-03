@@ -167,3 +167,75 @@ def test_the_artifact_allow_list_covers_both_shared_and_ci_owned_names() -> None
     assert "agent-security-bundle.json" in known
     assert "ci-summary.json" in known
     assert "code-discovery.json" in known
+
+
+def test_exactly_five_unrelated_entries_are_listed_without_a_more_suffix(
+    tmp_path: Path,
+) -> None:
+    """The boundary is > 5, not >= 5: five entries all fit in the list."""
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    for index in range(5):
+        (output / f"file{index}.txt").write_text("work", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+
+    with pytest.raises(InputOutputError) as raised:
+        _publish_directory(staging, output)
+
+    message = str(raised.value)
+    assert "5 entries" in message
+    assert "more" not in message
+
+
+def test_the_publish_refusal_message_is_exact(tmp_path: Path) -> None:
+    """A reviewer acts on this sentence, so its wording and separators are a contract."""
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    (output / "beta.txt").write_text("work", encoding="utf-8")
+    (output / "alpha.txt").write_text("work", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+
+    with pytest.raises(InputOutputError) as raised:
+        _publish_directory(staging, output)
+
+    assert str(raised.value) == (
+        f"Refusing to publish CI artifacts into {output}: it holds 2 entries TrustWeave "
+        "did not write (alpha.txt, beta.txt). Point output_dir at a dedicated directory, "
+        "or empty this one first."
+    )
+
+
+def test_the_artifact_allow_list_holds_only_filenames(tmp_path: Path) -> None:
+    """Every entry is a *_FILE constant; schema versions and other strings stay out."""
+
+    from trustweave.commands.ci import CI_SUMMARY_SCHEMA_VERSION, _known_artifact_names
+
+    known = _known_artifact_names()
+
+    assert CI_SUMMARY_SCHEMA_VERSION not in known
+    assert all("/" not in name for name in known)
+    assert all(name.count(".") == 1 for name in known)
+
+
+def test_at_most_five_entries_are_listed_and_the_rest_are_counted(tmp_path: Path) -> None:
+    """Six entries: five named, one counted. Pins both the slice and the threshold."""
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    for name in ("a.txt", "b.txt", "c.txt", "d.txt", "e.txt", "f.txt"):
+        (output / name).write_text("work", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+
+    with pytest.raises(InputOutputError) as raised:
+        _publish_directory(staging, output)
+
+    assert str(raised.value) == (
+        f"Refusing to publish CI artifacts into {output}: it holds 6 entries TrustWeave "
+        "did not write (a.txt, b.txt, c.txt, d.txt, e.txt and 1 more). Point output_dir "
+        "at a dedicated directory, or empty this one first."
+    )

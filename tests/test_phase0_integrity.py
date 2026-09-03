@@ -859,3 +859,27 @@ def test_every_legacy_schema_refuses_supplied_file_verification(tmp_path: Path) 
         assert with_neither[0] is True
         assert "supplied files were not verified" in with_neither[1]
         assert ATTESTATION_SCHEMA_VERSION in with_bundle[1]
+
+
+def test_the_legacy_refusal_message_is_exact(tmp_path: Path) -> None:
+    """The message tells a reviewer what to do next, so its wording is a contract."""
+
+    chain = "|".join([LEGACY_ATTESTATION_SCHEMA_VERSION, "bundle", "tests", "legacy"])
+    attestation = {
+        "schema_version": LEGACY_ATTESTATION_SCHEMA_VERSION,
+        "predicate": {
+            "bundle_sha256": "bundle",
+            "test_results_sha256": "tests",
+            "source_revision": "legacy",
+        },
+        "integrity": {"chain_sha256": sha256(chain.encode("utf-8")).hexdigest()},
+    }
+
+    verified, message = verify_attestation(attestation, bundle_path=tmp_path / "b.json")
+
+    assert verified is False
+    assert message == (
+        "v1alpha1 attestations do not bind exact file digests, so the supplied files "
+        "cannot be verified against this statement; re-attest with "
+        f"{ATTESTATION_SCHEMA_VERSION} to verify supplied files"
+    )
