@@ -1222,7 +1222,10 @@ def _check_documentation_commands() -> list[str]:
     ) as temporary_directory:
         temporary_path = Path(temporary_directory)
         schema_list = subprocess.run(
-            ["trustweave", "schema", "list"], check=False, capture_output=True, text=True
+            [sys.executable, "-m", "trustweave", "schema", "list"],
+            check=False,
+            capture_output=True,
+            text=True,
         )
         if schema_list.returncode != 0:
             failures.append(f"Documented schema list command failed: {schema_list.stderr.strip()}")
@@ -1231,7 +1234,7 @@ def _check_documentation_commands() -> list[str]:
 
         if expected_names:
             schema_show = subprocess.run(
-                ["trustweave", "schema", "show", expected_names[0]],
+                [sys.executable, "-m", "trustweave", "schema", "show", expected_names[0]],
                 check=False,
                 capture_output=True,
                 text=True,
@@ -1255,7 +1258,7 @@ def _check_documentation_commands() -> list[str]:
                         )
 
         initialized = subprocess.run(
-            ["trustweave", "init", "--directory", str(temporary_path)],
+            [sys.executable, "-m", "trustweave", "init", "--directory", str(temporary_path)],
             check=False,
             capture_output=True,
             text=True,
@@ -1267,7 +1270,15 @@ def _check_documentation_commands() -> list[str]:
             )
         else:
             validated = subprocess.run(
-                ["trustweave", "config", "validate", "--config", str(config_path)],
+                [
+                    sys.executable,
+                    "-m",
+                    "trustweave",
+                    "config",
+                    "validate",
+                    "--config",
+                    str(config_path),
+                ],
                 check=False,
                 capture_output=True,
                 text=True,
@@ -1389,7 +1400,7 @@ def _check_assurance_contracts() -> list[str]:
 
 def _check_cli() -> list[str]:
     completed = subprocess.run(
-        ["trustweave", "--help"],
+        [sys.executable, "-m", "trustweave", "--help"],
         check=False,
         capture_output=True,
         text=True,

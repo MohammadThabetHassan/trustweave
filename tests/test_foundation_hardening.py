@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -148,7 +149,7 @@ def test_policy_contract_preserves_known_decision_vocabularies() -> None:
 
 def test_repository_reality_check_accepts_tracked_public_contracts() -> None:
     completed = subprocess.run(
-        ["python3", "scripts/reality_check.py"],
+        [sys.executable, "scripts/reality_check.py"],
         cwd=ROOT,
         check=False,
         capture_output=True,

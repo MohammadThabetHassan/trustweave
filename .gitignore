@@ -22,3 +22,6 @@ venv/
 .idea/
 .vscode/
 .DS_Store
+
+# Scratch wheel builds from scripts/verify_distribution_artifacts.py
+.trustweave-dist-*/
