@@ -20,16 +20,16 @@ printf '== TrustWeave declaration-consistency walkthrough ==\n'
 printf 'Case: %s\n' "$case_id"
 printf 'Boundary: supplied local static labels only; no framework execution.\n\n'
 
-printf '$ python scripts/run_declaration_completeness_benchmark.py --case %s --check\n' "$case_id"
-python "$root/scripts/run_declaration_completeness_benchmark.py" --case "$case_id" --check
+printf '$ python3 scripts/run_declaration_completeness_benchmark.py --case %s --check\n' "$case_id"
+python3 "$root/scripts/run_declaration_completeness_benchmark.py" --case "$case_id" --check
 printf '\n'
 
-printf '$ python scripts/verify_declaration_completeness_provenance.py\n'
-python "$root/scripts/verify_declaration_completeness_provenance.py"
+printf '$ python3 scripts/verify_declaration_completeness_provenance.py\n'
+python3 "$root/scripts/verify_declaration_completeness_provenance.py"
 printf '\n'
 
-printf '$ python scripts/run_declaration_completeness_benchmark.py --case %s --verify --output-dir demo/declaration-consistency/artifacts/%s\n' "$case_id" "$case_id"
-python "$root/scripts/run_declaration_completeness_benchmark.py" \
+printf '$ python3 scripts/run_declaration_completeness_benchmark.py --case %s --verify --output-dir demo/declaration-consistency/artifacts/%s\n' "$case_id" "$case_id"
+python3 "$root/scripts/run_declaration_completeness_benchmark.py" \
   --case "$case_id" \
   --verify \
   --output-dir "$output_dir"
