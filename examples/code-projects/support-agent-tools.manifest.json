@@ -1,0 +1,40 @@
+{
+  "schema_version": "trustweave.dev/v1alpha1",
+  "name": "support-agent-tools",
+  "description": "Declared surface for the synthetic support agent used by trustweave discover.",
+  "sources": [
+    {
+      "name": "customer_request",
+      "trust": "trusted",
+      "data_classification": "customer-provided",
+      "description": "A direct support request from an authenticated synthetic customer."
+    }
+  ],
+  "tools": [
+    {
+      "name": "search_docs",
+      "action_class": "read",
+      "capabilities": ["knowledge-base.read"],
+      "description": "Declared as read-only; the source reaches the network."
+    },
+    {
+      "name": "update_record",
+      "action_class": "write",
+      "capabilities": ["records.write"],
+      "description": "Writes a synthetic note."
+    },
+    {
+      "name": "send_receipt",
+      "action_class": "external",
+      "capabilities": ["email.send"],
+      "description": "Declared but absent from the analyzed source."
+    }
+  ],
+  "flows": [
+    {
+      "source": "customer_request",
+      "tool": "search_docs",
+      "purpose": "A synthetic customer question reaches the knowledge base."
+    }
+  ]
+}

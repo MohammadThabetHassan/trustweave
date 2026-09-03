@@ -45,6 +45,8 @@ A future adapter may render an existing local artifact as a pull-request-friendl
 
 Published `0.3.0` completed the TestPyPI-first path: its exact TestPyPI and PyPI wheels were clean-installed and verified against the expected repository. [Release Evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md) preserves that limited observation. For every future release, maintainers must repeat the same independent exact-file verification and create a new record; no `0.3.0` provenance claim transfers to a later file. This path remains distinct from local integrity evidence and does not add DSSE, SLSA, or general transparency-log security claims.
 
+Local static source analysis moved from this list into the product in ADR-0006. It stays inside the non-executing boundary: it parses local files only, never runs them, and never infers trust.
+
 ## Maintainer decisions that require explicit authorization
 
 | Decision | Why it needs a maintainer decision beyond a code change |

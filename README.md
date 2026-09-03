@@ -84,6 +84,7 @@ A config change can open a new sensitive path — an untrusted source reaching a
 
 - **`scan`** maps every declared flow (source → tool → action) and applies your policy deterministically.
 - **`diff`** shows exactly what a candidate config changes versus your baseline.
+- **`discover`** parses local Python source to list the tools an agent can reach, proposes an action class for each with the evidence behind it, and reports what the manifest does not declare.
 - **`test`** replays safe synthetic scenarios so policy regressions fail in CI, not in production.
 - **`trace-review`** and **`mcp-profile-check`** flag where recorded metadata drifts from the declaration.
 

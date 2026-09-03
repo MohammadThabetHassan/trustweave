@@ -373,3 +373,33 @@ trustweave mcp-profile-check \
 | `mcp-profile-review.md` | Human-readable profile-to-manifest mapping report. |
 
 The command never connects to an MCP endpoint or stdio transport. It does not perform server discovery, OAuth, dynamic registration, token exchange, token audience validation, capability discovery, or tool execution. See [MCP Metadata Profile Review](MCP_PROFILE.md) for the full contract.
+
+## `discover`
+
+Statically analyze local Python source for the tool surface an agent can reach, without
+importing or executing it.
+
+```bash
+trustweave discover \
+  --source path/to/agent \
+  --manifest agent.manifest.json \
+  --output-dir artifacts
+```
+
+| Input | Meaning |
+|---|---|
+| `--source` | Local Python file or directory to parse. Required. |
+| `--manifest` | Optional manifest, enabling declaration drift and coverage. |
+| `--output-dir` | Artifact directory. Defaults to `artifacts`. |
+| `--exit-on-review` | Return status 1 when the discovery produces findings. |
+
+| Output | Contents |
+|---|---|
+| `code-discovery.json` | Discovered tools with evidence, drift, coverage, a reviewer-required manifest draft, and findings. |
+| `code-discovery.md` | The same review as a document. |
+
+TrustWeave parses the files it is pointed at with the standard library AST. It never
+imports, compiles, installs, executes, or resolves dependencies of the analyzed project,
+and it never follows a symbolic link out of the analyzed root. Action classes are
+proposals carrying their evidence; trust is always emitted as `unknown` for a reviewer to
+assign. See [local code discovery](CODE_DISCOVERY.md).

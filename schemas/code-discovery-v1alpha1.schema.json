@@ -1,0 +1,620 @@
+{
+  "$defs": {
+    "action_class": {
+      "enum": [
+        "read",
+        "write",
+        "sensitive",
+        "external",
+        "unknown"
+      ]
+    },
+    "count": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "discovered_tool": {
+      "additionalProperties": false,
+      "properties": {
+        "budget_state": {
+          "enum": [
+            "complete",
+            "exhausted"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "review"
+          ]
+        },
+        "declared_in_manifest": {
+          "type": "boolean"
+        },
+        "framework": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/location"
+        },
+        "name": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "proposed_action_class": {
+          "$ref": "#/$defs/action_class"
+        },
+        "proposed_capabilities": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "reasons": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "signals": {
+          "items": {
+            "$ref": "#/$defs/signal"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "framework",
+        "location",
+        "proposed_action_class",
+        "confidence",
+        "budget_state",
+        "signals"
+      ],
+      "type": "object"
+    },
+    "draft_source": {
+      "additionalProperties": false,
+      "properties": {
+        "data_classification": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "trust": {
+          "const": "unknown"
+        }
+      },
+      "required": [
+        "name",
+        "trust",
+        "data_classification",
+        "description"
+      ],
+      "type": "object"
+    },
+    "draft_tool": {
+      "additionalProperties": false,
+      "properties": {
+        "action_class": {
+          "$ref": "#/$defs/action_class"
+        },
+        "capabilities": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "description": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "action_class",
+        "capabilities",
+        "description"
+      ],
+      "type": "object"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "pattern": "^[a-z][a-z0-9_]{0,127}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^TW-[A-Z0-9-]{1,120}$",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/string_map"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/property_map"
+        },
+        "rationale": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/string_map"
+          },
+          "maxItems": 64,
+          "type": "array"
+        },
+        "remediation": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info",
+            "review"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/subject"
+        },
+        "title": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "message",
+        "evidence_kind"
+      ],
+      "type": "object"
+    },
+    "identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "location": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "line": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "line"
+      ],
+      "type": "object"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "property_map": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "rename": {
+      "additionalProperties": false,
+      "properties": {
+        "declared": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "discovered": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "declared",
+        "discovered"
+      ],
+      "type": "object"
+    },
+    "rule_id": {
+      "pattern": "^TW-[A-Z0-9-]{1,120}$",
+      "type": "string"
+    },
+    "signal": {
+      "additionalProperties": false,
+      "properties": {
+        "action_class": {
+          "$ref": "#/$defs/action_class"
+        },
+        "file": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "line": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "via": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "action_class",
+        "symbol",
+        "file",
+        "line",
+        "via"
+      ],
+      "type": "object"
+    },
+    "string_list": {
+      "items": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "type": "array"
+    },
+    "string_map": {
+      "additionalProperties": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "subject": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/code-discovery/v1alpha1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "drift": {
+      "additionalProperties": false,
+      "properties": {
+        "coverage_status": {
+          "enum": [
+            "measured",
+            "not_applicable"
+          ]
+        },
+        "declaration_coverage_basis_points": {
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "declaration_coverage_percent": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "declared_not_found_in_code": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "manifest_supplied": {
+          "type": "boolean"
+        },
+        "missing_from_manifest": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "probable_renames": {
+          "items": {
+            "$ref": "#/$defs/rename"
+          },
+          "type": "array"
+        },
+        "tools_declared": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tools_discovered": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tools_matched": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "manifest_supplied",
+        "coverage_status"
+      ],
+      "type": "object"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "type": "array"
+    },
+    "generated_at": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    },
+    "limits": {
+      "items": {
+        "maxLength": 4096,
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "manifest_draft": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "flows": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "name": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "review_required": {
+          "items": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/draft_source"
+          },
+          "type": "array"
+        },
+        "tools": {
+          "items": {
+            "$ref": "#/$defs/draft_tool"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "name",
+        "description",
+        "sources",
+        "tools",
+        "flows",
+        "review_required"
+      ],
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/code-discovery/v1alpha1"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "catalog_version": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "files_analyzed": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "files_skipped": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "root_name": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_name",
+        "files_analyzed",
+        "files_skipped",
+        "catalog_version"
+      ],
+      "type": "object"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "review_findings": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "clear",
+            "review_required"
+          ]
+        },
+        "tools_classified": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tools_discovered": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tools_unknown": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tools_discovered",
+        "tools_classified",
+        "tools_unknown",
+        "review_findings",
+        "status"
+      ],
+      "type": "object"
+    },
+    "tools": {
+      "items": {
+        "$ref": "#/$defs/discovered_tool"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source",
+    "summary",
+    "tools",
+    "drift",
+    "manifest_draft",
+    "findings",
+    "limits"
+  ],
+  "title": "TrustWeave local code discovery",
+  "type": "object"
+}

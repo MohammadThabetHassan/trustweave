@@ -6,7 +6,18 @@ import argparse
 from collections import OrderedDict
 from typing import Any
 
-from trustweave.commands import chain, ci, config, evidence, importers, policy, risk, scan, test
+from trustweave.commands import (
+    chain,
+    ci,
+    config,
+    discover,
+    evidence,
+    importers,
+    policy,
+    risk,
+    scan,
+    test,
+)
 
 COMMAND_ORDER = (
     "init",
@@ -24,6 +35,7 @@ COMMAND_ORDER = (
     "chain-check",
     "policy-check",
     "trace-review",
+    "discover",
     "framework-import",
     "mcp-scaffold",
     "mcp-import",
@@ -47,6 +59,7 @@ def register_all(subcommands: Any) -> None:
     chain.register(subcommands)
     policy.register(subcommands)
     importers.register(subcommands)
+    discover.register(subcommands)
     risk.register(subcommands)
 
     choices = subcommands.choices
@@ -75,6 +88,8 @@ def dispatch(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         return policy.handle(args, generated_at)
     if args.command in {"framework-import", "mcp-scaffold", "mcp-import", "mcp-profile-check"}:
         return importers.handle(args, generated_at)
+    if args.command == "discover":
+        return discover.handle(args, generated_at)
     if args.command in {"baseline", "suppressions", "risk-check"}:
         return risk.handle(args, generated_at)
     raise RuntimeError(f"Unsupported command: {args.command}")

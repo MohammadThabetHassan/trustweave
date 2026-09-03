@@ -555,3 +555,116 @@ def render_risk_review_report(review: Mapping[str, Any]) -> str:
         ]
     )
     return "\n".join(lines)
+
+
+def render_code_discovery_report(review: Mapping[str, Any]) -> str:
+    """Render a static local-source discovery review as a reviewer-facing document."""
+
+    source = _as_mapping(review.get("source"))
+    summary = _as_mapping(review.get("summary"))
+    drift = _as_mapping(review.get("drift"))
+    tools = _as_sequence(review.get("tools"))
+    findings = _as_sequence(review.get("findings"))
+
+    lines = [
+        "# TrustWeave Local Code Discovery",
+        "",
+        f"**Analyzed root:** `{source.get('root_name', 'unknown')}`  ",
+        f"**Files analyzed:** {source.get('files_analyzed', 0)}  ",
+        f"**Symbol catalog:** `{source.get('catalog_version', 'unknown')}`  ",
+        f"**Status:** **{summary.get('status', 'unknown')}**",
+        "",
+        "## Review summary",
+        "",
+        "| Metric | Value |",
+        "|---|---:|",
+        f"| Tools discovered | {summary.get('tools_discovered', 0)} |",
+        f"| Action class proposed | {summary.get('tools_classified', 0)} |",
+        f"| Left unknown for review | {summary.get('tools_unknown', 0)} |",
+        f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        "",
+        "## Declaration coverage",
+        "",
+    ]
+
+    if drift.get("coverage_status") == "measured":
+        lines.extend(
+            [
+                "| Metric | Value |",
+                "|---|---:|",
+                f"| Declared tools | {drift.get('tools_declared', 0)} |",
+                f"| Discovered tools | {drift.get('tools_discovered', 0)} |",
+                f"| Matched by name | {drift.get('tools_matched', 0)} |",
+                f"| Declaration coverage | {drift.get('declaration_coverage_percent', '0.00')}% |",
+                "",
+            ]
+        )
+        missing = [str(name) for name in _as_sequence(drift.get("missing_from_manifest"))]
+        absent = [str(name) for name in _as_sequence(drift.get("declared_not_found_in_code"))]
+        lines.append(
+            "Found in code but not declared: "
+            + (", ".join(f"`{name}`" for name in missing) if missing else "none")
+        )
+        lines.append("")
+        lines.append(
+            "Declared but not found in code: "
+            + (", ".join(f"`{name}`" for name in absent) if absent else "none")
+        )
+    else:
+        lines.append(
+            "No manifest was supplied, so declaration coverage was not measured. Pass "
+            "`--manifest` to compare the discovered surface against a declaration."
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Discovered tools",
+            "",
+            "| Tool | Proposed action class | Confidence | Evidence | Location |",
+            "|---|---|---|---|---|",
+        ]
+    )
+    for raw_tool in tools:
+        tool = _as_mapping(raw_tool)
+        location = _as_mapping(tool.get("location"))
+        signals = [
+            _as_mapping(signal).get("symbol", "unknown")
+            for signal in _as_sequence(tool.get("signals"))
+        ]
+        reasons = [str(reason) for reason in _as_sequence(tool.get("reasons"))]
+        evidence = ", ".join(f"`{symbol}`" for symbol in signals) if signals else ""
+        if reasons:
+            evidence = (evidence + " " if evidence else "") + "refused: " + ", ".join(reasons)
+        lines.append(
+            "| `{name}` | **{action}** | {confidence} | {evidence} | `{file}:{line}` |".format(
+                name=tool.get("name", "unknown"),
+                action=tool.get("proposed_action_class", "unknown"),
+                confidence=tool.get("confidence", "unknown"),
+                evidence=evidence or "no recognised effect",
+                file=location.get("file", "unknown"),
+                line=location.get("line", "0"),
+            )
+        )
+
+    lines.extend(["", "## Findings", ""])
+    if not findings:
+        lines.append("No local discovery findings requiring review were generated.")
+    else:
+        lines.extend(["| Severity | Identifier | Message |", "|---|---|---|"])
+        for raw_finding in findings:
+            finding = _as_mapping(raw_finding)
+            lines.append(
+                "| {severity} | `{identifier}` | {message} |".format(
+                    severity=finding.get("severity", "unknown"),
+                    identifier=finding.get("id", "unknown"),
+                    message=finding.get("message", "unknown"),
+                )
+            )
+
+    _append_builtin_rule_guidance(lines, findings)
+    lines.extend(["", "## Evidence limits", ""])
+    for limit in _as_sequence(review.get("limits")):
+        lines.append(f"- {limit}")
+    lines.append("")
+    return "\n".join(lines)

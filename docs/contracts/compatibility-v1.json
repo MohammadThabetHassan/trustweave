@@ -8,16 +8,33 @@
       "status": "prepared-not-published"
     },
     "requires_python": ">=3.11",
-    "supported_python": ["3.11", "3.12", "3.13"],
+    "supported_python": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
     "continuous_integration": {
-      "python": ["3.11", "3.13"],
-      "platforms": ["ubuntu-latest", "macos-latest", "windows-latest"]
+      "python": [
+        "3.11",
+        "3.13"
+      ],
+      "platforms": [
+        "ubuntu-latest",
+        "macos-latest",
+        "windows-latest"
+      ]
     }
   },
   "interfaces": {
     "console_command": "trustweave",
     "module_command": "python -m trustweave",
-    "global_flags": ["--debug", "--generated-at", "--help", "--version", "-V"],
+    "global_flags": [
+      "--debug",
+      "--generated-at",
+      "--help",
+      "--version",
+      "-V"
+    ],
     "top_level_commands": [
       "attest",
       "baseline",
@@ -25,6 +42,7 @@
       "ci",
       "config",
       "diff",
+      "discover",
       "explain",
       "framework-import",
       "init",
@@ -69,13 +87,19 @@
       }
     },
     "bounded_legacy_readers": {
-      "bundle_comparison": ["trustweave.dev/bundle/v1alpha1", "trustweave.dev/bundle/v1alpha2"],
+      "bundle_comparison": [
+        "trustweave.dev/bundle/v1alpha1",
+        "trustweave.dev/bundle/v1alpha2"
+      ],
       "bundle_diff_risk_normalization": [
         "trustweave.dev/bundle-diff/v1alpha1",
         "trustweave.dev/bundle-diff/v1alpha2",
         "trustweave.dev/bundle-diff/v1alpha3"
       ],
-      "risk_review": ["trustweave.dev/risk-review/v1alpha1", "trustweave.dev/risk-review/v1alpha2"],
+      "risk_review": [
+        "trustweave.dev/risk-review/v1alpha1",
+        "trustweave.dev/risk-review/v1alpha2"
+      ],
       "local_attestation": [
         "trustweave.dev/attestation/v1alpha1",
         "trustweave.dev/attestation/v1alpha2",
