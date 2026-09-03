@@ -256,19 +256,34 @@ def verify_attestation(
             " with supplied-file verification" if supplied else "; supplied files were not verified"
         )
         return True, f"v1alpha3 attestation bindings are internally consistent{limitation}"
-    if schema_version == PREVIOUS_ATTESTATION_SCHEMA_VERSION:
-        valid = _verify_v1alpha2_attestation(predicate, integrity)
-        return (
-            (True, "v1alpha2 attestation hash chain is internally consistent")
-            if valid
-            else (False, "v1alpha2 attestation hash chain does not match its predicate")
+    legacy_versions = {
+        PREVIOUS_ATTESTATION_SCHEMA_VERSION: "v1alpha2",
+        LEGACY_ATTESTATION_SCHEMA_VERSION: "v1alpha1",
+    }
+    if schema_version in legacy_versions:
+        label = legacy_versions[schema_version]
+        if bundle_path is not None or test_results_path is not None:
+            # These schema versions carry no exact-file digests, so the supplied paths
+            # cannot be checked against them. Returning success here would report a
+            # file-binding verification that never happened, and a statement can choose
+            # its own schema_version -- which would make the check opt-out.
+            return (
+                False,
+                f"{label} attestations do not bind exact file digests, so the supplied "
+                "files cannot be verified against this statement; re-attest with "
+                f"{ATTESTATION_SCHEMA_VERSION} to verify supplied files",
+            )
+        verify_chain = (
+            _verify_v1alpha2_attestation
+            if schema_version == PREVIOUS_ATTESTATION_SCHEMA_VERSION
+            else _verify_legacy_attestation
         )
-    if schema_version == LEGACY_ATTESTATION_SCHEMA_VERSION:
-        valid = _verify_legacy_attestation(predicate, integrity)
+        if not verify_chain(predicate, integrity):
+            return False, f"{label} attestation hash chain does not match its predicate"
         return (
-            (True, "v1alpha1 attestation hash chain is internally consistent")
-            if valid
-            else (False, "v1alpha1 attestation hash chain does not match its predicate")
+            True,
+            f"{label} attestation hash chain is internally consistent; supplied files were "
+            "not verified",
         )
     return False, "Unsupported attestation schema version"
 

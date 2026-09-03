@@ -600,7 +600,8 @@ def test_legacy_attestation_verification_preserves_exact_schema_specific_result_
 
     assert verify_attestation(v1alpha2) == (
         True,
-        "v1alpha2 attestation hash chain is internally consistent",
+        "v1alpha2 attestation hash chain is internally consistent; supplied files were "
+        "not verified",
     )
     assert verify_attestation({**v1alpha2, "integrity": {"chain_sha256": "invalid"}}) == (
         False,
@@ -608,12 +609,39 @@ def test_legacy_attestation_verification_preserves_exact_schema_specific_result_
     )
     assert verify_attestation(v1alpha1) == (
         True,
-        "v1alpha1 attestation hash chain is internally consistent",
+        "v1alpha1 attestation hash chain is internally consistent; supplied files were "
+        "not verified",
     )
     assert verify_attestation({**v1alpha1, "integrity": {"chain_sha256": "invalid"}}) == (
         False,
         "v1alpha1 attestation hash chain does not match its predicate",
     )
+
+
+def test_a_legacy_attestation_cannot_silently_skip_supplied_file_verification(
+    tmp_path: Path,
+) -> None:
+    """A statement chooses its own schema_version, so this check must not be opt-out.
+
+    Before this guard, `verify --attestation legacy.json --bundle anything.json` returned
+    True and exit 0 without opening the bundle at all.
+    """
+
+    chain = "|".join([LEGACY_ATTESTATION_SCHEMA_VERSION, "bundle", "tests", "legacy"])
+    legacy = {
+        "schema_version": LEGACY_ATTESTATION_SCHEMA_VERSION,
+        "predicate": {
+            "bundle_sha256": "bundle",
+            "test_results_sha256": "tests",
+            "source_revision": "legacy",
+        },
+        "integrity": {"chain_sha256": sha256(chain.encode("utf-8")).hexdigest()},
+    }
+
+    verified, message = verify_attestation(legacy, bundle_path=tmp_path / "never-opened.json")
+
+    assert verified is False
+    assert "do not bind exact file digests" in message
 
 
 def test_v1alpha3_verifier_fails_closed_for_every_required_binding_shape(tmp_path: Path) -> None:
@@ -792,3 +820,66 @@ def test_evidence_helpers_reject_invalid_logical_names_and_digest_halves(tmp_pat
     }
     integrity = {"chain_sha256": evidence_module._chain_digest_v3(predicate, subjects)}
     assert not evidence_module._verify_v1alpha3_attestation(predicate, integrity, subjects)
+
+
+def test_every_legacy_schema_refuses_supplied_file_verification(tmp_path: Path) -> None:
+    """Both legacy versions must refuse, and refuse for either supplied path."""
+
+    for schema_version, predicate in (
+        (
+            PREVIOUS_ATTESTATION_SCHEMA_VERSION,
+            {
+                "bundle_document_sha256": "bundle",
+                "test_results_document_sha256": "tests",
+                "source_revision": "previous",
+            },
+        ),
+        (
+            LEGACY_ATTESTATION_SCHEMA_VERSION,
+            {
+                "bundle_sha256": "bundle",
+                "test_results_sha256": "tests",
+                "source_revision": "legacy",
+            },
+        ),
+    ):
+        chain = "|".join([schema_version, "bundle", "tests", predicate["source_revision"]])
+        attestation = {
+            "schema_version": schema_version,
+            "predicate": predicate,
+            "integrity": {"chain_sha256": sha256(chain.encode("utf-8")).hexdigest()},
+        }
+
+        with_bundle = verify_attestation(attestation, bundle_path=tmp_path / "b.json")
+        with_results = verify_attestation(attestation, test_results_path=tmp_path / "r.json")
+        with_neither = verify_attestation(attestation)
+
+        assert with_bundle[0] is False
+        assert with_results[0] is False
+        assert with_neither[0] is True
+        assert "supplied files were not verified" in with_neither[1]
+        assert ATTESTATION_SCHEMA_VERSION in with_bundle[1]
+
+
+def test_the_legacy_refusal_message_is_exact(tmp_path: Path) -> None:
+    """The message tells a reviewer what to do next, so its wording is a contract."""
+
+    chain = "|".join([LEGACY_ATTESTATION_SCHEMA_VERSION, "bundle", "tests", "legacy"])
+    attestation = {
+        "schema_version": LEGACY_ATTESTATION_SCHEMA_VERSION,
+        "predicate": {
+            "bundle_sha256": "bundle",
+            "test_results_sha256": "tests",
+            "source_revision": "legacy",
+        },
+        "integrity": {"chain_sha256": sha256(chain.encode("utf-8")).hexdigest()},
+    }
+
+    verified, message = verify_attestation(attestation, bundle_path=tmp_path / "b.json")
+
+    assert verified is False
+    assert message == (
+        "v1alpha1 attestations do not bind exact file digests, so the supplied files "
+        "cannot be verified against this statement; re-attest with "
+        f"{ATTESTATION_SCHEMA_VERSION} to verify supplied files"
+    )

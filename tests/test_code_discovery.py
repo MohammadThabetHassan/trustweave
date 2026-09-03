@@ -1,0 +1,265 @@
+"""Local source discovery: classification, refusal, drift, and the trust guarantee."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+from trustweave.code_analysis import analyze_sources
+from trustweave.code_discovery import review_code_discovery
+from trustweave.code_sources import (
+    MAX_SOURCE_FILE_BYTES,
+    collect_python_sources,
+)
+from trustweave.io import load_document
+from trustweave.models import ValidationError, parse_manifest
+
+ROOT = Path(__file__).resolve().parents[1]
+EXAMPLE_SOURCE = ROOT / "examples" / "code-projects" / "support-agent-tools"
+EXAMPLE_MANIFEST = ROOT / "examples" / "code-projects" / "support-agent-tools.manifest.json"
+FIXED_TIME = "2026-01-01T00:00:00Z"
+
+
+def _review(manifest_path: Path | None = None) -> dict:
+    manifest = parse_manifest(load_document(manifest_path)) if manifest_path else None
+    return review_code_discovery(collect_python_sources(EXAMPLE_SOURCE), manifest, FIXED_TIME)
+
+
+def _tools_by_name(review: dict) -> dict[str, dict]:
+    return {tool["name"]: tool for tool in review["tools"]}
+
+
+def _write(tmp_path: Path, name: str, body: str) -> Path:
+    target = tmp_path / name
+    target.write_text(body, encoding="utf-8")
+    return target
+
+
+# ---------------------------------------------------------------------------------------
+# The guarantee the whole feature rests on
+# ---------------------------------------------------------------------------------------
+
+
+def test_trust_is_never_inferred_for_any_discovered_source() -> None:
+    """No input may cause a trust label other than unknown to be emitted."""
+
+    draft = _review()["manifest_draft"]
+
+    assert draft["sources"], "the draft must still name an ingress point for review"
+    assert {source["trust"] for source in draft["sources"]} == {"unknown"}
+
+
+def test_manifest_draft_does_not_validate_until_a_reviewer_edits_it() -> None:
+    """A draft that parsed would eventually be fed to scan as though it were reviewed."""
+
+    draft = _review()["manifest_draft"]
+
+    with pytest.raises(ValidationError):
+        parse_manifest(draft)
+
+
+# ---------------------------------------------------------------------------------------
+# Classification
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("tool_name", "expected"),
+    [
+        ("search_docs", "external"),
+        ("update_record", "write"),
+        ("run_maintenance", "sensitive"),
+        ("format_summary", "read"),
+    ],
+)
+def test_observed_effects_propose_the_expected_action_class(tool_name: str, expected: str) -> None:
+    tool = _tools_by_name(_review())[tool_name]
+
+    assert tool["proposed_action_class"] == expected
+    assert tool["confidence"] == "high"
+
+
+def test_a_pure_function_is_positively_classified_rather_than_refused() -> None:
+    """read is a classification, not a fallback: refusing it would train bulk-accepting."""
+
+    tool = _tools_by_name(_review())["format_summary"]
+
+    assert tool["proposed_action_class"] == "read"
+    assert "reasons" not in tool
+
+
+def test_effects_reached_through_a_module_local_helper_are_counted(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        "agent.py",
+        "import requests\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "def _fetch(url):\n"
+        "    return requests.get(url)\n\n\n"
+        "@tool\n"
+        "def relay(url: str) -> str:\n"
+        '    """Relay through a helper."""\n'
+        "    return _fetch(url).text\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.proposed_action_class() for tool in tools] == ["external"]
+    assert tools[0].signals[0].via == ("relay", "_fetch")
+
+
+# ---------------------------------------------------------------------------------------
+# Negative controls: the analyzer must refuse rather than guess
+# ---------------------------------------------------------------------------------------
+
+
+def test_negative_control_dynamic_dispatch_is_refused_not_classified() -> None:
+    """The checked-in dispatch fixture exists so a confident wrong answer fails the suite."""
+
+    tool = _tools_by_name(_review())["dispatch_action"]
+
+    assert tool["proposed_action_class"] == "unknown"
+    assert tool["confidence"] == "review"
+    assert "DYNAMIC_DISPATCH" in tool["reasons"]
+
+
+def test_negative_control_a_nonliteral_query_is_refused(tmp_path: Path) -> None:
+    """An execute() whose query is a parameter could be a read or a write."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def run_query(cursor, statement: str) -> str:\n"
+        '    """Run a caller-supplied statement."""\n'
+        "    cursor.execute(statement)\n"
+        "    return 'ok'\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert "NONLITERAL_ARGUMENT" in tools[0].reasons
+
+
+def test_negative_control_a_name_that_merely_looks_sensitive_is_not_classified_sensitive(
+    tmp_path: Path,
+) -> None:
+    """Naming is not behaviour. A tool called ssn_lookup that does nothing is not sensitive."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def ssn_lookup(ssn: str, passport: str) -> str:\n"
+        '    """Format identifiers; touches nothing."""\n'
+        "    return ssn + passport\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() != "sensitive"
+    assert "LEXICAL_ONLY" in tools[0].reasons
+
+
+def test_a_bare_attribute_name_is_never_evidence(tmp_path: Path) -> None:
+    """`.post` on an unknown object must not be read as network egress."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def submit(mailbox, payload: str) -> str:\n"
+        '    """Call post on something the analyzer cannot resolve."""\n'
+        "    mailbox.post(payload)\n"
+        "    return 'ok'\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert not [signal for signal in tools[0].signals if signal.action_class == "external"]
+
+
+# ---------------------------------------------------------------------------------------
+# Drift and coverage
+# ---------------------------------------------------------------------------------------
+
+
+def test_drift_reports_both_directions_against_the_declared_manifest() -> None:
+    drift = _review(EXAMPLE_MANIFEST)["drift"]
+
+    assert drift["manifest_supplied"] is True
+    assert "run_maintenance" in drift["missing_from_manifest"]
+    assert "send_receipt" in drift["declared_not_found_in_code"]
+
+
+def test_a_declared_action_class_that_contradicts_the_code_is_reported() -> None:
+    """search_docs is declared read and calls requests.get; that is the point of the tool."""
+
+    findings = _review(EXAMPLE_MANIFEST)["findings"]
+    mismatches = [finding for finding in findings if finding["id"] == "TW-CODE-002"]
+
+    assert [finding["subject"]["tool"] for finding in mismatches] == ["search_docs"]
+
+
+def test_declaration_coverage_is_exact_integer_basis_points() -> None:
+    drift = _review(EXAMPLE_MANIFEST)["drift"]
+
+    expected = (drift["tools_matched"] * 10000) // drift["tools_discovered"]
+    assert drift["declaration_coverage_basis_points"] == expected
+    assert drift["declaration_coverage_percent"] == f"{expected / 100:.2f}"
+
+
+def test_coverage_is_omitted_rather_than_faked_without_a_manifest() -> None:
+    drift = _review()["drift"]
+
+    assert drift["coverage_status"] == "not_applicable"
+    assert "declaration_coverage_percent" not in drift
+
+
+# ---------------------------------------------------------------------------------------
+# Bounded, deterministic, path-safe intake
+# ---------------------------------------------------------------------------------------
+
+
+def test_two_runs_over_the_same_tree_are_byte_identical() -> None:
+    first = json.dumps(_review(EXAMPLE_MANIFEST), sort_keys=True)
+    second = json.dumps(_review(EXAMPLE_MANIFEST), sort_keys=True)
+
+    assert first == second
+
+
+def test_no_absolute_path_reaches_the_artifact() -> None:
+    """An artifact that leaks the checkout location is not portable evidence."""
+
+    serialized = json.dumps(_review(EXAMPLE_MANIFEST))
+
+    assert str(ROOT) not in serialized
+    assert "/tmp/" not in serialized
+
+
+def test_a_symlinked_source_root_is_refused(tmp_path: Path) -> None:
+    real = tmp_path / "real"
+    real.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(real, target_is_directory=True)
+
+    with pytest.raises(ValidationError):
+        collect_python_sources(link)
+
+
+def test_an_oversized_file_is_recorded_as_skipped_rather_than_dropped(tmp_path: Path) -> None:
+    _write(tmp_path, "big.py", "# padding\n" * (MAX_SOURCE_FILE_BYTES // 10 + 1))
+
+    collection = collect_python_sources(tmp_path)
+
+    assert [skipped.reason for skipped in collection.skipped] == ["file_exceeds_size_limit"]
+
+
+def test_a_file_that_does_not_parse_is_surfaced_as_a_finding(tmp_path: Path) -> None:
+    _write(tmp_path, "broken.py", "def oops(:\n")
+
+    review = review_code_discovery(collect_python_sources(tmp_path), None, FIXED_TIME)
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-CODE-008"]

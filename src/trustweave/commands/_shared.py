@@ -29,6 +29,8 @@ RISK_REVIEW_FILE = "risk-review.json"
 RISK_REVIEW_REPORT_FILE = "risk-review.md"
 CHAIN_REVIEW_FILE = "chain-review.json"
 CHAIN_REVIEW_REPORT_FILE = "chain-review.md"
+CODE_DISCOVERY_FILE = "code-discovery.json"
+CODE_DISCOVERY_REPORT_FILE = "code-discovery.md"
 
 EXIT_SUCCESS = 0
 EXIT_REVIEW = 1

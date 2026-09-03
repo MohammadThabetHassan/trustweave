@@ -124,6 +124,7 @@ DECLARATION_COMPLETENESS_PROVENANCE_HELPER_PATH = (
 )
 RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "chain.py",
+    ROOT / "src" / "trustweave" / "code_discovery.py",
     ROOT / "src" / "trustweave" / "diff.py",
     ROOT / "src" / "trustweave" / "mcp_profile.py",
     ROOT / "src" / "trustweave" / "policy_review.py",
@@ -160,6 +161,10 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
     "chain-review-v1alpha1.schema.json": (
         "trustweave.dev/chain-review/v1alpha1",
         "src/trustweave/chain.py",
+    ),
+    "code-discovery-v1alpha1.schema.json": (
+        "trustweave.dev/code-discovery/v1alpha1",
+        "src/trustweave/code_discovery.py",
     ),
     "ci-summary-v1alpha1.schema.json": (
         "trustweave.dev/ci-summary/v1alpha1",

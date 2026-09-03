@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from difflib import get_close_matches
 from typing import Any
 
 from trustweave.bundles import BUNDLE_SCHEMA_V1ALPHA2
-from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool
+from trustweave.models import AgentManifest, Flow, Policy, PolicyRule, Source, Tool, ValidationError
 from trustweave.policy_predicates import (
     PolicySubject,
     checks_for_rule,
@@ -110,9 +111,55 @@ def evaluate_flow(flow: Flow, source: Source, tool: Tool, policy: Policy) -> Fin
     )
 
 
+def _reject_near_miss_classifications(manifest: AgentManifest, policy: Policy) -> None:
+    """Refuse a classification that looks like a misspelling of one the policy knows.
+
+    Classification predicates compare exact strings, so `Restricted` silently fails to
+    match a rule bound to `restricted`: the rule stops applying, evaluation falls through
+    to the default decision, and a deny becomes an allow with no error and no warning.
+
+    Only near misses are refused. A value that is plainly different vocabulary, such as
+    `customer-provided`, is descriptive metadata a policy may simply not bind to, and
+    rejecting it would refuse working configurations.
+    """
+
+    constrains_classification = any(
+        rule.source_data_classifications
+        or rule.source_data_classification_at_least is not None
+        or rule.source_data_classification_at_most is not None
+        for rule in policy.rules
+    )
+    if not constrains_classification:
+        return
+
+    taxonomy = policy.classification_taxonomy
+    folded = {value.casefold(): value for value in taxonomy}
+    suspect: list[tuple[str, str]] = []
+    for source in manifest.sources:
+        declared = source.data_classification
+        if declared in taxonomy:
+            continue
+        match = folded.get(declared.casefold().strip())
+        if match is None:
+            close = get_close_matches(declared.casefold(), list(folded), n=1, cutoff=0.85)
+            match = folded[close[0]] if close else None
+        if match is not None:
+            suspect.append((declared, match))
+
+    if suspect:
+        listed = "; ".join(f"{declared!r} looks like {match!r}" for declared, match in suspect)
+        raise ValidationError(
+            f"manifest declares data classifications the policy will not match: {listed}. "
+            "Classification predicates compare exact strings, so this would silently fall "
+            "through to the default decision. Correct the manifest, or declare the value "
+            "in the policy's classification_taxonomy."
+        )
+
+
 def evaluate_manifest(manifest: AgentManifest, policy: Policy) -> tuple[Finding, ...]:
     """Evaluate every declared path in a manifest without executing the agent or tools."""
 
+    _reject_near_miss_classifications(manifest, policy)
     source_by_name = {source.name: source for source in manifest.sources}
     tool_by_name = {tool.name: tool for tool in manifest.tools}
     return tuple(

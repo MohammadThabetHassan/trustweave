@@ -285,6 +285,106 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         "A supplied trace call matches a deterministic require_approval policy decision.",
         "Verify the relevant approval evidence outside TrustWeave’s local metadata boundary.",
     ),
+    "TW-CODE-001": RuleDefinition(
+        "TW-CODE-001",
+        "analyzed_local_python_source",
+        "Discovered tool has no resolvable implementation body",
+        (
+            "A tool was discovered in local source, but no body could be located to analyze, so "
+            "no effect was observed."
+        ),
+        "Locate the implementation and declare the tool's action class by review.",
+    ),
+    "TW-CODE-002": RuleDefinition(
+        "TW-CODE-002",
+        "analyzed_local_python_source",
+        "Proposed action class differs from the declared manifest action class",
+        (
+            "Observed local call effects propose an action class other than the one the manifest "
+            "declares."
+        ),
+        "Confirm which is correct; the proposal is evidence for review, never an authorization.",
+    ),
+    "TW-CODE-003": RuleDefinition(
+        "TW-CODE-003",
+        "analyzed_local_python_source",
+        "Tool found in code is absent from the declared manifest",
+        (
+            "A callable reachable as a tool in local source has no matching declaration in the "
+            "supplied manifest."
+        ),
+        "Declare the tool or confirm it is unreachable in the deployed configuration.",
+    ),
+    "TW-CODE-004": RuleDefinition(
+        "TW-CODE-004",
+        "analyzed_local_python_source",
+        "Declared manifest tool was not found in the analyzed source",
+        (
+            "The manifest declares a tool that static review did not find in the analyzed source "
+            "tree."
+        ),
+        "Confirm the tool still exists, or remove the stale declaration.",
+    ),
+    "TW-CODE-005": RuleDefinition(
+        "TW-CODE-005",
+        "analyzed_local_python_source",
+        "Action-class classification was refused",
+        (
+            "Evidence was ambiguous, so TrustWeave declined to propose an action class rather "
+            "than guess."
+        ),
+        "Assign the action class by review; the refusal reasons name what blocked the analysis.",
+    ),
+    "TW-CODE-006": RuleDefinition(
+        "TW-CODE-006",
+        "analyzed_local_python_source",
+        "Local source analysis is incomplete",
+        (
+            "An analysis budget was reached before the reachable set was covered, so the result "
+            "is partial."
+        ),
+        "Narrow the analyzed tree, or treat the affected tools as unclassified.",
+    ),
+    "TW-CODE-007": RuleDefinition(
+        "TW-CODE-007",
+        "analyzed_local_python_source",
+        "Wildcard import degrades local symbol resolution",
+        (
+            "A wildcard import prevents binding call targets to imported symbols in the affected "
+            "module."
+        ),
+        "Replace the wildcard with explicit imports to restore resolution.",
+    ),
+    "TW-CODE-008": RuleDefinition(
+        "TW-CODE-008",
+        "analyzed_local_python_source",
+        "A local source file could not be parsed or decoded",
+        (
+            "A file in the analyzed tree could not be read as UTF-8 Python source and was not "
+            "analyzed."
+        ),
+        "Confirm the file is source rather than data, and re-run once it parses.",
+    ),
+    "TW-CODE-009": RuleDefinition(
+        "TW-CODE-009",
+        "analyzed_local_python_source",
+        "Declared tool schema has no locatable implementation",
+        (
+            "A declared tool schema was found in local source with no implementation reachable "
+            "from it."
+        ),
+        "Link the schema to its handler, or confirm the schema is unused.",
+    ),
+    "TW-CODE-010": RuleDefinition(
+        "TW-CODE-010",
+        "analyzed_local_python_source",
+        "One declared tool covers several parameter-selected effects",
+        (
+            "A single tool selects between effects of different action classes using its own "
+            "parameters."
+        ),
+        "Split the tool, or declare it at the highest action class it can reach.",
+    ),
 }
 
 RULES: Final[Mapping[str, RuleDefinition]] = MappingProxyType(_RULES)

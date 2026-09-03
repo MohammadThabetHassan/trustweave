@@ -6,6 +6,17 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `trustweave discover` statically analyzes local Python source for the tool surface an
+  agent can reach, proposes an action class per tool from a versioned symbol catalog with
+  the evidence that produced it, reports declaration drift in both directions against a
+  supplied manifest, and emits a declaration-coverage figure. Trust is always emitted as
+  `unknown`; the analyzer never infers it. Recorded in ADR-0006, which narrows the
+  previously published boundary on repository analysis.
+- `trustweave.dev/code-discovery/v1alpha1` artifact contract and schema.
+- Ten `TW-CODE-*` review rules covering refusal, drift, and declaration mismatch.
+
+### Added
+
 - Added versioned evaluation governance, a deterministic twelve-case synthetic corpus, local preflight validation, corpus lifecycle controls, reviewer quickstart, archive-readiness materials, and safe public-feedback/triage infrastructure. These are prepared repository-controlled foundations; no independent reviewer, pilot, adoption, benchmark, archive, or security-efficacy result is claimed.
 - Added an owner-facing GitHub governance decision record, a manually triggered least-privilege OpenSSF Scorecard assessment workflow that retains a local GitHub Actions artifact without publishing results, and a record template that prohibits score, badge, certification, or remediation claims before owner-reviewed evidence exists.
 - Added a fixed offline reviewer packet, consent-aware feedback and result-record templates, and a deterministic local artifact builder/verifier that allowlists public-safe files, records SHA-256 digests, rejects unsafe paths and credential-like content, and creates deterministic local ZIP packages without upload or network behavior.

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from trustweave.bundles import validate_bundle
 from trustweave.commands._shared import (
     ATTESTATION_FILE,
     BUNDLE_FILE,
@@ -102,6 +103,10 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     """Execute one local evidence command with no runtime execution or network activity."""
 
     if args.command == "attest":
+        # Hashing binds bytes to bytes. It cannot tell that a finding was edited from
+        # deny to allow, so re-derive the bundle's findings from the manifest and policy
+        # it carries before signing anything over it.
+        validate_bundle(read_json(args.output_dir / BUNDLE_FILE), "bundle")
         attestation = build_attestation(
             args.output_dir / BUNDLE_FILE,
             args.output_dir / TEST_RESULTS_FILE,

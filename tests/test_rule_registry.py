@@ -13,6 +13,7 @@ def test_registry_is_immutable_and_contains_every_builtin_review_family() -> Non
 
     assert {identifier.split("-")[1] for identifier in RULES} == {
         "CHAIN",
+        "CODE",
         "DIFF",
         "MCP",
         "POL",
