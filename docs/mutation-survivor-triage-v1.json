@@ -102,7 +102,7 @@
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_10: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -9,7 +9,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = True\n     try:\n         if output.exists():\n             output.replace(backup)\n",
+      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_10: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -10,7 +10,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = None\n     try:\n         if output.exists():\n             output.replace(backup)\n",
       "id": "trustweave.commands.ci.x__publish_directory__mutmut_10",
       "rationale": "`backup` is removed before publication. If an output existed, both original and mutant set `replaced` true immediately after moving it to backup; if it did not, no backup remains for restoration. Consequently the altered initial flag and restoration boolean cannot change the only reachable recovery states.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
