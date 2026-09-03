@@ -127,10 +127,10 @@ def collect_python_sources(root: Path) -> SourceCollection:
     if resolved_root.is_file():
         if resolved_root.suffix != ".py":
             raise ValidationError(f"source file is not a Python module: {root}")
-        entry = _read_source(resolved_root, resolved_root.parent)
-        files = (entry,) if isinstance(entry, SourceFile) else ()
-        skipped = () if isinstance(entry, SourceFile) else (entry,)
-        return SourceCollection(resolved_root.name, files, skipped)
+        single = _read_source(resolved_root, resolved_root.parent)
+        if isinstance(single, SourceFile):
+            return SourceCollection(resolved_root.name, (single,), ())
+        return SourceCollection(resolved_root.name, (), (single,))
 
     if not resolved_root.is_dir():
         raise ValidationError(f"source path is neither a file nor a directory: {root}")

@@ -166,13 +166,13 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                     alias.name if alias.asname else alias.name.split(".")[0]
                 )
         elif isinstance(node, ast.ImportFrom):
-            module = node.module or ""
+            source_module = node.module or ""
             for alias in node.names:
                 if alias.name == "*":
                     wildcard = True
                     continue
                 bindings[alias.asname or alias.name] = (
-                    f"{module}.{alias.name}" if module else alias.name
+                    f"{source_module}.{alias.name}" if source_module else alias.name
                 )
 
     # Only module-level functions may be reached by a bare name. Indexing class methods
@@ -189,9 +189,9 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                 if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef)
             )
 
-    module = _Module(path, tree, bindings, functions, wildcard, methods=methods)
-    module.module_origins = _scope_origins(tree.body, module)
-    return module
+    indexed = _Module(path, tree, bindings, functions, wildcard, methods=methods)
+    indexed.module_origins = _scope_origins(tree.body, indexed)
+    return indexed
 
 
 def _resolve(name: str | None, module: _Module) -> str | None:
@@ -451,8 +451,8 @@ def _classify_call(
         return None, None, "DYNAMIC_DISPATCH"
 
     if spelled == "open" and "open" not in module.bindings:
-        action, reason = _open_class(call)
-        return action, "open", reason
+        open_action, open_reason = _open_class(call)
+        return open_action, "open", open_reason
 
     is_process_launch = qualified.startswith("subprocess.") or qualified in {
         "os.system",
