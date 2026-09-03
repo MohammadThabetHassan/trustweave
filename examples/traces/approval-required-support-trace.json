@@ -1,0 +1,28 @@
+{
+  "schema_version": "trustweave.dev/trace/v1alpha1",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Synthetic message content is present only to test privacy-preserving omission."
+    },
+    {
+      "role": "assistant",
+      "content": "Synthetic response content is present only to test privacy-preserving omission."
+    }
+  ],
+  "tool_calls": [
+    {
+      "tool_name": "send_mock_email",
+      "source": "customer_record",
+      "arguments": {
+        "recipient": "synthetic@example.invalid"
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "conditional_context_received",
+      "policy": "synthetic test event"
+    }
+  ]
+}

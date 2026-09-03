@@ -364,6 +364,12 @@ def review_declared_chains(
     return add_generated_at(review, generated_at)
 
 
+def _analysis_was_truncated(findings: Sequence[Any]) -> bool:
+    """True when a traversal budget stopped the search before it finished."""
+
+    return any(_mapping(finding, "finding").get("id") == "TW-CHAIN-004" for finding in findings)
+
+
 def render_chain_review(review: Mapping[str, Any]) -> str:
     """Render a bounded local chain-review summary without adding external evidence."""
 
@@ -374,6 +380,14 @@ def render_chain_review(review: Mapping[str, Any]) -> str:
         lines.extend(
             f"- `{' -> '.join(_sequence(_mapping(path, 'path').get('identity'), 'path.identity'))}`"
             for path in paths
+        )
+    elif _analysis_was_truncated(findings):
+        # The traversal stopped at a budget, so the remaining stack was discarded. Saying
+        # no path reached an external action would assert a negative this run never
+        # established, and a reader has no way to tell the two cases apart.
+        lines.append(
+            "- Analysis incomplete: a traversal budget was reached before the declared graph "
+            "was fully explored, so paths may exist that were not examined."
         )
     else:
         lines.append(
