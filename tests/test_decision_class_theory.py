@@ -365,3 +365,46 @@ def test_section_cross_references_in_the_document_resolve() -> None:
 
     assert headings, "the document must have numbered sections"
     assert referenced <= headings, f"dangling: {sorted(referenced - headings)}"
+
+
+# ---------------------------------------------------------------------------------------
+# The suite side of the fragment: a case must be placeable in the partition
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("suite_path", SUITES, ids=lambda path: path.stem)
+def test_the_shipped_suites_are_inside_the_fragment(suite_path: Path) -> None:
+    assert policy_mutation.scenario_fragment_violations(suite_path) == []
+
+
+def _suite_with(tmp_path: Path, extra: dict) -> Path:
+    import json
+
+    document = dict(policy_mutation.load_document(SUITES[0]))
+    scenario = dict(document["scenarios"][0])
+    scenario.update(extra)
+    document["scenarios"] = [scenario]
+    path = tmp_path / "scenarios.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    return path
+
+
+def test_a_scenario_attribute_the_partition_cannot_represent_is_refused(tmp_path: Path) -> None:
+    """decision_map evaluates every cell with no classification, so setting one is not measurable.
+
+    Two scenarios differing only in classification would otherwise collapse onto one cell,
+    and each would be scored against a decision the engine never computed for it.
+    """
+
+    path = _suite_with(tmp_path, {"source_data_classification": "restricted"})
+
+    assert policy_mutation.scenario_fragment_violations(path) == [
+        "TW-SC-001.source_data_classification"
+    ]
+
+
+def test_analyze_refuses_a_suite_that_steps_outside_the_partition(tmp_path: Path) -> None:
+    path = _suite_with(tmp_path, {"tool_capabilities": ["network.egress"]})
+
+    with pytest.raises(SystemExit, match="outside the enumerated"):
+        policy_mutation.analyze(POLICY, [path])

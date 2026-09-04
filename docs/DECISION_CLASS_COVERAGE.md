@@ -198,10 +198,22 @@ because `decision_map` does not range over those and would report two distinguis
 mutants as equivalent; and `tests/test_decision_class_theory.py` fails if the shipped policy
 ever leaves the fragment.
 
-The `policy/v1alpha2` schema admits exactly such rules. A policy using them is still finite
--- the results above generalise to any product of finite label domains, with `S` the larger
-product -- but the harness as written enumerates only trust x action, so it must refuse
-rather than silently measure a subspace and report the result as exact.
+The `policy/v1alpha2` schema admits exactly such rules, and the scenario format is likewise
+richer than the enumeration: a case may declare a classification, capabilities, identifiers
+or a purpose tag. Both sides are therefore guarded. `analyze` refuses a policy whose rules
+constrain an attribute the enumeration does not range over, and refuses a suite whose
+scenarios declare one -- because such a case cannot be placed in the partition, and two
+cases differing only in that attribute would collapse onto one cell and be scored against a
+decision the engine never computed for them.
+
+Extending the enumeration to the full attribute space, rather than refusing it, is the
+remaining work. It is not mechanical. Trust, action and classification are finite label
+sets, but capability predicates match by *pattern*, so the relevant equivalence classes are
+the distinct match signatures of a subject against the patterns a policy mentions, and
+identifiers and purpose tags are drawn from open sets where the classes are "one of the
+values the policy names" plus one witness for everything else. Each is finite and
+policy-relative, so the results above should carry over with `S` the larger product; none of
+it is established here, and the refusals stand until it is.
 
 ## 8. Relation to existing criteria
 

@@ -174,6 +174,30 @@ def _mutants(document: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     return generated
 
 
+# Scenario fields the enumerated subject space does not range over. `decision_map` evaluates
+# every cell with no classification, no capabilities, and the default identifiers and
+# purpose, so a scenario that sets any of them is evaluated as something other than what it
+# declares -- and two scenarios differing only there collapse onto one cell.
+OUT_OF_FRAGMENT_SCENARIO_FIELDS = (
+    "source_data_classification",
+    "tool_capabilities",
+    "source_identifier",
+    "tool_identifier",
+    "purpose_tag",
+)
+
+
+def scenario_fragment_violations(path: Path) -> list[str]:
+    """Scenario attributes that the trust x action enumeration cannot represent."""
+
+    found: list[str] = []
+    for scenario in parse_scenarios(load_document(path)):
+        for field in OUT_OF_FRAGMENT_SCENARIO_FIELDS:
+            if getattr(scenario, field, None):
+                found.append(f"{scenario.id}.{field}")
+    return found
+
+
 def _suite_expectations(path: Path) -> list[tuple[str, str, str]]:
     """Return (source_trust, tool_action_class, expected_decision) for one suite."""
 
@@ -219,6 +243,13 @@ def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
 
     suites: dict[str, Any] = {}
     for suite_path in suite_paths:
+        outside_suite = scenario_fragment_violations(suite_path)
+        if outside_suite:
+            raise SystemExit(
+                f"{suite_path.name} declares scenario attributes outside the enumerated "
+                "trust x action space, so its cases cannot be placed in the partition and a "
+                "score over them would not be exact: " + ", ".join(outside_suite)
+            )
         expectations = _suite_expectations(suite_path)
         witnessed = {(trust, action) for trust, action, _ in expectations}
         expected_decisions = {expected for _, _, expected in expectations}
