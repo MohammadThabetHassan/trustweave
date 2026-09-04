@@ -1,13 +1,13 @@
 {
   "classification_counts": {
     "defensive": 0,
-    "equivalent": 130,
+    "equivalent": 133,
     "needs_regression": 0
   },
   "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
   "mutation_run": "6,444 killed / 6,566 generated (98.14% killed)",
   "schema_version": "v1",
-  "survivor_count": 130,
+  "survivor_count": 133,
   "survivors": [
     {
       "classification": "equivalent",
@@ -32,43 +32,64 @@
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.chain.x_render_chain_review__mutmut_70: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -17,7 +17,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, None).get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
-      "id": "trustweave.chain.x_render_chain_review__mutmut_70",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_68: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -24,7 +24,7 @@\n     lines.extend([\"\", \"## Review findings\", \"\"])\n     if findings:\n         lines.extend(\n-            f\"- **{_mapping(finding, 'finding').get('id')}** \"\n+            f\"- **{_mapping(finding, None).get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_68",
       "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.chain.x_render_chain_review__mutmut_73: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -17,7 +17,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, 'XXfindingXX').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
-      "id": "trustweave.chain.x_render_chain_review__mutmut_73",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_71: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -24,7 +24,7 @@\n     lines.extend([\"\", \"## Review findings\", \"\"])\n     if findings:\n         lines.extend(\n-            f\"- **{_mapping(finding, 'finding').get('id')}** \"\n+            f\"- **{_mapping(finding, 'XXfindingXX').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_71",
       "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.chain.x_render_chain_review__mutmut_74: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -17,7 +17,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, 'FINDING').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
-      "id": "trustweave.chain.x_render_chain_review__mutmut_74",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_72: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -24,7 +24,7 @@\n     lines.extend([\"\", \"## Review findings\", \"\"])\n     if findings:\n         lines.extend(\n-            f\"- **{_mapping(finding, 'finding').get('id')}** \"\n+            f\"- **{_mapping(finding, 'FINDING').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_72",
       "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.chain.x_render_chain_review__mutmut_79: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -18,7 +18,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, None).get('message')}\"\n             for finding in findings\n         )\n     else:\n",
-      "id": "trustweave.chain.x_render_chain_review__mutmut_79",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_77: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -25,7 +25,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, None).get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_77",
       "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.chain.x_render_chain_review__mutmut_82: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -18,7 +18,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, 'XXfindingXX').get('message')}\"\n             for finding in findings\n         )\n     else:\n",
-      "id": "trustweave.chain.x_render_chain_review__mutmut_82",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_80: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -25,7 +25,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, 'XXfindingXX').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_80",
       "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.chain.x_render_chain_review__mutmut_83: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -18,7 +18,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, 'FINDING').get('message')}\"\n             for finding in findings\n         )\n     else:\n",
-      "id": "trustweave.chain.x_render_chain_review__mutmut_83",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_81: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -25,7 +25,7 @@\n     if findings:\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n-            f\"({_mapping(finding, 'finding').get('severity')}): \"\n+            f\"({_mapping(finding, 'FINDING').get('severity')}): \"\n             f\"{_mapping(finding, 'finding').get('message')}\"\n             for finding in findings\n         )\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_81",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_86: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -26,7 +26,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, None).get('message')}\"\n             for finding in findings\n         )\n     else:\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_86",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_89: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -26,7 +26,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, 'XXfindingXX').get('message')}\"\n             for finding in findings\n         )\n     else:\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_89",
+      "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
+      "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.chain.x_render_chain_review__mutmut_90: survived\n--- src/trustweave/chain.py\n+++ src/trustweave/chain.py\n@@ -26,7 +26,7 @@\n         lines.extend(\n             f\"- **{_mapping(finding, 'finding').get('id')}** \"\n             f\"({_mapping(finding, 'finding').get('severity')}): \"\n-            f\"{_mapping(finding, 'finding').get('message')}\"\n+            f\"{_mapping(finding, 'FINDING').get('message')}\"\n             for finding in findings\n         )\n     else:\n",
+      "id": "trustweave.chain.x_render_chain_review__mutmut_90",
       "rationale": "The mutation changes only the diagnostic label passed to a repeated `_mapping` call while rendering an already accepted finding. The preceding `_mapping(finding, 'finding')` used to read `id` must already have succeeded, proving `finding` is a Mapping before the mutated severity/message lookup executes. `_mapping` returns the mapping unchanged on all successful calls, regardless of its diagnostic-path argument. For malformed values the first unmutated lookup raises before the changed lookup is reached. Thus neither rendered output nor reachable validation behavior changes.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },

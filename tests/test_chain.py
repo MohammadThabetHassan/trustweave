@@ -776,3 +776,48 @@ def test_non_fail_closed_approval_does_not_approve_sensitive_data() -> None:
     assert findings_by_id["TW-CHAIN-001"]["properties"]["classifications"] == ["confidential"]
     assert findings_by_id["TW-CHAIN-002"]["properties"]["classifications"] == ["confidential"]
     assert review["summary"]["review_findings"] == 2
+
+
+def test_a_truncated_analysis_does_not_report_that_no_path_exists() -> None:
+    """A budget stop discards the remaining stack, so a clear result is not a proof.
+
+    The renderer previously printed "No path from an explicitly declared untrusted source
+    reached an external action" whether the traversal finished or was cut short, which
+    asserts a negative the run never established.
+    """
+
+    truncated = {
+        "paths": [],
+        "findings": [
+            {
+                "id": "TW-CHAIN-004",
+                "severity": "medium",
+                "message": "The declared graph analysis budget was exceeded; the local "
+                "review is incomplete.",
+            }
+        ],
+        "summary": {"paths": 0, "review_findings": 1},
+        "limits": [],
+    }
+
+    rendered = render_chain_review(truncated)
+
+    assert (
+        "- Analysis incomplete: a traversal budget was reached before the declared graph "
+        "was fully explored, so paths may exist that were not examined." in rendered
+    )
+    assert "No path from an explicitly declared untrusted source" not in rendered
+
+
+def test_a_complete_analysis_still_reports_a_clear_result() -> None:
+    complete = {
+        "paths": [],
+        "findings": [],
+        "summary": {"paths": 0, "review_findings": 0},
+        "limits": [],
+    }
+
+    rendered = render_chain_review(complete)
+
+    assert "No path from an explicitly declared untrusted source" in rendered
+    assert "Analysis incomplete" not in rendered
