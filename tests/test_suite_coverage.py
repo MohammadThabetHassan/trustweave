@@ -811,3 +811,32 @@ def test_a_response_without_a_decision_is_named_rather_than_counted(tmp_path: Pa
     import suite_coverage_xacml
 
     assert suite_coverage_xacml.read(path, "r.xml").not_extracted == "no Decision element"
+
+
+def test_a_rule_counted_directly_is_measured_without_being_bound_first() -> None:
+    """`count(deny) == 0` names the rule; conftest suites never bind it to a local."""
+
+    body = _expression([_ref("equal"), _call("count", _var("deny")), _number(0)])
+
+    observations = rego.assertions(_suite(body))
+
+    assert [(o.subject, o.decision) for o in observations] == [("suite::deny", "empty")]
+
+
+def test_a_counted_local_is_not_mistaken_for_a_policy_rule() -> None:
+    """A list the test built itself is not a decision, and naming it one invents a subject."""
+
+    bind = _expression([_ref("assign"), _var("items"), {"type": "array", "value": []}])
+    body = _expression([_ref("equal"), _call("count", _var("items")), _number(0)])
+
+    assert rego.assertions(_suite(bind, body)) == []
+
+
+def test_a_bound_decision_set_still_reports_the_rule_it_holds() -> None:
+    """Binding must keep priority: `results := violation` names violation, not results."""
+
+    body = _expression([_ref("equal"), _call("count", _var("results")), _number(0)])
+
+    observations = rego.assertions(_suite(BIND, body))
+
+    assert observations[0].subject == "suite::violation"

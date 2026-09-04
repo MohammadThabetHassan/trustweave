@@ -256,6 +256,17 @@ def _rule_observations(
 ) -> list[Observation]:
     found: list[Observation] = []
     under_test: dict[str, str] = {}
+    # Names the test binds itself. Anything counted that is not one of these is a rule of
+    # the policy named directly, as in `count(deny) == 0` -- the conftest idiom, where the
+    # rule is never bound to a local first.
+    assigned = {
+        expression["terms"][1].get("value")
+        for expression in rule.get("body") or []
+        if isinstance(expression.get("terms"), list)
+        and len(expression["terms"]) == 3
+        and _operator(expression["terms"][0]) in ASSIGNING_OPERATORS
+        and expression["terms"][1].get("type") == "var"
+    }
     for expression in rule.get("body") or []:
         terms = expression.get("terms")
         negated = bool(expression.get("negated"))
@@ -313,13 +324,19 @@ def _rule_observations(
             other = terms[1]
             # `0 < count(r)` asserts the same thing as `count(r) > 0`.
             effective = MIRRORED_OPERATORS.get(operator, operator)
-        if counted is not None and counted in under_test:
+        counted_rule = None
+        if counted is not None:
+            # Either bound earlier in this test, or the policy rule named directly.
+            counted_rule = under_test.get(counted)
+            if counted_rule is None and counted not in assigned:
+                counted_rule = counted
+        if counted_rule is not None:
             decision = _cardinality(other, effective)
             if decision is not None:
                 found.append(
                     Observation(
                         domain="violation_set",
-                        subject=f"{scope}::{under_test[counted]}",
+                        subject=f"{scope}::{counted_rule}",
                         decision=decision,
                         test=test,
                     )

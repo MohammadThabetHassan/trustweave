@@ -250,6 +250,25 @@ classes a suite must witness grow with the product -- and inside a language wher
 is exact rather than a lower bound. That is the case the criterion was built for, and no
 public corpus of comparable agent-security policy suites exists yet to measure it against.
 
+## An ecosystem the adapter could not read
+
+A second binary-domain corpus was attempted and not used. Conftest and Konstraint policies
+decide over `deny`, `warn` and `violation` rules, and their suites would have tested whether
+the 91-98% saturation seen in Gatekeeper and Cedar is a property of binary domains or of
+those two projects.
+
+The adapter reads 35% of that corpus. Extending it to count a rule named directly --
+`count(deny) == 0`, where conftest never binds the rule to a local first -- moved extraction
+from 30% to 35% and is kept, because it is correct and applies everywhere. The remainder is
+dominated by an idiom this study refuses on purpose: a test calls a helper the file defines,
+which calls another helper, which counts. Reading it needs the two rules resolved and their
+arguments substituted, and a wrong substitution would report a permit as a denial.
+
+So the corpus is reported as unread rather than measured. A 35% sample would have been the
+files the adapter happens to understand, which is the exact error that made an early version
+of the Rego measurement support the opposite of its final conclusion. The saturation figure
+therefore still rests on two ecosystems, and whether it generalises further is open.
+
 ## Threats to validity
 
 - These are curated upstream libraries, which are plausibly better tested than private
