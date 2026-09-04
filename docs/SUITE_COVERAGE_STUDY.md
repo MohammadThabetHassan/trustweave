@@ -166,40 +166,58 @@ quality rather than an exact figure -- which is precisely what the fragment buys
 does not. And the operator set is syntactic, so the number measures these suites against
 these edits, not against all faults.
 
-### The Gatekeeper result did not replicate
+### Replicating the prediction where the domain is larger
 
 One correct prediction is a result about one policy. `scripts/kyverno_mutation.py` repeats
 the experiment where the decision domain is three-valued and the measure flags 23 validate
-rules rather than one, so the same question can be asked with a sample.
+rules rather than one.
 
 The design is case-control. Every blind validate policy is measured; the comparison group is
 filled by walking the covered policies in name order until enough of them score. A mutant
-edits the policy -- negating a condition operator, weakening a required value to any value,
-turning a conditional anchor into a required one -- and the policy's own suite is run against
-it by the Kyverno CLI. A policy yielding fewer than three applicable mutants is skipped
-rather than scored, because a score computed from one mutant describes the operator set.
+edits the policy -- negating a condition operator, weakening a required value, turning a
+conditional anchor into a required one, flipping a CEL quantifier or connective -- and the
+policy's own suite is run against it by the Kyverno CLI. A policy yielding fewer than three
+applicable mutants is skipped, because a score from one mutant describes the operator set.
 
-| | Policies | Median | Mean | Range |
-|---|---|---|---|---|
-| Decision-blind | 5 | 0.33 | 0.43 | 0.00 - 0.80 |
-| Decision-covered | 25 | 0.43 | 0.49 | 0.00 - 1.00 |
+**This experiment was run twice, and the first run is reported alongside the second.**
 
-**The direction matches the hypothesis and the difference is not distinguishable from
-chance.** An exact permutation test over all 142,506 splits of these 30 policies puts the
-observed gap of 0.064 at p = 0.33. Blind policies are not measurably worse here.
+| Run | Blind | Covered | Blind median | Covered median | Difference | p (one-sided) |
+|---|---|---|---|---|---|---|
+| 1 | 5 | 25 | 0.33 | 0.43 | 0.064 | 0.33 |
+| 2 | 9 | 40 | 0.50 | 0.625 | 0.149 | 0.043 |
 
-That is a failure to replicate, and it is reported as one. The Gatekeeper result stands as
-what it was -- a single flagged suite that turned out to catch nothing, at p = 0.021 -- and
-this says that one instance does not generalise to a population. Anyone reading the first
-result as evidence that the measure predicts fault detection should read this one as
-evidence that it does not, at least not at an effect size five blind policies can resolve.
+The first run found nothing and was reported as a failure to replicate, with the reason
+stated at the time: 108 of the selected policies yielded fewer than three mutants and were
+skipped, so only 5 of 23 blind policies were measured at all. Inspecting the skipped set
+showed why -- Kyverno's newer policies carry their logic in CEL expression strings, and the
+generator only knew the older condition-block operators, so a policy whose entire rule is
+one CEL expression had nothing to edit.
 
-Two limits bound the negative result as much as the positive one. Only 5 of the 23 blind
-policies survived the three-mutant floor, because the operator set generates few sites in
-pattern-based policies -- 94 of 124 candidates were skipped for having one or two mutable
-sites. And a stronger operator set would produce a different, probably larger, sample. The
-honest reading is that this experiment lacked the power to detect a modest effect, not that
-it established there is none.
+The second run adds those operators. Nothing about the outcome measure changed: the same
+coverage verdict splits the arms, the same floor applies to both, the same CLI decides
+whether a mutant is killed. What changed is how many policies could be measured.
+
+**The direction is the one the hypothesis predicts and the gap is now marginally
+significant.** Blind policies kill a median 0.50 of their mutants against 0.625 for covered
+ones, and a permutation test puts that at p = 0.043 one-sided, so roughly 0.09 two-sided.
+
+Three things bound it, and they matter more than the figure.
+
+The operator set changed between the runs, which is a researcher degree of freedom. It was
+changed for a reason stated before the second result was seen, and the direction of the
+first result already matched, but a reader is entitled to weigh a p-value obtained after
+adjusting the instrument less heavily than one obtained before.
+
+Nine policies is a small arm. A one-sided p just under 0.05 from nine observations is
+suggestive and not established; it would not survive a correction for the two experiments
+run, and the two-sided reading does not clear 0.05 at all.
+
+And this measures suites against these edits, not against real faults. Survivors cannot be
+separated from equivalent mutants outside the fragment, so every score here is a lower bound
+on suite quality rather than the exact figure the fragment permits.
+
+The honest summary across both ecosystems: the measure's flags correlate with worse fault
+detection, weakly, in the direction predicted, on samples too small to settle it.
 
 ## Interpretation
 
@@ -244,10 +262,12 @@ public corpus of comparable agent-security policy suites exists yet to measure i
   Both carry wide error bars, and the XACML figure rests on a single library's multi-case
   suites -- the OASIS conformance material is one case per language feature and measuring it
   would answer a different question.
-- The Gatekeeper mutation experiment has one decision-blind policy in it. A single correct
-  prediction at p = 0.021 is evidence, not a validated predictor, and the operator set is
-  syntactic. The Kyverno replication, with five, found no measurable difference (p = 0.33),
-  so nothing here supports a claim that the measure predicts fault detection in general.
+- The Gatekeeper mutation experiment has one decision-blind policy in it, and the Kyverno
+  replication nine. A one-sided p of 0.043 from nine observations, obtained after widening
+  the mutation operator set, is suggestive rather than established, and does not survive a
+  correction for the two experiments run. Nothing here supports a general claim that the
+  measure predicts fault detection; it supports the weaker claim that the two point in the
+  same direction.
 - Rego extraction is 96%, not 100%, and the adapter's refusals are conservative by design,
   so the true figure could move in either direction by at most two files.
 

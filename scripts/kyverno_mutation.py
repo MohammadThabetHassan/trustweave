@@ -249,7 +249,11 @@ def permutation_test(blind: list[float], covered: list[float]) -> dict[str, Any]
 
     A difference in medians between two small groups is easy to read as an effect. This
     states what the same data would look like if the labels carried no information, which
-    is the only way a five-policy group can honestly be reported.
+    is the only way a single-digit group can honestly be reported.
+
+    The test is one-sided: it asks how often chance produces a gap at least as large *in
+    the direction the hypothesis predicts*, blind policies scoring lower. A two-sided
+    reading of the same figure is roughly twice the p-value reported here.
     """
 
     if not blind or not covered:
@@ -275,7 +279,7 @@ def permutation_test(blind: list[float], covered: list[float]) -> dict[str, Any]
         return {
             "observed_difference": round(observed, 4),
             "p_value": round(extreme / splits, 4),
-            "method": f"exact over {splits} splits",
+            "method": f"exact over {splits} splits, one-sided",
         }
 
     generator = random.Random(0)
@@ -289,7 +293,7 @@ def permutation_test(blind: list[float], covered: list[float]) -> dict[str, Any]
     return {
         "observed_difference": round(observed, 4),
         "p_value": round(extreme / trials, 4),
-        "method": f"sampled, {trials} permutations, seed 0",
+        "method": f"sampled, {trials} permutations, seed 0, one-sided",
     }
 
 
