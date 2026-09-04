@@ -1,0 +1,5659 @@
+{
+  "schema_version": "trustweave.dev/suite-coverage/v1alpha1",
+  "ecosystem": "kyverno",
+  "corpus": [
+    {
+      "name": "kyverno_policies",
+      "remote": "https://github.com/kyverno/policies.git",
+      "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4"
+    }
+  ],
+  "decision_domains": {
+    "kyverno_validate": [
+      "fail",
+      "pass",
+      "skip"
+    ],
+    "kyverno_mutate": [
+      "fail",
+      "pass",
+      "skip"
+    ],
+    "kyverno_generate": [
+      "fail",
+      "pass",
+      "skip"
+    ],
+    "kyverno_verifyImages": [
+      "fail",
+      "pass",
+      "skip"
+    ],
+    "kyverno_delete": [
+      "fail",
+      "pass",
+      "skip"
+    ],
+    "kyverno_unresolved": [
+      "fail",
+      "pass",
+      "skip"
+    ]
+  },
+  "extraction_rate": 0.998,
+  "sufficient_for_summary": true,
+  "files_considered": 495,
+  "files_measured": 494,
+  "observations": 1584,
+  "subjects_measured": 430,
+  "subjects_blind": 94,
+  "by_domain": {
+    "kyverno_generate": {
+      "subjects": 9,
+      "blind": 9,
+      "witnessing_more_than_one": 0,
+      "share_witnessing_more_than_one": 0.0
+    },
+    "kyverno_mutate": {
+      "subjects": 88,
+      "blind": 61,
+      "witnessing_more_than_one": 27,
+      "share_witnessing_more_than_one": 0.3068
+    },
+    "kyverno_unresolved": {
+      "subjects": 5,
+      "blind": 1,
+      "witnessing_more_than_one": 4,
+      "share_witnessing_more_than_one": 0.8
+    },
+    "kyverno_validate": {
+      "subjects": 328,
+      "blind": 23,
+      "witnessing_more_than_one": 305,
+      "share_witnessing_more_than_one": 0.9299
+    }
+  },
+  "not_extracted": [
+    {
+      "file": "other/ensure-production-matches-staging/.kyverno-test/kyverno-test.yaml",
+      "reason": "no results block"
+    }
+  ],
+  "subjects": [
+    {
+      "domain": "kyverno_generate",
+      "subject": "add-networkpolicy/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "add-networkpolicy/default-deny",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "add-ns-quota/generate-limitrange",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "add-ns-quota/generate-resourcequota",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "create-default-pdb/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "create-default-pdb/create-default-pdb",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "k6t-add-services/k6t-add-service-ssh",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "kasten-generate-example-backup-policy/kasten-generate-example-backup-policy",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_generate",
+      "subject": "kasten-generate-policy-by-preset-label/kasten-generate-policy-by-preset-label",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-ambient-mode-namespace/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-apparmor-annotations/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-apparmor-annotations/apparmor-runtime-default",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-capabilities/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-capabilities/add-setfcap-setuid",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-castai-removal-disabled/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-castai-removal-disabled/do-not-evict-cronjobs",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-castai-removal-disabled/do-not-evict-jobs",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-certificates-volume/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-certificates-volume/add-ssl-certs",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-default-resources/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-default-resources/add-default-requests",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-default-securitycontext/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-default-securitycontext/add-default-securitycontext",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-env-vars-from-cm/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-env-vars-from-cm/add-env-vars-from-cm",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-external-secret-prefix/add-external-secret-prefix",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-image-as-env-var/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-image-as-env-var/pod-containers-inject-image",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-imagepullsecrets-for-containers-and-initcontainers/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-imagepullsecrets-for-containers-and-initcontainers/add-imagepullsecret",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-imagepullsecrets/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-imagepullsecrets/add-imagepullsecret",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-karpenter-daemonset-priority-class/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-karpenter-daemonset-priority-class/add-karpenter-daemonset-priority-class",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-karpenter-donot-evict/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-karpenter-donot-evict/do-not-evict-cronjobs",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-karpenter-donot-evict/do-not-evict-jobs",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-labels/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-labels/add-labels",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-ndots/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-ndots/add-ndots",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-node-affinity/add-node-affinity-deployment",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-nodeselector/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-nodeselector/add-nodeselector",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-pod-priorityclassname/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-pod-priorityclassname/add-priorityclass-controllers",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-pod-proxies/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-pod-proxies/add-pod-proxies",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-psa-labels/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-psa-labels/add-baseline-enforce-restricted-warn",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-runtimeclassname/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-runtimeclassname/add-prodclass",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-safe-to-evict/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-safe-to-evict/annotate-empty-dir",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-safe-to-evict/annotate-host-path",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-tolerations/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-tolerations/service-toleration",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-ttl-jobs/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-ttl-jobs/add-ttlSecondsAfterFinished",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-volume/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "add-volume/add-volume",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "always-pull-images/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "always-pull-images/always-pull-images",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "apply-pss-restricted-profile/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "apply-pss-restricted-profile/add-pss-fields",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "backup-all-volumes/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "backup-all-volumes/autogen-backup-velero-pv",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "backup-all-volumes/backup-velero-pv",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "change-dns-config-policy/dns-policy",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "disable-automountserviceaccounttoken/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "disable-automountserviceaccounttoken/disable-automountserviceaccounttoken",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "enable-kubecost-continuous-rightsizing/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "enable-kubecost-continuous-rightsizing/enable-kubecost-autoscaling",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "inject-sidecar/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "inject-sidecar/inject-sidecar",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "insert-pod-antiaffinity/insert-pod-antiaffinity",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "kasten-minimum-retention/kasten-minimum-retention",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "log4shell-mitigation/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "log4shell-mitigation/add-log4shell-mitigation-containers",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "log4shell-mitigation/add-log4shell-mitigation-initcontainers",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "mutate-termination-grace-period-seconds/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "mutate-termination-grace-period-seconds/mutate-termination-grace-period-seconds",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "prepend-registry/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "prepend-registry/prepend-registry-containers",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "prepend-registry/prepend-registry-initcontainers",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "remove-hostpath-volumes/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "remove-hostpath-volumes/remove-hostpath-all",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "remove-serviceaccount-token/remove-vol-volmount",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "replace-image-registry/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "replace-image-registry/replace-image-registry-pod-containers",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "replace-image-registry/replace-image-registry-pod-initcontainers",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "resolve-image-to-digest/resolve-to-digest",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "set-karpenter-non-cpu-limits/*",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "set-karpenter-non-cpu-limits/set-ephemeral-storage",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "set-karpenter-non-cpu-limits/set-memory",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "spread-pods/*",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_mutate",
+      "subject": "spread-pods/spread-pods-across-nodes",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_unresolved",
+      "subject": "add-ambient-mode-namespace/check-ambient-mode-enabled",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_unresolved",
+      "subject": "application-prevent-default-project/default-project",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_unresolved",
+      "subject": "check-nvidia-gpus/check-nvidia-gpus",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_unresolved",
+      "subject": "enforce-ambient-mode-namespace/check-ambient-mode-enabled",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_unresolved",
+      "subject": "inject-kata-cc-runtime/",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "add-psa-namespace-reporting/check-namespace-labels",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "adding-capabilities-strict/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "advanced-restrict-image-registries/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "advanced-restrict-image-registries/validate-corp-registries",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "allowed-annotations/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "allowed-annotations/allowed-fluxcd-annotations",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "allowed-base-images/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "allowed-image-repos/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "allowed-label-changes/safe-label",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "allowed-podpriorities/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "allowed-podpriorities/validate-pod-priority",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "application-field-validation/destination-server-name",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "application-field-validation/source-path-chart",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "application-prevent-default-project/default-project",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "applicationset-name-matches-project/match-name",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "appproject-clusterresourceblacklist/has-wildcard",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "appproject-clusterresourceblacklist/has-wildcard-and-validate-clusterresourceblacklist",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "appproject-clusterresourceblacklist/validate-clusterresourceblacklist",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-ephemeral-containers/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-ephemeral-containers/block-ephemeral-containers",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-images-with-volumes/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-images-with-volumes/block-images-with-vols",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-large-images/block-over-twogi",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-stale-images/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-stale-images/block-stale-images",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-tekton-task-runs/check-taskrun-user",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-updates-deletes/block-updates-deletes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "block-velero-restore/block-velero-restore-to-protected-namespace",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "cert-manager-limit-dnsnames/limit-dnsnames",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "cert-manager-limit-duration/certificate-duration-max-100days",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "cert-manager-restrict-issuer/restrict-corp-cert-issuer",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-deprecated-apis/*",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-deprecated-apis/validate-v1-25-removals",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-deprecated-apis/validate-v1-29-removals",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-deprecated-apis/validate-v1-32-removals",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-env-vars/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-env-vars/check-disable-opa",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-fsgroup/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-hpa-exists/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-ingress-nginx-controller-version-and-annotation-policy/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-nvidia-gpus/check-nvidia-gpus",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-routes/require-tls-routes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-sa/check-sa",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-serviceaccount-secrets/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-serviceaccount-secrets/deny-secrets",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "check-supplementalgroups/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "deny-commands-in-exec-probe/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "deny-commands-in-exec-probe/check-commands",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "deny-privileged-profile/check-privileged",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "deny-secret-service-account-token-type/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "deny-secret-service-account-token-type/deny-secret-service-account-token-type",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "deployment-has-multiple-replicas/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "deployment-has-multiple-replicas/deployment-has-multiple-replicas",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-capabilities-strict/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-capabilities-strict/adding-capabilities-strict",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-capabilities-strict/require-drop-all",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-capabilities/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-capabilities/adding-capabilities",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-container-sock-mounts/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-container-sock-mounts/validate-containerd-sock-mount",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-container-sock-mounts/validate-crio-sock-mount",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-container-sock-mounts/validate-docker-sock-mount",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-container-sock-mounts/validate-socket-mounts",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-default-namespace/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-default-namespace/validate-namespace",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-default-namespace/validate-podcontroller-namespace",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-default-tlsoptions/disallow-default-tlsoptions",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-deprecated-apis/check-deprecated-apis",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-empty-ingress-host/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-empty-ingress-host/disallow-empty-ingress-host",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-helm-tiller/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-helm-tiller/validate-helm-tiller",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-namespaces/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-namespaces/host-namespaces",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-path/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-path/host-path",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-ports-range/host-port-range",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-ports/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-ports/host-ports-none",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-process/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-host-process/host-process-containers",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-ingress-nginx-custom-snippets/check-config-map",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-ingress-nginx-custom-snippets/check-ingress-annotations",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-jenkins-pipeline-strategy/check-build-strategy",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-latest-tag/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-latest-tag/require-and-validate-image-tag",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-latest-tag/require-image-tag",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-latest-tag/validate-image-tag",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-privilege-escalation/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-privilege-escalation/privilege-escalation",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-privileged-containers/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-privileged-containers/privileged-containers",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-proc-mount/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-proc-mount/check-proc-mount",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-security-context-constraint-anyuid/check-security-context-constraint",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-security-context-constraint-anyuid/check-security-context-roleref",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-self-provisioner-binding/check-self-provisioner-binding-no-subject",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-self-provisioner-binding/check-self-provisioner-binding-with-subject",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-selinux/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-selinux/selinux-type",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "disallow-selinux/selinux-user-role",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "docker-socket-check/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "docker-socket-check/conditional-anchor-dockersock",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "docker-socket-check/docker-socket-check",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "drop-all-capabilities/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "drop-all-capabilities/require-drop-all",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "drop-cap-net-raw/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "drop-cap-net-raw/require-drop-cap-net-raw",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "enforce-etcd-encryption/check-etcd-encryption",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "enforce-min-tls-version/check-for-tls-version",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "enforce-resources-as-ratio/check-memory-requests-limits",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "enforce-sidecar-injection-namespace/check-istio-injection-enabled",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "enforce-strict-mtls/validate-mtls",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "enforce-tls-hosts-host-subnets/destrule",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "ensure-readonly-hostpath/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "ensure-readonly-hostpath/ensure-hostpaths-readonly",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "exclude-namespaces-example/exclude-namespaces-dynamically-pods",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "forbid-cpu-limits/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "forbid-cpu-limits/check-cpu-limits",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "imagepullpolicy-always/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "imagepullpolicy-always/imagepullpolicy-always",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "ingress-host-match-tls/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "ingress-host-match-tls/host-match-tls",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "k10-data-protection-by-label/k10-data-protection-by-label",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "k10-policy-hourly-rpo/k10-policy-hourly-rpo",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "k10-validate-ns-by-preset-label/k10-validate-ns-by-preset-label",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "k6t-enforce-instancetype/k6t-ensure-instance-type-and-preference",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "kasten-3-2-1-backup-policy/kasten-3-2-1-backup-policy",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "kasten-data-protection-by-label/kasten-data-protection-by-label",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "kasten-hourly-rpo/kasten-hourly-rpo",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "kasten-immutable-location-profile/kasten-immutable-location-profile",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "kasten-validate-ns-by-preset-label/kasten-validate-ns-by-preset-label",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-configmap-for-sa/*",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-configmap-for-sa/limit-configmap-for-sa-developer",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-containers-per-pod/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-containers-per-pod/autogen-cronjob-limit-containers-per-pod",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-containers-per-pod/autogen-limit-containers-per-pod",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-containers-per-pod/limit-containers-per-pod",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-hostpath-type-pv/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-hostpath-type-pv/limit-hostpath-type-pv-to-slash-data",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-hostpath-vols/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "limit-hostpath-vols/limit-hostpath-to-slash-data",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "memory-requests-equal-limits/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "memory-requests-equal-limits/autogen-cronjob-memory-requests-equal-limits",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "memory-requests-equal-limits/autogen-memory-requests-equal-limits",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "memory-requests-equal-limits/memory-requests-equal-limits",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "metadata-match-regex/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "metadata-match-regex/check-for-regex",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "nfs-subdir-external-provisioner-storage-path/enforce-storage-path",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-loadbalancer-service/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-loadbalancer-service/no-LoadBalancer",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-localhost-service/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-localhost-service/no-localhost-service",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-secrets/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-secrets/secrets-not-from-env",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-secrets/secrets-not-from-env-envFrom-and-volumes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-secrets/secrets-not-from-envfrom",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "no-secrets/secrets-not-from-volumes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "only-trustworthy-registries-set-root/only-allow-trusted-images",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "pdb-maxunavailable/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "pdb-maxunavailable/pdb-maxunavailable",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "pdb-minavailable-check/pdb-minavailable",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "pod-lifetime/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "pod-lifetime/pods-lifetime",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "podsecurity-subrule-baseline/baseline",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "podsecurity-subrule-restricted-capabilities/restricted-exempt-capabilities",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "podsecurity-subrule-restricted-seccomp/restricted-exempt-seccomp",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "podsecurity-subrule-restricted/restricted",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "prevent-bare-pods/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "prevent-bare-pods/bare-pods",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "prevent-cr8escape/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "prevent-cr8escape/restrict-sysctls-cr8escape",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "prevent-disabling-injection-pods/prohibit-inject-annotation",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "prevent-linkerd-pod-injection-override/pod-injection-override",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "prevent-linkerd-port-skipping/pod-prevent-port-skipping",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "psp-check-supplemental-groups/supplementalgroup-ranges",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "psp-restrict-adding-capabilities/allowed-capabilities",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "readwriteonce-pod/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "readwriteonce-pod/readwrite-pvc-single-pod",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-annotations/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-annotations/check-for-annotation",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-container-port-names/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-container-port-names/port-name",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-cpu-limits/check-cpu-limits",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-emptydir-requests-and-limits/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-emptydir-requests-and-limits/check-emptydir-requests-limits",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-encryption-aws-loadbalancers/aws-loadbalancer-has-ssl-cert",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-image-checksum/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-image-checksum/require-image-checksum",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-image-source/check-source",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-imagepullsecrets/check-for-image-pull-secrets",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-ingress-https/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-ingress-https/has-annotation",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-ingress-https/has-tls",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-kubecost-labels/require-labels",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-labels/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-labels/check-for-labels",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-linkerd-mesh-injection/require-mesh-annotation",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-network-policy/require-network-policy",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-non-root-groups/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-non-root-groups/check-fsgroup",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-non-root-groups/check-runasgroup",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-non-root-groups/check-supplementalgroups",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-pdb/require-pdb",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-pod-priorityclassname/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-pod-priorityclassname/check-priorityclassname",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-pod-probes/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-pod-probes/validate-probes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-qos-burstable/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-qos-burstable/burstable",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-qos-guaranteed/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-qos-guaranteed/guaranteed",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-reasonable-pdbs/require-reasonable-pdb-percentage",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-requests-limits/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-requests-limits/validate-resources",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-ro-rootfs/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-ro-rootfs/validate-readOnlyRootFilesystem",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-run-as-non-root-user/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-run-as-non-root-user/run-as-non-root-user",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-run-as-nonroot/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-run-as-nonroot/run-as-non-root",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-storageclass/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-storageclass/pvc-storageclass",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-storageclass/ss-storageclass",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-tekton-bundle/check-bundle-pipelinerun",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-tekton-bundle/check-bundle-taskrun",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-tekton-namespace-pipelinerun/check-pipelinerun-namespace",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "require-unique-uid-per-workload/require-unique-uid",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-annotations/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-annotations/block-flux-v1",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-annotations/check-ingress",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-apparmor-profiles/app-armor",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-automount-sa-token/validate-automountServiceAccountToken",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-binding-clusteradmin/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-binding-clusteradmin/clusteradmin-bindings",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-binding-system-groups/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-binding-system-groups/restrict-anonymous",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-binding-system-groups/restrict-masters",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-binding-system-groups/restrict-subject-groups",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-binding-system-groups/restrict-unauthenticated",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-clusterrole-csr/certificatesigningrequests-update-prevention",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-clusterrole-csr/signers-approve-prevention",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-clusterrole-mutating-validating-admission-webhooks/restrict-clusterrole",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-clusterrole-nodesproxy/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-clusterrole-nodesproxy/clusterrole-nodesproxy",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-controlplane-scheduling/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-controlplane-scheduling/restrict-controlplane-scheduling-control-plane",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-controlplane-scheduling/restrict-controlplane-scheduling-master",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-deprecated-registry/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-deprecated-registry/restrict-deprecated-registry",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-escalation-verbs-roles/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-escalation-verbs-roles/escalate",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-external-ips/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-external-ips/check-ips",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-image-registries/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-image-registries/validate-registries",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-ingress-classes/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-ingress-classes/validate-ingress",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-ingress-defaultbackend/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-ingress-defaultbackend/restrict-ingress-defaultbackend",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-ingress-paths/check-paths",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-ingress-wildcard/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-ingress-wildcard/block-ingress-wildcard",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-jobs/*",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-jobs/restrict-job-from-cronjob",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-networkpolicy-empty-podselector/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-networkpolicy-empty-podselector/empty-podselector",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-node-affinity/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-node-affinity/check-nodeaffinity",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-node-selection/restrict-nodename",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-node-selection/restrict-nodeselector",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-nodeport/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-nodeport/validate-nodeport",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-pod-count/restrict-pod-count",
+      "decisions_witnessed": [
+        "fail"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-runtimeclass/prodclass-or-expclass",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-sa-automount-sa-token/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-sa-automount-sa-token/validate-sa-automountServiceAccountToken",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-seccomp-strict/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-seccomp-strict/check-seccomp-strict",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-seccomp/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-seccomp/check-seccomp",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secret-role-verbs/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secret-role-verbs/secret-verbs",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secrets-by-label/secrets-lookup-from-env",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secrets-by-label/secrets-lookup-from-envfrom",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secrets-by-label/secrets-lookup-from-volumes",
+      "decisions_witnessed": [
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secrets-by-name/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secrets-by-name/safe-secrets-from-env",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secrets-by-name/safe-secrets-from-envfrom",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-secrets-by-name/safe-secrets-from-volumes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-service-account/validate-service-account",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-service-port-range/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-service-port-range/restrict-port-range",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-storageclass/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-storageclass/storageclass-delete",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-sysctls/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-sysctls/check-sysctls",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-virtual-service-wildcard/block-virtual-service-wildcard",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-volume-types/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-volume-types/restricted-volumes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-wildcard-resources/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-wildcard-resources/wildcard-resources",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-wildcard-verbs/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "restrict-wildcard-verbs/wildcard-verbs",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "secrets-not-from-env-vars/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "secrets-not-from-env-vars/secrets-not-from-env-vars",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "secrets-not-from-env-vars/secrets-not-from-envfrom",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "team-validate-ns-name/team-validate-ns-name",
+      "decisions_witnessed": [
+        "pass"
+      ],
+      "blind": true,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "fail",
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "topologyspreadconstraints-policy/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "topologyspreadconstraints-policy/spread-pods",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "unique-external-dns/ensure-valid-externaldns-annotation",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "unique-ingress-host/check-single-host-create",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "unique-ingress-host/deny-multiple-hosts",
+      "decisions_witnessed": [
+        "fail",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "pass"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "unique-routes/require-unique-routes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-cron-schedule/validate-cron",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-initdata-configmap/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass",
+        "skip"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": []
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-probes/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-probes/validate-probes",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-userid-groupid-fsgroup/*",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-userid-groupid-fsgroup/validate-fsgroup",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-userid-groupid-fsgroup/validate-groupid",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-userid-groupid-fsgroup/validate-userid",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "validate-userid-groupid-fsgroup/validate-userid-groupid-fsgroup",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "verify-flux-sources/flux-buckets",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "verify-flux-sources/flux-github-repositories",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "verify-flux-sources/flux-helm-repositories",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "verify-flux-sources/flux-image-repositories",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    },
+    {
+      "domain": "kyverno_validate",
+      "subject": "verify-git-repositories/github-repositories-only",
+      "decisions_witnessed": [
+        "fail",
+        "pass"
+      ],
+      "blind": false,
+      "domain_size": 3,
+      "decisions_unwitnessed": [
+        "skip"
+      ]
+    }
+  ]
+}
