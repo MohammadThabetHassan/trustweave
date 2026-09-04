@@ -2,12 +2,12 @@
   "schema_version": "trustweave.dev/classification-evaluation/v1alpha1",
   "cases": 72,
   "overall": {
-    "accuracy": 0.7917,
+    "accuracy": 0.8056,
     "accuracy_on_agreed_labels_only": 0.803,
     "answer_rate_on_decidable": 0.8596,
     "precision_when_answering": 0.9184,
-    "refusal_rate": 0.2778,
-    "not_discovered": 1
+    "refusal_rate": 0.2917,
+    "not_discovered": 0
   },
   "per_class": {
     "read": {
@@ -36,13 +36,13 @@
     },
     "undecidable": {
       "support": 15,
-      "precision": 0.6,
-      "recall": 0.8,
-      "f1": 0.6857
+      "precision": 0.619,
+      "recall": 0.8667,
+      "f1": 0.7222
     }
   },
   "by_difficulty": {
-    "easy": 0.7778,
+    "easy": 0.8889,
     "medium": 0.9032,
     "hard": 0.6875
   },
@@ -63,9 +63,9 @@
       "cases": 9,
       "accuracy": 0.8889
     },
-    "none": {
+    "mcp_declared_tool": {
       "cases": 1,
-      "accuracy": 0.0
+      "accuracy": 1.0
     },
     "semantic_kernel_decorator": {
       "cases": 1,
@@ -81,8 +81,8 @@
     }
   },
   "refusal_reasons": {
-    "UNRESOLVED_CALLEE": 14,
-    "DYNAMIC_DISPATCH": 8,
+    "UNRESOLVED_CALLEE": 15,
+    "DYNAMIC_DISPATCH": 9,
     "NONLITERAL_ARGUMENT": 3
   },
   "confusion": {
@@ -108,8 +108,7 @@
     },
     "undecidable": {
       "read": 2,
-      "undecidable": 12,
-      "not_discovered": 1
+      "undecidable": 13
     }
   },
   "failures": [
@@ -182,13 +181,6 @@
       "difficulty": "medium",
       "expected": "sensitive",
       "predicted": "write"
-    },
-    {
-      "id": "UND-004",
-      "family": "undecidable",
-      "difficulty": "easy",
-      "expected": "undecidable",
-      "predicted": "not_discovered"
     },
     {
       "id": "UND-006",

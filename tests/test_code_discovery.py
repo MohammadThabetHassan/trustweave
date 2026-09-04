@@ -1205,3 +1205,83 @@ def test_the_callees_own_binding_wins_over_the_handed_one(tmp_path: Path) -> Non
     symbols = {signal.symbol for signal in tools[0].signals}
 
     assert "pathlib.Path.read_text" in symbols
+
+
+# ---------------------------------------------------------------------------------------
+# Names an MCP server declares rather than defines
+# ---------------------------------------------------------------------------------------
+
+
+def _mcp_server(tmp_path: Path, body: str) -> None:
+    _write(
+        tmp_path,
+        "agent.py",
+        "import shutil\n"
+        "import mcp.types as types\n"
+        "from mcp.server import Server\n\n\n"
+        "server = Server('bridge')\n\n\n"
+        "@server.list_tools()\n"
+        "async def list_tools() -> list:\n"
+        "    return [\n"
+        "        types.Tool(name='mirror_tree', description='d', inputSchema={}),\n"
+        "        types.Tool(name='read_note', description='d', inputSchema={}),\n"
+        "    ]\n\n\n"
+        "@server.call_tool()\n"
+        "async def handle_call(name: str, arguments: dict) -> list:\n" + body,
+    )
+
+
+def test_each_declared_mcp_name_is_reported_as_a_tool(tmp_path: Path) -> None:
+    """The model is offered `mirror_tree`, not `handle_call`."""
+
+    _mcp_server(tmp_path, "    shutil.copytree(arguments['a'], arguments['b'])\n    return []\n")
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert sorted(tool.name for tool in tools) == ["mirror_tree", "read_note"]
+
+
+def test_a_declared_mcp_tool_records_the_handler_that_implements_it(tmp_path: Path) -> None:
+    _mcp_server(tmp_path, "    return []\n")
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert {tool.implementation for tool in tools} == {"handle_call"}
+    assert {tool.framework for tool in tools} == {"mcp_declared_tool"}
+
+
+def test_the_handler_named_tool_does_not_survive_beside_the_declared_names(
+    tmp_path: Path,
+) -> None:
+    """One body dispatching two names is two tools, not three."""
+
+    _mcp_server(tmp_path, "    return []\n")
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert "handle_call" not in {tool.name for tool in tools}
+
+
+def test_a_declared_mcp_tool_carries_the_handler_effects(tmp_path: Path) -> None:
+    """The declared name runs the handler body, so the body's effects are its effects."""
+
+    _mcp_server(tmp_path, "    shutil.copytree(arguments['a'], arguments['b'])\n    return []\n")
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert {tool.proposed_action_class() for tool in tools} == {"write"}
+
+
+def test_a_server_with_no_declarations_still_reports_its_handler(tmp_path: Path) -> None:
+    """Without a list_tools handler there are no declared names to report instead."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import shutil\n"
+        "from mcp.server import Server\n\n\n"
+        "server = Server('bridge')\n\n\n"
+        "@server.call_tool()\n"
+        "async def handle_call(name: str, arguments: dict) -> list:\n"
+        "    shutil.rmtree(arguments['path'])\n"
+        "    return []\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.name for tool in tools] == ["handle_call"]

@@ -96,6 +96,10 @@ BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(
     }
 )
 BASE_TOOL_BODY_METHODS: Final[tuple[str, ...]] = ("_run", "run", "_arun", "arun")
+# A low-level MCP server declares the names it exposes in its `list_tools` handler and
+# implements all of them in one `call_tool` handler, so the model sees names that appear
+# nowhere as a function.
+MCP_TOOL_DECLARATIONS: Final[frozenset[str]] = frozenset({"mcp.types.Tool", "mcp.Tool"})
 
 STRUCTURED_TOOL_FACTORIES: Final[frozenset[str]] = frozenset(
     {
@@ -1146,6 +1150,47 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
     return discovered
 
 
+def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
+    """Tools an MCP server declares in `list_tools` and implements in `call_tool`.
+
+    The handler is one function that dispatches on a name argument, so discovering it as a
+    single tool named after the function reports a surface the model never sees: the model
+    is offered `plugin_bridge`, not `handle_call`. Each declared name is reported instead,
+    sharing the handler's body, because that body is what any of them runs.
+    """
+
+    declared: list[str] = []
+    handler: ast.FunctionDef | ast.AsyncFunctionDef | None = None
+    for function in [*module.functions.values(), *module.methods]:
+        for qualified, _decorator in _decorator_names(function, module):
+            if qualified is None:
+                continue
+            if qualified.endswith(".list_tools"):
+                for node in ast.walk(function):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    if _resolve(_dotted(node.func), module) not in MCP_TOOL_DECLARATIONS:
+                        continue
+                    name = _constant_str(_keyword(node, "name"))
+                    if name:
+                        declared.append(name)
+            elif qualified.endswith(".call_tool"):
+                handler = function
+
+    if not declared or handler is None:
+        return []
+    return [
+        DiscoveredTool(
+            name,
+            "mcp_declared_tool",
+            module.path,
+            handler.lineno,
+            implementation=handler.name,
+        )
+        for name in sorted(set(declared))
+    ]
+
+
 def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
     discovered: list[DiscoveredTool] = []
     for node in ast.walk(module.tree):
@@ -1231,11 +1276,22 @@ def analyze_sources(
 
     tools: list[DiscoveredTool] = []
     for module in modules:
+        declared_mcp = _discover_declared_mcp_tools(module)
         candidates = (
             _discover_decorated_tools(module)
             + _discover_class_tools(module)
             + _discover_factory_tools(module)
         )
+        if declared_mcp:
+            # The declared names replace the handler-named tool they all dispatch through,
+            # rather than sitting beside it as a duplicate of the same body.
+            handlers = {tool.implementation for tool in declared_mcp}
+            candidates = [
+                tool
+                for tool in candidates
+                if not (tool.framework == "mcp_call_tool" and tool.name in handlers)
+            ]
+            candidates += declared_mcp
         bound = _bound_tool_names(module)
         for name in sorted(bound):
             if name in module.functions and not any(
