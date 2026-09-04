@@ -310,3 +310,45 @@ def test_the_documented_mutant_counts_match_a_fresh_run() -> None:
     )
 
     assert sentence in document
+
+
+def test_expected_decision_classes_are_the_image_of_the_witnessed_cells() -> None:
+    """Corollary 5's premise: a consistent suite cannot expect a class the policy never gives.
+
+    This is why a missing decision class is evidence of a gap only against a policy whose
+    range includes that decision.
+    """
+
+    reference = _reference()
+    for suite_path in SUITES:
+        expectations = policy_mutation._suite_expectations(suite_path)
+        witnessed = {(trust, action) for trust, action, _ in expectations}
+        expected = {decision for _, _, decision in expectations}
+
+        assert expected == {reference[cell] for cell in witnessed}, suite_path.name
+
+
+def test_a_policy_that_never_returns_a_decision_needs_no_case_expecting_it() -> None:
+    """The range caveat, made concrete: full cell coverage of a two-valued policy.
+
+    Such a suite detects every non-equivalent mutant while expecting only two of the three
+    decision classes, so a bare 'missing decision class' report would flag it wrongly.
+    """
+
+    document = _document()
+    for rule in document["rules"]:
+        if rule["decision"] == "require_approval":
+            rule["decision"] = "deny"
+    if document["default_decision"] == "require_approval":
+        document["default_decision"] = "deny"
+
+    reference = policy_mutation.decision_map(document)
+    exhaustive = _exhaustive_suite(reference)
+    expected = {decision for _, _, decision in exhaustive}
+
+    assert "require_approval" not in expected
+    assert set(reference) == set(CELLS)
+    for name, mutant in policy_mutation._mutants(document):
+        resolved = policy_mutation.decision_map(mutant)
+        if resolved != reference:
+            assert policy_mutation._kills(exhaustive, mutant), name

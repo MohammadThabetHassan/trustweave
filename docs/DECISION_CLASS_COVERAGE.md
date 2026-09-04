@@ -107,13 +107,22 @@ report 100% against an incomplete suite. That is a limitation of the operator se
 why `scripts/policy_mutation.py` reports witnessed cells alongside the score instead of the
 score alone.
 
-**Corollary 5 (decision-class coverage is necessary, not sufficient).** Let a suite's
-**decision classes** be `{d : (s, d) in Sigma}`. If some decision `d` is never expected, then
-no mutant can be killed by a case expecting `d`, so a policy differing from `P` only by
-returning `d` somewhere unwitnessed survives. Witnessing every decision class is thus
-necessary for full detection. It is not sufficient: a suite may expect all three decisions
-while witnessing only three of the twelve cells, and Theorem 3 then leaves nine cells
-undefended.
+**Corollary 5 (decision-class coverage is not sufficient, and is necessary only relative to
+the policy's range).** Let a suite's **decision classes** be `{d : (s, d) in Sigma}`. Under
+consistency these are exactly `{[[P]](s) : s in W(Sigma)}` -- the image of the witnessed
+cells, not a free parameter of the suite.
+
+*Not sufficient.* A suite may expect every decision in `D` while witnessing few cells. Take
+one cell per decision: three cells of twelve, all three classes expected, and Theorem 3
+leaves the other nine undefended.
+
+*Necessary, but only where the policy reaches the decision.* If `Sigma` achieves full
+detection then `W(Sigma) = S` by the converse in Corollary 4, so `Sigma` expects exactly the
+image of `[[P]]`. A missing decision class therefore certifies an unwitnessed cell **when the
+policy can return that decision**. If `[[P]]` never returns `d`, no suite expects `d` and
+none needs to -- so an unexpected class is evidence of a gap only against a policy whose
+range includes it. Reporting missing decision classes without that check would flag a
+complete suite for a policy that simply never approves anything.
 
 `benchmark/orthogonality-witness` is Corollary 5 made concrete: a suite at 100% structural
 coverage, expecting decisions in every class, that cannot detect its policy's default
