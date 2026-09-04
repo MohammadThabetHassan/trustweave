@@ -46,6 +46,39 @@ DECISIONS = ("allow", "deny", "require_approval")
 
 CELLS = tuple(itertools.product(TRUST_LEVELS, ACTION_CLASSES))
 
+# Guard fields the enumerated subject space does not range over. `decision_map` evaluates
+# each cell with no data classification, no capabilities, and fixed identifiers and purpose,
+# so a rule constraining any of these decides over a space larger than CELLS enumerates.
+# Two mutants differing only there would resolve to the same map and be discarded as
+# equivalent when they are not, which would silently inflate the reported score.
+OUT_OF_FRAGMENT_FIELDS = (
+    "source_data_classifications",
+    "source_data_classification_at_least",
+    "source_data_classification_at_most",
+    "tool_capabilities",
+    "source_identifiers",
+    "tool_identifiers",
+    "purpose_tags",
+    "required_controls",
+)
+
+
+def fragment_violations(document: dict[str, Any]) -> list[str]:
+    """Rule guards that range outside the trust x action space this harness enumerates.
+
+    Exactness here is a property of the fragment, not of the tool: equivalence is decidable
+    because the subject space is finite and fully enumerated. A policy that steps outside it
+    must be refused rather than measured approximately while still reporting an exact score.
+    """
+
+    found: list[str] = []
+    for index, rule in enumerate(document.get("rules") or []):
+        if not isinstance(rule, dict):
+            continue
+        identifier = rule.get("id", f"rule{index}")
+        found.extend(f"{identifier}.{field}" for field in OUT_OF_FRAGMENT_FIELDS if rule.get(field))
+    return found
+
 
 def decision_map(document: dict[str, Any]) -> dict[tuple[str, str], str]:
     """Return the decision this policy gives for every cell of the partition.
@@ -160,6 +193,13 @@ def _kills(expectations: list[tuple[str, str, str]], mutant: dict[str, Any]) -> 
 
 def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
     document = dict(load_document(policy_path))
+    outside = fragment_violations(document)
+    if outside:
+        raise SystemExit(
+            "policy uses guards outside the enumerated trust x action space, so equivalence "
+            "cannot be decided by enumeration and the score would not be exact: "
+            + ", ".join(outside)
+        )
     reference = decision_map(document)
 
     generated = _mutants(document)

@@ -115,6 +115,12 @@ binary. The corpus is small enough that this is a direction to test, not a resul
 
 ## Interpretation
 
+The exactness results this measure descends from -- decidable equivalence, an exact kill
+criterion, cell coverage deciding the mutation score -- hold over a restricted fragment
+defined and proved in [DECISION_CLASS_COVERAGE.md](DECISION_CLASS_COVERAGE.md). None of the
+three ecosystems measured here is inside that fragment, so what follows is an observation
+about their suites rather than a proof about them.
+
 The measure earns nothing on a two-cell policy. Two cells get covered in practice, so
 running decision-class coverage on a Gatekeeper constraint mostly confirms what is already
 true. It earns its keep as the decision structure grows: TrustWeave's policy decides over
