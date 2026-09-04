@@ -96,6 +96,10 @@ BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(
     }
 )
 BASE_TOOL_BODY_METHODS: Final[tuple[str, ...]] = ("_run", "run", "_arun", "arun")
+# A low-level MCP server declares the names it exposes in its `list_tools` handler and
+# implements all of them in one `call_tool` handler, so the model sees names that appear
+# nowhere as a function.
+MCP_TOOL_DECLARATIONS: Final[frozenset[str]] = frozenset({"mcp.types.Tool", "mcp.Tool"})
 
 STRUCTURED_TOOL_FACTORIES: Final[frozenset[str]] = frozenset(
     {
@@ -447,6 +451,22 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
     return aliases
 
 
+def _path_segments(value: ast.expr) -> list[ast.expr]:
+    """Constant string parts of a path expression, including `/` composition.
+
+    `home = Path.home()` then `home / ".ssh" / "id_rsa"` puts the part that decides whether
+    this is an ordinary read or a credential read in the composition rather than in the
+    constructor. Recording only the constructor's arguments read the private key as an
+    ordinary file.
+    """
+
+    return [
+        node
+        for node in ast.walk(value)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+    ]
+
+
 def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
     """Locals bound to an instance of a class this module defines.
 
@@ -565,7 +585,11 @@ def _scope_origins(
                 call = (
                     statement.value
                     if isinstance(statement.value, ast.Call)
-                    else ast.Call(func=ast.Name(id=origin), args=[], keywords=[])
+                    else ast.Call(
+                        func=ast.Name(id=origin),
+                        args=_path_segments(statement.value),
+                        keywords=[],
+                    )
                 )
                 for target in statement.targets:
                     if isinstance(target, ast.Name):
@@ -635,7 +659,9 @@ def _subprocess_class(call: ast.Call) -> str:
     return "sensitive"
 
 
-def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None, str | None]:
+def _environ_class(
+    call: ast.Call, symbol: str, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None, str | None]:
     """Classify one environment read, refusing when the key decides the answer.
 
     A literal key can be judged against the secret-name vocabulary. A key supplied at
@@ -645,7 +671,13 @@ def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None,
 
     if symbol.rsplit(".", 1)[-1] in {"items", "copy", "values"} or qualified_is_bulk(symbol):
         return "sensitive", symbol, None
-    key = _constant_str(call.args[0]) if call.args else None
+    argument = call.args[0] if call.args else None
+    # A helper that takes the variable name as a parameter is still reading a named
+    # variable; the name is simply one frame up. Without this a secret read moved into a
+    # one-line helper became unclassifiable.
+    if isinstance(argument, ast.Name) and literals and argument.id in literals:
+        argument = literals[argument.id]
+    key = _constant_str(argument) if argument is not None else None
     if key is None:
         return None, None, "NONLITERAL_ARGUMENT"
     tokens = {token for token in key.casefold().replace("-", "_").split("_") if token}
@@ -689,6 +721,7 @@ def _classify_call(
     self_attributes: dict[str, str] | None = None,
     aliases: dict[str, str] | None = None,
     self_aliases: dict[str, str] | None = None,
+    literals: dict[str, ast.expr] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -792,7 +825,7 @@ def _classify_call(
     if qualified in SENSITIVE_SYMBOLS:
         return "sensitive", qualified, None
     if qualified in _ENVIRON_READERS or qualified in _ENVIRON_BULK:
-        return _environ_class(call, qualified)
+        return _environ_class(call, qualified, literals)
     if qualified in EXTERNAL_SYMBOLS:
         return "external", qualified, None
     if qualified in WRITE_SYMBOLS:
@@ -812,7 +845,7 @@ def _classify_call(
         and (origins.get(call.func.value.id) or ("", None))[0] == _ENVIRON_ORIGIN
         and call.func.attr in {"get", "setdefault", "items", "copy", "values"}
     ):
-        return _environ_class(call, f"os.environ.{call.func.attr}")
+        return _environ_class(call, f"os.environ.{call.func.attr}", literals)
 
     if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name):
         tracked = origins.get(call.func.value.id)
@@ -875,6 +908,8 @@ def _collect_signals(
     via: tuple[str, ...],
     depth: int,
     visited: set[str],
+    literals: dict[str, ast.expr] | None = None,
+    inherited: dict[str, tuple[str, ast.Call]] | None = None,
 ) -> None:
     """Walk one function, recording signals and following module-local helpers."""
 
@@ -888,6 +923,8 @@ def _collect_signals(
     self_aliases = module.self_symbols.get(owner or "", {})
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
+    # Receivers the caller handed over, before the callee's own bindings, which win.
+    origins.update(inherited or {})
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
     aliases = _symbol_aliases(function, module)
@@ -904,7 +941,7 @@ def _collect_signals(
             # registration call.
             continue
         action, symbol, reason = _classify_call(
-            node, module, origins, dynamic, self_attributes, aliases, self_aliases
+            node, module, origins, dynamic, self_attributes, aliases, self_aliases, literals
         )
         if reason:
             tool.reasons.add(reason)
@@ -974,8 +1011,25 @@ def _collect_signals(
             if spelled in visited:
                 continue
             visited.add(spelled)
+            helper = module.functions[spelled]
+            # Constants the caller supplies are bound to the helper's parameters, so a
+            # decision that depends on a literal is still decidable one frame down.
+            passed: dict[str, ast.expr] = {
+                parameter.arg: argument
+                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                if isinstance(argument, ast.Constant)
+            }
+            # A receiver created in one function and handed to another keeps its identity.
+            # `session = ClientSession()`, then `_collect(session, symbol)`, then
+            # `session.get(url)` is how async clients are written, and losing the receiver
+            # at the call boundary reported the egress as an unresolvable callee.
+            handed: dict[str, tuple[str, ast.Call]] = {
+                parameter.arg: origins[argument.id]
+                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                if isinstance(argument, ast.Name) and argument.id in origins
+            }
             _collect_signals(
-                tool, module.functions[spelled], module, (*via, spelled), depth + 1, visited
+                tool, helper, module, (*via, spelled), depth + 1, visited, passed, handed
             )
 
     if module.wildcard_import:
@@ -1096,6 +1150,47 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
     return discovered
 
 
+def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
+    """Tools an MCP server declares in `list_tools` and implements in `call_tool`.
+
+    The handler is one function that dispatches on a name argument, so discovering it as a
+    single tool named after the function reports a surface the model never sees: the model
+    is offered `plugin_bridge`, not `handle_call`. Each declared name is reported instead,
+    sharing the handler's body, because that body is what any of them runs.
+    """
+
+    declared: list[str] = []
+    handler: ast.FunctionDef | ast.AsyncFunctionDef | None = None
+    for function in [*module.functions.values(), *module.methods]:
+        for qualified, _decorator in _decorator_names(function, module):
+            if qualified is None:
+                continue
+            if qualified.endswith(".list_tools"):
+                for node in ast.walk(function):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    if _resolve(_dotted(node.func), module) not in MCP_TOOL_DECLARATIONS:
+                        continue
+                    name = _constant_str(_keyword(node, "name"))
+                    if name:
+                        declared.append(name)
+            elif qualified.endswith(".call_tool"):
+                handler = function
+
+    if not declared or handler is None:
+        return []
+    return [
+        DiscoveredTool(
+            name,
+            "mcp_declared_tool",
+            module.path,
+            handler.lineno,
+            implementation=handler.name,
+        )
+        for name in sorted(set(declared))
+    ]
+
+
 def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
     discovered: list[DiscoveredTool] = []
     for node in ast.walk(module.tree):
@@ -1181,11 +1276,22 @@ def analyze_sources(
 
     tools: list[DiscoveredTool] = []
     for module in modules:
+        declared_mcp = _discover_declared_mcp_tools(module)
         candidates = (
             _discover_decorated_tools(module)
             + _discover_class_tools(module)
             + _discover_factory_tools(module)
         )
+        if declared_mcp:
+            # The declared names replace the handler-named tool they all dispatch through,
+            # rather than sitting beside it as a duplicate of the same body.
+            handlers = {tool.implementation for tool in declared_mcp}
+            candidates = [
+                tool
+                for tool in candidates
+                if not (tool.framework == "mcp_call_tool" and tool.name in handlers)
+            ]
+            candidates += declared_mcp
         bound = _bound_tool_names(module)
         for name in sorted(bound):
             if name in module.functions and not any(

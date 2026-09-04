@@ -94,12 +94,55 @@ The two that most often matter:
   another. This is the mislabelled trust boundary the product previously had no way to see.
 - **`TW-CODE-003`** — a tool exists in code and is not declared at all.
 
+## How a tool is recognised
+
+A tool is whatever the agent can be asked to invoke, and frameworks say so in several ways.
+Each recognised form is listed here because the set is the boundary of what discovery can
+see: a form that is missing is not reported as a gap, it is simply absent from the draft.
+
+| Form | Example | Name taken from |
+|---|---|---|
+| Decorator | `@tool` on a function | the decorator's `name=`, else the function |
+| Plugin method | `@kernel_function(name="probe")` on a method | the decorator's `name=` |
+| Server decorator | `@server.tool()`, `@server.call_tool()` | the decorator's `name=`, else the function |
+| Factory | `StructuredTool.from_function(func=..., name=...)` | the `name=` argument |
+| Class-based tool | a `BaseTool` subclass with `_run` or `_arun` | the `name` class attribute, else the class |
+| Bound list | a function passed in `tools=[...]` to an agent constructor | the function |
+
+Two names can differ. A factory registers `object_summary` while the code that runs is
+`summarize_bucket_object`, and a class-based tool registers `fetch_page` while the body sits
+in `FetchTool._run`. The artifact records the registered name as `name` and the implementing
+symbol as `implementation` whenever they differ, and the rendered report prints both -- the
+first is what the model sees, the second is what a reviewer has to open.
+
+## Why a tool is left unknown
+
+A refusal is a result, not a gap. Each reason names the specific thing that could not be
+established, so a reviewer knows what to check rather than being told to check everything.
+
+| Reason | What it means |
+|---|---|
+| `UNRESOLVED_CALLEE` | the call reaches a name this module does not define or import |
+| `DYNAMIC_DISPATCH` | the callee is chosen at runtime, from a subscript or an unresolved call |
+| `NONLITERAL_ARGUMENT` | the argument decides the class and is not a literal here |
+| `BODY_UNAVAILABLE` | the registered target names no body the analyzer can read |
+| `LEXICAL_ONLY` | a name suggests personal data but nothing in the body acts on it |
+| `BUDGET_EXHAUSTED` | the reachable set grew past the per-tool bound |
+
+One refusal does not always withhold an answer. An effect at the top of the precedence order
+-- a credential read, an arbitrary process launch -- cannot be outranked by anything an
+unresolved call might also do, so it is reported even when something else in the same tool
+could not be placed. Below that top class the refusal stands, because an unseen effect
+really could be worse than what was observed.
+
 ## Limits
 
 Discovery is bounded by design. A public function that is not decorated as a tool, and not
 bound into a `tools=[...]` list reaching an agent constructor, is not reported as a tool —
 enumerating every function would inflate a draft with things that are not tools. Frameworks
-outside the recognised set are not discovered. AST shapes vary between interpreter
+outside the set listed above are not discovered, and a tool whose name is built at runtime --
+returned as a `Tool(name=...)` literal from a handler, say -- is discovered under the handler
+rather than under the name the model is given. AST shapes vary between interpreter
 versions, so a run on a different interpreter may resolve a different symbol set.
 
 Every artifact records these limits inline, so a reader who never opens this page still

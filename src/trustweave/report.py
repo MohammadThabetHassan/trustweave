@@ -621,8 +621,8 @@ def render_code_discovery_report(review: Mapping[str, Any]) -> str:
             "",
             "## Discovered tools",
             "",
-            "| Tool | Proposed action class | Confidence | Evidence | Location |",
-            "|---|---|---|---|---|",
+            "| Tool | Registered by | Proposed action class | Confidence | Evidence | Location |",
+            "|---|---|---|---|---|---|",
         ]
     )
     for raw_tool in tools:
@@ -637,8 +637,16 @@ def render_code_discovery_report(review: Mapping[str, Any]) -> str:
         if reasons:
             evidence = (evidence + " " if evidence else "") + "refused: " + ", ".join(reasons)
         lines.append(
-            "| `{name}` | **{action}** | {confidence} | {evidence} | `{file}:{line}` |".format(
+            "| `{name}`{implemented} | {framework} | **{action}** | {confidence} "
+            "| {evidence} | `{file}:{line}` |".format(
                 name=tool.get("name", "unknown"),
+                # A factory may register a tool under a name the implementing function does
+                # not share. A reviewer reading this table needs the second one to find the
+                # code the evidence came from.
+                implemented=(
+                    f"<br>via `{tool['implementation']}`" if tool.get("implementation") else ""
+                ),
+                framework=str(tool.get("framework", "unknown")).replace("_", " "),
                 action=tool.get("proposed_action_class", "unknown"),
                 confidence=tool.get("confidence", "unknown"),
                 evidence=evidence or "no recognised effect",

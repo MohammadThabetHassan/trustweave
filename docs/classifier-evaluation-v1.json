@@ -1,0 +1,214 @@
+{
+  "schema_version": "trustweave.dev/classification-evaluation/v1alpha1",
+  "cases": 72,
+  "overall": {
+    "accuracy": 0.8056,
+    "accuracy_on_agreed_labels_only": 0.803,
+    "answer_rate_on_decidable": 0.8596,
+    "precision_when_answering": 0.9184,
+    "refusal_rate": 0.2917,
+    "not_discovered": 0
+  },
+  "per_class": {
+    "read": {
+      "support": 15,
+      "precision": 0.7647,
+      "recall": 0.8667,
+      "f1": 0.8125
+    },
+    "write": {
+      "support": 14,
+      "precision": 0.9167,
+      "recall": 0.7857,
+      "f1": 0.8462
+    },
+    "sensitive": {
+      "support": 12,
+      "precision": 0.8889,
+      "recall": 0.6667,
+      "f1": 0.7619
+    },
+    "external": {
+      "support": 16,
+      "precision": 1.0,
+      "recall": 0.8125,
+      "f1": 0.8966
+    },
+    "undecidable": {
+      "support": 15,
+      "precision": 0.619,
+      "recall": 0.8667,
+      "f1": 0.7222
+    }
+  },
+  "by_difficulty": {
+    "easy": 0.8889,
+    "medium": 0.9032,
+    "hard": 0.6875
+  },
+  "by_framework": {
+    "bound_plain_function": {
+      "cases": 8,
+      "accuracy": 0.875
+    },
+    "langchain_base_tool_subclass": {
+      "cases": 2,
+      "accuracy": 0.5
+    },
+    "langchain_tool_decorator": {
+      "cases": 18,
+      "accuracy": 0.7778
+    },
+    "mcp_call_tool": {
+      "cases": 9,
+      "accuracy": 0.8889
+    },
+    "mcp_declared_tool": {
+      "cases": 1,
+      "accuracy": 1.0
+    },
+    "semantic_kernel_decorator": {
+      "cases": 1,
+      "accuracy": 1.0
+    },
+    "server_tool_decorator": {
+      "cases": 18,
+      "accuracy": 0.8333
+    },
+    "structured_tool_factory": {
+      "cases": 15,
+      "accuracy": 0.7333
+    }
+  },
+  "refusal_reasons": {
+    "UNRESOLVED_CALLEE": 15,
+    "DYNAMIC_DISPATCH": 9,
+    "NONLITERAL_ARGUMENT": 3
+  },
+  "confusion": {
+    "read": {
+      "read": 13,
+      "undecidable": 2
+    },
+    "write": {
+      "read": 1,
+      "write": 11,
+      "undecidable": 2
+    },
+    "sensitive": {
+      "write": 1,
+      "sensitive": 8,
+      "undecidable": 3
+    },
+    "external": {
+      "read": 1,
+      "sensitive": 1,
+      "external": 13,
+      "undecidable": 1
+    },
+    "undecidable": {
+      "read": 2,
+      "undecidable": 13
+    }
+  },
+  "failures": [
+    {
+      "id": "EXT-010",
+      "family": "external-direct",
+      "difficulty": "hard",
+      "expected": "external",
+      "predicted": "undecidable"
+    },
+    {
+      "id": "FRM-008",
+      "family": "framework-shapes",
+      "difficulty": "hard",
+      "expected": "external",
+      "predicted": "read"
+    },
+    {
+      "id": "FRM-010",
+      "family": "framework-shapes",
+      "difficulty": "medium",
+      "expected": "undecidable",
+      "predicted": "read"
+    },
+    {
+      "id": "FRM-012",
+      "family": "framework-shapes",
+      "difficulty": "hard",
+      "expected": "sensitive",
+      "predicted": "undecidable"
+    },
+    {
+      "id": "RDB-004",
+      "family": "read-benign",
+      "difficulty": "hard",
+      "expected": "read",
+      "predicted": "undecidable"
+    },
+    {
+      "id": "RDB-010",
+      "family": "read-benign",
+      "difficulty": "hard",
+      "expected": "read",
+      "predicted": "undecidable"
+    },
+    {
+      "id": "SEN-002",
+      "family": "sensitive-priv",
+      "difficulty": "hard",
+      "expected": "sensitive",
+      "predicted": "undecidable"
+    },
+    {
+      "id": "SEN-005",
+      "family": "sensitive-priv",
+      "difficulty": "hard",
+      "expected": "external",
+      "predicted": "sensitive"
+    },
+    {
+      "id": "SEN-007",
+      "family": "sensitive-priv",
+      "difficulty": "medium",
+      "expected": "sensitive",
+      "predicted": "undecidable"
+    },
+    {
+      "id": "SEN-012",
+      "family": "sensitive-priv",
+      "difficulty": "medium",
+      "expected": "sensitive",
+      "predicted": "write"
+    },
+    {
+      "id": "UND-006",
+      "family": "undecidable",
+      "difficulty": "easy",
+      "expected": "undecidable",
+      "predicted": "read"
+    },
+    {
+      "id": "WRT-008",
+      "family": "write-durable",
+      "difficulty": "hard",
+      "expected": "write",
+      "predicted": "read"
+    },
+    {
+      "id": "WRT-009",
+      "family": "write-durable",
+      "difficulty": "hard",
+      "expected": "write",
+      "predicted": "undecidable"
+    },
+    {
+      "id": "WRT-011",
+      "family": "write-durable",
+      "difficulty": "hard",
+      "expected": "write",
+      "predicted": "undecidable"
+    }
+  ]
+}
