@@ -699,6 +699,22 @@ def _classify_call(
             return None, None, "UNRESOLVED_CALLEE"
         return None, None, None
 
+    # `handle = anthropic.Anthropic()` then `handle.messages.create(...)`. The receiver is
+    # known, but the method sits behind an attribute chain, and reading only the first level
+    # left the call resolving to nothing at all -- neither an effect nor a refusal. Every
+    # LLM and cloud SDK is shaped this way, so egress published as silence.
+    if root is not None and root in origins and isinstance(call.func, ast.Attribute):
+        receiver, constructor = origins[root]
+        method = call.func.attr
+        if receiver in EXTERNAL_RECEIVERS:
+            return "external", f"{receiver}.{method}", None
+        if receiver in PATH_RECEIVERS:
+            if method in WRITE_RECEIVER_METHODS:
+                return "write", f"{receiver}.{method}", None
+            if method in READ_RECEIVER_METHODS:
+                action = "sensitive" if _is_credential_path(constructor) else "read"
+                return action, f"{receiver}.{method}", None
+
     if _is_instance_state_call(call):
         # self.client.post(...). Resolve it when the class stored a known receiver on that
         # attribute; refuse only when the attribute's origin is genuinely unknown, since

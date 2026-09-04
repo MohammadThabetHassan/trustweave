@@ -738,3 +738,76 @@ def test_a_result_wrapper_alone_still_classifies_a_pure_tool_as_read(tmp_path: P
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert tools[0].proposed_action_class() == "read"
+
+
+def test_egress_through_a_chained_sdk_client_is_classified(tmp_path: Path) -> None:
+    """`client.messages.create(...)` is how every LLM SDK is written."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import anthropic\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def triage(text: str) -> str:\n"
+        '    """Triage a ticket."""\n'
+        "    handle = anthropic.Anthropic()\n"
+        "    result = handle.messages.create(model='m', max_tokens=8, messages=[])\n"
+        "    return result.content[0].text\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_chained_path_receiver_keeps_its_read_classification(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        "agent.py",
+        "import pathlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def show(name: str) -> str:\n"
+        '    """Show a note."""\n'
+        "    root = pathlib.Path('/notes')\n"
+        "    return root.read_text()\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "read"
+
+
+def test_a_chained_credential_path_is_still_sensitive(tmp_path: Path) -> None:
+    """The receiver form must not lose the distinction the constructor form makes."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import pathlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def load() -> str:\n"
+        '    """Load."""\n'
+        "    key = pathlib.Path('/home/app/.ssh/id_rsa')\n"
+        "    return key.read_text()\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+
+
+def test_a_chain_rooted_at_an_unknown_name_is_not_classified(tmp_path: Path) -> None:
+    """A receiver the module never constructed names nothing, and must not invent egress."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def relay(client, value: str) -> str:\n"
+        '    """Relay through a supplied client."""\n'
+        "    return str(client.messages.create(text=value))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert not [s for s in tools[0].signals if s.action_class == "external"]
