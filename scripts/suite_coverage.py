@@ -41,6 +41,7 @@ ADAPTER_MODULES = {
     "rego": "suite_coverage_rego",
     "kyverno": "suite_coverage_kyverno",
     "cedar": "suite_coverage_cedar",
+    "xacml": "suite_coverage_xacml",
 }
 
 
@@ -128,8 +129,13 @@ def _subjects(
             "blind": len(decisions) < 2,
         }
         if declared:
+            unwitnessed = sorted(set(declared) - decisions)
             row["domain_size"] = len(declared)
-            row["decisions_unwitnessed"] = sorted(set(declared) - decisions)
+            row["decisions_unwitnessed"] = unwitnessed
+            # `blind` asks whether a suite tests more than one outcome, which a two-valued
+            # domain clears by writing one negative case. This asks whether it witnesses the
+            # whole domain, which is the requirement that grows with the domain.
+            row["covers_domain"] = not unwitnessed
         rows.append(row)
     return rows
 
@@ -163,13 +169,18 @@ def measure(adapter: Adapter, paths: list[Path]) -> dict[str, Any]:
     # way a validate rule does -- so the per-domain split is reported, not just the total.
     by_domain: dict[str, dict[str, Any]] = {}
     for row in subjects:
-        bucket = by_domain.setdefault(row["domain"], {"subjects": 0, "blind": 0})
+        bucket = by_domain.setdefault(
+            row["domain"], {"subjects": 0, "blind": 0, "covering_domain": 0, "domain_size": None}
+        )
         bucket["subjects"] += 1
         bucket["blind"] += int(row["blind"])
+        bucket["covering_domain"] += int(row.get("covers_domain", False))
+        bucket["domain_size"] = row.get("domain_size")
     for bucket in by_domain.values():
         covered = bucket["subjects"] - bucket["blind"]
         bucket["witnessing_more_than_one"] = covered
         bucket["share_witnessing_more_than_one"] = round(covered / bucket["subjects"], 4)
+        bucket["share_covering_domain"] = round(bucket["covering_domain"] / bucket["subjects"], 4)
     extraction = len(measured) / len(readings) if readings else 0.0
 
     report: dict[str, Any] = {
@@ -253,7 +264,8 @@ def render(report: dict[str, Any]) -> str:
         lines.append(
             f"    {domain:24} {bucket['witnessing_more_than_one']:4}/{bucket['subjects']:<4}"
             f" witness >1  ({bucket['share_witnessing_more_than_one']:.0%})"
-            f"   blind {bucket['blind']}"
+            f"   cover all {bucket['domain_size'] or '?'}: "
+            f"{bucket['covering_domain']} ({bucket['share_covering_domain']:.0%})"
         )
     return "\n".join(lines)
 

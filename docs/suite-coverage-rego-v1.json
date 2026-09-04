@@ -44,14 +44,20 @@
     "boolean": {
       "subjects": 2,
       "blind": 0,
+      "covering_domain": 2,
+      "domain_size": 2,
       "witnessing_more_than_one": 2,
-      "share_witnessing_more_than_one": 1.0
+      "share_witnessing_more_than_one": 1.0,
+      "share_covering_domain": 1.0
     },
     "violation_set": {
       "subjects": 49,
       "blind": 1,
+      "covering_domain": 48,
+      "domain_size": 2,
       "witnessing_more_than_one": 48,
-      "share_witnessing_more_than_one": 0.9796
+      "share_witnessing_more_than_one": 0.9796,
+      "share_covering_domain": 0.9796
     }
   },
   "not_extracted": [
@@ -74,7 +80,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "boolean",
@@ -85,7 +92,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -96,7 +104,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -107,7 +116,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -118,7 +128,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -129,7 +140,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -140,7 +152,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -151,7 +164,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -162,7 +176,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -173,7 +188,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -184,7 +200,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -195,7 +212,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -206,7 +224,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -217,7 +236,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -228,7 +248,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -239,7 +260,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -250,7 +272,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -261,7 +284,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -272,7 +296,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -283,7 +308,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -294,7 +320,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -305,7 +332,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -316,7 +344,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -327,7 +356,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -338,7 +368,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -349,7 +380,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -360,7 +392,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -371,7 +404,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -382,7 +416,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -393,7 +428,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -404,7 +440,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -416,7 +453,8 @@
       "domain_size": 2,
       "decisions_unwitnessed": [
         "nonempty"
-      ]
+      ],
+      "covers_domain": false
     },
     {
       "domain": "violation_set",
@@ -427,7 +465,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -438,7 +477,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -449,7 +489,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -460,7 +501,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -471,7 +513,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -482,7 +525,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -493,7 +537,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -504,7 +549,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -515,7 +561,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -526,7 +573,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -537,7 +585,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -548,7 +597,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -559,7 +609,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -570,7 +621,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -581,7 +633,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -592,7 +645,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -603,7 +657,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -614,7 +669,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "violation_set",
@@ -625,7 +681,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     }
   ]
 }

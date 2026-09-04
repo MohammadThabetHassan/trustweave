@@ -20,7 +20,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import suite_coverage_cedar as cedar  # noqa: E402
 import suite_coverage_kyverno as kyverno  # noqa: E402
 import suite_coverage_rego as rego  # noqa: E402
-from suite_coverage import Observation, Reading, measure, render  # noqa: E402
+from suite_coverage import (  # noqa: E402
+    Observation,
+    Reading,
+    load_adapter,
+    measure,
+    render,
+)
 
 # ---------------------------------------------------------------------------------------
 # Core: folding observations into subjects
@@ -712,3 +718,96 @@ def test_the_documented_invocation_writes_the_artifact(tmp_path: Path) -> None:
     assert report["ecosystem"] == "cedar"
     assert report["files_measured"] == 1
     assert report["subjects_blind"] == 0
+
+
+# ---------------------------------------------------------------------------------------
+# XACML adapter: the four-valued domain
+# ---------------------------------------------------------------------------------------
+
+
+def _xacml_suite(tmp_path: Path, responses: dict[str, str]) -> Path:
+    suite = tmp_path / "basic" / "3"
+    (suite / "responses").mkdir(parents=True, exist_ok=True)
+    for name, decision in responses.items():
+        (suite / "responses" / name).write_text(
+            '<?xml version="1.0"?><Response><Result>'
+            f"<Decision>{decision}</Decision></Result></Response>",
+            encoding="utf-8",
+        )
+    return tmp_path
+
+
+def test_xacml_cases_for_one_policy_unify_into_one_subject(tmp_path: Path) -> None:
+    """`response_0001_01` and `response_0001_02` exercise the same policy."""
+
+    root = _xacml_suite(
+        tmp_path, {"response_0001_01.xml": "Permit", "response_0001_02.xml": "Deny"}
+    )
+
+    report = measure(load_adapter("xacml"), [root])
+
+    assert report["subjects_measured"] == 1
+    assert report["subjects"][0]["decisions_witnessed"] == ["Deny", "Permit"]
+
+
+def test_xacml_separates_policies_by_their_index(tmp_path: Path) -> None:
+    root = _xacml_suite(
+        tmp_path, {"response_0001_01.xml": "Permit", "response_0002_01.xml": "Deny"}
+    )
+
+    assert measure(load_adapter("xacml"), [root])["subjects_measured"] == 2
+
+
+def test_a_four_valued_domain_is_not_covered_by_testing_two_outcomes(tmp_path: Path) -> None:
+    """The point of XACML here: `blind` is cleared by two outcomes, `covers_domain` is not."""
+
+    root = _xacml_suite(
+        tmp_path, {"response_0001_01.xml": "Permit", "response_0001_02.xml": "Deny"}
+    )
+
+    row = measure(load_adapter("xacml"), [root])["subjects"][0]
+
+    assert row["blind"] is False
+    assert row["covers_domain"] is False
+    assert row["decisions_unwitnessed"] == ["Indeterminate", "NotApplicable"]
+
+
+def test_witnessing_every_decision_covers_the_domain(tmp_path: Path) -> None:
+    root = _xacml_suite(
+        tmp_path,
+        {
+            "response_0001_01.xml": "Permit",
+            "response_0001_02.xml": "Deny",
+            "response_0001_03.xml": "NotApplicable",
+            "response_0001_04.xml": "Indeterminate",
+        },
+    )
+
+    assert measure(load_adapter("xacml"), [root])["subjects"][0]["covers_domain"] is True
+
+
+def test_single_case_conformance_directories_are_not_measured(tmp_path: Path) -> None:
+    """One case per language feature is a PDP conformance suite, not a policy test suite.
+
+    Scoring those as decision-blind would be a category error rather than a finding.
+    """
+
+    case = tmp_path / "conformance" / "IIA001"
+    case.mkdir(parents=True)
+    (case / "policy.xml").write_text("<Policy/>", encoding="utf-8")
+    (case / "response.xml").write_text(
+        "<Response><Result><Decision>Permit</Decision></Result></Response>", encoding="utf-8"
+    )
+
+    assert load_adapter("xacml").discover(tmp_path) == []
+
+
+def test_a_response_without_a_decision_is_named_rather_than_counted(tmp_path: Path) -> None:
+    suite = tmp_path / "basic" / "3" / "responses"
+    suite.mkdir(parents=True)
+    path = suite / "response_0001_01.xml"
+    path.write_text("<Response><Result/></Response>", encoding="utf-8")
+
+    import suite_coverage_xacml
+
+    assert suite_coverage_xacml.read(path, "r.xml").not_extracted == "no Decision element"

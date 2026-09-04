@@ -21,6 +21,7 @@ chosen to differ along it:
 | Rego (Gatekeeper) | binary: violation set empty or non-empty | a `violation` rule, scoped to its file |
 | Kyverno | `pass` / `fail` / `skip`, per rule type | a `policy/rule` pair |
 | Cedar | binary `allow` / `deny`, over principal x action x resource | a policy set |
+| XACML | four-valued: `Permit`, `Deny`, `NotApplicable`, `Indeterminate` | a policy, across its cases |
 
 ## Method
 
@@ -61,6 +62,7 @@ so the remainder can be audited rather than assumed uninteresting.
 | Rego | 51 / 53 | 96% | 994 |
 | Kyverno | 494 / 495 | 100% | 1584 |
 | Cedar | 24 / 24 | 100% | 78 |
+| XACML | 59 / 59 | 100% | 65 |
 
 The three unread files are named in the artifacts: one Rego suite is entirely commented
 out, one asserts through a two-level helper where guessing would report a permit as a
@@ -68,50 +70,59 @@ denial, and one Kyverno manifest has no results block.
 
 ## Results
 
-| Ecosystem / domain | Subjects | Witness >1 decision | Blind |
-|---|---|---|---|
-| Rego `violation_set` | 49 | 48 (98%) | 1 |
-| Rego `boolean` | 2 | 2 (100%) | 0 |
-| Kyverno `validate` | 328 | 305 (93%) | 23 |
-| Kyverno `mutate` | 88 | 27 (31%) | 61 |
-| Kyverno `generate` | 9 | 0 (0%) | 9 |
-| Cedar | 23 | 21 (91%) | 2 |
+The measure asks two questions of each subject, and the gap between them is the finding.
+*Blind* asks whether a suite ever witnesses a second decision. *Covers the domain* asks
+whether it witnesses every decision the language admits.
 
-**Suites for policies with a genuine two-sided decision are well covered.** The
-straightforward hypothesis -- that published suites routinely test one side -- does not
-hold. Between 91% and 98% of validate, violation and authorization subjects witness both
-outcomes. Practitioners writing enforcement policy do test both directions.
+| Ecosystem / domain | Values in domain | Subjects | Witness >1 | Cover the whole domain |
+|---|---|---|---|---|
+| Rego `violation_set` | 2 | 49 | 48 (98%) | 48 (98%) |
+| Cedar | 2 | 23 | 21 (91%) | 21 (91%) |
+| Kyverno `validate` | 3 | 328 | 305 (93%) | 15 (5%) |
+| XACML | 4 | 21 | 17 (81%) | 1 (5%) |
 
-**The mutate and generate rows are not a finding of poor testing.** A mutate rule is tested
-by comparing against a patched resource: `pass` means the patch matched, and `fail` is not
-an outcome a correct suite produces. Their low numbers are an artifact of the measure being
-applied to a domain where it does not mean what it means elsewhere.
+**In a two-valued domain the two questions are the same question, and practitioners answer
+it.** 91% to 98% of Gatekeeper and Cedar subjects witness both of their decisions. On such a
+policy the measure is close to vacuous: it agrees with almost every suite it is shown, and
+running it teaches a team nothing they had not already done.
 
-That artifact is the methodological result. Measured without resolving rule type, this
-corpus reports 94 of 430 subjects blind -- 22%, a headline number. Resolving type moves the
-comparable figure to 23 of 328 validate rules, 7%. **A decision-coverage measure that
-ignores the ecosystem's decision structure overstated the problem threefold.** Any adapter
-for a new ecosystem has to establish which of its outcomes are genuinely dual before its
-percentages mean anything.
+**Once the domain is larger than binary the two questions separate sharply.** 93% of Kyverno
+validate rules witness more than one result and 5% witness all three; 81% of XACML policies
+witness more than one decision and one of twenty-one witnesses all four. The bar that a
+binary domain clears by writing a single negative case is not cleared once there is a third
+outcome to write.
 
-## What the measure did find
+That is the empirical form of the argument in `DECISION_CLASS_COVERAGE.md`: the criterion's
+discriminating power scales with the decision structure, and the ecosystems in wide use
+today mostly sit at the size where it discriminates least.
 
-23 Kyverno validate rules are blind, in both directions:
+### What the 5% does and does not mean
 
-- **9 witness only `pass`.** If the rule silently stopped matching, its tests still pass.
-  `require-image-source/check-source` has exactly one expectation: `pass` on `goodpod01`.
-- **14 witness only `fail`.** If the rule rejected everything, its tests still pass.
-  `restrict-pod-count/restrict-pod-count` has exactly one expectation: `fail` on `myapp-pod`.
+It does not mean 95% of those suites are defective. Corollary 5 of the theory document is
+exactly the caveat: an unwitnessed decision certifies a gap only when the policy can
+actually return that decision. Kyverno's `skip` means a rule did not apply, and a rule that
+always applies has no `skip` case to write. XACML's `Indeterminate` arises from evaluation
+errors, which a policy may never produce. Neither can be checked from the suite alone -- it
+needs the policy's range, which for these languages is not decidable.
 
-One Gatekeeper suite is blind. `gatekeeper-library/src/general/verifydeprecatedapi` has two
-tests and both assert `count(results) == 0` -- including `test_hpa_with_deprecated_api`,
-whose name says it should produce a violation. Nothing in that suite fails if the constraint
-stops firing entirely, which is the fail-open direction for admission control.
+So the honest reading is narrower than the table looks, and it is still useful. At `|D| = 2`
+the measure raises almost nothing and cannot be used to prioritise review. At `|D| >= 3` it
+raises almost everything, and each raised item is a specific named outcome a reviewer can
+confirm or dismiss in one reading of the policy -- which is a work list, not a verdict.
 
-Two Cedar policy sets witness only `allow`. Across the Cedar corpus, 33 distinct request
-cells are witnessed and 22 of them (67%) under both decisions -- the lowest figure in the
-study, and the one measured over a product-structured request space rather than a flat
-binary. The corpus is small enough that this is a direction to test, not a result.
+### The exception that was verifiable
+
+One Gatekeeper suite is blind on the stronger reading as well.
+`gatekeeper-library/src/general/verifydeprecatedapi` has two tests and both assert
+`count(results) == 0`, including `test_hpa_with_deprecated_api`, whose name says it should
+produce a violation. Nothing in that suite fails if the constraint stops firing, which is
+the fail-open direction for admission control. The next section shows it also catches none
+of its mutants.
+
+Four XACML policies and two Cedar policy sets witness a single decision; 23 Kyverno validate
+rules do, 14 of them only `fail` and 9 only `pass`. Two were checked by hand:
+`require-image-source/check-source` has exactly one expectation, `pass` on `goodpod01`, and
+`restrict-pod-count/restrict-pod-count` exactly one, `fail` on `myapp-pod`.
 
 ## Does the measure predict anything?
 
@@ -158,23 +169,33 @@ these edits, not against all faults.
 ## Interpretation
 
 The exactness results this measure descends from -- decidable equivalence, an exact kill
-criterion, cell coverage deciding the mutation score -- hold over a restricted fragment
+criterion, cell coverage deciding the mutation score -- hold over the policy language
 defined and proved in [DECISION_CLASS_COVERAGE.md](DECISION_CLASS_COVERAGE.md). None of the
-three ecosystems measured here is inside that fragment, so what follows is an observation
-about their suites rather than a proof about them.
+four ecosystems measured here is inside it: their subjects are arbitrary JSON, entity graphs
+or XACML attribute categories, and their guards are general expressions, so no enumeration
+exhausts them and equivalence is undecidable. Everything here is therefore an observation
+about their suites rather than a proof about them, and the mutation experiment above is what
+was done instead of a proof.
 
-The measure earns nothing on a two-cell policy. Two cells get covered in practice, so
-running decision-class coverage on a Gatekeeper constraint mostly confirms what is already
-true. It earns its keep as the decision structure grows: TrustWeave's policy decides over
-trust level x action class, where the cells a suite must witness grow with the product
-rather than with the line count, and where the orthogonality witness shows structural
-coverage going to 100% while the suite stays blind. This corpus contains almost nothing in
-that regime, which bounds what these numbers can be used to claim.
+Taken together the two experiments say something more specific than either alone.
 
-The honest summary is that decision-class coverage is cheap, exact, and mostly redundant on
-today's published policy -- and that the four verified blind subjects it did surface, in
-official upstream libraries, were not caught by the structural coverage those projects
-already run.
+*The measure is not a substitute for mutation testing.* At `|D| = 2` it agrees with 91-98%
+of suites while their mutation scores range from 0.50 to 1.00, so it is silent about exactly
+the suites a team would want flagged.
+
+*It is not noise either.* Its one flag on that corpus landed on the only suite that catches
+none of its mutants, at p = 0.021.
+
+*And its resolution is set by the decision structure, not by the policy's size.* The same
+criterion that raises 2% of subjects at `|D| = 2` raises 95% at `|D| >= 3`. That is the
+property the theory predicts and the reason it is worth stating: a team choosing a policy
+language is also choosing how much a cheap output-coverage check can tell them, and the
+languages in widest use are the ones where it can tell them least.
+
+TrustWeave's own policy sits at the other end -- trust level times action class, where the
+classes a suite must witness grow with the product -- and inside a language where the count
+is exact rather than a lower bound. That is the case the criterion was built for, and no
+public corpus of comparable agent-security policy suites exists yet to measure it against.
 
 ## Threats to validity
 
@@ -184,7 +205,12 @@ already run.
   only that the suite could not detect one class of defect.
 - Kyverno subjects that name no rule are attributed to `policy/*`, which merges rules of a
   multi-rule policy. 5 subjects could not have their type resolved at all.
-- The Cedar corpus is 24 files and 78 requests. Its percentages carry wide error bars.
+- The Cedar corpus is 24 files and 78 requests, and the XACML one 21 policies over 59 cases.
+  Both carry wide error bars, and the XACML figure rests on a single library's multi-case
+  suites -- the OASIS conformance material is one case per language feature and measuring it
+  would answer a different question.
+- The mutation experiment has one decision-blind policy in it. A single correct prediction
+  at p = 0.021 is evidence, not a validated predictor, and the operator set is syntactic.
 - Rego extraction is 96%, not 100%, and the adapter's refusals are conservative by design,
   so the true figure could move in either direction by at most two files.
 

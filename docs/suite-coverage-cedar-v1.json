@@ -25,8 +25,11 @@
     "cedar_decision": {
       "subjects": 23,
       "blind": 2,
+      "covering_domain": 21,
+      "domain_size": 2,
       "witnessing_more_than_one": 21,
-      "share_witnessing_more_than_one": 0.913
+      "share_witnessing_more_than_one": 0.913,
+      "share_covering_domain": 0.913
     }
   },
   "not_extracted": [],
@@ -40,7 +43,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -51,7 +55,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -62,7 +67,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -73,7 +79,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -84,7 +91,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -95,7 +103,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -106,7 +115,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -117,7 +127,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -128,7 +139,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -140,7 +152,8 @@
       "domain_size": 2,
       "decisions_unwitnessed": [
         "deny"
-      ]
+      ],
+      "covers_domain": false
     },
     {
       "domain": "cedar_decision",
@@ -151,7 +164,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -162,7 +176,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -173,7 +188,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -184,7 +200,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -195,7 +212,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -206,7 +224,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -217,7 +236,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -228,7 +248,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -239,7 +260,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -250,7 +272,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -261,7 +284,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -272,7 +296,8 @@
       ],
       "blind": false,
       "domain_size": 2,
-      "decisions_unwitnessed": []
+      "decisions_unwitnessed": [],
+      "covers_domain": true
     },
     {
       "domain": "cedar_decision",
@@ -284,7 +309,8 @@
       "domain_size": 2,
       "decisions_unwitnessed": [
         "deny"
-      ]
+      ],
+      "covers_domain": false
     }
   ],
   "extra": {
