@@ -1041,3 +1041,98 @@ def test_a_helper_called_with_a_runtime_value_still_refuses(tmp_path: Path) -> N
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert "NONLITERAL_ARGUMENT" in tools[0].reasons
+
+
+# ---------------------------------------------------------------------------------------
+# What a reviewer sees
+# ---------------------------------------------------------------------------------------
+
+
+def test_the_report_names_the_form_each_tool_was_registered_by(tmp_path: Path) -> None:
+    """Which framework found a tool tells a reviewer how much the discovery is worth."""
+
+    from trustweave.report import render_code_discovery_report
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import requests\n"
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "class FetchTool(BaseTool):\n"
+        '    name: str = "fetch_page"\n\n'
+        "    def _run(self, url: str) -> str:\n"
+        "        return requests.get(url).text\n",
+    )
+    rendered = render_code_discovery_report(
+        review_code_discovery(collect_python_sources(tmp_path), None, FIXED_TIME)
+    )
+
+    assert "Registered by" in rendered
+    assert "langchain base tool subclass" in rendered
+
+
+def test_the_report_shows_the_symbol_behind_a_registered_name(tmp_path: Path) -> None:
+    """The first name is what the model sees; the second is what a reviewer must open."""
+
+    from trustweave.report import render_code_discovery_report
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "def summarize_object(bucket: str) -> str:\n"
+        '    """Summarize."""\n'
+        "    return bucket\n\n\n"
+        "tool = StructuredTool.from_function(\n"
+        '    func=summarize_object, name="object_summary", description="d"\n'
+        ")\n",
+    )
+    rendered = render_code_discovery_report(
+        review_code_discovery(collect_python_sources(tmp_path), None, FIXED_TIME)
+    )
+
+    assert "`object_summary`" in rendered
+    assert "via `summarize_object`" in rendered
+
+
+def test_a_tool_whose_names_agree_is_not_annotated_twice(tmp_path: Path) -> None:
+    from trustweave.report import render_code_discovery_report
+
+    rendered = render_code_discovery_report(_review())
+
+    assert "via `search_docs`" not in rendered
+
+
+def test_every_refusal_reason_the_document_lists_exists_in_the_analyzer() -> None:
+    """A documented reason the code never emits tells a reviewer to look for nothing."""
+
+    import re
+
+    source = (ROOT / "src" / "trustweave" / "code_analysis.py").read_text(encoding="utf-8")
+    document = (ROOT / "docs" / "CODE_DISCOVERY.md").read_text(encoding="utf-8")
+    table = document.split("## Why a tool is left unknown", 1)[1].split("##", 1)[0]
+    documented = set(re.findall(r"`([A-Z][A-Z_]{4,})`", table))
+    emitted = set(re.findall(r'"([A-Z][A-Z_]{4,})"', source))
+
+    assert documented, "the document must list the refusal reasons"
+    assert documented <= emitted, f"documented but never emitted: {sorted(documented - emitted)}"
+
+
+def test_every_registration_form_the_document_lists_is_produced_by_the_analyzer() -> None:
+    """The table is the boundary of what discovery sees, so it must match the code."""
+
+    import re
+
+    source = (ROOT / "src" / "trustweave" / "code_analysis.py").read_text(encoding="utf-8")
+    frameworks = set(re.findall(r'framework = "([a-z_]+)"', source))
+    frameworks |= set(re.findall(r'"(structured_tool_factory|bound_plain_function)"', source))
+    frameworks |= set(re.findall(r'"(langchain_base_tool_subclass)"', source))
+
+    assert {
+        "langchain_tool_decorator",
+        "semantic_kernel_decorator",
+        "server_tool_decorator",
+        "structured_tool_factory",
+        "langchain_base_tool_subclass",
+        "bound_plain_function",
+    } <= frameworks
