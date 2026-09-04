@@ -9,59 +9,93 @@ Every claim here is checked by `tests/test_decision_class_theory.py`, which veri
 theorems by exhaustive enumeration against the shipped policy and the real mutant set rather
 than restating them.
 
-## 1. The fragment
+## 1. The language and its subject space
 
-Fix three finite label sets:
+A **policy** is a finite ordered sequence of rules with a mandatory default decision
+`d_0 in D`, where `D = {allow, deny, require_approval}`. Evaluation is first-match: the
+decision of the first rule whose every predicate holds, or `d_0`.
 
-- trust levels `T = {trusted, conditional, untrusted}`
-- action classes `A = {read, write, sensitive, external}`
-- decisions `D = {allow, deny, require_approval}`
+A **subject** is the tuple of declared labels a rule may test:
 
-The **subject space** is `S = T x A`, with `|S| = 12`. A **policy** `P` is a finite ordered
-sequence of rules `r_1 ... r_n` together with a default decision `d_0 in D`. Each rule is a
-triple `(G_T, G_A, d)` with `G_T` a subset of `T`, `G_A` a subset of `A`, and `d in D`.
+| Component | Domain | Predicate the language offers |
+|---|---|---|
+| trust | `T`, 3 values | membership in a named set |
+| action class | `A`, 4 values | membership in a named set |
+| data classification | any string | membership in a named set; bounds over a declared taxonomy |
+| source identifier | any string | membership in a named set |
+| tool identifier | any string | membership in a named set |
+| purpose tags | any *set* of strings | non-empty intersection with a named set |
+| capabilities | any *set* of strings | some capability matches some named pattern, where a pattern is exact or a final `.*` namespace wildcard |
 
-The semantics is first-match:
+**The subject space is infinite.** Identifiers, purposes and capabilities are arbitrary
+strings, and two of the components are sets rather than scalars. There is no 12-cell domain
+to enumerate, and an earlier version of this document wrongly described one: it stated the
+fragment as *policies that constrain only trust and action*, which is a property of the one
+policy shipped rather than of the language.
+
+What is true, and what everything below rests on, is that the space is finite *relative to
+a policy*.
+
+## 2. The policy-relative quotient
+
+For a policy `P`, write `~P` for the relation on subjects that holds when two subjects give
+the same answer to every predicate any rule of `P` states. Since first-match evaluation
+consults nothing else, `[[P]]` is constant on each class of `~P`.
+
+**Theorem 1 (finite quotient).** For every policy `P`, the quotient `S/~P` is finite and
+computable from `P`'s text, with
 
 ```
-[[P]](t, a) = d_i   where i is least with t in G_T(r_i) and a in G_A(r_i)
-[[P]](t, a) = d_0   if no such i exists
+|S/~P|  <=  |T| . |A| . (|X_P| + |taxonomy| + 1) . (|I_P| + 2) . (|J_P| + 2) . 2^|G_P| . 2^|K_P|
 ```
 
-Two properties matter and both are immediate. `[[P]]` is **total**: every subject receives a
-decision, because `d_0` is mandatory -- this is the fail-closed default the tool enforces.
-And `[[P]]` is a function `S -> D` and nothing more: no rule may consult anything outside
-`(t, a)`.
+where `X_P`, `I_P`, `J_P`, `G_P`, `K_P` are the classifications, source identifiers, tool
+identifiers, purpose tags and capability patterns the policy names.
 
-That last restriction is the whole fragment. It is what the rest of this document trades on,
-and section 7 is what it costs.
+*Proof.* Take each component in turn. Trust and action range over closed finite domains.
+A membership predicate over a named set `N` distinguishes only which element of `N` a value
+is, or that it is in none, so `|N| + 1` classes suffice; classification adds the taxonomy
+because the bound predicates compare ranks within it. Purpose matching is non-empty
+intersection with a named set, so only the *subset of named tags* a subject carries matters:
+`2^|G_P|` classes. Capability matching is existential over (named pattern, subject
+capability), so only the *subset of named patterns some capability matches* matters:
+`2^|K_P|` classes, and each is witnessed, since a pattern `n.*` is matched by `n.w` for any
+`w` and an exact pattern by itself. Subjects agreeing on every component agree on every
+predicate, hence match the same rules, hence receive the same decision. []
 
-## 2. Finite characterisation
+`witness_space()` computes one representative per class and `cells()` enumerates the
+product; `abstract_cell()` maps a concrete subject to its representative. For the shipped
+policy, which names no classification, purpose or capability, the bound collapses to
+`3 . 4 = 12` -- so the twelve cells are the whole space for *that* policy rather than a
+projection of it.
 
-**Theorem 1.** Every policy in the fragment is completely characterised by its **decision
-vector** `v(P) = <[[P]](s)>_{s in S} in D^S`. The space of distinguishable behaviours is
-finite, with `|D^S| = 3^12 = 531441` elements.
+Theorem 1 is the load-bearing claim and it is checked, not merely argued:
+`tests/test_decision_class_theory.py` draws random subjects over open domains -- unnamed
+identifiers, unnamed purposes, capabilities inside and outside a wildcard namespace -- and
+asserts each decides exactly as its class witness does. Breaking the abstraction makes that
+test fail.
 
-*Proof.* `[[P]]` is a total function `S -> D` by section 1, and `v(P)` is that function
-tabulated. Nothing about `P` beyond `[[P]]` is observable to a scenario expressed in these
-labels, since such a scenario supplies only a subject `s in S`. []
+**Theorem 2 (decidable equivalence).** For policies `P` and `Q`, semantic equivalence is
+decidable: quotient by `~P n ~Q` -- computed from the values *either* policy names -- and
+compare the decision each gives on every class. The cost is the size of that common
+refinement, bounded as above with the named sets unioned.
 
-`decision_map()` computes `v(P)` in `|S|` evaluations.
+*Proof.* `[[P]]` and `[[Q]]` are each constant on classes of the common refinement by
+Theorem 1, so agreement on one representative per class is agreement everywhere. []
 
-## 3. Equivalence is decidable
+This is what removes the equivalent-mutant problem. Deciding whether a surviving mutant is
+equivalent to the original is undecidable for programs in general, so tools approximate the
+score or a human inspects survivors. Here it is a comparison of two finite tables. The
+harness checks that a mutant names no value the reference does not, so the two quotients
+coincide and one table shape serves both; a mutant that widened the space would be refused
+rather than compared across incompatible partitions.
 
-**Theorem 2.** For policies `P, Q` in the fragment, `P` and `Q` are semantically equivalent
-if and only if `v(P) = v(Q)`. Equivalence is decidable in `|S|` evaluations of each policy.
+## 3. Cells, and what a cell is
 
-*Proof.* Immediate from Theorem 1: equivalence means agreement on every subject, and `v`
-tabulates exactly that. []
-
-This is what removes the equivalent-mutant problem. In general mutation testing, deciding
-whether a surviving mutant is equivalent to the original is undecidable, so tools either
-approximate the score or a human inspects survivors. Here a mutant is discarded as
-equivalent precisely when its decision vector equals the reference vector, which is a
-comparison of two 12-entry tables. The reported score has no equivalent mutants hiding in
-its denominator, and this is a fact about the language rather than a claim about the tool.
+Throughout the rest of this document a **cell** means a class of the quotient of Theorem 1,
+and `S` means `S/~P`. Nothing below depends on which components a policy happens to use:
+a policy naming only trust and action has twelve cells, one that also bounds classification,
+names two purpose tags and two capability patterns has 960, and the statements are the same.
 
 ## 4. What a suite can detect
 
@@ -170,50 +204,35 @@ The default suite expects every decision class and still kills only 63.6%. That 
 Corollary 5: decision-class completeness is necessary and not sufficient, and the gap
 between the two is the nine cells it never witnesses.
 
-## 7. Where the fragment ends
+## 7. Where this ends
 
-**Theorem 6.** If rule guards may contain arbitrary computable predicates over an unbounded
-subject space, policy equivalence is undecidable.
+**Theorem 6.** If rule guards may contain arbitrary computable predicates, policy
+equivalence is undecidable.
 
-*Proof sketch.* Let `e` be an arbitrary program. Build policies over subjects encoding
-inputs: `P_e` returns `deny` on subject `x` when `e` halts on `x` and `allow` otherwise, and
-`Q` returns `allow` everywhere. Then `P_e` is equivalent to `Q` exactly when `e` halts on no
-input, which is not decidable. Equivalently, semantic equivalence to a fixed policy is a
-non-trivial property of the guard programs' extensions, so Rice's theorem applies. []
+*Proof sketch.* Semantic equivalence to a fixed policy is a non-trivial property of the
+extensions of the guard programs, so Rice's theorem applies: no total procedure decides,
+for arbitrary guard programs, whether two policies agree on every subject. []
 
-So every exactness claim above is a claim about the finite-label fragment, and none of it
-transfers to policy languages with open subject spaces. Rego, Cedar and Kyverno all sit
-outside it: their subjects are arbitrary JSON or entity graphs, their guards are general
-expressions, and their decision domains -- while small -- are reached through predicates
-that no enumeration can exhaust. The measurement in `docs/SUITE_COVERAGE_STUDY.md` is
-therefore an *observation* about those suites, not a proof about them: it reports which
-decisions a suite pins, which is well defined everywhere, while the exactness results here
-require the fragment.
+So the results above are a property of *this* language, and specifically of the fact that
+every predicate it offers -- set membership, rank bounds over a declared taxonomy, set
+intersection, final-namespace wildcards -- induces finitely many classes computable from the
+policy text. Add a predicate that does not, a regular expression over identifiers say, or a
+numeric comparison against a value the policy does not name, and Theorem 1's bound stops
+holding. That is the boundary to watch when the language grows, and it is a design
+constraint on the language rather than a limitation of the tool.
 
-TrustWeave's own policy is inside the fragment by construction, which is the reason its
-adequacy can be computed rather than estimated. Keeping it there is a design constraint
-rather than an accident, and it is enforced twice: `scripts/policy_mutation.py` refuses a
-policy whose rules constrain data classification, capabilities, identifiers or purpose,
-because `decision_map` does not range over those and would report two distinguishable
-mutants as equivalent; and `tests/test_decision_class_theory.py` fails if the shipped policy
-ever leaves the fragment.
+Two practical limits remain. The quotient is a *product*, so it grows multiplicatively in
+the number of purpose tags and capability patterns a policy names: twenty named purpose tags
+alone put it past a million classes. `cells()` refuses above a fixed bound rather than
+sampling, because an exact score over a sampled subspace would not be exact. And the
+comparison in Theorem 2 requires the two policies to induce the same quotient; the harness
+checks this and refuses rather than comparing tables of different shapes.
 
-The `policy/v1alpha2` schema admits exactly such rules, and the scenario format is likewise
-richer than the enumeration: a case may declare a classification, capabilities, identifiers
-or a purpose tag. Both sides are therefore guarded. `analyze` refuses a policy whose rules
-constrain an attribute the enumeration does not range over, and refuses a suite whose
-scenarios declare one -- because such a case cannot be placed in the partition, and two
-cases differing only in that attribute would collapse onto one cell and be scored against a
-decision the engine never computed for them.
-
-Extending the enumeration to the full attribute space, rather than refusing it, is the
-remaining work. It is not mechanical. Trust, action and classification are finite label
-sets, but capability predicates match by *pattern*, so the relevant equivalence classes are
-the distinct match signatures of a subject against the patterns a policy mentions, and
-identifiers and purpose tags are drawn from open sets where the classes are "one of the
-values the policy names" plus one witness for everything else. Each is finite and
-policy-relative, so the results above should carry over with `S` the larger product; none of
-it is established here, and the refusals stand until it is.
+Rego, Cedar and Kyverno sit outside all of this: their subjects are arbitrary JSON or entity
+graphs and their guards are general expressions, so no enumeration exhausts them. The
+measurement in `docs/SUITE_COVERAGE_STUDY.md` is therefore an observation about those
+suites, not a proof about them -- it reports which decisions a suite pins, which is well
+defined everywhere, while the exactness results here require the finite quotient.
 
 ## 8. Relation to existing criteria
 
@@ -237,14 +256,21 @@ adequacy question with a normally undecidable component reduces to a coverage qu
 costs one pass over the suite. The criterion is old; the equivalence and the reason it holds
 are what this document contributes.
 
-**"Equivalent-mutant detection is a studied problem, and this proof is trivial."** The proof
-is trivial -- deliberately. Detecting equivalent mutants in general programs is undecidable,
-and the literature accordingly pursues partial methods: constraint-based reasoning,
-compiler-equivalence, coverage-based heuristics. The result here is not a better method. It
-is the observation that a policy language restricted to finite label products makes the
-question decidable outright, which converts a research problem into a table comparison. The
-contribution is the restriction and the demonstration that a useful policy language fits
-inside it, not the difficulty of the argument.
+**"Equivalent-mutant detection is a studied problem, and this proof is trivial."** Detecting
+equivalent mutants in general programs is undecidable, and the literature accordingly
+pursues partial methods: constraint-based reasoning, compiler-equivalence, coverage-based
+heuristics. The result here is not a better method for that problem; it is the observation
+that this policy language sidesteps it.
+
+The argument is elementary but it is not vacuous, and an earlier draft of this document
+overstated how little there was to it by describing the language as a product of finite
+label domains. It is not: two components are sets, one predicate is a namespace wildcard,
+and three components range over arbitrary strings, so the subject space is infinite and no
+enumeration of it exists. What Theorem 1 establishes is that each predicate the language
+offers induces finitely many classes *computable from the policy text*, and that a witness
+can be constructed for each -- including for a wildcard pattern, which stands for infinitely
+many capabilities. The contribution is that construction and the demonstration that a useful
+policy language admits it, not the difficulty of the argument.
 
 What survives those three concessions is: a stated fragment, an exactness result that makes
 a reported mutation score meaningful rather than approximate, a witness showing the criterion

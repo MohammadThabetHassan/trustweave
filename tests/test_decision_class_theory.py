@@ -12,8 +12,11 @@ from __future__ import annotations
 import importlib.util
 import itertools
 from pathlib import Path
+from typing import Any
 
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 ROOT = Path(__file__).resolve().parents[1]
 _spec = importlib.util.spec_from_file_location(
@@ -23,6 +26,8 @@ assert _spec and _spec.loader
 policy_mutation = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(policy_mutation)
 
+from trustweave.models import parse_policy  # noqa: E402
+
 POLICY = ROOT / "policies" / "default-policy.json"
 SUITES = [
     ROOT / "scenarios" / "default-scenarios.json",
@@ -30,18 +35,25 @@ SUITES = [
     ROOT / "scenarios" / "coverage-matrix-scenarios.json",
 ]
 
-CELLS = policy_mutation.CELLS
 DECISIONS = policy_mutation.DECISIONS
 
-Cell = tuple[str, str]
-Expectation = tuple[str, str, str]
+
+def _cells() -> tuple:
+    return policy_mutation.cells(_document())
+
+
+def _space() -> dict:
+    return policy_mutation.witness_space(_document())
+
+
+Expectation = tuple[tuple, str]
 
 
 def _document() -> dict:
     return dict(policy_mutation.load_document(POLICY))
 
 
-def _reference() -> dict[Cell, str]:
+def _reference() -> dict[tuple, str]:
     return policy_mutation.decision_map(_document())
 
 
@@ -60,14 +72,14 @@ def _partition() -> tuple[dict[str, dict], dict[str, dict]]:
     return equivalent, live
 
 
-def _kills_map(expectations: list[Expectation], resolved: dict[Cell, str]) -> bool:
+def _kills_map(expectations: list[Expectation], resolved: dict[tuple, str]) -> bool:
     """The kill relation stated over a decision vector rather than a policy document."""
 
-    return any(resolved[(trust, action)] != expected for trust, action, expected in expectations)
+    return any(resolved[cell] != expected for cell, expected in expectations)
 
 
-def _exhaustive_suite(reference: dict[Cell, str]) -> list[Expectation]:
-    return [(trust, action, reference[(trust, action)]) for trust, action in CELLS]
+def _exhaustive_suite(reference: dict[tuple, str]) -> list[Expectation]:
+    return [(cell, reference[cell]) for cell in reference]
 
 
 # ---------------------------------------------------------------------------------------
@@ -77,9 +89,10 @@ def _exhaustive_suite(reference: dict[Cell, str]) -> list[Expectation]:
 
 def test_the_subject_space_is_the_product_of_the_label_domains() -> None:
     expected = set(itertools.product(policy_mutation.TRUST_LEVELS, policy_mutation.ACTION_CLASSES))
+    partition = _cells()
 
-    assert set(CELLS) == expected
-    assert len(CELLS) == 12
+    assert {(cell[0], cell[1]) for cell in partition} == expected
+    assert len(partition) == 12, "this policy constrains nothing beyond trust and action"
 
 
 def test_the_decision_vector_is_total_and_lands_in_the_decision_domain() -> None:
@@ -87,7 +100,7 @@ def test_the_decision_vector_is_total_and_lands_in_the_decision_domain() -> None
 
     reference = _reference()
 
-    assert set(reference) == set(CELLS)
+    assert set(reference) == set(_cells())
     assert set(reference.values()) <= set(DECISIONS)
 
 
@@ -130,13 +143,13 @@ def test_the_kill_criterion_is_exactly_the_intersection_of_delta_and_witnessed(
     suite_path: Path,
 ) -> None:
     reference = _reference()
-    expectations = policy_mutation._suite_expectations(suite_path)
-    witnessed = {(trust, action) for trust, action, _ in expectations}
+    expectations = policy_mutation._suite_expectations(suite_path, _space())
+    witnessed = {cell for cell, _ in expectations}
     _, live = _partition()
 
     for name, mutant in live.items():
         resolved = policy_mutation.decision_map(mutant)
-        delta = {cell for cell in CELLS if resolved[cell] != reference[cell]}
+        delta = {cell for cell in reference if resolved[cell] != reference[cell]}
 
         assert policy_mutation._kills(expectations, mutant) == bool(delta & witnessed), name
 
@@ -147,8 +160,8 @@ def test_the_suites_are_consistent_with_the_policy_they_test(suite_path: Path) -
 
     reference = _reference()
 
-    for trust, action, expected in policy_mutation._suite_expectations(suite_path):
-        assert reference[(trust, action)] == expected, f"{trust}/{action}"
+    for cell, expected in policy_mutation._suite_expectations(suite_path, _space()):
+        assert reference[cell] == expected, str(cell)
 
 
 # ---------------------------------------------------------------------------------------
@@ -175,9 +188,9 @@ def test_every_unwitnessed_cell_admits_a_surviving_mutant() -> None:
     """
 
     reference = _reference()
-    expectations = policy_mutation._suite_expectations(SUITES[1])
-    witnessed = {(trust, action) for trust, action, _ in expectations}
-    unwitnessed = [cell for cell in CELLS if cell not in witnessed]
+    expectations = policy_mutation._suite_expectations(SUITES[1], _space())
+    witnessed = {cell for cell, _ in expectations}
+    unwitnessed = [cell for cell in reference if cell not in witnessed]
 
     assert unwitnessed, "this suite is expected to leave cells unwitnessed"
     for cell in unwitnessed:
@@ -194,7 +207,7 @@ def test_every_unwitnessed_cell_admits_a_surviving_mutant() -> None:
 def test_the_decision_vector_kill_relation_agrees_with_the_harness() -> None:
     """Validates the helper the previous test relies on against the real implementation."""
 
-    expectations = policy_mutation._suite_expectations(SUITES[0])
+    expectations = policy_mutation._suite_expectations(SUITES[0], _space())
     _, live = _partition()
 
     for name, mutant in live.items():
@@ -214,17 +227,17 @@ def test_a_suite_can_expect_every_decision_class_and_still_be_blind() -> None:
     """This is the orthogonality witness stated arithmetically."""
 
     reference = _reference()
-    by_decision: dict[str, Cell] = {}
-    for cell in CELLS:
+    by_decision: dict[str, tuple] = {}
+    for cell in _cells():
         by_decision.setdefault(reference[cell], cell)
 
     assert set(by_decision) == set(DECISIONS), "the policy must reach every decision"
 
-    expectations = [(cell[0], cell[1], reference[cell]) for cell in by_decision.values()]
+    expectations = [(cell, reference[cell]) for cell in by_decision.values()]
     witnessed = set(by_decision.values())
-    unwitnessed = [cell for cell in CELLS if cell not in witnessed]
+    unwitnessed = [cell for cell in _cells() if cell not in witnessed]
 
-    assert {expected for _, _, expected in expectations} == set(DECISIONS)
+    assert {expected for _, expected in expectations} == set(DECISIONS)
     survivors = 0
     for cell in unwitnessed:
         for decision in DECISIONS:
@@ -239,35 +252,111 @@ def test_a_suite_can_expect_every_decision_class_and_still_be_blind() -> None:
 
 
 # ---------------------------------------------------------------------------------------
-# The fragment guard: the shipped policy is inside, and the harness refuses what is not
+# The quotient: an open subject space enumerated relative to the policy
 # ---------------------------------------------------------------------------------------
 
 
-def test_the_shipped_policy_is_inside_the_fragment() -> None:
-    assert policy_mutation.fragment_violations(_document()) == []
+def test_the_shipped_policy_constrains_nothing_beyond_trust_and_action() -> None:
+    """Its 12 cells are the whole space, not a projection of a larger one."""
+
+    space = _space()
+
+    assert len(space["source_data_classification"]) == 1
+    assert len(space["purpose_tags"]) == 1
+    assert len(space["tool_capabilities"]) == 1
+    assert len(_cells()) == 12
 
 
-def test_a_guard_outside_the_enumerated_space_is_refused_rather_than_measured() -> None:
-    """Exactness is a property of the fragment; outside it the score would be unsound."""
+def _richer_policy() -> dict:
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["source_data_classification_at_least"] = "confidential"
+    document["rules"][1]["tool_capabilities"] = ["net.*", "fs.read"]
+    document["rules"][2]["purpose_tags"] = ["support", "billing"]
+    return document
+
+
+def test_a_richer_guard_enlarges_the_quotient_rather_than_being_refused() -> None:
+    """The point of T2: enumerate the attribute space instead of projecting it away."""
+
+    space = policy_mutation.witness_space(_richer_policy())
+
+    assert len(space["source_data_classification"]) == 5
+    assert len(space["purpose_tags"]) == 4, "every subset of the two named tags"
+    assert len(space["tool_capabilities"]) == 4, "every subset of the two named patterns"
+    assert len(policy_mutation.cells(_richer_policy())) == 960
+
+
+def test_a_wildcard_capability_pattern_gets_a_witness_that_matches_it() -> None:
+    from trustweave.policy_predicates import capability_matches
+
+    witnesses = {
+        witness
+        for subset in policy_mutation.witness_space(_richer_policy())["tool_capabilities"]
+        for witness in subset
+    }
+
+    assert any(capability_matches("net.*", witness) for witness in witnesses)
+    assert "fs.read" in witnesses
+
+
+def test_the_decision_map_covers_every_class_of_a_richer_policy() -> None:
+    document = _richer_policy()
+
+    resolved = policy_mutation.decision_map(document)
+
+    assert set(resolved) == set(policy_mutation.cells(document))
+    assert set(resolved.values()) <= set(DECISIONS)
+
+
+def test_a_quotient_too_large_to_enumerate_is_refused_not_sampled() -> None:
+    """An exact score over a sampled subspace would not be exact."""
 
     document = _document()
-    document["rules"][0]["source_data_classification_at_least"] = "confidential"
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["purpose_tags"] = [f"tag{index}" for index in range(20)]
 
-    assert policy_mutation.fragment_violations(document) == [
-        "TW-001.source_data_classification_at_least"
-    ]
+    with pytest.raises(SystemExit, match="above the"):
+        policy_mutation.cells(document)
 
 
-def test_analyze_refuses_an_out_of_fragment_policy(tmp_path: Path) -> None:
+def test_a_scenario_attribute_is_placed_in_its_class_rather_than_ignored(tmp_path: Path) -> None:
+    """A case declaring a classification is located in the space the policy is measured over."""
+
     import json
 
-    document = _document()
-    document["rules"][0]["tool_capabilities"] = ["network"]
-    path = tmp_path / "policy.json"
-    path.write_text(json.dumps(document), encoding="utf-8")
+    document = _richer_policy()
+    space = policy_mutation.witness_space(document)
+    suite = dict(policy_mutation.load_document(SUITES[0]))
+    scenario = dict(suite["scenarios"][0])
+    scenario["source_data_classification"] = "restricted"
+    suite["scenarios"] = [scenario]
+    path = tmp_path / "scenarios.json"
+    path.write_text(json.dumps(suite), encoding="utf-8")
 
-    with pytest.raises(SystemExit, match="outside the enumerated"):
-        policy_mutation.analyze(path, [SUITES[0]])
+    ((cell, _expected),) = policy_mutation._suite_expectations(path, space)
+
+    assert cell[2] == "restricted"
+
+
+def test_two_cases_differing_only_in_classification_no_longer_collapse(tmp_path: Path) -> None:
+    """Under the old projection both mapped to one cell and one was scored wrongly."""
+
+    import json
+
+    document = _richer_policy()
+    space = policy_mutation.witness_space(document)
+    suite = dict(policy_mutation.load_document(SUITES[0]))
+    base = dict(suite["scenarios"][0])
+    first = {**base, "id": "A", "source_data_classification": "public"}
+    second = {**base, "id": "B", "source_data_classification": "restricted"}
+    suite["scenarios"] = [first, second]
+    path = tmp_path / "scenarios.json"
+    path.write_text(json.dumps(suite), encoding="utf-8")
+
+    cells_used = {cell for cell, _ in policy_mutation._suite_expectations(path, space)}
+
+    assert len(cells_used) == 2
 
 
 # ---------------------------------------------------------------------------------------
@@ -321,9 +410,9 @@ def test_expected_decision_classes_are_the_image_of_the_witnessed_cells() -> Non
 
     reference = _reference()
     for suite_path in SUITES:
-        expectations = policy_mutation._suite_expectations(suite_path)
-        witnessed = {(trust, action) for trust, action, _ in expectations}
-        expected = {decision for _, _, decision in expectations}
+        expectations = policy_mutation._suite_expectations(suite_path, _space())
+        witnessed = {cell for cell, _ in expectations}
+        expected = {decision for _, decision in expectations}
 
         assert expected == {reference[cell] for cell in witnessed}, suite_path.name
 
@@ -344,10 +433,10 @@ def test_a_policy_that_never_returns_a_decision_needs_no_case_expecting_it() -> 
 
     reference = policy_mutation.decision_map(document)
     exhaustive = _exhaustive_suite(reference)
-    expected = {decision for _, _, decision in exhaustive}
+    expected = {decision for _, decision in exhaustive}
 
     assert "require_approval" not in expected
-    assert set(reference) == set(CELLS)
+    assert set(reference) == set(policy_mutation.cells(document))
     for name, mutant in policy_mutation._mutants(document):
         resolved = policy_mutation.decision_map(mutant)
         if resolved != reference:
@@ -368,43 +457,110 @@ def test_section_cross_references_in_the_document_resolve() -> None:
 
 
 # ---------------------------------------------------------------------------------------
-# The suite side of the fragment: a case must be placeable in the partition
+# Soundness of the quotient: a class witness decides exactly as its members do
 # ---------------------------------------------------------------------------------------
 
-
-@pytest.mark.parametrize("suite_path", SUITES, ids=lambda path: path.stem)
-def test_the_shipped_suites_are_inside_the_fragment(suite_path: Path) -> None:
-    assert policy_mutation.scenario_fragment_violations(suite_path) == []
-
-
-def _suite_with(tmp_path: Path, extra: dict) -> Path:
-    import json
-
-    document = dict(policy_mutation.load_document(SUITES[0]))
-    scenario = dict(document["scenarios"][0])
-    scenario.update(extra)
-    document["scenarios"] = [scenario]
-    path = tmp_path / "scenarios.json"
-    path.write_text(json.dumps(document), encoding="utf-8")
-    return path
+TAXONOMY = ("public", "internal", "confidential", "restricted")
+_NAMED_PURPOSES = ("support", "billing")
+_NAMED_CAPABILITIES = ("fs.read", "net.egress", "net.deep.thing", "unrelated.capability")
 
 
-def test_a_scenario_attribute_the_partition_cannot_represent_is_refused(tmp_path: Path) -> None:
-    """decision_map evaluates every cell with no classification, so setting one is not measurable.
+def _decide_concretely(policy: Any, subject: tuple) -> str:
+    """The engine's own first-match evaluation over an unabstracted subject."""
 
-    Two scenarios differing only in classification would otherwise collapse onto one cell,
-    and each would be scored against a decision the engine never computed for it.
+    return policy_mutation._decide(policy, subject)
+
+
+@given(
+    trust=st.sampled_from(policy_mutation.TRUST_LEVELS),
+    action=st.sampled_from(policy_mutation.ACTION_CLASSES),
+    classification=st.sampled_from((*TAXONOMY, "unspecified", "not-in-taxonomy")),
+    source_identifier=st.sampled_from(("synthetic-source", "alice", "bob")),
+    tool_identifier=st.sampled_from(("synthetic-tool", "mailer", "search")),
+    purposes=st.lists(
+        st.sampled_from((*_NAMED_PURPOSES, "unnamed-purpose")), max_size=3, unique=True
+    ),
+    capabilities=st.lists(st.sampled_from(_NAMED_CAPABILITIES), max_size=3, unique=True),
+)
+@settings(max_examples=250, deadline=None)
+def test_a_subject_decides_exactly_as_its_class_witness_does(
+    trust: str,
+    action: str,
+    classification: str,
+    source_identifier: str,
+    tool_identifier: str,
+    purposes: list[str],
+    capabilities: list[str],
+) -> None:
+    """The abstraction theorem, checked rather than asserted.
+
+    The subject space is open: identifiers, purposes and capabilities are arbitrary strings.
+    Every exactness claim rests on the quotient being *complete* -- that any subject decides
+    the same as the single witness standing for its class. If that fails for even one
+    subject, two policies could differ on a subject the enumeration never visits and be
+    reported equivalent.
     """
 
-    path = _suite_with(tmp_path, {"source_data_classification": "restricted"})
+    document = _richer_policy()
+    policy = parse_policy(document)
+    space = policy_mutation.witness_space(document)
 
-    assert policy_mutation.scenario_fragment_violations(path) == [
-        "TW-SC-001.source_data_classification"
-    ]
+    concrete = (
+        trust,
+        action,
+        classification,
+        source_identifier,
+        tool_identifier,
+        tuple(purposes),
+        tuple(capabilities),
+    )
+    witness = policy_mutation.abstract_cell(
+        space,
+        trust,
+        action,
+        classification,
+        source_identifier,
+        tool_identifier,
+        tuple(purposes),
+        tuple(capabilities),
+    )
+
+    assert witness in policy_mutation.decision_map(document)
+    assert _decide_concretely(policy, concrete) == policy_mutation._decide(policy, witness)
 
 
-def test_analyze_refuses_a_suite_that_steps_outside_the_partition(tmp_path: Path) -> None:
-    path = _suite_with(tmp_path, {"tool_capabilities": ["network.egress"]})
+@given(
+    capabilities=st.lists(
+        st.sampled_from(("net.a", "net.b.c", "net.", "netx", "fs.read", "fs.readx")),
+        max_size=3,
+        unique=True,
+    )
+)
+@settings(max_examples=120, deadline=None)
+def test_capability_witnesses_reproduce_wildcard_matching(capabilities: list[str]) -> None:
+    """`net.*` covers a namespace, so a single witness must stand for all of it."""
 
-    with pytest.raises(SystemExit, match="outside the enumerated"):
-        policy_mutation.analyze(POLICY, [path])
+    document = _richer_policy()
+    policy = parse_policy(document)
+    space = policy_mutation.witness_space(document)
+    concrete = (
+        "trusted",
+        "read",
+        "unspecified",
+        "synthetic-source",
+        "synthetic-tool",
+        (),
+        tuple(capabilities),
+    )
+    witness = policy_mutation.abstract_cell(
+        space,
+        "trusted",
+        "read",
+        "unspecified",
+        "synthetic-source",
+        "synthetic-tool",
+        (),
+        tuple(capabilities),
+    )
+
+    assert policy_mutation._decide(policy, concrete) == policy_mutation._decide(policy, witness)
