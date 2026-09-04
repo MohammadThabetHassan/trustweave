@@ -14,12 +14,35 @@ All notable changes to TrustWeave are documented in this file. The project follo
   previously published boundary on repository analysis.
 - `trustweave.dev/code-discovery/v1alpha1` artifact contract and schema.
 - Ten `TW-CODE-*` review rules covering refusal, drift, and declaration mismatch.
+- `discover` recognises the registration forms agents actually use: Semantic Kernel plugin
+  methods, LangChain `BaseTool` subclasses whose behaviour sits in `_run` or `_arun`, and
+  the names a low-level MCP server declares in `list_tools` and implements in one
+  `call_tool` handler. Every tool in the classification benchmark is now discovered.
+- Tools whose registered name differs from the function that implements them record both.
+  A factory can expose `object_summary` while the code that runs is
+  `summarize_bucket_object`; the artifact carries an `implementation` field and the report
+  prints it under the registered name.
+- `docs/classifier-evaluation-v1.json` records the benchmark result, broken down by
+  registration form and refusal reason, and a ratchet in the test suite holds accuracy,
+  precision when answering, tools discovered, and per-class recall against it.
 
 ### Added
 
 - Added versioned evaluation governance, a deterministic twelve-case synthetic corpus, local preflight validation, corpus lifecycle controls, reviewer quickstart, archive-readiness materials, and safe public-feedback/triage infrastructure. These are prepared repository-controlled foundations; no independent reviewer, pilot, adoption, benchmark, archive, or security-efficacy result is claimed.
 - Added an owner-facing GitHub governance decision record, a manually triggered least-privilege OpenSSF Scorecard assessment workflow that retains a local GitHub Actions artifact without publishing results, and a record template that prohibits score, badge, certification, or remediation claims before owner-reviewed evidence exists.
 - Added a fixed offline reviewer packet, consent-aware feedback and result-record templates, and a deterministic local artifact builder/verifier that allowlists public-safe files, records SHA-256 digests, rejects unsafe paths and credential-like content, and creates deterministic local ZIP packages without upload or network behavior.
+
+### Fixed
+
+- Effects that were reachable but unreported, each of which had the analyzer describe a
+  tool as harmless when it was not: a symbol called through a local alias, a method on an
+  instance the tool constructs, a sibling method reached through `self`, a client used
+  behind an attribute chain, a receiver handed to a helper, a credential path assembled by
+  `/` composition, and a literal argument the deciding call sees one frame up. Constructing
+  the object a protocol requires a tool to return no longer suppresses an observed effect.
+- An observed effect at the top of the precedence order is reported even when something
+  else in the same tool could not be resolved, since nothing outranks it. Below that class
+  the refusal stands.
 
 ### Changed
 
