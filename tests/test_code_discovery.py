@@ -531,3 +531,143 @@ def test_an_alias_does_not_leak_between_tools(tmp_path: Path) -> None:
 
     assert tools["launcher"].proposed_action_class() == "sensitive"
     assert tools["formatter"].proposed_action_class() != "sensitive"
+
+
+# ---------------------------------------------------------------------------------------
+# Effects reached through the instance
+# ---------------------------------------------------------------------------------------
+
+
+def test_an_attribute_bound_to_a_symbol_is_that_symbol(tmp_path: Path) -> None:
+    """`self._shell = os.system` makes `self._shell(...)` a shell invocation."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "class Runner:\n"
+        "    def __init__(self) -> None:\n"
+        "        self._shell = os.system\n\n"
+        "    def restart(self, unit: str) -> str:\n"
+        '        """Restart a unit."""\n'
+        '        return str(self._shell("systemctl restart " + unit))\n\n\n'
+        "_runner = Runner()\n"
+        "tool = StructuredTool.from_function(\n"
+        '    func=_runner.restart, name="restart", description="d"\n'
+        ")\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+
+
+def test_an_effect_two_hops_through_sibling_methods_is_counted(tmp_path: Path) -> None:
+    """The tool calls `self._invoke`, which calls the bound shell attribute."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "class Maintenance:\n"
+        "    def __init__(self) -> None:\n"
+        "        self._shell = os.system\n\n"
+        "    def _invoke(self, template: str, arg: str) -> int:\n"
+        "        return self._shell(template.format(arg=arg))\n\n"
+        "    async def rotate(self, unit: str) -> str:\n"
+        '        """Rotate logs."""\n'
+        '        return str(self._invoke("systemctl restart {arg}", unit))\n\n\n'
+        "_maintenance = Maintenance()\n"
+        "tool = StructuredTool.from_function(\n"
+        '    coroutine=_maintenance.rotate, name="rotate_logs", description="d"\n'
+        ")\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert tools[0].signals[0].via == ("rotate_logs", "_invoke")
+
+
+def test_a_factory_given_a_bound_method_resolves_its_body(tmp_path: Path) -> None:
+    """A bound method names a body.
+
+    Declaring it unavailable meant the tool was found and then nothing was analysed.
+    """
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import requests\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "class Client:\n"
+        "    def fetch(self, url: str) -> str:\n"
+        '        """Fetch."""\n'
+        "        return requests.get(url).text\n\n\n"
+        "_client = Client()\n"
+        "tool = StructuredTool.from_function(\n"
+        '    func=_client.fetch, name="fetch", description="d"\n'
+        ")\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert "BODY_UNAVAILABLE" not in tools[0].reasons
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_factory_given_an_unresolvable_target_still_refuses(tmp_path: Path) -> None:
+    """A lambda names no body the analyzer can read, so the refusal must remain."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "tool = StructuredTool.from_function(\n"
+        '    func=lambda value: value, name="identity", description="d"\n'
+        ")\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert "BODY_UNAVAILABLE" in tools[0].reasons
+
+
+def test_a_sibling_method_is_followed_only_within_its_own_class(tmp_path: Path) -> None:
+    """A same-named method on another class must not supply the body."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "class Other:\n"
+        "    def helper(self, value: str) -> int:\n"
+        "        return os.system(value)\n\n\n"
+        "class Safe:\n"
+        "    def run(self, value: str) -> str:\n"
+        '        """Run."""\n'
+        "        return str(self.helper(value))\n\n\n"
+        "_safe = Safe()\n"
+        'tool = StructuredTool.from_function(func=_safe.run, name="run", description="d")\n',
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() != "sensitive"
+
+
+def test_a_recursive_sibling_call_terminates(tmp_path: Path) -> None:
+    """A method calling itself must not walk forever."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "class Loop:\n"
+        "    def step(self, value: str) -> str:\n"
+        '        """Step."""\n'
+        "        return self.step(value)\n\n\n"
+        "_loop = Loop()\n"
+        'tool = StructuredTool.from_function(func=_loop.step, name="step", description="d")\n',
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "read"

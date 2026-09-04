@@ -191,6 +191,9 @@ class _Module:
     self_origins: dict[str, dict[str, str]] = field(default_factory=dict)
     # Which class each discovered method belongs to, so self.* resolves per class.
     method_owner: dict[str, str] = field(default_factory=dict)
+    # Attributes bound directly to an imported symbol rather than to a constructed
+    # receiver, keyed by the owning class then the attribute.
+    self_symbols: dict[str, dict[str, str]] = field(default_factory=dict)
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -231,6 +234,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     # `send`, and would let a method body be attributed to an unrelated caller.
     methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     self_origins: dict[str, dict[str, str]] = {}
+    self_symbols: dict[str, dict[str, str]] = {}
     method_owner: dict[str, str] = {}
     for node in tree.body:
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
@@ -245,7 +249,20 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
             for child in own:
                 method_owner[f"{child.name}:{child.lineno}"] = node.name
             stored: dict[str, str] = {}
+            aliased: dict[str, str] = {}
             for inner in ast.walk(node):
+                if isinstance(inner, ast.Assign) and isinstance(
+                    inner.value, ast.Name | ast.Attribute
+                ):
+                    # `self._shell = os.system`: the attribute is the symbol itself, not a
+                    # constructed receiver, and calling it is calling that symbol.
+                    for target in inner.targets:
+                        if (
+                            isinstance(target, ast.Attribute)
+                            and isinstance(target.value, ast.Name)
+                            and target.value.id in _INSTANCE_RECEIVERS
+                        ):
+                            aliased[target.attr] = _dotted(inner.value) or ""
                 if not isinstance(inner, ast.Assign) or not isinstance(inner.value, ast.Call):
                     continue
                 for target in inner.targets:
@@ -257,6 +274,8 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                         stored[target.attr] = _dotted(inner.value.func) or ""
             if stored:
                 self_origins[node.name] = stored
+            if aliased:
+                self_symbols[node.name] = aliased
 
     indexed = _Module(
         path,
@@ -265,6 +284,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
         functions,
         wildcard,
         methods=methods,
+        self_symbols=self_symbols,
         self_origins={
             owner: {attr: _resolve_raw(spelled, bindings) for attr, spelled in stored.items()}
             for owner, stored in self_origins.items()
@@ -631,6 +651,7 @@ def _classify_call(
     dynamic: set[str],
     self_attributes: dict[str, str] | None = None,
     aliases: dict[str, str] | None = None,
+    self_aliases: dict[str, str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -639,6 +660,16 @@ def _classify_call(
     # A bare name bound to an imported symbol is that symbol.
     if isinstance(call.func, ast.Name) and call.func.id not in dynamic:
         spelled = (aliases or {}).get(call.func.id, spelled)
+    # So is an instance attribute bound to one: `self._shell = os.system` in __init__ makes
+    # `self._shell(...)` a shell invocation, and refusing it reports that as no effect.
+    if (
+        isinstance(call.func, ast.Attribute)
+        and isinstance(call.func.value, ast.Name)
+        and call.func.value.id in _INSTANCE_RECEIVERS
+    ):
+        bound = _resolve((self_aliases or {}).get(call.func.attr, ""), module)
+        if bound and "." in bound:
+            spelled = bound
     root = _root_name(call.func)
 
     if root is not None and root in dynamic:
@@ -798,6 +829,7 @@ def _collect_signals(
 
     owner = module.method_owner.get(f"{function.name}:{function.lineno}")
     self_attributes = module.self_origins.get(owner or "", {})
+    self_aliases = module.self_symbols.get(owner or "", {})
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
     origins.update(_scope_origins(function.body, module, self_attributes))
@@ -815,7 +847,7 @@ def _collect_signals(
             # registration call.
             continue
         action, symbol, reason = _classify_call(
-            node, module, origins, dynamic, self_attributes, aliases
+            node, module, origins, dynamic, self_attributes, aliases, self_aliases
         )
         if reason:
             tool.reasons.add(reason)
@@ -826,6 +858,29 @@ def _collect_signals(
             tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
             continue
         if depth >= MAX_CALL_DEPTH:
+            continue
+        # A call to a sibling method of the same class is one hop, exactly like a module
+        # helper. Not following it left every effect reached through `self._invoke`
+        # invisible, which is how a shell invocation two hops down read as no effect.
+        if (
+            owner is not None
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id in _INSTANCE_RECEIVERS
+        ):
+            sibling = next(
+                (
+                    candidate
+                    for candidate in module.methods
+                    if candidate.name == node.func.attr
+                    and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owner
+                ),
+                None,
+            )
+            key = f"{owner}.{node.func.attr}"
+            if sibling is not None and key not in visited:
+                visited.add(key)
+                _collect_signals(tool, sibling, module, (*via, node.func.attr), depth + 1, visited)
             continue
         # Follow a call into a module-local helper so effects one hop away still count.
         spelled = _dotted(node.func)
@@ -973,15 +1028,27 @@ def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
             continue
         keyword = _keyword(node, "name")
         target = _keyword(node, "func") or _keyword(node, "fn") or _keyword(node, "coroutine")
-        fallback = target.id if isinstance(target, ast.Name) else "unnamed_tool"
+        # A factory may be handed a free function or a bound method. `func=summarize` names
+        # a module function; `coroutine=_instance.rotate_logs` names a method, and reading
+        # only the first form declared the second body unavailable and analysed nothing.
+        if isinstance(target, ast.Name):
+            implementation = target.id
+        elif isinstance(target, ast.Attribute):
+            implementation = target.attr
+        else:
+            implementation = None
+        reachable = implementation is not None and (
+            implementation in module.functions
+            or any(method.name == implementation for method in module.methods)
+        )
         tool = DiscoveredTool(
-            _constant_str(keyword) or fallback,
+            _constant_str(keyword) or implementation or "unnamed_tool",
             "structured_tool_factory",
             module.path,
             node.lineno,
-            implementation=fallback if fallback != "unnamed_tool" else None,
+            implementation=implementation,
         )
-        if not isinstance(target, ast.Name) or target.id not in module.functions:
+        if not reachable:
             tool.reasons.add("BODY_UNAVAILABLE")
         discovered.append(tool)
     return discovered
@@ -1053,13 +1120,17 @@ def analyze_sources(
                 )
 
         for tool in candidates:
-            function = module.functions.get(tool.name)
+            function = module.functions.get(tool.implementation or tool.name) or (
+                module.functions.get(tool.name)
+            )
             if function is None:
                 function = next(
                     (
                         candidate
                         for candidate in module.methods
-                        if candidate.lineno == tool.line or candidate.name == tool.name
+                        if candidate.lineno == tool.line
+                        or candidate.name == (tool.implementation or tool.name)
+                        or candidate.name == tool.name
                     ),
                     None,
                 )
