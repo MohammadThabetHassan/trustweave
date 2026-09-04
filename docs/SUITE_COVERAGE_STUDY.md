@@ -113,6 +113,48 @@ cells are witnessed and 22 of them (67%) under both decisions -- the lowest figu
 study, and the one measured over a product-structured request space rather than a flat
 binary. The corpus is small enough that this is a direction to test, not a result.
 
+## Does the measure predict anything?
+
+The exactness results hold inside the policy fragment. Rego is outside it, so for that
+corpus the measure is an observation rather than a theorem, and the question worth asking is
+empirical: when it calls a suite blind, does that suite actually miss more faults?
+
+`scripts/rego_mutation.py` answers it directly. It mutates each Gatekeeper policy with
+single syntax-preserving edits -- flipping a comparison, dropping a negation, flipping a
+boolean -- and runs that policy's own suite against every mutant. 48 of 49 policies scored,
+625 mutants applied, 475 killed, an overall mutation score of 0.76.
+
+Joined against the decision-coverage verdict for the same policies:
+
+| | Policies | Mutation score |
+|---|---|---|
+| Decision-blind | 1 | 0.00 |
+| Decision-covered | 47 | 0.50 - 1.00 (median 0.80) |
+
+**The one suite the measure flagged catches none of its four mutants, and is the only zero
+in the corpus.** Under the null hypothesis that blindness is unrelated to detection, the
+chance that the flagged suite lands lowest of 48 is 1/48, p = 0.021. So the measure's single
+prediction on this corpus was correct, and correct at conventional significance.
+
+That is a narrow claim and the second half of the table is why. Decision coverage here is
+*saturated*: 47 of 48 suites achieve it, while their mutation scores range from 0.50 to
+1.00. The measure is silent about every suite in that range, including several that miss
+half their mutants. In a binary decision domain it makes almost no predictions -- so it
+cannot substitute for mutation testing there, and a project running both would learn almost
+nothing from the first.
+
+This is Corollary 5 of `DECISION_CLASS_COVERAGE.md` arriving from the other direction.
+Decision coverage is necessary and not sufficient; in a two-valued domain the necessary part
+is nearly always already satisfied, which leaves it carrying almost no information. The
+measure earns its keep as the decision structure grows, and this corpus is the wrong place
+to see that happen.
+
+Two limits are worth stating plainly, and both are consequences of leaving the fragment.
+Survivors cannot be separated from equivalent mutants, so 0.76 is a lower bound on suite
+quality rather than an exact figure -- which is precisely what the fragment buys and Rego
+does not. And the operator set is syntactic, so the number measures these suites against
+these edits, not against all faults.
+
 ## Interpretation
 
 The exactness results this measure descends from -- decidable equivalence, an exact kill
