@@ -470,8 +470,12 @@ def test_a_class_method_cannot_satisfy_a_call_to_an_imported_name(tmp_path: Path
     assert not [signal for signal in tools[0].signals if signal.action_class == "write"]
 
 
-def test_a_client_held_on_self_is_refused_rather_than_reported_as_read(tmp_path: Path) -> None:
-    """An outbound POST through self.session once published as read with high confidence."""
+def test_a_client_held_on_self_is_never_reported_as_read(tmp_path: Path) -> None:
+    """An outbound POST through self.session once published as read with high confidence.
+
+    It is now resolved to external rather than refused, because the class stores a known
+    receiver on that attribute. Either answer is safe; reporting `read` is not.
+    """
 
     (tmp_path / "agent.py").write_text(
         "import requests\n" + TOOL_PREAMBLE + "class Client:\n"
@@ -487,8 +491,7 @@ def test_a_client_held_on_self_is_refused_rather_than_reported_as_read(tmp_path:
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert [tool.name for tool in tools] == ["exfiltrate"], "class-based tools must be discovered"
-    assert tools[0].proposed_action_class() == "unknown"
-    assert "UNRESOLVED_CALLEE" in tools[0].reasons
+    assert tools[0].proposed_action_class() == "external"
 
 
 def test_an_unrecognised_third_party_call_is_refused_but_stdlib_stays_read(
@@ -606,3 +609,168 @@ def test_a_decorator_is_registration_and_never_counts_as_behaviour(tmp_path: Pat
 
     assert [tool.proposed_action_class() for tool in tools] == ["read"]
     assert tools[0].reasons == set()
+
+
+# ---------------------------------------------------------------------------------------
+# Receivers reached indirectly. Each of these published a real effect as benign `read`.
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_client_stored_on_self_is_resolved_not_merely_refused(tmp_path: Path) -> None:
+    (tmp_path / "agent.py").write_text(
+        "import httpx\n" + TOOL_PREAMBLE + "class Desk:\n"
+        "    def __init__(self):\n"
+        "        self._client = httpx.Client()\n\n"
+        "    @tool\n"
+        "    def quote(self, symbol: str) -> str:\n"
+        '        """Fetch a quote."""\n'
+        "        return self._client.get('/q/' + symbol).text\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_an_attribute_reached_through_a_stored_client_keeps_its_origin(
+    tmp_path: Path,
+) -> None:
+    """`chat = self._client.chat.completions` then `chat.create(...)`."""
+
+    (tmp_path / "agent.py").write_text(
+        "from openai import OpenAI\n" + TOOL_PREAMBLE + "class Rewriter:\n"
+        "    def __init__(self):\n"
+        "        self._client = OpenAI()\n\n"
+        "    @tool\n"
+        "    def soften(self, draft: str) -> str:\n"
+        '        """Rewrite a draft."""\n'
+        "        chat = self._client.chat.completions\n"
+        "        return chat.create(model='m', messages=[]).text\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_path_built_from_a_classmethod_and_join_is_still_a_path(tmp_path: Path) -> None:
+    """`Path.home() / '.notes'` then `.write_text(...)` is a write, not a read."""
+
+    (tmp_path / "agent.py").write_text(
+        "from pathlib import Path\n" + TOOL_PREAMBLE + "@tool\n"
+        "def stash(name: str, body: str) -> str:\n"
+        '    """Persist a note."""\n'
+        "    target = Path.home() / '.notes'\n"
+        "    target.write_text(body, encoding='utf-8')\n"
+        "    return name\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "write"
+
+
+def test_an_environment_read_through_a_local_alias_is_still_an_environment_read(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "agent.py").write_text(
+        "import os\n" + TOOL_PREAMBLE + "@tool\n"
+        "def authenticate() -> str:\n"
+        '    """Read a token through an alias."""\n'
+        "    env = os.environ\n"
+        "    return env.get('SERVICE_API_TOKEN', '')\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+
+
+def test_an_environment_key_chosen_at_runtime_is_refused(tmp_path: Path) -> None:
+    """The same call reads a log path or a private key depending on its caller."""
+
+    (tmp_path / "agent.py").write_text(
+        "import os\n" + TOOL_PREAMBLE + "@tool\n"
+        "def lookup(name: str) -> str:\n"
+        '    """Read whatever the caller names."""\n'
+        "    return os.getenv(name, '')\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert "NONLITERAL_ARGUMENT" in tools[0].reasons
+
+
+def test_a_path_stored_on_self_classifies_reads_and_writes(tmp_path: Path) -> None:
+    (tmp_path / "agent.py").write_text(
+        "from pathlib import Path\n" + TOOL_PREAMBLE + "class Store:\n"
+        "    def __init__(self):\n"
+        "        self._root = Path('/tmp/store')\n\n"
+        "    @tool\n"
+        "    def save(self, body: str) -> str:\n"
+        '        """Write through a stored path."""\n'
+        "        self._root.write_text(body)\n"
+        "        return 'ok'\n\n"
+        "    @tool\n"
+        "    def load(self) -> str:\n"
+        '        """Read through a stored path."""\n'
+        "        return self._root.read_text()\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+    by_name = {tool.name: tool for tool in tools}
+
+    assert by_name["save"].proposed_action_class() == "write"
+    assert by_name["load"].proposed_action_class() == "read"
+
+
+def test_an_unknown_attribute_on_self_is_still_refused(tmp_path: Path) -> None:
+    """Resolution is an improvement, not a licence to assume the attribute is harmless."""
+
+    (tmp_path / "agent.py").write_text(
+        TOOL_PREAMBLE + "class Desk:\n"
+        "    @tool\n"
+        "    def send(self, body: str) -> str:\n"
+        '        """The attribute is supplied from outside this file."""\n'
+        "        return self._injected.post(body)\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert "UNRESOLVED_CALLEE" in tools[0].reasons
+
+
+@pytest.mark.parametrize("accessor", ["items", "copy", "values"])
+def test_reading_the_whole_environment_is_sensitive_regardless_of_keys(
+    tmp_path: Path, accessor: str
+) -> None:
+    """A bulk read takes every secret in the process with it."""
+
+    (tmp_path / "agent.py").write_text(
+        "import os\n" + TOOL_PREAMBLE + "@tool\n"
+        "def dump() -> str:\n"
+        '    """Return the whole environment."""\n'
+        f"    return str(os.environ.{accessor}())\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+
+
+@pytest.mark.parametrize("constructor", ["cwd", "resolve"])
+def test_other_path_constructors_also_keep_the_receiver(tmp_path: Path, constructor: str) -> None:
+    (tmp_path / "agent.py").write_text(
+        "from pathlib import Path\n" + TOOL_PREAMBLE + "@tool\n"
+        "def write_here(body: str) -> str:\n"
+        '    """Write beside the working directory."""\n'
+        f"    target = Path.{constructor}() / 'out.txt'\n"
+        "    target.write_text(body)\n"
+        "    return 'ok'\n",
+        encoding="utf-8",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "write"

@@ -51,6 +51,9 @@ MAX_AST_NODES_PER_MODULE: Final[int] = 200_000
 MAX_REACHABLE_FUNCTIONS_PER_TOOL: Final[int] = 64
 MAX_CALL_DEPTH: Final[int] = 3
 
+# Path classmethods that return a Path, so the receiver survives the call.
+PATH_CONSTRUCTORS: Final[frozenset[str]] = frozenset({"home", "cwd", "resolve", "absolute"})
+
 _ENVIRON_READERS: Final[frozenset[str]] = frozenset(
     {"os.environ.get", "os.getenv", "os.environ.setdefault"}
 )
@@ -61,6 +64,8 @@ _KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(
     {"bool", "bytes", "dict", "float", "frozenset", "int", "list", "open", "set", "str", "tuple"}
 )
 _INSTANCE_RECEIVERS: Final[frozenset[str]] = frozenset({"self", "cls"})
+# Pseudo-origin for a local bound directly to os.environ.
+_ENVIRON_ORIGIN: Final[str] = "os.environ"
 # Sentinel: a resolved call the catalog has no entry for.
 _UNRECOGNIZED: Final[str] = "\x00unrecognized"
 _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
@@ -154,6 +159,12 @@ class _Module:
     # Class methods are discoverable as tools but deliberately absent from `functions`,
     # so a bare call to `send` can never resolve to `SomeClass.send`.
     methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = field(default_factory=list)
+    # Receivers a class stores on self, keyed by the owning class then the attribute.
+    # `self.client = httpx.Client()` in __init__ is how real tools hold a client, and
+    # refusing every self.* call rather than resolving it published egress as read.
+    self_origins: dict[str, dict[str, str]] = field(default_factory=dict)
+    # Which class each discovered method belongs to, so self.* resolves per class.
+    method_owner: dict[str, str] = field(default_factory=dict)
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -193,19 +204,61 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     # and nested functions here would let `Class.send` satisfy a call to an imported
     # `send`, and would let a method body be attributed to an unrelated caller.
     methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
+    self_origins: dict[str, dict[str, str]] = {}
+    method_owner: dict[str, str] = {}
     for node in tree.body:
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
             functions.setdefault(node.name, node)
         elif isinstance(node, ast.ClassDef):
-            methods.extend(
+            own = [
                 child
                 for child in node.body
                 if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef)
-            )
+            ]
+            methods.extend(own)
+            for child in own:
+                method_owner[f"{child.name}:{child.lineno}"] = node.name
+            stored: dict[str, str] = {}
+            for inner in ast.walk(node):
+                if not isinstance(inner, ast.Assign) or not isinstance(inner.value, ast.Call):
+                    continue
+                for target in inner.targets:
+                    if (
+                        isinstance(target, ast.Attribute)
+                        and isinstance(target.value, ast.Name)
+                        and target.value.id in _INSTANCE_RECEIVERS
+                    ):
+                        stored[target.attr] = _dotted(inner.value.func) or ""
+            if stored:
+                self_origins[node.name] = stored
 
-    indexed = _Module(path, tree, bindings, functions, wildcard, methods=methods)
+    indexed = _Module(
+        path,
+        tree,
+        bindings,
+        functions,
+        wildcard,
+        methods=methods,
+        self_origins={
+            owner: {attr: _resolve_raw(spelled, bindings) for attr, spelled in stored.items()}
+            for owner, stored in self_origins.items()
+        },
+        method_owner=method_owner,
+    )
     indexed.module_origins = _scope_origins(tree.body, indexed)
     return indexed
+
+
+def _resolve_raw(name: str | None, bindings: dict[str, str]) -> str:
+    """Rewrite a dotted spelling through import bindings, without a _Module."""
+
+    if not name:
+        return ""
+    head, _, tail = name.partition(".")
+    target = bindings.get(head)
+    if target is None:
+        return name
+    return f"{target}.{tail}" if tail else target
 
 
 def _resolve(name: str | None, module: _Module) -> str | None:
@@ -228,6 +281,17 @@ def _keyword(call: ast.Call, name: str) -> ast.AST | None:
     for keyword in call.keywords:
         if keyword.arg == name:
             return keyword.value
+    return None
+
+
+def _instance_attribute(call: ast.Call) -> str | None:
+    """Return the ``self.<attr>`` name a call is reached through, if any."""
+
+    current: ast.AST = call.func
+    while isinstance(current, ast.Attribute):
+        if isinstance(current.value, ast.Name) and current.value.id in _INSTANCE_RECEIVERS:
+            return current.attr
+        current = current.value
     return None
 
 
@@ -313,7 +377,11 @@ def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
     return names | _assigned_names(function.body)
 
 
-def _scope_origins(scope_body: list[ast.stmt], module: _Module) -> dict[str, tuple[str, ast.Call]]:
+def _scope_origins(
+    scope_body: list[ast.stmt],
+    module: _Module,
+    self_attributes: dict[str, str] | None = None,
+) -> dict[str, tuple[str, ast.Call]]:
     """Track receiver constructors bound directly in one statement list.
 
     Only assignments at this level count. Walking the whole tree would let a binding
@@ -321,6 +389,7 @@ def _scope_origins(scope_body: list[ast.stmt], module: _Module) -> dict[str, tup
     another tool's classification.
     """
 
+    self_attributes = self_attributes or {}
     origins: dict[str, tuple[str, ast.Call]] = {}
     ambiguous: set[str] = set()
 
@@ -331,8 +400,29 @@ def _scope_origins(scope_body: list[ast.stmt], module: _Module) -> dict[str, tup
         origins[name] = (qualified, call)
 
     def _receiver_of(value: ast.expr) -> str | None:
-        """Return the receiver origin a value carries, following one context-manager hop."""
+        """Return the receiver origin a value carries, through the ways it can be passed on."""
 
+        # `root = Path.home() / ".notes"`: path composition keeps the receiver.
+        if isinstance(value, ast.BinOp) and isinstance(value.op, ast.Div):
+            return _receiver_of(value.left) or _receiver_of(value.right)
+        # `chat = self._client.chat.completions`: an attribute reached through a stored
+        # receiver still belongs to that receiver.
+        if isinstance(value, ast.Attribute):
+            if _resolve(_dotted(value), module) == "os.environ":
+                # `env = os.environ` then `env.get(...)` is still an environment read.
+                return _ENVIRON_ORIGIN
+            current: ast.AST = value
+            while isinstance(current, ast.Attribute):
+                if (
+                    isinstance(current.value, ast.Name)
+                    and current.value.id in _INSTANCE_RECEIVERS
+                    and current.attr in self_attributes
+                ):
+                    return self_attributes[current.attr]
+                current = current.value
+            if isinstance(current, ast.Name) and current.id in origins:
+                return origins[current.id][0]
+            return None
         if not isinstance(value, ast.Call):
             # `with client as session`: the manager is a name already tracked above.
             if isinstance(value, ast.Name) and value.id in origins:
@@ -341,19 +431,31 @@ def _scope_origins(scope_body: list[ast.stmt], module: _Module) -> dict[str, tup
         qualified = _resolve(_dotted(value.func), module)
         if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
             return qualified
+        # `Path.home()` and `Path.cwd()` return the receiver they are called on.
+        if isinstance(value.func, ast.Attribute):
+            base = _resolve(_dotted(value.func.value), module)
+            if base in PATH_RECEIVERS and value.func.attr in PATH_CONSTRUCTORS:
+                return base
+            if base in EXTERNAL_RECEIVERS:
+                return base
         # `async with session.get(url) as response`: the receiver is the caller.
         root = _root_name(value.func)
         if root is not None and root in origins:
             return origins[root][0]
-        return None
+        return _receiver_of(value.func) if isinstance(value.func, ast.Attribute) else None
 
     for statement in scope_body:
-        if isinstance(statement, ast.Assign) and isinstance(statement.value, ast.Call):
-            qualified = _resolve(_dotted(statement.value.func), module)
-            if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+        if isinstance(statement, ast.Assign):
+            origin = _receiver_of(statement.value)
+            if origin is not None:
+                call = (
+                    statement.value
+                    if isinstance(statement.value, ast.Call)
+                    else ast.Call(func=ast.Name(id=origin), args=[], keywords=[])
+                )
                 for target in statement.targets:
                     if isinstance(target, ast.Name):
-                        _bind(target.id, qualified, statement.value)
+                        _bind(target.id, origin, call)
             continue
         if isinstance(statement, ast.With | ast.AsyncWith):
             # A context manager keeps the receiver's identity; losing it here made an
@@ -419,6 +521,29 @@ def _subprocess_class(call: ast.Call) -> str:
     return "sensitive"
 
 
+def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None, str | None]:
+    """Classify one environment read, refusing when the key decides the answer.
+
+    A literal key can be judged against the secret-name vocabulary. A key supplied at
+    runtime cannot: the same call reads a log path or a private key depending on its
+    caller, so answering would turn a credential read into a benign one.
+    """
+
+    if symbol.rsplit(".", 1)[-1] in {"items", "copy", "values"} or qualified_is_bulk(symbol):
+        return "sensitive", symbol, None
+    key = _constant_str(call.args[0]) if call.args else None
+    if key is None:
+        return None, None, "NONLITERAL_ARGUMENT"
+    tokens = {token for token in key.casefold().replace("-", "_").split("_") if token}
+    if tokens & SECRET_ENV_TOKENS:
+        return "sensitive", symbol, None
+    return None, None, None
+
+
+def qualified_is_bulk(symbol: str) -> bool:
+    return symbol in _ENVIRON_BULK
+
+
 def _env_is_secret(call: ast.Call, qualified: str) -> bool:
     if qualified in _ENVIRON_BULK:
         return True
@@ -447,9 +572,11 @@ def _classify_call(
     module: _Module,
     origins: dict[str, tuple[str, ast.Call]],
     dynamic: set[str],
+    self_attributes: dict[str, str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
+    self_attributes = self_attributes or {}
     spelled = _dotted(call.func)
     root = _root_name(call.func)
 
@@ -480,8 +607,19 @@ def _classify_call(
         return None, None, None
 
     if _is_instance_state_call(call):
-        # self.session.post(...): the receiver lives on the instance, which this analyzer
-        # does not track. Reporting no effect here would publish an outbound call as read.
+        # self.client.post(...). Resolve it when the class stored a known receiver on that
+        # attribute; refuse only when the attribute's origin is genuinely unknown, since
+        # reporting no effect here would publish an outbound call as read.
+        attribute = _instance_attribute(call)
+        origin = self_attributes.get(attribute or "")
+        method = call.func.attr if isinstance(call.func, ast.Attribute) else ""
+        if origin in EXTERNAL_RECEIVERS:
+            return "external", f"{origin}.{method}", None
+        if origin in PATH_RECEIVERS:
+            if method in WRITE_RECEIVER_METHODS:
+                return "write", f"{origin}.{method}", None
+            if method in READ_RECEIVER_METHODS:
+                return "read", f"{origin}.{method}", None
         return None, None, "UNRESOLVED_CALLEE"
 
     qualified = _resolve(spelled, module)
@@ -509,11 +647,7 @@ def _classify_call(
     if qualified in SENSITIVE_SYMBOLS:
         return "sensitive", qualified, None
     if qualified in _ENVIRON_READERS or qualified in _ENVIRON_BULK:
-        return (
-            ("sensitive", qualified, None)
-            if _env_is_secret(call, qualified)
-            else (None, None, None)
-        )
+        return _environ_class(call, qualified)
     if qualified in EXTERNAL_SYMBOLS:
         return "external", qualified, None
     if qualified in WRITE_SYMBOLS:
@@ -527,6 +661,14 @@ def _classify_call(
         return sql, f"{sql}_sql_statement", None
 
     # Receiver-based resolution: the origin, never the bare attribute, is the evidence.
+    if (
+        isinstance(call.func, ast.Attribute)
+        and isinstance(call.func.value, ast.Name)
+        and (origins.get(call.func.value.id) or ("", None))[0] == _ENVIRON_ORIGIN
+        and call.func.attr in {"get", "setdefault", "items", "copy", "values"}
+    ):
+        return _environ_class(call, f"os.environ.{call.func.attr}")
+
     if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name):
         tracked = origins.get(call.func.value.id)
         if tracked is not None:
@@ -593,9 +735,11 @@ def _collect_signals(
         tool.budget_state = "exhausted"
         return
 
+    owner = module.method_owner.get(f"{function.name}:{function.lineno}")
+    self_attributes = module.self_origins.get(owner or "", {})
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
-    origins.update(_scope_origins(function.body, module))
+    origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
     shadowed = _local_names(function)
 
@@ -608,7 +752,7 @@ def _collect_signals(
             # performs, and classifying it made every decorated tool refuse on its own
             # registration call.
             continue
-        action, symbol, reason = _classify_call(node, module, origins, dynamic)
+        action, symbol, reason = _classify_call(node, module, origins, dynamic, self_attributes)
         if reason:
             tool.reasons.add(reason)
         if action == _UNRECOGNIZED:
