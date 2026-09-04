@@ -447,6 +447,22 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
     return aliases
 
 
+def _path_segments(value: ast.expr) -> list[ast.expr]:
+    """Constant string parts of a path expression, including `/` composition.
+
+    `home = Path.home()` then `home / ".ssh" / "id_rsa"` puts the part that decides whether
+    this is an ordinary read or a credential read in the composition rather than in the
+    constructor. Recording only the constructor's arguments read the private key as an
+    ordinary file.
+    """
+
+    return [
+        node
+        for node in ast.walk(value)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+    ]
+
+
 def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
     """Locals bound to an instance of a class this module defines.
 
@@ -565,7 +581,11 @@ def _scope_origins(
                 call = (
                     statement.value
                     if isinstance(statement.value, ast.Call)
-                    else ast.Call(func=ast.Name(id=origin), args=[], keywords=[])
+                    else ast.Call(
+                        func=ast.Name(id=origin),
+                        args=_path_segments(statement.value),
+                        keywords=[],
+                    )
                 )
                 for target in statement.targets:
                     if isinstance(target, ast.Name):
@@ -635,7 +655,9 @@ def _subprocess_class(call: ast.Call) -> str:
     return "sensitive"
 
 
-def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None, str | None]:
+def _environ_class(
+    call: ast.Call, symbol: str, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None, str | None]:
     """Classify one environment read, refusing when the key decides the answer.
 
     A literal key can be judged against the secret-name vocabulary. A key supplied at
@@ -645,7 +667,13 @@ def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None,
 
     if symbol.rsplit(".", 1)[-1] in {"items", "copy", "values"} or qualified_is_bulk(symbol):
         return "sensitive", symbol, None
-    key = _constant_str(call.args[0]) if call.args else None
+    argument = call.args[0] if call.args else None
+    # A helper that takes the variable name as a parameter is still reading a named
+    # variable; the name is simply one frame up. Without this a secret read moved into a
+    # one-line helper became unclassifiable.
+    if isinstance(argument, ast.Name) and literals and argument.id in literals:
+        argument = literals[argument.id]
+    key = _constant_str(argument) if argument is not None else None
     if key is None:
         return None, None, "NONLITERAL_ARGUMENT"
     tokens = {token for token in key.casefold().replace("-", "_").split("_") if token}
@@ -689,6 +717,7 @@ def _classify_call(
     self_attributes: dict[str, str] | None = None,
     aliases: dict[str, str] | None = None,
     self_aliases: dict[str, str] | None = None,
+    literals: dict[str, ast.expr] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -792,7 +821,7 @@ def _classify_call(
     if qualified in SENSITIVE_SYMBOLS:
         return "sensitive", qualified, None
     if qualified in _ENVIRON_READERS or qualified in _ENVIRON_BULK:
-        return _environ_class(call, qualified)
+        return _environ_class(call, qualified, literals)
     if qualified in EXTERNAL_SYMBOLS:
         return "external", qualified, None
     if qualified in WRITE_SYMBOLS:
@@ -812,7 +841,7 @@ def _classify_call(
         and (origins.get(call.func.value.id) or ("", None))[0] == _ENVIRON_ORIGIN
         and call.func.attr in {"get", "setdefault", "items", "copy", "values"}
     ):
-        return _environ_class(call, f"os.environ.{call.func.attr}")
+        return _environ_class(call, f"os.environ.{call.func.attr}", literals)
 
     if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name):
         tracked = origins.get(call.func.value.id)
@@ -875,6 +904,7 @@ def _collect_signals(
     via: tuple[str, ...],
     depth: int,
     visited: set[str],
+    literals: dict[str, ast.expr] | None = None,
 ) -> None:
     """Walk one function, recording signals and following module-local helpers."""
 
@@ -904,7 +934,7 @@ def _collect_signals(
             # registration call.
             continue
         action, symbol, reason = _classify_call(
-            node, module, origins, dynamic, self_attributes, aliases, self_aliases
+            node, module, origins, dynamic, self_attributes, aliases, self_aliases, literals
         )
         if reason:
             tool.reasons.add(reason)
@@ -974,9 +1004,15 @@ def _collect_signals(
             if spelled in visited:
                 continue
             visited.add(spelled)
-            _collect_signals(
-                tool, module.functions[spelled], module, (*via, spelled), depth + 1, visited
-            )
+            helper = module.functions[spelled]
+            # Constants the caller supplies are bound to the helper's parameters, so a
+            # decision that depends on a literal is still decidable one frame down.
+            passed: dict[str, ast.expr] = {
+                parameter.arg: argument
+                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                if isinstance(argument, ast.Constant)
+            }
+            _collect_signals(tool, helper, module, (*via, spelled), depth + 1, visited, passed)
 
     if module.wildcard_import:
         tool.reasons.add("UNRESOLVED_CALLEE")
