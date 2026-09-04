@@ -287,6 +287,28 @@ READ_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
 # Descriptive capability labels. These annotate a proposal; they never authorize one.
 # --------------------------------------------------------------------------------------
 
+# Framework types that wrap a tool's return value. Constructing one performs no effect, so
+# counting it as a symbol the catalog cannot describe let it suppress a classification the
+# analyzer had already made: a tool that deleted and copied a directory tree was reported
+# unknown because it returned its result the way the protocol requires.
+RESULT_CONSTRUCTORS: Final[frozenset[str]] = frozenset(
+    {
+        "mcp.types.TextContent",
+        "mcp.types.ImageContent",
+        "mcp.types.EmbeddedResource",
+        "mcp.types.Tool",
+        "mcp.types.Resource",
+        "mcp.types.Prompt",
+        "mcp.types.PromptMessage",
+        "langchain_core.documents.Document",
+        "langchain_core.messages.AIMessage",
+        "langchain_core.messages.HumanMessage",
+        "langchain_core.messages.ToolMessage",
+        "llama_index.core.schema.TextNode",
+        "llama_index.core.schema.Document",
+    }
+)
+
 CAPABILITY_BY_ACTION_CLASS: Final[MappingProxyType[str, str]] = MappingProxyType(
     {
         "external": "network.egress",
