@@ -193,3 +193,41 @@ The `policy/v1alpha2` schema admits exactly such rules. A policy using them is s
 -- the results above generalise to any product of finite label domains, with `S` the larger
 product -- but the harness as written enumerates only trust x action, so it must refuse
 rather than silently measure a subspace and report the result as exact.
+
+## 8. Relation to existing criteria
+
+Three objections are the obvious ones, and the honest answers are not all favourable.
+
+**"Decision coverage already means something else."** It does. In ISTQB usage and in
+DO-178C, decision coverage is branch coverage: every branch outcome taken at least once. It
+is a structural criterion over program text. What is defined here is a criterion over a
+policy's *output* -- which decisions of the label domain a suite pins -- and the two are not
+comparable. `benchmark/orthogonality-witness` exists precisely because a suite can satisfy
+the structural one completely while failing the output one. The collision is unfortunate and
+any write-up must define the term on first use rather than rely on it.
+
+**"Witnessing every cell is just exhaustive testing over an input partition."** Correct, and
+this is the answer that matters. `S = T x A` is a category-partition in the sense of Ostrand
+and Balcer, and witnessing all of `S` is all-combinations coverage over two categories. As a
+*criterion* there is nothing new in it, and claiming otherwise would not survive review. The
+claim made here is narrower: that for policies in this fragment, all-combinations coverage
+over the label categories is provably equivalent to mutation adequacy (Corollary 4), so an
+adequacy question with a normally undecidable component reduces to a coverage question that
+costs one pass over the suite. The criterion is old; the equivalence and the reason it holds
+are what this document contributes.
+
+**"Equivalent-mutant detection is a studied problem, and this proof is trivial."** The proof
+is trivial -- deliberately. Detecting equivalent mutants in general programs is undecidable,
+and the literature accordingly pursues partial methods: constraint-based reasoning,
+compiler-equivalence, coverage-based heuristics. The result here is not a better method. It
+is the observation that a policy language restricted to finite label products makes the
+question decidable outright, which converts a research problem into a table comparison. The
+contribution is the restriction and the demonstration that a useful policy language fits
+inside it, not the difficulty of the argument.
+
+What survives those three concessions is: a stated fragment, an exactness result that makes
+a reported mutation score meaningful rather than approximate, a witness showing the criterion
+is independent of the structural coverage tooling already in use, an instrument that measures
+the output criterion across three real policy ecosystems, and the empirical finding that the
+criterion is nearly always already satisfied where decision domains are binary. The last of
+those is a negative result, and it is reported as one.
