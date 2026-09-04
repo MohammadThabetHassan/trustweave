@@ -121,9 +121,24 @@ def test_unsigned_statement_conforms_to_its_published_schema(tmp_path: Path) -> 
 
 
 def _bundle_diff() -> dict[str, Any]:
+    """Diff two different bundles, so changes.paths is populated.
+
+    Diffing a bundle against itself leaves every change list empty, so the schema was
+    only ever exercised against the parts of the document that do not vary. That is how
+    a rule_id pattern rejecting the shipped policy's own TW-004 stayed hidden.
+    """
+
     manifest, policy = _manifest_and_policy()
-    bundle = build_bundle(manifest, policy, generated_at=FIXED_TIME)
-    return diff_bundles(bundle, bundle, generated_at=FIXED_TIME)
+    base = build_bundle(manifest, policy, generated_at=FIXED_TIME)
+    candidate = parse_manifest(
+        load_document(ROOT / "examples" / "support-agent.candidate.manifest.json")
+    )
+    head = build_bundle(candidate, policy, generated_at=FIXED_TIME)
+    result = diff_bundles(base, head, generated_at=FIXED_TIME)
+    assert result["changes"]["paths"]["added"] or result["changes"]["paths"]["removed"], (
+        "the conformance fixture must produce path changes or it validates nothing"
+    )
+    return result
 
 
 def _trace_review() -> dict[str, Any]:

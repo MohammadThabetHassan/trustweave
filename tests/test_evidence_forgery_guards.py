@@ -239,3 +239,41 @@ def test_at_most_five_entries_are_listed_and_the_rest_are_counted(tmp_path: Path
         "did not write (a.txt, b.txt, c.txt, d.txt, e.txt and 1 more). Point output_dir "
         "at a dedicated directory, or empty this one first."
     )
+
+
+def test_publication_accepts_a_renamed_sarif_file_it_just_wrote(tmp_path: Path) -> None:
+    """The guard must not refuse TrustWeave's own output.
+
+    The allow list was built from *_FILE constants, which name only the default
+    trustweave.sarif. A configured sarif_output therefore looked foreign, and a documented
+    configuration produced a job that succeeded once and failed with status 3 for ever
+    after -- the artifacts it had just written blocked the next run.
+    """
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    (output / "results.sarif").write_text("{}", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "results.sarif").write_text("{}", encoding="utf-8")
+    (staging / "report.md").write_text("fresh", encoding="utf-8")
+
+    _publish_directory(staging, output)
+
+    assert (output / "report.md").read_text(encoding="utf-8") == "fresh"
+
+
+def test_publication_still_refuses_content_this_run_did_not_stage(tmp_path: Path) -> None:
+    """Widening the allow list must not disarm the guard."""
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    (output / "handover.md").write_text("real work", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "report.md").write_text("fresh", encoding="utf-8")
+
+    with pytest.raises(InputOutputError, match="did not write"):
+        _publish_directory(staging, output)
+
+    assert (output / "handover.md").read_text(encoding="utf-8") == "real work"
