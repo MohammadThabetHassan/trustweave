@@ -281,3 +281,144 @@ def test_a_skipped_file_is_not_subtracted_from_the_analyzed_count(tmp_path: Path
     assert review["source"]["files_analyzed"] == 1
     assert review["source"]["files_skipped"] == 2
     assert review["source"]["files_analyzed"] >= 0
+
+
+# ---------------------------------------------------------------------------------------
+# Registration forms beyond the decorated free function
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_semantic_kernel_plugin_method_is_discovered(tmp_path: Path) -> None:
+    """A tool the analyzer cannot see is a smaller tool surface than the agent exposes."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import requests\n"
+        "from semantic_kernel.functions import kernel_function\n\n\n"
+        "class Plugin:\n"
+        '    @kernel_function(name="probe", description="check a host")\n'
+        "    def probe(self, host: str) -> str:\n"
+        '        """Probe a host."""\n'
+        "        return requests.get(host).text\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [(tool.name, tool.framework) for tool in tools] == [
+        ("probe", "semantic_kernel_decorator")
+    ]
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_base_tool_subclass_is_discovered_under_its_declared_name(tmp_path: Path) -> None:
+    """LangChain's class-based tools put the name in an attribute and the effect in _run."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import requests\n"
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "class FetchTool(BaseTool):\n"
+        '    name: str = "fetch_page"\n'
+        '    description: str = "Fetch a page."\n\n'
+        "    def _run(self, url: str) -> str:\n"
+        "        return requests.get(url).text\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [(tool.name, tool.implementation) for tool in tools] == [("fetch_page", "FetchTool")]
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_base_tool_subclass_without_a_name_attribute_falls_back_to_the_class(
+    tmp_path: Path,
+) -> None:
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "class Unnamed(BaseTool):\n"
+        "    def _run(self, value: str) -> str:\n"
+        "        return value\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.name for tool in tools] == ["Unnamed"]
+
+
+def test_an_async_only_base_tool_resolves_its_body(tmp_path: Path) -> None:
+    """A tool implemented only as `_arun` must not be reported with no effects."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import requests\n"
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "class AsyncFetch(BaseTool):\n"
+        '    name: str = "async_fetch"\n\n'
+        "    async def _arun(self, url: str) -> str:\n"
+        "        return requests.get(url).text\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_class_that_is_not_a_tool_is_not_discovered(tmp_path: Path) -> None:
+    """Only BaseTool subclasses; treating every class as a tool would invent a surface."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "class Helper:\n"
+        '    name: str = "helper"\n\n'
+        "    def _run(self, value: str) -> str:\n"
+        "        return value\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools == []
+
+
+def test_a_registered_name_records_the_symbol_that_implements_it(tmp_path: Path) -> None:
+    """The model sees one name and a reviewer needs the other to find the code."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "def summarize_object(bucket: str) -> str:\n"
+        '    """Summarize."""\n'
+        "    return bucket\n\n\n"
+        "tool = StructuredTool.from_function(\n"
+        '    func=summarize_object, name="object_summary", description="d"\n'
+        ")\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [(tool.name, tool.implementation) for tool in tools] == [
+        ("object_summary", "summarize_object")
+    ]
+
+
+def test_the_implementing_symbol_reaches_the_artifact(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "class FetchTool(BaseTool):\n"
+        '    name: str = "fetch_page"\n\n'
+        "    def _run(self, url: str) -> str:\n"
+        "        return url\n",
+    )
+    review = review_code_discovery(collect_python_sources(tmp_path), None, FIXED_TIME)
+
+    assert review["tools"][0]["implementation"] == "FetchTool"
+
+
+def test_a_tool_whose_names_agree_omits_the_implementation_field(tmp_path: Path) -> None:
+    """Recording it twice would add noise to every ordinary tool."""
+
+    review = _review()
+
+    assert "implementation" not in _tools_by_name(review)["search_docs"]

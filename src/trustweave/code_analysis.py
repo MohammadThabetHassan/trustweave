@@ -75,6 +75,27 @@ _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
 LANGCHAIN_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
     {"langchain_core.tools.tool", "langchain.tools.tool", "langchain.agents.tool"}
 )
+# Semantic Kernel registers a plugin method with a decorator carrying the exposed name.
+SEMANTIC_KERNEL_DECORATORS: Final[frozenset[str]] = frozenset(
+    {
+        "semantic_kernel.functions.kernel_function",
+        "semantic_kernel.functions.kernel_function_decorator.kernel_function",
+        "semantic_kernel.kernel_function",
+        "semantic_kernel.skill_definition.sk_function",
+    }
+)
+# LangChain's class-based tools. The exposed name is a class attribute and the behaviour is
+# in `_run` or `_arun`, so neither the decorator nor the factory path discovers them.
+BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(
+    {
+        "langchain_core.tools.BaseTool",
+        "langchain_core.tools.base.BaseTool",
+        "langchain.tools.BaseTool",
+        "langchain.tools.base.BaseTool",
+    }
+)
+BASE_TOOL_BODY_METHODS: Final[tuple[str, ...]] = ("_run", "run", "_arun", "arun")
+
 STRUCTURED_TOOL_FACTORIES: Final[frozenset[str]] = frozenset(
     {
         "langchain_core.tools.StructuredTool.from_function",
@@ -112,6 +133,11 @@ class DiscoveredTool:
     framework: str
     file: str
     line: int
+    # The Python symbol that implements the tool, when the registered name differs from it.
+    # `StructuredTool.from_function(func=summarize_bucket_object, name="object_summary")`
+    # exposes one name to the model and is implemented by another, and a reviewer checking
+    # the effects needs the second to find the code.
+    implementation: str | None = None
     signals: list[EffectSignal] = field(default_factory=list)
     reasons: set[str] = field(default_factory=set)
     budget_state: str = "complete"
@@ -822,6 +848,8 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
             framework: str | None = None
             if qualified in LANGCHAIN_TOOL_DECORATORS:
                 framework = "langchain_tool_decorator"
+            elif qualified in SEMANTIC_KERNEL_DECORATORS:
+                framework = "semantic_kernel_decorator"
             elif qualified and qualified.endswith(".tool"):
                 # FastMCP and similar: @<server>.tool(). The receiver is a local object,
                 # so this is recorded as a lower-confidence framework, never as proof.
@@ -830,15 +858,70 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
                 framework = "mcp_call_tool"
             if framework is None:
                 continue
+            registered = _tool_name_from_decorator(decorator, function.name)
             discovered.append(
                 DiscoveredTool(
-                    _tool_name_from_decorator(decorator, function.name),
+                    registered,
                     framework,
                     module.path,
                     function.lineno,
+                    implementation=function.name if registered != function.name else None,
                 )
             )
             break
+    return discovered
+
+
+def _class_attribute_string(node: ast.ClassDef, attribute: str) -> str | None:
+    """The literal string a class assigns to *attribute*, annotated or not."""
+
+    for child in node.body:
+        if isinstance(child, ast.AnnAssign) and isinstance(child.target, ast.Name):
+            target, value = child.target.id, child.value
+        elif (
+            isinstance(child, ast.Assign)
+            and len(child.targets) == 1
+            and isinstance(child.targets[0], ast.Name)
+        ):
+            target, value = child.targets[0].id, child.value
+        else:
+            continue
+        if target == attribute and value is not None:
+            return _constant_str(value)
+    return None
+
+
+def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
+    """LangChain tools written as a BaseTool subclass rather than a decorated function.
+
+    The tool is located at its `_run` body rather than at the class statement, so the
+    existing body resolution reaches the code that actually performs the effect. Without
+    this the whole class is invisible: the effects it performs are never attributed to any
+    tool, and a reviewer reading the discovery artifact sees a smaller tool surface than the
+    agent really exposes.
+    """
+
+    discovered: list[DiscoveredTool] = []
+    for node in module.tree.body:
+        if not isinstance(node, ast.ClassDef):
+            continue
+        if not any(_resolve(_dotted(base), module) in BASE_TOOL_CLASSES for base in node.bases):
+            continue
+        methods = {
+            child.name: child
+            for child in node.body
+            if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef)
+        }
+        body = next((methods[name] for name in BASE_TOOL_BODY_METHODS if name in methods), None)
+        discovered.append(
+            DiscoveredTool(
+                _class_attribute_string(node, "name") or node.name,
+                "langchain_base_tool_subclass",
+                module.path,
+                body.lineno if body is not None else node.lineno,
+                implementation=node.name,
+            )
+        )
     return discovered
 
 
@@ -858,6 +941,7 @@ def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
             "structured_tool_factory",
             module.path,
             node.lineno,
+            implementation=fallback if fallback != "unnamed_tool" else None,
         )
         if not isinstance(target, ast.Name) or target.id not in module.functions:
             tool.reasons.add("BODY_UNAVAILABLE")
@@ -914,7 +998,11 @@ def analyze_sources(
 
     tools: list[DiscoveredTool] = []
     for module in modules:
-        candidates = _discover_decorated_tools(module) + _discover_factory_tools(module)
+        candidates = (
+            _discover_decorated_tools(module)
+            + _discover_class_tools(module)
+            + _discover_factory_tools(module)
+        )
         bound = _bound_tool_names(module)
         for name in sorted(bound):
             if name in module.functions and not any(

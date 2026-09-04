@@ -37,7 +37,10 @@ def _predict(module: Path, tool_name: str) -> str:
 
     tools, _ = analyze_sources(collect_python_sources(module))
     for tool in tools:
-        if tool.name != tool_name:
+        # A case is identified by the symbol that implements it, while the analyzer reports
+        # the name the tool is registered under, and a factory may set the two differently.
+        # Both name the same tool, so either identifies the case.
+        if tool_name not in {tool.name, tool.implementation}:
             continue
         proposed = tool.proposed_action_class()
         return REFUSED if proposed == "unknown" else proposed
