@@ -112,15 +112,30 @@ def read(path: Path, relative: str) -> Reading:
     if not observations:
         return Reading(path=relative, not_extracted=f"{unlabelled} requests, none with a decision")
 
-    both = sorted(cell for cell, decisions in cells.items() if len(decisions) > 1)
+    # Raw cells only. Several suites may exercise one policy set, and the counts are
+    # meaningful over their union rather than per file, so folding happens in fold_extra.
     return Reading(
         path=relative,
         observations=observations,
-        extra={
-            subject: {
-                "request_cells_witnessed": len(cells),
-                "request_cells_witnessing_both_decisions": len(both),
-                "cells": {cell: sorted(decisions) for cell, decisions in sorted(cells.items())},
-            }
-        },
+        extra={subject: {"cells": {cell: sorted(d) for cell, d in sorted(cells.items())}}},
     )
+
+
+def fold_extra(readings: list[Reading]) -> dict[str, Any]:
+    """Union the request cells each suite witnessed, per policy set, then count."""
+
+    merged: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
+    for reading in readings:
+        for subject, payload in reading.extra.items():
+            for cell, decisions in payload["cells"].items():
+                merged[subject][cell].update(decisions)
+
+    folded: dict[str, Any] = {}
+    for subject, cells in sorted(merged.items()):
+        both = [cell for cell, decisions in cells.items() if len(decisions) > 1]
+        folded[subject] = {
+            "request_cells_witnessed": len(cells),
+            "request_cells_witnessing_both_decisions": len(both),
+            "cells": {cell: sorted(decisions) for cell, decisions in sorted(cells.items())},
+        }
+    return folded

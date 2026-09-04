@@ -407,10 +407,10 @@ def test_cedar_records_request_cells_witnessed_under_both_decisions(tmp_path: Pa
         [_request("allow", "view"), _request("deny", "view"), _request("allow", "edit")],
     )
 
-    extra = cedar.read(path, "t.json").extra["policies_1.cedar"]
+    folded = cedar.fold_extra([cedar.read(path, "t.json")])["policies_1.cedar"]
 
-    assert extra["request_cells_witnessed"] == 2
-    assert extra["request_cells_witnessing_both_decisions"] == 1
+    assert folded["request_cells_witnessed"] == 2
+    assert folded["request_cells_witnessing_both_decisions"] == 1
 
 
 def test_cedar_discover_ignores_json_that_is_not_a_suite(tmp_path: Path) -> None:
@@ -424,3 +424,291 @@ def test_cedar_discover_ignores_json_that_is_not_a_suite(tmp_path: Path) -> None
     (tmp_path / "entities.json").write_text(json.dumps([{"uid": "x"}]), encoding="utf-8")
 
     assert [path.name for path in cedar.discover(tmp_path)] == ["t.json"]
+
+
+# ---------------------------------------------------------------------------------------
+# Per-file supplementary data must survive subjects unifying across files
+# ---------------------------------------------------------------------------------------
+
+
+def test_cedar_unions_request_cells_across_suites_sharing_a_policy_set(tmp_path: Path) -> None:
+    """Two suites may exercise one policy set; the cell counts are over their union.
+
+    The Cedar corpus contains exactly this, so a per-file count keyed by policy set would
+    report whichever file was read last.
+    """
+
+    first = cedar.read(_cedar_suite(tmp_path, [_request("allow", "view")], "a.json"), "a.json")
+    second = cedar.read(_cedar_suite(tmp_path, [_request("deny", "edit")], "b.json"), "b.json")
+
+    folded = cedar.fold_extra([first, second])["policies_1.cedar"]
+
+    assert folded["request_cells_witnessed"] == 2
+    assert sorted(folded["cells"]) == ["User|edit|Photo", "User|view|Photo"]
+
+
+def test_cedar_folds_both_decisions_for_a_cell_split_across_suites(tmp_path: Path) -> None:
+    first = cedar.read(_cedar_suite(tmp_path, [_request("allow", "view")], "a.json"), "a.json")
+    second = cedar.read(_cedar_suite(tmp_path, [_request("deny", "view")], "b.json"), "b.json")
+
+    folded = cedar.fold_extra([first, second])["policies_1.cedar"]
+
+    assert folded["request_cells_witnessing_both_decisions"] == 1
+
+
+def test_colliding_extras_are_refused_when_an_adapter_cannot_combine_them(
+    tmp_path: Path,
+) -> None:
+    """Silently keeping the last writer is the failure this replaced."""
+
+    readings = {
+        "a": Reading("a", [_observation("p", "allow")], extra={"p": {"n": 1}}),
+        "b": Reading("b", [_observation("p", "deny")], extra={"p": {"n": 2}}),
+    }
+
+    with pytest.raises(ValueError, match="declares no fold_extra"):
+        _measure(tmp_path, readings)
+
+
+# ---------------------------------------------------------------------------------------
+# Refusal paths. The study's honesty rests on these naming what they could not read.
+# ---------------------------------------------------------------------------------------
+
+
+def test_rego_a_file_that_does_not_parse_is_named_not_silently_dropped(monkeypatch) -> None:
+    monkeypatch.setattr(rego, "_parse", lambda path: None)
+
+    assert rego.read(Path("a_test.rego"), "a_test.rego").not_extracted == (
+        "does not parse as Rego v1 or v0"
+    )
+
+
+def test_rego_a_suite_with_no_test_rules_says_so(monkeypatch) -> None:
+    monkeypatch.setattr(rego, "_parse", lambda path: {"rules": []})
+    monkeypatch.setattr(rego, "builtins", frozenset)
+
+    assert rego.read(Path("a_test.rego"), "a_test.rego").not_extracted == "no test rules"
+
+
+def test_rego_a_suite_whose_tests_pin_nothing_reports_how_many_it_had(monkeypatch) -> None:
+    """The distinction that matters: tests exist but the adapter could not read them."""
+
+    ast = {"rules": [{"head": {"name": "test_a"}, "body": []}]}
+    monkeypatch.setattr(rego, "_parse", lambda path: ast)
+    monkeypatch.setattr(rego, "builtins", frozenset)
+
+    assert rego.read(Path("a"), "a").not_extracted == "1 test rules, no decision pinned"
+
+
+def test_kyverno_unreadable_yaml_is_refused(tmp_path: Path) -> None:
+    path = tmp_path / "kyverno-test.yaml"
+    path.write_text("results: [\n  - policy: p\n   bad indent\n", encoding="utf-8")
+
+    assert kyverno.read(path, "t.yaml").not_extracted == "not readable as YAML"
+
+
+def test_kyverno_a_document_that_is_not_a_test_is_refused(tmp_path: Path) -> None:
+    path = tmp_path / "kyverno-test.yaml"
+    path.write_text("apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: x\n", encoding="utf-8")
+
+    assert kyverno.read(path, "t.yaml").not_extracted == "no cli.kyverno.io Test document"
+
+
+def test_kyverno_results_without_a_labelled_outcome_are_counted_and_reported(
+    tmp_path: Path,
+) -> None:
+    _cluster_policy(tmp_path, "r")
+    path = _kyverno_test(tmp_path, "- policy: p\n  rule: r\n  kind: Pod\n")
+
+    assert kyverno.read(path, "t.yaml").not_extracted == "1 results, none labelled"
+
+
+def test_cedar_unreadable_json_is_refused(tmp_path: Path) -> None:
+    path = tmp_path / "t.json"
+    path.write_text("{not json", encoding="utf-8")
+
+    assert cedar.read(path, "t.json").not_extracted == "not readable as JSON"
+
+
+def test_cedar_a_document_without_requests_is_refused(tmp_path: Path) -> None:
+    path = tmp_path / "t.json"
+    path.write_text(json.dumps({"policies": "p.cedar"}), encoding="utf-8")
+
+    assert cedar.read(path, "t.json").not_extracted == "no requests block"
+
+
+def test_cedar_requests_without_a_decision_are_counted_and_reported(tmp_path: Path) -> None:
+    path = tmp_path / "t.json"
+    path.write_text(
+        json.dumps({"policies": "p.cedar", "requests": [{"principal": {"type": "User"}}]}),
+        encoding="utf-8",
+    )
+
+    assert cedar.read(path, "t.json").not_extracted == "1 requests, none with a decision"
+
+
+def test_a_single_file_target_is_read_without_a_directory_walk(tmp_path: Path) -> None:
+    path = _cedar_suite(tmp_path, [_request("allow")])
+
+    assert cedar.discover(path) == [path]
+
+
+# ---------------------------------------------------------------------------------------
+# Provenance and adapter loading
+# ---------------------------------------------------------------------------------------
+
+
+def test_provenance_of_a_directory_that_is_not_a_checkout_is_empty(tmp_path: Path) -> None:
+    """A corpus with no git metadata yields no commits rather than invented ones."""
+
+    from suite_coverage import provenance
+
+    assert provenance(tmp_path) == []
+
+
+def test_every_declared_adapter_satisfies_the_protocol() -> None:
+    from suite_coverage import ADAPTER_MODULES, load_adapter
+
+    for name in ADAPTER_MODULES:
+        adapter = load_adapter(name)
+
+        assert name == adapter.NAME
+        assert adapter.DECISION_DOMAINS
+        assert callable(adapter.discover) and callable(adapter.read)
+
+
+# ---------------------------------------------------------------------------------------
+# The opa invocation, stubbed. The v0 fallback is load-bearing for the corpus study.
+# ---------------------------------------------------------------------------------------
+
+
+class _Completed:
+    def __init__(self, returncode: int, stdout: str) -> None:
+        self.returncode = returncode
+        self.stdout = stdout
+
+
+def _stub_opa(monkeypatch, responses: list[_Completed]) -> list[list[str]]:
+    calls: list[list[str]] = []
+
+    def run(arguments, **kwargs):
+        calls.append(arguments)
+        return responses[len(calls) - 1]
+
+    monkeypatch.setattr(rego, "_opa", lambda: "opa")
+    monkeypatch.setattr(rego.subprocess, "run", run)
+    return calls
+
+
+def test_a_v0_suite_is_retried_rather_than_dropped(monkeypatch) -> None:
+    """OPA 1.x parses v1 by default and most published suites are still v0."""
+
+    calls = _stub_opa(monkeypatch, [_Completed(1, ""), _Completed(0, '{"rules": []}')])
+
+    assert rego._parse(Path("a_test.rego")) == {"rules": []}
+    assert len(calls) == 2
+    assert "--v0-compatible" in calls[1]
+
+
+def test_a_suite_parsing_as_v1_is_not_retried(monkeypatch) -> None:
+    calls = _stub_opa(monkeypatch, [_Completed(0, '{"rules": []}')])
+
+    rego._parse(Path("a_test.rego"))
+
+    assert len(calls) == 1
+
+
+def test_a_file_failing_both_parses_yields_nothing(monkeypatch) -> None:
+    _stub_opa(monkeypatch, [_Completed(1, ""), _Completed(1, "")])
+
+    assert rego._parse(Path("a_test.rego")) is None
+
+
+def test_output_that_is_not_json_is_refused(monkeypatch) -> None:
+    _stub_opa(monkeypatch, [_Completed(0, "not json"), _Completed(0, "not json")])
+
+    assert rego._parse(Path("a_test.rego")) is None
+
+
+def test_output_that_is_json_but_not_a_document_is_refused(monkeypatch) -> None:
+    _stub_opa(monkeypatch, [_Completed(0, "[1, 2]"), _Completed(0, "[1, 2]")])
+
+    assert rego._parse(Path("a_test.rego")) is None
+
+
+def test_a_parse_that_cannot_be_run_is_refused(monkeypatch) -> None:
+    monkeypatch.setattr(rego, "_opa", lambda: "opa")
+    monkeypatch.setattr(rego.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(OSError()))
+
+    assert rego._parse(Path("a_test.rego")) is None
+
+
+def test_builtins_are_taken_from_the_installed_opa(monkeypatch) -> None:
+    """Hand-listing them would rot against the version actually installed."""
+
+    monkeypatch.setattr(rego, "_BUILTINS", None)
+    _stub_opa(monkeypatch, [_Completed(0, json.dumps({"builtins": [{"name": "trace"}]}))])
+
+    assert "trace" in rego.builtins()
+
+
+def test_an_unreadable_builtin_list_yields_an_empty_set_rather_than_a_guess(monkeypatch) -> None:
+    monkeypatch.setattr(rego, "_BUILTINS", None)
+    _stub_opa(monkeypatch, [_Completed(0, "not json")])
+
+    assert rego.builtins() == frozenset()
+
+
+def test_a_missing_opa_binary_is_reported_clearly(monkeypatch) -> None:
+    monkeypatch.setattr(rego.shutil, "which", lambda name: None)
+
+    with pytest.raises(SystemExit, match="opa is not on PATH"):
+        rego._opa()
+
+
+def test_the_rendered_summary_reports_each_domain_separately(tmp_path: Path) -> None:
+    reading = Reading(
+        "a",
+        [
+            _observation("p", "allow"),
+            _observation("p", "deny"),
+            Observation(domain="other", subject="q", decision="x", test="t"),
+        ],
+    )
+
+    rendered = render(_measure(tmp_path, {"a": reading}))
+
+    assert "policy subjects           2" in rendered
+    assert "d " in rendered and "other " in rendered
+    assert "witness >1" in rendered
+
+
+def test_git_metadata_that_cannot_be_read_yields_no_provenance(monkeypatch, tmp_path: Path) -> None:
+    """A corpus whose commit cannot be determined is reported without one, not with a guess."""
+
+    import suite_coverage
+
+    (tmp_path / ".git").mkdir()
+    monkeypatch.setattr(
+        suite_coverage.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(OSError())
+    )
+
+    assert suite_coverage.provenance(tmp_path) == []
+
+
+def test_the_documented_invocation_writes_the_artifact(tmp_path: Path) -> None:
+    """`python scripts/suite_coverage.py cedar <corpus> --json out.json`, end to end."""
+
+    import suite_coverage
+
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    _cedar_suite(corpus, [_request("allow"), _request("deny")])
+    out = tmp_path / "out.json"
+
+    assert suite_coverage.main(["cedar", str(corpus), "--json", str(out)]) == 0
+
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["ecosystem"] == "cedar"
+    assert report["files_measured"] == 1
+    assert report["subjects_blind"] == 0

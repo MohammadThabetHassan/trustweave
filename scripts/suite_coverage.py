@@ -192,10 +192,36 @@ def measure(adapter: Adapter, paths: list[Path]) -> dict[str, Any]:
         ],
         "subjects": subjects,
     }
-    extras = {k: v for reading in measured for k, v in reading.extra.items()}
+    extras = _fold_extra(adapter, measured)
     if extras:
         report["extra"] = extras
     return report
+
+
+def _fold_extra(adapter: Adapter, measured: list[Reading]) -> dict[str, Any]:
+    """Combine per-file supplementary data without letting one file overwrite another.
+
+    Subjects deliberately unify across files -- a policy set exercised by two suites is one
+    subject -- so per-file extras keyed by subject collide, and a plain dict merge silently
+    keeps whichever file was read last. An adapter that emits extras must therefore say how
+    to combine them; without that, a collision is an error rather than a quiet loss.
+    """
+
+    fold = getattr(adapter, "fold_extra", None)
+    if callable(fold):
+        folded = fold(measured)
+        return folded if isinstance(folded, dict) else {}
+
+    extras: dict[str, Any] = {}
+    for reading in measured:
+        for key, value in reading.extra.items():
+            if key in extras:
+                raise ValueError(
+                    f"{adapter.NAME}: two files supply extra data for {key!r} and the adapter "
+                    "declares no fold_extra to combine them"
+                )
+            extras[key] = value
+    return extras
 
 
 def render(report: dict[str, Any]) -> str:
@@ -238,12 +264,12 @@ def load_adapter(name: str) -> Adapter:
     return cast(Adapter, importlib.import_module(ADAPTER_MODULES[name]))
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("ecosystem", choices=sorted(ADAPTER_MODULES))
     parser.add_argument("paths", type=Path, nargs="+")
     parser.add_argument("--json", type=Path)
-    arguments = parser.parse_args()
+    arguments = parser.parse_args(argv)
 
     report = measure(load_adapter(arguments.ecosystem), arguments.paths)
     print(render(report))
