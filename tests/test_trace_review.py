@@ -154,3 +154,43 @@ def test_cli_trace_review_writes_artifacts_and_can_fail_a_review_gate(tmp_path: 
     )
     assert (review_dir / "trace-review.json").is_file()
     assert (review_dir / "trace-review.md").is_file()
+
+
+def test_an_observed_call_requiring_approval_is_reported() -> None:
+    """The human-approval decision had no test and no fixture.
+
+    Both shipped traces exercised only allow and deny, so deleting the
+    require_approval branch left the suite green while trace-review stopped
+    reporting the one decision that exists to put a person in the loop.
+    """
+
+    manifest = parse_manifest(load_document(ROOT / "examples" / "support-agent.manifest.json"))
+    policy = parse_policy(load_document(ROOT / "policies" / "default-policy.json"))
+    trace = load_document(ROOT / "examples" / "traces" / "approval-required-support-trace.json")
+
+    review = review_trace(manifest, policy, trace, "2026-01-01T00:00:00Z")
+
+    observations = review["observations"]
+    assert [observation["decision"] for observation in observations] == ["require_approval"]
+    assert [observation["rule_id"] for observation in observations] == ["TW-002"]
+    assert [finding["id"] for finding in review["findings"]] == ["TW-TRACE-005"]
+    assert int(review["summary"]["review_findings"]) == 1
+
+
+def test_the_approval_trace_exits_non_zero_under_exit_on_review(tmp_path: Path) -> None:
+    """A decision that needs a person must not be reportable as a clean run."""
+
+    arguments = [
+        "trace-review",
+        "--manifest",
+        str(ROOT / "examples" / "support-agent.manifest.json"),
+        "--policy",
+        str(ROOT / "policies" / "default-policy.json"),
+        "--trace",
+        str(ROOT / "examples" / "traces" / "approval-required-support-trace.json"),
+        "--output-dir",
+        str(tmp_path),
+        "--exit-on-review",
+    ]
+
+    assert main(arguments) == 1

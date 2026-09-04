@@ -58,3 +58,5 @@ nav:
       - Release evidence 0.3.0: RELEASE_EVIDENCE_0.3.0.md
       - Release evidence 0.2.3: RELEASE_EVIDENCE_0.2.3.md
       - Migration to 0.2.0: MIGRATION_0_2.md
+  - Research:
+      - Decision-class coverage prospectus: RESEARCH_PROSPECTUS.md
