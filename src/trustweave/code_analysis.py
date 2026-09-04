@@ -905,6 +905,7 @@ def _collect_signals(
     depth: int,
     visited: set[str],
     literals: dict[str, ast.expr] | None = None,
+    inherited: dict[str, tuple[str, ast.Call]] | None = None,
 ) -> None:
     """Walk one function, recording signals and following module-local helpers."""
 
@@ -918,6 +919,8 @@ def _collect_signals(
     self_aliases = module.self_symbols.get(owner or "", {})
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
+    # Receivers the caller handed over, before the callee's own bindings, which win.
+    origins.update(inherited or {})
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
     aliases = _symbol_aliases(function, module)
@@ -1012,7 +1015,18 @@ def _collect_signals(
                 for parameter, argument in zip(helper.args.args, node.args, strict=False)
                 if isinstance(argument, ast.Constant)
             }
-            _collect_signals(tool, helper, module, (*via, spelled), depth + 1, visited, passed)
+            # A receiver created in one function and handed to another keeps its identity.
+            # `session = ClientSession()`, then `_collect(session, symbol)`, then
+            # `session.get(url)` is how async clients are written, and losing the receiver
+            # at the call boundary reported the egress as an unresolvable callee.
+            handed: dict[str, tuple[str, ast.Call]] = {
+                parameter.arg: origins[argument.id]
+                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                if isinstance(argument, ast.Name) and argument.id in origins
+            }
+            _collect_signals(
+                tool, helper, module, (*via, spelled), depth + 1, visited, passed, handed
+            )
 
     if module.wildcard_import:
         tool.reasons.add("UNRESOLVED_CALLEE")

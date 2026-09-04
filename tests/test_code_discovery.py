@@ -1136,3 +1136,72 @@ def test_every_registration_form_the_document_lists_is_produced_by_the_analyzer(
         "langchain_base_tool_subclass",
         "bound_plain_function",
     } <= frameworks
+
+
+# ---------------------------------------------------------------------------------------
+# A receiver keeps its identity across a call boundary
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_receiver_handed_to_a_helper_is_still_that_receiver(tmp_path: Path) -> None:
+    """`session = ClientSession()` then `_collect(session, x)` then `session.get(url)`."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import aiohttp\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "async def _collect(session, symbol):\n"
+        "    return await session.get('https://example.test/' + symbol)\n\n\n"
+        "@tool\n"
+        "async def price(symbol: str) -> str:\n"
+        '    """Fetch a price."""\n'
+        "    session = aiohttp.ClientSession()\n"
+        "    return str(await _collect(session, symbol))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "external"
+
+
+def test_a_helper_parameter_the_caller_did_not_bind_is_not_a_receiver(tmp_path: Path) -> None:
+    """Nothing was handed over, so the parameter names nothing the module constructed."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "def _collect(session, symbol):\n"
+        "    return session.get(symbol)\n\n\n"
+        "@tool\n"
+        "def price(session, symbol: str) -> str:\n"
+        '    """Fetch."""\n'
+        "    return str(_collect(session, symbol))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert not [s for s in tools[0].signals if s.action_class == "external"]
+
+
+def test_the_callees_own_binding_wins_over_the_handed_one(tmp_path: Path) -> None:
+    """A helper that rebinds the name is describing its own receiver, not the caller's."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import aiohttp\n"
+        "import pathlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "def _collect(session, name):\n"
+        "    session = pathlib.Path(name)\n"
+        "    return session.read_text()\n\n\n"
+        "@tool\n"
+        "def load(name: str) -> str:\n"
+        '    """Load."""\n'
+        "    session = aiohttp.ClientSession()\n"
+        "    return _collect(session, name)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+    symbols = {signal.symbol for signal in tools[0].signals}
+
+    assert "pathlib.Path.read_text" in symbols

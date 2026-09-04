@@ -2,19 +2,19 @@
   "schema_version": "trustweave.dev/classification-evaluation/v1alpha1",
   "cases": 72,
   "overall": {
-    "accuracy": 0.7778,
-    "accuracy_on_agreed_labels_only": 0.7879,
+    "accuracy": 0.7917,
+    "accuracy_on_agreed_labels_only": 0.803,
     "answer_rate_on_decidable": 0.8596,
-    "precision_when_answering": 0.898,
+    "precision_when_answering": 0.9184,
     "refusal_rate": 0.2778,
     "not_discovered": 1
   },
   "per_class": {
     "read": {
       "support": 15,
-      "precision": 0.7222,
+      "precision": 0.7647,
       "recall": 0.8667,
-      "f1": 0.7879
+      "f1": 0.8125
     },
     "write": {
       "support": 14,
@@ -31,8 +31,8 @@
     "external": {
       "support": 16,
       "precision": 1.0,
-      "recall": 0.75,
-      "f1": 0.8571
+      "recall": 0.8125,
+      "f1": 0.8966
     },
     "undecidable": {
       "support": 15,
@@ -44,7 +44,7 @@
   "by_difficulty": {
     "easy": 0.7778,
     "medium": 0.9032,
-    "hard": 0.6562
+    "hard": 0.6875
   },
   "by_framework": {
     "bound_plain_function": {
@@ -73,7 +73,7 @@
     },
     "server_tool_decorator": {
       "cases": 18,
-      "accuracy": 0.7778
+      "accuracy": 0.8333
     },
     "structured_tool_factory": {
       "cases": 15,
@@ -101,9 +101,9 @@
       "undecidable": 3
     },
     "external": {
-      "read": 2,
+      "read": 1,
       "sensitive": 1,
-      "external": 12,
+      "external": 13,
       "undecidable": 1
     },
     "undecidable": {
@@ -119,13 +119,6 @@
       "difficulty": "hard",
       "expected": "external",
       "predicted": "undecidable"
-    },
-    {
-      "id": "FRM-002",
-      "family": "framework-shapes",
-      "difficulty": "hard",
-      "expected": "external",
-      "predicted": "read"
     },
     {
       "id": "FRM-008",
