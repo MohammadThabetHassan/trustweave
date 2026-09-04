@@ -34,7 +34,7 @@ And `[[P]]` is a function `S -> D` and nothing more: no rule may consult anythin
 `(t, a)`.
 
 That last restriction is the whole fragment. It is what the rest of this document trades on,
-and section 6 is what it costs.
+and section 7 is what it costs.
 
 ## 2. Finite characterisation
 

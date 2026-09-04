@@ -352,3 +352,16 @@ def test_a_policy_that_never_returns_a_decision_needs_no_case_expecting_it() -> 
         resolved = policy_mutation.decision_map(mutant)
         if resolved != reference:
             assert policy_mutation._kills(exhaustive, mutant), name
+
+
+def test_section_cross_references_in_the_document_resolve() -> None:
+    """Renumbering a proof document silently breaks its internal pointers."""
+
+    import re
+
+    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    headings = {int(match) for match in re.findall(r"^## (\d+)\.", document, re.MULTILINE)}
+    referenced = {int(match) for match in re.findall(r"\bsection (\d+)\b", document, re.IGNORECASE)}
+
+    assert headings, "the document must have numbered sections"
+    assert referenced <= headings, f"dangling: {sorted(referenced - headings)}"
