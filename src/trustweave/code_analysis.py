@@ -388,6 +388,37 @@ def _assigned_names(scope_body: list[ast.stmt]) -> set[str]:
     return bound
 
 
+def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
+    """Local names bound directly to an imported symbol.
+
+    `runner = sp.run` followed by `runner(argv)` is an ordinary way to write a call, and
+    reading the second line as an unresolvable callee reports arbitrary process launch as no
+    effect at all -- the most dangerous class, published as silence.
+
+    Only a direct name or attribute binding counts. Anything computed stays with
+    `_dynamic_locals`, and a name bound twice to different symbols is dropped rather than
+    resolved to whichever assignment came last.
+    """
+
+    aliases: dict[str, str] = {}
+    rebound: set[str] = set()
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Name | ast.Attribute):
+            continue
+        qualified = _resolve(_dotted(node.value), module)
+        if qualified is None or "." not in qualified:
+            continue
+        if target.id in aliases and aliases[target.id] != qualified:
+            rebound.add(target.id)
+        aliases[target.id] = qualified
+    for name in rebound:
+        aliases.pop(name, None)
+    return aliases
+
+
 def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
     """Every name the function itself binds: parameters first, then local assignments."""
 
@@ -599,11 +630,15 @@ def _classify_call(
     origins: dict[str, tuple[str, ast.Call]],
     dynamic: set[str],
     self_attributes: dict[str, str] | None = None,
+    aliases: dict[str, str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
     self_attributes = self_attributes or {}
     spelled = _dotted(call.func)
+    # A bare name bound to an imported symbol is that symbol.
+    if isinstance(call.func, ast.Name) and call.func.id not in dynamic:
+        spelled = (aliases or {}).get(call.func.id, spelled)
     root = _root_name(call.func)
 
     if root is not None and root in dynamic:
@@ -767,6 +802,7 @@ def _collect_signals(
     origins = dict(module.module_origins)
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
+    aliases = _symbol_aliases(function, module)
     shadowed = _local_names(function)
 
     decorator_nodes = {
@@ -778,7 +814,9 @@ def _collect_signals(
             # performs, and classifying it made every decorated tool refuse on its own
             # registration call.
             continue
-        action, symbol, reason = _classify_call(node, module, origins, dynamic, self_attributes)
+        action, symbol, reason = _classify_call(
+            node, module, origins, dynamic, self_attributes, aliases
+        )
         if reason:
             tool.reasons.add(reason)
         if action == _UNRECOGNIZED:

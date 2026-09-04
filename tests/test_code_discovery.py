@@ -422,3 +422,112 @@ def test_a_tool_whose_names_agree_omits_the_implementation_field(tmp_path: Path)
     review = _review()
 
     assert "implementation" not in _tools_by_name(review)["search_docs"]
+
+
+# ---------------------------------------------------------------------------------------
+# A call through a local alias is still that call
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_symbol_called_through_a_local_alias_is_resolved(tmp_path: Path) -> None:
+    """`runner = sp.run` then `runner(argv)` is arbitrary process launch, not silence."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import shlex\n"
+        "import subprocess as sp\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def probe(command: str) -> str:\n"
+        '    """Run a probe."""\n'
+        "    runner = sp.run\n"
+        "    return runner(shlex.split(command), capture_output=True).stdout\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert "UNRESOLVED_CALLEE" not in tools[0].reasons
+
+
+def test_an_alias_rebound_to_a_second_symbol_is_refused_rather_than_guessed(
+    tmp_path: Path,
+) -> None:
+    """Two bindings, so neither reading is safe; the last assignment must not win."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import subprocess as sp\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def dispatch(flag: bool, command: str) -> str:\n"
+        '    """Dispatch."""\n'
+        "    runner = sp.run\n"
+        "    runner = sp.check_output\n"
+        "    return str(runner([command]))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() != "sensitive"
+
+
+def test_a_name_bound_from_a_call_is_still_dynamic_dispatch(tmp_path: Path) -> None:
+    """Aliasing resolves direct bindings only; a computed callee stays a refusal."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import importlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def call_plugin(name: str, value: str) -> str:\n"
+        '    """Call a plugin."""\n'
+        "    handler = importlib.import_module(name)\n"
+        "    return str(handler(value))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+
+
+def test_an_alias_of_a_local_name_is_not_treated_as_a_symbol(tmp_path: Path) -> None:
+    """`b = a` where `a` is a parameter names nothing the catalog describes."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def relay(handler, value: str) -> str:\n"
+        '    """Relay through a supplied callable."""\n'
+        "    forward = handler\n"
+        "    return str(forward(value))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert not [signal for signal in tools[0].signals if signal.action_class == "sensitive"]
+
+
+def test_an_alias_does_not_leak_between_tools(tmp_path: Path) -> None:
+    """A binding in one function must not decide what a name means in another."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import subprocess as sp\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def launcher(command: str) -> str:\n"
+        '    """Launch."""\n'
+        "    runner = sp.run\n"
+        "    return str(runner([command]))\n\n\n"
+        "@tool\n"
+        "def formatter(runner, value: str) -> str:\n"
+        '    """Format."""\n'
+        "    return str(runner(value))\n",
+    )
+    tools = {tool.name: tool for tool in analyze_sources(collect_python_sources(tmp_path))[0]}
+
+    assert tools["launcher"].proposed_action_class() == "sensitive"
+    assert tools["formatter"].proposed_action_class() != "sensitive"
