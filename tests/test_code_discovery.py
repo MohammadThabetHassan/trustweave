@@ -811,3 +811,125 @@ def test_a_chain_rooted_at_an_unknown_name_is_not_classified(tmp_path: Path) -> 
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert not [s for s in tools[0].signals if s.action_class == "external"]
+
+
+# ---------------------------------------------------------------------------------------
+# Effects one hop inside a class the module defines
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_method_on_a_locally_constructed_instance_is_followed(tmp_path: Path) -> None:
+    """A tool with no observed effect is classified read, so missing this published a write."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import pathlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "class Store:\n"
+        "    def forget(self, name: str) -> str:\n"
+        "        pathlib.Path(name).write_text('')\n"
+        "        return name\n\n\n"
+        "@tool\n"
+        "def forget_contact(name: str) -> str:\n"
+        '    """Forget a contact."""\n'
+        "    store = Store()\n"
+        "    return store.forget(name)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "write"
+    assert tools[0].signals[0].via == ("forget_contact", "forget")
+
+
+def test_an_instance_rebound_to_another_class_is_not_followed(tmp_path: Path) -> None:
+    """Two constructors, so neither method is safe to attribute to the tool."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import pathlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "class A:\n"
+        "    def act(self, name: str) -> str:\n"
+        "        pathlib.Path(name).write_text('')\n"
+        "        return name\n\n\n"
+        "class B:\n"
+        "    def act(self, name: str) -> str:\n"
+        "        return name\n\n\n"
+        "@tool\n"
+        "def run(flag: bool, name: str) -> str:\n"
+        '    """Run."""\n'
+        "    handler = A()\n"
+        "    handler = B()\n"
+        "    return handler.act(name)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() != "write"
+
+
+def test_a_method_on_an_imported_class_is_not_invented(tmp_path: Path) -> None:
+    """Only classes this module defines have a body the analyzer can read."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from elsewhere import Store\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def run(name: str) -> str:\n"
+        '    """Run."""\n'
+        "    store = Store()\n"
+        "    return store.forget(name)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert not [signal for signal in tools[0].signals if signal.action_class == "write"]
+
+
+# ---------------------------------------------------------------------------------------
+# Nothing outranks the top of the precedence order
+# ---------------------------------------------------------------------------------------
+
+
+def test_an_observed_credential_read_survives_an_unresolved_call(tmp_path: Path) -> None:
+    """Refusing here discards a finding rather than guarding against one."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "import pathlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def load(name: str, handler) -> str:\n"
+        '    """Load."""\n'
+        "    secret = pathlib.Path('/home/app/.ssh/id_rsa').read_text()\n"
+        "    handler(secret)\n"
+        "    return 'done'\n",
+    )
+    tool_found = analyze_sources(collect_python_sources(tmp_path))[0][0]
+
+    assert tool_found.reasons
+    assert tool_found.proposed_action_class() == "sensitive"
+
+
+def test_a_lesser_class_is_still_withheld_when_something_is_unresolved(tmp_path: Path) -> None:
+    """A write could be outranked by whatever the unresolved call does, so it is withheld."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import pathlib\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def save(name: str, handler) -> str:\n"
+        '    """Save."""\n'
+        "    pathlib.Path(name).write_text('x')\n"
+        "    handler(name)\n"
+        "    return 'done'\n",
+    )
+    tool_found = analyze_sources(collect_python_sources(tmp_path))[0][0]
+
+    assert tool_found.proposed_action_class() == "unknown"

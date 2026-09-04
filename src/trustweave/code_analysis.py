@@ -150,13 +150,20 @@ class DiscoveredTool:
     def proposed_action_class(self) -> str:
         """Return the highest-precedence observed class, or ``unknown`` if refused."""
 
-        if self.reasons:
-            return UNKNOWN_ACTION_CLASS
         observed = {signal.action_class for signal in self.signals}
         highest = next(
             (candidate for candidate in ACTION_CLASS_PRECEDENCE if candidate in observed),
             "read",
         )
+        # Nothing outranks the top of the precedence order. Once a credential read or an
+        # arbitrary process launch has actually been observed, no unresolved call elsewhere
+        # in the tool can make the answer worse, so refusing would discard a finding rather
+        # than protect against one. The same exemption already applies to unplaced calls
+        # below; this extends it to the refusal reasons for the same reason.
+        if highest == ACTION_CLASS_PRECEDENCE[0]:
+            return highest
+        if self.reasons:
+            return UNKNOWN_ACTION_CLASS
         if self.unrecognized_calls and highest != ACTION_CLASS_PRECEDENCE[0]:
             # Something in the reachable set could not be placed, and an unseen effect
             # could outrank what was observed. Answering here would turn a gap in the
@@ -438,6 +445,35 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
     for name in rebound:
         aliases.pop(name, None)
     return aliases
+
+
+def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
+    """Locals bound to an instance of a class this module defines.
+
+    `store = ContactStore(dsn)` then `store.forget(id)` puts the effect one hop away in a
+    method of a class written in the same file. Not following it left the tool with no
+    observed effect at all, and a tool with no effects is classified read -- so a database
+    delete was published as a benign read rather than as unknown.
+    """
+
+    classes = {node.name for node in module.tree.body if isinstance(node, ast.ClassDef)}
+    found: dict[str, str] = {}
+    rebound: set[str] = set()
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Call):
+            continue
+        constructed = _dotted(node.value.func)
+        if constructed not in classes:
+            continue
+        if target.id in found and found[target.id] != constructed:
+            rebound.add(target.id)
+        found[target.id] = constructed
+    for name in rebound:
+        found.pop(name, None)
+    return found
 
 
 def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
@@ -855,6 +891,7 @@ def _collect_signals(
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
     aliases = _symbol_aliases(function, module)
+    instances = _local_instances(function, module)
     shadowed = _local_names(function)
 
     decorator_nodes = {
@@ -878,6 +915,27 @@ def _collect_signals(
             tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
             continue
         if depth >= MAX_CALL_DEPTH:
+            continue
+        # A call on an instance of a class this module defines is one hop, like a helper.
+        if (
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id in instances
+        ):
+            owning = instances[node.func.value.id]
+            method = next(
+                (
+                    candidate
+                    for candidate in module.methods
+                    if candidate.name == node.func.attr
+                    and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owning
+                ),
+                None,
+            )
+            key = f"{owning}.{node.func.attr}"
+            if method is not None and key not in visited:
+                visited.add(key)
+                _collect_signals(tool, method, module, (*via, node.func.attr), depth + 1, visited)
             continue
         # A call to a sibling method of the same class is one hop, exactly like a module
         # helper. Not following it left every effect reached through `self._invoke`
