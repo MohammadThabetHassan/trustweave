@@ -132,7 +132,36 @@ such a policy at all -- they need to witness every cell, which is checkable dire
 costs one pass over the suite. Mutation testing here is a way to *validate* that claim, not
 the cheapest way to satisfy it.
 
-## 6. Where the fragment ends
+## 6. The theorems on the shipped policy
+
+`scripts/policy_mutation.py` against `policies/default-policy.json`, whose 12 cells and
+three decisions are the fragment exactly. 38 mutants are generated and 16 are discarded as
+equivalent by Theorem 2, leaving 22 live.
+
+| Suite | Cases | Cells witnessed | Killed | Score | Decision classes missing |
+|---|---|---|---|---|---|
+| `default-scenarios` | 5 | 5/12 | 14/22 | 63.6% | none |
+| `adversarial-scenarios` | 25 | 3/12 | 8/22 | 36.4% | `allow` |
+| `coverage-matrix-scenarios` | 12 | 12/12 | 22/22 | 100.0% | none |
+
+Three things in that table are the theorems rather than observations about these
+particular files.
+
+The adversarial suite holds five times the cases of the default suite and detects less: 25
+cases over 3 cells kill 8 mutants, where 5 cases over 5 cells kill 14. Theorem 3 says
+detection depends on witnessed cells and not on case count, and here the two run in
+opposite directions. Case count is not weak evidence of adequacy; it is no evidence.
+
+The coverage matrix witnesses all 12 cells and kills all 22 live mutants. That is Corollary
+4, and it is not a measurement that happened to come out well -- with full cell coverage no
+other result is possible, for any operator set. A team could have concluded this without
+running mutation testing at all.
+
+The default suite expects every decision class and still kills only 63.6%. That is
+Corollary 5: decision-class completeness is necessary and not sufficient, and the gap
+between the two is the nine cells it never witnesses.
+
+## 7. Where the fragment ends
 
 **Theorem 6.** If rule guards may contain arbitrary computable predicates over an unbounded
 subject space, policy equivalence is undecidable.

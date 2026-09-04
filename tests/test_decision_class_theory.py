@@ -268,3 +268,45 @@ def test_analyze_refuses_an_out_of_fragment_policy(tmp_path: Path) -> None:
 
     with pytest.raises(SystemExit, match="outside the enumerated"):
         policy_mutation.analyze(path, [SUITES[0]])
+
+
+# ---------------------------------------------------------------------------------------
+# The worked example in the document must not go stale
+# ---------------------------------------------------------------------------------------
+
+
+def test_the_documented_worked_example_matches_a_fresh_run() -> None:
+    """A hand-copied table in a proof document is a claim, and claims here are checked."""
+
+    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    report = policy_mutation.analyze(POLICY, SUITES)
+    live = report["mutants_live"]
+
+    rows = {}
+    for line in document.splitlines():
+        if not line.startswith("| `") or "scenarios" not in line:
+            continue
+        cells = [part.strip().strip("`") for part in line.strip("|").split("|")]
+        rows[f"{cells[0]}.json"] = cells[1:]
+
+    assert set(rows) == {path.name for path in SUITES}, "documented suites drifted"
+    for name, (cases, witnessed, killed, score, _missing) in rows.items():
+        measured = report["suites"][name]
+
+        assert cases == str(measured["cases"]), name
+        assert witnessed == measured["cells_covered"], name
+        assert killed == f"{measured['mutants_killed']}/{live}", name
+        assert score == measured["mutation_score"], name
+
+
+def test_the_documented_mutant_counts_match_a_fresh_run() -> None:
+    report = policy_mutation.analyze(POLICY, SUITES)
+    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+
+    sentence = (
+        f"{report['mutants_generated']} mutants are generated and "
+        f"{report['mutants_equivalent']} are discarded as\nequivalent by Theorem 2, leaving "
+        f"{report['mutants_live']} live."
+    )
+
+    assert sentence in document
