@@ -123,22 +123,22 @@
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_10: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -10,7 +10,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = None\n     try:\n         if output.exists():\n             output.replace(backup)\n",
-      "id": "trustweave.commands.ci.x__publish_directory__mutmut_10",
+      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_13: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -10,7 +10,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = None\n     try:\n         if output.exists():\n             output.replace(backup)\n",
+      "id": "trustweave.commands.ci.x__publish_directory__mutmut_13",
       "rationale": "`backup` is removed before publication. If an output existed, both original and mutant set `replaced` true immediately after moving it to backup; if it did not, no backup remains for restoration. Consequently the altered initial flag and restoration boolean cannot change the only reachable recovery states.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_11: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -10,7 +10,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = True\n     try:\n         if output.exists():\n             output.replace(backup)\n",
-      "id": "trustweave.commands.ci.x__publish_directory__mutmut_11",
+      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_14: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -10,7 +10,7 @@\n     backup = output.parent / f\".{output.name}.previous\"\n     if backup.exists():\n         shutil.rmtree(backup)\n-    replaced = False\n+    replaced = True\n     try:\n         if output.exists():\n             output.replace(backup)\n",
+      "id": "trustweave.commands.ci.x__publish_directory__mutmut_14",
       "rationale": "replaced is initialised to True. The initial value can only matter if an exception is raised before the assignment while the conjunction's remaining operands hold. The backup directory is removed immediately above, so at that point backup.exists() is False and the guard is False under either initialisation.",
       "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
     },
     {
       "classification": "equivalent",
-      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_17: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -17,7 +17,7 @@\n             replaced = True\n         staging.replace(output)\n     except OSError as error:\n-        if replaced and backup.exists() and not output.exists():\n+        if replaced or backup.exists() and not output.exists():\n             backup.replace(output)\n         raise InputOutputError(f\"Could not publish CI artifacts to {output}: {error}\") from error\n     if backup.exists():\n",
-      "id": "trustweave.commands.ci.x__publish_directory__mutmut_17",
+      "diff": "# trustweave.commands.ci.x__publish_directory__mutmut_20: survived\n--- src/trustweave/commands/ci.py\n+++ src/trustweave/commands/ci.py\n@@ -17,7 +17,7 @@\n             replaced = True\n         staging.replace(output)\n     except OSError as error:\n-        if replaced and backup.exists() and not output.exists():\n+        if replaced or backup.exists() and not output.exists():\n             backup.replace(output)\n         raise InputOutputError(f\"Could not publish CI artifacts to {output}: {error}\") from error\n     if backup.exists():\n",
+      "id": "trustweave.commands.ci.x__publish_directory__mutmut_20",
       "rationale": "The guard becomes `replaced or (backup.exists() and not output.exists())`. When replaced is False the backup does not exist, so the added disjunct is False; when replaced is True the backup exists and output has been moved away, so both operands of the original conjunction are True. The two expressions agree on every reachable state.",
       "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
     },
