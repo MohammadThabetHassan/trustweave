@@ -150,3 +150,52 @@ def test_a_group_ordered_against_the_hypothesis_is_not_reported_as_evidence() ->
 
 def test_an_empty_arm_yields_no_statistic_rather_than_a_misleading_one() -> None:
     assert kyverno_mutation.permutation_test([], [0.5])["p_value"] is None
+
+
+# ---------------------------------------------------------------------------------------
+# CEL expression sites
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_universal_quantifier_becomes_existential() -> None:
+    """`all` and `exists` differ on exactly the resources a suite should distinguish."""
+
+    source = '        - expression: "object.spec.containers.all(c, has(c.image))"\n'
+
+    assert "L1:.all(->.exists(" in _names(source)
+
+
+def test_a_conjunction_becomes_a_disjunction() -> None:
+    source = '        - expression: "a == 1 && b == 2"\n'
+
+    assert "L1:&&->||" in _names(source)
+
+
+def test_a_cel_equality_is_negated() -> None:
+    source = '        - expression: "object.kind == Pod"\n'
+
+    assert "L1:==->!=" in _names(source)
+
+
+def test_a_cel_comparison_is_loosened() -> None:
+    source = '        - expression: "size(object.spec.containers) >= 1"\n'
+
+    assert "L1:>=->>" in _names(source)
+
+
+def test_a_cel_expression_yields_enough_sites_to_score() -> None:
+    """One or two sites is not a score; this is what the floor was rejecting."""
+
+    source = (
+        "        - expression: >-\n"
+        "            object.spec.containers.all(c, has(c.securityContext) &&\n"
+        "            c.securityContext.runAsNonRoot == true)\n"
+    )
+
+    assert len(kyverno_mutation._mutate(source)) >= 3
+
+
+def test_a_pascal_case_condition_operator_is_untouched_by_the_cel_table() -> None:
+    """`Equals` is a Kyverno condition operator, not a CEL one; it must edit once."""
+
+    assert _names("      operator: Equals\n") == ["L1:Equals->NotEquals"]

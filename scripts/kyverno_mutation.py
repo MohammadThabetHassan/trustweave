@@ -46,6 +46,23 @@ OPERATOR_PAIRS: tuple[tuple[str, str], ...] = (
     ("AllIn", "AllNotIn"),
     ("Equals", "NotEquals"),
 )
+# Kyverno's newer policies carry their logic in CEL expression strings rather than in
+# condition blocks, so the mutable sites are operators inside a quoted expression. Without
+# these the generator found one or two sites in such a policy and it was skipped, which is
+# what left the replication with five of twenty-three blind policies.
+CEL_OPERATORS: tuple[tuple[str, str], ...] = (
+    (".all(", ".exists("),
+    (".exists(", ".all("),
+    ("&&", "||"),
+    ("||", "&&"),
+    ("==", "!="),
+    ("!=", "=="),
+    (">=", ">"),
+    ("<=", "<"),
+    (" > ", " >= "),
+    (" < ", " <= "),
+)
+
 # `"?*"` requires a non-empty value; `"*"` accepts anything, including absence of content.
 WEAKENINGS: tuple[tuple[str, str], ...] = (('"?*"', '"*"'), ("'?*'", "'*'"))
 BOOLEANS: tuple[tuple[str, str], ...] = (("true", "false"), ("false", "true"))
@@ -116,6 +133,7 @@ def _mutate(source: str) -> list[Mutant]:
         seen: set[str] = set()
         for original, replacement in (
             *OPERATOR_PAIRS,
+            *CEL_OPERATORS,
             *THRESHOLDS,
             *WEAKENINGS,
             *ANCHORS,
@@ -161,14 +179,16 @@ def measure_policy(test_directory: Path, limit: int | None) -> dict[str, Any]:
         return {"policy": name, "skipped": f"{len(policies)} policy files referenced"}
     policy_path = policies[0]
 
-    if _run_test(test_directory) is not True:
-        return {"policy": name, "skipped": "suite does not pass unmutated"}
-
+    # Counting mutable sites is free; running the suite is not. Deciding the floor first
+    # keeps a scan over the whole library from paying a CLI invocation per skipped policy.
     mutants = _mutate(policy_path.read_text(encoding="utf-8"))
     if len(mutants) < MINIMUM_MUTANTS:
         return {"policy": name, "skipped": f"{len(mutants)} mutable sites in the policy"}
     if limit is not None:
         mutants = mutants[:limit]
+
+    if _run_test(test_directory) is not True:
+        return {"policy": name, "skipped": "suite does not pass unmutated"}
 
     killed = 0
     survivors: list[str] = []
