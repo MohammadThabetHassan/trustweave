@@ -37,6 +37,7 @@ from trustweave.code_catalog import (
     PII_TOKENS,
     READ_RECEIVER_METHODS,
     READ_SYMBOLS,
+    RESULT_CONSTRUCTORS,
     SECRET_ENV_TOKENS,
     SENSITIVE_SYMBOLS,
     SQL_READ_TOKENS,
@@ -793,6 +794,9 @@ def _classify_call(
     origin_root = qualified.split(".", 1)[0]
     imported_roots = {binding.split(".", 1)[0] for binding in module.bindings.values()}
     if origin_root in imported_roots and origin_root not in sys.stdlib_module_names:
+        if qualified in RESULT_CONSTRUCTORS:
+            # Wrapping a return value is not an effect, and must not outrank one.
+            return None, None, None
         return _UNRECOGNIZED, None, None
 
     return None, None, None

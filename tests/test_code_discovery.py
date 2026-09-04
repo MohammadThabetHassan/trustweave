@@ -671,3 +671,70 @@ def test_a_recursive_sibling_call_terminates(tmp_path: Path) -> None:
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert tools[0].proposed_action_class() == "read"
+
+
+# ---------------------------------------------------------------------------------------
+# Returning a result is not an effect
+# ---------------------------------------------------------------------------------------
+
+
+def test_wrapping_a_return_value_does_not_suppress_the_observed_effect(tmp_path: Path) -> None:
+    """An MCP tool must return TextContent; doing so reported its write as unknown."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import shutil\n"
+        "import mcp.types as types\n"
+        "from mcp.server import Server\n\n\n"
+        "server = Server('workspaces')\n\n\n"
+        "@server.call_tool()\n"
+        "async def mirror(name: str, arguments: dict) -> list:\n"
+        '    """Mirror a directory."""\n'
+        "    shutil.copytree(arguments['src'], arguments['dst'])\n"
+        "    return [types.TextContent(type='text', text='done')]\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "write"
+
+
+def test_an_unrecognized_third_party_call_still_withholds_a_classification(
+    tmp_path: Path,
+) -> None:
+    """The guard must survive: an unknown client could outrank what was observed."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import pathlib\n"
+        "import someclient\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def sync(path: str) -> str:\n"
+        '    """Sync a file."""\n'
+        "    pathlib.Path(path).write_text('x')\n"
+        "    return str(someclient.dispatch(path))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+
+
+def test_a_result_wrapper_alone_still_classifies_a_pure_tool_as_read(tmp_path: Path) -> None:
+    """Constructing a response is not an effect, so it must not invent one either."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import mcp.types as types\n"
+        "from mcp.server import Server\n\n\n"
+        "server = Server('echo')\n\n\n"
+        "@server.call_tool()\n"
+        "async def echo(name: str, arguments: dict) -> list:\n"
+        '    """Echo a value."""\n'
+        "    return [types.TextContent(type='text', text=arguments['value'])]\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "read"
