@@ -166,6 +166,41 @@ quality rather than an exact figure -- which is precisely what the fragment buys
 does not. And the operator set is syntactic, so the number measures these suites against
 these edits, not against all faults.
 
+### The Gatekeeper result did not replicate
+
+One correct prediction is a result about one policy. `scripts/kyverno_mutation.py` repeats
+the experiment where the decision domain is three-valued and the measure flags 23 validate
+rules rather than one, so the same question can be asked with a sample.
+
+The design is case-control. Every blind validate policy is measured; the comparison group is
+filled by walking the covered policies in name order until enough of them score. A mutant
+edits the policy -- negating a condition operator, weakening a required value to any value,
+turning a conditional anchor into a required one -- and the policy's own suite is run against
+it by the Kyverno CLI. A policy yielding fewer than three applicable mutants is skipped
+rather than scored, because a score computed from one mutant describes the operator set.
+
+| | Policies | Median | Mean | Range |
+|---|---|---|---|---|
+| Decision-blind | 5 | 0.33 | 0.43 | 0.00 - 0.80 |
+| Decision-covered | 25 | 0.43 | 0.49 | 0.00 - 1.00 |
+
+**The direction matches the hypothesis and the difference is not distinguishable from
+chance.** An exact permutation test over all 142,506 splits of these 30 policies puts the
+observed gap of 0.064 at p = 0.33. Blind policies are not measurably worse here.
+
+That is a failure to replicate, and it is reported as one. The Gatekeeper result stands as
+what it was -- a single flagged suite that turned out to catch nothing, at p = 0.021 -- and
+this says that one instance does not generalise to a population. Anyone reading the first
+result as evidence that the measure predicts fault detection should read this one as
+evidence that it does not, at least not at an effect size five blind policies can resolve.
+
+Two limits bound the negative result as much as the positive one. Only 5 of the 23 blind
+policies survived the three-mutant floor, because the operator set generates few sites in
+pattern-based policies -- 94 of 124 candidates were skipped for having one or two mutable
+sites. And a stronger operator set would produce a different, probably larger, sample. The
+honest reading is that this experiment lacked the power to detect a modest effect, not that
+it established there is none.
+
 ## Interpretation
 
 The exactness results this measure descends from -- decidable equivalence, an exact kill
@@ -209,8 +244,10 @@ public corpus of comparable agent-security policy suites exists yet to measure i
   Both carry wide error bars, and the XACML figure rests on a single library's multi-case
   suites -- the OASIS conformance material is one case per language feature and measuring it
   would answer a different question.
-- The mutation experiment has one decision-blind policy in it. A single correct prediction
-  at p = 0.021 is evidence, not a validated predictor, and the operator set is syntactic.
+- The Gatekeeper mutation experiment has one decision-blind policy in it. A single correct
+  prediction at p = 0.021 is evidence, not a validated predictor, and the operator set is
+  syntactic. The Kyverno replication, with five, found no measurable difference (p = 0.33),
+  so nothing here supports a claim that the measure predicts fault detection in general.
 - Rego extraction is 96%, not 100%, and the adapter's refusals are conservative by design,
   so the true figure could move in either direction by at most two files.
 

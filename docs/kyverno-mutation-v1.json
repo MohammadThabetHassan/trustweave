@@ -1,0 +1,799 @@
+{
+  "schema_version": "trustweave.dev/kyverno-mutation/v1alpha1",
+  "design": "case-control: every blind validate policy, plus covered ones in name order",
+  "comparison_group_attempts": 109,
+  "policies_scored": 30,
+  "skipped": [
+    {
+      "policy": "block-images-with-volumes",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "block-large-images",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "block-stale-images",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "block-tekton-task-runs",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "check-deprecated-apis",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "deny-privileged-profile",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-default-tlsoptions",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-deprecated-apis",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "limit-containers-per-pod",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "memory-requests-equal-limits",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "add-psa-namespace-reporting",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "advanced-restrict-image-registries",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "allowed-annotations",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "allowed-base-images",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "allowed-image-repos",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "application-field-validation",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "application-prevent-default-project",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "applicationset-name-matches-project",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "appproject-clusterresourceblacklist",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "block-ephemeral-containers",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "block-velero-restore",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "check-hpa-exists",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "check-ingress-nginx-controller-version-and-annotation-policy",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "check-routes",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "check-serviceaccount-secrets",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "deny-commands-in-exec-probe",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "deny-secret-service-account-token-type",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-capabilities",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-capabilities-strict",
+      "reason": "2 policy files referenced"
+    },
+    {
+      "policy": "disallow-default-namespace",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-empty-ingress-host",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-helm-tiller",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-host-path",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-host-ports",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-host-ports-range",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-ingress-nginx-custom-snippets",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-jenkins-pipeline-strategy",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-latest-tag",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-proc-mount",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-security-context-constraint-anyuid",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-selinux",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-etcd-encryption",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-min-tls-version",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-resources-as-ratio",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-sidecar-injection-namespace",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-strict-mtls",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "forbid-cpu-limits",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "imagepullpolicy-always",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "ingress-host-match-tls",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "k10-data-protection-by-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "k10-validate-ns-by-preset-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "kasten-data-protection-by-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "kasten-immutable-location-profile",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "kasten-validate-ns-by-preset-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "limit-configmap-for-sa",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "limit-hostpath-type-pv",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "limit-hostpath-vols",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "metadata-match-regex",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "pdb-maxunavailable",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "podsecurity-subrule-baseline",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "prevent-bare-pods",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "prevent-cr8escape",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "prevent-linkerd-pod-injection-override",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "prevent-linkerd-port-skipping",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-annotations",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-container-port-names",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-encryption-aws-loadbalancers",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-image-checksum",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-kubecost-labels",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-labels",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-linkerd-mesh-injection",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-non-root-groups",
+      "reason": "3 policy files referenced"
+    },
+    {
+      "policy": "require-pod-priorityclassname",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-qos-burstable",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-qos-guaranteed",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-run-as-non-root-user",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-storageclass",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-tekton-bundle",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "require-tekton-namespace-pipelinerun",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-annotations",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-binding-clusteradmin",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-binding-system-groups",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-clusterrole-nodesproxy",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-controlplane-scheduling",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-deprecated-registry",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-escalation-verbs-roles",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-image-registries",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-ingress-classes",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-ingress-defaultbackend",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-ingress-paths",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-ingress-wildcard",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-jobs",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-networkpolicy-empty-podselector",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "restrict-node-affinity",
+      "reason": "1 mutable sites in the policy"
+    }
+  ],
+  "blind": {
+    "policies": 5,
+    "median_mutation_score": 0.3333,
+    "mean_mutation_score": 0.4267,
+    "min": 0.0,
+    "max": 0.8
+  },
+  "covered": {
+    "policies": 25,
+    "median_mutation_score": 0.4286,
+    "mean_mutation_score": 0.4904,
+    "min": 0.0,
+    "max": 1.0
+  },
+  "permutation_test": {
+    "observed_difference": 0.0638,
+    "p_value": 0.331,
+    "method": "exact over 142506 splits"
+  },
+  "detail": [
+    {
+      "policy": "allowed-label-changes",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L22:false->true"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "block-updates-deletes",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 3,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L13:true->false",
+        "L17:false->true",
+        "L27:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "check-env-vars",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 3,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L17:true->false",
+        "L21:true->false",
+        "L34:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-host-namespaces",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 3,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L16:false->true",
+        "L22:true->false",
+        "L41:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-host-process",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 3,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L16:false->true",
+        "L22:true->false",
+        "L43:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-privilege-escalation",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 3,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L15:false->true",
+        "L21:true->false",
+        "L40:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-privileged-containers",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L21:true->false",
+        "L36:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-self-provisioner-binding",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 1,
+      "mutation_score": 0.8,
+      "survivors": [
+        "L17:true->false"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "enforce-tls-hosts-host-subnets",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 1,
+      "mutation_score": 0.8,
+      "survivors": [
+        "L20:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "ensure-readonly-hostpath",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L16:true->false",
+        "L23:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "kasten-hourly-rpo",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "decision_blind": false
+    },
+    {
+      "policy": "nfs-subdir-external-provisioner-storage-path",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 1,
+      "mutation_score": 0.8,
+      "survivors": [
+        "L20:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "only-trustworthy-registries-set-root",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L44:Equals->NotEquals",
+        "L47:NotEquals->Equals"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "prevent-disabling-injection-pods",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 3,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L17:false->true",
+        "L20:true->false",
+        "L36:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-cpu-limits",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 6,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L15:true->false",
+        "L31:\"?*\"->\"*\"",
+        "L33:=(->(",
+        "L36:\"?*\"->\"*\"",
+        "L38:=(->(",
+        "L41:\"?*\"->\"*\""
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-image-source",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L47:NotEquals->Equals",
+        "L50:NotEquals->Equals"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "require-imagepullsecrets",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L16:true->false",
+        "L36:\"?*\"->\"*\""
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-ingress-https",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 3,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L16:false->true",
+        "L20:true->false",
+        "L32:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-pdb",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 3,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L19:false->true",
+        "L34:Equals->NotEquals",
+        "L34:GreaterThan->LessThanOrEquals"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-reasonable-pdbs",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 7,
+      "survived": 1,
+      "mutation_score": 0.875,
+      "survivors": [
+        "L18:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-ro-rootfs",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L17:true->false",
+        "L8:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-run-as-nonroot",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 4,
+      "mutation_score": 0.4286,
+      "survivors": [
+        "L15:true->false",
+        "L21:true->false",
+        "L41:true->false",
+        "L42:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-unique-uid-per-workload",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 2,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L20:false->true",
+        "L37:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "restrict-apparmor-profiles",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 1,
+      "mutation_score": 0.75,
+      "survivors": [
+        "L20:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "restrict-automount-sa-token",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L19:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "restrict-clusterrole-csr",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 1,
+      "mutation_score": 0.8571,
+      "survivors": [
+        "L16:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "restrict-clusterrole-mutating-validating-admission-webhooks",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 1,
+      "mutation_score": 0.8333,
+      "survivors": [
+        "L16:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "restrict-node-selection",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L20:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "restrict-sa-automount-sa-token",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 0,
+      "survived": 3,
+      "mutation_score": 0.0,
+      "survivors": [
+        "L23:true->false",
+        "L31:true->false",
+        "L32:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "team-validate-ns-name",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 0,
+      "survived": 4,
+      "mutation_score": 0.0,
+      "survivors": [
+        "L21:false->true",
+        "L35:false->true",
+        "L40:AnyNotIn->AnyIn",
+        "L41:false->true"
+      ],
+      "decision_blind": true
+    }
+  ]
+}
