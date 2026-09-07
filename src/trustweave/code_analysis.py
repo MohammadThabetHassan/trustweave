@@ -101,6 +101,18 @@ OPENAI_AGENTS_DECORATORS: Final[frozenset[str]] = frozenset(
 CREWAI_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
     {"crewai.tools.tool", "crewai_tools.tool", "crewai.tools.base_tool.tool"}
 )
+# Hugging Face smolagents, whose decorator resolves to a package name and so can be
+# reported as itself rather than as an unidentifiable receiver.
+SMOLAGENTS_DECORATORS: Final[frozenset[str]] = frozenset(
+    {"smolagents.tool", "smolagents.tools.tool"}
+)
+# Attribute decorators registered on an object built at runtime: `@server.tool()` for
+# FastMCP, `@agent.tool` and `@agent.tool_plain` for pydantic-ai. Which library the
+# receiver belongs to cannot be known from the source, so the framework is recorded as the
+# shape rather than as a guess at the project. `tool_plain` had to be listed: pydantic-ai
+# uses it 693 times in its own repository and, not ending in `.tool`, every one of those
+# tools was absent from the artifact rather than reported.
+RECEIVER_TOOL_SUFFIXES: Final[tuple[str, ...]] = (".tool", ".tool_plain")
 # Semantic Kernel registers a plugin method with a decorator carrying the exposed name.
 SEMANTIC_KERNEL_DECORATORS: Final[frozenset[str]] = frozenset(
     {
@@ -1544,11 +1556,14 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
                 framework = "openai_agents_decorator"
             elif qualified in CREWAI_TOOL_DECORATORS:
                 framework = "crewai_tool_decorator"
+            elif qualified in SMOLAGENTS_DECORATORS:
+                framework = "smolagents_decorator"
             elif qualified in SEMANTIC_KERNEL_DECORATORS:
                 framework = "semantic_kernel_decorator"
-            elif qualified and qualified.endswith(".tool"):
-                # FastMCP and similar: @<server>.tool(). The receiver is a local object,
-                # so this is recorded as a lower-confidence framework, never as proof.
+            elif qualified and qualified.endswith(RECEIVER_TOOL_SUFFIXES):
+                # FastMCP, pydantic-ai and similar: a decorator taken from an object built
+                # at runtime. The receiver is a local, so this is recorded as a
+                # lower-confidence framework, never as proof of which library it is.
                 framework = "server_tool_decorator"
             elif qualified and qualified.endswith(".call_tool"):
                 framework = "mcp_call_tool"
