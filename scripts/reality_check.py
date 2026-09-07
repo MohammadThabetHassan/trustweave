@@ -585,7 +585,12 @@ def _check_contract_examples() -> list[str]:
 def _check_markdown_links() -> list[str]:
     failures: list[str] = []
     for document in sorted(ROOT.rglob("*.md")):
-        if any(part in {".git", "dist", "build", ".wheel-check"} for part in document.parts):
+        # mutants/ is a generated copy of the whole tree, so a mutation run would
+        # otherwise make this check fail on duplicates of the repository's own files.
+        if any(
+            part in {".git", "dist", "build", ".wheel-check", "mutants", ".mutmut-cache"}
+            for part in document.parts
+        ):
             continue
         for target in MARKDOWN_LINK.findall(document.read_text(encoding="utf-8")):
             if target.startswith(("http://", "https://", "mailto:", "#")):

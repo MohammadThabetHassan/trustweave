@@ -18,7 +18,7 @@ mutations/second, so runtime was never the obstacle. Two of the three are now ga
 |---|---|---|---|
 | `code_discovery.py` | 53.4% | **99.55%** | yes |
 | `code_sources.py` | 69.8% | **90.70%** | yes, carried by the aggregate |
-| `code_analysis.py` | ~70% | ~70% | not yet |
+| `code_analysis.py` | ~70% | **78.79%** | no, and the reason is measured below |
 
 ### What moved `code_discovery.py` from 53% to 99.55%
 
@@ -67,11 +67,42 @@ Passing 95% on that module alone would mean deleting a defence-in-depth check or
 a test for a state the code cannot reach. It is gated anyway, because the gate scores the
 aggregate and the module's shortfall is small against the total.
 
-### `code_analysis.py` is not gated yet
+### `code_analysis.py` is measured and still not gated
 
-1,459 lines, ~1,100 mutants, ~334 surviving. It is the largest module in the package and
-raising it is the same kind of work done above, at roughly three times the size. Recorded
-here rather than left as an unexplained absence.
+The earlier estimate here was "~1,100 mutants, ~334 surviving, ~70%". Adding the module to
+the scope and running it gives the real figures: **1,509 mutants, 1,189 killed, 320
+surviving, 78.79%**, and an aggregate of 94.74% across seventeen modules, which is below
+the 95% threshold.
+
+Two rounds of targeted work were done before deciding, and the yield is what settles it.
+
+The first round followed the lever that worked on `code_discovery.py`. Across the 46 cases
+in `tests/test_code_analysis.py` a signal's `symbol` and `line` were never asserted at all,
+so any mutation corrupting the evidence a reviewer reads was invisible.
+`tests/test_code_analysis_evidence.py` drives the catalogue itself -- every symbol, receiver
+method, command, environment name, credential path and SQL verb the analyzer claims to
+recognise -- and asserts the whole signal. 269 cases. It moved the module 77.64% to 78.26%.
+
+The second round targeted the receiver branches, where 74 of the survivors sat.
+`tests/test_code_analysis_receivers.py` covers the four shapes an effect travels through:
+inline on a constructor, a local receiver behind an attribute chain, a receiver stored on
+`self` in `__init__`, and an attribute bound to a symbol. 74 cases. It moved the module
+78.26% to 78.79%.
+
+**343 tests bought 1.15 points.** What remains is not a coverage gap of the kind the first
+two modules had. Sampling it shows unreachable argument defaults -- `.get(attr, "")` where
+the key is always present -- and refusal-reason and action-class string literals on branches
+whose corrupted value is then absorbed by the precedence fallback, so no public result
+changes. Reaching 95% would need roughly 280 further kills at three to eight per round of
+that size, and the gate additionally requires a recorded proof for every survivor; writing
+320 of those honestly is not possible, because most are not equivalences.
+
+So the module stays out, and this is now a measured decision rather than an estimate. The
+tests are kept: they are worth having whether or not the module is gated, and they are what
+found the three defects recorded in the changelog. One of them was found by the gate's own
+coverage accounting rather than by a survivor -- 18 mutants reported as having no covering
+test at all, every one of them in `_env_is_secret`, a function that was defined, never
+called, and fully superseded by `_environ_class`. It has been deleted.
 
 ## Recorded run
 
