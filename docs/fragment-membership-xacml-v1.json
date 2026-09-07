@@ -5,6 +5,7 @@
     "undetermined": 0
   },
   "ecosystem": "xacml",
+  "measured_subjects_not_found": [],
   "policies": [
     {
       "functions": [
@@ -218,5 +219,6 @@
   ],
   "policies_considered": 21,
   "schema_version": "v1",
-  "share_inside": 0.7143
+  "share_inside": 0.7143,
+  "share_inside_of_judged": 0.7143
 }

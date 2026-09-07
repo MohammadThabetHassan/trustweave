@@ -235,42 +235,69 @@ guards may call any builtin over `data` and `input`, and Theorem 6 below is the 
 ### How much of a real ecosystem is inside
 
 A characterisation with no measurement beside it invites the reader to assume the answer is
-"almost none". `scripts/xacml_fragment_membership.py` measures it on the XACML corpus of
-[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) -- the four-valued one, and so the
-interesting one -- at the commits that study pins. Results are in
-[`xacml-fragment-membership-v1.json`](xacml-fragment-membership-v1.json).
+"almost none". `scripts/fragment_membership.py` measures it, one adapter per ecosystem,
+reading *policies* rather than the test suites that
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) reads, at the commits that study pins.
 
-| Verdict | Policies | Why |
-|---|---:|---|
-| **Inside** | **15** | every guard compares a designator against a literal the policy contains |
-| Outside | 6 | selects over request content with XPath |
-| Undetermined | 0 | -- |
+| Ecosystem | Policies | Inside | Outside | Undetermined | Share inside |
+|---|---:|---:|---:|---:|---:|
+| XACML | 21 | **15** | 6 | 0 | 71% |
+| Kyverno | 49 | **41** | 8 | 0 | 84% |
+| Cedar | 22 | **22** | 0 | 0 | 100% |
 
-**15 of 21, and the six that are not are outside for one reason.** Not general expressions,
-not arithmetic, not the four-valued domain: an `AttributeSelector`, which makes the subject
-contain an arbitrary XML document instead of a tuple of labels, so no witness for the
-predicate is constructible from the policy text. Everything else these policies do --
-equality, case folding, bag membership, IP ranges, a regular-expression match against a
-pattern in the policy -- is finitely refining, and the allowlist records why for each.
+**Nothing is undetermined in any of the three**, so each figure is a verdict on the whole
+corpus rather than on the part an instrument happened to understand. Artifacts:
+[xacml](fragment-membership-xacml-v1.json), [kyverno](fragment-membership-kyverno-v1.json),
+[cedar](fragment-membership-cedar-v1.json).
 
-The test refuses rather than guesses, and that discipline earned its keep twice while it was
-being written. It first read only `FunctionId`, missing every `Target` match, which XACML
-names with `MatchId`; that reported a policy whose only guard is a `string-equal` target as
-naming no function at all. Fixing it then left nine policies undetermined on one function,
-`string-regexp-match`, which had to be judged rather than assumed -- it qualifies, because
-XACML's regexp is the XML Schema one with no backreferences, so the pattern denotes a
-regular language and a witness for either side of the split is constructible. The reported
-figure is 15 with **nothing undetermined**, so it is a verdict on the whole corpus rather
-than on the part the instrument happened to understand.
+What is outside is outside for one kind of reason in each ecosystem, and it is always the
+same kind: a guard that reads something the policy does not contain.
 
-Two limits. This is one corpus of 21 policies from two implementations' test suites, which
-is not a sample of deployed policy. And membership is a property of the guards, so a policy
-inside the fragment gets the exactness results for *its own* decision structure; it does not
-make XACML as a language decidable, which Theorem 6 rules out.
+- **XACML**: all six are an `AttributeSelector`, which puts an arbitrary XML document in the
+  subject, so no witness for the XPath predicate is constructible from the policy text.
+- **Kyverno**: a `context` entry that queries the cluster or a registry, or a CEL call that
+  does -- and `now()`, which makes the guard depend on when it ran rather than on the
+  request. Kyverno's built-in `images` variable is *not* one of these: it is parsed from the
+  container references already in the request, and the adapter distinguishes it from the
+  `imageRegistry` context that does query a registry.
+- **Cedar**: nothing is outside, and that is not a fact about this corpus. Cedar has no
+  construct for reading data the request does not carry -- no HTTP, no cluster, no clock --
+  and it ships an SMT-based analysis tool because it was designed to admit exactly this kind
+  of reasoning. The fragment is one statement of what that design buys.
 
-**No equivalent measurement is claimed for Cedar, Kyverno or Rego.** Cedar and Kyverno need
-their policy languages parsed rather than their test suites read, and Rego is the case
-Theorem 6 describes: its guards may call any builtin over `data` and `input`.
+The debatable judgement is Cedar's `principal in Group::"admins"`, whose truth depends on
+the entity store rather than on the policy. It is admitted: the predicate has two outcomes,
+the policy names the parent entity, so a store realising either outcome is constructible,
+and the store is an input to authorization rather than something fetched during it. A
+hierarchy of unbounded depth does not change that, because the outcome is all the policy
+observes. The adapter records that reasoning next to the rule.
+
+Each adapter refuses rather than guesses, and that discipline earned its keep three times
+while these were written, each time by reversing a number that had looked settled.
+
+1. The XACML adapter first read only `FunctionId`, missing every `Target` match, which XACML
+   names with `MatchId`. It reported a policy whose only guard is a `string-equal` target as
+   naming no function at all, and the corrected scan moved the count from 14 inside to 6.
+2. That left nine policies undetermined on one function, `string-regexp-match`, which had to
+   be judged rather than assumed. It qualifies: XACML's regexp is the XML Schema one, with
+   no backreferences, so the pattern denotes a regular language and a witness for either
+   side of the split is constructible. The figure became 15.
+3. The Kyverno corpus ships most policies three times -- a classic `ClusterPolicy`, a `-cel`
+   variant, and a `-vpol` `ValidatingPolicy` -- and **38 of the 49 policies the mutation
+   experiment scored exist at more than one path**. Keying on the file name picked whichever
+   sorted first, which joined a verdict about one file to a mutation score for another. The
+   adapter now resolves policies through each `kyverno-test.yaml` exactly as
+   `scripts/kyverno_mutation.py` does, which is what makes the join sound.
+
+Three limits belong with the figures. These are curated upstream test corpora, not deployed
+policy. Membership is a property of the guards, so a policy inside the fragment gets the
+exactness results for *its own* decision structure; it does not make its language decidable,
+which Theorem 6 rules out. And **no equivalent measurement is claimed for Rego**: it is the
+case Theorem 6 describes, since its guards may call any builtin over `data` and `input`.
+
+The measurement also makes a stratified reading of the study's one predictive result
+possible, and that reading is not favourable. It is in
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md).
 
 ## 5. Why this is not just mutation testing with extra steps
 

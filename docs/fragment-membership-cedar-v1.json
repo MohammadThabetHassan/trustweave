@@ -1,0 +1,193 @@
+{
+  "counts": {
+    "inside": 22,
+    "outside": 0,
+    "undetermined": 0
+  },
+  "ecosystem": "cedar",
+  "measured_subjects_not_found": [
+    "tests/example_use_cases/policies_2a.cedar.json"
+  ],
+  "policies": [
+    {
+      "constructors": [
+        "decimal"
+      ],
+      "method_calls": [
+        "greaterThan"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/decimal/policies_1.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [
+        "decimal"
+      ],
+      "method_calls": [
+        "greaterThanOrEqual",
+        "lessThanOrEqual"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/decimal/policies_2.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_1a.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_2a.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_2b.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_2c.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_3a.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_3b.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_3c.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_4a.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_4d.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_4e.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_4f.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/example_use_cases/policies_5b.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/ip/policies_1.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [
+        "isLoopback",
+        "isMulticast"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/ip/policies_2.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [
+        "isInRange"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/ip/policies_3.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/multi/policies_1.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/multi/policies_2.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/multi/policies_3.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/multi/policies_4.cedar",
+      "verdict": "inside"
+    },
+    {
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tests/multi/policies_5.cedar",
+      "verdict": "inside"
+    }
+  ],
+  "policies_considered": 22,
+  "schema_version": "v1",
+  "share_inside": 1.0,
+  "share_inside_of_judged": 1.0
+}
