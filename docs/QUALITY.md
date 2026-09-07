@@ -45,7 +45,7 @@ The declared core runtime dependency set is intentionally empty in v0.1. Optiona
 | Observed-evidence review | `trustweave trace-review` | Clear and review-required local trace artifacts with minimized reports. |
 | MCP integration metadata | `trustweave mcp-profile-check` | Clear and review-required local profile artifacts with no server connection. |
 | Interoperable review evidence | `trustweave sarif` | A deterministic local SARIF 2.1.0 file derived from selected review artifacts, with no automatic upload. |
-| High-risk mutation analysis | `mutmut run` then `mutmut results` | A Linux-only diagnostic of the configured twelve-module evidence, configuration, policy, risk, schema, SARIF, and CI-coordination scope; see [the mutation-testing record](MUTATION_TESTING.md). |
+| High-risk mutation analysis | `mutmut run` then `mutmut results` | A Linux-only diagnostic of the configured sixteen-module evidence, configuration, policy, risk, schema, SARIF, CI-coordination, and source-discovery scope; see [the mutation-testing record](MUTATION_TESTING.md). |
 
 ## Acceptance controls
 
@@ -61,7 +61,7 @@ The clear MCP profile fixture must exit `0` with `--exit-on-review`. The review-
 
 The adversarial scenario library must pass all **25** cited synthetic patterns under the default policy, and `explain` must render the reference for `TW-ADV-001`. The MCP tools-list fixture must normalize to a two-tool inventory without an endpoint, transport operation, credential, action-class inference, or invocation.
 
-The high-risk mutation analysis recorded in [MUTATION_TESTING.md](MUTATION_TESTING.md) covers twelve high-risk modules on Linux because mutmut requires fork support. The final run exceeds the enforced **95%** threshold and is a release-blocking control for the declared scope, not a claim about the entire package or a security certification. The hosted gate requires exact survivor-identifier parity, exact normalized-diff parity, no duplicate or stale records, zero untriaged survivors, zero `needs_regression` classifications, non-empty rationales, and internally consistent totals on the exact reviewed SHA.
+The high-risk mutation analysis recorded in [MUTATION_TESTING.md](MUTATION_TESTING.md) covers sixteen high-risk modules on Linux because mutmut requires fork support. The final run exceeds the enforced **95%** threshold and is a release-blocking control for the declared scope, not a claim about the entire package or a security certification. The hosted gate requires exact survivor-identifier parity, exact normalized-diff parity, no duplicate or stale records, zero untriaged survivors, zero `needs_regression` classifications, non-empty rationales, and internally consistent totals on the exact reviewed SHA.
 
 The repository-reality check requires every current generated artifact version to have an exact public JSON Schema linked to its producer, and requires each published schema to be byte-identical to its packaged resource. It also requires maintained documentation to name current bundle, risk-review, fingerprint, configuration, coverage, and mutation evidence markers. The dedicated conformance suite validates real local output for policy review, synthetic tests, current bundle diffs, trace review, MCP reviews and inventories, framework inventory, scaffolds, unsigned statements, and current risk-review outputs.
 

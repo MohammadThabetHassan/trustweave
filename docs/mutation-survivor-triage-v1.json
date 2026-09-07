@@ -1,13 +1,13 @@
 {
   "classification_counts": {
     "defensive": 0,
-    "equivalent": 133,
+    "equivalent": 147,
     "needs_regression": 0
   },
   "classification_policy": "Every record preserves the mutmut source diff. Equivalence requires a recorded code-level proof of semantic redundancy or unreachable control flow; all potentially observable changes remain needs_regression.",
-  "mutation_run": "6,444 killed / 6,566 generated (98.14% killed)",
+  "mutation_run": "7,222 killed / 7,369 generated (98.01% killed)",
   "schema_version": "v1",
-  "survivor_count": 133,
+  "survivor_count": 147,
   "survivors": [
     {
       "classification": "equivalent",
@@ -106,6 +106,104 @@
       "id": "trustweave.chain.x_review_declared_chains__mutmut_71",
       "rationale": "Traversal-state identity includes the complete path tuple. Each queued transition appends one node to that tuple, and starting nodes are unique, so no reachable traversal can enqueue the same identity twice. The mutated duplicate-state handling is therefore unreachable without changing parsing or traversal construction.",
       "regression_assertion": "No regression assertion is required: source-level reachability and semantic proof is recorded in the rationale."
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_discovery.x__drift__mutmut_36: survived\n--- src/trustweave/code_discovery.py\n+++ src/trustweave/code_discovery.py\n@@ -10,7 +10,7 @@\n \n     renames: list[dict[str, str]] = []\n     for name in absent:\n-        close = difflib.get_close_matches(name, missing, n=1, cutoff=0.8)\n+        close = difflib.get_close_matches(name, missing, cutoff=0.8)\n         if close:\n             renames.append({\"declared\": name, \"discovered\": close[0]})\n \n",
+      "id": "trustweave.code_discovery.x__drift__mutmut_36",
+      "rationale": "Semantically redundant. Only close[0] is read. difflib.get_close_matches returns the highest-scoring matches in descending score order via heapq.nlargest, which is equivalent to sorted(reverse=True)[:n] over a stably ordered input, so the first element is the same match for every n greater than or equal to one. Changing n alters only how many lower-scoring matches are discarded unread.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_discovery.x__drift__mutmut_38: survived\n--- src/trustweave/code_discovery.py\n+++ src/trustweave/code_discovery.py\n@@ -10,7 +10,7 @@\n \n     renames: list[dict[str, str]] = []\n     for name in absent:\n-        close = difflib.get_close_matches(name, missing, n=1, cutoff=0.8)\n+        close = difflib.get_close_matches(name, missing, n=2, cutoff=0.8)\n         if close:\n             renames.append({\"declared\": name, \"discovered\": close[0]})\n \n",
+      "id": "trustweave.code_discovery.x__drift__mutmut_38",
+      "rationale": "Semantically redundant. Only close[0] is read. difflib.get_close_matches returns the highest-scoring matches in descending score order via heapq.nlargest, which is equivalent to sorted(reverse=True)[:n] over a stably ordered input, so the first element is the same match for every n greater than or equal to one. Changing n alters only how many lower-scoring matches are discarded unread.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x__read_source__mutmut_18: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -7,7 +7,7 @@\n     if size > MAX_SOURCE_FILE_BYTES:\n         return SkippedFile(relative, \"file_exceeds_size_limit\")\n     try:\n-        text = path.read_text(encoding=\"utf-8\")\n+        text = path.read_text(encoding=\"UTF-8\")\n     except UnicodeDecodeError:\n         return SkippedFile(relative, \"file_is_not_utf8\")\n     except OSError as error:\n",
+      "id": "trustweave.code_sources.x__read_source__mutmut_18",
+      "rationale": "Semantically redundant. \"UTF-8\" and \"utf-8\" resolve through the codec registry to the same codec, so the decode behaviour and therefore the SourceFile text and the file_is_not_utf8 skip decision are bit-for-bit identical. The behavioural form of this mutation, dropping the encoding so the platform locale is used, is killed by test_source_files_are_read_as_utf8_regardless_of_the_platform_locale.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x__walk_python_files__mutmut_3: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -1,6 +1,6 @@\n def _walk_python_files(root: Path) -> list[Path]:\n     discovered: list[Path] = []\n-    for directory, subdirectories, filenames in os.walk(root, followlinks=False):\n+    for directory, subdirectories, filenames in os.walk(root, followlinks=None):\n         current = Path(directory)\n         subdirectories[:] = sorted(\n             name\n",
+      "id": "trustweave.code_sources.x__walk_python_files__mutmut_3",
+      "rationale": "Semantically redundant. os.walk's followlinks parameter already defaults to False and None is falsy, so the omitted and None forms are the original call. The True form cannot widen the traversal either: the loop body immediately reassigns subdirectories[:] to a list that excludes every entry whose is_symlink() is true, and os.walk only descends into the names left in that list, so no symlinked directory is ever entered under any value of the parameter.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x__walk_python_files__mutmut_5: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -1,6 +1,6 @@\n def _walk_python_files(root: Path) -> list[Path]:\n     discovered: list[Path] = []\n-    for directory, subdirectories, filenames in os.walk(root, followlinks=False):\n+    for directory, subdirectories, filenames in os.walk(root, ):\n         current = Path(directory)\n         subdirectories[:] = sorted(\n             name\n",
+      "id": "trustweave.code_sources.x__walk_python_files__mutmut_5",
+      "rationale": "Semantically redundant. os.walk's followlinks parameter already defaults to False and None is falsy, so the omitted and None forms are the original call. The True form cannot widen the traversal either: the loop body immediately reassigns subdirectories[:] to a list that excludes every entry whose is_symlink() is true, and os.walk only descends into the names left in that list, so no symlinked directory is ever entered under any value of the parameter.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x__walk_python_files__mutmut_6: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -1,6 +1,6 @@\n def _walk_python_files(root: Path) -> list[Path]:\n     discovered: list[Path] = []\n-    for directory, subdirectories, filenames in os.walk(root, followlinks=False):\n+    for directory, subdirectories, filenames in os.walk(root, followlinks=True):\n         current = Path(directory)\n         subdirectories[:] = sorted(\n             name\n",
+      "id": "trustweave.code_sources.x__walk_python_files__mutmut_6",
+      "rationale": "Semantically redundant. os.walk's followlinks parameter already defaults to False and None is falsy, so the omitted and None forms are the original call. The True form cannot widen the traversal either: the loop body immediately reassigns subdirectories[:] to a list that excludes every entry whose is_symlink() is true, and os.walk only descends into the names left in that list, so no symlinked directory is ever entered under any value of the parameter.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_38: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -36,7 +36,7 @@\n     for candidate in candidates:\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n-            skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n+            skipped.append(None)\n             continue\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_38",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_39: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -36,7 +36,7 @@\n     for candidate in candidates:\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n-            skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n+            skipped.append(SkippedFile(None, \"path_escapes_analyzed_root\"))\n             continue\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_39",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_40: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -36,7 +36,7 @@\n     for candidate in candidates:\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n-            skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n+            skipped.append(SkippedFile(candidate.name, None))\n             continue\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_40",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_41: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -36,7 +36,7 @@\n     for candidate in candidates:\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n-            skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n+            skipped.append(SkippedFile(\"path_escapes_analyzed_root\"))\n             continue\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_41",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_42: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -36,7 +36,7 @@\n     for candidate in candidates:\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n-            skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n+            skipped.append(SkippedFile(candidate.name, ))\n             continue\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_42",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_43: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -36,7 +36,7 @@\n     for candidate in candidates:\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n-            skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n+            skipped.append(SkippedFile(candidate.name, \"XXpath_escapes_analyzed_rootXX\"))\n             continue\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_43",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_44: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -36,7 +36,7 @@\n     for candidate in candidates:\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n-            skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n+            skipped.append(SkippedFile(candidate.name, \"PATH_ESCAPES_ANALYZED_ROOT\"))\n             continue\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_44",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
+    },
+    {
+      "classification": "equivalent",
+      "diff": "# trustweave.code_sources.x_collect_python_sources__mutmut_45: survived\n--- src/trustweave/code_sources.py\n+++ src/trustweave/code_sources.py\n@@ -37,7 +37,7 @@\n         # Defence in depth: a resolved child must still live under the resolved root.\n         if not candidate.resolve().is_relative_to(resolved_root):\n             skipped.append(SkippedFile(candidate.name, \"path_escapes_analyzed_root\"))\n-            continue\n+            break\n         entry = _read_source(candidate, resolved_root)\n         if isinstance(entry, SkippedFile):\n             skipped.append(entry)\n",
+      "id": "trustweave.code_sources.x_collect_python_sources__mutmut_45",
+      "rationale": "Unreachable control flow. The guard is defence in depth over the walk that produced the candidate: _walk_python_files starts at the already-resolved root, skips every file whose is_symlink() is true, and reassigns subdirectories[:] to exclude every symlinked directory, so each candidate is a real path beneath the resolved root and candidate.resolve().is_relative_to(resolved_root) is always true. No input reaches this branch, so no mutation of it can change a public result. It is retained rather than deleted because it constrains any future change to the walk above it.",
+      "regression_assertion": "/*** no regression assertion required for equivalent mutation ***/\"\""
     },
     {
       "classification": "equivalent",

@@ -25,9 +25,6 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - `docs/classifier-evaluation-v1.json` records the benchmark result, broken down by
   registration form and refusal reason, and a ratchet in the test suite holds accuracy,
   precision when answering, tools discovered, and per-class recall against it.
-
-### Added
-
 - Added versioned evaluation governance, a deterministic twelve-case synthetic corpus, local preflight validation, corpus lifecycle controls, reviewer quickstart, archive-readiness materials, and safe public-feedback/triage infrastructure. These are prepared repository-controlled foundations; no independent reviewer, pilot, adoption, benchmark, archive, or security-efficacy result is claimed.
 - Added an owner-facing GitHub governance decision record, a manually triggered least-privilege OpenSSF Scorecard assessment workflow that retains a local GitHub Actions artifact without publishing results, and a record template that prohibits score, badge, certification, or remediation claims before owner-reviewed evidence exists.
 - Added a fixed offline reviewer packet, consent-aware feedback and result-record templates, and a deterministic local artifact builder/verifier that allowlists public-safe files, records SHA-256 digests, rejects unsafe paths and credential-like content, and creates deterministic local ZIP packages without upload or network behavior.
@@ -43,6 +40,16 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - An observed effect at the top of the precedence order is reported even when something
   else in the same tool could not be resolved, since nothing outranks it. Below that class
   the refusal stands.
+- The published mutation record and the survivor-triage inventory it describes stated
+  different totals -- 126 survivors of 6,691 mutants in the prose against 133 of 6,566 in
+  the inventory -- because nothing compared them. The repository-reality check now derives
+  every countable claim in the record from the inventory, so a regenerated inventory forces
+  the prose to be regenerated with it.
+- `collect_python_sources` reported a stat failure and a read failure through messages no
+  test asserted, and read sources with an encoding a mutation could drop in favour of the
+  platform locale, which on a POSIX or ASCII locale records a valid UTF-8 module as
+  `file_is_not_utf8`. All three are asserted now, and the stat path is no longer marked
+  `# pragma: no cover`.
 
 ### Changed
 
@@ -51,6 +58,11 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Rewrote the README around a verified two-minute quickstart with real output, a curated docs index, and a shorter plain-language explanation of the evidence-not-enforcement boundary.
 - Reorganized documentation: point-in-time release checklists, migration guides, audit records, and the maintainer handoff snapshot moved to `docs/archive/` with an index; ADRs moved to `docs/adr/`; the documentation site navigation is grouped by task (getting started, concepts, how-to, CLI, policies, assurance, releases).
 - Tightened the installation and troubleshooting pages, fixed stray code-block indentation, and made the missing-paths configuration error list exactly which paths it wants.
+- The mutation quality and survivor-parity gate moved out of an inline workflow script into
+  `scripts/mutation_gate.py`. The hosted job now invokes the same script a contributor can
+  run before pushing, which is what the previous arrangement made impossible.
+- The mutation scope covers sixteen modules; `code_sources.py` and `code_discovery.py`, the
+  intake and artifact production behind `trustweave discover`, are gated with the rest.
 
 ### Release status
 
