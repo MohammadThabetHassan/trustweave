@@ -111,6 +111,10 @@ only_mutate = [
   "src/trustweave/commands/ci.py",
   "src/trustweave/bundle_policy.py",
   "src/trustweave/policy_weakening.py",
+  # Discovery intake and artifact production. code_analysis.py is not here yet:
+  # its kill rate is 70% and raising it is tracked in docs/MUTATION_TESTING.md.
+  "src/trustweave/code_sources.py",
+  "src/trustweave/code_discovery.py",
 ]
 also_copy = [
   ".github",

@@ -374,6 +374,11 @@ MUTATION_SOURCE_SCOPE = [
     "src/trustweave/commands/ci.py",
     "src/trustweave/bundle_policy.py",
     "src/trustweave/policy_weakening.py",
+    # Discovery intake and artifact production, added once their kill rates cleared the
+    # gate. code_analysis.py is deliberately absent: its rate is 70% and the reason is
+    # recorded in docs/MUTATION_TESTING.md rather than left as an unexplained gap.
+    "src/trustweave/code_sources.py",
+    "src/trustweave/code_discovery.py",
 ]
 REPRODUCIBILITY_RECORD_MARKERS = (
     "Clean-checkout staged-CI release verification",
