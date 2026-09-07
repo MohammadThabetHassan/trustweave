@@ -28,13 +28,17 @@ from trustweave.code_catalog import (
     ACTION_CLASS_PRECEDENCE,
     CREDENTIAL_PATH_SUFFIXES,
     CREDENTIAL_PATH_TOKENS,
+    DB_CONNECTION_SYMBOLS,
     DB_EXECUTE_METHODS,
+    DB_PLUMBING_METHODS,
     EGRESS_COMMANDS,
     EXTERNAL_RECEIVERS,
     EXTERNAL_SYMBOLS,
     HIGH_SPECIFICITY_PII_TOKENS,
+    PATH_PRESERVING_METHODS,
     PATH_RECEIVERS,
     PII_TOKENS,
+    PURE_RESULT_SYMBOLS,
     READ_RECEIVER_METHODS,
     READ_SYMBOLS,
     RESULT_CONSTRUCTORS,
@@ -73,6 +77,10 @@ _UNRECOGNIZED: Final[str] = "\x00unrecognized"
 _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
     {"eval", "exec", "getattr", "globals", "importlib.import_module", "vars"}
 )
+# Of those, the ones that run code rather than select a symbol. `getattr` resolves a name;
+# `eval` executes whatever it is handed, so a caller-supplied argument to it is arbitrary
+# code execution and that is a finding rather than an inability to make one.
+_CODE_EXECUTION_SYMBOLS: Final[frozenset[str]] = frozenset({"eval", "exec"})
 
 LANGCHAIN_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
     {"langchain_core.tools.tool", "langchain.tools.tool", "langchain.agents.tool"}
@@ -765,14 +773,20 @@ def _scope_origins(
     return origins
 
 
-def _sql_class(call: ast.Call) -> str | None:
-    """Classify a database execute call by the leading keyword of its literal query."""
+def _sql_class(call: ast.Call, literals: dict[str, ast.expr] | None = None) -> str | None:
+    """Classify a database execute call by the leading keyword of its literal query.
+
+    The statement is very often a module-level constant rather than an inline string, so
+    resolving only inline literals refused an ordinary reporting query as though it were
+    built at runtime.
+    """
 
     if not isinstance(call.func, ast.Attribute) or call.func.attr not in DB_EXECUTE_METHODS:
         return None
-    query = _constant_str(call.args[0]) if call.args else None
-    if query is None:
+    candidates = _literal_strings(call.args[0], literals) if call.args else None
+    if not candidates or len(candidates) != 1:
         return None
+    query = next(iter(candidates))
     head = query.strip().split(None, 1)
     if not head:
         return None
@@ -805,10 +819,24 @@ def _literal_strings(node: ast.AST | None, literals: dict[str, ast.expr] | None)
     return None
 
 
-def _local_literals(scope: ast.AST) -> dict[str, ast.expr]:
-    """Locals bound once to an expression whose value is decidable from the source."""
+def _local_literals(scope: ast.AST, module: _Module | None = None) -> dict[str, ast.expr]:
+    """Names bound once to an expression whose value is decidable from the source.
+
+    Module-level constants are seeded first, because a SQL statement or a file mode is
+    usually defined once at the top of the file and referenced from the function. Only
+    top-level statements are read, so one function's local cannot leak into another's.
+    """
 
     found: dict[str, ast.expr] = {}
+    if module is not None:
+        for statement in module.tree.body:
+            if not isinstance(statement, ast.Assign) or len(statement.targets) != 1:
+                continue
+            bound = statement.targets[0]
+            if isinstance(bound, ast.Name) and isinstance(
+                statement.value, ast.Constant | ast.IfExp
+            ):
+                found[bound.id] = statement.value
     rebound: set[str] = set()
     for node in ast.walk(scope):
         if not isinstance(node, ast.Assign) or len(node.targets) != 1:
@@ -944,6 +972,30 @@ def _is_credential_path(call: ast.Call) -> bool:
     return False
 
 
+def _unwound_receiver(call: ast.Call, module: _Module) -> tuple[str | None, ast.Call | None]:
+    """Resolve a chain of receiver-preserving methods back to its constructor.
+
+    `Path(p).expanduser().resolve().stat()` is one read of one path, but each link is a
+    call on the result of the previous one, so the constructor was three levels down and
+    the whole chain resolved to nothing at all.
+    """
+
+    current = call
+    while True:
+        origin = _resolve(_dotted(current.func), module)
+        if origin is not None:
+            return origin, current
+        func = current.func
+        if (
+            isinstance(func, ast.Attribute)
+            and isinstance(func.value, ast.Call)
+            and func.attr in PATH_PRESERVING_METHODS
+        ):
+            current = func.value
+            continue
+        return None, None
+
+
 def _classify_call(
     call: ast.Call,
     module: _Module,
@@ -984,10 +1036,16 @@ def _classify_call(
         # constructor is the receiver, and its arguments carry the literal that decides
         # whether this is an ordinary read or a credential read.
         if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Call):
-            inner = call.func.value
-            origin = _resolve(_dotted(inner.func), module)
+            origin, inner = _unwound_receiver(call.func.value, module)
             method = call.func.attr
+            if inner is None:
+                inner = call.func.value
             if origin in PATH_RECEIVERS:
+                if method in PATH_PRESERVING_METHODS:
+                    # A link in the chain, not an effect: it returns another path and
+                    # touches nothing. Refusing on it made the whole tool unknown even
+                    # once the read at the end of the chain had been resolved.
+                    return None, None, None
                 if method in WRITE_RECEIVER_METHODS:
                     return "write", f"{origin}.{method}", None
                 if method in READ_RECEIVER_METHODS:
@@ -997,6 +1055,15 @@ def _classify_call(
                 return "external", f"{origin}.{method}", None
             if origin in SENSITIVE_RECEIVERS:
                 return "sensitive", f"{origin}.{method}", None
+            if origin in PURE_RESULT_SYMBOLS:
+                # A method on a computed value. It cannot have an effect, so refusing on
+                # it reported the tool as unknown over a call that says nothing.
+                return None, None, None
+            if origin in DB_CONNECTION_SYMBOLS and method in DB_PLUMBING_METHODS:
+                # `connect(dsn).cursor()` hands back a handle. The statement given to
+                # execute is what decides the class, and it is judged wherever it appears,
+                # so refusing here made every database tool written this way unknown.
+                return None, None, None
         # Otherwise a method on an expression result. Only evidence if the chain roots at
         # a name this module resolves; a call on a parameter or literal is not.
         if root is not None and (root in module.bindings or root in origins):
@@ -1057,6 +1124,14 @@ def _classify_call(
         constant_target = _constant_str(call.args[1]) if len(call.args) > 1 else None
         if spelled in {"getattr", "vars"} and constant_target is not None:
             return None, None, None
+        if spelled in _CODE_EXECUTION_SYMBOLS:
+            source = call.args[0] if call.args else None
+            if source is not None and not isinstance(source, ast.Constant):
+                # Running code the caller supplied is privileged execution, which is what
+                # `sensitive` means here, and it is knowable without reading the code. A
+                # refusal said only that the behaviour could not be determined, which is
+                # weaker than the truth and left the finding to be guessed at.
+                return "sensitive", spelled, None
         return None, None, "DYNAMIC_DISPATCH"
 
     if spelled == "open" and "open" not in module.bindings:
@@ -1083,7 +1158,7 @@ def _classify_call(
         action = "sensitive" if _is_credential_path(call) else "read"
         return action, qualified, None
 
-    sql = _sql_class(call)
+    sql = _sql_class(call, literals)
     if sql is not None:
         return sql, f"{sql}_sql_statement", None
 
@@ -1262,7 +1337,7 @@ def _collect_signals(
     dynamic = _dynamic_locals(function, module)
     aliases = _symbol_aliases(function, module)
     # Constants the caller supplied, plus constants bound in this function's own body.
-    literals = {**_local_literals(function), **(literals or {})}
+    literals = {**_local_literals(function, module), **(literals or {})}
     opaque = _third_party_parameters(function, module)
     instances = _local_instances(function, module)
     shadowed = _local_names(function)

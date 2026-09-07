@@ -97,10 +97,24 @@ All notable changes to TrustWeave are documented in this file. The project follo
   literals, since `"a" if event else "a+"` can only ever be an append. Where the arms
   disagree, or the name is rebound, or the value comes from a parameter, the refusal
   stands.
-- Benchmark accuracy rises from 0.806 to 0.907 over the session and precision when
-  answering from 0.918 to 0.9815, on a benchmark that grew from 72 cases to 75. `read`,
-  `write` and `external` precision are 1.000 and `undecidable` recall is 1.000. Every
-  remaining failure is a refusal or an over-report; none under-reports an effect.
+- A method called on the result of another call could not be resolved, so the analyzer
+  refused on callees it could have named. A `pathlib` chain now keeps its receiver through
+  each link, so `Path(p).expanduser().resolve().stat()` is one read of one path and the
+  credential rule survives the chain. A method on a computed value -- `json.dumps(body)
+  .encode(...)`, `hashlib.new(algo, data).hexdigest()` -- is not an effect. A database
+  handle is plumbing, so `connect(dsn).cursor()` no longer poisons every database tool,
+  and the statement given to `execute` decides the class as before.
+- A SQL statement or file mode held in a module-level constant is resolved rather than
+  treated as built at runtime.
+- `eval` and `exec` applied to a caller-supplied argument are classified `sensitive`
+  rather than refused. They sat with `getattr` under dynamic dispatch, but `getattr`
+  selects a symbol while `eval` runs whatever it is handed: arbitrary code execution is
+  what `sensitive` means here, and it is knowable without reading the code. A constant
+  expression is left alone and `getattr` keeps its refusal.
+- Benchmark accuracy rises from 0.806 to 0.987 over the session on a benchmark that grew
+  from 72 cases to 75, the answer rate on decidable cases from 0.860 to 1.000, and
+  precision when answering from 0.918 to 0.9833. Accuracy on labels the two annotators
+  agree about is 1.000; the single remaining failure is the one case where they disagree.
 - Corrected the reading of the study's one predictive result. The blind-against-covered
   contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
   outside the decidable fragment; inside it, over the larger arm of 41 policies, the

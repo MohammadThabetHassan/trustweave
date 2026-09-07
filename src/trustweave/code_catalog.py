@@ -131,6 +131,22 @@ WRITE_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
 )
 
 PATH_RECEIVERS: Final[frozenset[str]] = frozenset({"pathlib.Path", "pathlib.PurePath"})
+# Path methods that return another path rather than touching the filesystem. They are the
+# links in a chain like `Path(p).expanduser().resolve().stat()`, and without them the
+# receiver was lost at the first link, so the read at the end resolved to nothing and the
+# tool refused on a callee it could in fact name.
+PATH_PRESERVING_METHODS: Final[frozenset[str]] = frozenset(
+    {
+        "absolute",
+        "expanduser",
+        "joinpath",
+        "relative_to",
+        "resolve",
+        "with_name",
+        "with_stem",
+        "with_suffix",
+    }
+)
 # Constructors that hand back a credential store. Every method reached through one reads
 # or writes secrets, so the class travels from the constructor exactly as it does for a
 # network client. `keyring.get_keyring()` then `backend.get_password(...)` is the form the
@@ -161,6 +177,24 @@ SQL_READ_TOKENS: Final[frozenset[str]] = frozenset(
 )
 
 DB_EXECUTE_METHODS: Final[frozenset[str]] = frozenset({"execute", "executemany", "exec_driver_sql"})
+# Opening a database connection. The connection itself reads and writes nothing; the
+# statement passed to execute is what decides the class, and SQL_READ_TOKENS and
+# SQL_WRITE_TOKENS above already judge that wherever the cursor came from.
+DB_CONNECTION_SYMBOLS: Final[frozenset[str]] = frozenset(
+    {
+        "sqlite3.connect",
+        "psycopg2.connect",
+        "psycopg.connect",
+        "pymysql.connect",
+        "MySQLdb.connect",
+        "cx_Oracle.connect",
+        "duckdb.connect",
+    }
+)
+# Connection and cursor methods that move the handle around rather than run a statement.
+DB_PLUMBING_METHODS: Final[frozenset[str]] = frozenset(
+    {"cursor", "close", "commit", "rollback", "fetchone", "fetchall", "fetchmany"}
+)
 
 # --------------------------------------------------------------------------------------
 # sensitive: credentials, secrets, or the ability to run arbitrary code
@@ -302,6 +336,32 @@ READ_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
 # counting it as a symbol the catalog cannot describe let it suppress a classification the
 # analyzer had already made: a tool that deleted and copied a directory tree was reported
 # unknown because it returned its result the way the protocol requires.
+# Calls that compute a value and touch nothing. A method called on one of their results
+# is plumbing -- `json.dumps(body).encode("utf-8")`, `hashlib.new(algo, data).hexdigest()`
+# -- and refusing on it made a tool unknown on the strength of a callee that could not
+# have had an effect either way. Membership here is deliberately narrow: a symbol belongs
+# only if it cannot read or write anything.
+PURE_RESULT_SYMBOLS: Final[frozenset[str]] = frozenset(
+    {
+        "base64.b64decode",
+        "base64.b64encode",
+        "base64.urlsafe_b64decode",
+        "base64.urlsafe_b64encode",
+        "hashlib.blake2b",
+        "hashlib.md5",
+        "hashlib.new",
+        "hashlib.sha1",
+        "hashlib.sha256",
+        "hashlib.sha512",
+        "hmac.new",
+        "json.dumps",
+        "json.loads",
+        "textwrap.dedent",
+        "urllib.parse.urlencode",
+        "urllib.parse.urlparse",
+        "uuid.uuid4",
+    }
+)
 RESULT_CONSTRUCTORS: Final[frozenset[str]] = frozenset(
     {
         "mcp.types.TextContent",

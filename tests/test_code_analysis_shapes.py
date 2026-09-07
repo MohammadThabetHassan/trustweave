@@ -390,3 +390,191 @@ def test_a_mode_taken_from_a_parameter_is_still_refused(tmp_path: Path) -> None:
 
     assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
     assert "NONLITERAL_ARGUMENT" in tool.reasons
+
+
+# ---------------------------------------------------------------------------------------
+# A method on the result of another call
+# ---------------------------------------------------------------------------------------
+
+
+def _chain_source(expression: str, *, preamble: str) -> str:
+    return (
+        f"{TOOL_IMPORT}\n"
+        f"{preamble}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a chained call."""\n'
+        f"    return str({expression})\n"
+    )
+
+
+@pytest.mark.parametrize("link", sorted(catalog.PATH_PRESERVING_METHODS - {"relative_to"}))
+def test_a_path_chain_keeps_its_receiver_through_each_link(tmp_path: Path, link: str) -> None:
+    """`Path(p).expanduser().resolve().stat()` is one read of one path."""
+
+    argument = "'x'" if link in {"joinpath", "with_name", "with_suffix", "with_stem"} else ""
+    tool = _single_tool(
+        tmp_path,
+        _chain_source(
+            f"Path(value).{link}({argument}).read_text()", preamble="from pathlib import Path"
+        ),
+    )
+
+    assert tool.proposed_action_class() == "read"
+    assert tool.reasons == set()
+
+
+def test_a_credential_read_survives_a_path_chain(tmp_path: Path) -> None:
+    tool = _single_tool(
+        tmp_path,
+        _chain_source(
+            "Path('/home/agent/.ssh/id_rsa').expanduser().resolve().read_text()",
+            preamble="from pathlib import Path",
+        ),
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+@pytest.mark.parametrize("symbol", ["json.dumps", "hashlib.new", "base64.b64encode"])
+def test_a_method_on_a_computed_value_is_not_an_effect(tmp_path: Path, symbol: str) -> None:
+    """It cannot read or write anything, so refusing on it says nothing true."""
+
+    module = symbol.split(".")[0]
+    tool = _single_tool(
+        tmp_path, _chain_source(f"{symbol}(value).__class__", preamble=f"import {module}")
+    )
+
+    assert tool.proposed_action_class() == "read"
+    assert "UNRESOLVED_CALLEE" not in tool.reasons
+
+
+def test_a_database_handle_is_plumbing_and_the_statement_decides(tmp_path: Path) -> None:
+    """`connect(dsn).cursor()` hands back a handle; the SQL is what has the effect."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import sqlite3\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a database handle."""\n'
+        "    cursor = sqlite3.connect('/srv/app.db').cursor()\n"
+        "    cursor.execute('UPDATE tickets SET priority = 1')\n"
+        "    return value\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "write"
+    assert tool.reasons == set()
+
+
+def test_a_statement_held_in_a_module_constant_is_still_a_literal(tmp_path: Path) -> None:
+    """A query defined once at the top of the file is the ordinary way to write this."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "QUERY = 'SELECT sku FROM sales WHERE region = ?'\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(cursor, region: str) -> str:\n"
+        '    """Probe a module-level query."""\n'
+        "    cursor.execute(QUERY, (region,))\n"
+        "    return 'ok'\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "read"
+
+
+def test_a_statement_built_at_runtime_is_still_refused(tmp_path: Path) -> None:
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(cursor, statement: str) -> str:\n"
+        '    """Probe a runtime query."""\n'
+        "    cursor.execute(statement)\n"
+        "    return 'ok'\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+
+
+# ---------------------------------------------------------------------------------------
+# Running caller-supplied code is a finding, not an inability to make one
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("spelling", ["eval(expression)", "exec(expression)"])
+def test_running_caller_supplied_code_is_sensitive(tmp_path: Path, spelling: str) -> None:
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(expression: str) -> str:\n"
+        '    """Probe dynamic execution."""\n'
+        f"    return str({spelling})\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "sensitive"
+    assert tool.confidence() == "high"
+
+
+def test_compiling_a_caller_supplied_string_before_running_it_is_still_sensitive(
+    tmp_path: Path,
+) -> None:
+    """Wrapping the source in `compile` does not make the execution any less arbitrary."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(expression: str) -> str:\n"
+        '    """Probe a compiled expression."""\n'
+        "    return str(eval(compile(expression, '<agent>', 'eval')))\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_constant_expression_is_not_reported_as_arbitrary_execution(
+    tmp_path: Path,
+) -> None:
+    """Nothing the caller controls reaches it, so the finding would be about nothing."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a constant expression."""\n'
+        "    return str(eval('1 + 1'))\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() != "sensitive"
+
+
+def test_a_dynamic_lookup_is_still_a_refusal_not_an_execution_finding(
+    tmp_path: Path,
+) -> None:
+    """`getattr` selects a symbol rather than running code, so the old reading stands."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(handler, name: str) -> str:\n"
+        '    """Probe a dynamic lookup."""\n'
+        "    return str(getattr(handler, name)())\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert "DYNAMIC_DISPATCH" in tool.reasons
