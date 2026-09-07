@@ -345,3 +345,196 @@ def test_the_four_receiver_shapes_agree_on_one_credential_read(tmp_path: Path) -
         verdicts[label] = _single_tool(directory, source).proposed_action_class()
 
     assert set(verdicts.values()) == {"sensitive"}, verdicts
+
+
+# ---------------------------------------------------------------------------------------
+# Shapes the classification benchmark caught, each one an effect reported as benign
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_stored_receiver_is_reached_through_an_attribute_chain(tmp_path: Path) -> None:
+    """`self.client.chat.completions.create(...)` is how every LLM SDK is written."""
+
+    source = _class_source(
+        "openai.OpenAI()",
+        "        return self.handle.chat.completions.create(prompt=value)\n",
+        preamble="import openai",
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "openai.OpenAI.create").action_class == "external"
+    assert tool.proposed_action_class() == "external"
+
+
+def test_an_attribute_taken_from_a_constructor_keeps_the_constructor_as_receiver(
+    tmp_path: Path,
+) -> None:
+    """`self.chat = Chat(...).chat` takes a sub-object; the receiver is still the client."""
+
+    source = _class_source(
+        "openai.OpenAI().chat",
+        "        return self.handle.completions.create(prompt=value)\n",
+        preamble="import openai",
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "openai.OpenAI.create").action_class == "external"
+
+
+def test_calling_a_sibling_method_is_still_followed_not_classified(tmp_path: Path) -> None:
+    """A bare `self.method()` must stay a traversal step, not a receiver call."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import requests\n"
+        "\n\n"
+        "class Agent:\n"
+        "    def _fetch(self, value: str) -> str:\n"
+        "        return requests.get(value).text\n"
+        "\n"
+        "    @tool\n"
+        "    def probe(self, value: str) -> str:\n"
+        '        """Probe a sibling call."""\n'
+        "        return self._fetch(value)\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "requests.get").action_class == "external"
+
+
+def test_a_module_level_instance_aliased_to_a_local_is_followed(tmp_path: Path) -> None:
+    """`STORE = ContactStore(...)` then `store = STORE` is how a shared handle is reached."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "class ContactStore:\n"
+        "    def __init__(self, dsn):\n"
+        "        self._dsn = dsn\n"
+        "\n"
+        "    def forget(self, cursor):\n"
+        "        cursor.execute('DELETE FROM contacts WHERE id = 1')\n"
+        "        return cursor.rowcount\n"
+        "\n\n"
+        "STORE = ContactStore('/srv/crm/contacts.db')\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(cursor) -> str:\n"
+        '    """Probe a module-level singleton."""\n'
+        "    store = STORE\n"
+        "    return str(store.forget(cursor))\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_body_that_only_raises_not_implemented_is_refused(tmp_path: Path) -> None:
+    """The real routine is bound elsewhere, so no effect here is not evidence of none."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Archive a batch and return a receipt."""\n'
+        "    raise NotImplementedError('bound at deploy time')\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert "BODY_UNAVAILABLE" in tool.reasons
+
+
+def test_a_body_that_raises_conditionally_is_not_treated_as_absent(tmp_path: Path) -> None:
+    """Only a body that does nothing else counts; a guard clause is ordinary code."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import requests\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a guard clause."""\n'
+        "    if not value:\n"
+        "        raise NotImplementedError('empty')\n"
+        "    return requests.get(value).text\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "external"
+    assert "BODY_UNAVAILABLE" not in tool.reasons
+
+
+# ---------------------------------------------------------------------------------------
+# Reading the environment by subscript, which is the ordinary spelling
+# ---------------------------------------------------------------------------------------
+
+
+def _environ_source(expression: str, *, preamble: str = "import os") -> str:
+    return (
+        f"{TOOL_IMPORT}\n"
+        f"{preamble}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe an environment read."""\n'
+        f"    return {expression}\n"
+    )
+
+
+def test_a_secret_read_by_subscript_is_sensitive(tmp_path: Path) -> None:
+    """`os.environ["DB_PASSWORD"]` is the common spelling and was not seen at all."""
+
+    tool = _single_tool(tmp_path, _environ_source("os.environ['DB_PASSWORD']"))
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_secret_read_by_subscript_through_an_imported_name_is_sensitive(
+    tmp_path: Path,
+) -> None:
+    tool = _single_tool(
+        tmp_path, _environ_source("environ['API_KEY']", preamble="from os import environ")
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_benign_environment_name_read_by_subscript_stays_a_read(tmp_path: Path) -> None:
+    tool = _single_tool(tmp_path, _environ_source("os.environ['LOG_PATH']"))
+
+    assert tool.proposed_action_class() == "read"
+
+
+def test_an_environment_key_chosen_at_runtime_is_refused(tmp_path: Path) -> None:
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import os\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str) -> str:\n"
+        '    """Probe a runtime key."""\n'
+        "    return os.environ[name]\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert "NONLITERAL_ARGUMENT" in tool.reasons
+
+
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "str({'a': 1}['a'])",
+        "value.split(',')[0]",
+        "str(list(value)[0])",
+    ],
+)
+def test_an_ordinary_subscript_is_not_an_environment_read(tmp_path: Path, expression: str) -> None:
+    """The rule keys on os.environ; every other subscript must stay invisible to it."""
+
+    tool = _single_tool(tmp_path, _environ_source(expression, preamble=""))
+
+    assert tool.proposed_action_class() == "read"
+    assert tool.reasons == set()

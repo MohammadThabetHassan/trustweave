@@ -73,6 +73,23 @@ All notable changes to TrustWeave are documented in this file. The project follo
   call four frames down published as no effect at all. The breadth budget had always
   reported itself; the depth budget now does the same, and such a tool is refused rather
   than answered.
+- Four more effects that were reported as benign reads, each found by working the
+  classification benchmark's own failures. A receiver stored on `self` and reached through
+  an attribute chain, which is how every LLM and cloud SDK is written, so
+  `self.client.chat.completions.create(...)` published as a local read. An attribute taken
+  from a constructor, as in `self.chat = Chat(...).chat`, which was recorded as neither a
+  receiver nor a usable alias. A module-level singleton aliased to a local, which is how a
+  shared handle is normally reached. And `os.environ["DB_PASSWORD"]`: the traversal looked
+  only at call nodes, so the most ordinary spelling of reading a secret from the
+  environment was not seen at all, while `os.environ.get(...)` and `os.getenv(...)` both
+  were.
+- A tool whose body only raises `NotImplementedError` is refused as `BODY_UNAVAILABLE`
+  rather than classified. Its real routine is bound elsewhere, so having no effect in this
+  file is not evidence of having none.
+- Benchmark accuracy rises from 0.813 to 0.880 and precision when answering from 0.923 to
+  0.981, with `read`, `write` and `external` precision at 1.000 and `undecidable` recall at
+  1.000. Every remaining benchmark failure is now a refusal or an over-report; none
+  under-reports an effect.
 - Corrected the reading of the study's one predictive result. The blind-against-covered
   contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
   outside the decidable fragment; inside it, over the larger arm of 41 policies, the

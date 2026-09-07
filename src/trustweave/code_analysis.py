@@ -282,8 +282,10 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
             aliased: dict[str, str] = {}
             credentials: set[str] = set()
             for inner in ast.walk(node):
-                if isinstance(inner, ast.Assign) and isinstance(
-                    inner.value, ast.Name | ast.Attribute
+                if (
+                    isinstance(inner, ast.Assign)
+                    and isinstance(inner.value, ast.Name | ast.Attribute)
+                    and _rooted_constructor(inner.value) is None
                 ):
                     # `self._shell = os.system`: the attribute is the symbol itself, not a
                     # constructed receiver, and calling it is calling that symbol.
@@ -294,7 +296,14 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                             and target.value.id in _INSTANCE_RECEIVERS
                         ):
                             aliased[target.attr] = _dotted(inner.value) or ""
-                if not isinstance(inner, ast.Assign) or not isinstance(inner.value, ast.Call):
+                if not isinstance(inner, ast.Assign):
+                    continue
+                constructed = (
+                    inner.value
+                    if isinstance(inner.value, ast.Call)
+                    else _rooted_constructor(inner.value)
+                )
+                if constructed is None:
                     continue
                 for target in inner.targets:
                     if (
@@ -302,8 +311,8 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                         and isinstance(target.value, ast.Name)
                         and target.value.id in _INSTANCE_RECEIVERS
                     ):
-                        stored[target.attr] = _dotted(inner.value.func) or ""
-                        if _is_credential_path(inner.value):
+                        stored[target.attr] = _dotted(constructed.func) or ""
+                        if _is_credential_path(constructed):
                             credentials.add(target.attr)
             if stored:
                 self_origins[node.name] = stored
@@ -393,13 +402,34 @@ def _instance_attribute(call: ast.Call) -> str | None:
     return None
 
 
+def _rooted_constructor(value: ast.expr) -> ast.Call | None:
+    """The constructor at the root of an attribute chain, as in ``Chat(...).chat``.
+
+    Recording only a bare ``self.x = C()`` missed the shape an SDK client is usually built
+    with, where a sub-object is taken at construction time. The receiver is still the
+    constructor, so the attribute is tracked against it.
+    """
+
+    current: ast.AST = value
+    while isinstance(current, ast.Attribute):
+        current = current.value
+    return current if isinstance(current, ast.Call) else None
+
+
 def _is_instance_state_call(call: ast.Call) -> bool:
-    """True for a call reached through an attribute of ``self`` or ``cls``."""
+    """True for a call reached through an attribute of ``self`` or ``cls``.
+
+    The chain may be of any depth. Requiring exactly ``self.x.y()`` resolved
+    ``self.client.post(...)`` but not ``self.client.chat.completions.create(...)``, and the
+    second is how every LLM and cloud SDK is written, so the egress published as a local
+    read. A bare ``self.method()`` is still excluded here: that is a sibling method, which
+    the traversal follows rather than classifies.
+    """
 
     func = call.func
     if not isinstance(func, ast.Attribute) or not isinstance(func.value, ast.Attribute):
         return False
-    return isinstance(func.value.value, ast.Name) and func.value.value.id in _INSTANCE_RECEIVERS
+    return _instance_attribute(call) is not None
 
 
 def _root_name(node: ast.AST) -> str | None:
@@ -554,16 +584,39 @@ def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
     """
 
     classes = {node.name for node in module.tree.body if isinstance(node, ast.ClassDef)}
+    # A module-level singleton is the other half of the same pattern. `STORE =
+    # ContactStore(...)` at import time, then `store = STORE` inside the tool, is how a
+    # shared handle is normally reached, and seeing only in-function constructions left
+    # that whole shape invisible. Only top-level statements are read, never the bodies of
+    # other functions, so one function's local cannot leak into another's.
     found: dict[str, str] = {}
+    for statement in module.tree.body:
+        if not isinstance(statement, ast.Assign) or len(statement.targets) != 1:
+            continue
+        bound = statement.targets[0]
+        if not isinstance(bound, ast.Name) or not isinstance(statement.value, ast.Call):
+            continue
+        singleton = _dotted(statement.value.func)
+        if singleton in classes and singleton is not None:
+            found[bound.id] = singleton
+
     rebound: set[str] = set()
     for node in ast.walk(scope):
         if not isinstance(node, ast.Assign) or len(node.targets) != 1:
             continue
         target = node.targets[0]
-        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Call):
+        if not isinstance(target, ast.Name):
             continue
-        constructed = _dotted(node.value.func)
-        if constructed not in classes:
+        if isinstance(node.value, ast.Call):
+            constructed = _dotted(node.value.func)
+            if constructed not in classes:
+                continue
+        elif isinstance(node.value, ast.Name):
+            # An alias of a handle already known to be an instance keeps its class.
+            constructed = found.get(node.value.id)
+            if constructed is None:
+                continue
+        else:
             continue
         if target.id in found and found[target.id] != constructed:
             rebound.add(target.id)
@@ -758,7 +811,14 @@ def _environ_class(
 
     if symbol.rsplit(".", 1)[-1] in {"items", "copy", "values"} or qualified_is_bulk(symbol):
         return "sensitive", symbol, None
-    argument = call.args[0] if call.args else None
+    return _environ_key_class(call.args[0] if call.args else None, symbol, literals)
+
+
+def _environ_key_class(
+    argument: ast.expr | None, symbol: str, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None, str | None]:
+    """Judge one environment variable name, whether it was a call argument or a key."""
+
     # A helper that takes the variable name as a parameter is still reading a named
     # variable; the name is simply one frame up. Without this a secret read moved into a
     # one-line helper became unclassifiable.
@@ -771,6 +831,29 @@ def _environ_class(
     if tokens & SECRET_ENV_TOKENS:
         return "sensitive", symbol, None
     return None, None, None
+
+
+def _classify_subscript(
+    node: ast.Subscript,
+    module: _Module,
+    origins: dict[str, tuple[str, ast.Call]],
+    literals: dict[str, ast.expr] | None = None,
+) -> tuple[str | None, str | None, str | None]:
+    """Classify `os.environ["NAME"]`, which is a read but not a call.
+
+    `os.environ.get("DB_PASSWORD")` and `os.getenv("DB_PASSWORD")` were both classified
+    sensitive while `os.environ["DB_PASSWORD"]`, which is the more common spelling, was not
+    seen at all: the traversal only ever looked at call nodes, so the most ordinary way to
+    read a secret from the environment published as no effect.
+    """
+
+    target = _dotted(node.value)
+    resolved = _resolve(target, module) if target else None
+    if resolved != _ENVIRON_ORIGIN:
+        root = node.value.id if isinstance(node.value, ast.Name) else None
+        if root is None or (origins.get(root) or ("", None))[0] != _ENVIRON_ORIGIN:
+            return None, None, None
+    return _environ_key_class(node.slice, f"{_ENVIRON_ORIGIN}.__getitem__", literals)
 
 
 def qualified_is_bulk(symbol: str) -> bool:
@@ -990,6 +1073,34 @@ def _lexical_pii_tokens(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set
     return found
 
 
+def _is_unimplemented(function: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
+    """True when the body is a stub that raises rather than doing anything.
+
+    A tool whose body is `raise NotImplementedError(...)` has its real implementation
+    bound somewhere else, usually by a deployment layer. It has no observable effect in
+    this file, and a tool with no effects is classified `read`, so a surface whose
+    behaviour is entirely unknown was published as a benign one.
+    """
+
+    statements = [
+        statement
+        for statement in function.body
+        if not (isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant))
+    ]
+    if not statements:
+        return False
+    return all(_raises_not_implemented(statement) for statement in statements)
+
+
+def _raises_not_implemented(statement: ast.stmt) -> bool:
+    """True for `raise NotImplementedError` in either its bare or called form."""
+
+    if not isinstance(statement, ast.Raise) or statement.exc is None:
+        return False
+    raised = statement.exc.func if isinstance(statement.exc, ast.Call) else statement.exc
+    return _dotted(raised) in {"NotImplementedError", "NotImplemented"}
+
+
 def _would_descend(
     node: ast.Call,
     module: _Module,
@@ -1055,6 +1166,9 @@ def _collect_signals(
         tool.budget_state = "exhausted"
         return
 
+    if depth == 0 and _is_unimplemented(function):
+        tool.reasons.add("BODY_UNAVAILABLE")
+
     owner = module.method_owner.get(f"{function.name}:{function.lineno}")
     self_attributes = module.self_origins.get(owner or "", {})
     self_aliases = module.self_symbols.get(owner or "", {})
@@ -1074,6 +1188,13 @@ def _collect_signals(
         id(inner) for decorator in function.decorator_list for inner in ast.walk(decorator)
     }
     for node in ast.walk(function):
+        if isinstance(node, ast.Subscript):
+            action, symbol, reason = _classify_subscript(node, module, origins, literals)
+            if reason:
+                tool.reasons.add(reason)
+            elif action and symbol:
+                tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
+            continue
         if not isinstance(node, ast.Call) or id(node) in decorator_nodes:
             # A decorator registers the tool with a framework. It is not behaviour the tool
             # performs, and classifying it made every decorated tool refuse on its own
@@ -1104,9 +1225,11 @@ def _collect_signals(
             # whose only effect sits one frame past the limit was reported as a local read
             # at high confidence, with budget_state "complete" and no reason recorded, so
             # an outbound call four frames down published as no effect at all. The breadth
-            # limit above has always reported itself; this is the same admission for depth.
+            # limit above has always reported itself; this is the same admission for depth,
+            # and it reports it under the same published reason, since a reviewer acts on
+            # "the body was not fully covered" the same way whichever limit stopped it.
             if _would_descend(node, module, instances, owner, visited):
-                tool.reasons.add("CALL_DEPTH_EXHAUSTED")
+                tool.reasons.add("BUDGET_EXHAUSTED")
                 tool.budget_state = "exhausted"
             continue
         # A call on an instance of a class this module defines is one hop, like a helper.
