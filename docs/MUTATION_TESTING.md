@@ -18,7 +18,7 @@ mutations/second, so runtime was never the obstacle. Two of the three are now ga
 |---|---|---|---|
 | `code_discovery.py` | 53.4% | **99.55%** | yes |
 | `code_sources.py` | 69.8% | **90.70%** | yes, carried by the aggregate |
-| `code_analysis.py` | ~70% | **78.79%** | no, and the reason is measured below |
+| `code_analysis.py` | ~70% | **79.15%** | no, and the reason is measured below |
 
 ### What moved `code_discovery.py` from 53% to 99.55%
 
@@ -70,39 +70,47 @@ aggregate and the module's shortfall is small against the total.
 ### `code_analysis.py` is measured and still not gated
 
 The earlier estimate here was "~1,100 mutants, ~334 surviving, ~70%". Adding the module to
-the scope and running it gives the real figures: **1,509 mutants, 1,189 killed, 320
-surviving, 78.79%**, and an aggregate of 94.74% across seventeen modules, which is below
-the 95% threshold.
+the scope and running it gives real figures, and four rounds of targeted work were done
+before deciding, because an estimate is not a sufficient reason on its own.
 
-Two rounds of targeted work were done before deciding, and the yield is what settles it.
+| Round | Mutants | Killed | Rate | Change |
+|---|---:|---:|---:|---|
+| Baseline | 1,480 | 1,149 | 77.64% | -- |
+| 269 catalogue-evidence tests | 1,486 | 1,163 | 78.26% | +14 killed |
+| 74 receiver-shape tests | 1,509 | 1,189 | 78.79% | +26 killed |
+| Two fail-open fixes | 1,509 | 1,193 | 79.06% | +4 killed |
+| 24 input-shape tests, one more fix | 1,525 | 1,207 | **79.15%** | +14 killed |
 
-The first round followed the lever that worked on `code_discovery.py`. Across the 46 cases
-in `tests/test_code_analysis.py` a signal's `symbol` and `line` were never asserted at all,
-so any mutation corrupting the evidence a reviewer reads was invisible.
-`tests/test_code_analysis_evidence.py` drives the catalogue itself -- every symbol, receiver
-method, command, environment name, credential path and SQL verb the analyzer claims to
-recognise -- and asserts the whole signal. 269 cases. It moved the module 77.64% to 78.26%.
+**367 tests bought 58 kills and 1.51 points.** Reaching 95% of 1,525 mutants needs 1,448
+killed, which is 241 further kills: sixteen more rounds at the rate the last four
+sustained. Each fix also adds mutants of its own -- the last round added 16 and killed 14 of
+them -- so the target moves while the work proceeds. The seventeen-module aggregate stands
+at 94.77%, below the threshold.
 
-The second round targeted the receiver branches, where 74 of the survivors sat.
-`tests/test_code_analysis_receivers.py` covers the four shapes an effect travels through:
-inline on a constructor, a local receiver behind an attribute chain, a receiver stored on
-`self` in `__init__`, and an attribute bound to a symbol. 74 cases. It moved the module
-78.26% to 78.79%.
+The lever that worked twice does not work here. On `code_discovery.py` most survivors were
+one unasserted contract away from dying, and validating the emitted artifact against its
+schema killed them in a stroke. Here the survivors were categorised rather than guessed at:
+129 alter control flow or a comparison on a branch, 104 corrupt a string literal or replace
+an argument with `None`, 24 replace a control-flow statement, and the rest invert a
+membership or a condition. They are on reachable code, which is why the second round
+targeted them directly, and reaching them with a public-interface test still leaves most
+producing no observable difference in the emitted artifact. Killing those needs assertions
+on private helpers, which pins the implementation rather than the behaviour and is worth
+less than it costs.
 
-**343 tests bought 1.15 points.** What remains is not a coverage gap of the kind the first
-two modules had. Sampling it shows unreachable argument defaults -- `.get(attr, "")` where
-the key is always present -- and refusal-reason and action-class string literals on branches
-whose corrupted value is then absorbed by the precedence fallback, so no public result
-changes. Reaching 95% would need roughly 280 further kills at three to eight per round of
-that size, and the gate additionally requires a recorded proof for every survivor; writing
-320 of those honestly is not possible, because most are not equivalences.
+So the module stays out, and that is now a measured decision with a rate of return attached
+rather than an estimate.
 
-So the module stays out, and this is now a measured decision rather than an estimate. The
-tests are kept: they are worth having whether or not the module is gated, and they are what
-found the three defects recorded in the changelog. One of them was found by the gate's own
-coverage accounting rather than by a survivor -- 18 mutants reported as having no covering
-test at all, every one of them in `_env_is_secret`, a function that was defined, never
-called, and fully superseded by `_environ_class`. It has been deleted.
+The tests are kept, and the work was not wasted: it found four defects, three of them
+security-relevant, all of the same shape. Reading a credential was reported as a benign read
+through the builtin `open` and through a path stored on `self`. An action class the
+precedence order does not contain was reported as `read`, the most benign class, rather than
+refused. An effect one frame past the call-depth budget was reported as a local read at high
+confidence with `budget_state` still `complete`, so an outbound call four frames down
+published as no effect at all -- the breadth budget had always reported itself, and the depth
+budget now does too. A fifth finding came from the gate's coverage accounting rather than
+from a survivor: eighteen mutants with no covering test, all in `_env_is_secret`, a function
+defined, never called, and superseded by `_environ_class`. It has been deleted.
 
 ## Recorded run
 
