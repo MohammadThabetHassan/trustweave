@@ -219,6 +219,86 @@ on suite quality rather than the exact figure the fragment permits.
 The honest summary across both ecosystems: the measure's flags correlate with worse fault
 detection, weakly, in the direction predicted, on samples too small to settle it.
 
+### Is the relation graded, or only a flag?
+
+If witnessing more decisions predicted detecting more faults, the measure could report a
+quantity instead of a flag, which would be worth more to a team than a warning. That is a
+testable claim and it does not hold on this data.
+
+`scripts/decision_trend_test.py` joins every scored Kyverno policy to the number of
+decisions its best-covered validate rule witnesses, and tests the ordered alternative with
+a Jonckheere-Terpstra permutation test. All 49 scored policies join.
+
+| Decisions witnessed | Policies | Median mutation score |
+|---|---:|---:|
+| 1 | 5 | 0.200 |
+| 2 | 41 | 0.625 |
+| 3 | 3 | 0.667 |
+
+The medians rise monotonically, and the trend test puts that at **p = 0.157 one-sided**
+(20,000 permutations, seed 0). **The ordered trend is not supported.** Almost all of the
+separation is between one decision and two; going from two to three adds 0.04 of median
+score across three policies. The same join reproduces the published blind-against-covered
+contrast exactly -- 9 blind at median 0.5 against 40 covered at 0.625 -- so the two analyses
+differ in what they ask, not in the data they read.
+
+The reading that survives is narrower than the one worth hoping for: what the measure
+detects is *blindness*, a suite that never writes a second outcome. It is not a graded
+estimate of suite quality, and reporting it as one would overstate what was measured. Note
+also that aggregating by the policy's best rule rather than by the recorded per-policy flag
+makes the blindness contrast **larger** -- 5 blind at median 0.200 -- which suggests the
+published flag dilutes the signal by counting a policy covered when only one of its rules
+is.
+
+## Which threshold to set
+
+Every result above uses one threshold: witnessing all `|D|` decisions. That choice is
+natural from the theory, where full cell coverage is what Corollary 4 requires, and it is a
+poor choice empirically. A threshold that flags almost every subject, or almost none,
+cannot distinguish subjects whatever its standing in the proof.
+
+The binary entropy of the flagged share measures that directly, in bits, and it is a
+property of the corpus rather than an inference from a sample -- no sampling, no p-value.
+`scripts/decision_threshold_analysis.py` computes it for every threshold on the corpora
+already recorded, and writes
+[`decision-threshold-analysis-v1.json`](decision-threshold-analysis-v1.json).
+
+| Ecosystem / domain | \|D\| | Subjects | Threshold | Flags | Bits |
+|---|---:|---:|---|---:|---:|
+| Rego `violation_set` | 2 | 49 | k=2 *(published)* | 2.0% | 0.144 |
+| Cedar | 2 | 23 | k=2 *(published)* | 8.7% | 0.426 |
+| Kyverno `validate` | 3 | 328 | k=2 | 7.0% | **0.366** |
+| Kyverno `validate` | 3 | 328 | k=3 *(published)* | 95.4% | 0.268 |
+| Kyverno `mutate` | 3 | 88 | k=2 | 69.3% | **0.889** |
+| Kyverno `mutate` | 3 | 88 | k=3 *(published)* | 100.0% | **0.000** |
+| XACML | 4 | 21 | k=2 | 19.1% | 0.703 |
+| XACML | 4 | 21 | k=3 | 57.1% | **0.985** |
+| XACML | 4 | 21 | k=4 *(published)* | 95.2% | 0.276 |
+
+**On Kyverno `mutate` the published threshold carries exactly zero bits.** It flags all 88
+subjects, so it separates none of them: the verdict is a constant, and a constant is not a
+measurement. Across the five domains with enough subjects to measure, the published
+threshold is the most informative available one in **two**, and carries under 0.3 bits in
+**four**.
+
+Where the informative threshold sits is not `|D|` and not a fixed number. On XACML it is
+three of four decisions, which splits the corpus 57/43 and carries 0.985 bits -- within 2%
+of the most a binary verdict can carry. On the three-valued Kyverno domains it is two. The
+rule that emerges is that the threshold should be chosen against the corpus, by the entropy
+of the split it induces, rather than inherited from the proof.
+
+This does not rescue the criterion as a substitute for mutation testing, and it is not
+evidence that the entropy-chosen threshold predicts faults better -- that would need the
+mutation experiment re-run per threshold, and at these arm sizes it would not settle
+either. What it establishes is narrower and it is not an inference: the threshold the theory
+hands you is, on four of five real corpora, close to the least informative one available,
+and a better one is identifiable from the corpus without running any tests.
+
+The honest consequence for the theory is that Corollary 4's requirement and a useful
+empirical bar are different objects. Full cell coverage is what makes the mutation score
+exact inside the fragment. Outside it, on the corpora people actually publish, it is mostly
+a constant.
+
 ## Interpretation
 
 The exactness results this measure descends from -- decidable equivalence, an exact kill
@@ -297,6 +377,18 @@ python scripts/suite_coverage.py rego    <corpus> --json out.json   # needs opa 
 python scripts/suite_coverage.py kyverno <corpus> --json out.json
 python scripts/suite_coverage.py cedar   <corpus> --json out.json
 ```
+
+The two analyses added after the corpora were measured need neither a corpus nor a CLI.
+They read the committed artifacts, so anyone with the repository can reproduce them:
+
+```bash
+python scripts/decision_threshold_analysis.py --json docs/decision-threshold-analysis-v1.json
+python scripts/decision_trend_test.py --json docs/decision-trend-test-v1.json
+```
+
+`tests/test_decision_threshold_analysis.py` pins every figure they produce that this
+document quotes, including the zero-bit result and the unsupported trend, and asserts the
+committed artifact still equals a fresh computation.
 
 Corpora are pinned to exact commits in the `corpus` block of each artifact:
 `docs/suite-coverage-{rego,kyverno,cedar}-v1.json`. The Rego corpus is Rego v0 and OPA 1.x
