@@ -7,7 +7,9 @@ states the restriction, proves what follows from it, and marks where it stops ho
 
 Every claim here is checked by `tests/test_decision_class_theory.py`, which verifies the
 theorems by exhaustive enumeration against the shipped policy and the real mutant set rather
-than restating them.
+than restating them, and by `tests/test_combining_function_independence.py`, which verifies
+the abstract form of section 4b over an infinite subject space under four different
+evaluation rules.
 
 ## 1. The language and its subject space
 
@@ -162,6 +164,75 @@ complete suite for a policy that simply never approves anything.
 coverage, expecting decisions in every class, that cannot detect its policy's default
 changing.
 
+## 4b. What the proofs actually use, and which languages have it
+
+Everything above is stated for first-match evaluation over the label language of section 1,
+and that is narrower than the proofs require. The arguments use exactly two properties, and
+neither mentions first-match or any particular component:
+
+**(i) The guards refine the subject space finitely, with computable witnesses.** For any
+finite tuple of guards `g_1..g_n` drawn from the language, the map
+`s |-> (g_1(s),...,g_n(s))` has finite image, and for each truth vector actually achieved a
+subject realising it is constructible *from the guards' own syntax*. Call such a family
+**finitely refining**.
+
+**(ii) The decision is a function of the guard truth vector.** There is some
+`c : {0,1}^n -> D` with `[[P]](s) = c(g_1(s),...,g_n(s))`.
+
+**Theorem 1b (the results are combining-function independent).** Let `P = (<g_i>, c)` be any
+policy whose guards come from a finitely refining family and whose decision satisfies (ii),
+over any subject space, finite or infinite. Then `S/~P` is finite with at most `2^n` classes,
+`[[P]]` is constant on each class, a witness for each is computable, and Theorems 2 and 3 and
+Corollaries 4 and 5 hold verbatim with "cell" read as "achieved truth vector".
+
+*Proof.* `~P` is the kernel of `s |-> (g_i(s))_i`, which is finite by (i); `[[P]] = c` composed
+with that map, so it is constant on each class by (ii). Every later argument consults only
+the finite class set, the decision on each class, and a witness per class, all of which (i)
+and (ii) supply. No step uses the shape of `c`. []
+
+This matters because `c` is where the real languages differ, and they differ only in `c`:
+
+| Language | `c` on the guard truth vector | `D` |
+|---|---|---|
+| TrustWeave | decision of the first true guard, else the default | 3 |
+| Cedar | `Deny` if any `forbid` guard holds; else `Allow` if any `permit` does; else `Deny` | 2 |
+| Kyverno | `fail` if a rule's pattern is violated; `pass` if all match; `skip` if preconditions exclude | 3 |
+| XACML | the chosen combining algorithm -- deny-overrides, permit-overrides, first-applicable | 4 |
+| Rego (`violation`) | non-empty iff any `violation` guard holds | 2 |
+
+Every one of these is a function of the truth vector, so **(ii) is satisfied by all five**.
+`tests/test_combining_function_independence.py` checks this by construction rather than by
+assertion: it builds one guard family over an infinite subject space -- arbitrary strings,
+with set membership and a final-wildcard namespace pattern -- and verifies Theorem 1b,
+Theorem 2, Theorem 3, Corollary 4 and the tightness result under first-match, Cedar's
+forbid-overrides, Kyverno's any-rule-fails, and a four-valued XACML deny-overrides.
+Hypothesis samples the infinite space, so the finite witness set is shown to account for
+subjects the construction never named.
+
+### So the boundary is (i), not the evaluation rule
+
+What separates the languages is whether their *guards* are finitely refining. The dividing
+line is whether a guard's induced partition is determined by the policy text:
+
+**Inside.** Equality or set membership against literals in the policy; a final-wildcard
+namespace pattern; a comparison against a literal threshold, which splits the space in two
+however large the ordered domain is; bounds over a declared taxonomy. Each names a finite
+number of sets, and a witness for each is readable off the syntax.
+
+**Outside.** A guard whose partition depends on data absent from the policy text. Transitive
+membership over an entity store of unbounded depth, so the answer is a property of the store
+rather than of the subject. A pattern taken from the input rather than the policy. An
+arbitrary builtin over a whole document. These are why Rego generally falls outside: its
+guards may call any builtin over `data` and `input`, and Theorem 6 below is the limit case.
+
+This is a characterisation, not a measurement. **No claim is made here about what share of
+published Cedar, Kyverno or XACML policies have finitely refining guards.** Establishing
+that needs each ecosystem's policies parsed and classified, which the corpora in
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) were not -- that study reads *test
+suites*, not policy semantics. What Theorem 1b does establish is that the obstacle is
+located in the guards alone: an ecosystem is not excluded by having two decisions instead of
+three, by combining rules instead of ordering them, or by being someone else's language.
+
 ## 5. Why this is not just mutation testing with extra steps
 
 Structural coverage asks whether a line ran. Mutation testing asks whether a change would be
@@ -275,6 +346,16 @@ policy language admits it, not the difficulty of the argument.
 What survives those three concessions is: a stated fragment, an exactness result that makes
 a reported mutation score meaningful rather than approximate, a witness showing the criterion
 is independent of the structural coverage tooling already in use, an instrument that measures
-the output criterion across three real policy ecosystems, and the empirical finding that the
-criterion is nearly always already satisfied where decision domains are binary. The last of
-those is a negative result, and it is reported as one.
+the output criterion across four real policy ecosystems, and two negative results reported as
+such -- that the criterion is nearly always already satisfied where decision domains are
+binary, and that what it detects is blindness rather than a gradient.
+
+Two things were added after those concessions were written, and both narrow the gap between
+what is proved and what was measured. Section 4b locates the obstacle: the proofs never use
+first-match, so an ecosystem is excluded only by its guards, not by its evaluation rule or
+the size of its decision domain -- which is checked under Cedar's, Kyverno's and XACML's
+combining rules rather than argued. And the threshold analysis in the study shows that the
+bar this document hands a practitioner, full cell coverage, is on four of five real corpora
+close to the least informative available, carrying literally zero bits on one of them. That
+is a criticism of the criterion's practical form, it is arithmetic rather than inference, and
+it belongs here rather than in a reviewer's report.
