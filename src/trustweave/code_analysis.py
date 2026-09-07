@@ -206,6 +206,11 @@ class _Module:
     # Attributes bound directly to an imported symbol rather than to a constructed
     # receiver, keyed by the owning class then the attribute.
     self_symbols: dict[str, dict[str, str]] = field(default_factory=dict)
+    # Attributes whose constructor named a credential path, keyed by the owning class.
+    # `self.key = Path("~/.ssh/id_rsa")` in __init__ is the same read as the local form,
+    # and only the literal in the constructor says so, so it is recorded here rather than
+    # discarded with the rest of the constructor's arguments.
+    self_credentials: dict[str, set[str]] = field(default_factory=dict)
     # Functions defined inside another function. Real servers register their handlers
     # inside a factory -- `async def serve(): @server.call_tool() ...` is how every
     # official MCP reference server is written -- so these must be discoverable as tools.
@@ -252,6 +257,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     # `send`, and would let a method body be attributed to an unrelated caller.
     methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     self_origins: dict[str, dict[str, str]] = {}
+    self_credentials: dict[str, set[str]] = {}
     self_symbols: dict[str, dict[str, str]] = {}
     method_owner: dict[str, str] = {}
     nested: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
@@ -269,6 +275,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                 method_owner[f"{child.name}:{child.lineno}"] = node.name
             stored: dict[str, str] = {}
             aliased: dict[str, str] = {}
+            credentials: set[str] = set()
             for inner in ast.walk(node):
                 if isinstance(inner, ast.Assign) and isinstance(
                     inner.value, ast.Name | ast.Attribute
@@ -291,10 +298,14 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                         and target.value.id in _INSTANCE_RECEIVERS
                     ):
                         stored[target.attr] = _dotted(inner.value.func) or ""
+                        if _is_credential_path(inner.value):
+                            credentials.add(target.attr)
             if stored:
                 self_origins[node.name] = stored
             if aliased:
                 self_symbols[node.name] = aliased
+            if credentials:
+                self_credentials[node.name] = credentials
 
     # Anything defined inside a function body. Class methods are already collected above
     # and module-level functions are in `functions`, so this is exactly the remainder.
@@ -325,6 +336,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
             for owner, stored in self_origins.items()
         },
         method_owner=method_owner,
+        self_credentials=self_credentials,
     )
     indexed.module_origins = _scope_origins(tree.body, indexed)
     return indexed
@@ -760,16 +772,6 @@ def qualified_is_bulk(symbol: str) -> bool:
     return symbol in _ENVIRON_BULK
 
 
-def _env_is_secret(call: ast.Call, qualified: str) -> bool:
-    if qualified in _ENVIRON_BULK:
-        return True
-    key = _constant_str(call.args[0]) if call.args else None
-    if key is None:
-        return False
-    tokens = {token for token in key.casefold().replace("-", "_").split("_") if token}
-    return bool(tokens & SECRET_ENV_TOKENS)
-
-
 def _is_credential_path(call: ast.Call) -> bool:
     for argument in call.args:
         literal = _constant_str(argument)
@@ -793,6 +795,7 @@ def _classify_call(
     self_aliases: dict[str, str] | None = None,
     literals: dict[str, ast.expr] | None = None,
     opaque: set[str] | None = None,
+    self_credentials: set[str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -868,7 +871,12 @@ def _classify_call(
             if method in WRITE_RECEIVER_METHODS:
                 return "write", f"{origin}.{method}", None
             if method in READ_RECEIVER_METHODS:
-                return "read", f"{origin}.{method}", None
+                # The constructor ran in __init__, so its literal is not in this call.
+                # Whether it named a credential path was recorded when the class was
+                # indexed; without it `self.key = Path("~/.ssh/id_rsa")` read as benign
+                # while the same two lines inside the tool read as sensitive.
+                credential = attribute is not None and attribute in (self_credentials or set())
+                return ("sensitive" if credential else "read"), f"{origin}.{method}", None
         return None, None, "UNRESOLVED_CALLEE"
 
     # A method on a parameter the signature declares as third-party state. What it does is
@@ -997,6 +1005,7 @@ def _collect_signals(
     owner = module.method_owner.get(f"{function.name}:{function.lineno}")
     self_attributes = module.self_origins.get(owner or "", {})
     self_aliases = module.self_symbols.get(owner or "", {})
+    self_credentials = module.self_credentials.get(owner or "", set())
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
     # Receivers the caller handed over, before the callee's own bindings, which win.
@@ -1027,6 +1036,7 @@ def _collect_signals(
             self_aliases,
             literals,
             opaque,
+            self_credentials,
         )
         if reason:
             tool.reasons.add(reason)

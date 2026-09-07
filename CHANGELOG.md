@@ -50,6 +50,19 @@ All notable changes to TrustWeave are documented in this file. The project follo
   platform locale, which on a POSIX or ASCII locale records a valid UTF-8 module as
   `file_is_not_utf8`. All three are asserted now, and the stat path is no longer marked
   `# pragma: no cover`.
+- Reading a credential file was reported as a benign read, at high confidence, in two of
+  the four ways an agent can write it. Through the builtin `open`, because that path
+  decided from the file mode alone and never consulted the credential-path table. And
+  through a `pathlib.Path` stored on `self` in `__init__`, because indexing a class kept
+  only the constructor's callee and discarded the literal that says the path is a secret.
+  The local-variable and inline spellings were already correct, so the same operation was
+  classified two different ways depending on style. All four now agree, and a test asserts
+  that they do. Writes keep the write class whatever the path, matching the existing
+  treatment of the pathlib write methods.
+- Removed `_env_is_secret`, which was defined, never called, and fully superseded by
+  `_environ_class`. It was found by the mutation gate's coverage accounting rather than by
+  a failing test: eighteen of its mutants were reported as having no covering test at all,
+  which is what an uncalled function looks like.
 
 ### Changed
 
