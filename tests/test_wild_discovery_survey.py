@@ -162,8 +162,40 @@ def survey() -> dict:
 
 class TestSurveyRecord:
     def test_the_quoted_totals_hold(self, survey: dict) -> None:
-        assert survey["corpora_surveyed"] == 4
-        assert survey["tools_discovered"] == 639
+        assert survey["corpora_surveyed"] == 9
+        assert survey["tools_discovered"] == 1998
+
+    def test_every_documented_registration_form_is_exercised(self, survey: dict) -> None:
+        """A form nobody's code uses is a claim the survey cannot support."""
+
+        assert set(survey["frameworks"]) >= {
+            "openai_agents_decorator",
+            "crewai_base_tool_subclass",
+            "crewai_tool_decorator",
+            "smolagents_decorator",
+            "server_tool_decorator",
+            "mcp_declared_tool",
+            "mcp_call_tool",
+            "langchain_tool_decorator",
+            "langchain_base_tool_subclass",
+            "semantic_kernel_decorator",
+            "bound_plain_function",
+        }
+
+    def test_the_name_screen_reports_candidates_rather_than_verdicts(self, survey: dict) -> None:
+        """It exists to find misses in unlabelled code, and it is not a classification rule.
+
+        Every hit is a tool the analyzer called `read` whose name begins with a verb that
+        would be odd for one. The five inspected were all mock tools in test suites that
+        return a formatted string, so the reads were right and the names described intent
+        -- which is the analyzer's own rule that a name is not behaviour, holding on code
+        nobody here wrote.
+        """
+
+        assert survey["name_screen_hits"] == sum(
+            len(entry["name_screen"]) for entry in survey["surveys"]
+        )
+        assert survey["name_screen_hits"] < survey["tools_discovered"] // 20
 
     def test_every_corpus_records_where_it_came_from(self, survey: dict) -> None:
         """The corpora are fetched rather than vendored, so the commit is the only anchor."""
@@ -173,11 +205,67 @@ class TestSurveyRecord:
             assert provenance["remote"].startswith("https://")
             assert len(provenance["commit"]) == 40
 
-    def test_the_two_forms_the_survey_found_are_present(self, survey: dict) -> None:
+    def test_the_forms_the_survey_found_are_present(self, survey: dict) -> None:
         assert survey["frameworks"]["openai_agents_decorator"] == 328
         assert survey["frameworks"]["crewai_base_tool_subclass"] == 133
+        assert survey["frameworks"]["smolagents_decorator"] == 49
 
     def test_each_survey_accounts_for_its_own_tools(self, survey: dict) -> None:
         for entry in survey["surveys"]:
             assert sum(entry["frameworks"].values()) == entry["tools"]
             assert sum(entry["action_classes"].values()) == entry["tools"]
+
+
+class TestReceiverDecorators:
+    """`@agent.tool_plain` is 693 uses in one repository and did not end in `.tool`."""
+
+    @pytest.mark.parametrize("attribute", ["tool", "tool_plain"])
+    def test_a_decorator_taken_from_a_runtime_object_is_discovered(
+        self, tmp_path: Path, attribute: str
+    ) -> None:
+        source = (
+            "from pydantic_ai import Agent\n"
+            "import requests\n"
+            "\n\n"
+            "agent = Agent('openai:gpt-4o')\n"
+            "\n\n"
+            f"@agent.{attribute}\n"
+            "def fetch_page(url: str) -> str:\n"
+            '    """Fetch a page."""\n'
+            "    return requests.get(url).text\n"
+        )
+        tool = _single_tool(tmp_path, source)
+
+        assert tool.name == "fetch_page"
+        assert tool.proposed_action_class() == "external"
+
+    def test_the_framework_is_recorded_as_the_shape_not_a_guess(self, tmp_path: Path) -> None:
+        """Which library the receiver belongs to cannot be known from the source."""
+
+        source = (
+            "from mcp.server.fastmcp import FastMCP\n"
+            "\n\n"
+            "mcp = FastMCP('x')\n"
+            "\n\n"
+            "@mcp.tool()\n"
+            "def fetch_page(url: str) -> str:\n"
+            '    """Fetch a page."""\n'
+            "    return url\n"
+        )
+
+        assert _single_tool(tmp_path, source).framework == "server_tool_decorator"
+
+
+def test_a_smolagents_decorator_names_its_own_project(tmp_path: Path) -> None:
+    """It resolves to a package, so it can be reported as itself."""
+
+    source = (
+        "from smolagents import tool\n"
+        "\n\n"
+        "@tool\n"
+        "def fetch_page(url: str) -> str:\n"
+        '    """Fetch a page."""\n'
+        "    return url\n"
+    )
+
+    assert _single_tool(tmp_path, source).framework == "smolagents_decorator"

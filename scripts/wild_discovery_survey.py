@@ -32,7 +32,7 @@ import sys
 import tempfile
 from collections import Counter
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -59,6 +59,31 @@ CORPUS_PROVENANCE: dict[str, dict[str, str]] = {
         "remote": "https://github.com/crewAIInc/crewAI.git",
         "commit": "1b855b4ff97d3fc8bf6dc0981fed5f0999a7cd81",
         "path": "lib",
+    },
+    "smolagents_examples": {
+        "remote": "https://github.com/huggingface/smolagents.git",
+        "commit": "30bb1161095dbae2271e6bc3cc4c219cc3897a57",
+        "path": "examples",
+    },
+    "smolagents_tests": {
+        "remote": "https://github.com/huggingface/smolagents.git",
+        "commit": "30bb1161095dbae2271e6bc3cc4c219cc3897a57",
+        "path": "tests",
+    },
+    "pydantic_ai_examples": {
+        "remote": "https://github.com/pydantic/pydantic-ai.git",
+        "commit": "377f4c2315d225ead8f58c6e4abb8277b7be9bce",
+        "path": "examples",
+    },
+    "pydantic_ai_tests": {
+        "remote": "https://github.com/pydantic/pydantic-ai.git",
+        "commit": "377f4c2315d225ead8f58c6e4abb8277b7be9bce",
+        "path": "tests",
+    },
+    "autogen": {
+        "remote": "https://github.com/microsoft/autogen.git",
+        "commit": "027ecf0a379bcc1d09956d46d12d44a3ad9cee14",
+        "path": "python",
     },
 }
 
@@ -87,6 +112,49 @@ def discover(source: Path, output: Path) -> dict[str, Any]:
     return json.loads(artifact.read_text(encoding="utf-8"))
 
 
+# Verbs whose presence in a registered name would be odd for a tool that only reads. This
+# is a screen for finding candidate misses in unlabelled code, never a classification
+# signal: the analyzer's own rule is that a name is not behaviour, and a tool called
+# `delete_stale_cache` that only formats a string is correctly a read. What the screen says
+# is "look at this one", and every hit is either a naming choice worth nothing or an effect
+# the analyzer did not see.
+EFFECTFUL_NAME_VERBS: Final = (
+    "delete",
+    "remove",
+    "write",
+    "update",
+    "upload",
+    "publish",
+    "send",
+    "post",
+    "create",
+    "insert",
+    "drop",
+    "execute",
+    "run",
+)
+
+
+def name_screen(tools: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Tools whose registered name suggests an effect the verdict does not report."""
+
+    flagged = []
+    for tool in tools:
+        if tool["proposed_action_class"] != "read":
+            continue
+        name = tool["name"].casefold().replace("-", "_").replace(" ", "_")
+        head = name.split("_", 1)[0]
+        if head in EFFECTFUL_NAME_VERBS:
+            flagged.append(
+                {
+                    "name": tool["name"],
+                    "file": tool["location"]["file"],
+                    "line": tool["location"]["line"],
+                }
+            )
+    return flagged
+
+
 def summarise(name: str, artifact: dict[str, Any]) -> dict[str, Any]:
     tools = artifact.get("tools", [])
     reasons: Counter[str] = Counter()
@@ -101,6 +169,7 @@ def summarise(name: str, artifact: dict[str, Any]) -> dict[str, Any]:
         ),
         "confidence": dict(Counter(tool["confidence"] for tool in tools).most_common()),
         "refusal_reasons": dict(reasons.most_common()),
+        "name_screen": name_screen(tools),
     }
 
 
@@ -110,8 +179,10 @@ def run(sources: dict[str, Path]) -> dict[str, Any]:
         for name, source in sorted(sources.items()):
             surveys.append(summarise(name, discover(source, Path(workspace) / name)))
     frameworks: Counter[str] = Counter()
+    screened = 0
     for survey in surveys:
         frameworks.update(survey["frameworks"])
+        screened += len(survey["name_screen"])
     return {
         "schema_version": "v1",
         "corpus": {
@@ -119,6 +190,7 @@ def run(sources: dict[str, Path]) -> dict[str, Any]:
         },
         "corpora_surveyed": len(surveys),
         "tools_discovered": sum(survey["tools"] for survey in surveys),
+        "name_screen_hits": screened,
         "frameworks": dict(frameworks.most_common()),
         "surveys": surveys,
     }
@@ -150,6 +222,13 @@ def main(argv: list[str] | None = None) -> int:
         if survey["refusal_reasons"]:
             print(f"      refusals:   {survey['refusal_reasons']}")
     print(f"\nframeworks across all corpora: {findings['frameworks']}")
+    print(
+        f"tools whose name suggests an effect the verdict does not report: "
+        f"{findings['name_screen_hits']}"
+    )
+    for survey in findings["surveys"]:
+        for hit in survey["name_screen"]:
+            print(f"    {survey['corpus']}: {hit['name']} ({hit['file']}:{hit['line']})")
     if args.json:
         args.json.write_text(
             json.dumps(findings, indent=2, sort_keys=True) + "\n", encoding="utf-8"

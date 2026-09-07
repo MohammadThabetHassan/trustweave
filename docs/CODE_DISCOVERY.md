@@ -126,39 +126,53 @@ are simply absent from the artifact. Nothing in a self-authored benchmark can re
 
 `scripts/wild_discovery_survey.py` runs the published `discover` command over agent
 repositories with no connection to this project, at the commits recorded in
-[`wild-discovery-survey-v1.json`](wild-discovery-survey-v1.json). It cannot say whether a
-verdict is right, because the code is unlabelled. It says whether the surface was seen.
+[`wild-discovery-survey-v1.json`](wild-discovery-survey-v1.json).
 
-| Corpus | Tools | Registration forms |
-|---|---:|---|
-| `modelcontextprotocol/servers` | 15 | declared MCP tool |
-| `openai/openai-agents-python` examples | 79 | server decorator |
-| `openai/openai-agents-python` tests | 338 | agent SDK decorator, server decorator |
-| `crewAIInc/crewAI` | 207 | CrewAI class tool, CrewAI decorator, bound function |
-| **Total** | **639** | six forms |
+| Project | Corpora | Tools |
+|---|---:|---:|
+| `pydantic/pydantic-ai` | 2 | 1,298 |
+| `openai/openai-agents-python` | 2 | 417 |
+| `crewAIInc/crewAI` | 1 | 207 |
+| `huggingface/smolagents` | 2 | 49 |
+| `modelcontextprotocol/servers` | 1 | 15 |
+| `microsoft/autogen` | 1 | 12 |
+| **Total** | **9** | **1,998** |
 
-**It found two gaps immediately, and they were the largest in the analyzer.**
+**All eleven registration forms in the table above are exercised by this corpus**, so none
+of them is a claim resting only on a case written here.
 
-The OpenAI Agents SDK registers a tool with `@function_tool`. That was recognised by
-nothing, so **328 tools were invisible** -- not refused, absent. For a tool whose purpose is
-reporting the surface an agent exposes, an empty surface is the most fail-open answer
-available, and no benchmark case could have caught it because nobody here had written that
-form down.
+### Three forms were missing, and each was invisible rather than refused
 
-CrewAI registers tools two ways and neither was named. Its `BaseTool` subclasses were not
-found at all, and its decorator fell into the generic `@<server>.tool()` bucket that this
-document describes as a lower-confidence guess about FastMCP. The repository reported **75
-tools, every one of them `read` at high confidence**. It exposes 207, of which 16 are
-sensitive and 11 external. A uniform verdict over a large surface is worth being suspicious
-of, and that is what prompted looking.
+The OpenAI Agents SDK registers with `@function_tool`, recognised by nothing: **328 tools
+absent**. pydantic-ai registers with `@agent.tool_plain`, which does not end in `.tool` and
+so missed the receiver-decorator rule: **693 uses in its own repository**, none reported.
+CrewAI's `BaseTool` subclasses were not recognised either, so a repository reporting **75
+tools, every one `read` at high confidence**, in fact exposes 207, of which 16 are sensitive
+and 11 external.
 
-Both are fixed and pinned by `tests/test_wild_discovery_survey.py`, which asserts the forms
-against transcribed sources so it runs without the corpora or a network.
+For a command whose purpose is reporting the surface an agent exposes, an empty surface is
+the most fail-open answer available, and no benchmark case could have caught any of the
+three, because nobody here had written those forms down.
 
-Two limits. The survey reports coverage, not correctness: 639 unlabelled tools cannot say
-whether a class is right, only that a tool was seen. And four repositories chosen by one
-person are not a sample of the ecosystem, so the next form missing from this list is as
-invisible as `@function_tool` was.
+### A correctness signal that needs no labels
+
+The survey reads unlabelled code, so it cannot say a verdict is right. It can say when one
+looks wrong. The name screen reports every tool the analyzer classified `read` whose
+registered name begins with a verb that would be odd for one -- `delete`, `write`, `send`,
+`execute`. It is a screen for finding candidate misses, never a classification rule: this
+document's own position is that a name is not behaviour.
+
+It flags **38 of 1,998 tools, 1.9%**. Five were inspected and all five are mock tools in
+test suites that append to a list and return a formatted string, so the reads are right and
+the names describe intent. That is not proof of correctness. It is the check that would have
+caught systematic under-reporting, run on code nobody here wrote, and it found none.
+
+### Limits
+
+The survey reports coverage, not correctness: 1,998 unlabelled tools say a tool was seen,
+not that its class is right. Nine corpora from six projects chosen by one person are not a
+sample of the ecosystem. And the next form missing from this list is as invisible today as
+`@function_tool` was before the survey existed.
 
 ## Why a tool is left unknown
 

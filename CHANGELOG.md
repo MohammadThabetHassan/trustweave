@@ -128,10 +128,20 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - The framework recorded for a class-based tool names the project its base came from, so a
   CrewAI tool is no longer reported as a LangChain one. The published
   `langchain_base_tool_subclass` label is unchanged.
+- A third registration form was invisible: pydantic-ai's `@agent.tool_plain`, which does
+  not end in `.tool` and so missed the receiver-decorator rule. It is used 693 times in
+  that project's own repository, and none of those tools was reported. Hugging Face
+  smolagents is named as itself rather than reported as an unidentifiable receiver.
 - `scripts/wild_discovery_survey.py` records what discovery finds in third-party code, at
-  pinned commits: 639 tools across four repositories under six registration forms. It
-  measures coverage rather than correctness, which is the failure a self-authored benchmark
-  cannot report.
+  pinned commits: 1,998 tools across nine corpora from six projects, exercising all eleven
+  registration forms the documentation lists. It measures coverage rather than correctness,
+  which is the failure a self-authored benchmark cannot report, and it found three
+  invisible registration forms within minutes of first being run.
+- The survey also screens for correctness without labels: every tool classified `read`
+  whose registered name begins with a verb that would be odd for one. It flags 38 of 1,998,
+  and the five inspected are mock tools in test suites that return a formatted string, so
+  the reads are right and the names describe intent. It is a screen for candidate misses,
+  not a classification rule.
 - Corrected the reading of the study's one predictive result. The blind-against-covered
   contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
   outside the decidable fragment; inside it, over the larger arm of 41 policies, the
