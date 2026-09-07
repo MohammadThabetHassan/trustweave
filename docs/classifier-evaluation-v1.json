@@ -2,11 +2,11 @@
   "schema_version": "trustweave.dev/classification-evaluation/v1alpha1",
   "cases": 75,
   "overall": {
-    "accuracy": 0.88,
-    "accuracy_on_agreed_labels_only": 0.8841,
-    "answer_rate_on_decidable": 0.8667,
-    "precision_when_answering": 0.9808,
-    "refusal_rate": 0.3067,
+    "accuracy": 0.9067,
+    "accuracy_on_agreed_labels_only": 0.913,
+    "answer_rate_on_decidable": 0.9,
+    "precision_when_answering": 0.9815,
+    "refusal_rate": 0.28,
     "not_discovered": 0
   },
   "per_class": {
@@ -19,14 +19,14 @@
     "write": {
       "support": 14,
       "precision": 1.0,
-      "recall": 0.8571,
-      "f1": 0.9231
+      "recall": 0.9286,
+      "f1": 0.963
     },
     "sensitive": {
       "support": 14,
-      "precision": 0.9167,
-      "recall": 0.7857,
-      "f1": 0.8462
+      "precision": 0.9231,
+      "recall": 0.8571,
+      "f1": 0.8889
     },
     "external": {
       "support": 16,
@@ -36,15 +36,15 @@
     },
     "undecidable": {
       "support": 15,
-      "precision": 0.6522,
+      "precision": 0.7143,
       "recall": 1.0,
-      "f1": 0.7895
+      "f1": 0.8333
     }
   },
   "by_difficulty": {
     "easy": 1.0,
     "medium": 0.9688,
-    "hard": 0.75
+    "hard": 0.8125
   },
   "by_framework": {
     "bound_plain_function": {
@@ -57,7 +57,7 @@
     },
     "langchain_tool_decorator": {
       "cases": 21,
-      "accuracy": 0.9048
+      "accuracy": 0.9524
     },
     "mcp_call_tool": {
       "cases": 9,
@@ -73,7 +73,7 @@
     },
     "server_tool_decorator": {
       "cases": 18,
-      "accuracy": 0.8889
+      "accuracy": 0.9444
     },
     "structured_tool_factory": {
       "cases": 15,
@@ -83,8 +83,8 @@
   "refusal_reasons": {
     "UNRESOLVED_CALLEE": 15,
     "DYNAMIC_DISPATCH": 9,
-    "NONLITERAL_ARGUMENT": 3,
-    "BODY_UNAVAILABLE": 2
+    "BODY_UNAVAILABLE": 2,
+    "NONLITERAL_ARGUMENT": 2
   },
   "confusion": {
     "read": {
@@ -92,12 +92,12 @@
       "undecidable": 2
     },
     "write": {
-      "write": 12,
-      "undecidable": 2
+      "write": 13,
+      "undecidable": 1
     },
     "sensitive": {
-      "sensitive": 11,
-      "undecidable": 3
+      "sensitive": 12,
+      "undecidable": 2
     },
     "external": {
       "sensitive": 1,
@@ -138,13 +138,6 @@
       "predicted": "undecidable"
     },
     {
-      "id": "SEN-002",
-      "family": "sensitive-priv",
-      "difficulty": "hard",
-      "expected": "sensitive",
-      "predicted": "undecidable"
-    },
-    {
       "id": "SEN-005",
       "family": "sensitive-priv",
       "difficulty": "hard",
@@ -156,13 +149,6 @@
       "family": "sensitive-priv",
       "difficulty": "medium",
       "expected": "sensitive",
-      "predicted": "undecidable"
-    },
-    {
-      "id": "WRT-009",
-      "family": "write-durable",
-      "difficulty": "hard",
-      "expected": "write",
       "predicted": "undecidable"
     },
     {
