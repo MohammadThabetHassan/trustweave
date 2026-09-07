@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -105,6 +106,10 @@ def test_every_cast_preserves_its_captured_runner_output_exactly() -> None:
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
+                # The demo must run under this interpreter. Under mutation testing the
+                # modules in scope import mutmut's trampoline, which only the interpreter
+                # running the suite has.
+                env={**os.environ, "PYTHON": sys.executable},
             )
             cast_lines = (
                 (DEMO_DIR / "cases" / f"{case_id}.cast")

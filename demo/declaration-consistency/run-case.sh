@@ -11,6 +11,13 @@ fi
 case_id="$1"
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 export PYTHONPATH="$root/src${PYTHONPATH:+:$PYTHONPATH}"
+
+# Run under the interpreter that invoked this script, not whatever `python3` happens to
+# resolve to. The printed lines below still say `python3`, because that is what a reader
+# types; the calls use this. Without it the mutation sandbox cannot collect stats: mutmut
+# rewrites the modules in its scope to import its own trampoline, and a bare `python3` on a
+# machine where the project lives in a virtualenv is a different interpreter without it.
+python_bin="${PYTHON:-python3}"
 output_dir="$root/demo/declaration-consistency/artifacts/$case_id"
 
 rm -rf "$output_dir"
@@ -21,15 +28,15 @@ printf 'Case: %s\n' "$case_id"
 printf 'Boundary: supplied local static labels only; no framework execution.\n\n'
 
 printf '$ python3 scripts/run_declaration_completeness_benchmark.py --case %s --check\n' "$case_id"
-python3 "$root/scripts/run_declaration_completeness_benchmark.py" --case "$case_id" --check
+"$python_bin" "$root/scripts/run_declaration_completeness_benchmark.py" --case "$case_id" --check
 printf '\n'
 
 printf '$ python3 scripts/verify_declaration_completeness_provenance.py\n'
-python3 "$root/scripts/verify_declaration_completeness_provenance.py"
+"$python_bin" "$root/scripts/verify_declaration_completeness_provenance.py"
 printf '\n'
 
 printf '$ python3 scripts/run_declaration_completeness_benchmark.py --case %s --verify --output-dir demo/declaration-consistency/artifacts/%s\n' "$case_id" "$case_id"
-python3 "$root/scripts/run_declaration_completeness_benchmark.py" \
+"$python_bin" "$root/scripts/run_declaration_completeness_benchmark.py" \
   --case "$case_id" \
   --verify \
   --output-dir "$output_dir"
