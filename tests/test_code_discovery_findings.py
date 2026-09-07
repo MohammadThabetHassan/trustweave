@@ -83,6 +83,7 @@ def test_a_refusal_reports_which_reasons_caused_it() -> None:
 
     assert finding["severity"] == "review"
     assert finding["properties"]["reasons"] == ["DYNAMIC_DISPATCH", "NONLITERAL_ARGUMENT"]
+    assert finding["subject"] == {"tool": "probe", "file": "tools/probe.py"}
     assert finding["location"] == {"file": "tools/probe.py", "line": "12"}
 
 
@@ -218,7 +219,10 @@ def test_a_refusal_message_spells_out_each_reason_in_words() -> None:
 
     assert "the implementation selects behaviour dynamically" in message
     assert "only naming evidence was present, with no observed behaviour" in message
-    assert "; " in message, "several reasons are joined into one sentence"
+    assert message.endswith(
+        "the implementation selects behaviour dynamically; "
+        "only naming evidence was present, with no observed behaviour."
+    ), "the reasons are joined by exactly '; ' into one sentence"
 
 
 def test_an_unmapped_reason_falls_back_to_its_code_rather_than_vanishing() -> None:
@@ -230,3 +234,82 @@ def test_an_unmapped_reason_falls_back_to_its_code_rather_than_vanishing() -> No
 
     assert "SOME_NEW_REASON" in finding["message"]
     assert finding["properties"]["reasons"] == ["SOME_NEW_REASON"]
+
+
+# ---------------------------------------------------------------------------------------
+# A declared class contradicted by the observed effects
+# ---------------------------------------------------------------------------------------
+
+
+def _manifest_declaring(name: str, action_class: str):
+    from trustweave.models import parse_manifest
+
+    return parse_manifest(
+        {
+            "schema_version": "trustweave.dev/v1alpha1",
+            "name": "agent",
+            "description": "An agent used to exercise a declared-versus-observed mismatch.",
+            "sources": [
+                {
+                    "name": "inbox",
+                    "trust": "untrusted",
+                    "data_classification": "internal",
+                    "description": "A declared ingress point for the mismatch fixture.",
+                }
+            ],
+            "tools": [
+                {
+                    "name": name,
+                    "action_class": action_class,
+                    "capabilities": ["knowledge-base.read"],
+                    "description": f"Declared {action_class} for the mismatch fixture.",
+                }
+            ],
+            "flows": [
+                {
+                    "source": "inbox",
+                    "tool": name,
+                    "purpose": "A declared path reaching the tool under test.",
+                }
+            ],
+        }
+    )
+
+
+def _egress_tool(name: str = "probe") -> DiscoveredTool:
+    return _tool(
+        name,
+        signals=[EffectSignal("external", "requests.get", "tools/probe.py", 14, (name,))],
+    )
+
+
+def test_a_declared_class_contradicted_by_the_code_reports_both_classes() -> None:
+    """The two class names are the whole point of the finding."""
+
+    findings = _findings([_egress_tool()], [], _empty_drift(), _manifest_declaring("probe", "read"))
+
+    finding = _by_id(findings, "TW-CODE-002")
+
+    assert finding["severity"] == "review"
+    assert finding["subject"] == {"tool": "probe", "file": "tools/probe.py"}
+    assert finding["location"] == {"file": "tools/probe.py", "line": "12"}
+    assert finding["properties"] == {"declared": "read", "proposed": "external"}
+    assert "read" in finding["message"] and "external" in finding["message"]
+
+
+def test_a_declaration_matching_the_code_reports_nothing() -> None:
+    findings = _findings(
+        [_egress_tool()], [], _empty_drift(), _manifest_declaring("probe", "external")
+    )
+
+    assert findings == []
+
+
+def test_an_unknown_proposal_does_not_contradict_a_declaration() -> None:
+    """Refusing to classify is not evidence that the declaration is wrong."""
+
+    tool = _tool("probe", reasons={"DYNAMIC_DISPATCH"})
+
+    findings = _findings([tool], [], _empty_drift(), _manifest_declaring("probe", "read"))
+
+    assert [finding["id"] for finding in findings] == ["TW-CODE-005"]

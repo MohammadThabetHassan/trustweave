@@ -175,3 +175,28 @@ def test_the_draft_name_and_description_are_placeholders_a_reviewer_must_replace
     assert draft["description"] == "REVIEW_REQUIRED: describe this agent before using this draft."
     assert draft["sources"][0]["name"] == "REVIEW_REQUIRED_source"
     assert draft["sources"][0]["data_classification"] == "REVIEW_REQUIRED"
+
+
+def test_a_name_below_the_similarity_cutoff_is_not_offered_as_a_rename() -> None:
+    """`send_report` scores 0.78 against `send_reciept`: similar, but under the 0.8 cutoff.
+
+    Dropping the cutoff would fall back to difflib's default of 0.6 and start suggesting
+    renames between tools that merely share a prefix, which turns a hint into noise.
+    """
+
+    drift = _drift([_tool("send_report")], _manifest("send_reciept"))
+
+    assert drift["probable_renames"] == []
+    assert drift["declared_not_found_in_code"] == ["send_reciept"]
+    assert drift["missing_from_manifest"] == ["send_report"]
+
+
+def test_the_closest_of_several_candidates_is_the_one_offered() -> None:
+    """Three names clear the cutoff; the suggestion must be the best, not merely the first."""
+
+    drift = _drift(
+        [_tool("send_receipt_v2"), _tool("send_receipts"), _tool("send_receipt")],
+        _manifest("send_reciept"),
+    )
+
+    assert drift["probable_renames"] == [{"declared": "send_reciept", "discovered": "send_receipt"}]

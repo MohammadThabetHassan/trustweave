@@ -135,6 +135,7 @@ def test_a_line_number_is_emitted_as_a_string() -> None:
     assert tool["location"]["line"].isdigit()
     for signal in tool["signals"]:
         assert isinstance(signal["line"], str)
+        assert signal["line"].isdigit(), "a signal line must be a number, not str(None)"
 
 
 def test_declared_membership_appears_only_when_a_manifest_was_supplied() -> None:
