@@ -250,6 +250,56 @@ makes the blindness contrast **larger** -- 5 blind at median 0.200 -- which sugg
 published flag dilutes the signal by counting a policy covered when only one of its rules
 is.
 
+### The one predictive result does not come from the policies the theory covers
+
+The contrast above is the study's only evidence that the measure tracks fault detection:
+blind Kyverno policies kill a mean 0.4534 of their mutants against 0.6024 for covered ones,
+a difference of 0.149 at p = 0.043 one-sided. The exactness results the measure descends
+from hold only inside the fragment of
+[DECISION_CLASS_COVERAGE.md](DECISION_CLASS_COVERAGE.md), and section 4b there can now say
+which policies those are. So the contrast can be stratified, and it should be, because a
+pooled figure that mixes the policies a theory covers with the ones it does not is not
+evidence about the theory.
+
+`scripts/fragment_stratified_test.py` does it with the same statistic
+`scripts/kyverno_mutation.py` uses -- a difference in group means under a one-sided
+permutation of the labels -- so the pooled row reproduces the published number exactly
+rather than reporting a differently-computed one beside it. All 49 scored policies carry a
+verdict.
+
+| Stratum | Policies | Blind | Covered | Difference | p (one-sided) |
+|---|---:|---:|---:|---:|---:|
+| All | 49 | 9 at 0.4534 | 40 at 0.6024 | +0.1490 | **0.043** |
+| Inside the fragment | 41 | 4 at 0.5119 | 37 at 0.5779 | +0.0660 | 0.272 |
+| Outside the fragment | 8 | 5 at 0.4067 | 3 at 0.9047 | +0.4981 | **0.018** (exact) |
+
+**The association is confined to the eight policies outside the fragment.** Inside it,
+where the criterion is exact and the theory applies, there is no detectable association:
+the difference is 0.066 at p = 0.272, over 41 policies, which is the larger arm. Outside,
+the difference is 0.498 and clears 0.05 on an exact test over all 56 splits.
+
+Two readings are wrong and worth ruling out. This is **not** a refutation of Corollary 4.
+That corollary requires witnessing every *cell* of the policy-relative quotient, and the
+flag being stratified here records only whether a suite witnessed more than one of the three
+Kyverno *decisions*. A policy's quotient has one cell per combination of its guards, which
+is far more than three, so full decision coverage is a weak proxy for cell coverage and
+Corollary 4 predicts nothing about it. What is measured here is the proxy, and the proxy is
+what a practitioner would actually run.
+
+Nor is it strong evidence that the proxy works outside the fragment. Eight policies is a
+small stratum and it is not a random one: all eight are image or registry policies, the
+group whose guards read a registry, and image-policy suites being weak is a plausible
+alternative explanation for their low scores that has nothing to do with blindness.
+
+What survives is a caveat on the study's own claim, and it is the honest consequence of
+being able to ask the question. The p = 0.043 is a fact about a corpus that is 84% inside
+the fragment, and the effect within that 84% is not distinguishable from zero. It should
+therefore not be presented as evidence that the criterion tracks fault detection where the
+criterion is exact. Taken with the threshold analysis below -- decision coverage on Kyverno
+validate flags 95% of subjects and carries 0.268 bits -- the two point the same way: inside
+the fragment the cheap proxy is nearly saturated, and a saturated verdict cannot correlate
+with anything.
+
 ## Which threshold to set
 
 Every result above uses one threshold: witnessing all `|D|` decisions. That choice is
@@ -396,12 +446,16 @@ membership -- which of these XACML policies lie inside the decidable fragment of
 measured by:
 
 ```bash
-python scripts/xacml_fragment_membership.py <corpus> \
-    --json docs/xacml-fragment-membership-v1.json
+python scripts/fragment_membership.py xacml   <corpus> --only-measured docs/suite-coverage-xacml-v1.json
+python scripts/fragment_membership.py cedar   <corpus> --only-measured docs/suite-coverage-cedar-v1.json
+python scripts/fragment_membership.py kyverno <corpus> --only-measured docs/kyverno-mutation-v1.json
+python scripts/fragment_stratified_test.py --json docs/fragment-stratified-test-v1.json
 ```
 
-`tests/test_xacml_fragment_membership.py` works on transcribed documents and the committed
-artifact, so it runs in CI without the corpus or a network.
+The stratified test needs no corpus, only the committed artifacts.
+`tests/test_fragment_membership.py` works on transcribed policies and those artifacts, so
+it runs in CI without a corpus or a network, and it pins the pooled figure so the strata
+stay comparable with the published claim.
 
 Corpora are pinned to exact commits in the `corpus` block of each artifact:
 `docs/suite-coverage-{rego,kyverno,cedar}-v1.json`. The Rego corpus is Rego v0 and OPA 1.x

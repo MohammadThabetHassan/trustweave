@@ -63,6 +63,13 @@ All notable changes to TrustWeave are documented in this file. The project follo
   `_environ_class`. It was found by the mutation gate's coverage accounting rather than by
   a failing test: eighteen of its mutants were reported as having no covering test at all,
   which is what an uncalled function looks like.
+- Corrected the reading of the study's one predictive result. The blind-against-covered
+  contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
+  outside the decidable fragment; inside it, over the larger arm of 41 policies, the
+  difference is 0.066 at p = 0.272. The pooled figure is therefore not evidence that the
+  criterion tracks fault detection where the criterion is exact, and the study now says so.
+  This does not touch Corollary 4, which requires cell coverage rather than the
+  decision-coverage proxy being stratified.
 
 ### Changed
 
@@ -76,6 +83,10 @@ All notable changes to TrustWeave are documented in this file. The project follo
   run before pushing, which is what the previous arrangement made impossible.
 - The mutation scope covers sixteen modules; `code_sources.py` and `code_discovery.py`, the
   intake and artifact production behind `trustweave discover`, are gated with the rest.
+- `scripts/fragment_membership.py` measures which published policies lie inside the
+  decidable fragment, one adapter per ecosystem: 15 of 21 XACML policies, 41 of 49 Kyverno
+  policies, and 22 of 22 Cedar policies, with nothing left undetermined in any of the
+  three. It replaces the XACML-only `scripts/xacml_fragment_membership.py`.
 
 ### Release status
 
