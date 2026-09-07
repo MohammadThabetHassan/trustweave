@@ -85,6 +85,22 @@ _CODE_EXECUTION_SYMBOLS: Final[frozenset[str]] = frozenset({"eval", "exec"})
 LANGCHAIN_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
     {"langchain_core.tools.tool", "langchain.tools.tool", "langchain.agents.tool"}
 )
+# The OpenAI Agents SDK registers a plain function as a tool. It is a major framework and
+# was recognised by nothing here, so a review of an agent built on it reported no tools at
+# all -- not a refusal, an empty surface, which is the most fail-open answer available.
+OPENAI_AGENTS_DECORATORS: Final[frozenset[str]] = frozenset(
+    {
+        "agents.function_tool",
+        "agents.tool.function_tool",
+        "openai.agents.function_tool",
+    }
+)
+# CrewAI registers tools both ways. Neither was named here, so its decorator fell into the
+# generic `@<server>.tool()` bucket, which the record describes as "FastMCP and similar"
+# and treats as a lower-confidence guess, and its class-based tools were not found at all.
+CREWAI_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
+    {"crewai.tools.tool", "crewai_tools.tool", "crewai.tools.base_tool.tool"}
+)
 # Semantic Kernel registers a plugin method with a decorator carrying the exposed name.
 SEMANTIC_KERNEL_DECORATORS: Final[frozenset[str]] = frozenset(
     {
@@ -96,14 +112,20 @@ SEMANTIC_KERNEL_DECORATORS: Final[frozenset[str]] = frozenset(
 )
 # LangChain's class-based tools. The exposed name is a class attribute and the behaviour is
 # in `_run` or `_arun`, so neither the decorator nor the factory path discovers them.
-BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(
-    {
-        "langchain_core.tools.BaseTool",
-        "langchain_core.tools.base.BaseTool",
-        "langchain.tools.BaseTool",
-        "langchain.tools.base.BaseTool",
-    }
-)
+# The project each base belongs to, so the reported framework names the library a reviewer
+# would search for. It is spelled out rather than derived from the module path, because
+# `langchain_core.tools.BaseTool` and `langchain.tools.BaseTool` are the same framework and
+# splitting on the first dot would have renamed the published `langchain_base_tool_subclass`.
+BASE_TOOL_FRAMEWORKS: Final[dict[str, str]] = {
+    "langchain_core.tools.BaseTool": "langchain",
+    "langchain_core.tools.base.BaseTool": "langchain",
+    "langchain.tools.BaseTool": "langchain",
+    "langchain.tools.base.BaseTool": "langchain",
+    "crewai.tools.BaseTool": "crewai",
+    "crewai.tools.base_tool.BaseTool": "crewai",
+    "crewai_tools.BaseTool": "crewai",
+}
+BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(BASE_TOOL_FRAMEWORKS)
 BASE_TOOL_BODY_METHODS: Final[tuple[str, ...]] = ("_run", "run", "_arun", "arun")
 # A low-level MCP server declares the names it exposes in its `list_tools` handler and
 # implements all of them in one `call_tool` handler, so the model sees names that appear
@@ -1491,15 +1513,23 @@ def _decorator_names(
     return resolved
 
 
+# Keywords a framework uses to override the name the model is shown. `name` is the common
+# spelling; the OpenAI Agents SDK calls it `name_override`, and reading only the first
+# reported the Python function's name for a tool exposed under a different one, which is a
+# drift finding about nothing.
+TOOL_NAME_KEYWORDS: Final[tuple[str, ...]] = ("name", "name_override", "tool_name")
+
+
 def _tool_name_from_decorator(decorator: ast.AST, fallback: str) -> str:
     if isinstance(decorator, ast.Call):
         positional = _constant_str(decorator.args[0]) if decorator.args else None
         if positional:
             return positional
-        keyword = _keyword(decorator, "name")
-        named = _constant_str(keyword) if keyword is not None else None
-        if named:
-            return named
+        for spelling in TOOL_NAME_KEYWORDS:
+            keyword = _keyword(decorator, spelling)
+            named = _constant_str(keyword) if keyword is not None else None
+            if named:
+                return named
     return fallback
 
 
@@ -1510,6 +1540,10 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
             framework: str | None = None
             if qualified in LANGCHAIN_TOOL_DECORATORS:
                 framework = "langchain_tool_decorator"
+            elif qualified in OPENAI_AGENTS_DECORATORS:
+                framework = "openai_agents_decorator"
+            elif qualified in CREWAI_TOOL_DECORATORS:
+                framework = "crewai_tool_decorator"
             elif qualified in SEMANTIC_KERNEL_DECORATORS:
                 framework = "semantic_kernel_decorator"
             elif qualified and qualified.endswith(".tool"):
@@ -1567,8 +1601,20 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
     for node in module.tree.body:
         if not isinstance(node, ast.ClassDef):
             continue
-        if not any(_resolve(_dotted(base), module) in BASE_TOOL_CLASSES for base in node.bases):
+        resolved_base = next(
+            (
+                base
+                for base in (_resolve(_dotted(base), module) for base in node.bases)
+                if base in BASE_TOOL_CLASSES
+            ),
+            None,
+        )
+        if resolved_base is None:
             continue
+        # The framework is read from the base the class actually derives from. Reporting
+        # every subclass as LangChain's named the wrong project for a CrewAI tool, in the
+        # field a reviewer uses to find the registration.
+        framework = f"{BASE_TOOL_FRAMEWORKS[resolved_base]}_base_tool_subclass"
         methods = {
             child.name: child
             for child in node.body
@@ -1578,7 +1624,7 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
         discovered.append(
             DiscoveredTool(
                 _class_attribute_string(node, "name") or node.name,
-                "langchain_base_tool_subclass",
+                framework,
                 module.path,
                 body.lineno if body is not None else node.lineno,
                 implementation=node.name,

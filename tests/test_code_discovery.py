@@ -1119,21 +1119,32 @@ def test_every_refusal_reason_the_document_lists_exists_in_the_analyzer() -> Non
 
 
 def test_every_registration_form_the_document_lists_is_produced_by_the_analyzer() -> None:
-    """The table is the boundary of what discovery sees, so it must match the code."""
+    """The table is the boundary of what discovery sees, so it must match the code.
+
+    The class-based label is computed from the base a class derives from, so it is derived
+    here too rather than matched as a string literal in the source. Reading literals meant
+    the guard broke when a label stopped being one, which says nothing about whether the
+    form is still recognised.
+    """
 
     import re
+
+    from trustweave.code_analysis import BASE_TOOL_FRAMEWORKS
 
     source = (ROOT / "src" / "trustweave" / "code_analysis.py").read_text(encoding="utf-8")
     frameworks = set(re.findall(r'framework = "([a-z_]+)"', source))
     frameworks |= set(re.findall(r'"(structured_tool_factory|bound_plain_function)"', source))
-    frameworks |= set(re.findall(r'"(langchain_base_tool_subclass)"', source))
+    frameworks |= {f"{project}_base_tool_subclass" for project in BASE_TOOL_FRAMEWORKS.values()}
 
     assert {
         "langchain_tool_decorator",
+        "openai_agents_decorator",
+        "crewai_tool_decorator",
         "semantic_kernel_decorator",
         "server_tool_decorator",
         "structured_tool_factory",
         "langchain_base_tool_subclass",
+        "crewai_base_tool_subclass",
         "bound_plain_function",
     } <= frameworks
 

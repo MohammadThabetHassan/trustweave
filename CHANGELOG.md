@@ -115,6 +115,23 @@ All notable changes to TrustWeave are documented in this file. The project follo
   from 72 cases to 75, the answer rate on decidable cases from 0.860 to 1.000, and
   precision when answering from 0.918 to 0.9833. Accuracy on labels the two annotators
   agree about is 1.000; the single remaining failure is the one case where they disagree.
+- Two whole registration forms were unrecognised, found by running discovery over agent
+  repositories with no connection to this project rather than over the benchmark. The
+  OpenAI Agents SDK's `@function_tool` was recognised by nothing, so 328 tools in one
+  repository were absent from the artifact rather than refused. CrewAI's `BaseTool`
+  subclasses were not recognised either and its decorator fell into the generic
+  `@<server>.tool()` bucket, so a repository reporting 75 tools -- every one of them `read`
+  at high confidence -- actually exposes 207, of which 16 are sensitive and 11 external.
+- `name_override=`, the OpenAI Agents SDK's spelling, is read as the registered name.
+  Reporting the Python function's name for a tool the model is shown under another is a
+  drift finding about nothing.
+- The framework recorded for a class-based tool names the project its base came from, so a
+  CrewAI tool is no longer reported as a LangChain one. The published
+  `langchain_base_tool_subclass` label is unchanged.
+- `scripts/wild_discovery_survey.py` records what discovery finds in third-party code, at
+  pinned commits: 639 tools across four repositories under six registration forms. It
+  measures coverage rather than correctness, which is the failure a self-authored benchmark
+  cannot report.
 - Corrected the reading of the study's one predictive result. The blind-against-covered
   contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
   outside the decidable fragment; inside it, over the larger arm of 41 policies, the

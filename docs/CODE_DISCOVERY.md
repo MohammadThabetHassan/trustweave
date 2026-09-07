@@ -103,11 +103,12 @@ see: a form that is missing is not reported as a gap, it is simply absent from t
 
 | Form | Example | Name taken from |
 |---|---|---|
-| Decorator | `@tool` on a function | the decorator's `name=`, else the function |
+| Decorator | `@tool` on a function, LangChain or CrewAI | the decorator's `name=`, else the function |
+| Agent SDK decorator | `@function_tool` from the OpenAI Agents SDK | the decorator's `name_override=`, else the function |
 | Plugin method | `@kernel_function(name="probe")` on a method | the decorator's `name=` |
 | Server decorator | `@server.tool()`, `@server.call_tool()` | the decorator's `name=`, else the function |
 | Factory | `StructuredTool.from_function(func=..., name=...)` | the `name=` argument |
-| Class-based tool | a `BaseTool` subclass with `_run` or `_arun` | the `name` class attribute, else the class |
+| Class-based tool | a `BaseTool` subclass with `_run` or `_arun`, LangChain or CrewAI | the `name` class attribute, else the class |
 | Bound list | a function passed in `tools=[...]` to an agent constructor | the function |
 
 Two names can differ. A factory registers `object_summary` while the code that runs is
@@ -115,6 +116,49 @@ Two names can differ. A factory registers `object_summary` while the code that r
 in `FetchTool._run`. The artifact records the registered name as `name` and the implementing
 symbol as `implementation` whenever they differ, and the rendered report prints both -- the
 first is what the model sees, the second is what a reviewer has to open.
+
+## What it finds in code nobody here wrote
+
+The classification benchmark measures precision on 75 cases this project wrote and
+annotated. It is the right instrument for that and the wrong one for coverage: a
+registration form its authors did not know about produces no case and no gap, and the tools
+are simply absent from the artifact. Nothing in a self-authored benchmark can report that.
+
+`scripts/wild_discovery_survey.py` runs the published `discover` command over agent
+repositories with no connection to this project, at the commits recorded in
+[`wild-discovery-survey-v1.json`](wild-discovery-survey-v1.json). It cannot say whether a
+verdict is right, because the code is unlabelled. It says whether the surface was seen.
+
+| Corpus | Tools | Registration forms |
+|---|---:|---|
+| `modelcontextprotocol/servers` | 15 | declared MCP tool |
+| `openai/openai-agents-python` examples | 79 | server decorator |
+| `openai/openai-agents-python` tests | 338 | agent SDK decorator, server decorator |
+| `crewAIInc/crewAI` | 207 | CrewAI class tool, CrewAI decorator, bound function |
+| **Total** | **639** | six forms |
+
+**It found two gaps immediately, and they were the largest in the analyzer.**
+
+The OpenAI Agents SDK registers a tool with `@function_tool`. That was recognised by
+nothing, so **328 tools were invisible** -- not refused, absent. For a tool whose purpose is
+reporting the surface an agent exposes, an empty surface is the most fail-open answer
+available, and no benchmark case could have caught it because nobody here had written that
+form down.
+
+CrewAI registers tools two ways and neither was named. Its `BaseTool` subclasses were not
+found at all, and its decorator fell into the generic `@<server>.tool()` bucket that this
+document describes as a lower-confidence guess about FastMCP. The repository reported **75
+tools, every one of them `read` at high confidence**. It exposes 207, of which 16 are
+sensitive and 11 external. A uniform verdict over a large surface is worth being suspicious
+of, and that is what prompted looking.
+
+Both are fixed and pinned by `tests/test_wild_discovery_survey.py`, which asserts the forms
+against transcribed sources so it runs without the corpora or a network.
+
+Two limits. The survey reports coverage, not correctness: 639 unlabelled tools cannot say
+whether a class is right, only that a tool was seen. And four repositories chosen by one
+person are not a sample of the ecosystem, so the next form missing from this list is as
+invisible as `@function_tool` was.
 
 ## Why a tool is left unknown
 
