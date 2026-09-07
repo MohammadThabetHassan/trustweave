@@ -131,6 +131,13 @@ WRITE_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
 )
 
 PATH_RECEIVERS: Final[frozenset[str]] = frozenset({"pathlib.Path", "pathlib.PurePath"})
+# Constructors that hand back a credential store. Every method reached through one reads
+# or writes secrets, so the class travels from the constructor exactly as it does for a
+# network client. `keyring.get_keyring()` then `backend.get_password(...)` is the form the
+# library's own documentation uses.
+SENSITIVE_RECEIVERS: Final[frozenset[str]] = frozenset(
+    {"keyring.get_keyring", "keyring.backend.get_keyring", "hvac.Client"}
+)
 
 # Leading SQL keyword decides the class of an otherwise identical execute() call.
 SQL_WRITE_TOKENS: Final[frozenset[str]] = frozenset(
@@ -161,6 +168,10 @@ DB_EXECUTE_METHODS: Final[frozenset[str]] = frozenset({"execute", "executemany",
 
 SENSITIVE_SYMBOLS: Final[frozenset[str]] = frozenset(
     {
+        # keyring.get_password and keyring.set_password are already below. These are the
+        # other two ways the same store is reached directly.
+        "keyring.get_credential",
+        "keyring.delete_password",
         "os.execl",
         "os.execle",
         "os.execlp",

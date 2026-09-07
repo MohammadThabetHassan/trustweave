@@ -538,3 +538,65 @@ def test_an_ordinary_subscript_is_not_an_environment_read(tmp_path: Path, expres
 
     assert tool.proposed_action_class() == "read"
     assert tool.reasons == set()
+
+
+# ---------------------------------------------------------------------------------------
+# The credential store travels from its constructor, like a network client
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("receiver", sorted(catalog.SENSITIVE_RECEIVERS))
+def test_a_credential_store_receiver_makes_its_methods_sensitive(
+    tmp_path: Path, receiver: str
+) -> None:
+    source = (
+        f"{TOOL_IMPORT}\n"
+        f"import {_module_of(receiver)}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(user: str) -> str:\n"
+        '    """Probe a credential store."""\n'
+        f"    backend = {receiver}()\n"
+        "    return backend.get_password('corp-sso', user)\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, f"{receiver}.get_password").action_class == "sensitive"
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_credential_store_stored_on_self_is_sensitive(tmp_path: Path) -> None:
+    source = _class_source(
+        "keyring.get_keyring()",
+        "        return self.handle.get_password('corp-sso', value)\n",
+        preamble="import keyring",
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+@pytest.mark.parametrize(
+    "symbol",
+    ["keyring.get_password", "keyring.get_credential", "keyring.delete_password"],
+)
+def test_a_direct_credential_store_call_is_sensitive(tmp_path: Path, symbol: str) -> None:
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import keyring\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(user: str) -> str:\n"
+        '    """Probe a direct credential call."""\n'
+        f"    return {symbol}('corp-sso', user)\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_the_credential_store_catalogue_is_disjoint_from_the_network_one() -> None:
+    """A receiver must yield one class, so the two tables must not overlap."""
+
+    assert not (catalog.SENSITIVE_RECEIVERS & catalog.EXTERNAL_RECEIVERS)
+    assert not (catalog.SENSITIVE_RECEIVERS & catalog.PATH_RECEIVERS)

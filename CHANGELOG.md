@@ -86,10 +86,21 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - A tool whose body only raises `NotImplementedError` is refused as `BODY_UNAVAILABLE`
   rather than classified. Its real routine is bound elsewhere, so having no effect in this
   file is not evidence of having none.
-- Benchmark accuracy rises from 0.813 to 0.880 and precision when answering from 0.923 to
-  0.981, with `read`, `write` and `external` precision at 1.000 and `undecidable` recall at
-  1.000. Every remaining benchmark failure is now a refusal or an over-report; none
-  under-reports an effect.
+- A credential store reached through its backend was not recognised.
+  `keyring.get_password(...)` was catalogued but `keyring.get_keyring()` followed by
+  `backend.get_password(...)`, which is the form the library documents, was not. A
+  credential store is now a receiver in the same way a network client is, so the class
+  travels from the constructor through a local, an attribute chain, or an attribute stored
+  on `self`.
+- A file mode bound to a local was refused as though the caller supplied it. `mode = "w"`
+  then `open(path, mode)` now resolves, and so does a conditional whose arms are both
+  literals, since `"a" if event else "a+"` can only ever be an append. Where the arms
+  disagree, or the name is rebound, or the value comes from a parameter, the refusal
+  stands.
+- Benchmark accuracy rises from 0.806 to 0.907 over the session and precision when
+  answering from 0.918 to 0.9815, on a benchmark that grew from 72 cases to 75. `read`,
+  `write` and `external` precision are 1.000 and `undecidable` recall is 1.000. Every
+  remaining failure is a refusal or an over-report; none under-reports an effect.
 - Corrected the reading of the study's one predictive result. The blind-against-covered
   contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
   outside the decidable fragment; inside it, over the larger arm of 41 policies, the

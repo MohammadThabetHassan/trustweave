@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from trustweave import code_catalog as catalog
 from trustweave.code_analysis import (
     MAX_REACHABLE_FUNCTIONS_PER_TOOL,
     analyze_sources,
@@ -313,3 +314,79 @@ def test_a_name_bound_twice_to_the_same_receiver_still_resolves(tmp_path: Path) 
 
     assert _symbols(tool) == ["requests.Session.post"]
     assert tool.proposed_action_class() == "external"
+
+
+# ---------------------------------------------------------------------------------------
+# A mode bound to a local is still a literal
+# ---------------------------------------------------------------------------------------
+
+
+def _mode_source(binding: str) -> str:
+    return (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(path: str, event: str) -> str:\n"
+        '    """Probe a bound mode."""\n'
+        f"{binding}"
+        "    open('/var/lib/agent/notes.txt', mode).write(event)\n"
+        "    return path\n"
+    )
+
+
+@pytest.mark.parametrize("flag", ["w", "a", "x", "r+"])
+def test_a_writing_mode_bound_to_a_local_is_still_a_write(tmp_path: Path, flag: str) -> None:
+    """Refusing here treated an ordinary local as though the value came from outside."""
+
+    tool = _single_tool(tmp_path, _mode_source(f"    mode = {flag!r}\n"))
+
+    assert tool.proposed_action_class() == "write"
+    assert tool.reasons == set()
+
+
+def test_a_reading_mode_bound_to_a_local_is_still_a_read(tmp_path: Path) -> None:
+    tool = _single_tool(tmp_path, _mode_source("    mode = 'r'\n"))
+
+    assert tool.proposed_action_class() == "read"
+
+
+def test_a_conditional_mode_whose_arms_agree_is_decided(tmp_path: Path) -> None:
+    """`"a" if event else "a+"` can only ever be an append, so the class is the same."""
+
+    tool = _single_tool(tmp_path, _mode_source("    mode = 'a' if event else 'a+'\n"))
+
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_conditional_mode_whose_arms_disagree_is_refused(tmp_path: Path) -> None:
+    """One path reads and the other writes, so answering either way would be a guess."""
+
+    tool = _single_tool(tmp_path, _mode_source("    mode = 'r' if event else 'w'\n"))
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert "NONLITERAL_ARGUMENT" in tool.reasons
+
+
+def test_a_mode_rebound_to_a_different_literal_is_refused(tmp_path: Path) -> None:
+    """Which assignment wins depends on the path taken, so neither is claimed."""
+
+    tool = _single_tool(tmp_path, _mode_source("    mode = 'r'\n    mode = 'w'\n"))
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+
+
+def test_a_mode_taken_from_a_parameter_is_still_refused(tmp_path: Path) -> None:
+    """The caller decides it, so both readings stay open."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(path: str, mode: str) -> str:\n"
+        '    """Probe a caller-supplied mode."""\n'
+        "    return open('/var/lib/agent/notes.txt', mode).read()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert "NONLITERAL_ARGUMENT" in tool.reasons

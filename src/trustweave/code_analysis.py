@@ -39,6 +39,7 @@ from trustweave.code_catalog import (
     READ_SYMBOLS,
     RESULT_CONSTRUCTORS,
     SECRET_ENV_TOKENS,
+    SENSITIVE_RECEIVERS,
     SENSITIVE_SYMBOLS,
     SQL_READ_TOKENS,
     SQL_WRITE_TOKENS,
@@ -710,7 +711,11 @@ def _scope_origins(
                 return origins[value.id][0]
             return None
         qualified = _resolve(_dotted(value.func), module)
-        if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+        if (
+            qualified in EXTERNAL_RECEIVERS
+            or qualified in PATH_RECEIVERS
+            or qualified in SENSITIVE_RECEIVERS
+        ):
             return qualified
         # `Path.home()` and `Path.cwd()` return the receiver they are called on.
         if isinstance(value.func, ast.Attribute):
@@ -779,7 +784,51 @@ def _sql_class(call: ast.Call) -> str | None:
     return None
 
 
-def _open_class(call: ast.Call) -> tuple[str | None, str | None]:
+def _literal_strings(node: ast.AST | None, literals: dict[str, ast.expr] | None) -> set[str] | None:
+    """Every string the expression can evaluate to, or None when that is not decidable.
+
+    A mode assigned to a local before the call is still a literal, and returning None for
+    it refused an ordinary `mode = "w"` as though the value came from outside. A
+    conditional is decidable too when both arms are: `"a" if event else "a+"` can only ever
+    be one of two append modes, so the class is the same either way. The caller refuses
+    when the arms disagree, which keeps the one case that genuinely cannot be read.
+    """
+
+    if isinstance(node, ast.Constant):
+        return {node.value} if isinstance(node.value, str) else None
+    if isinstance(node, ast.Name) and literals and node.id in literals:
+        return _literal_strings(literals[node.id], literals)
+    if isinstance(node, ast.IfExp):
+        taken = _literal_strings(node.body, literals)
+        otherwise = _literal_strings(node.orelse, literals)
+        return taken | otherwise if taken and otherwise else None
+    return None
+
+
+def _local_literals(scope: ast.AST) -> dict[str, ast.expr]:
+    """Locals bound once to an expression whose value is decidable from the source."""
+
+    found: dict[str, ast.expr] = {}
+    rebound: set[str] = set()
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name):
+            continue
+        if not isinstance(node.value, ast.Constant | ast.IfExp):
+            continue
+        if target.id in found:
+            rebound.add(target.id)
+        found[target.id] = node.value
+    for name in rebound:
+        found.pop(name, None)
+    return found
+
+
+def _open_class(
+    call: ast.Call, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None]:
     """Return (action_class, refusal_reason) for a builtin ``open`` call.
 
     A read of a credential path is sensitive rather than a plain read, which is the rule
@@ -793,10 +842,15 @@ def _open_class(call: ast.Call) -> tuple[str | None, str | None]:
     mode_node = call.args[1] if len(call.args) > 1 else _keyword(call, "mode")
     if mode_node is None:
         return ("sensitive" if _is_credential_path(call) else "read"), None
-    mode = _constant_str(mode_node)
-    if mode is None:
+    modes = _literal_strings(mode_node, literals)
+    if not modes:
         return None, "NONLITERAL_ARGUMENT"
-    if any(flag in mode for flag in "wax+"):
+    classes = {"write" if any(flag in mode for flag in "wax+") else "read" for mode in modes}
+    if len(classes) != 1:
+        # The arms disagree, so the same call is a read on one path and a write on the
+        # other. Answering either way would be a guess.
+        return None, "NONLITERAL_ARGUMENT"
+    if classes == {"write"}:
         return "write", None
     return ("sensitive" if _is_credential_path(call) else "read"), None
 
@@ -941,6 +995,8 @@ def _classify_call(
                     return action, f"{origin}.{method}", None
             if origin in EXTERNAL_RECEIVERS:
                 return "external", f"{origin}.{method}", None
+            if origin in SENSITIVE_RECEIVERS:
+                return "sensitive", f"{origin}.{method}", None
         # Otherwise a method on an expression result. Only evidence if the chain roots at
         # a name this module resolves; a call on a parameter or literal is not.
         if root is not None and (root in module.bindings or root in origins):
@@ -956,6 +1012,8 @@ def _classify_call(
         method = call.func.attr
         if receiver in EXTERNAL_RECEIVERS:
             return "external", f"{receiver}.{method}", None
+        if receiver in SENSITIVE_RECEIVERS:
+            return "sensitive", f"{receiver}.{method}", None
         if receiver in PATH_RECEIVERS:
             if method in WRITE_RECEIVER_METHODS:
                 return "write", f"{receiver}.{method}", None
@@ -972,6 +1030,8 @@ def _classify_call(
         method = call.func.attr if isinstance(call.func, ast.Attribute) else ""
         if origin in EXTERNAL_RECEIVERS:
             return "external", f"{origin}.{method}", None
+        if origin in SENSITIVE_RECEIVERS:
+            return "sensitive", f"{origin}.{method}", None
         if origin in PATH_RECEIVERS:
             if method in WRITE_RECEIVER_METHODS:
                 return "write", f"{origin}.{method}", None
@@ -1000,7 +1060,7 @@ def _classify_call(
         return None, None, "DYNAMIC_DISPATCH"
 
     if spelled == "open" and "open" not in module.bindings:
-        open_action, open_reason = _open_class(call)
+        open_action, open_reason = _open_class(call, literals)
         return open_action, "open", open_reason
 
     is_process_launch = qualified.startswith("subprocess.") or qualified in {
@@ -1057,7 +1117,11 @@ def _classify_call(
         # A recognised execute whose query is not a literal cannot be classified.
         return None, None, "NONLITERAL_ARGUMENT"
 
-    if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+    if (
+        qualified in EXTERNAL_RECEIVERS
+        or qualified in PATH_RECEIVERS
+        or qualified in SENSITIVE_RECEIVERS
+    ):
         # Constructing a recognised receiver is not itself an effect; its methods are.
         return None, None, None
 
@@ -1197,6 +1261,8 @@ def _collect_signals(
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
     aliases = _symbol_aliases(function, module)
+    # Constants the caller supplied, plus constants bound in this function's own body.
+    literals = {**_local_literals(function), **(literals or {})}
     opaque = _third_party_parameters(function, module)
     instances = _local_instances(function, module)
     shadowed = _local_names(function)
