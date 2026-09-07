@@ -155,10 +155,15 @@ class DiscoveredTool:
         """Return the highest-precedence observed class, or ``unknown`` if refused."""
 
         observed = {signal.action_class for signal in self.signals}
-        highest = next(
-            (candidate for candidate in ACTION_CLASS_PRECEDENCE if candidate in observed),
-            "read",
-        )
+        placed = [candidate for candidate in ACTION_CLASS_PRECEDENCE if candidate in observed]
+        if observed and not placed:
+            # Every signal carries a class the precedence order does not contain, so the
+            # analyzer produced evidence it cannot interpret. Falling through to "read"
+            # here reported the most benign class available on the strength of evidence
+            # that says nothing, which is the one direction this must not fail in. A tool
+            # with no signals at all is a different case and still reads as "read" below.
+            return UNKNOWN_ACTION_CLASS
+        highest = placed[0] if placed else "read"
         # Nothing outranks the top of the precedence order. Once a credential read or an
         # arbitrary process launch has actually been observed, no unresolved call elsewhere
         # in the tool can make the answer worse, so refusing would discard a finding rather
@@ -985,6 +990,54 @@ def _lexical_pii_tokens(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set
     return found
 
 
+def _would_descend(
+    node: ast.Call,
+    module: _Module,
+    instances: dict[str, str],
+    owner: str | None,
+    visited: set[str],
+) -> bool:
+    """Whether the traversal would follow this call if the depth budget allowed.
+
+    The three conditions mirror the three descent branches in `_collect_signals`, and only
+    the existence of a target: the branches below resolve it again because they need the
+    function object. Keeping them in step is what
+    `test_a_call_followed_below_the_depth_limit_is_flagged_at_it` checks, by taking one
+    call and showing it is followed at one depth and reported at the next.
+    """
+
+    if (
+        isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id in instances
+    ):
+        owning = instances[node.func.value.id]
+        return f"{owning}.{node.func.attr}" not in visited and any(
+            candidate.name == node.func.attr
+            and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owning
+            for candidate in module.methods
+        )
+    if (
+        owner is not None
+        and isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id in _INSTANCE_RECEIVERS
+    ):
+        return f"{owner}.{node.func.attr}" not in visited and any(
+            candidate.name == node.func.attr
+            and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owner
+            for candidate in module.methods
+        )
+    spelled = _dotted(node.func)
+    return bool(
+        spelled
+        and "." not in spelled
+        and spelled not in module.bindings
+        and spelled in module.functions
+        and spelled not in visited
+    )
+
+
 def _collect_signals(
     tool: DiscoveredTool,
     function: ast.FunctionDef | ast.AsyncFunctionDef,
@@ -1047,6 +1100,14 @@ def _collect_signals(
             tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
             continue
         if depth >= MAX_CALL_DEPTH:
+            # The traversal stops here. If there was something to follow, say so: a tool
+            # whose only effect sits one frame past the limit was reported as a local read
+            # at high confidence, with budget_state "complete" and no reason recorded, so
+            # an outbound call four frames down published as no effect at all. The breadth
+            # limit above has always reported itself; this is the same admission for depth.
+            if _would_descend(node, module, instances, owner, visited):
+                tool.reasons.add("CALL_DEPTH_EXHAUSTED")
+                tool.budget_state = "exhausted"
             continue
         # A call on an instance of a class this module defines is one hop, like a helper.
         if (

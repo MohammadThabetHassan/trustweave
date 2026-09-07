@@ -408,3 +408,61 @@ def test_each_action_class_maps_to_exactly_one_capability() -> None:
         "read": "storage.read",
     }
     assert set(catalog.CAPABILITY_BY_ACTION_CLASS) == set(catalog.ACTION_CLASS_PRECEDENCE)
+
+
+# ---------------------------------------------------------------------------------------
+# An action class the precedence order does not contain is a refusal, not a read
+# ---------------------------------------------------------------------------------------
+
+
+def _tool_with(classes: tuple[str, ...]):
+    """A tool carrying signals with the given action classes and nothing else."""
+
+    from trustweave.code_analysis import DiscoveredTool, EffectSignal
+
+    return DiscoveredTool(
+        name="probe",
+        framework="test",
+        file="agent.py",
+        line=1,
+        signals=[
+            EffectSignal(action_class, "sym", "agent.py", 2, ("probe",)) for action_class in classes
+        ],
+    )
+
+
+def test_a_tool_with_no_signal_at_all_is_a_read() -> None:
+    """Nothing observed is the ordinary case and must stay answerable."""
+
+    tool = _tool_with(())
+
+    assert tool.proposed_action_class() == "read"
+    assert tool.confidence() == "high"
+
+
+def test_a_class_the_precedence_order_does_not_contain_is_refused() -> None:
+    """Reporting the most benign class on evidence that cannot be read is fail-open.
+
+    Signals are built from the catalogue, so this state means the analyzer produced
+    something it cannot interpret. Answering `read` there was the one direction a security
+    review must not fail in, and it also made every corruption of an action-class literal
+    invisible to the suite.
+    """
+
+    tool = _tool_with(("READ",))
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert tool.confidence() == "review"
+
+
+def test_an_uninterpretable_class_does_not_suppress_a_real_one() -> None:
+    """Real evidence is still evidence; the refusal is only for having none that parses."""
+
+    tool = _tool_with(("XXreadXX", "external"))
+
+    assert tool.proposed_action_class() == "external"
+
+
+@pytest.mark.parametrize("action_class", catalog.ACTION_CLASS_PRECEDENCE)
+def test_each_recognised_class_is_still_answered(action_class: str) -> None:
+    assert _tool_with((action_class,)).proposed_action_class() == action_class

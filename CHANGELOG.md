@@ -63,6 +63,16 @@ All notable changes to TrustWeave are documented in this file. The project follo
   `_environ_class`. It was found by the mutation gate's coverage accounting rather than by
   a failing test: eighteen of its mutants were reported as having no covering test at all,
   which is what an uncalled function looks like.
+- An action class the precedence order does not contain was reported as `read`, the most
+  benign class, instead of being refused. Signals are built from the catalogue, so that
+  state means the analyzer produced evidence it cannot interpret, and answering benignly
+  there is the one direction a security review must not fail in. A tool with no signals at
+  all is a different case and still reads as `read`.
+- An effect one frame past the call-depth budget was reported as a local read at high
+  confidence, with `budget_state` still `complete` and no reason recorded, so an outbound
+  call four frames down published as no effect at all. The breadth budget had always
+  reported itself; the depth budget now does the same, and such a tool is refused rather
+  than answered.
 - Corrected the reading of the study's one predictive result. The blind-against-covered
   contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
   outside the decidable fragment; inside it, over the larger arm of 41 policies, the
