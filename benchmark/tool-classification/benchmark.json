@@ -448,6 +448,18 @@
       "annotators_agree": true
     },
     {
+      "id": "RDB-013",
+      "family": "read-local",
+      "module": "cases/rdb_013.py",
+      "tool_name": "read_release_notes",
+      "ground_truth": "read",
+      "expected_behaviour": "classify",
+      "difficulty": "easy",
+      "rationale": "The control for SEN-013 and SEN-014. An identical builtin `open` read of a path that is not a credential must stay read, so the credential rule is shown to discriminate on the path rather than to promote every open call.",
+      "second_annotator_label": "read",
+      "annotators_agree": true
+    },
+    {
       "id": "SEN-001",
       "family": "sensitive-priv",
       "module": "cases/sen_001.py",
@@ -588,6 +600,30 @@
       "expected_behaviour": "classify",
       "difficulty": "medium",
       "rationale": "Precedence probe in the other direction. The obvious effect is `write_text` to a spool file, which is write, and the name advertises exactly that. But the record embeds a DSN built by `_connection_string`, which reads DB_PASSWORD from the environment, so a secret is read (and persisted in plaintext). Sensitive outranks write. Note the DSN host is a string only; no connection is opened, so it is not external.",
+      "second_annotator_label": "sensitive",
+      "annotators_agree": true
+    },
+    {
+      "id": "SEN-013",
+      "family": "sensitive-secret",
+      "module": "cases/sen_013.py",
+      "tool_name": "load_deploy_profile",
+      "ground_truth": "sensitive",
+      "expected_behaviour": "classify",
+      "difficulty": "easy",
+      "rationale": "Reads an SSH private key through the builtin `open`, which is the common spelling of the operation. The name advertises a profile lookup and the only effect is a local read, so a mode-only reading of `open` calls it read; the path is what makes it a secret. Added after mutation testing showed the builtin-open path ignored the credential-path table that every other read in the analyzer consults, and no case here combined the two.",
+      "second_annotator_label": "sensitive",
+      "annotators_agree": true
+    },
+    {
+      "id": "SEN-014",
+      "family": "sensitive-secret",
+      "module": "cases/sen_014.py",
+      "tool_name": "describe_certificate",
+      "ground_truth": "sensitive",
+      "expected_behaviour": "classify",
+      "difficulty": "medium",
+      "rationale": "Reads a TLS private key, and does so without a `with` block so the call is a plain assignment rather than a context manager. Tests the credential-suffix table rather than a path token, and that the shape of the open call does not change the class.",
       "second_annotator_label": "sensitive",
       "annotators_agree": true
     },

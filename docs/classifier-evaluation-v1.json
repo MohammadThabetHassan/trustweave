@@ -1,20 +1,20 @@
 {
   "schema_version": "trustweave.dev/classification-evaluation/v1alpha1",
-  "cases": 72,
+  "cases": 75,
   "overall": {
-    "accuracy": 0.8056,
-    "accuracy_on_agreed_labels_only": 0.803,
-    "answer_rate_on_decidable": 0.8596,
-    "precision_when_answering": 0.9184,
-    "refusal_rate": 0.2917,
+    "accuracy": 0.8133,
+    "accuracy_on_agreed_labels_only": 0.8116,
+    "answer_rate_on_decidable": 0.8667,
+    "precision_when_answering": 0.9231,
+    "refusal_rate": 0.28,
     "not_discovered": 0
   },
   "per_class": {
     "read": {
-      "support": 15,
-      "precision": 0.7647,
-      "recall": 0.8667,
-      "f1": 0.8125
+      "support": 16,
+      "precision": 0.7778,
+      "recall": 0.875,
+      "f1": 0.8235
     },
     "write": {
       "support": 14,
@@ -23,10 +23,10 @@
       "f1": 0.8462
     },
     "sensitive": {
-      "support": 12,
-      "precision": 0.8889,
-      "recall": 0.6667,
-      "f1": 0.7619
+      "support": 14,
+      "precision": 0.9091,
+      "recall": 0.7143,
+      "f1": 0.8
     },
     "external": {
       "support": 16,
@@ -42,8 +42,8 @@
     }
   },
   "by_difficulty": {
-    "easy": 0.8889,
-    "medium": 0.9032,
+    "easy": 0.9091,
+    "medium": 0.9062,
     "hard": 0.6875
   },
   "by_framework": {
@@ -56,8 +56,8 @@
       "accuracy": 0.5
     },
     "langchain_tool_decorator": {
-      "cases": 18,
-      "accuracy": 0.7778
+      "cases": 21,
+      "accuracy": 0.8095
     },
     "mcp_call_tool": {
       "cases": 9,
@@ -87,7 +87,7 @@
   },
   "confusion": {
     "read": {
-      "read": 13,
+      "read": 14,
       "undecidable": 2
     },
     "write": {
@@ -97,7 +97,7 @@
     },
     "sensitive": {
       "write": 1,
-      "sensitive": 8,
+      "sensitive": 10,
       "undecidable": 3
     },
     "external": {

@@ -693,15 +693,25 @@ def _sql_class(call: ast.Call) -> str | None:
 
 
 def _open_class(call: ast.Call) -> tuple[str | None, str | None]:
-    """Return (action_class, refusal_reason) for a builtin ``open`` call."""
+    """Return (action_class, refusal_reason) for a builtin ``open`` call.
+
+    A read of a credential path is sensitive rather than a plain read, which is the rule
+    every other read in this module already applies. Without it the two spellings of the
+    same operation disagreed: ``Path("~/.ssh/id_rsa").read_text()`` was sensitive while
+    ``open("~/.ssh/id_rsa")`` was a benign read at high confidence, and the second is the
+    more common idiom. Writes keep the write class whatever the path, matching the
+    treatment of the pathlib write methods.
+    """
 
     mode_node = call.args[1] if len(call.args) > 1 else _keyword(call, "mode")
     if mode_node is None:
-        return "read", None
+        return ("sensitive" if _is_credential_path(call) else "read"), None
     mode = _constant_str(mode_node)
     if mode is None:
         return None, "NONLITERAL_ARGUMENT"
-    return ("write" if any(flag in mode for flag in "wax+") else "read"), None
+    if any(flag in mode for flag in "wax+"):
+        return "write", None
+    return ("sensitive" if _is_credential_path(call) else "read"), None
 
 
 def _subprocess_class(call: ast.Call) -> str:
