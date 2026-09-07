@@ -1,0 +1,120 @@
+{
+  "corpora_surveyed": 4,
+  "corpus": {
+    "crewai": {
+      "commit": "1b855b4ff97d3fc8bf6dc0981fed5f0999a7cd81",
+      "path": "lib",
+      "remote": "https://github.com/crewAIInc/crewAI.git"
+    },
+    "modelcontextprotocol_servers": {
+      "commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+      "path": "src",
+      "remote": "https://github.com/modelcontextprotocol/servers.git"
+    },
+    "openai_agents_examples": {
+      "commit": "d3761b3e7b55b147610991bf736ce5ea0161cc82",
+      "path": "examples",
+      "remote": "https://github.com/openai/openai-agents-python.git"
+    },
+    "openai_agents_tests": {
+      "commit": "d3761b3e7b55b147610991bf736ce5ea0161cc82",
+      "path": "tests",
+      "remote": "https://github.com/openai/openai-agents-python.git"
+    }
+  },
+  "frameworks": {
+    "bound_plain_function": 3,
+    "crewai_base_tool_subclass": 133,
+    "crewai_tool_decorator": 71,
+    "mcp_declared_tool": 15,
+    "openai_agents_decorator": 328,
+    "server_tool_decorator": 89
+  },
+  "schema_version": "v1",
+  "surveys": [
+    {
+      "action_classes": {
+        "external": 11,
+        "read": 108,
+        "sensitive": 16,
+        "unknown": 72
+      },
+      "confidence": {
+        "high": 131,
+        "review": 76
+      },
+      "corpus": "crewai",
+      "frameworks": {
+        "bound_plain_function": 3,
+        "crewai_base_tool_subclass": 133,
+        "crewai_tool_decorator": 71
+      },
+      "refusal_reasons": {
+        "BODY_UNAVAILABLE": 6,
+        "BUDGET_EXHAUSTED": 1,
+        "DYNAMIC_DISPATCH": 4,
+        "NONLITERAL_ARGUMENT": 3,
+        "UNRESOLVED_CALLEE": 55
+      },
+      "tools": 207
+    },
+    {
+      "action_classes": {
+        "unknown": 15
+      },
+      "confidence": {
+        "review": 15
+      },
+      "corpus": "modelcontextprotocol_servers",
+      "frameworks": {
+        "mcp_declared_tool": 15
+      },
+      "refusal_reasons": {
+        "DYNAMIC_DISPATCH": 1,
+        "UNRESOLVED_CALLEE": 13
+      },
+      "tools": 15
+    },
+    {
+      "action_classes": {
+        "external": 1,
+        "read": 69,
+        "unknown": 9
+      },
+      "confidence": {
+        "high": 70,
+        "review": 9
+      },
+      "corpus": "openai_agents_examples",
+      "frameworks": {
+        "server_tool_decorator": 79
+      },
+      "refusal_reasons": {
+        "DYNAMIC_DISPATCH": 1,
+        "LEXICAL_ONLY": 1,
+        "UNRESOLVED_CALLEE": 3
+      },
+      "tools": 79
+    },
+    {
+      "action_classes": {
+        "read": 315,
+        "unknown": 23
+      },
+      "confidence": {
+        "high": 315,
+        "review": 23
+      },
+      "corpus": "openai_agents_tests",
+      "frameworks": {
+        "openai_agents_decorator": 328,
+        "server_tool_decorator": 10
+      },
+      "refusal_reasons": {
+        "UNRESOLVED_CALLEE": 13
+      },
+      "tools": 338
+    }
+  ],
+  "tools_discovered": 639
+}
