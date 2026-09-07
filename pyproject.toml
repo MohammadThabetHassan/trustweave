@@ -78,6 +78,8 @@ target-version = "py311"
 # Generated probe scripts in there are not project source and must not be linted.
 extend-exclude = [
   ".trustweave-dist-*",
+  # mutmut's mutated copy of the source tree. Linting it lints generated mutants.
+  "mutants",
   # Labelled benchmark inputs. Deliberately odd agent code, parsed and never
   # imported; linting it would be linting the test data.
   "benchmark/tool-classification/cases",

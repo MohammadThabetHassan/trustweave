@@ -6,6 +6,44 @@ Mutation testing is an additional diagnostic for TrustWeave's deterministic, hig
 
 The configured scope covers fourteen high-risk modules: deterministic engine and public models; predicates and policy review; chain construction and canonical findings; risk lifecycle, evidence attestations, configuration, schema catalog access, SARIF rendering, and CI coordination; plus the dedicated `bundle_policy.py` generated-null normalization and `policy_weakening.py` classifier that supply the corrective bundle/diff behavior. The scope remains narrower than the complete package; CLI parsing, report rendering, importers, and other adapters are not mutated by this diagnostic.
 
+## Why the discovery layer is not in the gate
+
+The gate covers fourteen modules and does not cover `code_analysis.py`,
+`code_discovery.py` or `code_sources.py`, which implement `trustweave discover`. That is a
+deliberate exclusion with a measured reason rather than an oversight, and the measurement
+is recorded here because "not gated" reads like "not examined" otherwise.
+
+Measured over the three modules together: **2,073 mutants, 1,474 killed, 581 survived — a
+71.7% kill rate**, against 96% line-and-branch coverage on the same code. The whole run
+takes 160 seconds at ~55 mutations/second, so **runtime is not the obstacle**. Reaching the
+95% gate would mean killing 478 more mutants.
+
+`code_sources.py` was taken as far as it goes, to find out where the ceiling actually is.
+Strengthening the assertions there — the refusal messages, which tuple a file lands in, the
+reason recorded against a skipped file, and the exact inclusive boundary of each limit —
+moved it from 90/129 to 114/129, **69.8% to 88.4%**. Those tests are kept regardless of the
+gate: they cover what the module *says*, and a change that swapped a reason code or moved a
+limit by one byte previously passed the suite.
+
+The remaining fifteen cannot be killed:
+
+| Count | Survivor | Why it cannot be killed |
+|---|---|---|
+| 8 | the `path_escapes_analyzed_root` branch | unreachable: the walk already skips symlinked files and prunes symlinked directories, so `os.walk` never yields a candidate whose resolved path escapes the resolved root |
+| 5 | `followlinks=None` / omitted / `True`, `encoding="UTF-8"` / `None` | equivalent: `None` is falsy, the parameter defaults to `False`, pruning removes symlinked directories whatever `followlinks` says, and both encodings name the same codec |
+| 2 | `InputOutputError` message on a stat or read failure | environment-specific paths already marked `# pragma: no cover` |
+
+So **88.4% is this module's ceiling**, and the eight unreachable mutants are a defence-in-depth
+check that cannot fire given the walk above it. Adding the module to a 95% gate would
+therefore fail permanently, and the only ways to pass would be to delete a security check or
+to contrive a test for a state the code cannot reach. Neither is worth a green tick.
+
+The honest position: the discovery layer has strong line coverage, a benchmark ratchet over
+72 labelled cases, and a 71.7% mutation kill rate that is measured rather than assumed. What
+it does not have is a mutation gate, and it should not have this one at this threshold. A
+per-module threshold, or a survivor-triage inventory like the one this document already
+records for the gated modules, is the route to covering it properly.
+
 ## Recorded run
 
 | Field | Evidence |

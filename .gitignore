@@ -25,3 +25,9 @@ venv/
 
 # Scratch wheel builds from scripts/verify_distribution_artifacts.py
 .trustweave-dist-*/
+
+# mutmut writes a mutated copy of the tree here and caches results beside it. Both are
+# generated dev-tool output: leaving them untracked and unlinted keeps a local mutation
+# run from dirtying the working tree, which the distribution check requires to be clean.
+/mutants/
+/.mutmut-cache
