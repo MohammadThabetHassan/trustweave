@@ -9,6 +9,8 @@ swapped a reason code, dropped a message, or moved a limit by one byte passed th
 
 from __future__ import annotations
 
+import codecs
+import os
 from pathlib import Path
 
 import pytest
@@ -20,7 +22,7 @@ from trustweave.code_sources import (
     SourceFile,
     collect_python_sources,
 )
-from trustweave.models import ValidationError
+from trustweave.models import InputOutputError, ValidationError
 
 
 def _write(directory: Path, name: str, body: str) -> Path:
@@ -57,10 +59,15 @@ def test_a_non_python_file_says_it_is_not_a_module(tmp_path: Path) -> None:
         collect_python_sources(target)
 
 
+@pytest.mark.skipif(
+    not hasattr(os, "mkfifo"),
+    reason=(
+        "A named pipe is the portable way to present a path that is neither a file nor a "
+        "directory; Windows has no mkfifo, so the refusal is verified on POSIX."
+    ),
+)
 def test_a_target_that_is_neither_file_nor_directory_is_named_as_such(tmp_path: Path) -> None:
     fifo = tmp_path / "pipe"
-    import os
-
     os.mkfifo(fifo)
 
     with pytest.raises(ValidationError, match="neither a file nor a directory"):
@@ -235,3 +242,107 @@ def test_exceeding_the_file_count_limit_names_the_count_and_the_limit(
 
     with pytest.raises(ValidationError, match="3 Python files, above the 2 file limit"):
         collect_python_sources(tmp_path)
+
+
+# ---------------------------------------------------------------------------------------
+# An unreadable file says which operation failed
+#
+# Both messages are output a user sees, so the policy in
+# docs/mutation-survivor-triage-v1.json forbids excusing a mutation of them as
+# equivalent. They are asserted here instead. The failures are injected rather than
+# provoked with file permissions so the tests are deterministic and run as any user,
+# including root, on every platform the compatibility jobs cover.
+# ---------------------------------------------------------------------------------------
+
+
+def _fail_for(target: Path, attribute: str, error: OSError) -> object:
+    """Return a Path method that raises *error* for *target* and delegates otherwise.
+
+    ``Path.lstat`` is ``stat(follow_symlinks=False)``, so a blanket ``stat`` failure also
+    breaks the symlink check in the directory walk and the error escapes from there
+    instead of from the intake. Only the following ``stat`` is failed.
+    """
+
+    original = getattr(Path, attribute)
+
+    def patched(self: Path, *args: object, **kwargs: object) -> object:
+        if self == target and kwargs.get("follow_symlinks", True):
+            raise error
+        return original(self, *args, **kwargs)
+
+    return patched
+
+
+def test_a_file_that_cannot_be_stated_names_the_operation_and_the_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = _write(tmp_path, "unstattable.py", "x = 1\n")
+    monkeypatch.setattr(
+        Path, "stat", _fail_for(module, "stat", OSError("stat is unavailable here"))
+    )
+
+    with pytest.raises(InputOutputError) as raised:
+        collect_python_sources(tmp_path)
+
+    assert "could not stat local source file" in str(raised.value)
+    assert str(module) in str(raised.value)
+
+
+def test_a_file_that_cannot_be_read_names_the_operation_and_the_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = _write(tmp_path, "unreadable.py", "x = 1\n")
+    monkeypatch.setattr(
+        Path, "read_text", _fail_for(module, "read_text", OSError("read is unavailable here"))
+    )
+
+    with pytest.raises(InputOutputError) as raised:
+        collect_python_sources(tmp_path)
+
+    assert "could not read local source file" in str(raised.value)
+    assert str(module) in str(raised.value)
+
+
+def test_an_unreadable_file_is_not_reported_as_merely_skipped(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A read failure must surface, not be folded into the skipped tuple as a reason."""
+
+    module = _write(tmp_path, "unreadable.py", "x = 1\n")
+    monkeypatch.setattr(
+        Path, "read_text", _fail_for(module, "read_text", OSError("read is unavailable here"))
+    )
+
+    with pytest.raises(InputOutputError):
+        collect_python_sources(tmp_path)
+
+
+def test_source_files_are_read_as_utf8_regardless_of_the_platform_locale(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Dropping the explicit encoding would decode sources with the platform locale.
+
+    On a POSIX or ASCII locale that turns a valid UTF-8 module into a file recorded as
+    ``file_is_not_utf8``, so the encoding is asserted rather than left to the machine the
+    review happens to run on. The check normalizes through the codec registry, because
+    ``UTF-8`` and ``utf-8`` name one codec and only the fallback to ``None`` is a
+    behavioural change.
+    """
+
+    _write(tmp_path, "accented.py", '# rôle\nx = "café"\n')
+    requested: list[str | None] = []
+    original = Path.read_text
+
+    def recording(self: Path, *args: object, **kwargs: object) -> str:
+        if self.suffix == ".py":
+            requested.append(kwargs.get("encoding"))
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", recording)
+    collection = collect_python_sources(tmp_path)
+
+    assert [file.relative_path for file in collection.files] == ["accented.py"]
+    assert requested, "the intake did not read the module through Path.read_text"
+    for encoding in requested:
+        assert encoding is not None, "sources must not be decoded with the platform locale"
+        assert codecs.lookup(encoding).name == "utf-8"
