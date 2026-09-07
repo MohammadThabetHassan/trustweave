@@ -31,3 +31,8 @@ venv/
 # run from dirtying the working tree, which the distribution check requires to be clean.
 /mutants/
 /.mutmut-cache
+# The gate's own evidence, written by scripts/mutation_gate.py and uploaded by the
+# hosted job. Reproduced on demand, so it is never committed.
+/mutation-run.log
+/mutation-results.txt
+/mutation-quality.json
