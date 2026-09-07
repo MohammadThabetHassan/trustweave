@@ -390,6 +390,19 @@ python scripts/decision_trend_test.py --json docs/decision-trend-test-v1.json
 document quotes, including the zero-bit result and the unsupported trend, and asserts the
 committed artifact still equals a fresh computation.
 
+One analysis does need a corpus, because it reads policies rather than suites. Fragment
+membership -- which of these XACML policies lie inside the decidable fragment of
+[DECISION_CLASS_COVERAGE.md](DECISION_CLASS_COVERAGE.md), reported in section 4b there -- is
+measured by:
+
+```bash
+python scripts/xacml_fragment_membership.py <corpus> \
+    --json docs/xacml-fragment-membership-v1.json
+```
+
+`tests/test_xacml_fragment_membership.py` works on transcribed documents and the committed
+artifact, so it runs in CI without the corpus or a network.
+
 Corpora are pinned to exact commits in the `corpus` block of each artifact:
 `docs/suite-coverage-{rego,kyverno,cedar}-v1.json`. The Rego corpus is Rego v0 and OPA 1.x
 parses v1 by default, so the adapter retries with `--v0-compatible` rather than dropping the

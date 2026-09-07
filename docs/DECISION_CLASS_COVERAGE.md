@@ -176,14 +176,20 @@ finite tuple of guards `g_1..g_n` drawn from the language, the map
 subject realising it is constructible *from the guards' own syntax*. Call such a family
 **finitely refining**.
 
-**(ii) The decision is a function of the guard truth vector.** There is some
-`c : {0,1}^n -> D` with `[[P]](s) = c(g_1(s),...,g_n(s))`.
+**(ii) The decision is a function of the guard outcome vector.** Each guard reports one of
+a finite outcome set `V`, and there is some `c : V^n -> D` with
+`[[P]](s) = c(g_1(s),...,g_n(s))`.
+
+`V = {true, false}` for a first-match policy. It is not always two-valued: an XACML guard
+also reports *indeterminate* when a required attribute is absent, and that outcome is what
+produces the `Indeterminate` decision, so for XACML `V` has three values. Nothing in the
+argument depends on `|V|`, only on its being finite.
 
 **Theorem 1b (the results are combining-function independent).** Let `P = (<g_i>, c)` be any
 policy whose guards come from a finitely refining family and whose decision satisfies (ii),
-over any subject space, finite or infinite. Then `S/~P` is finite with at most `2^n` classes,
-`[[P]]` is constant on each class, a witness for each is computable, and Theorems 2 and 3 and
-Corollaries 4 and 5 hold verbatim with "cell" read as "achieved truth vector".
+over any subject space, finite or infinite. Then `S/~P` is finite with at most `|V|^n`
+classes, `[[P]]` is constant on each class, a witness for each is computable, and Theorems 2
+and 3 and Corollaries 4 and 5 hold verbatim with "cell" read as "achieved outcome vector".
 
 *Proof.* `~P` is the kernel of `s |-> (g_i(s))_i`, which is finite by (i); `[[P]] = c` composed
 with that map, so it is constant on each class by (ii). Every later argument consults only
@@ -192,7 +198,7 @@ and (ii) supply. No step uses the shape of `c`. []
 
 This matters because `c` is where the real languages differ, and they differ only in `c`:
 
-| Language | `c` on the guard truth vector | `D` |
+| Language | `c` on the guard outcome vector | `D` |
 |---|---|---|
 | TrustWeave | decision of the first true guard, else the default | 3 |
 | Cedar | `Deny` if any `forbid` guard holds; else `Allow` if any `permit` does; else `Deny` | 2 |
@@ -200,7 +206,8 @@ This matters because `c` is where the real languages differ, and they differ onl
 | XACML | the chosen combining algorithm -- deny-overrides, permit-overrides, first-applicable | 4 |
 | Rego (`violation`) | non-empty iff any `violation` guard holds | 2 |
 
-Every one of these is a function of the truth vector, so **(ii) is satisfied by all five**.
+Every one of these is a function of the outcome vector, so **(ii) is satisfied by all
+five**.
 `tests/test_combining_function_independence.py` checks this by construction rather than by
 assertion: it builds one guard family over an infinite subject space -- arbitrary strings,
 with set membership and a final-wildcard namespace pattern -- and verifies Theorem 1b,
@@ -225,13 +232,45 @@ rather than of the subject. A pattern taken from the input rather than the polic
 arbitrary builtin over a whole document. These are why Rego generally falls outside: its
 guards may call any builtin over `data` and `input`, and Theorem 6 below is the limit case.
 
-This is a characterisation, not a measurement. **No claim is made here about what share of
-published Cedar, Kyverno or XACML policies have finitely refining guards.** Establishing
-that needs each ecosystem's policies parsed and classified, which the corpora in
-[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) were not -- that study reads *test
-suites*, not policy semantics. What Theorem 1b does establish is that the obstacle is
-located in the guards alone: an ecosystem is not excluded by having two decisions instead of
-three, by combining rules instead of ordering them, or by being someone else's language.
+### How much of a real ecosystem is inside
+
+A characterisation with no measurement beside it invites the reader to assume the answer is
+"almost none". `scripts/xacml_fragment_membership.py` measures it on the XACML corpus of
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) -- the four-valued one, and so the
+interesting one -- at the commits that study pins. Results are in
+[`xacml-fragment-membership-v1.json`](xacml-fragment-membership-v1.json).
+
+| Verdict | Policies | Why |
+|---|---:|---|
+| **Inside** | **15** | every guard compares a designator against a literal the policy contains |
+| Outside | 6 | selects over request content with XPath |
+| Undetermined | 0 | -- |
+
+**15 of 21, and the six that are not are outside for one reason.** Not general expressions,
+not arithmetic, not the four-valued domain: an `AttributeSelector`, which makes the subject
+contain an arbitrary XML document instead of a tuple of labels, so no witness for the
+predicate is constructible from the policy text. Everything else these policies do --
+equality, case folding, bag membership, IP ranges, a regular-expression match against a
+pattern in the policy -- is finitely refining, and the allowlist records why for each.
+
+The test refuses rather than guesses, and that discipline earned its keep twice while it was
+being written. It first read only `FunctionId`, missing every `Target` match, which XACML
+names with `MatchId`; that reported a policy whose only guard is a `string-equal` target as
+naming no function at all. Fixing it then left nine policies undetermined on one function,
+`string-regexp-match`, which had to be judged rather than assumed -- it qualifies, because
+XACML's regexp is the XML Schema one with no backreferences, so the pattern denotes a
+regular language and a witness for either side of the split is constructible. The reported
+figure is 15 with **nothing undetermined**, so it is a verdict on the whole corpus rather
+than on the part the instrument happened to understand.
+
+Two limits. This is one corpus of 21 policies from two implementations' test suites, which
+is not a sample of deployed policy. And membership is a property of the guards, so a policy
+inside the fragment gets the exactness results for *its own* decision structure; it does not
+make XACML as a language decidable, which Theorem 6 rules out.
+
+**No equivalent measurement is claimed for Cedar, Kyverno or Rego.** Cedar and Kyverno need
+their policy languages parsed rather than their test suites read, and Rego is the case
+Theorem 6 describes: its guards may call any builtin over `data` and `input`.
 
 ## 5. Why this is not just mutation testing with extra steps
 

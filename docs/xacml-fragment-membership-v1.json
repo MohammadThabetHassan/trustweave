@@ -1,0 +1,222 @@
+{
+  "counts": {
+    "inside": 15,
+    "outside": 6,
+    "undetermined": 0
+  },
+  "ecosystem": "xacml",
+  "policies": [
+    {
+      "functions": [
+        "string-equal"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "advance/3/policy_0002",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "selects over request content with XPath",
+      "subject": "advance/3/policy_0003",
+      "verdict": "outside"
+    },
+    {
+      "functions": [
+        "and",
+        "string-equal",
+        "string-one-and-only"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "advance/3/policy_0004",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0001",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0002",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0003",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0004",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0005",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "boolean-equal",
+        "boolean-from-string",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0006",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "selects over request content with XPath",
+      "subject": "basic/3/policy_0007",
+      "verdict": "outside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "selects over request content with XPath",
+      "subject": "basic/3/policy_0008",
+      "verdict": "outside"
+    },
+    {
+      "functions": [
+        "string-equal",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "selects over request content with XPath",
+      "subject": "basic/3/policy_0009",
+      "verdict": "outside"
+    },
+    {
+      "functions": [
+        "string-is-in",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "selects over request content with XPath",
+      "subject": "basic/3/policy_0010",
+      "verdict": "outside"
+    },
+    {
+      "functions": [
+        "string-equal",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "selects over request content with XPath",
+      "subject": "basic/3/policy_0011",
+      "verdict": "outside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0014",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "string-equal-ignore-case",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0015",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "string-equal",
+        "string-normalize-to-lower-case",
+        "string-one-and-only",
+        "string-regexp-match"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0016",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "ip-in-range",
+        "ipAddress-one-and-only",
+        "string-equal"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0017",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "ip-in-range",
+        "ipAddress-one-and-only",
+        "string-equal"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0018",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0019",
+      "verdict": "inside"
+    },
+    {
+      "functions": [
+        "any-of",
+        "string-equal"
+      ],
+      "reason": "every guard compares a designator against a literal in the policy",
+      "subject": "basic/3/policy_0020",
+      "verdict": "inside"
+    }
+  ],
+  "policies_considered": 21,
+  "schema_version": "v1",
+  "share_inside": 0.7143
+}
