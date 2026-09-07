@@ -1285,3 +1285,166 @@ def test_a_server_with_no_declarations_still_reports_its_handler(tmp_path: Path)
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert [tool.name for tool in tools] == ["handle_call"]
+
+
+# ---------------------------------------------------------------------------------------
+# Shapes found by running discover against the official MCP reference servers
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_handler_registered_inside_a_factory_is_discovered(tmp_path: Path) -> None:
+    """Every official MCP reference server registers inside `async def serve()`.
+
+    Indexing only module-level functions and class methods found zero tools in all three.
+    """
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import shutil\n"
+        "import mcp.types as types\n"
+        "from mcp.server import Server\n\n\n"
+        "async def serve() -> None:\n"
+        "    server = Server('bridge')\n\n"
+        "    @server.list_tools()\n"
+        "    async def list_tools() -> list:\n"
+        "        return [types.Tool(name='mirror', description='d', inputSchema={})]\n\n"
+        "    @server.call_tool()\n"
+        "    async def call_tool(name: str, arguments: dict) -> list:\n"
+        "        shutil.copytree(arguments['a'], arguments['b'])\n"
+        "        return []\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.name for tool in tools] == ["mirror"]
+    assert tools[0].proposed_action_class() == "write"
+
+
+def test_a_nested_helper_does_not_satisfy_a_call_to_an_imported_name(tmp_path: Path) -> None:
+    """Nested functions are discoverable as tools but must stay out of name resolution."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "def outer() -> None:\n"
+        "    def get(url):\n"
+        "        return url\n\n"
+        "    return get\n\n\n"
+        "@tool\n"
+        "def fetch(url: str) -> str:\n"
+        '    """Fetch."""\n'
+        "    return get(url)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert not [s for s in tools[0].signals if s.action_class == "external"]
+
+
+def test_a_tool_named_through_a_string_enum_is_resolved(tmp_path: Path) -> None:
+    """`Tool(name=GitTools.STATUS)` is the idiomatic naming in the reference servers."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from enum import Enum\n"
+        "import mcp.types as types\n"
+        "from mcp.server import Server\n\n\n"
+        "class GitTools(str, Enum):\n"
+        "    STATUS = 'git_status'\n"
+        "    COMMIT = 'git_commit'\n\n\n"
+        "server = Server('git')\n\n\n"
+        "@server.list_tools()\n"
+        "async def list_tools() -> list:\n"
+        "    return [\n"
+        "        types.Tool(name=GitTools.STATUS, description='d', inputSchema={}),\n"
+        "        types.Tool(name=GitTools.COMMIT.value, description='d', inputSchema={}),\n"
+        "    ]\n\n\n"
+        "@server.call_tool()\n"
+        "async def call_tool(name: str, arguments: dict) -> list:\n"
+        "    return []\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert sorted(tool.name for tool in tools) == ["git_commit", "git_status"]
+
+
+def test_a_tool_named_by_something_unresolvable_falls_back_to_the_handler(
+    tmp_path: Path,
+) -> None:
+    """A name computed at runtime is not invented; the handler is reported instead."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import mcp.types as types\n"
+        "from mcp.server import Server\n\n\n"
+        "server = Server('dyn')\n\n\n"
+        "@server.list_tools()\n"
+        "async def list_tools(prefix: str = 'x') -> list:\n"
+        "    return [types.Tool(name=prefix + '_run', description='d', inputSchema={})]\n\n\n"
+        "@server.call_tool()\n"
+        "async def call_tool(name: str, arguments: dict) -> list:\n"
+        "    return []\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.name for tool in tools] == ["call_tool"]
+
+
+def test_a_method_on_a_third_party_annotated_parameter_is_refused(tmp_path: Path) -> None:
+    """`repo: git.Repo` then `repo.index.commit(...)` was classified read, with high confidence.
+
+    An operation that writes to a git repository, reported as harmless. The annotation is
+    the evidence that the receiver is state the caller supplied.
+    """
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import git\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def commit(repo: git.Repo, message: str) -> str:\n"
+        '    """Commit."""\n'
+        "    return str(repo.index.commit(message))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert "UNRESOLVED_CALLEE" in tools[0].reasons
+
+
+def test_a_builtin_annotated_parameter_stays_benign(tmp_path: Path) -> None:
+    """Otherwise every pure function that formats a string would be refused."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def widen(rows: str) -> str:\n"
+        '    """Widen rows."""\n'
+        "    return rows.strip().ljust(24)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "read"
+
+
+def test_an_unannotated_parameter_stays_benign(tmp_path: Path) -> None:
+    """Nothing declares it third-party state, so nothing is claimed about it."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def submit(mailbox, payload: str) -> str:\n"
+        '    """Submit."""\n'
+        "    mailbox.post(payload)\n"
+        "    return 'ok'\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "read"

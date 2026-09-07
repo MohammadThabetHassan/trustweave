@@ -206,6 +206,12 @@ class _Module:
     # Attributes bound directly to an imported symbol rather than to a constructed
     # receiver, keyed by the owning class then the attribute.
     self_symbols: dict[str, dict[str, str]] = field(default_factory=dict)
+    # Functions defined inside another function. Real servers register their handlers
+    # inside a factory -- `async def serve(): @server.call_tool() ...` is how every
+    # official MCP reference server is written -- so these must be discoverable as tools.
+    # They are deliberately kept out of `functions`, which is the bare-name resolution
+    # map: a nested helper must not satisfy a call to an imported name.
+    nested: list[ast.FunctionDef | ast.AsyncFunctionDef] = field(default_factory=list)
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -248,6 +254,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     self_origins: dict[str, dict[str, str]] = {}
     self_symbols: dict[str, dict[str, str]] = {}
     method_owner: dict[str, str] = {}
+    nested: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     for node in tree.body:
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
             functions.setdefault(node.name, node)
@@ -289,6 +296,21 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
             if aliased:
                 self_symbols[node.name] = aliased
 
+    # Anything defined inside a function body. Class methods are already collected above
+    # and module-level functions are in `functions`, so this is exactly the remainder.
+    top_level = {id(node) for node in tree.body}
+    owned = {id(method) for method in methods}
+    for outer in ast.walk(tree):
+        if not isinstance(outer, ast.FunctionDef | ast.AsyncFunctionDef):
+            continue
+        for inner in ast.walk(outer):
+            if inner is outer or not isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
+                continue
+            if id(inner) in top_level or id(inner) in owned:
+                continue
+            if not any(existing is inner for existing in nested):
+                nested.append(inner)
+
     indexed = _Module(
         path,
         tree,
@@ -296,6 +318,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
         functions,
         wildcard,
         methods=methods,
+        nested=nested,
         self_symbols=self_symbols,
         self_origins={
             owner: {attr: _resolve_raw(spelled, bindings) for attr, spelled in stored.items()}
@@ -465,6 +488,43 @@ def _path_segments(value: ast.expr) -> list[ast.expr]:
         for node in ast.walk(value)
         if isinstance(node, ast.Constant) and isinstance(node.value, str)
     ]
+
+
+def _third_party_parameters(
+    function: ast.FunctionDef | ast.AsyncFunctionDef, module: _Module
+) -> set[str]:
+    """Parameters annotated as a type from an imported non-standard-library package.
+
+    `def git_commit(repo: git.Repo, message: str)` then `repo.index.commit(message)` is a
+    call on an object the caller supplied, whose methods the catalog says nothing about.
+    Producing neither an effect nor a refusal there classified a tool that writes to a git
+    repository as a benign read, with high confidence -- the one direction this must not
+    fail in. The annotation is the evidence that the receiver is third-party state; an
+    unannotated parameter, or one annotated as a builtin, stays benign so an ordinary pure
+    function is still positively classified.
+    """
+
+    arguments = function.args
+    parameters = [
+        *arguments.posonlyargs,
+        *arguments.args,
+        *arguments.kwonlyargs,
+        *([arguments.vararg] if arguments.vararg else []),
+        *([arguments.kwarg] if arguments.kwarg else []),
+    ]
+    found: set[str] = set()
+    for parameter in parameters:
+        if parameter.annotation is None:
+            continue
+        qualified = _resolve(_dotted(parameter.annotation), module)
+        if not qualified or "." not in qualified:
+            continue
+        root = qualified.split(".", 1)[0]
+        if root in sys.stdlib_module_names:
+            continue
+        if root in {binding.split(".", 1)[0] for binding in module.bindings.values()}:
+            found.add(parameter.arg)
+    return found
 
 
 def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
@@ -722,6 +782,7 @@ def _classify_call(
     aliases: dict[str, str] | None = None,
     self_aliases: dict[str, str] | None = None,
     literals: dict[str, ast.expr] | None = None,
+    opaque: set[str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -798,6 +859,11 @@ def _classify_call(
                 return "write", f"{origin}.{method}", None
             if method in READ_RECEIVER_METHODS:
                 return "read", f"{origin}.{method}", None
+        return None, None, "UNRESOLVED_CALLEE"
+
+    # A method on a parameter the signature declares as third-party state. What it does is
+    # decided by the caller, so it is refused rather than reported as no effect.
+    if opaque and root in opaque and isinstance(call.func, ast.Attribute) and root not in origins:
         return None, None, "UNRESOLVED_CALLEE"
 
     qualified = _resolve(spelled, module)
@@ -928,6 +994,7 @@ def _collect_signals(
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
     aliases = _symbol_aliases(function, module)
+    opaque = _third_party_parameters(function, module)
     instances = _local_instances(function, module)
     shadowed = _local_names(function)
 
@@ -941,7 +1008,15 @@ def _collect_signals(
             # registration call.
             continue
         action, symbol, reason = _classify_call(
-            node, module, origins, dynamic, self_attributes, aliases, self_aliases, literals
+            node,
+            module,
+            origins,
+            dynamic,
+            self_attributes,
+            aliases,
+            self_aliases,
+            literals,
+            opaque,
         )
         if reason:
             tool.reasons.add(reason)
@@ -1068,7 +1143,7 @@ def _tool_name_from_decorator(decorator: ast.AST, fallback: str) -> str:
 
 def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
     discovered: list[DiscoveredTool] = []
-    for function in [*module.functions.values(), *module.methods]:
+    for function in [*module.functions.values(), *module.methods, *module.nested]:
         for qualified, decorator in _decorator_names(function, module):
             framework: str | None = None
             if qualified in LANGCHAIN_TOOL_DECORATORS:
@@ -1150,6 +1225,48 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
     return discovered
 
 
+ENUM_BASE_NAMES: Final[frozenset[str]] = frozenset({"Enum", "StrEnum", "IntEnum"})
+
+
+def _enum_string_members(tree: ast.Module) -> dict[str, str]:
+    """Module-level string enum members, so `GitTools.STATUS` resolves to `git_status`.
+
+    Naming tools with a `str, Enum` is the idiomatic pattern in the MCP reference servers.
+    Without resolving it the declared names are invisible and the artifact reports the
+    handler function instead of the names the model is actually offered.
+    """
+
+    members: dict[str, str] = {}
+    for node in tree.body:
+        if not isinstance(node, ast.ClassDef):
+            continue
+        bases = {(_dotted(base) or "").rsplit(".", 1)[-1] for base in node.bases}
+        if not bases & ENUM_BASE_NAMES:
+            continue
+        for child in node.body:
+            if not isinstance(child, ast.Assign) or len(child.targets) != 1:
+                continue
+            target = child.targets[0]
+            literal = _constant_str(child.value)
+            if isinstance(target, ast.Name) and literal is not None:
+                members[f"{node.name}.{target.id}"] = literal
+    return members
+
+
+def _declared_tool_name(keyword: ast.AST | None, members: dict[str, str]) -> str | None:
+    """The literal a `Tool(name=...)` argument denotes, directly or through an enum."""
+
+    literal = _constant_str(keyword) if keyword is not None else None
+    if literal is not None:
+        return literal
+    dotted = _dotted(keyword) if keyword is not None else None
+    if not dotted:
+        return None
+    if dotted.endswith(".value"):
+        dotted = dotted[: -len(".value")]
+    return members.get(dotted)
+
+
 def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
     """Tools an MCP server declares in `list_tools` and implements in `call_tool`.
 
@@ -1160,8 +1277,9 @@ def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
     """
 
     declared: list[str] = []
+    members = _enum_string_members(module.tree)
     handler: ast.FunctionDef | ast.AsyncFunctionDef | None = None
-    for function in [*module.functions.values(), *module.methods]:
+    for function in [*module.functions.values(), *module.methods, *module.nested]:
         for qualified, _decorator in _decorator_names(function, module):
             if qualified is None:
                 continue
@@ -1171,7 +1289,7 @@ def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
                         continue
                     if _resolve(_dotted(node.func), module) not in MCP_TOOL_DECLARATIONS:
                         continue
-                    name = _constant_str(_keyword(node, "name"))
+                    name = _declared_tool_name(_keyword(node, "name"), members)
                     if name:
                         declared.append(name)
             elif qualified.endswith(".call_tool"):
@@ -1311,7 +1429,7 @@ def analyze_sources(
                 function = next(
                     (
                         candidate
-                        for candidate in module.methods
+                        for candidate in [*module.methods, *module.nested]
                         if candidate.lineno == tool.line
                         or candidate.name == (tool.implementation or tool.name)
                         or candidate.name == tool.name
