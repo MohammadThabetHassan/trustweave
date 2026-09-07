@@ -68,6 +68,10 @@ _REASON_MESSAGES: Final[dict[str, str]] = {
     "BODY_UNAVAILABLE": "no implementation body could be located",
     "BUDGET_EXHAUSTED": "the analysis budget was exhausted before the body was covered",
     "LEXICAL_ONLY": "only naming evidence was present, with no observed behaviour",
+    "UNCATALOGUED_SYMBOL": (
+        "a call resolved to a symbol the catalog does not describe, so an unseen effect "
+        "could outrank what was observed"
+    ),
 }
 
 
@@ -206,7 +210,7 @@ def _findings(
                     location=location,
                 )
             )
-        refusals = sorted(tool.reasons - {"BODY_UNAVAILABLE", "BUDGET_EXHAUSTED"})
+        refusals = sorted(tool.refusal_reasons() - {"BODY_UNAVAILABLE", "BUDGET_EXHAUSTED"})
         if refusals:
             detail = "; ".join(_REASON_MESSAGES.get(reason, reason) for reason in refusals)
             findings.append(

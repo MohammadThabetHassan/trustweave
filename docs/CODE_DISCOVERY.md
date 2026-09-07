@@ -36,6 +36,7 @@ behind an attestation.
 | `BODY_UNAVAILABLE` | The tool was declared somewhere the implementation could not be located. |
 | `BUDGET_EXHAUSTED` | An analysis limit was reached before the reachable set was covered. |
 | `LEXICAL_ONLY` | Only naming evidence matched, with no observed behaviour. |
+| `UNCATALOGUED_SYMBOL` | A call resolved to a real symbol the catalog does not describe, so an unseen effect could outrank what was observed. |
 
 **It will not treat a name as behaviour.** A tool called `ssn_lookup` that only formats a
 string is not sensitive. Naming may push a tool to `unknown`; it never assigns a class.

@@ -181,6 +181,23 @@ class DiscoveredTool:
             return UNKNOWN_ACTION_CLASS
         return highest
 
+    def refusal_reasons(self) -> set[str]:
+        """Every reason the class was not proposed, or an empty set when it was.
+
+        `unrecognized_calls` can refuse on its own -- a call resolved to a real symbol the
+        catalogue does not describe, so an unseen effect could outrank what was observed --
+        and it was not part of `reasons`, so such a tool was published as `unknown` with no
+        explanation at all. docs/CODE_DISCOVERY.md promises that ambiguity produces a
+        reason, and this is what keeps that true.
+        """
+
+        if self.proposed_action_class() != UNKNOWN_ACTION_CLASS:
+            return set()
+        reasons = set(self.reasons)
+        if self.unrecognized_calls:
+            reasons.add("UNCATALOGUED_SYMBOL")
+        return reasons
+
     def confidence(self) -> str:
         if self.reasons:
             return "review"

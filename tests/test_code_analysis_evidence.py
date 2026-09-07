@@ -16,6 +16,7 @@ recognised fails rather than silently degrading a review to `unknown`.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -466,3 +467,31 @@ def test_an_uninterpretable_class_does_not_suppress_a_real_one() -> None:
 @pytest.mark.parametrize("action_class", catalog.ACTION_CLASS_PRECEDENCE)
 def test_each_recognised_class_is_still_answered(action_class: str) -> None:
     assert _tool_with((action_class,)).proposed_action_class() == action_class
+
+
+def test_every_refusal_carries_a_reason_across_the_whole_benchmark() -> None:
+    """docs/CODE_DISCOVERY.md promises ambiguity produces `unknown` *with a reason*.
+
+    `unrecognized_calls` could refuse on its own without appearing in `reasons`, so a tool
+    was published as unknown with nothing said about why, and the finding that explains a
+    refusal was not emitted at all.
+    """
+
+    from trustweave.code_discovery import _REASON_MESSAGES
+
+    root = Path(__file__).resolve().parents[1] / "benchmark" / "tool-classification"
+    cases = json.loads((root / "benchmark.json").read_text(encoding="utf-8"))["cases"]
+    unexplained: list[str] = []
+    for case in cases:
+        tools, _ = analyze_sources(collect_python_sources(root / case["module"]))
+        for tool in tools:
+            if tool.proposed_action_class() != catalog.UNKNOWN_ACTION_CLASS:
+                assert tool.refusal_reasons() == set(), f"{case['id']}/{tool.name}"
+                continue
+            reasons = tool.refusal_reasons()
+            if not reasons:
+                unexplained.append(f"{case['id']}/{tool.name}")
+            for reason in reasons:
+                assert reason in _REASON_MESSAGES, f"{case['id']}: {reason} has no message"
+
+    assert unexplained == [], f"unknown with no reason: {unexplained}"
