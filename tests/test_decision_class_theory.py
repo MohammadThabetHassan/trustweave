@@ -744,3 +744,82 @@ def test_the_quotient_bound_charges_only_for_components_a_guard_reads() -> None:
     over_charged = trust_domain * action_domain * (taxonomy_size + 1) * 2 * 2
     assert over_charged == 240
     assert over_charged == 20 * corrected
+
+
+def test_two_equivalent_widenings_turn_on_rule_order_not_on_the_default() -> None:
+    """The paper's explanation of the equivalence rate, checked rather than asserted.
+
+    Eleven of the sixteen equivalent mutants are equivalent because TW-003 and TW-004
+    decide what the default already decides. Two are not, and the first version of that
+    explanation missed them: they widen a rule onto the one cell that decides
+    `require_approval`, and survive only because TW-002 precedes them and first-match
+    prefers it. Separating the two mechanisms matters, because the second is a property of
+    first-match and does not carry to an arbitrary combining function.
+    """
+
+    document = _document()
+    default = document["default_decision"]
+    rules = [
+        (
+            rule["id"],
+            set(rule["source_trust"]),
+            set(rule["tool_action_classes"]),
+            rule["decision"],
+        )
+        for rule in document["rules"]
+    ]
+    trust_levels = sorted({level for _, levels, _, _ in rules for level in levels})
+    actions = sorted({action for _, _, classes, _ in rules for action in classes})
+    actions = sorted(set(actions) | {"write"})
+
+    def decide(trust: str, action: str) -> str:
+        for _, levels, classes, decision in rules:
+            if trust in levels and action in classes:
+                return decision
+        return default
+
+    base = {(t, a): decide(t, a) for t in trust_levels for a in actions}
+    assert sorted(cell for cell, value in base.items() if value != default) == [
+        ("conditional", "external"),
+        ("trusted", "read"),
+    ]
+
+    # Every widening of a default-deciding rule, and whether it newly reaches a cell whose
+    # decision differs from that rule's own.
+    turns_on_order = []
+    for identifier, levels, classes, decision in rules:
+        if decision != default:
+            continue
+        widenings = [[(t, a) for t in levels] for a in actions if a not in classes]
+        widenings += [[(t, a) for a in classes] for t in trust_levels if t not in levels]
+        for newly in widenings:
+            if any(base[cell] != decision for cell in newly):
+                turns_on_order.append(identifier)
+
+    assert sorted(turns_on_order) == ["TW-003", "TW-004"], turns_on_order
+    assert len(turns_on_order) == 2
+
+    # And both are equivalent anyway, because an earlier rule claims that cell.
+    claiming = next(
+        index
+        for index, (_, levels, classes, _) in enumerate(rules)
+        if "conditional" in levels and "external" in classes
+    )
+    for identifier in turns_on_order:
+        position = next(i for i, rule in enumerate(rules) if rule[0] == identifier)
+        assert claiming < position, (identifier, claiming, position)
+
+
+def test_the_rules_are_pairwise_disjoint_which_is_what_makes_swaps_equivalent() -> None:
+    """Under first-match, and only under first-match: an arbitrary combiner is not immune."""
+
+    rules = [
+        (rule["id"], set(rule["source_trust"]), set(rule["tool_action_classes"]))
+        for rule in _document()["rules"]
+    ]
+
+    for (left, left_trust, left_actions), (right, right_trust, right_actions) in (
+        (a, b) for i, a in enumerate(rules) for b in rules[i + 1 :]
+    ):
+        overlapping = (left_trust & right_trust) and (left_actions & right_actions)
+        assert not overlapping, f"{left} and {right} can both match a subject"
