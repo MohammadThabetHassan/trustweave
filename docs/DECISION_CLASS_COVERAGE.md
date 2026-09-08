@@ -416,10 +416,45 @@ Every verdict in the joined scope is unchanged by all of this, which is the chec
 matters: the widening added decisions where the instruments had refused, and moved none that
 they had already made.
 
-### AWS IAM, which is the only deployed corpus here
+### Policy written by people who do not ship the engine
 
-Every other corpus in the table is a vendor test or conformance directory, and that is the
-limitation the study reports and cannot argue away. AWS managed policies are neither: AWS
+Every corpus in the table is published by the vendor whose engine reads it, IAM included --
+AWS's managed library is deployed, but AWS wrote it. The objection that follows is that the
+fragment might cover only what vendors write, so the instrument was pointed at Kyverno
+policy in the repositories of unaffiliated organisations, with Kyverno's own organisations
+excluded: **49 policies from 31 repositories and 28 distinct owners, 37 inside, 12 outside,
+none undetermined**. Artifact:
+[kyverno third-party](fragment-membership-kyverno-thirdparty-v1.json); the corpus is pinned
+file by file in [third-party-kyverno-corpus-v1.json](third-party-kyverno-corpus-v1.json).
+
+Two things there are worth more than the 75.5%.
+
+**All 12 exclusions are `verifyImages`, and finding it needed somebody else's policy.** That
+block checks a signature or attestation against a registry and a transparency log, and binds
+the fetched attestation for its conditions to read -- data the admission request does not
+carry. The adapter did not recognise it, because the construct barely appears in the vendor's
+tested subset. Three third-party policies came back undetermined on attestation fields and
+one on `time_since`, and chasing those four produced two genuine additions: image
+verification as an external read, and the clock-reading `time_*` functions separated from the
+ones that are total on their arguments. Neither changed any vendor verdict, which is how it
+is known they were gaps rather than reinterpretations.
+
+**The third-party share is lower than the vendor's 87.2%.** That is the direction that makes
+the comparison worth having: policy written outside the vendor reaches for supply-chain
+verification that the vendor's own tested examples do not.
+
+It is a convenience sample and the artifact says so in a `how_collected` field. Code search
+surfaced it, code search is not stable, and 49 policies answer "does the fragment cover only
+what vendors write?" rather than "what share of deployed Kyverno policy is inside?".
+Reproducibility does not rest on the search: every file carries its repository, path, commit
+and a SHA-256 of the content measured, and
+[`measure_third_party_policies.py`](../scripts/measure_third_party_policies.py) refetches
+from those commits and refuses anything whose hash has moved.
+
+### AWS IAM, which is the only vendor-deployed corpus here
+
+The other vendor corpora in the table are test or conformance directories. AWS managed
+policies are neither: AWS
 publishes them, they are attached in accounts worldwide, and IAM is the most widely used
 access-control policy language there is. `scripts/fragment_membership_iam.py` measures
 **1,651 of 1,651 inside**.

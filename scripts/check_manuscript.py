@@ -302,6 +302,42 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
     ]
 
+    third_party = _load(docs, "fragment-membership-kyverno-thirdparty-v1")
+    tp_counts = third_party["counts"]
+    tp_reasons = Counter(
+        entry["reason"] for entry in third_party["policies"] if entry["verdict"] == "outside"
+    )
+    image_verification = sum(
+        count for reason, count in tp_reasons.items() if "verifies an image" in reason
+    )
+    claims += [
+        (
+            r"excluded: (\d+) policies from (\d+)\s*repositories and (\d+) distinct "
+            r"owners",
+            (
+                str(third_party["policies_considered"]),
+                str(third_party["repositories"]),
+                str(third_party["owners"]),
+            ),
+            "third-party: corpus size and breadth",
+        ),
+        (
+            r"(\d+) are inside, (\d+) outside, none\s*undetermined",
+            (str(tp_counts["inside"]), str(tp_counts["outside"])),
+            "third-party: verdicts",
+        ),
+        (
+            r"All (\d+) exclusions are the same\s*construct",
+            (str(image_verification),),
+            "third-party: exclusions are image verification",
+        ),
+        (
+            r"and (\d+) policies answer",
+            (str(third_party["policies_considered"]),),
+            "third-party: sample size restated in threats",
+        ),
+    ]
+
     witness = _load(docs, "witness-space-verification-v1")
     claims.append(
         (

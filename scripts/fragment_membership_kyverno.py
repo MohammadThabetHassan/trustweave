@@ -26,6 +26,20 @@ ECOSYSTEM = "kyverno"
 # Context sources that fetch data from outside the admission request.
 EXTERNAL_CONTEXT_SOURCES = ("apiCall", "configMap", "imageRegistry", "globalReference")
 
+# `verifyImages` checks signatures and attestations against a registry and a transparency
+# log, and binds the attestation payload for its conditions to read. The payload is not in
+# the admission request -- the request names an image, and the signature and predicate are
+# fetched -- so a guard over it has no witness constructible from the policy. This was
+# missed at first because the block does not look like a `context` entry, and it surfaced
+# on a corpus mined from third-party repositories, where three policies read attestation
+# fields the adapter could not place.
+IMAGE_VERIFICATION_BLOCK = re.compile(r"^\s*verifyImages:", re.MULTILINE)
+
+# JMESPath functions that read the clock rather than compute from their arguments.
+# Kyverno's other `time_*` functions -- `time_parse`, `time_add`, `time_diff`,
+# `time_truncate`, `time_utc` -- are total on what they are given and stay inside.
+CLOCK_FUNCTIONS = frozenset({"time_now", "time_now_utc", "time_since"})
+
 # Variable roots that resolve inside the admission request or the rule's own iteration.
 # `request` is the admission review, `element`/`elementIndex` are the foreach cursor over a
 # field of the request, and the rest are JMESPath functions over those.
@@ -80,6 +94,18 @@ RESOURCE_VARIABLE_FUNCTIONS = frozenset(
         "parse_json",
         "semver_compare",
         "time_diff",
+        # Time functions that are total on their arguments: they convert or compare
+        # timestamps they are handed. The clock readers are in CLOCK_FUNCTIONS and are
+        # external -- these are not, and refusing them made a third-party policy
+        # undetermined that is plainly inside.
+        "time_parse",
+        "time_add",
+        "time_truncate",
+        "time_utc",
+        "time_before",
+        "time_after",
+        "time_between",
+        "time_to_cron",
     }
 )
 
@@ -112,6 +138,18 @@ RESOURCE_CEL_CALLS = frozenset(
         "replace",
         "substring",
         "format",
+        # Time functions that are total on their arguments. The clock readers are in
+        # CLOCK_FUNCTIONS above and are external; these convert or compare timestamps
+        # they are handed, so their partition is fixed by the policy's own literals.
+        "time_parse",
+        "time_add",
+        "time_diff",
+        "time_truncate",
+        "time_utc",
+        "time_before",
+        "time_after",
+        "time_between",
+        "time_to_cron",
     }
 )
 
@@ -250,6 +288,22 @@ def classify(text: str) -> Verdict:
             OUTSIDE,
             "a context entry fetches data from outside the admission request",
             {"external_context_sources": sources},
+        )
+
+    if IMAGE_VERIFICATION_BLOCK.search(text):
+        return Verdict(
+            OUTSIDE,
+            "verifies an image against a registry, so its guards read a signature or "
+            "attestation the admission request does not carry",
+            {"image_verification": True},
+        )
+
+    clock = sorted({name for name in CLOCK_FUNCTIONS if f"{name}(" in text})
+    if clock:
+        return Verdict(
+            OUTSIDE,
+            "reads the clock, which is not part of the subject",
+            {"clock_functions": clock},
         )
 
     external_calls = sorted({call for call in EXTERNAL_CEL_CALLS if f".{call}(" in text})

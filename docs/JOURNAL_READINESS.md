@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~8,800 words, 16 pages, 13 numbered results, 17 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~9,200 words, 17 pages, 13 numbered results, 17 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -273,10 +273,22 @@ related work --- is done. What remains is not research:
    right, which is the failure mode to watch for in a repository that keeps its documents
    next to its measurements. A third pass by another author is still worth having; a rate
    of five findings over two passes is not a rate that suggests the next one is empty.
-4. **Mine a corpus from repositories that *use* these engines,** rather than from the
-   repositories that ship them. This is the remaining half of G6 and it is possible from
-   here: infrastructure-as-code repositories carry Kyverno `ClusterPolicy` and Gatekeeper
-   `Constraint` manifests written by the organisations that run them. Not attempted.
+4. ~~**Mine a corpus from repositories that *use* these engines.**~~ **Attempted, and it
+   found a defect.** 49 Kyverno policies from 31 repositories and 28 owners unaffiliated
+   with Kyverno: 37 inside, 12 outside, none undetermined. The corpus is pinned file by
+   file with a content hash, so it reproduces without depending on code search.
+
+   The share matters less than what it exposed. All 12 exclusions are `verifyImages`, which
+   reads a signature or attestation from a registry -- a construct that barely appears in
+   the vendor's tested subset, so the adapter had never needed to recognise it. Four
+   third-party policies came back undetermined, and chasing them produced two real
+   additions: image verification as an external read, and the clock-reading `time_*`
+   functions separated from those total on their arguments. **No vendor verdict changed**,
+   which is how it is known these were gaps rather than reinterpretations.
+
+   The third-party share is *lower* than the vendor's 87.2%, which is the direction that
+   makes the comparison worth having. What this still does not reach is policy an
+   organisation runs and does not publish, and no public corpus will.
 5. ~~**Settle whether finite refinement is necessary as well as sufficient.**~~ **Done, and
    it is necessary.** For effective finite-outcome guard families over an enumerable subject
    space and a cell-expressive language, policy equivalence is decidable **if and only if**

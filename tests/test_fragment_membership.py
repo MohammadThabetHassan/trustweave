@@ -846,3 +846,105 @@ def test_every_operator_the_corpus_uses_is_judged_by_a_family() -> None:
     assert len(operators) == 27, sorted(operators)
     assert all(iam.is_finitely_refining(operator) for operator in operators)
     assert {iam.base_operator(o) for o in operators} <= iam.FINITELY_REFINING_FAMILIES
+
+
+# --- Policy written by people who do not ship the engine --------------------------------
+#
+# Every other corpus here is published by the vendor whose engine reads it, IAM included.
+# This one is Kyverno policy from unaffiliated organisations, and it exists to answer one
+# question: does the fragment cover only what vendors write? It is a convenience sample
+# from code search and the artifact says so.
+
+
+def test_the_third_party_corpus_is_pinned_file_by_file() -> None:
+    """Code search results are not stable, so reproducibility cannot rest on them."""
+
+    corpus = json.loads((ROOT / "docs" / "third-party-kyverno-corpus-v1.json").read_text("utf-8"))
+
+    assert corpus["provenance"] == "third-party"
+    assert corpus["excluded_owners"] == ["kyverno", "nirmata"]
+    assert corpus["policies"] == len(corpus["files"]) == 49
+    for entry in corpus["files"]:
+        assert len(entry["commit"]) == 40, entry
+        assert len(entry["sha256"]) == 64, entry
+        assert entry["repo"].count("/") == 1, entry
+        assert entry["repo"].split("/")[0].lower() not in {"kyverno", "nirmata"}, entry
+
+
+def test_the_third_party_measurement_judges_every_policy() -> None:
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-kyverno-thirdparty-v1.json").read_text("utf-8")
+    )
+
+    assert artifact["policies_considered"] == 49
+    assert artifact["counts"] == {"inside": 37, "outside": 12, "undetermined": 0}
+    assert artifact["owners"] == 28
+    assert artifact["repositories"] == 31
+    assert artifact["policies_unavailable"] == []
+
+
+def test_every_third_party_exclusion_is_image_verification() -> None:
+    """The construct that required somebody else's policy to find.
+
+    `verifyImages` checks a signature or attestation against a registry and a transparency
+    log, and the fetched attestation is not in the admission request. It barely appears in
+    the vendor's tested subset, so the gap only showed on a corpus the vendor did not write.
+    """
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-kyverno-thirdparty-v1.json").read_text("utf-8")
+    )
+    outside = [entry for entry in artifact["policies"] if entry["verdict"] == "outside"]
+
+    assert len(outside) == 12
+    assert all("verifies an image" in entry["reason"] for entry in outside)
+    assert all(entry.get("image_verification") is True for entry in outside)
+
+
+def test_the_third_party_share_is_lower_than_the_vendor_share() -> None:
+    """The direction that makes the comparison worth having rather than reassuring."""
+
+    third_party = json.loads(
+        (ROOT / "docs" / "fragment-membership-kyverno-thirdparty-v1.json").read_text("utf-8")
+    )
+    vendor = json.loads(
+        (ROOT / "docs" / "fragment-membership-kyverno-wide-v1.json").read_text("utf-8")
+    )
+
+    assert third_party["share_inside"] < vendor["share_inside"]
+
+
+def test_kyverno_verifying_an_image_reads_past_the_request() -> None:
+    outcome = kyverno.classify(
+        "spec:\n  rules:\n  - name: r\n    verifyImages:\n"
+        "    - imageReferences:\n      - '*'\n"
+        "      attestations:\n      - predicateType: https://example.com/p\n"
+        "        conditions:\n        - all:\n"
+        '          - key: "{{ Data.sbom }}"\n            operator: Equals\n'
+        '            value: "x"\n'
+    )
+
+    assert outcome.verdict == core.OUTSIDE
+    assert "registry" in outcome.reason
+
+
+def test_kyverno_reading_the_clock_is_outside() -> None:
+    for function in ("time_now", "time_now_utc", "time_since"):
+        outcome = kyverno.classify(
+            "spec:\n  rules:\n  - name: r\n    preconditions:\n      all:\n"
+            f"      - key: \"{{{{ {function}('', '', '') }}}}\"\n"
+            '        operator: GreaterThan\n        value: "1h"\n'
+        )
+        assert outcome.verdict == core.OUTSIDE, function
+        assert function in outcome.detail["clock_functions"]
+
+
+def test_pure_kyverno_time_functions_stay_inside() -> None:
+    """Only the ones that consult "now" reach past their arguments."""
+
+    outcome = kyverno.classify(
+        "spec:\n  rules:\n  - name: r\n    preconditions:\n      all:\n"
+        "      - key: \"{{ time_parse('2006-01-02', request.object.metadata.x) }}\"\n"
+        '        operator: Equals\n        value: "y"\n'
+    )
+
+    assert outcome.verdict == core.INSIDE
