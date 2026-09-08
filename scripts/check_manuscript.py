@@ -386,6 +386,39 @@ def decomposition_findings(flat: str, docs: Path) -> list[str]:
     return []
 
 
+def corpus_findings(bib: str, docs: Path) -> list[str]:
+    """The commits the bibliography cites must be the commits an artifact measured.
+
+    A paper that names a corpus commit no instrument read is unreproducible in the one way
+    a reader would actually try to check, so the abbreviated hashes in `refs.bib` are
+    matched against the `corpus` block of every membership artifact. Both directions
+    matter: a cited commit nothing measured is a fabrication, and a measured commit
+    nothing cites is a corpus the reader cannot reconstruct.
+    """
+
+    measured: dict[str, str] = {}
+    for slug in ("xacml", "kyverno", "cedar", "rego"):
+        findings = _load(docs, f"fragment-membership-{slug}-wide-v1")
+        for repository in findings.get("corpus") or []:
+            measured[repository["commit"]] = repository["remote"]
+    if not measured:
+        return ["no membership artifact records the corpus it measured"]
+
+    cited = set(re.findall(r"\\texttt\{([0-9a-f]{8})\}", bib))
+    problems: list[str] = []
+    for short in sorted(cited):
+        if not any(commit.startswith(short) for commit in measured):
+            problems.append(
+                f"the bibliography cites corpus commit {short}, which no artifact measured"
+            )
+    for commit, remote in sorted(measured.items()):
+        if not any(commit.startswith(short) for short in cited):
+            problems.append(
+                f"{remote} was measured at {commit[:8]}, which the bibliography does not cite"
+            )
+    return problems
+
+
 def claim_findings(flat: str, claims: list[Claim]) -> list[str]:
     problems: list[str] = []
     for pattern, expected, provenance in claims:
@@ -412,6 +445,7 @@ def check(paper: Path, docs: Path) -> list[str]:
     problems = structural_findings(tex, bib)
     problems += claim_findings(flat, numeric_claims(docs))
     problems += decomposition_findings(flat, docs)
+    problems += corpus_findings(bib, docs)
     return problems
 
 

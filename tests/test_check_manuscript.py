@@ -113,11 +113,21 @@ def test_a_figure_changed_in_one_section_only_is_caught(workspace: Path) -> None
     total row of the membership table, so editing the first occurrence leaves the correct
     value present elsewhere in the file. A substring search passes that paper. This must
     not.
+
+    The figure is derived from the artifacts rather than written here. Hard-coding it went
+    stale twice as the corpus grew, and a fixture that needs editing whenever the
+    measurement changes is a fixture that will one day be edited into passing vacuously.
     """
+    pooled = sum(
+        checker._load(DOCS, f"fragment-membership-{slug}-wide-v1")["counts"]["inside"]
+        for slug in ("xacml", "kyverno", "cedar", "rego")
+    )
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    assert text.count("753") >= 2, "the fixture needs the figure stated more than once"
-    paper.write_text(text.replace("753", "750", 1), encoding="utf-8")
+    assert text.count(str(pooled)) >= 2, (
+        f"the fixture needs the pooled count {pooled} stated more than once"
+    )
+    paper.write_text(text.replace(str(pooled), str(pooled - 3), 1), encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
     assert any("pooled membership" in problem for problem in problems), problems
@@ -199,3 +209,34 @@ def test_a_removed_decomposition_is_caught_rather_than_passing(workspace: Path) 
 
     problems = checker.check(paper, workspace / "docs")
     assert any("no longer decomposes" in problem for problem in problems), problems
+
+
+def test_the_bibliography_cites_the_commits_the_artifacts_measured() -> None:
+    assert (
+        checker.corpus_findings((PAPER.parent / "refs.bib").read_text(encoding="utf-8"), DOCS) == []
+    )
+
+
+def test_a_cited_corpus_commit_no_artifact_measured_is_caught(workspace: Path) -> None:
+    """The failure a reader would actually hit: a corpus they cannot reconstruct."""
+    bibliography = workspace / "paper" / "refs.bib"
+    text = bibliography.read_text(encoding="utf-8")
+    bibliography.write_text(text.replace("ab73ad39", "ab73ad38"), encoding="utf-8")
+
+    problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
+
+    assert any("no artifact measured" in problem for problem in problems), problems
+
+
+def test_a_measured_corpus_the_bibliography_omits_is_caught(workspace: Path) -> None:
+    """The other direction: a corpus that was read but never named."""
+    artifact = workspace / "docs" / "fragment-membership-rego-wide-v1.json"
+    findings = json.loads(artifact.read_text(encoding="utf-8"))
+    findings["corpus"].append(
+        {"name": "extra", "remote": "https://example.com/extra.git", "commit": "0" * 40}
+    )
+    artifact.write_text(json.dumps(findings, indent=2), encoding="utf-8")
+
+    problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
+
+    assert any("does not cite" in problem for problem in problems), problems
