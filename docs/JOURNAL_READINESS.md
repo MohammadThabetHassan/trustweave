@@ -228,9 +228,25 @@ related work --- is done. What remains is not research:
      semi-decidable, so it did not instantiate the theorem's own hypothesis. Replaced with
      a halting reduction whose guards are total.
 
-   Two more passes by other authors are still worth having. The first pass found something
-   substantive in each of the three theorem sections, which is not a rate that suggests the
-   fourth pass will find nothing.
+   A second pass has since been done and found two more, both of the same kind as the
+   first three -- a claim contradicting something the code already knew:
+
+   - **The boundary list contradicted the Cedar measurement.** Both documents named
+     "transitive membership over an entity store of unbounded depth" as a guard *outside*
+     the fragment. Cedar's `in` is exactly that guard and Cedar measures 22 of 22 inside;
+     `fragment_membership_cedar.py` had the correct reasoning in its own header throughout.
+   - **The worked example's explanation of the equivalence rate was wrong about two
+     mutants**, and its arithmetic still added up, which is how it survived. Two widenings
+     reach the one cell that decides `require_approval`; they are equivalent because an
+     earlier rule claims it, not because the default does. The paper had also read
+     Theorem 1b as making the reorderings equivalent under *any* combining function, which
+     it does not: a swap permutes which guard feeds which argument.
+
+   Both passes found things no figure guard can see, because none of the five findings was
+   a number. Two of the five were the prose disagreeing with an instrument that was already
+   right, which is the failure mode to watch for in a repository that keeps its documents
+   next to its measurements. A third pass by another author is still worth having; a rate
+   of five findings over two passes is not a rate that suggests the next one is empty.
 4. **Choose a venue against the ceiling below, not above it.** Software-testing or
    policy-analysis venues where an exactness result inside a characterised fragment is the
    contribution, and where a reported negative result is read as a virtue.
