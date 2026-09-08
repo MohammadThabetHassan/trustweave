@@ -23,6 +23,13 @@ ROOT = Path(__file__).resolve().parents[1]
 # against a case's 15, so it gets a larger allowance than a case does -- but an allowance.
 RESEARCH_ASSISTANT_MAX_BYTES = 1_000 * 1024
 
+# Mirrors PALETTE_COLORS in the two scripts that write these files: 64 keeps the case
+# renders legible at their width, and the flagship demo needed 16 to come inside a budget.
+PALETTE_LIMITS = {
+    ROOT / "demo" / "declaration-consistency" / "cases": 64,
+    ROOT / "demo" / "research-assistant": 16,
+}
+
 # Nothing outside the two demo directories should be shipping an animation at all.
 KNOWN_GIF_DIRECTORIES = (
     ROOT / "demo" / "declaration-consistency" / "cases",
@@ -50,16 +57,62 @@ def test_the_research_assistant_demo_stays_within_its_budget() -> None:
     )
 
 
-def test_the_research_assistant_demo_is_palette_encoded() -> None:
-    """24-bit colour is what made it 1,345 KiB, and a terminal render never needs it."""
+def _palette_widths(data: bytes) -> tuple[int, list[int]]:
+    """Return a GIF's global palette size and the size of every local palette in it.
 
-    from PIL import Image
+    Read from the bytes rather than through Pillow, which is an optional `demo` extra and
+    is absent from the `dev` environment CI installs. Asserting through Pillow would have
+    meant a guard that skips exactly where it needs to run.
 
-    path = ROOT / "demo" / "research-assistant" / "demo.gif"
-    with Image.open(path) as animation:
-        assert animation.mode == "P", "a GIF of a terminal should be palette encoded"
-        palette = animation.getpalette() or []
-    assert len(palette) // 3 <= 256
+    A colour-table size is stored as the exponent N in the low three bits of a packed
+    field, for 2**(N+1) entries; the high bit says whether the table is present at all.
+    """
+
+    packed = data[10]
+    global_entries = 2 ** ((packed & 0x07) + 1) if packed & 0x80 else 0
+    offset = 13 + 3 * global_entries
+    local_entries: list[int] = []
+
+    while offset < len(data) and data[offset] != 0x3B:
+        block = data[offset]
+        if block == 0x21:  # extension: a label byte, then length-prefixed sub-blocks
+            offset += 2
+        elif block == 0x2C:  # image descriptor, whose tenth byte packs the local table
+            descriptor = data[offset + 9]
+            entries = 2 ** ((descriptor & 0x07) + 1) if descriptor & 0x80 else 0
+            if entries:
+                local_entries.append(entries)
+            offset += 10 + 3 * entries + 1  # descriptor, local table, LZW code size
+        else:
+            raise AssertionError(f"unexpected GIF block 0x{block:02x} at byte {offset}")
+        while offset < len(data) and data[offset]:
+            offset += data[offset] + 1
+        offset += 1  # the terminating zero-length sub-block
+
+    return global_entries, local_entries
+
+
+def test_every_demo_gif_keeps_the_palette_quantisation_that_shrank_it() -> None:
+    """The size budgets say how big a file may be; this says how it got there.
+
+    Palette width is the mechanism: the research-assistant demo went from 1,345 KiB to
+    892 KiB on sixteen colours alone. Re-encoding at full width would blow the budget and
+    be caught, but only after someone regenerated and committed it. This fails first, and
+    it names the reason.
+
+    Checking the local tables matters as much as the global one: a frame may carry its own
+    palette, so a wider local table would defeat a narrow global table silently.
+    """
+
+    for directory, limit in PALETTE_LIMITS.items():
+        for path in sorted(directory.glob("*.gif")):
+            global_entries, local_entries = _palette_widths(path.read_bytes())
+            widest = max([global_entries, *local_entries])
+            assert widest <= limit, (
+                f"{path.relative_to(ROOT)} carries a {widest}-colour palette against a "
+                f"{limit}-colour budget; re-encode it with the renderer rather than a "
+                f"general-purpose tool"
+            )
 
 
 def test_every_checked_in_gif_lives_in_a_directory_that_has_a_budget() -> None:

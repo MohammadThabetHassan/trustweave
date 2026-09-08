@@ -21,8 +21,13 @@ All notable changes to TrustWeave are documented in this file. The project follo
   16-colour palette — the source holds 48 distinct colours, and 64 or 128 produce identical
   output — and verifies that the count, size and timing survive. The reason it had grown to
   more than twice what any case is allowed is that it had no budget and nothing measured it,
-  so `tests/test_demo_gif_budget.py` now holds it to 1,000 KiB, requires it to be palette
-  encoded, and fails if any future GIF appears in a directory no budget covers.
+  so `tests/test_demo_gif_budget.py` now holds it to 1,000 KiB and fails if any future GIF
+  appears in a directory no budget covers. The budget says how large a file may be; a
+  second check says how it got there, holding every demo GIF to its renderer's palette
+  width — 16 colours here, 64 for a case — read from the GIF's own colour tables rather
+  than through Pillow, which is an optional extra the CI environment does not install.
+  Every frame's local table is checked too, since a wide local palette would otherwise
+  defeat a narrow global one without changing a byte of the header.
 - The declaration-consistency case walkthroughs no longer print
   `== Captured terminal output begins ==` into the terminal body. Distinguishing what
   `run-case.sh` emitted from what the renderer added is worth keeping, so captured lines
