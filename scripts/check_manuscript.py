@@ -93,9 +93,14 @@ def numeric_claims(docs: Path) -> list[Claim]:
     reference = next(iter(suites.values()))
     claims += [
         (
-            r"(\d+) mutants",
+            r"generates (\d+)\s*mutants, of which",
             (str(reference["mutants_generated"]),),
-            "mutants generated",
+            "mutants generated (worked example)",
+        ),
+        (
+            r"of (\d+) mutants of our reference policy",
+            (str(reference["mutants_generated"]),),
+            "mutants generated (abstract)",
         ),
         (
             r"(\d+) are provably equivalent",
@@ -298,6 +303,34 @@ def numeric_claims(docs: Path) -> list[Claim]:
     return claims
 
 
+MECHANISM_COUNT = re.compile(r"is unobservable \((\d+) mutants\)")
+
+
+def decomposition_findings(flat: str, docs: Path) -> list[str]:
+    """The worked example claims to explain every equivalent mutant. Check the arithmetic.
+
+    Section \ref{sec:example} attributes the equivalent mutants to two mechanisms and gives
+    a count for each. Those counts are prose, so nothing else would notice if a later
+    revision changed one: the claim that they account for *every* equivalent mutant is only
+    as good as their sum.
+    """
+
+    equivalent = _load(docs, "estimator-comparison-v1")["suites"][0]["mutants_equivalent"]
+    counts = [int(found) for found in MECHANISM_COUNT.findall(flat)]
+    if not counts:
+        return [
+            "the manuscript no longer decomposes the equivalent mutants by mechanism; "
+            "the pattern that pinned that decomposition matches nothing"
+        ]
+    if sum(counts) != equivalent:
+        return [
+            f"the worked example's mechanisms account for {sum(counts)} equivalent mutants "
+            f"({' + '.join(str(count) for count in counts)}) where the artifact reports "
+            f"{equivalent}"
+        ]
+    return []
+
+
 def claim_findings(flat: str, claims: list[Claim]) -> list[str]:
     problems: list[str] = []
     for pattern, expected, provenance in claims:
@@ -320,8 +353,10 @@ def claim_findings(flat: str, claims: list[Claim]) -> list[str]:
 def check(paper: Path, docs: Path) -> list[str]:
     tex = paper.read_text(encoding="utf-8")
     bib = (paper.parent / "refs.bib").read_text(encoding="utf-8")
+    flat = flatten(tex)
     problems = structural_findings(tex, bib)
-    problems += claim_findings(flatten(tex), numeric_claims(docs))
+    problems += claim_findings(flat, numeric_claims(docs))
+    problems += decomposition_findings(flat, docs)
     return problems
 
 

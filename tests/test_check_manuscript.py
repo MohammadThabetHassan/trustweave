@@ -145,3 +145,35 @@ def test_flatten_sees_through_emphasis_and_line_breaks() -> None:
     """The pins match phrasing, so they must survive bold and a wrapped line."""
     flattened = checker.flatten("carries \\textbf{0.000 bits}\n--- exactly none.")
     assert flattened == "carries 0.000 bits --- exactly none."
+
+
+def test_the_worked_example_accounts_for_every_equivalent_mutant() -> None:
+    """The paper's explanation is arithmetic, so it can be checked as arithmetic."""
+
+    assert (
+        checker.decomposition_findings(checker.flatten(PAPER.read_text(encoding="utf-8")), DOCS)
+        == []
+    )
+
+
+def test_a_decomposition_that_no_longer_sums_is_caught(workspace: Path) -> None:
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    paper.write_text(text.replace("(13 mutants)", "(12 mutants)"), encoding="utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+    assert any("account for 15 equivalent mutants" in problem for problem in problems), problems
+
+
+def test_a_removed_decomposition_is_caught_rather_than_passing(workspace: Path) -> None:
+    """Dropping one mechanism fails on the sum; dropping both must not pass silently."""
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    both_gone = text.replace(" is unobservable} (13 mutants)", "}").replace(
+        " is unobservable} (3 mutants)", "}"
+    )
+    assert "mutants)" not in both_gone or "is unobservable}" not in both_gone
+    paper.write_text(both_gone, encoding="utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+    assert any("no longer decomposes" in problem for problem in problems), problems

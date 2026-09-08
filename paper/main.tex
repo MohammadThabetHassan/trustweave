@@ -110,12 +110,17 @@ not measure it.
     added because the construction's original proof was wrong in a way review did not catch.
 \end{enumerate}
 
-\paragraph{What is not new.} The coverage criterion we use --- witness every class of a
-finite partition of the input space --- is all-combinations coverage over a category
-partition in the sense of Ostrand and Balcer \cite{ostrand1988category}. We claim no novelty
-for it, and Section~\ref{sec:related} says so at length. What we claim is the equivalence
-between that criterion and mutation adequacy inside a characterised fragment, the
-characterisation itself, and the measurements above.
+\paragraph{What is not new.} Two things, and we would rather state them here than have them
+found. The coverage criterion we use --- witness every class of a finite partition of the
+input space --- is all-combinations coverage over a category partition in the sense of
+Ostrand and Balcer \cite{ostrand1988category}. And mutation testing of access-control
+policies is a decade and a half old: Martin and Xie gave a policy-level fault model and
+mutated XACML directly \cite{martin2007fault}, so the observation that policies are more
+tractable than programs is not ours either. What we claim is the characterisation of
+\emph{when} the question is decidable, the equivalence --- not the correlation --- between
+the criterion and adequacy inside that characterisation, its independence from the
+evaluation rule, and the measurements above. Section~\ref{sec:related} states the boundary
+between the two lists at length.
 
 \section{The policy language}
 \label{sec:language}
@@ -419,16 +424,79 @@ policy. Membership is a property of guards, so a policy inside the fragment gets
 adequacy for its own decision structure, and its language remains undecidable in general
 (Section~\ref{sec:limits}).
 
+\section{A worked example}
+\label{sec:example}
+
+The reference policy is small enough to show whole, and doing so makes both the quotient and
+the equivalent mutants concrete.
+
+It governs a support agent, defaults to \texttt{deny}, and states four rules over three
+trust levels ($T = \{\text{trusted}, \text{conditional}, \text{untrusted}\}$) and four
+action classes ($A = \{\text{read}, \text{write}, \text{sensitive}, \text{external}\}$):
+TW-001 allows \emph{trusted} requests to \emph{read} tools; TW-002 requires approval for
+\emph{conditional} requests to \emph{external} actions; TW-003 denies \emph{conditional} and
+\emph{untrusted} requests to \emph{sensitive} tools; TW-004 denies \emph{untrusted} requests
+to \emph{external} actions.
+
+The policy names no classification, source, tool, purpose or capability, so five of the
+seven components of Definition~\ref{def:refining}'s subject contribute a single class each,
+and Theorem~\ref{thm:quotient}'s bound is $|T| \cdot |A| \cdot 1 \cdot 1 \cdot 1 \cdot 1
+\cdot 1 = 12$. All twelve are achieved, and Table~\ref{tab:example} is the whole of
+$\sem{P}$ --- a total function on a 12-element quotient of an infinite subject space.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+& \texttt{read} & \texttt{write} & \texttt{sensitive} & \texttt{external} \\
+\midrule
+\texttt{trusted} & \textbf{allow} & deny & deny & deny \\
+\texttt{conditional} & deny & deny & deny & \textbf{require\_approval} \\
+\texttt{untrusted} & deny & deny & deny & deny \\
+\bottomrule
+\end{tabular}
+\caption{The reference policy's decision on each of its 12 cells. Ten of the twelve decide
+\texttt{deny}, which is also the default, and only two cells are reachable by a rule whose
+decision differs from it.}
+\label{tab:example}
+\end{table}
+
+\paragraph{Why 16 of 38 mutants are equivalent.} Table~\ref{tab:example} explains the
+equivalence rate rather than merely exhibiting it. Two mechanisms account for every one of
+the 16, and both are visible in the table.
+
+\begin{enumerate}
+  \item \textbf{A rule whose decision equals the default is unobservable} (13 mutants).
+    TW-003 and TW-004 both decide \texttt{deny}, and \texttt{deny} is the default, so every
+    subject they match would receive \texttt{deny} with or without them. Deleting either,
+    narrowing either, or widening either over cells that already decide \texttt{deny}
+    changes no entry of the table. All 13 mutants confined to those two rules are
+    equivalent by construction.
+  \item \textbf{Reordering rules with disjoint guards is unobservable} (3 mutants). No two
+    of the four rules share both a trust level and an action class, so no subject matches
+    two rules and first-match never arbitrates. All three adjacent-swap mutants are
+    therefore equivalent, and by Theorem~\ref{thm:combining} they would remain equivalent
+    under any other combining rule, since the guard outcome vector is unchanged.
+\end{enumerate}
+
+This generalises into a prediction, which is the useful form of the result: a policy's
+equivalent share tracks how much of it restates its own default and how disjoint its guards
+are. A policy whose rules all decide against the default and whose guards overlap has few
+equivalent mutants; one that spells out denials a default would already give has many. That
+is a property of the policy a team can read off before running anything, and it is the
+reason a survivor count is not by itself a measure of a suite.
+
 \section{What decidability is worth}
 \label{sec:price}
 
 Corollary~\ref{cor:score} says an exact score is available. It does not say what the
 alternative costs, so we measured that where the exact answer is known.
 
-Our reference policy induces 12 cells and its operator set generates 38 mutants, of which
-\textbf{16 are provably equivalent} by Theorem~\ref{thm:equivalence} --- 42.1\%. A tool that
-cannot decide equivalence must either ask a human to triage every survivor or leave the
-equivalent mutants in the denominator. Table~\ref{tab:price} gives the second.
+The policy of Section~\ref{sec:example} induces 12 cells and its operator set generates 38
+mutants, of which \textbf{16 are provably equivalent} by Theorem~\ref{thm:equivalence} ---
+42.1\%, for the two reasons that section gives. A tool that cannot decide equivalence must
+either ask a human to triage every survivor or leave the equivalent mutants in the
+denominator. Table~\ref{tab:price} gives the second.
 
 \begin{table}[t]
 \centering
@@ -531,6 +599,23 @@ Untch review the cost-reduction techniques including mutant sampling
 observation that a policy language whose guards satisfy
 Definition~\ref{def:refining} makes the problem decidable outright, and the measurement in
 Section~\ref{sec:price} of what that is worth.
+
+\paragraph{Mutation testing of policies.} This is the closest prior work and the paper's
+claims are stated relative to it. Martin and Xie give a fault model for access-control
+policies and mutate XACML directly \cite{martin2007fault}; Le Traon, Mouelhi and Baudry
+argue that security policies need testing criteria of their own rather than functional
+coverage \cite{letraon2007testing}. That mutating a policy rather than a program makes the
+equivalent-mutant question more tractable is therefore not our observation, and we do not
+claim it. What we add is three things that line of work does not settle. First, a
+\emph{characterisation}: Definition~\ref{def:refining} says which guards make the question
+decidable, and Theorem~\ref{thm:undecidable} shows the condition is doing real work rather
+than being a description of one language. Second, an \emph{equivalence} rather than a
+heuristic: inside the fragment, coverage of the quotient is provably necessary and
+sufficient for adequacy over semantic mutants (Corollary~\ref{cor:score}), so the criterion
+does not need validating against a kill rate --- it \emph{is} the kill rate. Third,
+\emph{independence from the evaluation rule} (Theorem~\ref{thm:combining}), which is what
+carries the result out of XACML and into Cedar, Kyverno and Rego, and a measurement of how
+far it actually carries (Table~\ref{tab:membership}).
 
 \paragraph{Category-partition testing.} The criterion we use --- witness every class of a
 finite partition of the input space --- is all-combinations coverage over a category
