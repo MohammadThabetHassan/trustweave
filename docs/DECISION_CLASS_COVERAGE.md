@@ -322,16 +322,67 @@ A characterisation with no measurement beside it invites the reader to assume th
 reading *policies* rather than the test suites that
 [SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) reads, at the commits that study pins.
 
+Two scopes are measured, because they answer different questions. The **joined** scope is
+the policies a suite study could also score, and it is what the stratified test in
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) needs; it is small because measuring
+decision coverage takes a suite with more than one case. The **whole-corpus** scope is every
+policy the corpus holds, which is the honest scope for asking how much of an ecosystem the
+fragment covers, since membership is decided from policy text and needs no suite at all.
+
 | Ecosystem | Policies | Inside | Outside | Undetermined | Share inside |
 |---|---:|---:|---:|---:|---:|
-| XACML | 21 | **15** | 6 | 0 | 71% |
-| Kyverno | 49 | **41** | 8 | 0 | 84% |
-| Cedar | 22 | **22** | 0 | 0 | 100% |
+| *Whole corpus* | | | | | |
+| XACML | 548 | **526** | 22 | 0 | 96.0% |
+| Kyverno | 235 | **205** | 30 | 0 | 87.2% |
+| Cedar | 22 | **22** | 0 | 0 | 100.0% |
+| **Total** | **805** | **753** | **52** | **0** | **93.5%** |
+| *Joined to a suite study* | | | | | |
+| XACML | 21 | **15** | 6 | 0 | 71.4% |
+| Kyverno | 49 | **41** | 8 | 0 | 83.7% |
+| Cedar | 22 | **22** | 0 | 0 | 100.0% |
 
-**Nothing is undetermined in any of the three**, so each figure is a verdict on the whole
-corpus rather than on the part an instrument happened to understand. Artifacts:
+**Nothing is undetermined in any ecosystem at either scope**, so each figure is a verdict on
+the whole corpus rather than on the part an instrument happened to understand. The joined
+scope is a subset of the wide one and every verdict agrees between them, which is what makes
+the stratified test's arms readable against this table. Artifacts, all now carrying the
+pinned commit of the corpus they read --- which the first three did not, leaving the corpus
+of the fragment measurement named only in prose:
 [xacml](fragment-membership-xacml-v1.json), [kyverno](fragment-membership-kyverno-v1.json),
-[cedar](fragment-membership-cedar-v1.json).
+[cedar](fragment-membership-cedar-v1.json),
+[xacml wide](fragment-membership-xacml-wide-v1.json),
+[kyverno wide](fragment-membership-kyverno-wide-v1.json),
+[cedar wide](fragment-membership-cedar-wide-v1.json).
+
+Widening the corpus took two corrections to the instruments, and both were the same mistake
+in different languages: an allowlist of *names* where the criterion is about *kinds*.
+
+- **XACML** names a function `<type>-<family>`, and it is the family that decides
+  membership -- `integer-greater-than` and `time-greater-than` both compare a designator
+  against a literal and both split the subject space at that literal. The conformance corpus
+  exercises **182 function names** the name-enumerated allowlist did not carry, and all but
+  one belong to a family it already accepted for some other datatype. The exception is
+  `xpath-node-count`, which reads the request's `Content` and is outside for the same reason
+  an `AttributeSelector` is. Deciding by family moved the wide count from 131 inside with
+  396 undetermined to 526 inside with none.
+- **13 XACML policies state no predicate at all** -- no `Match`, `Condition`, `Apply` or
+  `VariableDefinition` element anywhere. Those are not unjudged: a policy stating no
+  predicate induces a quotient with a single class, which is the fragment's strongest case
+  rather than a gap in it. The instrument now decides that by the presence of guard-bearing
+  elements rather than by whether its function scan came back empty, because the two causes
+  of an empty scan -- a policy with no guards, and a guard the scan could not read -- must
+  not be conflated.
+- **Kyverno** needed `resource.List` and `resource.Post` added to the external calls, since
+  both reach the API server exactly as `resource.Get` does; `jsonpatch.escapeKey` and
+  `image(...).registry()` recognised as total functions of the request, the latter parsing an
+  image reference already in the admission review rather than querying a registry;
+  `generator.Apply` recognised as an *effect* rather than a guard; and the names a policy's
+  own `context` entries bind treated as request-derived -- sound because an external context
+  source returns `outside` before that point is reached, so any surviving binding is a
+  JMESPath over the request, whose own roots are screened the same way.
+
+Every verdict in the joined scope is unchanged by all of this, which is the check that
+matters: the widening added decisions where the instruments had refused, and moved none that
+they had already made.
 
 What is outside is outside for one kind of reason in each ecosystem, and it is always the
 same kind: a guard that reads something the policy does not contain.

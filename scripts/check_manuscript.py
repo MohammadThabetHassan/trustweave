@@ -130,23 +130,71 @@ def numeric_claims(docs: Path) -> list[Claim]:
         )
 
     ecosystems = {"xacml": "XACML", "kyverno": "Kyverno", "cedar": "Cedar"}
+    totals = Counter()
     for slug, printed in ecosystems.items():
-        counts = _load(docs, f"fragment-membership-{slug}-v1")["counts"]
-        inside, outside = counts["inside"], counts["outside"]
-        undetermined = counts["undetermined"]
-        total = inside + outside + undetermined
-        claims += [
+        wide = _load(docs, f"fragment-membership-{slug}-wide-v1")
+        narrow = _load(docs, f"fragment-membership-{slug}-v1")
+        assert wide["corpus_scope"] == "wide", slug
+        assert narrow["corpus_scope"] == "joined-to-study", slug
+        for scope, findings in (("whole-corpus", wide), ("joined", narrow)):
+            counts = findings["counts"]
+            inside, outside = counts["inside"], counts["outside"]
+            undetermined = counts["undetermined"]
+            total = inside + outside + undetermined
+            if scope == "whole-corpus":
+                totals.update(
+                    {
+                        "policies": total,
+                        "inside": inside,
+                        "outside": outside,
+                        "undetermined": undetermined,
+                    }
+                )
+            claims.append(
+                (
+                    rf"{printed}(?: \\cite\{{\w+\}})? & {total} & (\d+) & (\d+) & "
+                    rf"(\d+) & (\d+\.\d)\\%",
+                    (
+                        str(inside),
+                        str(outside),
+                        str(undetermined),
+                        _pct(inside / total),
+                    ),
+                    f"{slug} ({scope}): membership table row",
+                )
+            )
+        wide_counts = wide["counts"]
+        claims.append(
             (
-                rf"(\d+) of {total} (?:published )?{printed} policies",
-                (str(inside),),
-                f"{slug}: policies inside the fragment",
-            ),
+                rf"(\d+) of {sum(wide_counts.values())} {printed} policies",
+                (str(wide_counts["inside"]),),
+                f"{slug}: whole-corpus inside, stated in prose",
+            )
+        )
+
+    claims += [
+        (
+            r"(\d+) of (\d+) policies lie\s*inside",
+            (str(totals["inside"]), str(totals["policies"])),
+            "abstract: pooled membership",
+        ),
+        (
+            r"met by (\d+) of the (\d+) published policies",
+            (str(totals["inside"]), str(totals["policies"])),
+            "conclusion: pooled membership",
+        ),
+        (
+            r"Total & (\d+) & (\d+) & (\d+) & (\d+) & (\d+\.\d)\\%",
             (
-                rf"{printed} \S* & (\d+) & (\d+) & (\d+) & (\d+) &",
-                (str(total), str(inside), str(outside), str(undetermined)),
-                f"{slug}: membership table row",
+                str(totals["policies"]),
+                str(totals["inside"]),
+                str(totals["outside"]),
+                str(totals["undetermined"]),
+                _pct(totals["inside"] / totals["policies"]),
             ),
-        ]
+            "membership table: total row",
+        ),
+    ]
 
     witness = _load(docs, "witness-space-verification-v1")
     claims.append(

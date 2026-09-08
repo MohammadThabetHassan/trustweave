@@ -6,16 +6,14 @@
       "remote": "https://github.com/cedar-policy/cedar-integration-tests.git"
     }
   ],
-  "corpus_scope": "joined-to-study",
+  "corpus_scope": "wide",
   "counts": {
     "inside": 22,
     "outside": 0,
     "undetermined": 0
   },
   "ecosystem": "cedar",
-  "measured_subjects_not_found": [
-    "tests/example_use_cases/policies_2a.cedar.json"
-  ],
+  "measured_subjects_not_found": [],
   "policies": [
     {
       "constructors": [

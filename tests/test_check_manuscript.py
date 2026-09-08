@@ -64,14 +64,20 @@ def test_the_manuscript_pins_a_substantial_number_of_claims() -> None:
 
 
 def test_a_figure_changed_in_one_section_only_is_caught(workspace: Path) -> None:
-    """The failure substring search cannot see, because the old value survives."""
+    """The failure substring search cannot see, because the old value survives.
+
+    The pooled membership count is stated in the abstract, in the conclusion and in the
+    total row of the membership table, so editing the first occurrence leaves the correct
+    value present elsewhere in the file. A substring search passes that paper. This must
+    not.
+    """
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    assert text.count("15 of 21") >= 2, "the fixture needs the figure stated twice"
-    paper.write_text(text.replace("15 of 21", "16 of 21", 1), encoding="utf-8")
+    assert text.count("753") >= 2, "the fixture needs the figure stated more than once"
+    paper.write_text(text.replace("753", "750", 1), encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
-    assert any("inside the fragment" in problem for problem in problems), problems
+    assert any("pooled membership" in problem for problem in problems), problems
 
 
 def test_an_edited_phrasing_fails_rather_than_passing_silently(

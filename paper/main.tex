@@ -49,12 +49,12 @@ which we verify under first-match, Cedar's forbid-overrides, Kyverno's any-rule-
 four-valued XACML combining algorithm.
 
 We then ask how much published policy satisfies the condition, and answer it with a decision
-procedure rather than an estimate: 15 of 21 XACML policies, 41 of 49 Kyverno policies, and
-22 of 22 Cedar policies lie inside, with no policy left undetermined, and what places a
-policy outside is one construct per ecosystem rather than general expressiveness. We price
-what decidability buys: of 38 mutants of our reference policy, 16 are provably equivalent,
-so a suite whose adequacy is complete by construction is reported at 57.9\% by a pipeline
-that cannot decide equivalence.
+procedure rather than an estimate: across three ecosystems' corpora, 753 of 805 policies lie
+inside, with \emph{no policy left undetermined}, and what places a policy outside is one
+construct per ecosystem rather than general expressiveness. We price what decidability buys:
+of 38 mutants of our reference policy, 16 are provably equivalent, so a suite whose adequacy
+is complete by construction is reported at 57.9\% by a pipeline that cannot decide
+equivalence.
 
 Two results are negative and we report them as such. The cheap coverage proxy for the
 criterion carries almost no information on real corpora --- exactly zero bits on one --- and
@@ -98,8 +98,8 @@ not measure it.
   \item Independence from the evaluation rule (Theorem~\ref{thm:combining}), verified under
     four rules drawn from deployed languages.
   \item A decision procedure for fragment membership, and its result on three published
-    corpora: 15/21 XACML, 41/49 Kyverno, 22/22 Cedar, nothing undetermined
-    (Section~\ref{sec:membership}).
+    corpora: 526 of 548 XACML policies, 205 of 235 Kyverno policies and 22 of 22 Cedar
+    policies inside, nothing undetermined (Section~\ref{sec:membership}).
   \item A measurement of what decidability is worth: the equivalent share of a real mutant
     set, and the resulting error of the two approximations a tool without it must use
     (Section~\ref{sec:price}).
@@ -350,9 +350,16 @@ document, or a reading of the clock.
 
 Membership is decidable by inspection of guards, so we decided it, on the corpora of three
 deployed languages at pinned commits. The procedure refuses rather than guesses: a policy is
-reported inside only when every function it names is on an allowlist of predicates whose
-partition is fixed by a literal in the policy, outside when it reads data the policy does
-not contain, and undetermined otherwise.
+reported inside only when every function it names belongs to a family whose partition is
+fixed by a literal in the policy, outside when it reads data the policy does not contain,
+and undetermined otherwise.
+
+We report two scopes, because they answer different questions. The \emph{joined} scope is
+the set of policies a suite study could also score, and it is the scope the predictive
+experiment of Section~\ref{sec:negative} stratifies; it is small because measuring decision
+coverage needs a suite with more than one case. The \emph{whole-corpus} scope is every
+policy the corpus contains, which is the right scope for asking how much of an ecosystem the
+fragment covers, since membership is decided from policy text and needs no suite at all.
 
 \begin{table}[t]
 \centering
@@ -360,26 +367,56 @@ not contain, and undetermined otherwise.
 \toprule
 Ecosystem & Policies & Inside & Outside & Undetermined & Share inside \\
 \midrule
-XACML \cite{xacml30} & 21 & 15 & 6 & 0 & 71\% \\
-Kyverno \cite{kyverno} & 49 & 41 & 8 & 0 & 84\% \\
-Cedar \cite{cedar2024} & 22 & 22 & 0 & 0 & 100\% \\
+\multicolumn{6}{l}{\emph{Whole corpus}} \\
+XACML \cite{xacml30} & 548 & 526 & 22 & 0 & 96.0\% \\
+Kyverno \cite{kyverno} & 235 & 205 & 30 & 0 & 87.2\% \\
+Cedar \cite{cedar2024} & 22 & 22 & 0 & 0 & 100.0\% \\
+\midrule
+\textbf{Total} & \textbf{805} & \textbf{753} & \textbf{52} & \textbf{0} & \textbf{93.5\%} \\
+\midrule
+\multicolumn{6}{l}{\emph{Joined to a suite study} --- the scope Section~\ref{sec:negative} stratifies} \\
+XACML & 21 & 15 & 6 & 0 & 71.4\% \\
+Kyverno & 49 & 41 & 8 & 0 & 83.7\% \\
+Cedar & 22 & 22 & 0 & 0 & 100.0\% \\
 \bottomrule
 \end{tabular}
-\caption{Fragment membership. Nothing is undetermined in any ecosystem, so each share is a
-verdict on the whole corpus rather than on the part the procedure understood.}
+\caption{Fragment membership. Nothing is undetermined in any ecosystem at either scope, so
+each share is a verdict on the whole corpus rather than on the part the procedure happened
+to understand. The joined scope is a subset of the whole-corpus scope and every verdict
+agrees between them.}
 \label{tab:membership}
 \end{table}
 
 What places a policy outside is one construct per ecosystem, not general expressiveness. In
-XACML all six are an \texttt{AttributeSelector}, which puts an arbitrary XML document in the
-subject. In Kyverno it is a \texttt{context} entry that queries the cluster or a registry, a
-CEL call that does the same, or \texttt{now()}. Cedar has no such construct: it cannot read
-data the request does not carry, which is consistent with its being designed for automated
+XACML it is an \texttt{AttributeSelector} or an XPath function, either of which puts an
+arbitrary XML document in the subject, or \texttt{access-permitted}, which re-enters the
+decision point on a request the policy constructs. In Kyverno it is a \texttt{context} entry
+that queries the cluster or a registry, a CEL call on the \texttt{resource} receiver that
+reaches the API server, or \texttt{now()}. Cedar has no such construct: it cannot read data
+the request does not carry, which is consistent with its being designed for automated
 analysis \cite{cedar2024}.
 
-\paragraph{Limits.} These are the projects' own test corpora, not deployed policy, and
-membership is a property of guards --- a policy inside the fragment gets exact adequacy for
-its own decision structure, and its language remains undecidable in general
+\paragraph{Membership is a property of families, not of datatypes.} XACML names a function
+\texttt{<type>-<family>}, and the family decides membership: \texttt{integer-greater-than}
+and \texttt{time-greater-than} both compare a designator against a literal and both split
+the subject space at that literal. Deciding by enumerated name rather than by family
+under-reports the fragment, and measurably so --- the conformance corpus exercises 182
+function names our first, name-enumerated allowlist did not carry, and all but one of them
+belong to a family that allowlist already accepted for some other datatype. The exception is
+\texttt{xpath-node-count}, which reads the request's \texttt{Content}, and it is outside for
+the same reason an \texttt{AttributeSelector} is.
+
+\paragraph{A policy may state no predicate at all.} 13 policies in the XACML corpus contain
+no \texttt{Match}, \texttt{Condition}, \texttt{Apply} or \texttt{VariableDefinition}
+element. These are not unjudged: a policy that states no predicate induces a quotient with a
+single class, which is the fragment's strongest case rather than a gap in it. Distinguishing
+them from a policy whose guards our scan failed to read matters for soundness, so the
+procedure decides by the presence of guard-bearing elements and not by whether its function
+scan came back empty.
+
+\paragraph{Limits.} These are the projects' own test and conformance corpora, not deployed
+policy. Membership is a property of guards, so a policy inside the fragment gets exact
+adequacy for its own decision structure, and its language remains undecidable in general
 (Section~\ref{sec:limits}).
 
 \section{What decidability is worth}
@@ -533,8 +570,12 @@ measure suites against those edits rather than against real faults. Section
 machine-checked.
 
 \paragraph{External.} The corpora of Table~\ref{tab:membership} are the projects' own test
-directories, not deployed policy, and three ecosystems chosen by us are not a sample of the
-field. The Kyverno predictive experiment has nine policies in its blind arm, and its operator
+and conformance directories, not deployed policy, and three ecosystems chosen by us are not a
+sample of the field. The whole-corpus scope is dominated by XACML, and that corpus is a
+conformance suite: it is written to exercise the specification's function library, so it
+over-represents unusual functions and under-represents whatever policy shapes are common in
+production. Reading its 96.0\% as the share of deployed XACML inside the fragment would be a
+mistake. The Kyverno predictive experiment has nine policies in its blind arm, and its operator
 set was extended between two runs --- a researcher degree of freedom we report rather than
 hide.
 
@@ -548,8 +589,8 @@ coverage.
 
 Exact mutation adequacy for access-control policy does not require a special language. It
 requires that each guard's partition of the subject space be determined by the policy text,
-and that condition is met by 15 of 21 published XACML policies, 41 of 49 Kyverno policies and
-all 22 Cedar policies we examined. Where it holds, the equivalent-mutant problem is a table
+and that condition is met by 753 of the 805 published policies we examined across three
+ecosystems, with none left undetermined. Where it holds, the equivalent-mutant problem is a table
 comparison and coverage of the quotient decides the score --- worth 42 percentage points on a
 suite whose adequacy is in fact complete. Where a cheap language-independent proxy is used
 instead, it carries almost no information, and the one association we found between that

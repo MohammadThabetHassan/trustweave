@@ -1,4 +1,17 @@
 {
+  "corpus": [
+    {
+      "commit": "ab73ad39cf037cdd87100e2148464b1d2d64d5b6",
+      "name": "authzforce-core",
+      "remote": "https://github.com/authzforce/core.git"
+    },
+    {
+      "commit": "474841718721f840fa39d13cfa3232f9cf864f3e",
+      "name": "wso2-balana",
+      "remote": "https://github.com/wso2/balana.git"
+    }
+  ],
+  "corpus_scope": "joined-to-study",
   "counts": {
     "inside": 15,
     "outside": 6,

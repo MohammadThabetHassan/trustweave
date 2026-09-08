@@ -1,0 +1,1876 @@
+{
+  "corpus": [
+    {
+      "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4",
+      "name": "kyverno-policies",
+      "remote": "https://github.com/kyverno/policies.git"
+    }
+  ],
+  "corpus_scope": "wide",
+  "counts": {
+    "inside": 205,
+    "outside": 30,
+    "undetermined": 0
+  },
+  "ecosystem": "kyverno",
+  "measured_subjects_not_found": [],
+  "policies": [
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-ambient-mode-namespace",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "escapeKey",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-apparmor",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "filter",
+        "indexOf",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-capabilities",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-castai-removal-disabled",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "add-certificates-volume",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-default-resources",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-default-securitycontext",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "add-env-vars-from-cm",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-external-secret-prefix",
+      "variable_roots": [
+        "element",
+        "elementIndex",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "indexOf",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-image-as-env-var",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "startsWith"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-imagepullsecrets",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "orValue",
+        "registry",
+        "startsWith"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-imagepullsecrets-for-containers-and-initcontainers",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-karpenter-daemonset-priority-class",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "escapeKey"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-karpenter-donot-evict",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-labels",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "indexOf",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-ndots",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "Apply"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-network-policy",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-node-affinity",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-nodeSelector",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-ns-quota",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-pod-priorityclassname",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "filter",
+        "indexOf",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-pod-proxies",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-psa-labels",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-psa-namespace-reporting",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-runtimeClassName",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-safe-to-evict",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-services",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-tolerations",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-ttl-jobs",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "add-volume-deployment",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_cel_calls": [
+        "Get"
+      ],
+      "reason": "a CEL expression reads something outside the admission request",
+      "subject": "advanced-restrict-image-registries",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "allowed-annotations",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_cel_calls": [
+        "Get",
+        "GetMetadata"
+      ],
+      "reason": "a CEL expression reads something outside the admission request",
+      "subject": "allowed-base-images",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "contains",
+        "exists",
+        "filter",
+        "join",
+        "map",
+        "orValue",
+        "size",
+        "split"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "allowed-image-repos",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "allowed-label-changes",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "external_cel_calls": [
+        "Get"
+      ],
+      "reason": "a CEL expression reads something outside the admission request",
+      "subject": "allowed-pod-priorities",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "always-pull-images",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "application-field-validation",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "application-prevent-default-project",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "applicationset-name-matches-project",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "filter",
+        "indexOf",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "apply-pss-restricted-profile",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "appproject-clusterresourceblacklist",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "escapeKey",
+        "filter",
+        "join",
+        "map",
+        "size"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "backup-all-volumes",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "block-ephemeral-containers",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_cel_calls": [
+        "GetMetadata"
+      ],
+      "reason": "a CEL expression reads something outside the admission request",
+      "subject": "block-images-with-volumes",
+      "verdict": "outside"
+    },
+    {
+      "external_context_sources": [
+        "imageRegistry"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "block-large-images",
+      "verdict": "outside"
+    },
+    {
+      "external_cel_calls": [
+        "GetMetadata",
+        "now"
+      ],
+      "reason": "a CEL expression reads something outside the admission request",
+      "subject": "block-stale-images",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "block-tekton-task-runs",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "block-updates-deletes",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "join",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "block-velero-restore",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "check-deprecated-apis",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "check-env-vars",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_cel_calls": [
+        "List"
+      ],
+      "reason": "a CEL expression reads something outside the admission request",
+      "subject": "check-hpa-exists",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "filter",
+        "join",
+        "orValue",
+        "startsWith"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "check-ingress-nginx-controller-version-and-annotation-policy",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_cel_calls": [
+        "GetMetadata"
+      ],
+      "reason": "a CEL expression reads something outside the admission request",
+      "subject": "check-nvidia-gpu",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "check-routes",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "check-serviceaccount",
+      "variable_roots": [
+        "request",
+        "serviceAccountName"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "check-serviceaccount-secrets",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "check-supplemental-groups",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "Apply"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "create-default-pdb",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "create-pod-antiaffinity",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "matches",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "deny-commands-in-exec-probe",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "deny-privileged-profile",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "deny-secret-service-account-token-type",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disable-automountserviceaccounttoken",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-all-secrets",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-capabilities",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists_one",
+        "orValue",
+        "size"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-capabilities-strict",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "filter",
+        "matches"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-cri-sock-mount",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-default-namespace",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-default-tlsoptions",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-deprecated-apis",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-empty-ingress-host",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-helm-tiller",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-host-namespaces",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-host-path",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-host-ports",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-host-ports-range",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-host-process",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-ingress-nginx-custom-snippets",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-jenkins-pipeline-strategy",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-latest-tag",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-localhost-services",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-privilege-escalation",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-privileged-containers",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-proc-mount",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-secrets-from-env-vars",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-security-context-constraint-anyuid",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-self-provisioner-binding",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "disallow-selinux",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "dns-policy-and-dns-config",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "docker-socket-requires-label",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enable-kubecost-continuous-rightsizing",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-ambient-mode-namespace",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-etcd-encryption",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-instancetype",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-min-tls-version",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "hasValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-pod-duration",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-readwriteonce-pod",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-resources-as-ratio",
+      "variable_roots": [
+        "divide",
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-sidecar-injection-namespace",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-strict-mtls",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enforce-tls-hosts-host-subnets",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ensure-probes-different",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "ensure-production-matches-staging",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "filter",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ensure-readonly-hostpath",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "exclude-namespaces-dynamically",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "forbid-cpu-limits",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "imagepullpolicy-always",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ingress-host-match-tls",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "inject-kata-cc-runtime",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "inject-sidecar-deployment",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "k10-data-protection-by-label",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "k10-hourly-rpo",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "k10-validate-ns-by-preset-label",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kasten-3-2-1-backup",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kasten-data-protection-by-label",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "kasten-generate-example-backup-policy",
+      "verdict": "outside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "kasten-generate-policy-by-preset-label",
+      "verdict": "outside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "kasten-hourly-rpo",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kasten-immutable-location-profile",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kasten-minimum-retention",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kasten-validate-ns-by-preset-label",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "limit-configmap-for-sa",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "limit-containers-per-pod",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "limit-dnsnames",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "limit-duration",
+      "variable_roots": [
+        "contains",
+        "max",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "limit-hostpath-type-pv",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "orValue",
+        "split"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "limit-hostpath-vols",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "memory-requests-equal-limits",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "metadata-match-regex",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "indexOf",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mitigate-log4shell",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mutate-large-termination-gps",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nfs-subdir-external-provisioner-storage-path",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "imageRegistry"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "only-trustworthy-registries-set-root",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "pdb-maxunavailable",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "pdb-minavailable",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "podsecurity-subrule-baseline",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "prepend-image-registry",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "prevent-bare-pods",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "prevent-cr8escape",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "prevent-disabling-injection-pods",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "prevent-linkerd-pod-injection-override",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "prevent-linkerd-port-skipping",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "filter",
+        "indexOf",
+        "map",
+        "size"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "remove-hostpath-volumes",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "context_bound_names": [
+        "tokenvolname"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "remove-serviceaccount-token",
+      "variable_roots": [
+        "element",
+        "elementIndex",
+        "elementIndex0",
+        "elementIndex1",
+        "tokenvolname"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "contains",
+        "indexOf",
+        "map",
+        "replace",
+        "split",
+        "substring"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "replace-image-registry",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-annotations",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-container-port-names",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-cpu-limits",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-deployments-have-multiple-replicas",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "orValue",
+        "upperAscii"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-drop-all",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "orValue",
+        "upperAscii"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-drop-cap-net-raw",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "exists",
+        "filter",
+        "hasValue",
+        "map",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-emptydir-requests-limits",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-encryption-aws-loadbalancers",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-image-checksum",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "imageRegistry"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "require-image-source",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-imagepullsecrets",
+      "variable_roots": [
+        "images"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-ingress-https",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-kubecost-labels",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-labels",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-linkerd-mesh-injection",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "require-netpol",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-non-root-groups",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "require-pdb",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-pod-priorityclassname",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-pod-requests-limits",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "filter",
+        "join",
+        "map",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-probes",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-qos-burstable",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-qos-guaranteed",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-reasonable-pdbs",
+      "variable_roots": [
+        "regex_match"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-ro-rootfs",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-run-as-non-root-user",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-run-as-nonroot",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-storageclass",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-tekton-bundle",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "require-tekton-namespace-pipelinerun",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "require-unique-external-dns",
+      "verdict": "outside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "require-unique-uid-per-workload",
+      "verdict": "outside"
+    },
+    {
+      "external_context_sources": [
+        "imageRegistry"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "resolve-image-to-digest",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-adding-capabilities",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-annotations",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-apparmor-profiles",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-automount-sa-token",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-binding-clusteradmin",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-binding-system-groups",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-clusterrole-csr",
+      "variable_roots": [
+        "contains",
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-clusterrole-mutating-validating-admission-webhooks",
+      "variable_roots": [
+        "contains",
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-clusterrole-nodesproxy",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-controlplane-scheduling",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue",
+        "startsWith"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-deprecated-registry",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-escalation-verbs-roles",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue",
+        "startsWith"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-image-registries",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-ingress-classes",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-ingress-defaultbackend",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "restrict-ingress-host",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-ingress-paths",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-ingress-wildcard",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-issuer",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-jobs",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-loadbalancer",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-networkpolicy-empty-podselector",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-node-affinity",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-node-port",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-node-selection",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "restrict-pod-count-per-node",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-runtimeClassName",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-sa-automount-sa-token",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-seccomp",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-seccomp-strict",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-secret-role-verbs",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "restrict-secrets-by-label",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue",
+        "startsWith"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-secrets-by-name",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "restrict-service-account",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-service-external-ips",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-service-port-range",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-storageclass",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "all",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-sysctls",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-usergroup-fsgroup-id",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-virtual-service-wildcard",
+      "variable_roots": [
+        "contains",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "restrict-volume-types",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-wildcard-resources",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restrict-wildcard-verbs",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restricted-exclude-capabilities",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restricted-exclude-seccomp",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "restricted-latest",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "exists",
+        "filter",
+        "indexOf",
+        "map"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "set-karpenter-non-cpu-limits",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "spread-pods-across-topology",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "team-validate-ns-name",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "filter",
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "topologyspreadconstraints-policy",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "unique-routes",
+      "verdict": "outside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "validate-cron-schedule",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "cel_calls": [
+        "orValue"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "validate-initdata-configmap",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "verify-flux-sources",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "verify-git-repositories",
+      "variable_roots": [],
+      "verdict": "inside"
+    }
+  ],
+  "policies_considered": 235,
+  "schema_version": "v1",
+  "share_inside": 0.8723,
+  "share_inside_of_judged": 0.8723
+}
