@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -556,15 +557,15 @@ def test_the_rego_measurement_counts_no_test_module_as_a_policy() -> None:
     assert named_like_a_test == []
 
 
-def test_the_rego_exclusions_are_the_two_idioms_the_document_names() -> None:
-    """28 parameterised by a constraint, 34 reaching the injected inventory, 8 other."""
+def test_the_rego_exclusions_are_the_kinds_the_document_names() -> None:
+    """28 policy schemas, 34 reaching the injected inventory, 8 other data documents."""
 
     artifact = json.loads(
         (ROOT / "docs" / "fragment-membership-rego-wide-v1.json").read_text("utf-8")
     )
     reasons = [entry["reason"] for entry in artifact["policies"] if entry["verdict"] == "outside"]
 
-    parameters = sum(1 for reason in reasons if "input.parameters" in reason)
+    parameters = sum(1 for reason in reasons if "policy schema" in reason)
     injected = sum(1 for reason in reasons if "the host injects" in reason)
     via_library = sum(1 for reason in reasons if "reaches outside" in reason)
 
@@ -589,8 +590,13 @@ def test_rego_reads_the_request_and_literals_and_is_inside() -> None:
 
 
 @opa_required
-def test_rego_parameterised_by_a_constraint_is_outside() -> None:
-    """The guard's comparison value arrives with the Constraint, not the policy."""
+def test_rego_parameterised_by_a_constraint_is_a_schema_not_a_policy() -> None:
+    """Not because a guard reads something it should not -- finite refinement holds here.
+
+    The template determines no decision function until a Constraint is applied, and
+    membership is a property of a policy. Calling it "a pattern taken from the input" was
+    the first explanation and it does not survive the definition.
+    """
 
     outcome = rego.classify(
         "package p\n\n"
@@ -602,7 +608,7 @@ def test_rego_parameterised_by_a_constraint_is_outside() -> None:
     )
 
     assert outcome.verdict == core.OUTSIDE
-    assert "input.parameters" in outcome.reason
+    assert "policy schema" in outcome.reason
 
 
 @opa_required
@@ -665,3 +671,53 @@ def test_rego_normalises_package_and_import_paths_the_same_way() -> None:
     assert ast is not None
     assert rego.package_of(ast) == "lib.helpers"
     assert rego.imports_of(ast) == ["lib.other"]
+
+
+@opa_required
+def test_every_excluded_policy_schema_has_an_instantiation_in_the_corpus() -> None:
+    """The claim that makes the schema exclusion honest, checked rather than asserted.
+
+    A constraint template is excluded because it is a policy schema, not because a guard
+    reads something it should not -- the guard's outcome map over the input document has
+    finite image with constructible witnesses, so finite refinement holds. What fails is
+    that the artifact determines no decision function until a Constraint is applied. That
+    claim is only worth making if the instantiation exists, so this checks that it does:
+    the corpus ships a Constraint supplying parameters for every one of them.
+    """
+    import fragment_membership as core_module
+
+    root = Path(os.environ.get("TRUSTWEAVE_REGO_CORPUS", ""))
+    if not root.is_dir():
+        pytest.skip("set TRUSTWEAVE_REGO_CORPUS to the pinned Rego corpus to check this")
+
+    discovered = rego.discover(root)
+    assert discovered, "the corpus root holds no Rego policies"
+
+    schemas = []
+    for subject, path in discovered:
+        outcome = rego.classify(path.read_text(encoding="utf-8", errors="ignore"))
+        if outcome.verdict == core_module.OUTSIDE and "policy schema" in outcome.reason:
+            schemas.append(subject)
+
+    assert schemas, "the corpus is expected to contain parameterised templates"
+    without = [s for s in schemas if not rego.constraints_for(s)]
+    assert without == [], f"{len(without)} schemas have no instantiating Constraint: {without[:3]}"
+
+
+def test_the_artifact_records_the_schemas_separately_from_the_other_exclusions() -> None:
+    """Two kinds of exclusion, and pooling them without saying so would mislead."""
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-rego-wide-v1.json").read_text("utf-8")
+    )
+    outside = [p for p in artifact["policies"] if p["verdict"] == "outside"]
+    schemas = [p for p in outside if "policy schema" in p["reason"]]
+    reads_outside = [p for p in outside if "policy schema" not in p["reason"]]
+
+    assert len(schemas) == 28
+    assert len(reads_outside) == 42
+    assert len(schemas) + len(reads_outside) == artifact["counts"]["outside"] == 70
+    # And the share over artifacts that are actually policies.
+    policies = artifact["policies_considered"] - len(schemas)
+    assert policies == 158
+    assert round(100 * artifact["counts"]["inside"] / policies, 1) == 73.4

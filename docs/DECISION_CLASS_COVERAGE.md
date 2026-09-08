@@ -422,22 +422,36 @@ describes. That reasoning is sound about the *language* and was wrong about the 
 adapters read a declarative document; Rego is a language, so this one needs a parser -- and
 finds **116 of 186 inside, none undetermined**.
 
-The 70 outside divide into two idioms, neither of which is about expressive power:
+The 70 divide into two kinds, and pooling them without saying so would mislead.
 
-- **28 read `input.parameters`.** A Gatekeeper constraint template states its guard against
-  values a *Constraint* supplies later: allowed repositories, permitted profiles, numeric
-  ranges. The partition is fixed by the constraint, not by the policy text, so this is the
-  "pattern taken from the input" case. The same policy with its repository list written
-  inline would be inside.
+**42 are policies with a guard that reads state the subject does not carry.**
+
 - **34 reach `data.inventory`**, the cluster state Gatekeeper caches and injects -- 9
   directly and 25 by importing a library that does. The corpus ships a fixture whose own
   comment reads "Test data to mock out data.inventory cache provided by Gatekeeper", which
   is the clearest evidence available that the real thing is not in the policy.
 - The remaining 8 read some other `data` document the bundle does not define.
 
+**28 are not policies at all, and the first explanation of why was wrong.** A Gatekeeper
+constraint template states its guard against values a *Constraint* supplies later, and this
+section first called that "the pattern taken from the input case". That does not survive
+Definition 5: if the parameters arrive in the input document, the guard's outcome map over
+that document still has finite image with witnesses computable from the guard's syntax,
+which is all finite refinement asks. Mechanically, a parameterised guard is *inside*.
+
+The real reason is that such a template is a policy **schema** -- a function from parameter
+bindings to policies -- so it determines no decision function, and membership is a property
+of a policy. The question cannot be put to it until a Constraint is applied. That claim is
+only worth making if the instantiation exists, and `tests/test_fragment_membership.py`
+checks that it does: the corpus ships a Constraint supplying parameters for **all 28**.
+
+Over the 158 artifacts that are policies, 116 are inside, or **73.4%**. The distinction is
+the useful part, because unlike "outside the fragment" it says what to do: instantiate the
+template and ask again.
+
 Three things about the instrument are worth recording, because each was a defect first.
 
-1. **The import graph is load-bearing.** 25 of the 70 are outside *only* because a library
+1. **The import graph is load-bearing.** 25 of the 42 are outside *only* because a library
    they call reaches outside. Classifying modules independently reported all 25 inside, so
    the adapter propagates verdicts along imports to a fixpoint.
 2. **Rego packages span files.** A rule defined in one file is visible unqualified to every

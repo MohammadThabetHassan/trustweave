@@ -6,13 +6,24 @@ the whole bundle instead of one file at a time.
 
 What leaves the fragment, in the order it actually occurs in published policy:
 
-`input.parameters` is the Gatekeeper constraint's parameter block. A constraint template
-states its guard against values a *Constraint* supplies later -- allowed repositories,
-permitted profiles, numeric ranges -- so the partition the guard induces is fixed by the
-constraint and not by the policy text. This is the "pattern taken from the input" case, and
-it is the single commonest reason a Rego policy is outside. It is worth saying plainly that
-this is an idiom rather than a property of the language: the same policy with its
-repository list written inline would be inside.
+`input.parameters` is the Gatekeeper constraint's parameter block, and it needs stating
+carefully, because the obvious reason is the wrong one. A constraint template states its
+guard against values a *Constraint* supplies later -- allowed repositories, permitted
+profiles, numeric ranges -- and it is tempting to call that "a pattern taken from the input"
+and be done. That does not survive the definition: if the parameters arrive in the input
+document, the guard's outcome map over that document still has finite image with witnesses
+computable from the guard's syntax, which is all finite refinement asks.
+
+The real reason is that such a template is not a policy. It is a policy *schema* -- a
+function from parameter bindings to policies -- and it determines no decision function until
+a Constraint is applied. Membership is a property of a policy, so the artifact has to be
+instantiated before the question can be asked of it. This adapter therefore records, for
+each such template, the Constraints in the corpus that supply its parameters; all 28 in the
+measured corpus have one, so every one of them is a policy schema whose instantiation the
+corpus itself provides.
+
+That is a different kind of exclusion from the one below, and the two should not be pooled
+without saying so: a schema is not outside the fragment, it is not yet a policy.
 
 `data.inventory` is the cluster state Gatekeeper caches and injects at evaluation time. The
 corpus contains a fixture that mocks it out, whose own comment says so, which is the
@@ -39,6 +50,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+import yaml
 from fragment_membership import INSIDE, OUTSIDE, UNDETERMINED, Verdict
 
 ECOSYSTEM = "rego"
@@ -70,6 +82,10 @@ _BUILTINS: frozenset[str] | None = None
 _DECLARED_PACKAGES: set[str] = set()
 _PACKAGE_RULES: dict[str, set[str]] = {}
 _EXTERNAL_PACKAGES: set[str] = set()
+# Constraints that supply parameters, keyed by the policy directory's name. A template and
+# its Constraint sit in different trees in the measured corpus -- `src/general/<name>/` and
+# `library/general/<name>/samples/*/` -- so they are matched by name rather than by path.
+_CONSTRAINTS: dict[str, list[str]] = {}
 
 
 def _opa() -> str:
@@ -267,7 +283,11 @@ def _external_findings(
         tuple(name for name in reference[:2] if name) == CONSTRAINT_PARAMETERS
         for reference in references
     ):
-        reasons.append("reads input.parameters, which a constraint supplies")
+        reasons.append(
+            "is a policy schema rather than a policy: its guard is stated against "
+            "parameters a Constraint supplies, so it determines no decision function "
+            "until one is applied"
+        )
 
     injected = sorted(
         {
@@ -357,6 +377,23 @@ def discover(root: Path) -> list[tuple[str, Path]]:
 
     modules = {path: ast for path, ast in parsed.items() if not is_test_module(ast, path)}
 
+    # Constraints that supply parameters, keyed by the directory a policy sits in. A
+    # template and its Constraint live in different trees in the measured corpus --
+    # `src/general/<name>/` and `library/general/<name>/samples/*/` -- so they are matched
+    # by the policy directory's name rather than by path.
+    _CONSTRAINTS.clear()
+    for manifest in root.rglob("samples/*/constraint.yaml"):
+        try:
+            document = yaml.safe_load(manifest.read_text(encoding="utf-8", errors="ignore"))
+        except yaml.YAMLError:
+            continue
+        if not isinstance(document, dict):
+            continue
+        if not (document.get("spec") or {}).get("parameters"):
+            continue
+        name = manifest.parent.parent.parent.name
+        _CONSTRAINTS.setdefault(name, []).append(manifest.relative_to(root).as_posix())
+
     # Direct verdicts first, then propagate along imports until nothing changes.
     imports: dict[str, set[str]] = defaultdict(set)
     for ast in modules.values():
@@ -382,6 +419,23 @@ def discover(root: Path) -> list[tuple[str, Path]]:
         for path in sorted(modules)
         if (modules[path].get("rules") or [])
     ]
+
+
+def subject_directory(subject: str) -> str:
+    """The directory a policy sits in, which is how Constraints are matched to it."""
+
+    parts = Path(subject).parts
+    return parts[-2] if len(parts) >= 2 else ""
+
+
+def constraints_for(subject: str) -> list[str]:
+    """Constraints in the corpus that supply this template's parameters.
+
+    Exposed so the claim can be checked rather than asserted: a template excluded as a
+    policy schema should have an instantiation, and in the measured corpus every one does.
+    """
+
+    return list(_CONSTRAINTS.get(subject_directory(subject), []))
 
 
 def classify(text: str) -> Verdict:

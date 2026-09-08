@@ -225,20 +225,25 @@ def numeric_claims(docs: Path) -> list[Claim]:
     def outside_because(fragment: str) -> int:
         return sum(count for reason, count in rego_reasons.items() if fragment in reason)
 
-    parameters = outside_because("input.parameters")
+    # Two kinds of exclusion, deliberately not pooled: an artifact that is not a policy,
+    # and a policy whose guard reads state the subject does not carry.
+    schemas = outside_because("policy schema")
     injected_directly = outside_because("the host injects")
     via_library = outside_because("reaches outside")
     inventory = injected_directly + via_library
-    other_data = rego["counts"]["outside"] - parameters - inventory
+    outside_total = rego["counts"]["outside"]
+    reads_outside = outside_total - schemas
+    other_data = reads_outside - inventory
+    policies = rego["policies_considered"] - schemas
     claims += [
         (
-            r"(\d+) read \\texttt\{input\.parameters\}",
-            (str(parameters),),
-            "rego: policies parameterised by the constraint",
+            r"(\d+) are policies with a guard that reads state",
+            (str(reads_outside),),
+            "rego: policies whose guard reads outside the subject",
         ),
         (
-            r"(\d+) reach \\texttt\{data\.inventory\}.{0,80}?"
-            r"(\d+) directly, and (\d+) by importing",
+            r"(\d+) reach \\texttt\{data\.inventory\}.{0,90}?"
+            r"(\d+) directly, and (\d+)\s*by importing",
             (str(inventory), str(injected_directly), str(via_library)),
             "rego: policies reaching the injected inventory",
         ),
@@ -248,8 +253,28 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "rego: other data documents",
         ),
         (
+            r"(\d+) are not policies at all",
+            (str(schemas),),
+            "rego: policy schemas",
+        ),
+        (
+            r"parameters for all (\d+)",
+            (str(schemas),),
+            "rego: schemas with an instantiating constraint",
+        ),
+        (
+            r"Over the (\d+) artifacts that are policies, (\d+) are inside, or "
+            r"(\d+\.\d)\\%",
+            (
+                str(policies),
+                str(rego["counts"]["inside"]),
+                _pct(rego["counts"]["inside"] / policies),
+            ),
+            "rego: share over artifacts that are policies",
+        ),
+        (
             r"(\d+) of the (\d+) are outside only because",
-            (str(via_library), str(rego["counts"]["outside"])),
+            (str(via_library), str(reads_outside)),
             "rego: outside only via an imported library",
         ),
     ]

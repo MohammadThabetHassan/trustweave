@@ -32,18 +32,18 @@
   "policies": [
     {
       "package": "k8sallowedrepos",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/allowedrepos/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8sallowedreposv2",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/allowedreposv2/src.rego",
       "verdict": "outside"
@@ -92,9 +92,9 @@
     },
     {
       "package": "k8scontainerlimits",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/containerlimits/src.rego",
       "verdict": "outside"
@@ -107,9 +107,9 @@
     },
     {
       "package": "k8scontainerrequests",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/containerrequests/src.rego",
       "verdict": "outside"
@@ -122,9 +122,9 @@
     },
     {
       "package": "k8scontainerratios",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/containerresourceratios/src.rego",
       "verdict": "outside"
@@ -137,9 +137,9 @@
     },
     {
       "package": "k8srequiredresources",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/containerresources/src.rego",
       "verdict": "outside"
@@ -152,9 +152,9 @@
     },
     {
       "package": "k8sdisallowedrepos",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/disallowedrepos/src.rego",
       "verdict": "outside"
@@ -167,9 +167,9 @@
     },
     {
       "package": "k8sdisallowedtags",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/disallowedtags/src.rego",
       "verdict": "outside"
@@ -200,27 +200,27 @@
     },
     {
       "package": "k8scontainerephemeralstoragelimit",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/ephemeralstoragelimit/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8sexternalips",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/externalip/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8shorizontalpodautoscaler",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
         "reads a document the host injects: data.inventory"
       ],
       "subject": "gatekeeper-library/src/general/horizontalpodautoscaler/src.rego",
@@ -261,27 +261,27 @@
     },
     {
       "package": "k8sreplicalimits",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/replicalimits/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8srequiredannotations",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/requiredannotations/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8srequiredlabels",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/requiredlabels/src.rego",
       "verdict": "outside"
@@ -294,18 +294,18 @@
     },
     {
       "package": "k8srequiredprobes",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/requiredprobes/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8sstorageclass",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
         "reads a document the host injects: data.inventory"
       ],
       "subject": "gatekeeper-library/src/general/storageclass/src.rego",
@@ -331,9 +331,9 @@
     },
     {
       "package": "verifydeprecatedapi",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/general/verifydeprecatedapi/src.rego",
       "verdict": "outside"
@@ -364,9 +364,9 @@
     },
     {
       "package": "k8spspapparmor",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/apparmor/src.rego",
       "verdict": "outside"
@@ -385,9 +385,9 @@
     },
     {
       "package": "capabilities",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/capabilities/src.rego",
       "verdict": "outside"
@@ -400,9 +400,9 @@
     },
     {
       "package": "k8spspflexvolumes",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/flexvolume-drivers/src.rego",
       "verdict": "outside"
@@ -415,9 +415,9 @@
     },
     {
       "package": "k8spspforbiddensysctls",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/forbidden-sysctls/src.rego",
       "verdict": "outside"
@@ -430,9 +430,9 @@
     },
     {
       "package": "k8spspfsgroup",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/fsgroup/src.rego",
       "verdict": "outside"
@@ -475,9 +475,9 @@
     },
     {
       "package": "k8spsphostnetworkingports",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/host-network-ports/src.rego",
       "verdict": "outside"
@@ -580,9 +580,9 @@
     },
     {
       "package": "k8spspseccomp",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/seccomp/src.rego",
       "verdict": "outside"
@@ -595,9 +595,9 @@
     },
     {
       "package": "k8spspseccomp",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/seccompv2/src.rego",
       "verdict": "outside"
@@ -616,9 +616,9 @@
     },
     {
       "package": "k8spspselinux",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/selinux/src.rego",
       "verdict": "outside"
@@ -637,9 +637,9 @@
     },
     {
       "package": "k8spspallowedusers",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/users/src.rego",
       "verdict": "outside"
@@ -652,9 +652,9 @@
     },
     {
       "package": "k8spspvolumetypes",
-      "reason": "reads input.parameters, which a constraint supplies",
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
       "reasons": [
-        "reads input.parameters, which a constraint supplies"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/volumes/src.rego",
       "verdict": "outside"
