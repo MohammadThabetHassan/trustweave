@@ -319,10 +319,22 @@ namespace pattern; a comparison against a literal threshold, which splits the sp
 however large the ordered domain is; bounds over a declared taxonomy. Each names a finite
 number of sets, and a witness for each is readable off the syntax.
 
-**Outside.** A guard whose partition depends on data absent from the policy text. Transitive
-membership over an entity store of unbounded depth, so the answer is a property of the store
-rather than of the subject. A pattern taken from the input rather than the policy. An
-arbitrary builtin over a whole document. Rego can express all of these -- its guards may
+**Outside.** A guard whose partition depends on data absent from the policy text. A pattern
+or threshold taken from the input rather than written in the policy. A lookup of state the
+host injects at evaluation time. An arbitrary builtin over a whole document. A reading of the
+clock.
+
+One case belongs on the *inside* list and was on this one until the Cedar measurement
+contradicted it. Cedar's `in` tests membership in an entity hierarchy the request supplies,
+of a depth the policy does not bound, and an earlier version of this list called that outside
+"because the answer is a property of the store rather than of the subject". That is the wrong
+way round: the store *is* an input to authorization, so it is part of the subject, and the
+predicate has two outcomes with an entity store realising either one constructible from the
+policy text. Unbounded depth does not matter because the outcome is all the policy can
+observe. `scripts/fragment_membership_cedar.py` has said so in its own header throughout,
+which is why Cedar measures 22 of 22 inside; the list here disagreed with the instrument and
+the list was wrong. The distinction to keep is between *traversing a large structure* and
+*reading data the policy does not contain*. Rego can express all of these -- its guards may
 call any builtin over `data` and `input`, and Theorem 6 below is the limit case -- which is
 why an earlier version of this section asserted that Rego "generally falls outside". That
 assertion has since been measured and it was wrong: **116 of 186 published Rego policies are
