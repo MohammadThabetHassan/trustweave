@@ -14,6 +14,15 @@ All notable changes to TrustWeave are documented in this file. The project follo
   corpus commit it read, along with every instrument in `scripts/` that produced one.
   `docs/site/RESEARCH_NOTE.md` says where the write-ups went and how to point the two
   checks that read them at their new location.
+- `demo/research-assistant/demo.gif` is re-encoded from 1,345 KiB to 892 KiB with the same
+  44 frames, the same dimensions and the same per-frame timing. It is a recording of a real
+  run and is not regenerable from anything in this repository, so nothing was re-rendered:
+  `scripts/optimise_demo_gif.py` reads the frames that are there, quantises them to a
+  16-colour palette — the source holds 48 distinct colours, and 64 or 128 produce identical
+  output — and verifies that the count, size and timing survive. The reason it had grown to
+  more than twice what any case is allowed is that it had no budget and nothing measured it,
+  so `tests/test_demo_gif_budget.py` now holds it to 1,000 KiB, requires it to be palette
+  encoded, and fails if any future GIF appears in a directory no budget covers.
 - The declaration-consistency case walkthroughs no longer print
   `== Captured terminal output begins ==` into the terminal body. Distinguishing what
   `run-case.sh` emitted from what the renderer added is worth keeping, so captured lines
