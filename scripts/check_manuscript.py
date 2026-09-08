@@ -141,14 +141,25 @@ def numeric_claims(docs: Path) -> list[Claim]:
             )
         )
 
-    ecosystems = {"xacml": "XACML", "kyverno": "Kyverno", "cedar": "Cedar"}
+    # Rego is measured at whole-corpus scope only: that study's Rego subjects are
+    # individual rules, while membership is a property of a policy module's guards.
+    ecosystems = {
+        "xacml": "XACML",
+        "kyverno": "Kyverno",
+        "cedar": "Cedar",
+        "rego": "Rego",
+    }
+    joined_scopes = {"xacml", "kyverno", "cedar"}
     totals: Counter[str] = Counter()
     for slug, printed in ecosystems.items():
         wide = _load(docs, f"fragment-membership-{slug}-wide-v1")
-        narrow = _load(docs, f"fragment-membership-{slug}-v1")
         assert wide["corpus_scope"] == "wide", slug
-        assert narrow["corpus_scope"] == "joined-to-study", slug
-        for scope, findings in (("whole-corpus", wide), ("joined", narrow)):
+        scopes = [("whole-corpus", wide)]
+        if slug in joined_scopes:
+            narrow = _load(docs, f"fragment-membership-{slug}-v1")
+            assert narrow["corpus_scope"] == "joined-to-study", slug
+            scopes.append(("joined", narrow))
+        for scope, findings in scopes:
             counts = findings["counts"]
             inside, outside = counts["inside"], counts["outside"]
             undetermined = counts["undetermined"]
@@ -205,6 +216,41 @@ def numeric_claims(docs: Path) -> list[Claim]:
                 _pct(totals["inside"] / totals["policies"]),
             ),
             "membership table: total row",
+        ),
+    ]
+
+    rego = _load(docs, "fragment-membership-rego-wide-v1")
+    rego_reasons = Counter(entry["reason"] for entry in rego["policies"])
+
+    def outside_because(fragment: str) -> int:
+        return sum(count for reason, count in rego_reasons.items() if fragment in reason)
+
+    parameters = outside_because("input.parameters")
+    injected_directly = outside_because("the host injects")
+    via_library = outside_because("reaches outside")
+    inventory = injected_directly + via_library
+    other_data = rego["counts"]["outside"] - parameters - inventory
+    claims += [
+        (
+            r"(\d+) read \\texttt\{input\.parameters\}",
+            (str(parameters),),
+            "rego: policies parameterised by the constraint",
+        ),
+        (
+            r"(\d+) reach \\texttt\{data\.inventory\}.{0,80}?"
+            r"(\d+) directly, and (\d+) by importing",
+            (str(inventory), str(injected_directly), str(via_library)),
+            "rego: policies reaching the injected inventory",
+        ),
+        (
+            r"remaining (\d+) read some other \\texttt\{data\} document",
+            (str(other_data),),
+            "rego: other data documents",
+        ),
+        (
+            r"(\d+) of the (\d+) are outside only because",
+            (str(via_library), str(rego["counts"]["outside"])),
+            "rego: outside only via an imported library",
         ),
     ]
 

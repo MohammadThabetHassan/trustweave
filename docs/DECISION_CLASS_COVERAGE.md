@@ -322,8 +322,12 @@ number of sets, and a witness for each is readable off the syntax.
 **Outside.** A guard whose partition depends on data absent from the policy text. Transitive
 membership over an entity store of unbounded depth, so the answer is a property of the store
 rather than of the subject. A pattern taken from the input rather than the policy. An
-arbitrary builtin over a whole document. These are why Rego generally falls outside: its
-guards may call any builtin over `data` and `input`, and Theorem 6 below is the limit case.
+arbitrary builtin over a whole document. Rego can express all of these -- its guards may
+call any builtin over `data` and `input`, and Theorem 6 below is the limit case -- which is
+why an earlier version of this section asserted that Rego "generally falls outside". That
+assertion has since been measured and it was wrong: **116 of 186 published Rego policies are
+inside**. What excludes the other 70 is two idioms rather than the language's reach, and the
+paragraphs below give them.
 
 ### How much of a real ecosystem is inside
 
@@ -345,7 +349,8 @@ fragment covers, since membership is decided from policy text and needs no suite
 | XACML | 548 | **526** | 22 | 0 | 96.0% |
 | Kyverno | 235 | **205** | 30 | 0 | 87.2% |
 | Cedar | 22 | **22** | 0 | 0 | 100.0% |
-| **Total** | **805** | **753** | **52** | **0** | **93.5%** |
+| Rego | 186 | **116** | 70 | 0 | 62.4% |
+| **Total** | **991** | **869** | **122** | **0** | **87.7%** |
 | *Joined to a suite study* | | | | | |
 | XACML | 21 | **15** | 6 | 0 | 71.4% |
 | Kyverno | 49 | **41** | 8 | 0 | 83.7% |
@@ -361,7 +366,10 @@ of the fragment measurement named only in prose:
 [cedar](fragment-membership-cedar-v1.json),
 [xacml wide](fragment-membership-xacml-wide-v1.json),
 [kyverno wide](fragment-membership-kyverno-wide-v1.json),
-[cedar wide](fragment-membership-cedar-wide-v1.json).
+[cedar wide](fragment-membership-cedar-wide-v1.json),
+[rego wide](fragment-membership-rego-wide-v1.json). Rego has no joined row: the suite study
+names Rego subjects by individual rule, and membership is a property of a policy module's
+guards.
 
 Widening the corpus took two corrections to the instruments, and both were the same mistake
 in different languages: an allowlist of *names* where the criterion is about *kinds*.
@@ -393,6 +401,45 @@ in different languages: an allowlist of *names* where the criterion is about *ki
 Every verdict in the joined scope is unchanged by all of this, which is the check that
 matters: the widening added decisions where the instruments had refused, and moved none that
 they had already made.
+
+### Rego, which was asserted rather than measured
+
+Rego was left out of the membership measurement on the grounds that it is the case Theorem 6
+describes. That reasoning is sound about the *language* and was wrong about the *policies*.
+`scripts/fragment_membership_rego.py` reads the AST `opa parse` produces -- the other three
+adapters read a declarative document; Rego is a language, so this one needs a parser -- and
+finds **116 of 186 inside, none undetermined**.
+
+The 70 outside divide into two idioms, neither of which is about expressive power:
+
+- **28 read `input.parameters`.** A Gatekeeper constraint template states its guard against
+  values a *Constraint* supplies later: allowed repositories, permitted profiles, numeric
+  ranges. The partition is fixed by the constraint, not by the policy text, so this is the
+  "pattern taken from the input" case. The same policy with its repository list written
+  inline would be inside.
+- **34 reach `data.inventory`**, the cluster state Gatekeeper caches and injects -- 9
+  directly and 25 by importing a library that does. The corpus ships a fixture whose own
+  comment reads "Test data to mock out data.inventory cache provided by Gatekeeper", which
+  is the clearest evidence available that the real thing is not in the policy.
+- The remaining 8 read some other `data` document the bundle does not define.
+
+Three things about the instrument are worth recording, because each was a defect first.
+
+1. **The import graph is load-bearing.** 25 of the 70 are outside *only* because a library
+   they call reaches outside. Classifying modules independently reported all 25 inside, so
+   the adapter propagates verdicts along imports to a fixpoint.
+2. **Rego packages span files.** A rule defined in one file is visible unqualified to every
+   other file declaring the same package, so resolving a call against its own file left four
+   modules undetermined on helpers that were defined next door.
+3. **A test module is identified by its rules, not its filename.** The corpora use
+   `*_test.rego` and `test_*.rego` interchangeably; requiring *every* rule to be `test_`
+   prefixed let 51 test files into the policy corpus, because a test file also defines its
+   fixtures. `opa test` discovers cases by prefix, so one such rule makes a test module.
+
+The share being lowest here is the result worth keeping. An instrument that returns 96% on a
+conformance suite and 62% on a general-purpose language is discriminating rather than
+agreeing, which is the only evidence available that the other three figures are measurements
+and not the instrument's disposition.
 
 What is outside is outside for one kind of reason in each ecosystem, and it is always the
 same kind: a guard that reads something the policy does not contain.
@@ -436,8 +483,8 @@ while these were written, each time by reversing a number that had looked settle
 Three limits belong with the figures. These are curated upstream test corpora, not deployed
 policy. Membership is a property of the guards, so a policy inside the fragment gets the
 exactness results for *its own* decision structure; it does not make its language decidable,
-which Theorem 6 rules out. And **no equivalent measurement is claimed for Rego**: it is the
-case Theorem 6 describes, since its guards may call any builtin over `data` and `input`.
+which Theorem 6 rules out. Rego **is** now measured, which it was not when this section was
+written, and the measurement is the one that most changes the picture: see below.
 
 The measurement also makes a stratified reading of the study's one predictive result
 possible, and that reading is not favourable. It is in

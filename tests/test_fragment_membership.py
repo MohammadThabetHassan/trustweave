@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -23,7 +24,11 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
+# The three ecosystems measured at both scopes. Rego is measured at whole-corpus scope
+# only -- the suite study names its subjects by rule, not by module -- so the
+# parametrised joined-scope cases below do not include it, and it has its own at the end.
 ECOSYSTEMS = ("xacml", "kyverno", "cedar")
+ALL_ECOSYSTEMS = ("xacml", "kyverno", "cedar", "rego")
 
 
 def _load(name: str) -> ModuleType:
@@ -61,15 +66,18 @@ class TestCore:
             core.subjects_of({"something": []})
 
     def test_every_registered_adapter_satisfies_the_protocol(self) -> None:
-        for name in ECOSYSTEMS:
+        for name in ALL_ECOSYSTEMS:
             adapter = core.load_adapter(name)
             assert name == adapter.ECOSYSTEM
             assert callable(adapter.discover)
             assert callable(adapter.classify)
 
     def test_an_unknown_ecosystem_is_refused(self) -> None:
+        # This case used to name "rego", which has since become a registered adapter.
+        # A test whose fixture can be turned true by ordinary work is a test that stops
+        # testing anything, so it now names a language nobody is going to add.
         with pytest.raises(SystemExit):
-            core.load_adapter("rego")
+            core.load_adapter("not-a-policy-language")
 
     def test_measure_reports_a_share_over_everything_and_over_what_it_judged(
         self, tmp_path: Path
@@ -507,3 +515,153 @@ def test_the_wide_discovery_falls_back_for_an_adapter_without_one() -> None:
     assert core.discovery_for(Narrow, wide=False) is Narrow.discover
     assert core.discovery_for(xacml, wide=True) is xacml.discover_wide
     assert core.discovery_for(xacml, wide=False) is xacml.discover
+
+
+# --- Rego, the fourth ecosystem ---------------------------------------------------------
+#
+# Rego was asserted to fall outside the fragment rather than measured, and the assertion
+# was wrong: 116 of 186 published policies are inside. The adapter needs `opa` to parse,
+# so the cases that need a parser skip without it, while the committed artifact is checked
+# either way -- a figure in a document must not depend on a binary being installed.
+
+rego = _load("fragment_membership_rego")
+
+opa_required = pytest.mark.skipif(
+    shutil.which("opa") is None, reason="opa is not installed; the rego adapter needs it"
+)
+
+
+def test_the_rego_measurement_judges_every_policy() -> None:
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-rego-wide-v1.json").read_text("utf-8")
+    )
+
+    assert artifact["corpus_scope"] == "wide"
+    assert artifact["counts"] == {"inside": 116, "outside": 70, "undetermined": 0}
+    assert artifact["policies_considered"] == 186
+
+
+def test_the_rego_measurement_counts_no_test_module_as_a_policy() -> None:
+    """`opa test` cases are not policies, and both naming conventions appear upstream."""
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-rego-wide-v1.json").read_text("utf-8")
+    )
+    named_like_a_test = [
+        entry["subject"]
+        for entry in artifact["policies"]
+        if entry["subject"].endswith("_test.rego") or "/test_" in entry["subject"]
+    ]
+
+    assert named_like_a_test == []
+
+
+def test_the_rego_exclusions_are_the_two_idioms_the_document_names() -> None:
+    """28 parameterised by a constraint, 34 reaching the injected inventory, 8 other."""
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-rego-wide-v1.json").read_text("utf-8")
+    )
+    reasons = [entry["reason"] for entry in artifact["policies"] if entry["verdict"] == "outside"]
+
+    parameters = sum(1 for reason in reasons if "input.parameters" in reason)
+    injected = sum(1 for reason in reasons if "the host injects" in reason)
+    via_library = sum(1 for reason in reasons if "reaches outside" in reason)
+
+    assert parameters == 28
+    assert injected + via_library == 34
+    assert via_library == 25, "the import graph is what makes these 25 outside"
+    assert len(reasons) - parameters - injected - via_library == 8
+
+
+@opa_required
+def test_rego_reads_the_request_and_literals_and_is_inside() -> None:
+    outcome = rego.classify(
+        "package p\n\n"
+        "violation[{'msg': msg}] {\n"
+        '  input.review.kind.kind == "Service"\n'
+        '  input.review.object.spec.type == "NodePort"\n'
+        '  msg := "not allowed"\n'
+        "}\n".replace("'", '"')
+    )
+
+    assert outcome.verdict == core.INSIDE
+
+
+@opa_required
+def test_rego_parameterised_by_a_constraint_is_outside() -> None:
+    """The guard's comparison value arrives with the Constraint, not the policy."""
+
+    outcome = rego.classify(
+        "package p\n\n"
+        'violation[{"msg": msg}] {\n'
+        "  repo := input.parameters.repos[_]\n"
+        "  not startswith(input.review.object.spec.containers[0].image, repo)\n"
+        '  msg := "bad repo"\n'
+        "}\n"
+    )
+
+    assert outcome.verdict == core.OUTSIDE
+    assert "input.parameters" in outcome.reason
+
+
+@opa_required
+def test_rego_reading_the_injected_inventory_is_outside() -> None:
+    outcome = rego.classify(
+        "package p\n\n"
+        'violation[{"msg": msg}] {\n'
+        '  ns := data.inventory.cluster["v1"].Namespace["prod"]\n'
+        '  msg := sprintf("%v", [ns])\n'
+        "}\n"
+    )
+
+    assert outcome.verdict == core.OUTSIDE
+    assert "injects" in outcome.reason
+
+
+@opa_required
+def test_rego_calling_a_nondeterministic_builtin_is_outside() -> None:
+    for call in ("http.send({})", "time.now_ns()", 'rand.intn("s", 10)', "opa.runtime()"):
+        outcome = rego.classify(
+            'package p\n\nviolation[{"msg": msg}] {\n'
+            f"  x := {call}\n"
+            '  msg := sprintf("%v", [x])\n'
+            "}\n"
+        )
+        assert outcome.verdict == core.OUTSIDE, call
+
+
+@opa_required
+def test_rego_pure_time_and_net_builtins_stay_inside() -> None:
+    """Only a handful of `time.*` and `net.*` reach past their arguments."""
+
+    outcome = rego.classify(
+        "package p\n\n"
+        'violation[{"msg": msg}] {\n'
+        '  net.cidr_contains("10.0.0.0/8", input.review.object.spec.clusterIP)\n'
+        '  msg := "in range"\n'
+        "}\n"
+    )
+
+    assert outcome.verdict == core.INSIDE
+
+
+@opa_required
+def test_rego_identifies_a_test_module_by_its_rules() -> None:
+    fixture = 'package p\n\ntest_something {\n  true\n}\n\ninput_review := {"kind": "Pod"}\n'
+    ast = rego.parse(fixture)
+
+    assert ast is not None
+    assert rego.is_test_module(ast)
+    assert not rego.is_test_module(rego.parse("package p\n\nallow {\n  input.x == 1\n}\n"))
+
+
+@opa_required
+def test_rego_normalises_package_and_import_paths_the_same_way() -> None:
+    """Comparing a `data.` reference against a package means dropping `data.` from both."""
+
+    ast = rego.parse("package lib.helpers\n\nimport data.lib.other\n\nx := 1\n")
+
+    assert ast is not None
+    assert rego.package_of(ast) == "lib.helpers"
+    assert rego.imports_of(ast) == ["lib.other"]

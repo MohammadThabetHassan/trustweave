@@ -28,6 +28,7 @@ import argparse
 import importlib
 import importlib.util
 import json
+import sys
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -42,6 +43,7 @@ ADAPTERS = {
     "xacml": "fragment_membership_xacml",
     "kyverno": "fragment_membership_kyverno",
     "cedar": "fragment_membership_cedar",
+    "rego": "fragment_membership_rego",
 }
 
 
@@ -110,6 +112,11 @@ def provenance(root: Path) -> list[dict[str, str]]:
     if specification is None or specification.loader is None:  # pragma: no cover
         raise SystemExit(f"cannot load {module_path}")
     module = importlib.util.module_from_spec(specification)
+    # Register before executing. `suite_coverage` declares a dataclass, and under
+    # `from __future__ import annotations` dataclasses resolves field annotations through
+    # `sys.modules[cls.__module__]` -- which is None for a module that was executed but
+    # never registered, and the decorator raises rather than the import failing cleanly.
+    sys.modules.setdefault("suite_coverage", module)
     specification.loader.exec_module(module)
     repositories: list[dict[str, str]] = module.provenance(root)
     return repositories
