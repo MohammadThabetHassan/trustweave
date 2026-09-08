@@ -20,6 +20,7 @@ import pytest
 
 from trustweave import code_catalog as catalog
 from trustweave.code_analysis import (
+    MAX_CALL_DEPTH,
     MAX_REACHABLE_FUNCTIONS_PER_TOOL,
     analyze_sources,
 )
@@ -578,3 +579,102 @@ def test_a_dynamic_lookup_is_still_a_refusal_not_an_execution_finding(
 
     assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
     assert "DYNAMIC_DISPATCH" in tool.reasons
+
+
+# ---------------------------------------------------------------------------------------
+# The call-depth budget, which stops the traversal and must say so
+# ---------------------------------------------------------------------------------------
+
+
+def _depth_source(depth: int) -> str:
+    """A tool whose only effect sits *depth* frames below it."""
+
+    chain = "".join(
+        f"def hop{index}(value):\n    return hop{index + 1}(value)\n\n\n" for index in range(depth)
+    )
+    chain += (
+        f"def hop{depth}(value):\n    import requests\n    return requests.get(value).text\n\n\n"
+    )
+    return (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        f"{chain}"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe the call-depth budget."""\n'
+        "    return hop0(value)\n"
+    )
+
+
+def test_an_effect_within_the_depth_budget_is_reported(tmp_path: Path) -> None:
+    tool = _single_tool(tmp_path, _depth_source(MAX_CALL_DEPTH - 1))
+
+    assert tool.proposed_action_class() == "external"
+    assert tool.budget_state == "complete"
+    assert tool.reasons == set()
+
+
+@pytest.mark.parametrize("beyond", [0, 1, 2])
+def test_an_effect_past_the_depth_budget_is_refused_not_called_a_read(
+    tmp_path: Path, beyond: int
+) -> None:
+    """The traversal stops, and saying nothing published an outbound call as no effect.
+
+    Before this the tool was reported `read` at high confidence with `budget_state`
+    still `complete`, which is the one direction a security review must not fail in.
+    """
+
+    tool = _single_tool(tmp_path, _depth_source(MAX_CALL_DEPTH + beyond))
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert tool.confidence() == "review"
+    assert tool.budget_state == "exhausted"
+    assert "BUDGET_EXHAUSTED" in tool.reasons
+
+
+def test_a_call_at_the_limit_with_nothing_to_follow_is_not_reported_as_exhausted(
+    tmp_path: Path,
+) -> None:
+    """Only a call the traversal would have followed counts, or every tool would refuse."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "def hop0(value):\n"
+        "    return hop1(value)\n"
+        "\n\n"
+        "def hop1(value):\n"
+        "    return hop2(value)\n"
+        "\n\n"
+        "def hop2(value):\n"
+        "    return str(len(value))\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a chain that ends in computation."""\n'
+        "    return hop0(value)\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.budget_state == "complete"
+    assert tool.proposed_action_class() == "read"
+
+
+def test_a_shallow_tool_is_unaffected_by_the_depth_rule(tmp_path: Path) -> None:
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import requests\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a direct call."""\n'
+        "    return requests.get(value).text\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == "external"
+    assert tool.budget_state == "complete"
+
+
+def test_the_depth_budget_is_the_published_constant() -> None:
+    assert MAX_CALL_DEPTH == 3

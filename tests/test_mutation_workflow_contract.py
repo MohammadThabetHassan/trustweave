@@ -52,6 +52,7 @@ check_diff_parity = gate.check_diff_parity
 check_identifier_parity = gate.check_identifier_parity
 check_records = gate.check_records
 parse_totals = gate.parse_totals
+check_gated_threshold = gate.check_gated_threshold
 run_gate = gate.run_gate
 
 
@@ -77,7 +78,11 @@ def test_hosted_job_delegates_the_gate_to_the_runnable_script() -> None:
 
     run = _step("Mutation quality and survivor gate")["run"]
     assert GATE_SCRIPT in run
-    for argument in ("--run-log mutation-run.log", "--results mutation-results.txt"):
+    for argument in (
+        "--run-log mutation-run.log",
+        "--results mutation-results.txt",
+        "--ratchet docs/mutation-ratchet-v1.json",
+    ):
         assert argument in run
     assert (ROOT / GATE_SCRIPT).is_file()
 
@@ -90,6 +95,7 @@ def test_hosted_job_publishes_the_gate_evidence() -> None:
         "mutation-results.txt",
         "mutation-quality.json",
         "docs/mutation-survivor-triage-v1.json",
+        "docs/mutation-ratchet-v1.json",
     ):
         assert artifact in upload["with"]["path"]  # type: ignore[index]
 
@@ -101,15 +107,37 @@ def test_gate_defaults_match_the_published_contract() -> None:
 
 
 def test_gate_rejects_a_score_below_the_threshold() -> None:
+    """The threshold applies to the gated scope, not to the whole run."""
+
+    gated = {"trustweave.chain": Counter({"killed": 949, "survived": 51})}
     with pytest.raises(GateFailure, match="Mutation quality gate failed"):
-        parse_totals("⠋ 1000/1000  🎉 949  🙁 51")
+        check_gated_threshold(gated)
 
 
 def test_gate_rejects_an_incomplete_or_inconsistent_run() -> None:
     with pytest.raises(GateFailure, match="did not complete"):
         parse_totals("⠋ 999/1000  🎉 999  🙁 0")
     with pytest.raises(GateFailure, match="inconsistent"):
-        parse_totals("⠋ 1000/1000  🎉 999  🙁 0")
+        parse_totals("⠋ 1000/1000  🎉 999  🙁 2")
+
+
+def test_gate_refuses_an_uncovered_mutant_in_the_gated_scope() -> None:
+    """The survivor triage cannot account for a mutant no test reaches."""
+
+    gated = {"trustweave.chain": Counter({"killed": 999, "no tests": 1})}
+    with pytest.raises(GateFailure, match="no covering test"):
+        check_gated_threshold(gated)
+
+
+def test_gate_holds_a_ratcheted_module_to_its_recorded_floor() -> None:
+    """The module the gate does not cover is still under a control that can fail."""
+
+    ratcheted = {"trustweave.code_analysis": Counter({"killed": 70, "survived": 30})}
+    failures, _ = gate.check_ratchet(
+        ratcheted, {"trustweave.code_analysis": {"score_percent": 80.0}}
+    )
+
+    assert failures and "below the recorded" in failures[0]
 
 
 def _inventory(records: list[dict[str, object]]) -> dict[str, object]:
@@ -168,13 +196,16 @@ def test_gate_enforces_exact_normalized_diff_parity() -> None:
 def test_gate_blocks_publication_while_a_survivor_needs_regression(tmp_path: Path) -> None:
     """A survivor that should have been killed must fail the gate, not be reported."""
 
-    identifiers = [f"x_a__mutmut_{index}" for index in range(1, 5)]
+    identifiers = [f"trustweave.chain.x_a__mutmut_{index}" for index in range(1, 5)]
     records = [_record(identifier) for identifier in identifiers]
     records[0]["classification"] = "needs_regression"
     run_log = tmp_path / "run.log"
     run_log.write_text("⠋ 100/100  🎉 96  🙁 4", encoding="utf-8")
     results = tmp_path / "results.txt"
-    results.write_text("".join(f"{name}: survived\n" for name in identifiers), encoding="utf-8")
+    killed = "".join(f"trustweave.chain.x_k__mutmut_{index}: killed\n" for index in range(96))
+    results.write_text(
+        killed + "".join(f"{name}: survived\n" for name in identifiers), encoding="utf-8"
+    )
     triage = tmp_path / "triage.json"
     triage.write_text(json.dumps(_inventory(records)), encoding="utf-8")
 

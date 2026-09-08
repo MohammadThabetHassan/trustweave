@@ -45,6 +45,9 @@ check_identifier_parity = gate.check_identifier_parity
 check_records = gate.check_records
 diff_digest = gate.diff_digest
 load_inventory = gate.load_inventory
+check_gated_threshold = gate.check_gated_threshold
+partition = gate.partition
+module_of = gate.module_of
 main = gate.main
 normalized_diff = gate.normalized_diff
 parse_survivors = gate.parse_survivors
@@ -108,16 +111,60 @@ class TestParseTotals:
         with pytest.raises(GateFailure, match="did not complete: 40/100"):
             parse_totals("⠋ 40/100  🎉 38  🙁 2")
 
-    def test_rejects_totals_that_do_not_add_up(self) -> None:
+    def test_allows_mutants_that_are_neither_killed_nor_survived(self) -> None:
+        """A mutant can also be reported as having no covering test."""
+
+        assert parse_totals("⠋ 100/100  🎉 90  🙁 4") == (100, 90, 4)
+
+    def test_rejects_totals_that_exceed_the_generated_count(self) -> None:
         with pytest.raises(GateFailure, match="totals are inconsistent"):
-            parse_totals("⠋ 100/100  🎉 90  🙁 4")
+            parse_totals("⠋ 100/100  🎉 98  🙁 6")
 
-    def test_rejects_a_score_below_the_threshold(self) -> None:
+    def test_does_not_judge_the_score(self) -> None:
+        """The threshold is over the gated modules, which the run totals do not identify."""
+
+        assert parse_totals("⠋ 100/100  🎉 10  🙁 90") == (100, 10, 90)
+
+
+class TestGatedThreshold:
+    def test_a_score_below_the_threshold_is_refused(self) -> None:
+        gated = {"trustweave.chain": Counter({"killed": 94, "survived": 6})}
         with pytest.raises(GateFailure, match=r"94\.00%\) < 95%"):
-            parse_totals("⠋ 100/100  🎉 94  🙁 6")
+            check_gated_threshold(gated)
 
-    def test_accepts_a_score_exactly_at_the_threshold(self) -> None:
-        assert parse_totals("⠋ 100/100  🎉 95  🙁 5") == (100, 95, 5)
+    def test_a_score_exactly_at_the_threshold_is_accepted(self) -> None:
+        gated = {"trustweave.chain": Counter({"killed": 95, "survived": 5})}
+
+        assert check_gated_threshold(gated)["score_percent"] == 95.0
+
+    def test_a_gated_module_with_an_uncovered_mutant_is_refused(self) -> None:
+        """The triage cannot describe a mutant no test reaches, so it must not exist here."""
+
+        gated = {"trustweave.chain": Counter({"killed": 99, "no tests": 1})}
+        with pytest.raises(GateFailure, match="no covering test"):
+            check_gated_threshold(gated)
+
+    def test_an_empty_gated_scope_is_refused(self) -> None:
+        with pytest.raises(GateFailure, match="No gated module"):
+            check_gated_threshold({})
+
+
+class TestPartition:
+    def test_the_module_is_read_from_the_identifier(self) -> None:
+        assert module_of("trustweave.chain.x_render__mutmut_4") == "trustweave.chain"
+
+    def test_ratcheted_modules_are_separated_from_gated_ones(self) -> None:
+        results = (
+            "trustweave.chain.x_a__mutmut_1: killed\n"
+            "trustweave.chain.x_a__mutmut_2: survived\n"
+            "trustweave.code_analysis.x_b__mutmut_1: survived\n"
+            "trustweave.code_analysis.x_b__mutmut_2: no tests\n"
+        )
+        gated, ratcheted = partition(results)
+
+        assert set(gated) == {"trustweave.chain"}
+        assert set(ratcheted) == {"trustweave.code_analysis"}
+        assert ratcheted["trustweave.code_analysis"]["no tests"] == 1
 
 
 class TestParseSurvivors:
@@ -260,7 +307,10 @@ class TestRunGate:
         run_log = tmp_path / "run.log"
         run_log.write_text(PROGRESS, encoding="utf-8")
         results = tmp_path / "results.txt"
-        results.write_text("".join(f"{name}: survived\n" for name in identifiers), encoding="utf-8")
+        # 96 killed and 4 survived, all in one gated module, so the scope clears 95%.
+        killed = "".join(f"trustweave.chain.x_k__mutmut_{index}: killed\n" for index in range(96))
+        survived = "".join(f"{name}: survived\n" for name in identifiers)
+        results.write_text(killed + survived, encoding="utf-8")
         triage = tmp_path / "triage.json"
         triage.write_text(json.dumps(_inventory(identifiers)), encoding="utf-8")
         return run_log, results, triage
@@ -276,7 +326,7 @@ class TestRunGate:
         monkeypatch.setattr("mutation_gate.subprocess.run", fake_run)
 
     def test_passes_and_reports_evidence(self, tmp_path: Path, stub_show: None) -> None:
-        identifiers = [f"x_a__mutmut_{index}" for index in range(1, 5)]
+        identifiers = [f"trustweave.chain.x_a__mutmut_{index}" for index in range(1, 5)]
         run_log, results, triage = self._fixtures(tmp_path, identifiers)
         evidence = run_gate(run_log, results, triage, "mutmut")
         assert evidence["killed"] == 96
@@ -286,7 +336,7 @@ class TestRunGate:
         assert evidence["triage_untriaged_count"] == 0
 
     def test_needs_regression_blocks_the_gate(self, tmp_path: Path, stub_show: None) -> None:
-        identifiers = [f"x_a__mutmut_{index}" for index in range(1, 5)]
+        identifiers = [f"trustweave.chain.x_a__mutmut_{index}" for index in range(1, 5)]
         run_log, results, triage = self._fixtures(tmp_path, identifiers)
         inventory = _inventory(identifiers)
         inventory["survivors"][0]["classification"] = "needs_regression"  # type: ignore[index]
@@ -323,9 +373,12 @@ class TestRunGate:
     def test_main_writes_evidence_when_the_gate_passes(
         self, tmp_path: Path, stub_show: None
     ) -> None:
-        identifiers = ["x_a__mutmut_1", "x_a__mutmut_2", "x_a__mutmut_3", "x_a__mutmut_4"]
+        identifiers = [f"trustweave.chain.x_a__mutmut_{index}" for index in range(1, 5)]
         run_log, results, triage = self._fixtures(tmp_path, identifiers)
         evidence = tmp_path / "evidence.json"
+        # The ratchet path is passed explicitly. Its default is relative, so leaving it
+        # out made the result depend on the working directory: from the repository root
+        # the real record loads and demands mutants this fixture does not produce.
         exit_code = main(
             [
                 "--run-log",
@@ -336,7 +389,89 @@ class TestRunGate:
                 str(triage),
                 "--evidence",
                 str(evidence),
+                "--ratchet",
+                str(tmp_path / "absent-ratchet.json"),
             ]
         )
         assert exit_code == 0
         assert json.loads(evidence.read_text(encoding="utf-8"))["threshold_percent"] == 95
+
+
+class TestRatchet:
+    """A module held to a floor rather than to the survivor-triage gate."""
+
+    def test_a_rate_above_the_floor_passes(self) -> None:
+        ratcheted = {"trustweave.code_analysis": Counter({"killed": 85, "survived": 15})}
+        floors = {"trustweave.code_analysis": {"score_percent": 80.0}}
+
+        failures, measured = gate.check_ratchet(ratcheted, floors)
+
+        assert failures == []
+        assert measured["trustweave.code_analysis"]["score_percent"] == 85.0
+
+    def test_a_rate_exactly_at_the_floor_passes(self) -> None:
+        ratcheted = {"trustweave.code_analysis": Counter({"killed": 80, "survived": 20})}
+        floors = {"trustweave.code_analysis": {"score_percent": 80.0}}
+
+        assert gate.check_ratchet(ratcheted, floors)[0] == []
+
+    def test_a_rate_below_the_floor_fails(self) -> None:
+        ratcheted = {"trustweave.code_analysis": Counter({"killed": 79, "survived": 21})}
+        floors = {"trustweave.code_analysis": {"score_percent": 80.0}}
+
+        failures, _ = gate.check_ratchet(ratcheted, floors)
+
+        assert failures and "below the recorded" in failures[0]
+
+    def test_uncovered_mutants_count_against_the_rate(self) -> None:
+        """A mutant no test reaches is not killed, so it must not be quietly dropped."""
+
+        ratcheted = {
+            "trustweave.code_analysis": Counter({"killed": 80, "survived": 10, "no tests": 10})
+        }
+        failures, measured = gate.check_ratchet(
+            ratcheted, {"trustweave.code_analysis": {"score_percent": 80.0}}
+        )
+
+        assert measured["trustweave.code_analysis"]["generated"] == 100
+        assert measured["trustweave.code_analysis"]["score_percent"] == 80.0
+        assert failures == []
+
+    def test_a_recorded_floor_with_no_mutants_is_refused(self) -> None:
+        """Silence would hide the module dropping out of the mutation scope."""
+
+        failures, _ = gate.check_ratchet({}, {"trustweave.code_analysis": {"score_percent": 80.0}})
+
+        assert failures and "produced no mutants" in failures[0]
+
+    def test_mutants_with_no_recorded_floor_are_refused(self) -> None:
+        ratcheted = {"trustweave.code_analysis": Counter({"killed": 80, "survived": 20})}
+
+        failures, _ = gate.check_ratchet(ratcheted, {})
+
+        assert failures and "no recorded floor" in failures[0]
+
+    def test_the_committed_record_names_every_ratcheted_module(self) -> None:
+        record = json.loads(
+            (ROOT / "docs" / "mutation-ratchet-v1.json").read_text(encoding="utf-8")
+        )
+
+        assert set(record["modules"]) == set(gate.RATCHETED_MODULES)
+        for entry in record["modules"].values():
+            assert 0 < entry["score_percent"] <= 100
+            assert entry["reason"].strip()
+
+
+def test_a_ratcheted_survivor_is_not_expected_in_the_triage_inventory() -> None:
+    """Its survivors are counted, never excused, and no proof is claimed for them."""
+
+    inventory = json.loads(
+        (ROOT / "docs" / "mutation-survivor-triage-v1.json").read_text(encoding="utf-8")
+    )
+    ratcheted = [
+        record["id"]
+        for record in inventory["survivors"]
+        if gate.module_of(record["id"]) in gate.RATCHETED_MODULES
+    ]
+
+    assert ratcheted == []
