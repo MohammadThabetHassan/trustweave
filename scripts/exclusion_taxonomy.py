@@ -14,15 +14,27 @@ sharpens it: a definition whose every parameter carries a `defaultValue` *does* 
 decision function, so the line falls between "parameterised" and "parameterised without
 defaults" rather than at parameterisation itself.
 
-**The policy performs a lookup.** A guard reads state the evaluator was not handed --
-Gatekeeper's injected cluster inventory, a Kyverno `context` entry or CEL call against the
-API server, an image signature fetched from a registry, an XACML `AttributeSelector` over an
-arbitrary document, an ARM `reference()` to another resource's runtime state. The partition
-such a guard induces is not fixed by the policy text, so no witness is constructible.
+**The subject does not determine the guard.** This is the category whose name matters,
+because the obvious name for it is wrong. It is tempting to say "the policy reads state the
+evaluator was not handed", and that is false of the largest member: Gatekeeper *does* hand
+OPA its cached cluster inventory, injected as `data.inventory` before evaluation. What is
+true, and what the fragment actually requires, is that the guard's value be determined by
+the subject the decision is about together with literals in the policy.
 
-**A guard reads the clock.** Two policies, and it is worth keeping as its own category
-rather than folded into the lookup case: the clock is not state the policy could have been
-handed, it is state that does not exist until evaluation.
+That criterion sorts the cases consistently where "was it handed over" does not. Cedar's
+entity hierarchy is part of the authorization request, so it is the subject, and a hierarchy
+of unbounded depth stays inside. Azure's `subscription()` and `resourceGroup()` are
+derivable from the resource under evaluation, so they too are the subject. But Gatekeeper's
+inventory is ambient cluster state rather than the admission request; an ARM `reference()`
+names a resource other than the one being evaluated; a Kyverno `context` entry or CEL call
+queries the API server; `verifyImages` fetches a signature from a registry; an XACML
+`AttributeSelector` ranges over an arbitrary document. In each of those the guard's value
+turns on something the subject does not fix, so no witness is constructible from the policy
+text and the partition is not the policy's to determine.
+
+**A guard reads the clock.** Two policies. Worth keeping separate from the category above
+rather than folded into it: the clock is not state that some other subject could have
+carried, it is state that does not exist until evaluation, so no choice of subject fixes it.
 
     python scripts/exclusion_taxonomy.py [--json out.json]
 """
@@ -55,7 +67,7 @@ CORPORA: tuple[tuple[str, str], ...] = (
 # exhaustive, and a claim like that is only worth making if its instrument can refute it.
 KINDS: dict[str, tuple[str, ...]] = {
     "not a policy": ("policy schema",),
-    "reads state the evaluator was not handed": (
+    "the subject does not determine the guard": (
         "the host injects",
         "context entry fetches",
         "reads a data document",

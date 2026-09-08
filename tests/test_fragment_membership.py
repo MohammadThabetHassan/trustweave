@@ -1105,7 +1105,7 @@ def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     assert findings["artifacts_inside"] == 5476
     assert findings["exclusions_by_kind"] == {
         "not a policy": 744,
-        "reads state the evaluator was not handed": 215,
+        "the subject does not determine the guard": 215,
         "reads the clock": 2,
     }
     assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 961

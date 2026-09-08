@@ -382,7 +382,7 @@ and sorts the exclusions. Across six languages and eight corpora:
 | Why an artifact is outside | Count | Share |
 |---|---:|---:|
 | It is not a policy: a schema awaiting parameters | 744 | 77.4% |
-| The policy performs a lookup of state the evaluator was not handed | 215 | 22.4% |
+| The subject does not determine the guard | 215 | 22.4% |
 | A guard reads the clock | 2 | 0.2% |
 | **Total** | **961** | **100.0%** |
 
@@ -390,7 +390,27 @@ Artifact: [exclusion-taxonomy-v1.json](exclusion-taxonomy-v1.json). The instrume
 reason matching none of the three rather than bucketing it, so `taxonomy_is_exhaustive` in
 that artifact is a checked claim and not a stylistic one.
 
-Two things follow that the per-language shares hide. **The largest category is not about
+**The middle category needed its name fixed, and the fix is the useful part.** It was first
+called "the policy reads state the evaluator was not handed", which is false of its largest
+member: Gatekeeper *does* hand OPA its cached cluster inventory, injecting it as
+`data.inventory` before evaluation. What the fragment requires is narrower -- that the
+guard's value be determined by *the subject the decision is about*, together with literals
+in the policy -- and that criterion sorts the cases the other one gets wrong:
+
+| Guard | Handed to the evaluator? | Determined by the subject? | Verdict |
+|---|---|---|---|
+| Cedar entity hierarchy | yes | yes, it is the request | inside |
+| Azure `subscription()`, `resourceGroup()` | yes | yes, derivable from the resource | inside |
+| Gatekeeper `data.inventory` | **yes** | no, ambient cluster state | **outside** |
+| Azure `reference()` | on demand | no, another resource | outside |
+| Kyverno `context.apiCall` | on demand | no, the API server | outside |
+| `verifyImages` attestation | on demand | no, a registry | outside |
+
+The second column does not decide anything; the third does. That is worth writing down
+because the wrong criterion was in this document for two rounds and agreed with the verdicts
+by luck.
+
+Two more things follow that the per-language shares hide. **The largest category is not about
 expressiveness**: 77% of exclusions are artifacts that are not yet policies, so reading the
 table as "15% of policy is too expressive for the fragment" is wrong by a factor of four.
 And **the schema category appears independently in Azure Policy and in Gatekeeper**, two

@@ -297,7 +297,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     kinds = taxonomy["exclusions_by_kind"]
     assert taxonomy["taxonomy_is_exhaustive"], taxonomy["exclusions_unclassified"]
     schemas = kinds["not a policy"]
-    lookups = kinds["reads state the evaluator was not handed"]
+    lookups = kinds["the subject does not determine the guard"]
     clock = kinds["reads the clock"]
     exclusions = taxonomy["exclusions"]
     policies = taxonomy["policies_considered"]
@@ -314,7 +314,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "taxonomy: schemas",
         ),
         (
-            rf"state the evaluator was not handed & ({_GROUPED}) & (\d+\.\d)\\%",
+            rf"subject does not determine the guard & ({_GROUPED}) & (\d+\.\d)\\%",
             (_grouped(lookups), share(lookups)),
             "taxonomy: lookups",
         ),

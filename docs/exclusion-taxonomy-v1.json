@@ -5,8 +5,8 @@
   "exclusions": 961,
   "exclusions_by_kind": {
     "not a policy": 744,
-    "reads state the evaluator was not handed": 215,
-    "reads the clock": 2
+    "reads the clock": 2,
+    "the subject does not determine the guard": 215
   },
   "exclusions_unclassified": {},
   "policies_considered": 5693,
@@ -27,7 +27,7 @@
       "corpus": "Azure Policy",
       "exclusions_by_kind": {
         "not a policy": 716,
-        "reads state the evaluator was not handed": 109
+        "the subject does not determine the guard": 109
       },
       "inside": 2834,
       "outside": 825,
@@ -39,7 +39,7 @@
       "artifact": "fragment-membership-xacml-wide-v1",
       "corpus": "XACML",
       "exclusions_by_kind": {
-        "reads state the evaluator was not handed": 22
+        "the subject does not determine the guard": 22
       },
       "inside": 526,
       "outside": 22,
@@ -51,7 +51,7 @@
       "artifact": "fragment-membership-kyverno-wide-v1",
       "corpus": "Kyverno (vendor)",
       "exclusions_by_kind": {
-        "reads state the evaluator was not handed": 30
+        "the subject does not determine the guard": 30
       },
       "inside": 205,
       "outside": 30,
@@ -64,7 +64,7 @@
       "corpus": "Rego (four corpora)",
       "exclusions_by_kind": {
         "not a policy": 28,
-        "reads state the evaluator was not handed": 42
+        "the subject does not determine the guard": 42
       },
       "inside": 116,
       "outside": 70,
@@ -88,7 +88,7 @@
       "artifact": "fragment-membership-kyverno-thirdparty-v1",
       "corpus": "Kyverno (third-party)",
       "exclusions_by_kind": {
-        "reads state the evaluator was not handed": 12
+        "the subject does not determine the guard": 12
       },
       "inside": 37,
       "outside": 12,

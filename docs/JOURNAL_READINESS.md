@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~10,800 words, 19 pages, 14 numbered results, 19 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~11,100 words, 19 pages, 14 numbered results, 19 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -300,12 +300,22 @@ related work --- is done. What remains is not research:
    softened to "barely appears" is stated as the checkable fact it is: `verifyImages` appears
    in none of the 235 measured vendor policies.
 
-   All three passes found things no figure guard can see, because none of the six findings
+   A fourth pass, over the newest material again, found the conceptually largest error so
+   far. The taxonomy's middle category was called "the policy reads state the evaluator was
+   not handed", and that is **false of its largest member**: Gatekeeper hands OPA its cached
+   cluster inventory, injected before evaluation, and it is still outside. The criterion the
+   fragment actually needs is that the guard be determined by *the subject the decision is
+   about* -- which sorts Cedar's entity hierarchy and Azure's `subscription()` inside, and
+   Gatekeeper's inventory and Azure's `reference()` outside, where "was it handed over" gets
+   two of those wrong. The wrong criterion had been in the document for two rounds and
+   agreed with every verdict by luck.
+
+   All four passes found things no figure guard can see, because none of the seven findings
    was a number. Two of the five were the prose disagreeing with an instrument that was already
    right, which is the failure mode to watch for in a repository that keeps its documents
-   next to its measurements. A fourth pass by another author is still worth having: six
-   findings over three passes, with the third finding a gap in material written the same
-   day, is not a rate that suggests the next one is empty.
+   next to its measurements. A fifth pass by another author is still worth having: seven
+   findings over four passes, with the last two both finding gaps in material written the
+   same day, is not a rate that suggests the next one is empty.
 4. ~~**Mine a corpus from repositories that *use* these engines.**~~ **Attempted, and it
    found a defect.** 49 Kyverno policies from 31 repositories and 28 owners unaffiliated
    with Kyverno: 37 inside, 12 outside, none undetermined. The corpus is pinned file by
