@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Render paced terminal GIFs from actual declaration-consistency case walkthroughs."""
 
 from __future__ import annotations

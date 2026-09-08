@@ -8,7 +8,7 @@ A scenario suite answers one question: **if someone edits the policy, does any t
 
 | Suite | File | Cases | Purpose | Fails when |
 |---|---|---:|---|---|
-| Boundary regressions | `default-scenarios.json` | 5 | The documented walkthrough path used in the README quick start. | A headline example changes behaviour. |
+| Boundary regressions | `default-scenarios.json` | 5 | The documented walkthrough path used in the README quick start. | A headline example changes behavior. |
 | Adversarial patterns | `adversarial-scenarios.json` | 25 | Attack-shaped flows mapped to OWASP and MITRE ATLAS. | The policy stops blocking a known-bad shape. |
 | Decision coverage matrix | `coverage-matrix-scenarios.json` | 12 | Every trust x action combination the model permits, including the permitted baseline. | The policy blocks legitimate work **or** opens an unintended path. |
 

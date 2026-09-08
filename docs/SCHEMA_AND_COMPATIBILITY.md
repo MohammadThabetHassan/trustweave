@@ -4,6 +4,8 @@
 
 TrustWeave treats local manifests, policies, scenarios, bundles, reviews, and attestations as **versioned evidence contracts**. Runtime validation remains dependency-free and authoritative; JSON Schema provides structural interoperability and editor feedback. Every published root schema is byte-identical to its packaged counterpart, and generated output is tested against both resources.
 
+Schema `$id` values and the attestation `predicate_type` use `https://trustweave.dev/` URIs as stable identifiers, not as retrieval locations. Validation resolves schemas from the packaged resources on disk, and matching an artifact against a contract is a string comparison of its version identifier. Nothing in the tool dereferences these URIs, so they are not required to serve a document and the local behavior does not depend on whether they do.
+
 | Artifact | Current published emitted version | Historical handling | Public schema |
 |---|---|---|---|
 | Agent Security Bundle | `trustweave.dev/bundle/v1alpha2` | `trustweave.dev/bundle/v1alpha1` remains a bounded historical envelope and is accepted by bundle comparison. | [`agent-security-bundle-v1alpha2.schema.json`](../schemas/agent-security-bundle-v1alpha2.schema.json) |
