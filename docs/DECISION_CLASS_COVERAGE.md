@@ -211,9 +211,19 @@ holds. A suite of a thousand cases concentrated on four cells detects exactly wh
 four-case suite on those cells detects.
 
 **Corollary 4 (cell coverage decides the score).** If `W(Sigma) = S` then `Sigma` kills every
-non-equivalent mutant, for any mutation operator set whatsoever: a non-equivalent mutant has
-`Delta(P, M)` non-empty by Theorem 2, and it meets `W(Sigma) = S`. The mutation score is
-100% by construction rather than by measurement.
+non-equivalent mutant, for any mutation operator set whatsoever. The argument has one step
+that is easy to skip and is the step doing the work. A non-equivalent mutant `M` has
+`Delta(P, M)` non-empty by the definition of non-equivalence, so `[[P]]` and `[[M]]` differ
+at some subject `s`. Every guard `M` can state is a guard over the same finite vocabulary as
+`P`'s, so the cell set `S` -- the product of the per-attribute witness spaces -- separates
+whatever `M` can separate, and `[[M]]` is constant on each cell. `Sigma` therefore has a case
+at some `s'` in the same cell as `s`, where the two still differ, and Theorem 3 kills `M`.
+The mutation score is 100% by construction rather than by measurement.
+
+That step is why the harness enumerates the refinement rather than the quotient. Coverage of
+`~P` alone would *not* suffice: `Delta(P, M)` is a union of classes of `~P` intersect `~M`,
+not of `~P`, so a mutant drawing a distinction `P` does not can differ inside a class the
+suite witnessed elsewhere.
 
 The converse needs care, and the care is the point. If `W(Sigma) != S`, pick `s` outside it
 and `d != [[P]](s)`. The *semantic* mutant that agrees with `P` everywhere except at `s`,
