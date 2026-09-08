@@ -521,6 +521,47 @@ the request -- but it is weaker evidence than Kyverno's 87.2%, where the instrum
 outside branch and used it 30 times. A test asserts the absence of that branch, so if anyone
 adds one, the caveat gets revisited rather than quietly outliving its reason.
 
+### What exhaustive coverage costs, on policy that is actually deployed
+
+Corollary 4 says a suite covering the quotient decides the score exactly. That is worth
+having only if the quotient is small, and until now nothing here said whether it is.
+[`coverage_cost.py`](../scripts/coverage_cost.py) applies Theorem 1's per-component bound to
+the two deployed cloud corpora. Artifact:
+[coverage-cost-v1.json](coverage-cost-v1.json).
+
+| | Azure Policy | AWS IAM |
+|---|---:|---:|
+| policies inside the fragment | 2,834 | 1,651 |
+| median guards | 2 | 16 |
+| **median cells** | **4** | **60** |
+| at most 8 cells | 81.8% | 24.1% |
+| at most 64 cells | 89.3% | 51.6% |
+| at most 10^6 cells | 96.0% | 87.2% |
+| quotient too large to enumerate | 27 | 131 |
+
+**For the median deployed Azure definition, provably complete mutation adequacy costs four
+test cases.** IAM is genuinely more expensive -- its policies enumerate long action lists --
+and 131 of 1,651 are out of reach, which is the honest limit of the practical claim and the
+reason `policy_mutation.py` refuses above `MAX_CELLS` rather than pretending.
+
+Getting there needed a correction that Theorem 1's own remark predicts. The first attempt
+counted every action and ARN entry as an overlapping pattern, which gave IAM a median of
+16,384 cells and called 461 policies intractable. Two things were wrong with that. **78.9% of
+those entries are literals**, which are mutually exclusive -- a string equals at most one of
+them -- so `n` literals give `n+1` classes and not `2^n`. And among the wildcards, the
+final-wildcard ones obey a small lemma worth stating:
+
+> **Lemma (prefix chains).** For final-wildcard patterns `q_1*, ..., q_n*`, the map sending a
+> string to which patterns match it has image of size at most `n+1`.
+>
+> *Proof.* A string `s` matches `q*` exactly when `q` prefixes `s`. Any two prefixes of one
+> string are comparable, so the set of patterns matching `s` is a chain, and a chain is
+> determined by its longest member: `n` candidates, plus the empty case. []
+
+Only an interior wildcard needs the exponential. The bound is still an over-estimate, since
+it does not discard unachievable signatures -- that is what the solver certification is for
+-- so the shares above are safe in the direction that matters.
+
 ### Rego, which was asserted rather than measured
 
 Rego was left out of the membership measurement on the grounds that it is the case Theorem 6

@@ -357,6 +357,43 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
     ]
 
+    cost = _load(docs, "coverage-cost-v1")
+    azure_cost, iam_cost = cost["azure"], cost["iam"]
+    claims += [
+        (
+            rf"two guards and at most ({_GROUPED}) cells",
+            (_grouped(azure_cost["median_cells"]),),
+            "coverage cost: azure median cells",
+        ),
+        (
+            rf"the median is ({_GROUPED}) cells",
+            (_grouped(iam_cost["median_cells"]),),
+            "coverage cost: iam median cells",
+        ),
+        (
+            r"(\d+\.\d)\\% of them need at most eight",
+            (f"{100 * azure_cost['share_at_most']['8']:.1f}",),
+            "coverage cost: azure share at most eight",
+        ),
+        (
+            rf"and (\d+) of ({_GROUPED}) have a quotient too large",
+            (
+                str(azure_cost["at_or_above_intractable"]),
+                _grouped(azure_cost["policies"]),
+            ),
+            "coverage cost: azure intractable",
+        ),
+        (
+            rf"(\d+\.\d)\\% need at most 64, with (\d+) of ({_GROUPED}) out of reach",
+            (
+                f"{100 * iam_cost['share_at_most']['64']:.1f}",
+                str(iam_cost["at_or_above_intractable"]),
+                _grouped(iam_cost["policies"]),
+            ),
+            "coverage cost: iam share and intractable",
+        ),
+    ]
+
     witness = _load(docs, "witness-space-verification-v1")
     claims.append(
         (

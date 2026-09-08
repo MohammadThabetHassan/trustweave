@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~10,400 words, 18 pages, 13 numbered results, 19 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~10,800 words, 19 pages, 14 numbered results, 19 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -149,7 +149,16 @@ the corpus and are evaluated in every account and every tenant of those clouds -
 third through the Rego library Google publishes. 744 artifacts turn out not to be policies
 at all but schemas; of the 5,693 that are policies, **5,476 are inside: 96.2%**.
 
-The result worth more than the share is that we can now say *why* an artifact is outside,
+Two results now sit on top of the share. **The theory's payoff is cheap where it applies**:
+applying Theorem 1's bound to deployed cloud policy, the median Azure definition inside the
+fragment needs four test cases for provably complete adequacy and 81.8% need at most eight;
+IAM is dearer at a median of 60, and 131 of 1,651 are out of reach, which is the honest limit.
+Reaching those numbers needed a lemma the paper had not stated -- final-wildcard patterns
+contribute `n+1` classes rather than `2^n`, because the patterns matching a string form a
+chain -- and a correction the first attempt got wrong in exactly the way Theorem 1's own
+remark predicts.
+
+And we can now say *why* an artifact is outside,
 exhaustively: 744 are schemas, 215 perform a lookup of state the evaluator was not handed, 2
 read the clock, and nothing else occurs. `exclusion_taxonomy.py` reports any reason matching
 none of the three rather than bucketing it, so the exhaustiveness claim is refutable by its

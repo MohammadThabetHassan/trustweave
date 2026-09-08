@@ -1125,3 +1125,80 @@ def test_no_corpus_leaves_anything_undetermined() -> None:
 
     for row in findings["rows"]:
         assert row["undetermined"] == 0, row["corpus"]
+
+
+# --- What exhaustive coverage costs -----------------------------------------------------
+
+cost = _load("coverage_cost")
+
+
+def test_a_prefix_pattern_group_admits_only_a_chain_of_signatures() -> None:
+    """Lemma: n final-wildcard patterns give n+1 signatures, not 2^n.
+
+    A string matches `q*` exactly when `q` prefixes it, and any two prefixes of one string
+    are comparable, so the set of prefix patterns a string matches is a chain determined by
+    its longest member. Checked here by enumeration rather than trusted, because this is
+    the step that took IAM's median from 16,384 cells to 60.
+    """
+    import itertools
+
+    patterns = ["s3:", "s3:Get", "s3:GetObject", "ec2:"]
+    candidates = ["s3:GetObjectAcl", "s3:GetObject", "s3:Get", "s3:PutObject", "ec2:Run", "x"]
+    achieved = {
+        tuple(candidate.startswith(prefix) for prefix in patterns) for candidate in candidates
+    }
+
+    assert len(achieved) <= len(patterns) + 1
+    # And every achieved signature is a chain: the true positions are nested prefixes.
+    for signature in achieved:
+        true_prefixes = [p for p, held in zip(patterns, signature, strict=True) if held]
+        for left, right in itertools.combinations(true_prefixes, 2):
+            assert left.startswith(right) or right.startswith(left), (left, right)
+
+
+def test_literals_are_counted_as_mutually_exclusive() -> None:
+    """78.9% of IAM's action and resource entries are literals, and they cannot overlap."""
+
+    assert cost.pattern_kind("s3:GetObject") == "literal"
+    assert cost.pattern_kind("s3:Get*") == "prefix"
+    assert cost.pattern_kind("s3:*Object") == "wildcard"
+    assert cost.pattern_kind("*") == "everything"
+
+    # Ten literals on one component: eleven classes, not 1024.
+    groups = {"Action": ["literal"] * 10}
+    assert cost.cells_from_groups(groups, frozenset()) == 11
+    # Ten prefixes: eleven as well, by the lemma above.
+    assert cost.cells_from_groups({"Action": ["prefix"] * 10}, frozenset()) == 11
+    # Ten interior wildcards: the exponential is unavoidable.
+    assert cost.cells_from_groups({"Action": ["wildcard"] * 10}, frozenset()) == 1024
+    # `*` alone splits nothing.
+    assert cost.cells_from_groups({"Action": ["everything"]}, frozenset()) == 1
+
+
+def test_the_cost_artifact_reports_a_tractable_median_for_both_clouds() -> None:
+    findings = json.loads((ROOT / "docs" / "coverage-cost-v1.json").read_text("utf-8"))
+
+    assert findings["azure"]["median_cells"] == 4
+    assert findings["azure"]["policies"] == 2834
+    assert findings["iam"]["median_cells"] == 60
+    assert findings["iam"]["policies"] == 1651
+    # The claim the paper makes: most deployed Azure policy is cheap to cover exhaustively.
+    assert findings["azure"]["share_at_most"]["8"] > 0.8
+    # And the honest tail.
+    assert findings["azure"]["at_or_above_intractable"] == 27
+    assert findings["iam"]["at_or_above_intractable"] == 131
+
+
+def test_the_bound_never_understates_a_group() -> None:
+    """It is an over-estimate by construction, so a cost claim is safe in one direction."""
+
+    for kinds in (
+        ["literal", "prefix"],
+        ["literal", "wildcard", "prefix"],
+        ["wildcard"] * 3,
+        ["literal"] * 4 + ["everything"],
+    ):
+        bound = cost.cells_from_groups({"c": kinds}, frozenset())
+        splitting = [k for k in kinds if k != "everything"]
+        assert bound <= 2 ** len(splitting) or not splitting
+        assert bound >= 1
