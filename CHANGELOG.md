@@ -4,6 +4,33 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [0.3.1] - Unreleased release candidate
 
+### Changed
+
+- The research write-ups moved out of the repository. A journal, and the similarity check
+  it runs, reads a publicly posted full text as prior dissemination, and that applies to
+  the long-form development as much as to the manuscript — including a prospectus that was
+  published on the docs site complete with the claim, the theorem statements, and the
+  measured figures. Every measurement artifact under `docs/` stays, each recording the
+  corpus commit it read, along with every instrument in `scripts/` that produced one.
+  `docs/site/RESEARCH_NOTE.md` says where the write-ups went and how to point the two
+  checks that read them at their new location.
+- The declaration-consistency case walkthroughs no longer print
+  `== Captured terminal output begins ==` into the terminal body. Distinguishing what
+  `run-case.sh` emitted from what the renderer added is worth keeping, so captured lines
+  now carry a rule down the left margin and one caption at the foot instead of two lines
+  of narration. The briefing dropped from seven labelled fields to the three a reviewer
+  needs, output advances two lines at a time rather than four, and the canvas follows the
+  content instead of leaving a third of the terminal empty. A 64-colour palette pays for
+  the extra frames: the largest case is 523 KiB against the 600 KiB budget, smaller than
+  before with two thirds more frames.
+
+### Fixed
+
+- The repository reality check read `<https://example.com>` — the angle-bracketed form
+  Markdown permits — as a broken local path. Nineteen valid DOI links were reported as
+  broken once a generated report used that form. The brackets are delimiters and are now
+  stripped before the scheme is tested.
+
 ### Added
 
 - `trustweave discover` statically analyzes local Python source for the tool surface an

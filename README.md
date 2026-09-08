@@ -169,6 +169,7 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 - [Resource bounds](docs/RESOURCE_BOUNDS.md)
 - [Release guide](docs/RELEASE.md) and [release history](https://github.com/MohammadThabetHassan/trustweave/releases)
 - Historical release checklists, migration guides, and audit records live under `docs/archive/` (added in this overhaul)
+- [Where the research write-ups are](docs/site/RESEARCH_NOTE.md) — the measurement artifacts under `docs/` are here; the papers written from them are not, until they are published
 
 </details>
 
