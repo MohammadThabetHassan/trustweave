@@ -643,16 +643,39 @@ gives 8 and 5.
 
 \begin{theorem}
 \label{thm:undecidable}
-If guards may contain arbitrary computable predicates, policy equivalence is undecidable.
+If a guard may be an arbitrary \emph{total} computable predicate, presented as a program,
+policy equivalence is undecidable.
 \end{theorem}
 
 \begin{proof}
-Reduce from the emptiness problem for the domain of a partial computable function, which is
-undecidable by Rice's theorem \cite{rice1953classes}. Given such a function $f$, let $P$
-have the single rule ``if $f$ halts on $s$ then \texttt{allow}'' with default \texttt{deny},
-and let $Q$ be the policy with no rules and default \texttt{deny}. Then
-$\sem{P} = \sem{Q}$ iff $f$ halts nowhere.
+Reduce from the halting problem. Given a machine index $e$, define
+\[
+  g_e(s) = \begin{cases}
+    1 & \text{if $e$ halts on input $0$ within $|s|$ steps},\\
+    0 & \text{otherwise},
+  \end{cases}
+\]
+where $|s|$ is the length of a fixed encoding of the subject $s$. Then $g_e$ is total --- the
+simulation is cut off after $|s|$ steps --- and computable, and a program for it is
+computable from $e$. Let $P_e$ have the single rule ``if $g_e(s)$ then \texttt{allow}'' with
+default \texttt{deny}, and let $Q$ be the policy with no rules and default \texttt{deny}.
+Subjects of every length exist, so some subject satisfies $g_e$ if and only if $e$ halts on
+$0$. Hence $\sem{P_e} = \sem{Q}$ if and only if $e$ does not halt on $0$, and a decision
+procedure for policy equivalence would decide the halting problem. Insisting on totality is
+what makes the reduction say something: with partial guards the same conclusion follows from
+Rice's theorem \cite{rice1953classes}, since the indices with empty domain are a non-trivial
+index set, but the guards would then not be predicates at all.
 \end{proof}
+
+\begin{remark}[Which clause of Definition~\ref{def:refining} fails]
+The guards $g_e$ are total, computable, and each induces a partition of $\Sub$ into exactly
+two classes --- so the \emph{finite image} clause holds, and finiteness is not what the
+fragment is buying. What fails is the second clause: no witness for the class $g_e(s) = 1$ is
+computable from the guard's syntax, because whether that class is occupied at all is the
+halting question. Decidability rests on witness construction, not on the quotient merely
+being small, which is why Section~\ref{sec:mechanised} certifies the construction and not the
+bound.
+\end{remark}
 
 So the condition of Definition~\ref{def:refining} is doing real work, and
 Section~\ref{sec:membership} measures how often it is met rather than assuming it.

@@ -522,20 +522,42 @@ between the two is the nine cells it never witnesses.
 
 ## 7. Where this ends
 
-**Theorem 6.** If rule guards may contain arbitrary computable predicates, policy
-equivalence is undecidable.
+**Theorem 6.** If a guard may be an arbitrary *total* computable predicate, presented as a
+program, policy equivalence is undecidable.
 
-*Proof sketch.* Semantic equivalence to a fixed policy is a non-trivial property of the
-extensions of the guard programs, so Rice's theorem applies: no total procedure decides,
-for arbitrary guard programs, whether two policies agree on every subject. []
+*Proof.* Reduce from the halting problem. Given a machine index `e`, let
 
-So the results above are a property of *this* language, and specifically of the fact that
-every predicate it offers -- set membership, rank bounds over a declared taxonomy, set
-intersection, final-namespace wildcards -- induces finitely many classes computable from the
-policy text. Add a predicate that does not, a regular expression over identifiers say, or a
-numeric comparison against a value the policy does not name, and Theorem 1's bound stops
-holding. That is the boundary to watch when the language grows, and it is a design
-constraint on the language rather than a limitation of the tool.
+    g_e(s) = 1 if e halts on input 0 within |s| steps, else 0
+
+where `|s|` is the length of a fixed encoding of the subject. `g_e` is total -- the
+simulation is cut off after `|s|` steps -- and computable, and a program for it is computable
+from `e`. Let `P_e` have the single rule "if `g_e(s)` then allow" with default deny, and let
+`Q` have no rules and default deny. Subjects of every length exist, so some subject satisfies
+`g_e` exactly when `e` halts on `0`; hence `[[P_e]] = [[Q]]` exactly when `e` does not halt
+on `0`. []
+
+Insisting on *total* guards is what makes this say something. With partial guards the
+conclusion also follows from Rice's theorem, the indices of empty domain being a non-trivial
+index set, but then the guards are not predicates at all and the theorem is about a language
+nobody would ship.
+
+**Which clause fails is the interesting part.** Each `g_e` induces exactly two classes, so
+finiteness is not what the fragment buys. What fails is witness computability: no witness for
+the class `g_e(s) = 1` can be computed from the guard's syntax, because whether that class is
+occupied is the halting question. The results above rest on witness construction, which is
+why [`verify_witness_space.py`](../scripts/verify_witness_space.py) certifies the
+construction and not the bound.
+
+So the boundary is not expressiveness in the loose sense, and it is easy to misplace it. A
+regular expression against a pattern the policy *writes down* stays inside: the pattern
+denotes a regular language, so it splits subjects two ways and a witness for either side is
+constructible -- which is exactly why the XACML measurement in section 4b judges
+`string-regexp-match` admissible rather than refusing it. What leaves the fragment is a guard
+whose partition is not fixed by the policy text: a pattern or threshold taken from the
+*input* rather than written in the policy, a lookup of state the request does not carry, an
+arbitrary builtin over a whole document, or a reading of the clock. That is the boundary to
+watch as the language grows, and it is a design constraint on the language rather than a
+limitation of the tool.
 
 Two practical limits remain. The quotient is a *product*, so it grows multiplicatively in
 the number of purpose tags and capability patterns a policy names: twenty named purpose tags
