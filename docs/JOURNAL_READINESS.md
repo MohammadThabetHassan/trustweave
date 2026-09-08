@@ -19,25 +19,34 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| [`../paper/main.tex`](../paper/main.tex) -- the manuscript | ~5,400 words, 8 numbered results, 15 references |
+| The manuscript (LaTeX, **kept outside this repository**) | ~6,450 words, 8 numbered results, 15 references |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
 | Executable checks | every quoted figure pinned by a test |
 
-The manuscript exists as LaTeX source and has not been compiled here, because no TeX
-distribution is installed on the machine and installing one needs privileges the authors do
-not have on it. [`../paper/README.md`](../paper/README.md) says how to build it and what is
-checked without building it: the structure, and every figure it states, pinned to the JSON
-an instrument wrote. The two documents above remain the long-form development; the paper is
-what a reviewer reads.
+The manuscript exists as LaTeX source and is **deliberately not committed to this
+repository.** Journals and their similarity checks read a publicly posted full text as prior
+dissemination, and a public repository is publicly posted; the safe default before submission
+is to keep the paper out of it. It lives beside the checkout and is built on Overleaf.
+
+Nothing is lost by that. `scripts/check_manuscript.py` still checks it -- structure, and
+every figure it states pinned to the JSON an instrument wrote -- and takes the manuscript's
+location from `TRUSTWEAVE_PAPER` or `--paper`:
+
+```
+TRUSTWEAVE_PAPER=/path/to/main.tex python scripts/check_manuscript.py
+```
+
+With no manuscript to find, that check and its tests report so and pass, because a checkout
+without the paper is not a checkout with a wrong paper. The two documents above remain the
+long-form development and stay here; the paper is what a reviewer reads, and it stays out.
 
 ## The gaps, worst first
 
 ### G1. There is no paper -- CLOSED
 
-**Closed by** [`../paper/main.tex`](../paper/main.tex) and
-[`../paper/refs.bib`](../paper/refs.bib): abstract, introduction with a contributions list,
+**Closed by** the manuscript and its bibliography: abstract, introduction with a contributions list,
 formal development, evaluation, both negative results, threats to validity, related work
 positioned against category-partition testing and the equivalent-mutant literature, and a
 bibliography of 13 entries. The bibliography deliberately omits fields that were not

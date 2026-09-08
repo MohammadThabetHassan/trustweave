@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -24,27 +25,48 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _repository_root() -> Path | None:
-    """The tree holding both the manuscript and the artifacts, or None if there is none.
+def _artifacts() -> Path:
+    """The `docs/` directory holding the JSON the manuscript's claims are pinned to.
 
     The mutation runner copies `src`, `tests` and `scripts` into a `mutants/` directory
     and runs the suite from there, so the root this file computes is not always the
-    repository: under mutmut it is `mutants/`, which carries no `paper/`. Walking up finds
-    the real tree in that case, and returning None lets these tests skip rather than fail
-    in a checkout that legitimately has no manuscript.
+    repository. Walking up finds the real tree in that case.
     """
 
     for candidate in (ROOT, *ROOT.parents):
-        if (candidate / "paper" / "main.tex").is_file() and (candidate / "docs").is_dir():
-            return candidate
+        if (candidate / "docs" / "estimator-comparison-v1.json").is_file():
+            return candidate / "docs"
+    return ROOT / "docs"
+
+
+def _paper() -> Path | None:
+    """The manuscript, which is deliberately not in this repository.
+
+    A journal reads a publicly posted full text as prior dissemination, so the paper is
+    kept outside the working tree and located through TRUSTWEAVE_PAPER. These tests skip
+    when it is not set, because a checkout without the paper is the normal case -- but
+    they must still run wherever the paper does live, since a guard nobody exercises is
+    not a guard.
+    """
+
+    from_environment = os.environ.get("TRUSTWEAVE_PAPER")
+    if from_environment and Path(from_environment).is_file():
+        return Path(from_environment)
+    for candidate in (ROOT, *ROOT.parents):
+        in_tree = candidate / "paper" / "main.tex"
+        if in_tree.is_file():
+            return in_tree
     return None
 
 
-REPOSITORY = _repository_root()
-PAPER = (REPOSITORY / "paper" / "main.tex") if REPOSITORY else ROOT / "paper" / "main.tex"
-DOCS = (REPOSITORY / "docs") if REPOSITORY else ROOT / "docs"
+PAPER_OR_NONE = _paper()
+DOCS = _artifacts()
+PAPER = PAPER_OR_NONE if PAPER_OR_NONE is not None else ROOT / "paper" / "main.tex"
 
-pytestmark = pytest.mark.skipif(REPOSITORY is None, reason="no manuscript in this tree to check")
+pytestmark = pytest.mark.skipif(
+    PAPER_OR_NONE is None,
+    reason="the manuscript is kept outside the repository; set TRUSTWEAVE_PAPER to check it",
+)
 
 
 def _module() -> ModuleType:

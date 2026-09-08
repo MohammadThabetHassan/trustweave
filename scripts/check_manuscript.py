@@ -1,11 +1,19 @@
 """Check that the manuscript's numbers are the artifacts' numbers.
 
-A paper is the one place in this repository where a figure can be wrong without any
-test noticing, because prose is not executed. Every quantitative claim in
-`paper/main.tex` is therefore derived here from the JSON an instrument wrote, and the
-check fails if the manuscript and the artifact disagree.
+A paper is the one place where a figure can be wrong without any test noticing, because
+prose is not executed. Every quantitative claim in the manuscript is therefore derived
+here from the JSON an instrument wrote, and the check fails if the two disagree.
 
-    python scripts/check_manuscript.py [--paper paper/main.tex] [--docs docs]
+**The manuscript is deliberately not in this repository.** Journals treat a publicly
+posted full text as prior dissemination, so it is kept outside the working tree and this
+script is pointed at it:
+
+    TRUSTWEAVE_PAPER=/path/to/main.tex python scripts/check_manuscript.py
+    python scripts/check_manuscript.py --paper /path/to/main.tex [--docs docs]
+
+With no manuscript to find, the check reports that and succeeds -- the artifacts are the
+source of truth either way, and a checkout without the paper is not a checkout with a
+wrong paper.
 
 Each claim is an anchored pattern rather than a substring, because a substring search
 only asks whether the right number appears *somewhere*: it passes a paper that states
@@ -23,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from collections import Counter
 from pathlib import Path
@@ -360,11 +369,33 @@ def check(paper: Path, docs: Path) -> list[str]:
     return problems
 
 
+def default_paper() -> Path:
+    """Where to look for the manuscript when the caller does not say.
+
+    `TRUSTWEAVE_PAPER` first, because the manuscript lives outside the repository; then
+    the in-tree location, so a checkout that does carry one is still checked.
+    """
+
+    from_environment = os.environ.get("TRUSTWEAVE_PAPER")
+    if from_environment:
+        return Path(from_environment)
+    return ROOT / "paper" / "main.tex"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--paper", type=Path, default=ROOT / "paper" / "main.tex")
+    parser.add_argument("--paper", type=Path, default=None)
     parser.add_argument("--docs", type=Path, default=ROOT / "docs")
     args = parser.parse_args(argv)
+
+    paper = args.paper or default_paper()
+    if not paper.is_file():
+        print(
+            f"no manuscript at {paper}: nothing to check. Point --paper or "
+            "TRUSTWEAVE_PAPER at it to check its figures against docs/*.json."
+        )
+        return 0
+    args.paper = paper
 
     problems = check(args.paper, args.docs)
     if problems:

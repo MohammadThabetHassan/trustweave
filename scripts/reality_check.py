@@ -1035,18 +1035,18 @@ def _check_equivalence_audit_matches_inventory(survivor_count: int) -> list[str]
 
 
 def _check_manuscript_figures() -> list[str]:
-    """Require the paper's numbers to be the artifacts' numbers.
+    """Require the paper's numbers to be the artifacts' numbers, when a paper is present.
 
-    Prose is the one place in this repository where a figure can be wrong without a test
-    noticing, and the manuscript restates measured values in its abstract, its tables and
-    its conclusion. `scripts/check_manuscript.py` pins each of them to the JSON an
-    instrument wrote; this delegates to it so a drifting paper fails the same gate as a
-    drifting document.
+    Prose is the one place where a figure can be wrong without a test noticing, and the
+    manuscript restates measured values in its abstract, its tables and its conclusion.
+    `scripts/check_manuscript.py` pins each of them to the JSON an instrument wrote; this
+    delegates to it so a drifting paper fails the same gate as a drifting document.
+
+    The manuscript is not in this repository -- a journal reads a publicly posted full
+    text as prior dissemination -- so this checks nothing unless TRUSTWEAVE_PAPER points
+    at one. The artifacts remain the source of truth regardless.
     """
 
-    paper = ROOT / "paper" / "main.tex"
-    if not paper.exists():
-        return []
     specification = importlib.util.spec_from_file_location(
         "check_manuscript", ROOT / "scripts" / "check_manuscript.py"
     )
@@ -1054,6 +1054,12 @@ def _check_manuscript_figures() -> list[str]:
         return ["Cannot load scripts/check_manuscript.py"]
     module = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(module)
+
+    paper = module.default_paper()
+    if not paper.is_file():
+        # The manuscript is kept outside the repository on purpose, so its absence is the
+        # normal case and not a failure. Set TRUSTWEAVE_PAPER to have it checked here.
+        return []
     return [
         f"Manuscript disagrees with its artifacts: {problem}"
         for problem in module.check(paper, ROOT / "docs")

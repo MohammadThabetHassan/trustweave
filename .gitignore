@@ -36,3 +36,7 @@ venv/
 /mutation-run.log
 /mutation-results.txt
 /mutation-quality.json
+
+# The journal manuscript is kept outside this repository: a public repo counts as
+# prior dissemination for a journal submission. See docs/JOURNAL_READINESS.md.
+paper/
