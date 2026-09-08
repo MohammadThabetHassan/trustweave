@@ -1,6 +1,6 @@
 """Which published policies lie inside the decidable fragment, across ecosystems.
 
-docs/DECISION_CLASS_COVERAGE.md section 4b locates the obstacle to the exactness results
+the decision-class coverage write-up section 4b locates the obstacle to the exactness results
 in a policy's *guards*: a guard is inside the fragment when the partition it induces on
 the subject space is fixed by the policy text, so finitely many classes exist and a
 witness for each is constructible. Theorem 1b shows the evaluation rule is irrelevant, so

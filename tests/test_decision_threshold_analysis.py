@@ -98,7 +98,7 @@ def domains(threshold: ModuleType) -> dict[str, dict[str, object]]:
 
 
 class TestMeasuredFindings:
-    """The figures docs/SUITE_COVERAGE_STUDY.md quotes, pinned to the artifacts."""
+    """The figures the suite-coverage study quotes, pinned to the artifacts."""
 
     def test_five_domains_carry_enough_subjects_to_measure(
         self, domains: dict[str, dict[str, object]]

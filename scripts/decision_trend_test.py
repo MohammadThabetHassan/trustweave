@@ -1,6 +1,6 @@
 """Is decision coverage graded, or only a blindness flag?
 
-docs/SUITE_COVERAGE_STUDY.md tests one contrast: blind suites against covered ones, where
+the suite-coverage study tests one contrast: blind suites against covered ones, where
 blind means the suite witnesses a single decision. On the Kyverno corpus that contrast
 reaches p = 0.043 one-sided. A natural next claim is that the relation is graded -- that
 witnessing more decisions predicts detecting more faults -- which would let the measure

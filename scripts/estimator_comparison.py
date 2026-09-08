@@ -1,6 +1,6 @@
 """What deciding equivalence buys over estimating it, measured rather than asserted.
 
-The practical claim in docs/DECISION_CLASS_COVERAGE.md is that inside the fragment a
+The practical claim in the decision-class coverage write-up is that inside the fragment a
 mutation score is exact: equivalence is a table comparison rather than an undecidable
 question, so no mutant has to be sampled and no survivor has to be inspected by hand. The
 paper never said what the alternative costs, which leaves the claim's value to the reader's

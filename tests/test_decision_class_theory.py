@@ -1,4 +1,4 @@
-"""Machine-checked verification of the results in docs/DECISION_CLASS_COVERAGE.md.
+"""Machine-checked verification of the results in the decision-class coverage write-up.
 
 The exactness claims that document makes -- decidable equivalence, an exact kill criterion,
 cell coverage deciding the mutation score -- are proved there over a restricted policy
@@ -365,10 +365,32 @@ def test_two_cases_differing_only_in_classification_no_longer_collapse(tmp_path:
 # ---------------------------------------------------------------------------------------
 
 
+def _research_document() -> Path:
+    """The long-form theory write-up, which is deliberately not in this repository.
+
+    It is the article in long form, and a public repository counts as prior dissemination
+    for a journal submission, so it lives beside the manuscript instead. These checks are
+    worth keeping -- a hand-copied table in a proof document is a claim like any other --
+    so they follow it via TRUSTWEAVE_RESEARCH_DIR and skip when it is not set.
+    """
+
+    from os import environ
+
+    directory = environ.get("TRUSTWEAVE_RESEARCH_DIR", "").strip()
+    if directory:
+        candidate = Path(directory) / "DECISION_CLASS_COVERAGE.md"
+        if candidate.is_file():
+            return candidate
+    in_tree = ROOT / "docs" / "DECISION_CLASS_COVERAGE.md"
+    if in_tree.is_file():
+        return in_tree
+    pytest.skip("set TRUSTWEAVE_RESEARCH_DIR to the directory holding DECISION_CLASS_COVERAGE.md")
+
+
 def test_the_documented_worked_example_matches_a_fresh_run() -> None:
     """A hand-copied table in a proof document is a claim, and claims here are checked."""
 
-    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    document = _research_document().read_text(encoding="utf-8")
     report = policy_mutation.analyze(POLICY, SUITES)
     live = report["mutants_live"]
 
@@ -391,7 +413,7 @@ def test_the_documented_worked_example_matches_a_fresh_run() -> None:
 
 def test_the_documented_mutant_counts_match_a_fresh_run() -> None:
     report = policy_mutation.analyze(POLICY, SUITES)
-    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    document = _research_document().read_text(encoding="utf-8")
 
     sentence = (
         f"{report['mutants_generated']} mutants are generated and "
@@ -449,7 +471,7 @@ def test_section_cross_references_in_the_document_resolve() -> None:
 
     import re
 
-    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    document = _research_document().read_text(encoding="utf-8")
     headings = {int(match) for match in re.findall(r"^## (\d+)\.", document, re.MULTILINE)}
     referenced = {int(match) for match in re.findall(r"\bsection (\d+)\b", document, re.IGNORECASE)}
 

@@ -227,7 +227,7 @@ def cells(document: dict[str, Any]) -> tuple[Cell, ...]:
     The product is kept rather than quotiented because a mutant is a different policy with
     different signatures, and Theorem 2 needs the two compared over a *common* refinement.
     `predicate_signature()` computes the class of a cell where a single policy is being
-    described, and docs/DECISION_CLASS_COVERAGE.md states the distinction.
+    described, and the decision-class coverage write-up states the distinction.
     """
 
     space = witness_space(document)

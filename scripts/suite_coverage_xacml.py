@@ -3,7 +3,7 @@
 XACML is the case the measure was designed for. Its decision domain has four values --
 `Permit`, `Deny`, `NotApplicable` and `Indeterminate` -- where Gatekeeper and Cedar have
 two, so full decision coverage is a real requirement rather than a bar cleared by writing
-one negative test. This is the regime `docs/DECISION_CLASS_COVERAGE.md` argues the measure
+one negative test. This is the regime the decision-class coverage write-up argues the measure
 earns its keep in, and the other three ecosystems do not contain it.
 
 A suite here is a directory holding `requests/` and `responses/`, with files named

@@ -1,7 +1,7 @@
 """The exactness results do not depend on first-match evaluation.
 
-docs/DECISION_CLASS_COVERAGE.md proves its theorems for a first-match policy over
-TrustWeave's own label language, and docs/SUITE_COVERAGE_STUDY.md notes that none of the
+the decision-class coverage write-up proves its theorems for a first-match policy over
+TrustWeave's own label language, and the suite-coverage study notes that none of the
 four measured ecosystems is inside that language. Part of that gap is real -- their guards
 are general expressions -- and part of it was an artefact of how the proofs were stated.
 

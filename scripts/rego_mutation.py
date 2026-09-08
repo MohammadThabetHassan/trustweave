@@ -1,6 +1,6 @@
 """Ask whether decision-blindness predicts undetected faults in real Rego policies.
 
-`docs/DECISION_CLASS_COVERAGE.md` proves that inside the policy fragment, witnessing every
+the decision-class coverage write-up proves that inside the policy fragment, witnessing every
 cell is equivalent to killing every non-equivalent mutant. That proof does not reach Rego:
 its subjects are arbitrary JSON and its guards are general expressions, so no enumeration
 exhausts them and equivalence is undecidable there.

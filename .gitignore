@@ -44,3 +44,11 @@ paper/
 # Feynman writes research artifacts here; they are scratch, not repository content.
 outputs/
 .feynman/
+
+# Journal and article material is kept outside this repository: a public repo counts as
+# prior dissemination for a submission. See docs/RESEARCH_NOTE.md.
+DECISION_CLASS_COVERAGE.md
+SUITE_COVERAGE_STUDY.md
+JOURNAL_READINESS.md
+RESEARCH_PROSPECTUS.md
+RESEARCH_AGENT_SETUP.md

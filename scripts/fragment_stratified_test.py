@@ -1,12 +1,12 @@
 """Does the decision-coverage flag predict detection inside the fragment, or outside it?
 
-docs/SUITE_COVERAGE_STUDY.md reports one contrast on the Kyverno corpus: policies whose
+the suite-coverage study reports one contrast on the Kyverno corpus: policies whose
 suite witnesses a single decision kill fewer mutants than policies whose suite witnesses
 more, at p = 0.043 one-sided. That figure is the study's only evidence that the measure
 tracks fault detection at all.
 
 The exactness results it descends from hold only inside the fragment of
-docs/DECISION_CLASS_COVERAGE.md, and scripts/fragment_membership.py can now say which
+the decision-class coverage write-up, and scripts/fragment_membership.py can now say which
 policies are inside. So the contrast can be stratified, which asks a sharper question than
 the pooled figure does: is the association coming from the policies the theory covers?
 

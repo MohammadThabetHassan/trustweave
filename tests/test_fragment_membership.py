@@ -1,8 +1,8 @@
 """Tests for the cross-ecosystem fragment-membership instrument.
 
 These measurements are the only evidence behind section 4b of
-docs/DECISION_CLASS_COVERAGE.md, and behind the stratified reading of the Kyverno
-association in docs/SUITE_COVERAGE_STUDY.md. The corpora are not in the repository -- they
+the decision-class coverage write-up, and behind the stratified reading of the Kyverno
+association in the suite-coverage study. The corpora are not in the repository -- they
 are fetched at the commits the study pins -- so the cases that must not regress are
 asserted here on transcribed policies and on the committed artifacts, and run without a
 network.
