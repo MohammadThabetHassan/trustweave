@@ -40,3 +40,7 @@ venv/
 # The journal manuscript is kept outside this repository: a public repo counts as
 # prior dissemination for a journal submission. See docs/JOURNAL_READINESS.md.
 paper/
+
+# Feynman writes research artifacts here; they are scratch, not repository content.
+outputs/
+.feynman/

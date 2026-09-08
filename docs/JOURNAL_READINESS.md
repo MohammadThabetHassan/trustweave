@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~11,100 words, 19 pages, 14 numbered results, 19 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~11,300 words, 20 pages, 14 numbered results, 21 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -259,7 +259,25 @@ related work --- is done. What remains is not research:
    cited correctly -- Martin and Xie, WWW 2007, pp. 667--676, and the Cedar paper, PACMPL
    8(OOPSLA1), pp. 670--697. Worth stating plainly, because the alternative to checking a
    half-remembered citation is a fabricated reference in a submitted paper.
-3. **Read the paper aloud once.** One pass has been done and it was worth doing --- it
+3. **An independent literature sweep found prior art the manual search missed.** The
+   `feynman` research agent (`advaitpaliwal/feynman`, MIT, installed locally with telemetry
+   disabled) was pointed at the paper's topic. Its ranking is noisy -- most of the top
+   twenty-five are medical guidelines, because "testing" is a heavily loaded word -- but two
+   hits were real and neither was cited:
+
+   - **Chen, Dubrovenski and Xu, "Mutation Analysis of NGAC Policies", SACMAT 2021.**
+     Mutation analysis of access-control policies at the field's own venue, fourteen years
+     after Martin and Xie. Missing it would have been the worst kind of related-work gap:
+     recent, on-topic, and at the obvious venue.
+   - **McMinn, Wright, McCurdy and Kapfhammer, IEEE TSE 2019**, on detecting and removing
+     ineffective mutants for relational database schemas -- the same observation in another
+     declarative setting, and the closest analogue outside access control.
+
+   Both were verified against Crossref before citing, as every other reference was. The
+   lesson to keep is that a manual related-work search by one author missed a 2021 SACMAT
+   paper on exactly this topic, and a five-minute automated sweep did not.
+
+4. **Read the paper aloud once.** One pass has been done and it was worth doing --- it
    found three errors that the figure guard could not, because none of them was a number:
 
    - **Theorem 1's bound charged for components the policy never reads**, reporting 240
@@ -332,7 +350,7 @@ related work --- is done. What remains is not research:
    The third-party share is *lower* than the vendor's 87.2%, which is the direction that
    makes the comparison worth having. What this still does not reach is policy an
    organisation runs and does not publish, and no public corpus will.
-5. ~~**Settle whether finite refinement is necessary as well as sufficient.**~~ **Done, and
+6. ~~**Settle whether finite refinement is necessary as well as sufficient.**~~ **Done, and
    it is necessary.** For effective finite-outcome guard families over an enumerable subject
    space and a cell-expressive language, policy equivalence is decidable **if and only if**
    the condition holds. Theorem 6 becomes a corollary. Two things fell out that were worth
@@ -350,7 +368,7 @@ related work --- is done. What remains is not research:
    Also separated: deciding *equivalence* needs occupancy and no witness, while the results
    about *suites* need a witness one can put in a test case. The definition had bundled two
    requirements serving different halves of the development.
-6. **Choose a venue against the ceiling below, not above it.** Software-testing or
+7. **Choose a venue against the ceiling below, not above it.** Software-testing or
    policy-analysis venues where an exactness result inside a characterised fragment is the
    contribution, and where a reported negative result is read as a virtue.
 
