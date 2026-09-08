@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import importlib.util
 import json
 import re
 import subprocess
@@ -1033,6 +1034,32 @@ def _check_equivalence_audit_matches_inventory(survivor_count: int) -> list[str]
     return failures
 
 
+def _check_manuscript_figures() -> list[str]:
+    """Require the paper's numbers to be the artifacts' numbers.
+
+    Prose is the one place in this repository where a figure can be wrong without a test
+    noticing, and the manuscript restates measured values in its abstract, its tables and
+    its conclusion. `scripts/check_manuscript.py` pins each of them to the JSON an
+    instrument wrote; this delegates to it so a drifting paper fails the same gate as a
+    drifting document.
+    """
+
+    paper = ROOT / "paper" / "main.tex"
+    if not paper.exists():
+        return []
+    specification = importlib.util.spec_from_file_location(
+        "check_manuscript", ROOT / "scripts" / "check_manuscript.py"
+    )
+    if specification is None or specification.loader is None:
+        return ["Cannot load scripts/check_manuscript.py"]
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return [
+        f"Manuscript disagrees with its artifacts: {problem}"
+        for problem in module.check(paper, ROOT / "docs")
+    ]
+
+
 def _check_quality_evidence() -> list[str]:
     """Verify source-derived quality facts and the bounded mutation record."""
 
@@ -1535,6 +1562,7 @@ def main() -> int:
         + _check_public_documents()
         + _check_changelog_version_synchronization()
         + _check_quality_evidence()
+        + _check_manuscript_figures()
         + _check_rule_registry()
         + _check_documentation_site()
         + _check_documentation_commands()
