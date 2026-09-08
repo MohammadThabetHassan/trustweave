@@ -595,12 +595,30 @@ def _check_markdown_links() -> list[str]:
     for document in sorted(ROOT.rglob("*.md")):
         # mutants/ is a generated copy of the whole tree, so a mutation run would
         # otherwise make this check fail on duplicates of the repository's own files.
+        # outputs/ and .feynman/ are scratch written by the research agent into the
+        # working tree; both are gitignored and neither is repository content.
         if any(
-            part in {".git", "dist", "build", ".wheel-check", "mutants", ".mutmut-cache"}
+            part
+            in {
+                ".git",
+                "dist",
+                "build",
+                ".wheel-check",
+                "mutants",
+                ".mutmut-cache",
+                "outputs",
+                ".feynman",
+            }
             for part in document.parts
         ):
             continue
         for target in MARKDOWN_LINK.findall(document.read_text(encoding="utf-8")):
+            # Markdown permits a target wrapped in angle brackets, and `<https://...>` is
+            # a URL just as much as `https://...` is. Not stripping them made every such
+            # link look like a local path that does not exist.
+            target = target.strip()
+            if target.startswith("<") and target.endswith(">"):
+                target = target[1:-1].strip()
             if target.startswith(("http://", "https://", "mailto:", "#")):
                 continue
             relative_target = target.split("#", maxsplit=1)[0]
