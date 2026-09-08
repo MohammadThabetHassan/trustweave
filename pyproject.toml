@@ -46,6 +46,9 @@ dev = [
   "mypy>=1.13",
   "bandit>=1.8",
   "mutmut==3.7.0",
+  # Certifies the witness construction in scripts/verify_witness_space.py. The proof step
+  # it checks was wrong once, so the check runs in CI rather than on a maintainer's machine.
+  "z3-solver>=4.12",
   "mkdocs-material>=9.5",
 ]
 

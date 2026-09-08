@@ -83,6 +83,31 @@ per subset, which is what makes the capability term a count of realisable classe
 patterns still give a class each, so the correction cannot be mistaken for deduplicating
 indiscriminately.
 
+**And the corrected construction is certified by a solver rather than by this paragraph.**
+`scripts/verify_witness_space.py` encodes the matching rule in SMT -- a final-wildcard
+pattern as a string prefix, an exact pattern as equality -- and asks Z3, for every candidate
+signature over a set of named patterns, whether any capability set realises it. The
+construction must produce exactly the achievable ones: no unachievable signature, or it
+invents a class no subject occupies, and none missing, or the quotient is incomplete and
+Corollary 4's premise is unreachable. It agrees on all eight pattern sets checked, recorded
+in [`witness-space-verification-v1.json`](witness-space-verification-v1.json):
+
+| Named patterns | Candidate signatures | Achievable |
+|---|---:|---:|
+| `net.*` | 2 | 2 |
+| `net.*`, `net.http` | 4 | **3** |
+| `net.*`, `fs.*` | 4 | 4 |
+| `net.http`, `net.https` | 4 | 4 |
+| `net.*`, `net.http`, `net.http.get` | 8 | **5** |
+| `net.*`, `fs.*`, `net.http` | 8 | **6** |
+| `a`, `b`, `c` | 8 | 8 |
+
+The same tool quantifies the purpose collapse. Over named tags `{a, b}` with a single rule
+naming both, four subsets yield two achievable signatures; with two rules naming one tag
+each, four subsets yield four. The predicate, not the value set, decides how much of the
+product is real. This is the step the proof got wrong, so it is the step that is machine
+checked.
+
 `witness_space()` computes one representative per class and `cells()` enumerates the
 product; `abstract_cell()` maps a concrete subject to its representative. For the shipped
 policy, which names no classification, purpose or capability, the bound collapses to
@@ -369,6 +394,41 @@ The practical consequence is Corollary 4. A team does not need to run mutation t
 such a policy at all -- they need to witness every cell, which is checkable directly and
 costs one pass over the suite. Mutation testing here is a way to *validate* that claim, not
 the cheapest way to satisfy it.
+
+### What the approximation costs, measured
+
+"Normally answers approximately" is the load-bearing comparison in this section and it was
+never quantified, which left the value of exactness to the reader's imagination.
+`scripts/estimator_comparison.py` measures it on the shipped policy, where the exact answer
+is available to compare against, and writes
+[`estimator-comparison-v1.json`](estimator-comparison-v1.json).
+
+Of 38 generated mutants, **16 are provably equivalent -- 42.1%**. A tool that cannot decide
+equivalence has two options: ask a human to triage every survivor, or leave the equivalent
+mutants in the denominator. The second is what an automated pipeline does, and it costs:
+
+| Suite | Exact score | Without equivalence detection | Understated by |
+|---|---:|---:|---:|
+| `default-scenarios` | 63.6% | 36.8% | 26.8 pt |
+| `adversarial-scenarios` | 36.4% | 21.1% | 15.3 pt |
+| `coverage-matrix-scenarios` | **100.0%** | **57.9%** | **42.1 pt** |
+
+The last row is the one to keep. That suite witnesses every cell, so by Corollary 4 it kills
+every non-equivalent mutant and its adequacy is complete by construction. A pipeline without
+the fragment reports it as 57.9%, and a team reading that number would go looking for the
+42% of mutants that "survived" -- all sixteen of which are provably indistinguishable from
+the original for every subject the language can express. The error has one sign: undetected
+equivalents inflate the denominator, so the score is always understated, never flattered.
+
+Sampling costs separately. Where the mutant set is too large to run whole, a tool scores a
+random sample; here the true kill set is known, so the error is computed rather than
+simulated. Against the 63.6% suite, a sample of 4 of the 22 live mutants is off by 0.19 on
+average and by more than ten points in **every** sample; at 12 it is off by more than ten
+points in 38% of samples; only at 20 of 22 does it reliably come within ten points.
+
+Neither cost is exotic and neither is a criticism of any tool. They are the price of the
+question being undecidable, which is exactly what the fragment removes -- and the size of
+that price is what makes the removal worth stating.
 
 ## 6. The theorems on the shipped policy
 

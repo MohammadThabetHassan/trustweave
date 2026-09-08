@@ -1,0 +1,145 @@
+{
+  "equivalent_share": 0.4211,
+  "policy": "default-policy.json",
+  "schema_version": "v1",
+  "suites": [
+    {
+      "exact_score": 0.6364,
+      "mutants_equivalent": 16,
+      "mutants_generated": 38,
+      "mutants_live": 22,
+      "sampling": [
+        {
+          "mean_absolute_error": 0.19,
+          "method": "exact over 7315 samples",
+          "sample_size": 4,
+          "share_off_by_over_10_points": 1.0,
+          "worst_absolute_error": 0.6364
+        },
+        {
+          "mean_absolute_error": 0.1081,
+          "method": "sampled, 20000 draws, seed 0",
+          "sample_size": 8,
+          "share_off_by_over_10_points": 0.6516,
+          "worst_absolute_error": 0.5114
+        },
+        {
+          "mean_absolute_error": 0.0793,
+          "method": "sampled, 20000 draws, seed 0",
+          "sample_size": 12,
+          "share_off_by_over_10_points": 0.3841,
+          "worst_absolute_error": 0.3636
+        },
+        {
+          "mean_absolute_error": 0.0512,
+          "method": "exact over 74613 samples",
+          "sample_size": 16,
+          "share_off_by_over_10_points": 0.1365,
+          "worst_absolute_error": 0.2386
+        },
+        {
+          "mean_absolute_error": 0.0287,
+          "method": "exact over 231 samples",
+          "sample_size": 20,
+          "share_off_by_over_10_points": 0.0,
+          "worst_absolute_error": 0.0636
+        }
+      ],
+      "score_without_equivalence_detection": 0.3684,
+      "suite": "default-scenarios.json",
+      "understatement_points": 26.79
+    },
+    {
+      "exact_score": 0.3636,
+      "mutants_equivalent": 16,
+      "mutants_generated": 38,
+      "mutants_live": 22,
+      "sampling": [
+        {
+          "mean_absolute_error": 0.19,
+          "method": "exact over 7315 samples",
+          "sample_size": 4,
+          "share_off_by_over_10_points": 1.0,
+          "worst_absolute_error": 0.6364
+        },
+        {
+          "mean_absolute_error": 0.1078,
+          "method": "sampled, 20000 draws, seed 0",
+          "sample_size": 8,
+          "share_off_by_over_10_points": 0.6501,
+          "worst_absolute_error": 0.5114
+        },
+        {
+          "mean_absolute_error": 0.0794,
+          "method": "sampled, 20000 draws, seed 0",
+          "sample_size": 12,
+          "share_off_by_over_10_points": 0.3819,
+          "worst_absolute_error": 0.3636
+        },
+        {
+          "mean_absolute_error": 0.0512,
+          "method": "exact over 74613 samples",
+          "sample_size": 16,
+          "share_off_by_over_10_points": 0.1365,
+          "worst_absolute_error": 0.2386
+        },
+        {
+          "mean_absolute_error": 0.0287,
+          "method": "exact over 231 samples",
+          "sample_size": 20,
+          "share_off_by_over_10_points": 0.0,
+          "worst_absolute_error": 0.0636
+        }
+      ],
+      "score_without_equivalence_detection": 0.2105,
+      "suite": "adversarial-scenarios.json",
+      "understatement_points": 15.31
+    },
+    {
+      "exact_score": 1.0,
+      "mutants_equivalent": 16,
+      "mutants_generated": 38,
+      "mutants_live": 22,
+      "sampling": [
+        {
+          "mean_absolute_error": 0.0,
+          "method": "exact over 7315 samples",
+          "sample_size": 4,
+          "share_off_by_over_10_points": 0.0,
+          "worst_absolute_error": 0.0
+        },
+        {
+          "mean_absolute_error": 0.0,
+          "method": "sampled, 20000 draws, seed 0",
+          "sample_size": 8,
+          "share_off_by_over_10_points": 0.0,
+          "worst_absolute_error": 0.0
+        },
+        {
+          "mean_absolute_error": 0.0,
+          "method": "sampled, 20000 draws, seed 0",
+          "sample_size": 12,
+          "share_off_by_over_10_points": 0.0,
+          "worst_absolute_error": 0.0
+        },
+        {
+          "mean_absolute_error": 0.0,
+          "method": "exact over 74613 samples",
+          "sample_size": 16,
+          "share_off_by_over_10_points": 0.0,
+          "worst_absolute_error": 0.0
+        },
+        {
+          "mean_absolute_error": 0.0,
+          "method": "exact over 231 samples",
+          "sample_size": 20,
+          "share_off_by_over_10_points": 0.0,
+          "worst_absolute_error": 0.0
+        }
+      ],
+      "score_without_equivalence_detection": 0.5789,
+      "suite": "coverage-matrix-scenarios.json",
+      "understatement_points": 42.11
+    }
+  ]
+}

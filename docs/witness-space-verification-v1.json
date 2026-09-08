@@ -1,0 +1,170 @@
+{
+  "capabilities": [
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 1,
+      "agree": true,
+      "candidate_signatures": 1,
+      "patterns": [],
+      "produced_by_construction": 1,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 2,
+      "agree": true,
+      "candidate_signatures": 2,
+      "patterns": [
+        "net.*"
+      ],
+      "produced_by_construction": 2,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 3,
+      "agree": true,
+      "candidate_signatures": 4,
+      "patterns": [
+        "net.*",
+        "net.http"
+      ],
+      "produced_by_construction": 3,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 4,
+      "agree": true,
+      "candidate_signatures": 4,
+      "patterns": [
+        "net.*",
+        "fs.*"
+      ],
+      "produced_by_construction": 4,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 4,
+      "agree": true,
+      "candidate_signatures": 4,
+      "patterns": [
+        "net.http",
+        "net.https"
+      ],
+      "produced_by_construction": 4,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 5,
+      "agree": true,
+      "candidate_signatures": 8,
+      "patterns": [
+        "net.*",
+        "net.http",
+        "net.http.get"
+      ],
+      "produced_by_construction": 5,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 6,
+      "agree": true,
+      "candidate_signatures": 8,
+      "patterns": [
+        "net.*",
+        "fs.*",
+        "net.http"
+      ],
+      "produced_by_construction": 6,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 8,
+      "agree": true,
+      "candidate_signatures": 8,
+      "patterns": [
+        "a",
+        "b",
+        "c"
+      ],
+      "produced_by_construction": 8,
+      "unachievable_but_produced": []
+    }
+  ],
+  "capability_cases": 8,
+  "capability_cases_agreeing": 8,
+  "purposes": [
+    {
+      "achievable_by_solver": 2,
+      "candidate_signatures": 2,
+      "named_tags": [
+        "a",
+        "b"
+      ],
+      "rule_sets": [
+        [
+          "a",
+          "b"
+        ]
+      ],
+      "subsets_enumerated": 4
+    },
+    {
+      "achievable_by_solver": 4,
+      "candidate_signatures": 4,
+      "named_tags": [
+        "a",
+        "b"
+      ],
+      "rule_sets": [
+        [
+          "a"
+        ],
+        [
+          "b"
+        ]
+      ],
+      "subsets_enumerated": 4
+    },
+    {
+      "achievable_by_solver": 4,
+      "candidate_signatures": 4,
+      "named_tags": [
+        "a",
+        "b",
+        "c"
+      ],
+      "rule_sets": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "b",
+          "c"
+        ]
+      ],
+      "subsets_enumerated": 8
+    },
+    {
+      "achievable_by_solver": 2,
+      "candidate_signatures": 2,
+      "named_tags": [
+        "a"
+      ],
+      "rule_sets": [
+        [
+          "a"
+        ]
+      ],
+      "subsets_enumerated": 2
+    }
+  ],
+  "schema_version": "v1",
+  "solver": "5.1.0"
+}
