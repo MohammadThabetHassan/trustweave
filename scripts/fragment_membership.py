@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import importlib.util
 import json
 from collections import Counter
 from dataclasses import dataclass, field
@@ -74,6 +75,18 @@ class Adapter(Protocol):
     def classify(self, text: str) -> Verdict:
         """Decide membership from the policy text alone."""
 
+    def discover_wide(self, root: Path) -> list[tuple[str, Path]]:
+        """Every policy in the corpus, not only the ones a study could score.
+
+        Optional. `discover` returns the corpus that joins to a suite-coverage or
+        mutation measurement, and that corpus is narrow for a reason: measuring decision
+        coverage needs a suite with more than one case, and measuring a mutation score
+        needs a suite at all. Membership needs neither -- it is decided from policy text
+        -- so restricting it to the scorable policies understates how much of an
+        ecosystem the fragment covers. An adapter that can enumerate more implements
+        this; `measure_wide` falls back to `discover` for one that cannot.
+        """
+
 
 def load_adapter(ecosystem: str) -> Adapter:
     if ecosystem not in ADAPTERS:
@@ -81,12 +94,45 @@ def load_adapter(ecosystem: str) -> Adapter:
     return importlib.import_module(ADAPTERS[ecosystem])  # type: ignore[return-value]
 
 
-def measure(adapter: Adapter, root: Path, restrict_to: set[str] | None = None) -> dict[str, Any]:
+def provenance(root: Path) -> list[dict[str, str]]:
+    """Pin the corpus to exact commits, so a reported verdict can be reproduced.
+
+    The suite-coverage artifacts have recorded this from the start; the membership
+    artifacts did not, which left the corpus of the fragment measurement named only in
+    prose. The same function is borrowed rather than copied, so the two cannot drift, and
+    it is loaded by path at call time because these scripts are run directly and are not a
+    package -- a top-level import would only resolve when `scripts/` happened to be on the
+    path.
+    """
+
+    module_path = Path(__file__).resolve().parent / "suite_coverage.py"
+    specification = importlib.util.spec_from_file_location("suite_coverage", module_path)
+    if specification is None or specification.loader is None:  # pragma: no cover
+        raise SystemExit(f"cannot load {module_path}")
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module.provenance(root)
+
+
+def discovery_for(adapter: Adapter, wide: bool) -> Any:
+    """The narrow corpus that joins to a study, or the widest the adapter can enumerate."""
+
+    if wide:
+        return getattr(adapter, "discover_wide", adapter.discover)
+    return adapter.discover
+
+
+def measure(
+    adapter: Adapter,
+    root: Path,
+    restrict_to: set[str] | None = None,
+    wide: bool = False,
+) -> dict[str, Any]:
     """Classify every discovered policy, optionally restricted to measured subjects."""
 
     policies: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for subject, path in adapter.discover(root):
+    for subject, path in discovery_for(adapter, wide)(root):
         if restrict_to is not None and subject not in restrict_to:
             continue
         if subject in seen:
@@ -168,6 +214,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("root", type=Path)
     parser.add_argument("--json", type=Path)
     parser.add_argument(
+        "--wide",
+        action="store_true",
+        help="every policy in the corpus, not only those a study could score",
+    )
+    parser.add_argument(
         "--only-measured",
         type=Path,
         help="a suite-coverage or mutation artifact whose subjects bound this measurement",
@@ -179,7 +230,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.only_measured and args.only_measured.is_file():
         restrict_to = subjects_of(json.loads(args.only_measured.read_text(encoding="utf-8")))
 
-    findings = measure(adapter, args.root, restrict_to)
+    if args.wide and restrict_to is not None:
+        raise SystemExit("--wide and --only-measured ask for opposite corpora")
+    findings = measure(adapter, args.root, restrict_to, wide=args.wide)
+    findings["corpus_scope"] = "wide" if args.wide else "joined-to-study"
+    findings["corpus"] = provenance(args.root)
     absent = missing_subjects(findings, restrict_to)
     findings["measured_subjects_not_found"] = absent
     print(render(findings, absent))

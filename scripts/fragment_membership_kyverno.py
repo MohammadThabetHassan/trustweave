@@ -116,8 +116,25 @@ RESOURCE_CEL_CALLS = frozenset(
 )
 
 # CEL calls that reach outside the request. The image extensions query a registry; `now`
-# reads the clock, which is not part of the subject at all.
-EXTERNAL_CEL_CALLS = frozenset({"GetMetadata", "Get", "GetImageData", "now"})
+# reads the clock, which is not part of the subject at all; and the `resource` receiver
+# reaches the API server -- `Get` fetches one object, `List` fetches a collection whose
+# membership is a property of the cluster at admission time, and `Post` sends a request and
+# reads the response. A guard over any of them has no witness constructible from the policy.
+EXTERNAL_CEL_CALLS = frozenset(
+    {"GetMetadata", "Get", "GetImageData", "List", "Post", "now"}
+)
+
+# Calls that are total on the value they receive, so they compute from the request rather
+# than reaching past it. `jsonpatch.escapeKey` escapes a string for use as a JSON-pointer
+# segment. `image(...).registry()` parses an image reference that is already in the
+# admission request and returns its registry field -- it is a string operation and not a
+# registry query, which is why `GetMetadata` above is treated as external and this is not.
+PURE_CEL_CALLS = frozenset({"escapeKey", "registry"})
+
+# Calls that state an effect rather than a guard. Kyverno's `generate` block applies
+# downstream resources through `generator.Apply`; membership is a property of a policy's
+# guards, so an effect neither places a policy outside nor leaves it unjudged.
+EFFECT_CEL_CALLS = frozenset({"Apply"})
 
 VARIABLE = re.compile(r"\{\{\s*([^}]+?)\s*\}\}")
 CEL_CALL = re.compile(r"\.(\w+)\(")
@@ -167,6 +184,61 @@ def discover(root: Path) -> list[tuple[str, Path]]:
     return found
 
 
+# Kyverno numbers the foreach cursor by nesting depth, so a rule iterating a list inside a
+# list binds `elementIndex0` and `elementIndex1` beside the unsuffixed `elementIndex`.
+NESTED_CURSOR = re.compile(r"^element(?:Index)?\d+$")
+
+
+def _context_bindings(text: str) -> tuple[set[str], set[str]]:
+    """(names the policy's own context binds, the roots those bindings read).
+
+    Only reached when no external context source appears anywhere in the file, because
+    that check returns `outside` first. Every binding here is therefore a `variable` entry
+    whose value is a JMESPath expression, and the roots it reads are returned so the caller
+    can screen them the same way it screens a substituted variable -- a binding is not
+    admissible merely because the policy declared it.
+    """
+
+    names: set[str] = set()
+    roots: set[str] = set()
+
+    def walk(node: object) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "context" and isinstance(value, list):
+                    for entry in value:
+                        if not isinstance(entry, dict):
+                            continue
+                        name = entry.get("name")
+                        if isinstance(name, str):
+                            names.add(name)
+                        variable = entry.get("variable")
+                        if isinstance(variable, dict):
+                            expression = variable.get("jmesPath")
+                            if isinstance(expression, str):
+                                roots.add(
+                                    re.split(
+                                        r"[.\[(\s|]", expression.strip(), maxsplit=1
+                                    )[0]
+                                )
+                walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    try:
+        documents = list(yaml.safe_load_all(text))
+    except yaml.YAMLError:
+        # No bindings can be read, so none are reported. This does not weaken the verdict:
+        # the external-source check is a substring test over the raw text and has already
+        # run, and a variable root that is in fact a binding this parse missed stays
+        # unrecognised below, which refuses rather than guesses.
+        return set(), set()
+    for document in documents:
+        walk(document)
+    return names, roots
+
+
 def _variable_roots(text: str) -> set[str]:
     roots: set[str] = set()
     for expression in VARIABLE.findall(text):
@@ -196,7 +268,21 @@ def classify(text: str) -> Verdict:
 
     roots = _variable_roots(text)
     detail["variable_roots"] = sorted(roots)
-    unknown_roots = sorted(roots - RESOURCE_VARIABLE_ROOTS - RESOURCE_VARIABLE_FUNCTIONS)
+    bound_names, binding_roots = _context_bindings(text)
+    if bound_names:
+        detail["context_bound_names"] = sorted(bound_names)
+    known = RESOURCE_VARIABLE_ROOTS | RESOURCE_VARIABLE_FUNCTIONS
+    unresolved_bindings = sorted(binding_roots - known)
+    if unresolved_bindings:
+        detail["unresolved_context_bindings"] = unresolved_bindings
+        return Verdict(
+            UNDETERMINED, "binds a context variable this test does not resolve", detail
+        )
+    unknown_roots = sorted(
+        root
+        for root in roots - known - bound_names
+        if not NESTED_CURSOR.match(root)
+    )
     if unknown_roots:
         # A context block was not found above, so an unrecognised root is more likely a
         # function this adapter has not enumerated than an external read. Either way it is
@@ -207,14 +293,22 @@ def classify(text: str) -> Verdict:
     if CEL_BLOCK.search(text):
         calls = sorted(set(CEL_CALL.findall(text)))
         detail["cel_calls"] = calls
-        unknown_calls = sorted(set(calls) - RESOURCE_CEL_CALLS - RESOURCE_VARIABLE_FUNCTIONS)
+        unknown_calls = sorted(
+            set(calls)
+            - RESOURCE_CEL_CALLS
+            - RESOURCE_VARIABLE_FUNCTIONS
+            - PURE_CEL_CALLS
+            - EFFECT_CEL_CALLS
+        )
         if unknown_calls:
             detail["unrecognised_cel_calls"] = unknown_calls
             return Verdict(UNDETERMINED, "calls a CEL function this test does not judge", detail)
 
-    if CONTEXT_BLOCK.search(text):
-        # A context block with no recognised external source: it may bind a variable from
-        # the request, which is admissible, but this adapter does not parse it.
+    if CONTEXT_BLOCK.search(text) and not bound_names:
+        # A context block whose entries this adapter could not read at all. The bindings it
+        # did read are screened above, so reaching here means the block is shaped in a way
+        # the parser does not recognise, and an unread guard is not a guard known to be
+        # inside.
         return Verdict(UNDETERMINED, "declares a context this test does not parse", detail)
 
     return Verdict(

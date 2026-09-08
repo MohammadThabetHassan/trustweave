@@ -129,10 +129,14 @@ class TestXacmlAdapter:
         assert "XPath" in outcome.reason
 
     def test_an_unrecognised_function_is_undetermined(self) -> None:
-        outcome = xacml.classify(self._policy(self._target("xpath-node-count")))
+        # `xpath-node-count` used to stand here, and it is now decided rather than
+        # refused: it reads the request's Content, which places a policy outside. The
+        # case this test exists for is a function from no known family at all, which is
+        # still the one an adapter must refuse.
+        outcome = xacml.classify(self._policy(self._target("invent-a-subject")))
 
         assert outcome.verdict == core.UNDETERMINED
-        assert outcome.detail["unrecognised"] == ["xpath-node-count"]
+        assert outcome.detail["unrecognised"] == ["invent-a-subject"]
 
     def test_malformed_xml_is_undetermined_rather_than_crashing(self) -> None:
         assert xacml.classify("<x:Policy><unclosed>").verdict == core.UNDETERMINED
@@ -278,3 +282,227 @@ def test_every_xacml_policy_outside_is_outside_for_the_same_reason() -> None:
     }
 
     assert reasons == {"selects over request content with XPath"}
+
+
+# --- The wide corpus, and the two corrections that made it measurable -------------------
+#
+# Membership is decided from policy text, so restricting it to the policies a suite study
+# could also score understates how much of an ecosystem the fragment covers. The wide
+# measurement lifts that restriction. It required fixing the same mistake in two languages:
+# an allowlist of function *names* where the criterion is about *kinds* of predicate.
+
+
+WIDE_FIGURES = {"xacml": (548, 526, 22), "kyverno": (235, 205, 30), "cedar": (22, 22, 0)}
+
+
+@pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
+def test_the_wide_measurement_judges_every_policy(ecosystem: str) -> None:
+    artifact = json.loads(
+        (ROOT / "docs" / f"fragment-membership-{ecosystem}-wide-v1.json").read_text("utf-8")
+    )
+
+    assert artifact["corpus_scope"] == "wide"
+    assert artifact["counts"]["undetermined"] == 0
+    assert sum(artifact["counts"].values()) == artifact["policies_considered"]
+
+
+@pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
+def test_the_wide_measurement_holds_the_quoted_figures(ecosystem: str) -> None:
+    total, inside, outside = WIDE_FIGURES[ecosystem]
+    artifact = json.loads(
+        (ROOT / "docs" / f"fragment-membership-{ecosystem}-wide-v1.json").read_text("utf-8")
+    )
+
+    assert artifact["policies_considered"] == total
+    assert artifact["counts"]["inside"] == inside
+    assert artifact["counts"]["outside"] == outside
+
+
+@pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
+def test_every_measurement_pins_the_corpus_it_read(ecosystem: str) -> None:
+    """A figure whose corpus is named only in prose cannot be reproduced from the artifact."""
+
+    for scope in ("", "-wide"):
+        artifact = json.loads(
+            (ROOT / "docs" / f"fragment-membership-{ecosystem}{scope}-v1.json").read_text("utf-8")
+        )
+        corpus = artifact["corpus"]
+        assert corpus, f"{ecosystem}{scope} names no corpus"
+        for repository in corpus:
+            assert repository["remote"].startswith("https://"), repository
+            assert len(repository["commit"]) == 40, repository
+
+
+@pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
+def test_widening_added_verdicts_and_moved_none(ecosystem: str) -> None:
+    """The check that matters: the wide corpus contains the joined one, and agrees on it."""
+
+    def verdicts(scope: str) -> dict[str, str]:
+        artifact = json.loads(
+            (ROOT / "docs" / f"fragment-membership-{ecosystem}{scope}-v1.json").read_text("utf-8")
+        )
+        return {entry["subject"]: entry["verdict"] for entry in artifact["policies"]}
+
+    joined, wide = verdicts(""), verdicts("-wide")
+
+    assert set(joined) <= set(wide), sorted(set(joined) - set(wide))
+    moved = {name: (joined[name], wide[name]) for name in joined if joined[name] != wide[name]}
+    assert moved == {}, moved
+
+
+def test_xacml_membership_follows_the_family_not_the_datatype() -> None:
+    """`integer-greater-than` and `time-greater-than` split the space the same way."""
+
+    for datatype in ("integer", "double", "time", "date", "dateTime", "string"):
+        assert xacml.is_finitely_refining(f"{datatype}-greater-than"), datatype
+        assert xacml.is_finitely_refining(f"{datatype}-one-and-only"), datatype
+        assert xacml.is_finitely_refining(f"{datatype}-bag"), datatype
+        assert xacml.is_finitely_refining(f"{datatype}-is-in"), datatype
+
+
+def test_xacml_still_refuses_a_function_from_no_known_family() -> None:
+    assert not xacml.is_finitely_refining("string-invent-a-subject")
+    assert not xacml.is_finitely_refining("policy-defined-extension")
+
+
+def test_xacml_xpath_functions_are_outside_not_merely_unjudged() -> None:
+    """They read the request's Content, which the policy does not contain."""
+
+    policy = """<?xml version="1.0"?>
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="p">
+      <Target/>
+      <Rule Effect="Permit" RuleId="r">
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:3.0:function:xpath-node-count"/>
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>"""
+
+    outcome = xacml.classify(policy)
+
+    assert outcome.verdict == core.OUTSIDE
+    assert "xpath-node-count" in outcome.detail["external_functions"]
+
+
+def test_a_policy_stating_no_predicate_is_inside_with_one_class() -> None:
+    """XACML's IIB001: an empty Target and an unguarded rule. Always Permit."""
+
+    policy = """<?xml version="1.0"?>
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="p">
+      <Target/>
+      <Rule Effect="Permit" RuleId="r"/>
+    </Policy>"""
+
+    outcome = xacml.classify(policy)
+
+    assert outcome.verdict == core.INSIDE
+    assert "one decision class" in outcome.reason
+
+
+def test_a_guard_whose_function_cannot_be_read_is_not_called_predicate_free() -> None:
+    """The dangerous conflation: an empty function scan has two very different causes."""
+
+    policy = """<?xml version="1.0"?>
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="p">
+      <Target>
+        <AnyOf><AllOf><Match><AttributeValue>x</AttributeValue></Match></AllOf></AnyOf>
+      </Target>
+      <Rule Effect="Permit" RuleId="r"/>
+    </Policy>"""
+
+    outcome = xacml.classify(policy)
+
+    assert outcome.verdict == core.UNDETERMINED
+    assert outcome.detail["guard_elements"] == ["Match"]
+
+
+def test_kyverno_resource_list_and_post_reach_the_api_server() -> None:
+    for call in ("List", "Post", "Get"):
+        outcome = kyverno.classify(
+            "spec:\n  rules:\n  - name: r\n    validate:\n"
+            f"      cel:\n        expressions:\n        - expression: resource.{call}('v1','pods')\n"
+        )
+        assert outcome.verdict == core.OUTSIDE, call
+
+
+def test_kyverno_reads_an_image_reference_without_querying_a_registry() -> None:
+    """`image(x).registry()` parses a string already in the admission request."""
+
+    outcome = kyverno.classify(
+        "spec:\n  rules:\n  - name: r\n    validate:\n      cel:\n"
+        "        expressions:\n"
+        '        - expression: image(object.spec.containers[0].image).registry() == "r.io"\n'
+    )
+
+    assert outcome.verdict == core.INSIDE
+
+
+def test_kyverno_treats_generation_as_an_effect_not_a_guard() -> None:
+    outcome = kyverno.classify(
+        "spec:\n  rules:\n  - name: r\n    generate:\n"
+        "    - expression: generator.Apply(variables.targetNs, variables.downstream)\n"
+    )
+
+    assert outcome.verdict == core.INSIDE
+
+
+def test_kyverno_resolves_a_context_variable_the_policy_binds_itself() -> None:
+    """Sound only because an external context source returns outside before this point."""
+
+    outcome = kyverno.classify(
+        "spec:\n  rules:\n  - name: r\n    context:\n"
+        "    - name: tokenvolname\n      variable:\n"
+        "        jmesPath: request.object.spec.volumes[0].name\n"
+        "    preconditions:\n      all:\n"
+        '      - key: "{{ tokenvolname }}"\n        operator: Equals\n        value: "?*"\n'
+    )
+
+    assert outcome.verdict == core.INSIDE
+    assert outcome.detail["context_bound_names"] == ["tokenvolname"]
+
+
+def test_kyverno_refuses_a_context_binding_that_reads_past_the_request() -> None:
+    outcome = kyverno.classify(
+        "spec:\n  rules:\n  - name: r\n    context:\n"
+        "    - name: whatever\n      variable:\n"
+        "        jmesPath: someUnknownRoot.field\n"
+        '    preconditions:\n      all:\n      - key: "{{ whatever }}"\n'
+        '        operator: Equals\n        value: "x"\n'
+    )
+
+    assert outcome.verdict == core.UNDETERMINED
+    assert outcome.detail["unresolved_context_bindings"] == ["someUnknownRoot"]
+
+
+def test_kyverno_accepts_a_nested_foreach_cursor() -> None:
+    outcome = kyverno.classify(
+        "spec:\n  rules:\n  - name: r\n    mutate:\n      foreach:\n"
+        "      - list: request.object.spec.containers\n"
+        "        patchesJson6902: |-\n"
+        "          - path: /spec/containers/{{elementIndex0}}/volumeMounts/{{elementIndex1}}\n"
+        "            op: remove\n"
+    )
+
+    assert outcome.verdict == core.INSIDE
+
+
+def test_the_wide_discovery_falls_back_for_an_adapter_without_one() -> None:
+    """`discover_wide` is optional, so the core must not require it."""
+
+    class Narrow:
+        ECOSYSTEM = "narrow"
+
+        @staticmethod
+        def discover(root: Path) -> list[tuple[str, Path]]:
+            return []
+
+        @staticmethod
+        def classify(text: str) -> object:
+            raise AssertionError("not reached")
+
+    assert core.discovery_for(Narrow, wide=True) is Narrow.discover
+    assert core.discovery_for(Narrow, wide=False) is Narrow.discover
+    assert core.discovery_for(xacml, wide=True) is xacml.discover_wide
+    assert core.discovery_for(xacml, wide=False) is xacml.discover
