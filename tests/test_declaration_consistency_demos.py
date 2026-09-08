@@ -48,9 +48,15 @@ def test_every_benchmark_case_has_a_checked_in_terminal_gif_and_cast() -> None:
         events = [json.loads(line) for line in cast_lines[1:]]
         output = "".join(event[2] for event in events)
         assert f"Case: {case_id}" in output
-        assert "Scenario:" in output
-        assert "Review question:" in output
-        assert "Expected bounded result:" in output
+        # The briefing used to be seven labelled fields -- Scenario, Fixture form, Review
+        # question, Expected bounded result, Why this control matters, Scope, Next --
+        # which filled a screen and read as a form rather than as something a person
+        # wrote. What a reviewer needs before watching a run is what is being compared,
+        # what answer would be correct, and what the fixture does not claim, so those are
+        # what the cast is held to.
+        assert "Comparing a supplied" in output
+        assert "Correct outcome:" in output
+        assert "Synthetic fixture:" in output
         assert "Walkthrough complete:" in output
         assert events[1][0] - events[0][0] >= 0.9
 
