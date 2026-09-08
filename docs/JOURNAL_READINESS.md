@@ -193,9 +193,27 @@ related work --- is done. What remains is not research:
    left out rather than filled from memory, and the file's header says so. Confirm the
    `cedar2024` entry's canonical form, and record the pinned commits and access dates for
    the Kyverno and Gatekeeper corpora.
-3. **Read the paper aloud once.** It was assembled from two documents written for a reader
-   with the repository open, and although the prose was rewritten for a reader who has only
-   the paper, that is the kind of thing five authors catch and one does not.
+3. **Read the paper aloud once.** One pass has been done and it was worth doing --- it
+   found three errors that the figure guard could not, because none of them was a number:
+
+   - **Theorem 1's bound charged for components the policy never reads**, reporting 240
+     cells for the running example, which has 12. Restated per component as
+     `min(|D|, n+1)`, which is tight here and makes the unguarded case fall out with no
+     clause of its own.
+   - **Corollary 4 claimed that covering the quotient kills every non-equivalent mutant
+     for any operator set.** False: `Delta(P, M)` is a union of classes of `~P` intersect
+     `~M`, so a mutant drawing a distinction `P` does not can differ inside a cell the
+     suite witnessed elsewhere. Now stated over a common refinement, with the clean
+     quotient-level statement recovered for semantic mutants where it is also necessary.
+     The implementation was right about this all along and its docstring said so; the
+     paper had drifted from the code.
+   - **Theorem 6's reduction used a guard that is not a predicate** -- `f` halts on `s` is
+     semi-decidable, so it did not instantiate the theorem's own hypothesis. Replaced with
+     a halting reduction whose guards are total.
+
+   Two more passes by other authors are still worth having. The first pass found something
+   substantive in each of the three theorem sections, which is not a rate that suggests the
+   fourth pass will find nothing.
 4. **Choose a venue against the ceiling below, not above it.** Software-testing or
    policy-analysis venues where an exactness result inside a characterised fragment is the
    contribution, and where a reported negative result is read as a virtue.
