@@ -297,3 +297,172 @@ def test_every_unwitnessed_class_admits_a_surviving_mutant(policy: Policy) -> No
         )
         assert not any(policy.combine(c) != survivor.combine(c) for c in seen)
         assert policy.combine(missed) != survivor.combine(missed)
+
+
+# --------------------------------------------------------------------------------------
+# Guards that are not two-valued
+# --------------------------------------------------------------------------------------
+#
+# Everything above has boolean guards and varies only the combining function, so it
+# verifies the theorem for |V| = 2 with decision domains up to |D| = 4. The theorem is
+# stated for guards reporting values in any finite V, and that generalisation is the reason
+# it reaches XACML at all: a XACML guard reports *indeterminate* when an attribute the
+# target names is absent from the request, which is what produces the Indeterminate
+# decision. Nothing above exercises a guard with three outcomes, so this section does.
+
+INDETERMINATE = "indeterminate"
+OUTCOMES = ("true", "false", INDETERMINATE)
+ABSENT = "\x00absent"
+NON_MEMBER = "\x00non-member"
+
+
+@dataclass(frozen=True)
+class Field:
+    """A three-valued guard: a named set over one attribute that may be absent.
+
+    A subject is a `|`-separated record. A guard reads one field, and reports
+    indeterminate when the field is missing or explicitly absent -- the shape of a XACML
+    target whose designator finds no attribute in the request.
+    """
+
+    index: int
+    members: frozenset[str]
+
+    def outcome(self, subject: str) -> str:
+        fields = subject.split("|")
+        if self.index >= len(fields) or fields[self.index] == ABSENT:
+            return INDETERMINATE
+        return "true" if fields[self.index] in self.members else "false"
+
+    def choices(self) -> tuple[str, ...]:
+        """Field values realising each outcome, read off this guard's own syntax."""
+        return (*sorted(self.members), NON_MEMBER, ABSENT)
+
+
+THREE_VALUED_GUARDS: tuple[Field, ...] = (
+    Field(0, frozenset({"read"})),
+    Field(1, frozenset({"net.http"})),
+    Field(2, frozenset({"prod"})),
+)
+
+
+def three_valued_signature(guards: tuple[Field, ...], subject: str) -> tuple[str, ...]:
+    return tuple(guard.outcome(subject) for guard in guards)
+
+
+def three_valued_witnesses(guards: tuple[Field, ...]) -> tuple[str, ...]:
+    """One subject per combination the guards' syntax can realise."""
+    return tuple(
+        "|".join(combination)
+        for combination in itertools.product(*(guard.choices() for guard in guards))
+    )
+
+
+def xacml_target_algorithm(outcomes: tuple[str, ...]) -> str:
+    """Deny-overrides over three-valued targets, propagating indeterminacy.
+
+    A deny target that holds denies. A deny target that cannot be evaluated makes the
+    result indeterminate rather than permitting, which is the fail-closed reading the
+    standard's extended-indeterminate values exist to express.
+    """
+    deny, permit, scope = outcomes
+    if scope == INDETERMINATE:
+        return "Indeterminate"
+    if deny == "true":
+        return "Deny"
+    if deny == INDETERMINATE:
+        return "Indeterminate"
+    if permit == "true":
+        return "Permit" if scope == "true" else "NotApplicable"
+    if permit == INDETERMINATE:
+        return "Indeterminate"
+    return "NotApplicable"
+
+
+def test_a_three_valued_guard_family_is_still_finitely_refining() -> None:
+    """The bound is |V|^n, and here every one of the 27 signatures is realised."""
+
+    witnesses = three_valued_witnesses(THREE_VALUED_GUARDS)
+    achieved = {three_valued_signature(THREE_VALUED_GUARDS, s) for s in witnesses}
+
+    assert len(achieved) == len(OUTCOMES) ** len(THREE_VALUED_GUARDS) == 27
+    assert achieved == set(itertools.product(OUTCOMES, repeat=len(THREE_VALUED_GUARDS)))
+
+
+@given(st.text(max_size=40))
+@settings(max_examples=400, deadline=None)
+def test_every_subject_falls_in_a_three_valued_class_the_construction_found(
+    subject: str,
+) -> None:
+    achieved = {
+        three_valued_signature(THREE_VALUED_GUARDS, s)
+        for s in three_valued_witnesses(THREE_VALUED_GUARDS)
+    }
+
+    assert three_valued_signature(THREE_VALUED_GUARDS, subject) in achieved
+
+
+@given(st.text(max_size=40))
+@settings(max_examples=400, deadline=None)
+def test_the_three_valued_decision_is_constant_on_a_class(subject: str) -> None:
+    """What the theorem actually needs: the decision reads only the outcome vector."""
+
+    signature_here = three_valued_signature(THREE_VALUED_GUARDS, subject)
+    for witness in three_valued_witnesses(THREE_VALUED_GUARDS):
+        if three_valued_signature(THREE_VALUED_GUARDS, witness) == signature_here:
+            assert xacml_target_algorithm(signature_here) == xacml_target_algorithm(
+                three_valued_signature(THREE_VALUED_GUARDS, witness)
+            )
+
+
+def test_witnessing_every_three_valued_class_kills_every_non_equivalent_mutant() -> None:
+    """Corollary: full coverage of the quotient decides the score, |V| notwithstanding."""
+
+    witnesses = three_valued_witnesses(THREE_VALUED_GUARDS)
+    original = {
+        s: xacml_target_algorithm(three_valued_signature(THREE_VALUED_GUARDS, s)) for s in witnesses
+    }
+
+    # Semantic mutants: every function on the quotient that differs somewhere.
+    classes = sorted({three_valued_signature(THREE_VALUED_GUARDS, s) for s in witnesses})
+    killed = 0
+    for target in classes:
+        for decision in ("Deny", "Permit", "Indeterminate", "NotApplicable"):
+            if decision == xacml_target_algorithm(target):
+                continue
+
+            def mutant(outcomes: tuple[str, ...], _t=target, _d=decision) -> str:
+                return _d if outcomes == _t else xacml_target_algorithm(outcomes)
+
+            differs = any(
+                mutant(three_valued_signature(THREE_VALUED_GUARDS, s)) != original[s]
+                for s in witnesses
+            )
+            assert differs, (target, decision)
+            killed += 1
+
+    assert killed == len(classes) * 3
+
+
+def test_an_unwitnessed_three_valued_class_admits_a_survivor() -> None:
+    """Necessity, over semantic mutants: a missed class hides a real difference."""
+
+    witnesses = three_valued_witnesses(THREE_VALUED_GUARDS)
+    missed = three_valued_signature(THREE_VALUED_GUARDS, witnesses[0])
+    partial = [s for s in witnesses if three_valued_signature(THREE_VALUED_GUARDS, s) != missed]
+    assert partial, "the fixture needs more than one class"
+
+    original_at_missed = xacml_target_algorithm(missed)
+    survivor_decision = next(
+        d for d in ("Deny", "Permit", "Indeterminate", "NotApplicable") if d != original_at_missed
+    )
+
+    def survivor(outcomes: tuple[str, ...]) -> str:
+        return survivor_decision if outcomes == missed else xacml_target_algorithm(outcomes)
+
+    assert all(
+        survivor(three_valued_signature(THREE_VALUED_GUARDS, s))
+        == xacml_target_algorithm(three_valued_signature(THREE_VALUED_GUARDS, s))
+        for s in partial
+    )
+    assert survivor(missed) != original_at_missed

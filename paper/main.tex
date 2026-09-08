@@ -46,7 +46,9 @@ policy text, the policy-relative quotient is finite with computable witnesses, s
 equivalence is a table comparison, and full coverage of the quotient kills every
 non-equivalent mutant by construction. The result is independent of the evaluation rule,
 which we verify under first-match, Cedar's forbid-overrides, Kyverno's any-rule-fails, and a
-four-valued XACML combining algorithm.
+four-valued XACML algorithm --- and independent of the guards being two-valued, which we
+verify against guards that report \emph{indeterminate} when an attribute the policy names is
+absent.
 
 We then ask how much published policy satisfies the condition, and answer it with a decision
 procedure rather than an estimate: across three ecosystems' corpora, 753 of 805 policies lie
@@ -114,8 +116,8 @@ not measure it.
 found. The coverage criterion we use --- witness every class of a finite partition of the
 input space --- is all-combinations coverage over a category partition in the sense of
 Ostrand and Balcer \cite{ostrand1988category}. And mutation testing of access-control
-policies is a decade and a half old: Martin and Xie gave a policy-level fault model and
-mutated XACML directly \cite{martin2007fault}, so the observation that policies are more
+policies goes back nearly two decades: Martin and Xie gave a policy-level fault model and
+mutated XACML directly in 2007 \cite{martin2007fault}, so the observation that policies are more
 tractable than programs is not ours either. What we claim is the characterisation of
 \emph{when} the question is decidable, the equivalence --- not the correlation --- between
 the criterion and adequacy inside that characterisation, its independence from the
@@ -318,10 +320,21 @@ $\sem{P} = c \circ (g_i)_i$ is therefore constant on each class. Every later arg
 only those three facts, and none inspects $c$.
 \end{proof}
 
-$V$ need not be two-valued: an XACML guard also reports \emph{indeterminate} when a required
-attribute is absent, which is what produces the \texttt{Indeterminate} decision. Table
-\ref{tab:combining} instantiates $c$ for five deployed languages; all five are functions of
-the guard outcome vector, so all five satisfy the hypothesis.
+$V$ need not be two-valued, and this is not a technicality that only the statement needs:
+an XACML guard reports \emph{indeterminate} when an attribute its target names is absent
+from the request, which is what produces the \texttt{Indeterminate} decision, and a
+fail-closed algorithm must propagate that rather than treat it as false. We check the
+general case as well as the boolean one. With three guards over $V = \{\text{true},
+\text{false}, \text{indeterminate}\}$ reading attributes that may each be absent, all
+$|V|^n = 27$ outcome vectors are realised, every sampled subject from an infinite space
+falls in a class the construction found, an indeterminacy-propagating deny-overrides
+algorithm is constant on each class, and coverage of the 27 classes kills all 81 semantic
+mutants while any missed class admits a survivor. The contrast with
+Remark~\ref{rem:notacount} is the point: $|V|^n$ is a bound that is achieved when the
+guards read independent attributes and not achieved when they constrain each other.
+
+Table~\ref{tab:combining} instantiates $c$ for five deployed languages; all five are
+functions of the guard outcome vector, so all five satisfy the hypothesis.
 
 \begin{table}[t]
 \centering
