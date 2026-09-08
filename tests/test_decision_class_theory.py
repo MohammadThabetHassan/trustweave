@@ -695,3 +695,52 @@ def test_a_cell_decides_the_same_as_every_other_cell_of_its_class() -> None:
 
     assert grouped
     assert all(len(decisions) == 1 for decisions in grouped.values())
+
+
+def test_the_quotient_bound_charges_only_for_components_a_guard_reads() -> None:
+    """Theorem 1's bound is a product of per-component counts, and this is why.
+
+    The bound was first written with a term per component of the subject regardless of
+    whether the policy mentioned it -- `(|I_P| + 2)` for source identifiers, and the
+    classification taxonomy's size for classifications. On this policy, which constrains
+    only trust and action, that reports 240 cells where there are 12. A bound off by a
+    factor of twenty on the paper's own running example is not a bound worth stating, and
+    the corrected form charges a factor of one for a component no guard reads.
+    """
+
+    document = _document()
+    named = {
+        "classifications": {
+            value for rule in document["rules"] for value in rule.get("data_classifications") or []
+        },
+        "sources": {value for rule in document["rules"] for value in rule.get("source_ids") or []},
+        "tools": {value for rule in document["rules"] for value in rule.get("tool_ids") or []},
+        "purposes": {value for rule in document["rules"] for value in rule.get("purposes") or []},
+        "capabilities": {
+            value for rule in document["rules"] for value in rule.get("required_capabilities") or []
+        },
+    }
+    assert all(not values for values in named.values()), named
+
+    trust = {value for rule in document["rules"] for value in rule["source_trust"]}
+    actions = {value for rule in document["rules"] for value in rule["tool_action_classes"]}
+
+    # Both halves of the minimum are load-bearing on this policy: it names every trust
+    # level, so that component is capped by its domain, and three of the four action
+    # classes, so that one is capped by the distinctions it draws plus one for the rest.
+    trust_domain, action_domain = 3, 4
+    assert len(trust) == trust_domain and len(actions) == action_domain - 1
+
+    corrected = min(trust_domain, len(trust) + 1) * min(action_domain, len(actions) + 1)
+    for values in named.values():
+        corrected *= 1 if not values else len(values) + 1
+
+    assert corrected == len(_cells()) == 12
+
+    # The shape that over-charged, kept here so the regression is named and not merely
+    # avoided: a term for every component of the subject rather than every component the
+    # policy reads -- a taxonomy factor and a "+2" on each identifier component.
+    taxonomy_size = 4
+    over_charged = trust_domain * action_domain * (taxonomy_size + 1) * 2 * 2
+    assert over_charged == 240
+    assert over_charged == 20 * corrected

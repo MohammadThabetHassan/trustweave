@@ -224,23 +224,42 @@ Section~\ref{sec:mechanised} machine-checks the corrected construction.
 \label{thm:quotient}
 For every policy $P$ over the language of Section~\ref{sec:language}, $\Sub/{\sim_P}$ is
 finite, $\sem{P}$ is constant on each cell, and a witness for each cell is computable from
-$P$. Writing $X_P, I_P, J_P, G_P, K_P$ for the classifications, source identifiers, tool
-identifiers, purpose tags and capability patterns $P$ names,
+$P$. For a scalar component with label domain $D$, let $n$ be the number of distinct labels
+the guards of $P$ on that component can separate --- at most the count of labels those
+guards name, plus the taxonomy's size where a bound guard is present. Then that component
+induces at most $\min(|D|,\, n+1)$ classes, a set-valued component guarded by $m$ named sets
+or patterns induces at most $2^m$, and
 \[
   |\Sub/{\sim_P}| \;\le\;
-  |T| \cdot |A| \cdot (|X_P| + |{\rm taxonomy}| + 1) \cdot (|I_P| + 2) \cdot (|J_P| + 2)
-  \cdot 2^{|G_P|} \cdot 2^{|K_P|}.
+  \prod_{\text{scalar } i} \min\!\left(|D_i|,\, n_i + 1\right)
+  \;\cdot \prod_{\text{set-valued } \ell} 2^{m_\ell}.
 \]
 \end{theorem}
 
 \begin{proof}
 $\sim_P$ is the kernel of the map sending $s$ to the tuple of truth values of the guards of
-$P$. By Lemmas~\ref{lem:scalar} and~\ref{lem:setvalued} each component of that tuple takes
-finitely many values with computable witnesses, and the displayed product bounds the number
-of combinations. $\sem{P}$ consults only those truth values, so it is constant on each
-class. A witness for a class is obtained by taking, componentwise, the witnesses the two
-lemmas supply.
+$P$, so it suffices to bound each component's contribution. For a scalar component, the
+guards separate at most $n$ labels, and every subject whose label is separated by none of
+them answers every guard on that component identically --- so at most $n+1$ classes, and at
+most $|D|$ since distinct classes need distinct labels. The set-valued bound is
+Lemma~\ref{lem:setvalued}. Witnesses are computable: Lemma~\ref{lem:scalar} supplies one per
+scalar class and Lemma~\ref{lem:setvalued} one per set-valued class, and a witness for a cell
+is their componentwise combination. $\sem{P}$ consults only the truth values, so it is
+constant on each class.
 \end{proof}
+
+\begin{remark}[An unguarded component costs nothing]
+\label{rem:unguarded}
+With $n = 0$ the scalar bound is $\min(|D|, 1) = 1$, and with $m = 0$ the set-valued bound is
+$2^0 = 1$, so a component no guard reads contributes a factor of one rather than the size of
+its domain. This is not a technical nicety, and getting it wrong is easy: a bound with a term
+per component of the \emph{subject} rather than per component the \emph{policy reads} reports
+240 cells for the policy of Section~\ref{sec:example}, which has 12. The two halves of the
+minimum are both load-bearing there --- the policy names all three trust levels, so that
+component is capped by its domain at 3, and three of four action classes, so that one is
+capped by $n+1$ at 4. Quotient size tracks how much of the subject a policy actually looks
+at, and how finely.
+\end{remark}
 
 \begin{theorem}[Decidable equivalence]
 \label{thm:equivalence}
@@ -451,11 +470,12 @@ TW-001 allows \emph{trusted} requests to \emph{read} tools; TW-002 requires appr
 \emph{untrusted} requests to \emph{sensitive} tools; TW-004 denies \emph{untrusted} requests
 to \emph{external} actions.
 
-The policy names no classification, source, tool, purpose or capability, so five of the
-seven components of Definition~\ref{def:refining}'s subject contribute a single class each,
-and Theorem~\ref{thm:quotient}'s bound is $|T| \cdot |A| \cdot 1 \cdot 1 \cdot 1 \cdot 1
-\cdot 1 = 12$. All twelve are achieved, and Table~\ref{tab:example} is the whole of
-$\sem{P}$ --- a total function on a 12-element quotient of an infinite subject space.
+The policy names no classification, source, tool, purpose or capability, so by
+Remark~\ref{rem:unguarded} five of the seven components contribute a single class each. It
+names all three trust levels and three of the four action classes, so
+Theorem~\ref{thm:quotient}'s bound is $\min(3, 4) \cdot \min(4, 4) = 3 \cdot 4 = 12$. All
+twelve are achieved, and Table~\ref{tab:example} is the whole of $\sem{P}$ --- a total
+function on a 12-element quotient of an infinite subject space.
 
 \begin{table}[t]
 \centering
