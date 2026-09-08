@@ -115,6 +115,9 @@ only_mutate = [
   # its kill rate is 70% and raising it is tracked in docs/MUTATION_TESTING.md.
   "src/trustweave/code_sources.py",
   "src/trustweave/code_discovery.py",
+  # Ratcheted rather than gated: mutated on every run and held to a floor, but not to the
+  # survivor-triage gate. See docs/MUTATION_TESTING.md.
+  "src/trustweave/code_analysis.py",
 ]
 also_copy = [
   ".github",

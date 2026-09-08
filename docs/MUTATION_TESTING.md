@@ -18,7 +18,7 @@ mutations/second, so runtime was never the obstacle. Two of the three are now ga
 |---|---|---|---|
 | `code_discovery.py` | 53.4% | **99.55%** | yes |
 | `code_sources.py` | 69.8% | **90.70%** | yes, carried by the aggregate |
-| `code_analysis.py` | ~70% | **79.15%** | no, and the reason is measured below |
+| `code_analysis.py` | ~70% | **80.39%** | mutated and ratcheted, not gated |
 
 ### What moved `code_discovery.py` from 53% to 99.55%
 
@@ -67,50 +67,54 @@ Passing 95% on that module alone would mean deleting a defence-in-depth check or
 a test for a state the code cannot reach. It is gated anyway, because the gate scores the
 aggregate and the module's shortfall is small against the total.
 
-### `code_analysis.py` is measured and still not gated
+### `code_analysis.py` is ratcheted rather than gated
 
-The earlier estimate here was "~1,100 mutants, ~334 surviving, ~70%". Adding the module to
-the scope and running it gives real figures, and four rounds of targeted work were done
-before deciding, because an estimate is not a sufficient reason on its own.
+The earlier estimate here was "~1,100 mutants, ~334 surviving, ~70%". It is measured now,
+and it is under a control that can fail, which it previously was not.
 
-| Round | Mutants | Killed | Rate | Change |
-|---|---:|---:|---:|---|
-| Baseline | 1,480 | 1,149 | 77.64% | -- |
-| 269 catalogue-evidence tests | 1,486 | 1,163 | 78.26% | +14 killed |
-| 74 receiver-shape tests | 1,509 | 1,189 | 78.79% | +26 killed |
-| Two fail-open fixes | 1,509 | 1,193 | 79.06% | +4 killed |
-| 24 input-shape tests, one more fix | 1,525 | 1,207 | **79.15%** | +14 killed |
+| Round | Mutants | Killed | Rate |
+|---|---:|---:|---:|
+| Baseline | 1,480 | 1,149 | 77.64% |
+| 269 catalogue-evidence tests | 1,486 | 1,163 | 78.26% |
+| 74 receiver-shape tests | 1,509 | 1,189 | 78.79% |
+| Two fail-open fixes | 1,509 | 1,193 | 79.06% |
+| 24 input-shape tests, one more fix | 1,525 | 1,207 | 79.15% |
+| Benchmark-driven fixes and their tests | 1,800 | 1,447 | **80.39%** |
 
-**367 tests bought 58 kills and 1.51 points.** Reaching 95% of 1,525 mutants needs 1,448
-killed, which is 241 further kills: sixteen more rounds at the rate the last four
-sustained. Each fix also adds mutants of its own -- the last round added 16 and killed 14 of
-them -- so the target moves while the work proceeds. The seventeen-module aggregate stands
-at 94.77%, below the threshold.
+**367 targeted tests bought 58 kills.** Reaching 95% needs about 240 further kills, sixteen
+more rounds at that rate, and each fix adds mutants of its own. The survivor-triage gate
+additionally requires a recorded proof for every survivor, and this module has 353 of them,
+most not equivalences, so those proofs cannot be written honestly. That is why it is not
+gated, and it is a measured decision with a rate of return attached rather than an estimate.
 
-The lever that worked twice does not work here. On `code_discovery.py` most survivors were
-one unasserted contract away from dying, and validating the emitted artifact against its
-schema killed them in a stroke. Here the survivors were categorised rather than guessed at:
-129 alter control flow or a comparison on a branch, 104 corrupt a string literal or replace
-an argument with `None`, 24 replace a control-flow statement, and the rest invert a
-membership or a condition. They are on reachable code, which is why the second round
-targeted them directly, and reaching them with a public-interface test still leaves most
-producing no observable difference in the emitted artifact. Killing those needs assertions
-on private helpers, which pins the implementation rather than the behaviour and is worth
-less than it costs.
+Leaving it out of the run entirely was the worse option. It is the module that performs the
+analysis, and outside the scope its rate could fall and nothing would say so. So the run
+mutates two scopes with two contracts:
 
-So the module stays out, and that is now a measured decision with a rate of return attached
-rather than an estimate.
+| Scope | Modules | Contract |
+|---|---:|---|
+| Gated | 16 | 95% threshold, exact survivor-identifier and normalized-diff parity, every survivor classified with a proof, zero `needs_regression`, and **no mutant without a covering test** |
+| Ratcheted | 1 | a recorded floor it may not fall below, in [`mutation-ratchet-v1.json`](mutation-ratchet-v1.json) |
 
-The tests are kept, and the work was not wasted: it found four defects, three of them
-security-relevant, all of the same shape. Reading a credential was reported as a benign read
-through the builtin `open` and through a path stored on `self`. An action class the
-precedence order does not contain was reported as `read`, the most benign class, rather than
-refused. An effect one frame past the call-depth budget was reported as a local read at high
-confidence with `budget_state` still `complete`, so an outbound call four frames down
-published as no effect at all -- the breadth budget had always reported itself, and the depth
-budget now does too. A fifth finding came from the gate's coverage accounting rather than
-from a survivor: eighteen mutants with no covering test, all in `_env_is_secret`, a function
-defined, never called, and superseded by `_environ_class`. It has been deleted.
+The threshold is computed over the gated scope alone, so a large ratcheted module can
+neither drag the gated ones under the line nor be carried by them. A mutant reported as
+having no covering test is forbidden in the gated scope, because the triage cannot describe
+one; in the ratcheted scope it counts in the denominator, so adding unreachable code lowers
+the rate rather than hiding in it. Raising a floor is how the record is refreshed.
+
+That accounting has already earned its keep twice. Eighteen mutants with no covering test,
+all in `_env_is_secret`, is what an uncalled function looks like: it was defined, never
+referenced, superseded by `_environ_class`, and is deleted. Thirty-five more, all in
+`_would_descend`, showed that the call-depth fix below had no test at all -- a
+security-relevant fail-open fixed and left unprotected, which the survivor list would never
+have reported because the mutants were not surviving, they were unreachable by the suite.
+
+The tests are kept whatever the module's standing, and they are what found the defects
+recorded in the changelog: a credential read reported as a benign read through two of the
+four spellings, an action class the precedence order could not read reported as `read`
+rather than refused, an effect one frame past the call-depth budget reported as a local read
+at high confidence with `budget_state` still `complete`, and four more effects that reached
+the model but not the artifact.
 
 ## Recorded run
 

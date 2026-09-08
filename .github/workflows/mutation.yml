@@ -39,6 +39,7 @@ jobs:
           python scripts/mutation_gate.py \
             --run-log mutation-run.log \
             --results mutation-results.txt \
+            --ratchet docs/mutation-ratchet-v1.json \
             --evidence mutation-quality.json
 
       - name: Upload mutation evidence
@@ -51,4 +52,5 @@ jobs:
             mutation-results.txt
             mutation-quality.json
             docs/mutation-survivor-triage-v1.json
+            docs/mutation-ratchet-v1.json
           if-no-files-found: warn

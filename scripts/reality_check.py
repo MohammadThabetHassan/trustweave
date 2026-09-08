@@ -375,10 +375,17 @@ MUTATION_SOURCE_SCOPE = [
     "src/trustweave/bundle_policy.py",
     "src/trustweave/policy_weakening.py",
     # Discovery intake and artifact production, added once their kill rates cleared the
-    # gate. code_analysis.py is deliberately absent: its rate is 70% and the reason is
-    # recorded in docs/MUTATION_TESTING.md rather than left as an unexplained gap.
+    # gate.
     "src/trustweave/code_sources.py",
     "src/trustweave/code_discovery.py",
+]
+# Mutated and held to a floor, but not to the survivor-triage gate. code_analysis.py sits
+# at 80% and that gate additionally requires a recorded proof for every survivor, which at
+# 350 survivors cannot be written honestly because most are not equivalences. Leaving it
+# out of the run entirely left the module that performs the analysis under no control at
+# all, which is worse than a floor: the rate could fall and nothing would say so.
+MUTATION_RATCHET_SCOPE = [
+    "src/trustweave/code_analysis.py",
 ]
 REPRODUCIBILITY_RECORD_MARKERS = (
     "Clean-checkout staged-CI release verification",
@@ -1082,8 +1089,8 @@ def _check_quality_evidence() -> list[str]:
     mutation_config = project.get("tool", {}).get("mutmut")
     if not isinstance(mutation_config, dict):
         failures.append("pyproject.toml lacks a [tool.mutmut] configuration")
-    elif mutation_config.get("only_mutate") != MUTATION_SOURCE_SCOPE:
-        failures.append("Mutation configuration must cover the documented high-risk source scope")
+    elif mutation_config.get("only_mutate") != MUTATION_SOURCE_SCOPE + MUTATION_RATCHET_SCOPE:
+        failures.append("Mutation configuration must cover the gated and ratcheted scopes")
     return failures
 
 

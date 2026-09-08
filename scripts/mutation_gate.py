@@ -17,7 +17,7 @@ import json
 import re
 import subprocess
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -34,7 +34,70 @@ REQUIRED_TOP_LEVEL = {
 }
 TOTALS_PATTERN = r"(\d+)/(\d+).*?🎉\s+(\d+).*?🙁\s+(\d+)"
 SURVIVOR_PATTERN = r"^\s*([A-Za-z0-9_.]+__mutmut_\d+): survived$"
+RESULT_PATTERN = r"^\s*([A-Za-z0-9_.]+)__mutmut_\d+: (\w[\w ]*)$"
 DEFAULT_TRIAGE = Path("docs/mutation-survivor-triage-v1.json")
+DEFAULT_RATCHET = Path("docs/mutation-ratchet-v1.json")
+# Modules mutated on every run and held to a floor, but not to the survivor-triage gate.
+# The strict gate needs a recorded proof for every survivor; these have too many for that
+# to be written honestly, and running them under no control at all is the worse option.
+RATCHETED_MODULES = ("trustweave.code_analysis",)
+
+
+def module_of(identifier: str) -> str:
+    """`trustweave.chain.x_render__mutmut_4` -> `trustweave.chain`."""
+
+    qualified = identifier.rsplit("__mutmut_", 1)[0]
+    return qualified.rsplit(".", 1)[0]
+
+
+def partition(results: str) -> tuple[dict[str, Counter[str]], dict[str, Counter[str]]]:
+    """Per-module outcome counts, split into the gated modules and the ratcheted ones."""
+
+    gated: dict[str, Counter[str]] = defaultdict(Counter)
+    ratcheted: dict[str, Counter[str]] = defaultdict(Counter)
+    for qualified, status in re.findall(RESULT_PATTERN, results, re.MULTILINE):
+        module = qualified.rsplit(".", 1)[0]
+        target = ratcheted if module in RATCHETED_MODULES else gated
+        target[module][status.strip()] += 1
+    return dict(gated), dict(ratcheted)
+
+
+def check_ratchet(
+    ratcheted: dict[str, Counter[str]], floors: dict[str, Any]
+) -> tuple[list[str], dict[str, Any]]:
+    """Every ratcheted module must hold the rate its record names, or better."""
+
+    failures: list[str] = []
+    measured: dict[str, Any] = {}
+    for module in sorted(RATCHETED_MODULES):
+        counts = ratcheted.get(module)
+        recorded = floors.get(module)
+        if recorded is None and not counts:
+            # Nothing declared and nothing produced: there is no claim to check.
+            continue
+        if not counts:
+            failures.append(
+                f"Ratcheted module has a recorded floor but produced no mutants: {module}"
+            )
+            continue
+        total = sum(counts.values())
+        killed = counts.get("killed", 0)
+        rate = killed / total
+        measured[module] = {
+            "generated": total,
+            "killed": killed,
+            "score_percent": round(rate * 100, 4),
+        }
+        if recorded is None:
+            failures.append(f"Ratcheted module has no recorded floor: {module}")
+            continue
+        floor = recorded["score_percent"] / 100
+        if rate < floor:
+            failures.append(
+                f"Mutation ratchet failed for {module}: "
+                f"{killed}/{total} ({rate:.2%}) below the recorded {floor:.2%}"
+            )
+    return failures, measured
 
 
 class GateFailure(Exception):
@@ -51,18 +114,49 @@ def parse_totals(run_output: str) -> tuple[int, int, int]:
     completed, generated, killed, survived = (int(value) for value in matches[-1])
     if completed != generated:
         raise GateFailure(f"Mutation run did not complete: {completed}/{generated}")
-    if killed + survived != generated:
+    # killed + survived need not equal generated: a mutant can also be reported as having
+    # no covering test. That is forbidden in the gated scope and checked per module below,
+    # because a gated module with uncovered mutants is a gap the triage cannot describe.
+    if killed + survived > generated:
         raise GateFailure(
             "Mutation totals are inconsistent: "
             f"generated={generated}, killed={killed}, survived={survived}"
         )
+    return generated, killed, survived
+
+
+def check_gated_threshold(gated: dict[str, Counter[str]]) -> dict[str, Any]:
+    """The threshold is over the gated modules, not the whole run.
+
+    A ratcheted module is mutated in the same run and held to a floor instead, so folding
+    it into this total would let a large weak module drag the gated ones under the line, or
+    be carried by them.
+    """
+
+    generated = sum(sum(counts.values()) for counts in gated.values())
+    killed = sum(counts.get("killed", 0) for counts in gated.values())
+    if not generated:
+        raise GateFailure("No gated module produced any mutant")
+    uncovered = {
+        module: dict(counts)
+        for module, counts in gated.items()
+        if set(counts) - {"killed", "survived"}
+    }
+    if uncovered:
+        raise GateFailure(
+            "Gated modules have mutants with no covering test, which the survivor triage "
+            f"cannot account for: {uncovered}"
+        )
     if killed * 100 < generated * THRESHOLD_PERCENT:
-        score = killed * 100 / generated
         raise GateFailure(
             f"Mutation quality gate failed: {killed}/{generated} killed "
-            f"({score:.2f}%) < {THRESHOLD_PERCENT}%"
+            f"({killed * 100 / generated:.2f}%) < {THRESHOLD_PERCENT}% over the gated scope"
         )
-    return generated, killed, survived
+    return {
+        "generated": generated,
+        "killed": killed,
+        "score_percent": round(killed * 100 / generated, 4),
+    }
 
 
 def parse_survivors(result_output: str, survived: int) -> list[str]:
@@ -183,10 +277,19 @@ def run_gate(
     results: Path,
     triage_path: Path,
     mutmut: str,
+    ratchet_path: Path | None = None,
 ) -> dict[str, Any]:
     """Run every gate condition and return the evidence record on success."""
     generated, killed, survived = parse_totals(run_log.read_text(encoding="utf-8"))
-    survivors = parse_survivors(results.read_text(encoding="utf-8"), survived)
+    result_text = results.read_text(encoding="utf-8")
+    all_survivors = parse_survivors(result_text, survived)
+    gated, ratcheted = partition(result_text)
+    gated_totals = check_gated_threshold(gated)
+    # Only the gated modules are held to exact survivor parity. A ratcheted module's
+    # survivors are counted, never excused, and no proof is claimed for any of them.
+    survivors = [
+        identifier for identifier in all_survivors if module_of(identifier) not in RATCHETED_MODULES
+    ]
     inventory = load_inventory(triage_path)
     check_identifier_parity(inventory, survivors)
     triage_digests, counts = check_records(inventory)
@@ -196,11 +299,22 @@ def run_gate(
         raise GateFailure(
             f"Mutation survivor gate failed: {unresolved} needs_regression classifications remain"
         )
+    floors: dict[str, Any] = {}
+    if ratchet_path is not None and ratchet_path.is_file():
+        floors = json.loads(ratchet_path.read_text(encoding="utf-8"))["modules"]
+    ratchet_failures, ratchet_measured = check_ratchet(ratcheted, floors)
+    if ratchet_failures:
+        raise GateFailure("; ".join(ratchet_failures))
+
     return {
         "generated": generated,
         "killed": killed,
         "survived": survived,
         "score_percent": round(killed * 100 / generated, 4),
+        "gated_generated": gated_totals["generated"],
+        "gated_killed": gated_totals["killed"],
+        "gated_score_percent": gated_totals["score_percent"],
+        "ratcheted_modules": ratchet_measured,
         "threshold_percent": THRESHOLD_PERCENT,
         "triage_survivor_count": len(inventory["survivors"]),
         "triage_untriaged_count": inventory["untriaged_count"],
@@ -217,10 +331,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--triage", type=Path, default=DEFAULT_TRIAGE)
     parser.add_argument("--evidence", type=Path, default=Path("mutation-quality.json"))
     parser.add_argument("--mutmut", default="mutmut", help="mutmut executable to re-render diffs")
+    parser.add_argument("--ratchet", type=Path, default=DEFAULT_RATCHET)
     args = parser.parse_args(argv)
 
     try:
-        evidence = run_gate(args.run_log, args.results, args.triage, args.mutmut)
+        evidence = run_gate(args.run_log, args.results, args.triage, args.mutmut, args.ratchet)
     except GateFailure as failure:
         print(str(failure), file=sys.stderr)
         return 1

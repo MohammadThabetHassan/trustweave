@@ -162,6 +162,17 @@ All notable changes to TrustWeave are documented in this file. The project follo
   run before pushing, which is what the previous arrangement made impossible.
 - The mutation scope covers sixteen modules; `code_sources.py` and `code_discovery.py`, the
   intake and artifact production behind `trustweave discover`, are gated with the rest.
+- The mutation run now covers two scopes with two contracts. Sixteen modules are gated: a
+  95% threshold computed over that scope alone, exact survivor parity, a recorded proof for
+  every survivor, and no mutant without a covering test. `code_analysis.py` is ratcheted: it
+  is mutated on every run and held to a floor in `docs/mutation-ratchet-v1.json` that it may
+  not fall below. It is not gated because the triage would need a proof for each of its 353
+  survivors and most are not equivalences, but leaving it out of the run entirely meant its
+  rate could fall with nothing to say so.
+- A mutant reported as having no covering test is forbidden in the gated scope, where the
+  triage cannot account for it, and counted in the denominator of a ratcheted module, so
+  unreachable code lowers the rate rather than hiding in it. That accounting found the
+  call-depth fail-open fix had no test protecting it.
 - `scripts/fragment_membership.py` measures which published policies lie inside the
   decidable fragment, one adapter per ecosystem: 15 of 21 XACML policies, 41 of 49 Kyverno
   policies, and 22 of 22 Cedar policies, with nothing left undetermined in any of the

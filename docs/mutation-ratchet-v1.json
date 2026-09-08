@@ -1,0 +1,12 @@
+{
+  "description": "Modules mutated on every run and held to a floor, but not to the survivor-triage gate. Raising a floor is how this record is refreshed; lowering one is what it exists to prevent. A mutant with no covering test counts in the denominator, so adding unreachable code lowers the rate rather than hiding in it.",
+  "modules": {
+    "trustweave.code_analysis": {
+      "generated": 1800,
+      "killed": 1447,
+      "reason": "The survivor-triage gate requires a recorded proof for every survivor. This module has 353, and most are not equivalences, so those proofs cannot be written honestly. Four rounds of targeted work moved it from 77.64% to 80.39% for 367 tests; the rate of return is recorded in docs/MUTATION_TESTING.md. Running it under no control at all was the worse option, because the rate could fall and nothing would say so.",
+      "score_percent": 80.38
+    }
+  },
+  "schema_version": "v1"
+}
