@@ -263,7 +263,6 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     "docs/site/CURRENT_EVIDENCE.md": (
         "0.3.1",
         "0.3.0",
-        "98.12%",
         "not yet collected",
         "does **not** establish",
         "The documented merge policy requires green relevant checks",
@@ -846,6 +845,41 @@ def _check_issue_templates() -> list[str]:
             failures.append(f"Issue form {relative_path} needs a non-empty description")
         if not isinstance(form.get("body"), list) or not form.get("body"):
             failures.append(f"Issue form {relative_path} needs a non-empty body list")
+    return failures
+
+
+def _check_recorded_mutation_figure_agrees(summary: str) -> list[str]:
+    """Require the public evidence page to quote the mutation record, not a past one.
+
+    This page previously carried 6,565 of 6,691 across fourteen modules while the record
+    it summarises had moved to sixteen. The figure survived because it was pinned here as
+    a literal string, so the guard held the superseded number in place instead of
+    catching it. A figure that is recorded elsewhere should be compared against that
+    record rather than frozen in the checker.
+    """
+
+    record = MUTATION_RECORD_PATH
+    if not record.is_file():
+        return [f"Missing mutation record: {record.name}"]
+
+    scores = re.findall(
+        r"([\d,]+) killed / ([\d,]+) generated \(([\d.]+)% killed\)",
+        record.read_text(encoding="utf-8"),
+    )
+    if len(scores) != 1:
+        return [
+            f"docs/MUTATION_TESTING.md should record exactly one high-risk scope score; "
+            f"found {len(scores)}"
+        ]
+
+    killed, generated, percentage = scores[0]
+    failures: list[str] = []
+    for figure in (killed, generated, percentage + "%"):
+        if figure not in summary:
+            failures.append(
+                f"docs/site/CURRENT_EVIDENCE.md does not quote the recorded mutation "
+                f"figure {figure} from docs/MUTATION_TESTING.md"
+            )
     return failures
 
 
@@ -1573,6 +1607,9 @@ def main() -> int:
     failures = (
         _check_schema_resource_synchronization()
         + _check_generated_artifact_schema_coverage()
+        + _check_recorded_mutation_figure_agrees(
+            (ROOT / "docs" / "site" / "CURRENT_EVIDENCE.md").read_text(encoding="utf-8")
+        )
         + _check_current_contract_documentation()
         + _check_json_documents()
         + _check_contract_examples()

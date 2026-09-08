@@ -157,6 +157,36 @@ def test_reality_check_rejects_a_mutation_record_that_contradicts_the_inventory(
     assert any("classified survivors" in failure for failure in failures)
 
 
+def test_reality_check_ties_the_public_evidence_page_to_the_mutation_record() -> None:
+    """The page that summarises the run must quote the run that is recorded."""
+
+    reality_check = _reality_check_module()
+    summary = (reality_check.ROOT / "docs" / "site" / "CURRENT_EVIDENCE.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert reality_check._check_recorded_mutation_figure_agrees(summary) == []
+
+
+def test_reality_check_rejects_a_superseded_mutation_figure_on_the_evidence_page() -> None:
+    """A figure from an earlier scope must be reported, not carried forward.
+
+    The page published 6,565 of 6,691 across fourteen modules while the record it
+    summarises had moved to sixteen. It survived because the checker pinned the
+    percentage as a literal, so the guard preserved the stale figure rather than
+    catching it.
+    """
+
+    reality_check = _reality_check_module()
+
+    failures = reality_check._check_recorded_mutation_figure_agrees(
+        "The recorded Linux run killed 6,565 of 6,691 mutants (98.12%)."
+    )
+
+    assert failures, "a superseded figure must not satisfy the evidence-page check"
+    assert any("7,222" in failure for failure in failures)
+
+
 def test_reality_check_ties_the_equivalence_audit_to_the_survivor_inventory() -> None:
     """The audit's reviewed families must account for every survivor in the inventory."""
 

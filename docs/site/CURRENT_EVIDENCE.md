@@ -19,8 +19,8 @@ The following is **project-recorded repository evidence**, not an independent se
 
 | Control | Recorded evidence | Scope and limit |
 | --- | --- | --- |
-| Branch coverage | The test gate enforces **95% branch coverage**; the current recorded full-suite result is **97.13%**. | This measures exercised TrustWeave code paths, not detection coverage for real deployed agents. |
-| Mutation testing | The recorded Linux run killed **6,565 of 6,691** mutants (**98.12%**) across fourteen high-risk modules. | It is a measured high-risk scope, not a package-wide claim and not proof that TrustWeave is secure. |
+| Branch coverage | The test gate enforces **95% branch coverage**; the current recorded full-suite result is **96.72%** on the Linux gate, and **96.69%** on the 3.11 compatibility job. | This measures exercised TrustWeave code paths, not detection coverage for real deployed agents. |
+| Mutation testing | The recorded Linux run killed **7,222 of 7,369** mutants (**98.01%**) across sixteen high-risk modules. | It is a measured high-risk scope, not a package-wide claim and not proof that TrustWeave is secure. |
 | Deterministic scenarios | The evaluation corpus records **12/12** passing synthetic local cases. | A passing case verifies the supplied policy decision only; it does not execute an agent, tool, model, or live target. |
 | Package and supply-chain controls | The repository records reproducible distribution checks, SBOM/provenance controls, and release-specific exact-file verification for `0.3.0`. | Configured controls and local build checks must not be confused with publication evidence for the unpublished `0.3.1` candidate. |
 | Governance and review | The documented merge policy requires green relevant checks and a non-author approval when pull requests are used; GitHub settings remain owner-controlled and must be verified before a server-enforced control is claimed as enabled. | Policy and owner verification reduce change-control risk; they do not establish external adoption or security efficacy. |
