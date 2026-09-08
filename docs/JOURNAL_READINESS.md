@@ -7,7 +7,9 @@ reviewer makes.
 
 ## Status
 
-Of the seven gaps below, **G1, G2, G3, G4, G5 and G7 are now closed**; G6 is not closeable
+Of the seven gaps below, **G1, G2, G3, G4, G5 and G7 are closed**, and **G6 is half
+closed** -- the corpus is 8.8x larger than when the gap was written, but it is still vendor
+test and conformance corpora rather than deployed policy, and that half is not closeable
 from this repository. Each closure is marked at its heading with what closed it, and the
 gap's original statement is left standing rather than rewritten, so the record shows what
 was missing and not only what is present. The ceiling in [What the gaps are worth](#what-the-gaps-are-worth)
@@ -17,7 +19,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| [`../paper/main.tex`](../paper/main.tex) -- the manuscript | ~4,200 words, 8 numbered results, 13 references |
+| [`../paper/main.tex`](../paper/main.tex) -- the manuscript | ~5,400 words, 8 numbered results, 15 references |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -126,14 +128,32 @@ estimation, and none against the equivalent-mutant heuristics the literature act
 fragment, where the exact answer is available. **Who:** the authors. Cheap: the machinery
 exists.
 
-### G6. The corpora are small, and from vendor test suites -- OPEN, and not closeable here
+### G6. The corpora are small, and from vendor test suites -- HALF CLOSED
 
-21 XACML policies, 49 Kyverno, 22 Cedar, all from the projects' own test directories rather
-than from deployed policy. The Kyverno predictive experiment has nine policies in its blind
-arm and its p-value does not survive stratification.
+The gap named two things, and only one of them was about size.
 
-**Closes it:** deployed policy, which the authors do not have, or a collaboration that
-supplies it. **Who:** not the authors alone. This is the gap that caps the paper.
+**The size half is closed.** The membership measurement read 21 XACML policies, 49 Kyverno
+and 22 Cedar -- 92 in total -- because it had been scoped to the policies a *suite* study
+could also score, and scoring needs a suite. Membership needs none: it is decided from
+policy text. Measured over the whole of each corpus it is **805 policies, 753 inside,
+nothing undetermined**, which is 8.8x the evidence for the paper's external-validity claim
+at no cost in rigour. Getting there took fixing the same mistake in two instruments -- an
+allowlist of function *names* where the criterion is about *kinds* of guard -- and every
+verdict in the original 92 is unchanged, which is the check that the widening added
+decisions rather than moving them.
+
+**The provenance half is not, and is the gap that caps the paper.** These are still the
+projects' own test and conformance directories, not deployed policy, and the wide corpus is
+now dominated by XACML's conformance suite -- written to exercise the specification's
+function library, so it over-represents unusual functions and says little about what
+production policy looks like. Reading its 96.0% as the deployed share would be wrong and the
+paper's threats section says so. Separately, the Kyverno predictive experiment still has
+nine policies in its blind arm and its p-value still does not survive stratification;
+widening membership does not touch that, because the mutation scores it joins to exist only
+for the 49.
+
+**Closes the rest:** deployed policy, which the authors do not have, or a collaboration that
+supplies it. **Who:** not the authors alone.
 
 ### G7. Nothing is mechanised -- CLOSED
 
