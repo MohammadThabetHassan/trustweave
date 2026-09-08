@@ -111,7 +111,8 @@ def provenance(root: Path) -> list[dict[str, str]]:
         raise SystemExit(f"cannot load {module_path}")
     module = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(module)
-    return module.provenance(root)
+    repositories: list[dict[str, str]] = module.provenance(root)
+    return repositories
 
 
 def discovery_for(adapter: Adapter, wide: bool) -> Any:

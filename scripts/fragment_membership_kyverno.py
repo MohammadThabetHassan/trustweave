@@ -120,9 +120,7 @@ RESOURCE_CEL_CALLS = frozenset(
 # reaches the API server -- `Get` fetches one object, `List` fetches a collection whose
 # membership is a property of the cluster at admission time, and `Post` sends a request and
 # reads the response. A guard over any of them has no witness constructible from the policy.
-EXTERNAL_CEL_CALLS = frozenset(
-    {"GetMetadata", "Get", "GetImageData", "List", "Post", "now"}
-)
+EXTERNAL_CEL_CALLS = frozenset({"GetMetadata", "Get", "GetImageData", "List", "Post", "now"})
 
 # Calls that are total on the value they receive, so they compute from the request rather
 # than reaching past it. `jsonpatch.escapeKey` escapes a string for use as a JSON-pointer
@@ -216,11 +214,7 @@ def _context_bindings(text: str) -> tuple[set[str], set[str]]:
                         if isinstance(variable, dict):
                             expression = variable.get("jmesPath")
                             if isinstance(expression, str):
-                                roots.add(
-                                    re.split(
-                                        r"[.\[(\s|]", expression.strip(), maxsplit=1
-                                    )[0]
-                                )
+                                roots.add(re.split(r"[.\[(\s|]", expression.strip(), maxsplit=1)[0])
                 walk(value)
         elif isinstance(node, list):
             for item in node:
@@ -275,13 +269,9 @@ def classify(text: str) -> Verdict:
     unresolved_bindings = sorted(binding_roots - known)
     if unresolved_bindings:
         detail["unresolved_context_bindings"] = unresolved_bindings
-        return Verdict(
-            UNDETERMINED, "binds a context variable this test does not resolve", detail
-        )
+        return Verdict(UNDETERMINED, "binds a context variable this test does not resolve", detail)
     unknown_roots = sorted(
-        root
-        for root in roots - known - bound_names
-        if not NESTED_CURSOR.match(root)
+        root for root in roots - known - bound_names if not NESTED_CURSOR.match(root)
     )
     if unknown_roots:
         # A context block was not found above, so an unrecognised root is more likely a

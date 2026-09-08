@@ -75,9 +75,7 @@ def structural_findings(tex: str, bib: str) -> list[str]:
         problems.append(f"environment closed {count} more times than opened: {name}")
 
     if tex.count("{") != tex.count("}"):
-        problems.append(
-            f"unbalanced braces: {tex.count('{')} open, {tex.count('}')} close"
-        )
+        problems.append(f"unbalanced braces: {tex.count('{')} open, {tex.count('}')} close")
 
     labels = set(re.findall(r"\\label\{([^}]*)\}", tex))
     for target in sorted(set(re.findall(r"\\ref\{([^}]*)\}", tex)) - labels):
@@ -130,7 +128,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
         )
 
     ecosystems = {"xacml": "XACML", "kyverno": "Kyverno", "cedar": "Cedar"}
-    totals = Counter()
+    totals: Counter[str] = Counter()
     for slug, printed in ecosystems.items():
         wide = _load(docs, f"fragment-membership-{slug}-wide-v1")
         narrow = _load(docs, f"fragment-membership-{slug}-v1")
@@ -279,13 +277,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
         (
             rf"carries under 0\.3 bits in (\d+) of {measured}",
-            (
-                str(
-                    threshold[
-                        "domains_where_published_threshold_carries_under_0_3_bits"
-                    ]
-                ),
-            ),
+            (str(threshold["domains_where_published_threshold_carries_under_0_3_bits"]),),
             "domains carrying under 0.3 bits",
         ),
         (
@@ -320,8 +312,7 @@ def claim_findings(flat: str, claims: list[Claim]) -> list[str]:
             found = match if isinstance(match, tuple) else (match,)
             if found != expected:
                 problems.append(
-                    f"{provenance}: the manuscript says {found} where the artifact "
-                    f"says {expected}"
+                    f"{provenance}: the manuscript says {found} where the artifact says {expected}"
                 )
     return problems
 
@@ -347,10 +338,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  - {problem}")
         return 1
     claims = len(numeric_claims(args.docs))
-    print(
-        f"{args.paper}: structure is sound and {claims} pinned claims agree with "
-        f"their artifacts"
-    )
+    print(f"{args.paper}: structure is sound and {claims} pinned claims agree with their artifacts")
     return 0
 
 

@@ -22,8 +22,29 @@ from types import ModuleType
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-PAPER = ROOT / "paper" / "main.tex"
-DOCS = ROOT / "docs"
+
+
+def _repository_root() -> Path | None:
+    """The tree holding both the manuscript and the artifacts, or None if there is none.
+
+    The mutation runner copies `src`, `tests` and `scripts` into a `mutants/` directory
+    and runs the suite from there, so the root this file computes is not always the
+    repository: under mutmut it is `mutants/`, which carries no `paper/`. Walking up finds
+    the real tree in that case, and returning None lets these tests skip rather than fail
+    in a checkout that legitimately has no manuscript.
+    """
+
+    for candidate in (ROOT, *ROOT.parents):
+        if (candidate / "paper" / "main.tex").is_file() and (candidate / "docs").is_dir():
+            return candidate
+    return None
+
+
+REPOSITORY = _repository_root()
+PAPER = (REPOSITORY / "paper" / "main.tex") if REPOSITORY else ROOT / "paper" / "main.tex"
+DOCS = (REPOSITORY / "docs") if REPOSITORY else ROOT / "docs"
+
+pytestmark = pytest.mark.skipif(REPOSITORY is None, reason="no manuscript in this tree to check")
 
 
 def _module() -> ModuleType:
@@ -85,9 +106,7 @@ def test_an_edited_phrasing_fails_rather_than_passing_silently(
 ) -> None:
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    paper.write_text(
-        text.replace("flags all 88 subjects", "flags every subject"), encoding="utf-8"
-    )
+    paper.write_text(text.replace("flags all 88 subjects", "flags every subject"), encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
     assert any("no longer states" in problem for problem in problems), problems
@@ -116,9 +135,7 @@ def test_a_citation_without_a_bibliography_entry_is_caught(workspace: Path) -> N
 def test_a_dangling_cross_reference_is_caught(workspace: Path) -> None:
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    paper.write_text(
-        text.replace(r"\ref{thm:kill}", r"\ref{thm:absent}", 1), encoding="utf-8"
-    )
+    paper.write_text(text.replace(r"\ref{thm:kill}", r"\ref{thm:absent}", 1), encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
     assert any("thm:absent" in problem for problem in problems), problems

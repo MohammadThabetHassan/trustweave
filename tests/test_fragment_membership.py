@@ -421,8 +421,9 @@ def test_a_guard_whose_function_cannot_be_read_is_not_called_predicate_free() ->
 def test_kyverno_resource_list_and_post_reach_the_api_server() -> None:
     for call in ("List", "Post", "Get"):
         outcome = kyverno.classify(
-            "spec:\n  rules:\n  - name: r\n    validate:\n"
-            f"      cel:\n        expressions:\n        - expression: resource.{call}('v1','pods')\n"
+            "spec:\n  rules:\n  - name: r\n    validate:\n      cel:\n"
+            "        expressions:\n"
+            f"        - expression: resource.{call}('v1','pods')\n"
         )
         assert outcome.verdict == core.OUTSIDE, call
 

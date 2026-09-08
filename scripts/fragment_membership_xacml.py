@@ -271,9 +271,7 @@ def classify(text: str) -> Verdict:
 
     functions = sorted({found.rsplit(":", 1)[-1] for found in PREDICATE_ID.findall(text)})
     external = sorted(set(functions) & EXTERNAL_FUNCTIONS)
-    unrecognised = sorted(
-        function for function in functions if not is_finitely_refining(function)
-    )
+    unrecognised = sorted(function for function in functions if not is_finitely_refining(function))
 
     if CONTENT_SELECTION in text:
         return Verdict(OUTSIDE, "selects over request content with XPath", {"functions": functions})
