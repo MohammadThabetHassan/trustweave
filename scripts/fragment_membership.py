@@ -44,6 +44,7 @@ ADAPTERS = {
     "kyverno": "fragment_membership_kyverno",
     "cedar": "fragment_membership_cedar",
     "rego": "fragment_membership_rego",
+    "iam": "fragment_membership_iam",
 }
 
 

@@ -56,8 +56,28 @@ def flatten(tex: str) -> str:
     Claims are matched against this so that a phrasing may wrap across lines or put a
     number in bold without the pattern having to know.
     """
-    body = re.sub(r"\\(?:textbf|emph|textit)\{([^{}]*)\}", r"\1", tex)
+    # One level of nesting has to be allowed: the paper groups thousands as `2{,}642`, so
+    # `\textbf{2{,}642}` contains braces and a `[^{}]*` body silently leaves it unstripped,
+    # which is how a table row stopped matching its pin.
+    body = tex
+    for _ in range(3):
+        replaced = re.sub(r"\\(?:textbf|emph|textit)\{((?:[^{}]|\{[^{}]*\})*)\}", r"\1", body)
+        if replaced == body:
+            break
+        body = replaced
     return re.sub(r"\s+", " ", body)
+
+
+def _grouped(value: int) -> str:
+    """A count as the paper prints it: LaTeX's thin space groups thousands.
+
+    `2{,}642` rather than `2,642`, because a bare comma in maths mode picks up the wrong
+    spacing. The pins have to match what is written, so the grouping lives here.
+    """
+
+    if value < 1000:
+        return str(value)
+    return f"{value:,}".replace(",", "{,}")
 
 
 def _pct(value: float) -> str:
@@ -148,6 +168,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
         "kyverno": "Kyverno",
         "cedar": "Cedar",
         "rego": "Rego",
+        "iam": "AWS IAM",
     }
     joined_scopes = {"xacml", "kyverno", "cedar"}
     totals: Counter[str] = Counter()
@@ -173,12 +194,13 @@ def numeric_claims(docs: Path) -> list[Claim]:
                         "undetermined": undetermined,
                     }
                 )
+            printed_total = re.escape(_grouped(total))
             claims.append(
                 (
-                    rf"{printed}(?: \\cite\{{\w+\}})? & {total} & (\d+) & (\d+) & "
-                    rf"(\d+) & (\d+\.\d)\\%",
+                    rf"{printed}(?: \\cite\{{\w+\}})? & {printed_total} & ([\d{{,}}]+) & "
+                    rf"(\d+) & (\d+) & (\d+\.\d)\\%",
                     (
-                        str(inside),
+                        _grouped(inside),
                         str(outside),
                         str(undetermined),
                         _pct(inside / total),
@@ -189,28 +211,29 @@ def numeric_claims(docs: Path) -> list[Claim]:
         wide_counts = wide["counts"]
         claims.append(
             (
-                rf"(\d+) of {sum(wide_counts.values())} {printed} policies",
-                (str(wide_counts["inside"]),),
+                rf"([\d{{,}}]+) of {re.escape(_grouped(sum(wide_counts.values())))} "
+                rf"{printed} policies",
+                (_grouped(wide_counts["inside"]),),
                 f"{slug}: whole-corpus inside, stated in prose",
             )
         )
 
     claims += [
         (
-            r"(\d+) of (\d+) policies lie\s*inside",
-            (str(totals["inside"]), str(totals["policies"])),
+            r"([\d{,}]+) of ([\d{,}]+) policies lie\s*inside",
+            (_grouped(totals["inside"]), _grouped(totals["policies"])),
             "abstract: pooled membership",
         ),
         (
-            r"met by (\d+) of the (\d+) published policies",
-            (str(totals["inside"]), str(totals["policies"])),
+            r"met by ([\d{,}]+) of the ([\d{,}]+) published policies",
+            (_grouped(totals["inside"]), _grouped(totals["policies"])),
             "conclusion: pooled membership",
         ),
         (
-            r"Total & (\d+) & (\d+) & (\d+) & (\d+) & (\d+\.\d)\\%",
+            r"Total & ([\d{,}]+) & ([\d{,}]+) & (\d+) & (\d+) & (\d+\.\d)\\%",
             (
-                str(totals["policies"]),
-                str(totals["inside"]),
+                _grouped(totals["policies"]),
+                _grouped(totals["inside"]),
                 str(totals["outside"]),
                 str(totals["undetermined"]),
                 _pct(totals["inside"] / totals["policies"]),
@@ -422,7 +445,7 @@ def corpus_findings(bib: str, docs: Path) -> list[str]:
     """
 
     measured: dict[str, str] = {}
-    for slug in ("xacml", "kyverno", "cedar", "rego"):
+    for slug in ("xacml", "kyverno", "cedar", "rego", "iam"):
         findings = _load(docs, f"fragment-membership-{slug}-wide-v1")
         for repository in findings.get("corpus") or []:
             measured[repository["commit"]] = repository["remote"]

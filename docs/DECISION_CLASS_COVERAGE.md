@@ -358,11 +358,12 @@ fragment covers, since membership is decided from policy text and needs no suite
 | Ecosystem | Policies | Inside | Outside | Undetermined | Share inside |
 |---|---:|---:|---:|---:|---:|
 | *Whole corpus* | | | | | |
+| AWS IAM | 1,651 | **1,651** | 0 | 0 | 100.0% |
 | XACML | 548 | **526** | 22 | 0 | 96.0% |
 | Kyverno | 235 | **205** | 30 | 0 | 87.2% |
-| Cedar | 22 | **22** | 0 | 0 | 100.0% |
 | Rego | 186 | **116** | 70 | 0 | 62.4% |
-| **Total** | **991** | **869** | **122** | **0** | **87.7%** |
+| Cedar | 22 | **22** | 0 | 0 | 100.0% |
+| **Total** | **2,642** | **2,520** | **122** | **0** | **95.4%** |
 | *Joined to a suite study* | | | | | |
 | XACML | 21 | **15** | 6 | 0 | 71.4% |
 | Kyverno | 49 | **41** | 8 | 0 | 83.7% |
@@ -379,7 +380,8 @@ of the fragment measurement named only in prose:
 [xacml wide](fragment-membership-xacml-wide-v1.json),
 [kyverno wide](fragment-membership-kyverno-wide-v1.json),
 [cedar wide](fragment-membership-cedar-wide-v1.json),
-[rego wide](fragment-membership-rego-wide-v1.json). Rego has no joined row: the suite study
+[rego wide](fragment-membership-rego-wide-v1.json),
+[iam wide](fragment-membership-iam-wide-v1.json). Rego and IAM have no joined row: the suite study
 names Rego subjects by individual rule, and membership is a property of a policy module's
 guards.
 
@@ -413,6 +415,40 @@ in different languages: an allowlist of *names* where the criterion is about *ki
 Every verdict in the joined scope is unchanged by all of this, which is the check that
 matters: the widening added decisions where the instruments had refused, and moved none that
 they had already made.
+
+### AWS IAM, which is the only deployed corpus here
+
+Every other corpus in the table is a vendor test or conformance directory, and that is the
+limitation the study reports and cannot argue away. AWS managed policies are neither: AWS
+publishes them, they are attached in accounts worldwide, and IAM is the most widely used
+access-control policy language there is. `scripts/fragment_membership_iam.py` measures
+**1,651 of 1,651 inside**.
+
+An IAM statement's guards are its `Action` and `Resource` patterns, whose only
+metacharacter is `*`, and its `Condition` operators. Operator names decompose into a
+family, an optional `ForAllValues:`/`ForAnyValue:` quantifier over a multi-valued key, and
+an optional `IfExists` suffix that admits one further outcome for an absent key. All **27**
+operators the corpus uses land in a family comparing a context key against literals the
+policy contains, so membership follows the family and not the datatype -- the same lesson
+XACML taught.
+
+**237 of these policies interpolate a policy variable** -- `${aws:username}`,
+`${aws:PrincipalTag/Project}` -- into a resource ARN or a condition value, and this is the
+case that made us re-examine the Rego verdict above. It looks like "a pattern taken from the
+input", and that phrase was doing work it could not support. It fails here for a reason that
+also explains why it failed there: the interpolated value is an attribute of *the request
+being authorized*, so the guard relates two components of the subject to each other, its
+outcome is binary, and a witness for each side is constructible.
+
+**Two caveats, and the second matters more than the first.** IAM is 62% of the pooled corpus
+and drags the total upward; excluding it the pooled share is 87.7%, and the per-ecosystem
+figures are what should be read. More seriously, **the IAM adapter has no path to a verdict
+of `outside`**, so 100% is not the result of looking for excluded policies and finding none.
+That is principled -- IAM offers no construct by which a policy reads state the evaluator was
+not handed: no lookup, no clock call, no external fetch, and every condition key travels with
+the request -- but it is weaker evidence than Kyverno's 87.2%, where the instrument had an
+outside branch and used it 30 times. A test asserts the absence of that branch, so if anyone
+adds one, the caveat gets revisited rather than quietly outliving its reason.
 
 ### Rego, which was asserted rather than measured
 
@@ -464,8 +500,9 @@ Three things about the instrument are worth recording, because each was a defect
 
 The share being lowest here is the result worth keeping. An instrument that returns 96% on a
 conformance suite and 62% on a general-purpose language is discriminating rather than
-agreeing, which is the only evidence available that the other three figures are measurements
-and not the instrument's disposition.
+agreeing, which is the best evidence available that the other figures are measurements and
+not the instrument's disposition -- and it is the reason the IAM caveat above is stated
+rather than glossed.
 
 What is outside is outside for one kind of reason in each ecosystem, and it is always the
 same kind: a guard that reads something the policy does not contain.

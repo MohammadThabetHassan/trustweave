@@ -29,7 +29,7 @@ SCRIPTS = ROOT / "scripts"
 # only -- the suite study names its subjects by rule, not by module -- so the
 # parametrised joined-scope cases below do not include it, and it has its own at the end.
 ECOSYSTEMS = ("xacml", "kyverno", "cedar")
-ALL_ECOSYSTEMS = ("xacml", "kyverno", "cedar", "rego")
+ALL_ECOSYSTEMS = ("xacml", "kyverno", "cedar", "rego", "iam")
 
 
 def _load(name: str) -> ModuleType:
@@ -721,3 +721,128 @@ def test_the_artifact_records_the_schemas_separately_from_the_other_exclusions()
     policies = artifact["policies_considered"] - len(schemas)
     assert policies == 158
     assert round(100 * artifact["counts"]["inside"] / policies, 1) == 73.4
+
+
+# --- AWS IAM: the deployed-policy corpus -----------------------------------------------
+#
+# The other four corpora are vendor test and conformance directories. AWS managed policies
+# are published by AWS and attached in accounts worldwide, which is why they were added:
+# they answer the external-validity objection the other four cannot.
+
+iam = _load("fragment_membership_iam")
+
+
+def test_the_iam_measurement_judges_every_policy() -> None:
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-iam-wide-v1.json").read_text("utf-8")
+    )
+
+    assert artifact["corpus_scope"] == "wide"
+    assert artifact["policies_considered"] == 1651
+    assert artifact["counts"] == {"inside": 1651, "outside": 0, "undetermined": 0}
+
+
+def test_the_iam_adapter_has_no_path_to_outside_and_the_paper_says_so() -> None:
+    """The caveat that keeps the 100% honest, asserted where it cannot be forgotten.
+
+    IAM offers no construct by which a policy reads state the evaluator was not handed --
+    no lookup, no clock call, no external fetch, and every condition key travels with the
+    request -- so the adapter has no `outside` branch. That makes the figure weaker
+    evidence than Kyverno's 87.2%, where the instrument had one and used it 30 times. If
+    someone later adds an `outside` branch, this test should fail and the paper's caveat
+    should be revisited.
+    """
+    source = (ROOT / "scripts" / "fragment_membership_iam.py").read_text("utf-8")
+    body = source.split('"""', 2)[-1]
+
+    assert "OUTSIDE" not in body.replace(
+        "from fragment_membership import INSIDE, OUTSIDE, UNDETERMINED, Verdict", ""
+    ), "the adapter gained an outside branch; the paper's caveat needs updating"
+
+
+def test_iam_membership_follows_the_operator_family_not_the_datatype() -> None:
+    for family in ("StringEquals", "ArnLike", "NumericLessThan", "DateGreaterThan", "Null"):
+        assert iam.is_finitely_refining(family), family
+        assert iam.is_finitely_refining(f"ForAllValues:{family}"), family
+        assert iam.is_finitely_refining(f"{family}IfExists"), family
+        assert iam.is_finitely_refining(f"ForAnyValue:{family}IfExists"), family
+
+
+def test_iam_refuses_an_operator_from_no_known_family() -> None:
+    outcome = iam.classify(
+        json.dumps(
+            {
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": "s3:*",
+                        "Resource": "*",
+                        "Condition": {"InventALookup": {"aws:Thing": "x"}},
+                    }
+                ]
+            }
+        )
+    )
+
+    assert outcome.verdict == core.UNDETERMINED
+    assert outcome.detail["unjudged_operators"] == ["InventALookup"]
+
+
+def test_iam_refuses_a_condition_it_cannot_read() -> None:
+    for condition in ("nonsense", {"StringEquals": "nonsense"}):
+        outcome = iam.classify(
+            json.dumps(
+                {"Statement": [{"Effect": "Allow", "Action": "s3:*", "Condition": condition}]}
+            )
+        )
+        assert outcome.verdict == core.UNDETERMINED, condition
+
+
+def test_an_interpolated_policy_variable_stays_inside() -> None:
+    """It relates two components of the same request, so a witness is constructible.
+
+    This is the case the project got wrong once already, for Gatekeeper's parameters. The
+    substituted value here is an attribute of the request being authorized, not a separate
+    document supplied at bind time.
+    """
+    outcome = iam.classify(
+        json.dumps(
+            {
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": "s3:GetObject",
+                        "Resource": "arn:aws:s3:::bucket/${aws:username}/*",
+                    }
+                ]
+            }
+        )
+    )
+
+    assert outcome.verdict == core.INSIDE
+
+
+def test_iam_reads_a_document_whether_or_not_it_is_wrapped_in_metadata() -> None:
+    bare = {"Statement": [{"Effect": "Allow", "Action": "s3:*", "Resource": "*"}]}
+
+    assert iam.document_of(json.dumps(bare)) == bare
+    assert iam.document_of(json.dumps({"name": "p", "document": bare})) == bare
+    assert iam.document_of(json.dumps({"policies": []})) is None
+    assert iam.document_of("not json") is None
+
+
+def test_every_operator_the_corpus_uses_is_judged_by_a_family() -> None:
+    """No operator slipped through as unrecognised, and none was accepted by accident."""
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-iam-wide-v1.json").read_text("utf-8")
+    )
+    operators = {
+        operator
+        for entry in artifact["policies"]
+        for operator in entry.get("condition_operators", [])
+    }
+
+    assert len(operators) == 27, sorted(operators)
+    assert all(iam.is_finitely_refining(operator) for operator in operators)
+    assert {iam.base_operator(o) for o in operators} <= iam.FINITELY_REFINING_FAMILIES
