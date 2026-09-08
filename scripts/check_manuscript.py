@@ -68,6 +68,10 @@ def flatten(tex: str) -> str:
     return re.sub(r"\s+", " ", body)
 
 
+# A count as the paper prints it: digits, optionally grouped with LaTeX's thin space.
+_GROUPED = r"\d+(?:\{,\}\d+)*"
+
+
 def _grouped(value: int) -> str:
     """A count as the paper prints it: LaTeX's thin space groups thousands.
 
@@ -161,86 +165,37 @@ def numeric_claims(docs: Path) -> list[Claim]:
             )
         )
 
-    # Rego is measured at whole-corpus scope only: that study's Rego subjects are
-    # individual rules, while membership is a property of a policy module's guards.
-    ecosystems = {
-        "xacml": "XACML",
-        "kyverno": "Kyverno",
-        "cedar": "Cedar",
-        "rego": "Rego",
-        "iam": "AWS IAM",
-    }
-    joined_scopes = {"xacml", "kyverno", "cedar"}
-    totals: Counter[str] = Counter()
-    for slug, printed in ecosystems.items():
-        wide = _load(docs, f"fragment-membership-{slug}-wide-v1")
-        assert wide["corpus_scope"] == "wide", slug
-        scopes = [("whole-corpus", wide)]
-        if slug in joined_scopes:
-            narrow = _load(docs, f"fragment-membership-{slug}-v1")
-            assert narrow["corpus_scope"] == "joined-to-study", slug
-            scopes.append(("joined", narrow))
-        for scope, findings in scopes:
-            counts = findings["counts"]
-            inside, outside = counts["inside"], counts["outside"]
-            undetermined = counts["undetermined"]
-            total = inside + outside + undetermined
-            if scope == "whole-corpus":
-                totals.update(
-                    {
-                        "policies": total,
-                        "inside": inside,
-                        "outside": outside,
-                        "undetermined": undetermined,
-                    }
-                )
-            printed_total = re.escape(_grouped(total))
-            claims.append(
-                (
-                    rf"{printed}(?: \\cite\{{\w+\}})? & {printed_total} & ([\d{{,}}]+) & "
-                    rf"(\d+) & (\d+) & (\d+\.\d)\\%",
-                    (
-                        _grouped(inside),
-                        str(outside),
-                        str(undetermined),
-                        _pct(inside / total),
-                    ),
-                    f"{slug} ({scope}): membership table row",
-                )
-            )
-        wide_counts = wide["counts"]
+    # One entry per row of the membership table, keyed by the label the paper prints.
+    # The table carries an author column, so a row is
+    #   <label> [\cite{...}] & <author> & <artifacts> & <inside> & <outside> & <und> & <share>
+    TABLE_ROWS = (
+        ("Azure Policy built-ins", "fragment-membership-azure-wide-v1"),
+        ("AWS IAM managed", "fragment-membership-iam-wide-v1"),
+        ("XACML conformance", "fragment-membership-xacml-wide-v1"),
+        ("Kyverno library", "fragment-membership-kyverno-wide-v1"),
+        ("Rego, four corpora", "fragment-membership-rego-wide-v1"),
+        ("Rego, GCP library", "fragment-membership-rego-gcp-v1"),
+        ("Kyverno, third-party", "fragment-membership-kyverno-thirdparty-v1"),
+        ("Cedar integration", "fragment-membership-cedar-wide-v1"),
+    )
+    for label, stem in TABLE_ROWS:
+        findings = _load(docs, stem)
+        counts = findings["counts"]
+        total = sum(counts.values())
         claims.append(
             (
-                rf"([\d{{,}}]+) of {re.escape(_grouped(sum(wide_counts.values())))} "
-                rf"{printed} policies",
-                (_grouped(wide_counts["inside"]),),
-                f"{slug}: whole-corpus inside, stated in prose",
+                rf"{re.escape(label)}(?: \\cite\{{\w+\}})? & [^&]+ & "
+                rf"({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & (\d+) & (\d+\.\d)\\%",
+                (
+                    _grouped(total),
+                    _grouped(counts["inside"]),
+                    _grouped(counts["outside"]),
+                    str(counts["undetermined"]),
+                    _pct(counts["inside"] / total),
+                ),
+                f"membership table row: {label}",
             )
         )
-
-    claims += [
-        (
-            r"([\d{,}]+) of ([\d{,}]+) policies lie\s*inside",
-            (_grouped(totals["inside"]), _grouped(totals["policies"])),
-            "abstract: pooled membership",
-        ),
-        (
-            r"met by ([\d{,}]+) of the ([\d{,}]+) published policies",
-            (_grouped(totals["inside"]), _grouped(totals["policies"])),
-            "conclusion: pooled membership",
-        ),
-        (
-            r"Total & ([\d{,}]+) & ([\d{,}]+) & (\d+) & (\d+) & (\d+\.\d)\\%",
-            (
-                _grouped(totals["policies"]),
-                _grouped(totals["inside"]),
-                str(totals["outside"]),
-                str(totals["undetermined"]),
-                _pct(totals["inside"] / totals["policies"]),
-            ),
-            "membership table: total row",
-        ),
-    ]
 
     rego = _load(docs, "fragment-membership-rego-wide-v1")
     rego_reasons = Counter(entry["reason"] for entry in rego["policies"])
@@ -335,6 +290,70 @@ def numeric_claims(docs: Path) -> list[Claim]:
             r"and (\d+) policies answer",
             (str(third_party["policies_considered"]),),
             "third-party: sample size restated in threats",
+        ),
+    ]
+
+    taxonomy = _load(docs, "exclusion-taxonomy-v1")
+    kinds = taxonomy["exclusions_by_kind"]
+    assert taxonomy["taxonomy_is_exhaustive"], taxonomy["exclusions_unclassified"]
+    schemas = kinds["not a policy"]
+    lookups = kinds["reads state the evaluator was not handed"]
+    clock = kinds["reads the clock"]
+    exclusions = taxonomy["exclusions"]
+    policies = taxonomy["policies_considered"]
+    artifacts = taxonomy["artifacts_considered"]
+    inside = taxonomy["artifacts_inside"]
+
+    def share(part: int) -> str:
+        return f"{100 * part / exclusions:.1f}"
+
+    claims += [
+        (
+            rf"a schema awaiting parameters & ({_GROUPED}) & (\d+\.\d)\\%",
+            (_grouped(schemas), share(schemas)),
+            "taxonomy: schemas",
+        ),
+        (
+            rf"state the evaluator was not handed & ({_GROUPED}) & (\d+\.\d)\\%",
+            (_grouped(lookups), share(lookups)),
+            "taxonomy: lookups",
+        ),
+        (
+            rf"A guard reads the clock & ({_GROUPED}) & (\d+\.\d)\\%",
+            (_grouped(clock), share(clock)),
+            "taxonomy: clock",
+        ),
+        (
+            rf"Total exclusions & ({_GROUPED}) & 100\.0\\%",
+            (_grouped(exclusions),),
+            "taxonomy: total exclusions",
+        ),
+        (
+            rf"the ({_GROUPED}) exclusions across six languages",
+            (_grouped(exclusions),),
+            "taxonomy: total restated in prose",
+        ),
+        (
+            rf"artifacts that are policies\}} & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & "
+            rf"(\d+) & (\d+\.\d)\\%",
+            (
+                _grouped(policies),
+                _grouped(inside),
+                str(policies - inside),
+                "0",
+                _pct(inside / policies),
+            ),
+            "membership table: the policies row",
+        ),
+        (
+            rf"policy schemas, not policies\}} & ({_GROUPED}) &",
+            (_grouped(schemas),),
+            "membership table: the schemas row",
+        ),
+        (
+            rf"({_GROUPED}) artifacts, none left undetermined --- ({_GROUPED}) turn out",
+            (_grouped(artifacts), _grouped(schemas)),
+            "abstract: corpus size and schemas",
         ),
     ]
 
@@ -481,8 +500,16 @@ def corpus_findings(bib: str, docs: Path) -> list[str]:
     """
 
     measured: dict[str, str] = {}
-    for slug in ("xacml", "kyverno", "cedar", "rego", "iam"):
-        findings = _load(docs, f"fragment-membership-{slug}-wide-v1")
+    for stem in (
+        "fragment-membership-xacml-wide-v1",
+        "fragment-membership-kyverno-wide-v1",
+        "fragment-membership-cedar-wide-v1",
+        "fragment-membership-rego-wide-v1",
+        "fragment-membership-rego-gcp-v1",
+        "fragment-membership-iam-wide-v1",
+        "fragment-membership-azure-wide-v1",
+    ):
+        findings = _load(docs, stem)
         for repository in findings.get("corpus") or []:
             measured[repository["commit"]] = repository["remote"]
     if not measured:

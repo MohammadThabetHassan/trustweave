@@ -45,6 +45,7 @@ ADAPTERS = {
     "cedar": "fragment_membership_cedar",
     "rego": "fragment_membership_rego",
     "iam": "fragment_membership_iam",
+    "azure": "fragment_membership_azure",
 }
 
 

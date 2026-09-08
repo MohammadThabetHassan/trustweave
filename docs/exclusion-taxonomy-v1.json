@@ -1,0 +1,113 @@
+{
+  "artifacts_considered": 6437,
+  "artifacts_inside": 5476,
+  "corpora": 8,
+  "exclusions": 961,
+  "exclusions_by_kind": {
+    "not a policy": 744,
+    "reads state the evaluator was not handed": 215,
+    "reads the clock": 2
+  },
+  "exclusions_unclassified": {},
+  "policies_considered": 5693,
+  "policy_schemas": 744,
+  "rows": [
+    {
+      "artifact": "fragment-membership-iam-wide-v1",
+      "corpus": "AWS IAM",
+      "exclusions_by_kind": {},
+      "inside": 1651,
+      "outside": 0,
+      "policies_considered": 1651,
+      "share_inside": 1.0,
+      "undetermined": 0
+    },
+    {
+      "artifact": "fragment-membership-azure-wide-v1",
+      "corpus": "Azure Policy",
+      "exclusions_by_kind": {
+        "not a policy": 716,
+        "reads state the evaluator was not handed": 109
+      },
+      "inside": 2834,
+      "outside": 825,
+      "policies_considered": 3659,
+      "share_inside": 0.7745,
+      "undetermined": 0
+    },
+    {
+      "artifact": "fragment-membership-xacml-wide-v1",
+      "corpus": "XACML",
+      "exclusions_by_kind": {
+        "reads state the evaluator was not handed": 22
+      },
+      "inside": 526,
+      "outside": 22,
+      "policies_considered": 548,
+      "share_inside": 0.9599,
+      "undetermined": 0
+    },
+    {
+      "artifact": "fragment-membership-kyverno-wide-v1",
+      "corpus": "Kyverno (vendor)",
+      "exclusions_by_kind": {
+        "reads state the evaluator was not handed": 30
+      },
+      "inside": 205,
+      "outside": 30,
+      "policies_considered": 235,
+      "share_inside": 0.8723,
+      "undetermined": 0
+    },
+    {
+      "artifact": "fragment-membership-rego-wide-v1",
+      "corpus": "Rego (four corpora)",
+      "exclusions_by_kind": {
+        "not a policy": 28,
+        "reads state the evaluator was not handed": 42
+      },
+      "inside": 116,
+      "outside": 70,
+      "policies_considered": 186,
+      "share_inside": 0.6237,
+      "undetermined": 0
+    },
+    {
+      "artifact": "fragment-membership-rego-gcp-v1",
+      "corpus": "Rego (GCP library)",
+      "exclusions_by_kind": {
+        "reads the clock": 2
+      },
+      "inside": 85,
+      "outside": 2,
+      "policies_considered": 87,
+      "share_inside": 0.977,
+      "undetermined": 0
+    },
+    {
+      "artifact": "fragment-membership-kyverno-thirdparty-v1",
+      "corpus": "Kyverno (third-party)",
+      "exclusions_by_kind": {
+        "reads state the evaluator was not handed": 12
+      },
+      "inside": 37,
+      "outside": 12,
+      "policies_considered": 49,
+      "share_inside": 0.7551,
+      "undetermined": 0
+    },
+    {
+      "artifact": "fragment-membership-cedar-wide-v1",
+      "corpus": "Cedar",
+      "exclusions_by_kind": {},
+      "inside": 22,
+      "outside": 0,
+      "policies_considered": 22,
+      "share_inside": 1.0,
+      "undetermined": 0
+    }
+  ],
+  "schema_version": "v1",
+  "share_inside_of_policies": 0.9619,
+  "taxonomy_is_exhaustive": true
+}

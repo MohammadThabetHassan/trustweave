@@ -355,22 +355,56 @@ decision coverage takes a suite with more than one case. The **whole-corpus** sc
 policy the corpus holds, which is the honest scope for asking how much of an ecosystem the
 fragment covers, since membership is decided from policy text and needs no suite at all.
 
-| Ecosystem | Policies | Inside | Outside | Undetermined | Share inside |
-|---|---:|---:|---:|---:|---:|
-| *Whole corpus* | | | | | |
-| AWS IAM | 1,651 | **1,651** | 0 | 0 | 100.0% |
-| XACML | 548 | **526** | 22 | 0 | 96.0% |
-| Kyverno | 235 | **205** | 30 | 0 | 87.2% |
-| Rego | 186 | **116** | 70 | 0 | 62.4% |
-| Cedar | 22 | **22** | 0 | 0 | 100.0% |
-| **Total** | **2,642** | **2,520** | **122** | **0** | **95.4%** |
-| *Joined to a suite study* | | | | | |
-| XACML | 21 | **15** | 6 | 0 | 71.4% |
-| Kyverno | 49 | **41** | 8 | 0 | 83.7% |
-| Cedar | 22 | **22** | 0 | 0 | 100.0% |
+| Corpus | Author | Artifacts | Inside | Outside | Undet. | Share |
+|---|---|---:|---:|---:|---:|---:|
+| Azure Policy built-ins | Microsoft | 3,659 | **2,834** | 825 | 0 | 77.5% |
+| AWS IAM managed | AWS | 1,651 | **1,651** | 0 | 0 | 100.0% |
+| XACML conformance | OASIS impls. | 548 | **526** | 22 | 0 | 96.0% |
+| Kyverno library | Kyverno | 235 | **205** | 30 | 0 | 87.2% |
+| Rego, four corpora | mixed | 186 | **116** | 70 | 0 | 62.4% |
+| Rego, GCP library | Google | 87 | **85** | 2 | 0 | 97.7% |
+| Kyverno, third-party | 28 owners | 49 | **37** | 12 | 0 | 75.5% |
+| Cedar integration | Cedar | 22 | **22** | 0 | 0 | 100.0% |
+| **Total** | | **6,437** | **5,476** | **961** | **0** | **85.1%** |
+| *of which policy schemas* | | **744** | | | | |
+| *artifacts that are policies* | | **5,693** | **5,476** | **217** | **0** | **96.2%** |
 
-**Nothing is undetermined in any ecosystem at either scope**, so each figure is a verdict on
-the whole corpus rather than on the part an instrument happened to understand. The joined
+Read the Azure row alone and it misleads: 716 of its 825 exclusions are parameterised
+definitions that are policy schemas rather than policies, which is what the last two rows
+separate out. Two of the three major clouds appear through their native policy language and
+the third through the library it publishes.
+
+### Why an artifact is outside: three reasons, and only three
+
+[`exclusion_taxonomy.py`](../scripts/exclusion_taxonomy.py) reads every membership artifact
+and sorts the exclusions. Across six languages and eight corpora:
+
+| Why an artifact is outside | Count | Share |
+|---|---:|---:|
+| It is not a policy: a schema awaiting parameters | 744 | 77.4% |
+| The policy performs a lookup of state the evaluator was not handed | 215 | 22.4% |
+| A guard reads the clock | 2 | 0.2% |
+| **Total** | **961** | **100.0%** |
+
+Artifact: [exclusion-taxonomy-v1.json](exclusion-taxonomy-v1.json). The instrument reports a
+reason matching none of the three rather than bucketing it, so `taxonomy_is_exhaustive` in
+that artifact is a checked claim and not a stylistic one.
+
+Two things follow that the per-language shares hide. **The largest category is not about
+expressiveness**: 77% of exclusions are artifacts that are not yet policies, so reading the
+table as "15% of policy is too expressive for the fragment" is wrong by a factor of four.
+And **the schema category appears independently in Azure Policy and in Gatekeeper**, two
+ecosystems with no shared design lineage -- which is the evidence that it is a fact about how
+policy languages are built rather than a quirk of either. Azure sharpens it further: a
+definition whose every parameter carries a `defaultValue` *does* determine a decision
+function, because evaluating with defaults is what the platform does when an assignment
+supplies nothing. So the line falls between a parameterised artifact that carries its own
+instantiation and one that does not -- 2,721 of these definitions are parameterised and
+1,924 are complete in that sense. The Gatekeeper case could not have shown this, because a
+constraint template never has defaults.
+
+**Nothing is undetermined in any corpus**, so each figure is a verdict on the whole of it
+rather than on the part an instrument happened to understand. The joined
 scope is a subset of the wide one and every verdict agrees between them, which is what makes
 the stratified test's arms readable against this table. Artifacts, all now carrying the
 pinned commit of the corpus they read --- which the first three did not, leaving the corpus

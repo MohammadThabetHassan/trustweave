@@ -1,0 +1,551 @@
+{
+  "corpus": [
+    {
+      "commit": "4a2abc741583884dd38ca3b9bf2ff5a4d205a609",
+      "name": "policy-library",
+      "remote": "https://github.com/GoogleCloudPlatform/policy-library.git"
+    }
+  ],
+  "corpus_scope": "wide",
+  "counts": {
+    "inside": 85,
+    "outside": 2,
+    "undetermined": 0
+  },
+  "ecosystem": "rego",
+  "measured_subjects_not_found": [],
+  "policies": [
+    {
+      "package": "validator.gcp.lib",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/lib/constraints.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "validator.gcp.lib",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/lib/util.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPAllowedResourceTypesConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/allowed_resource_types.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPAlwaysViolatesConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/always_violates.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPAppEngineServiceVersionsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/app_service_versions.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPAppengineLocationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/appengine_location.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPBigQueryCMEKEncryptionConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/bigquery_cmek.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPBigQueryDatasetWorldReadableConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/bigquery_dataset_world_readable.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPBigQueryTableRetentionConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/bigquery_table_retention.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPBigQueryDatasetLocationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/bq_dataset_location.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPCMEKRotationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/cmek_rotation.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPCMEKSettingsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/cmek_settings.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPComputeBlockSSHKeysConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/compute_block_ssh_keys.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPComputeDiskResourcePoliciesConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/compute_disk_resource_policies.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPComputeRequireOSLoginConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/compute_enable_oslogin_project.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPComputeIpForwardConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/compute_ip_forward.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPComputeAllowedNetworksConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/compute_network_interface.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPComputeZoneConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/compute_zone.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPDataprocLocationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/dataproc_location.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPDNSSECConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/dnssec.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPDNSSECPreventRSASHA1ConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/dnssec_prevent_rsasha1.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPEnforceLabelConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/enforce_labels.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPEnforceNamingConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gcp_enforce_naming.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGLBExternalIpAccessConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gcp_glb_external_ip.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMRestrictServiceAccountCreationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gcp_iam_restrict_service_account_creation.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMRestrictServiceAccountKeyAgeConstraintV1",
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns"
+      ],
+      "subject": "policy-library/validator/gcp_iam_restrict_service_account_key_age.rego",
+      "verdict": "outside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMRestrictServiceAccountKeyTypeConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gcp_iam_restrict_service_account_key_type.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPLBAllowedForwardingRulesConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gcp_lb_forwarding_rules.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEAllowedNodeSAConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_allowed_node_sa_scopes.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GKEClusterLocationConstraintV3",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_cluster_location.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GKEClusterVersionConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_cluster_version.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEContainerOptimizedOSConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_container_optimized_os.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEDashboardConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_dashboard.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEDisableDefaultServiceAccountConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_disable_default_service_account.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEDisableLegacyEndpointsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_disable_legacy_endpoints.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnableAliasIPRangesConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_alias_ip_ranges.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnableBinAuthzConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_binauthz.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnablePrivateEndpointConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_private_endpoint.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnableShieldedNodesConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_shielded_nodes.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnableStackdriverKubernetesEngineMonitoringV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_stackdriver_kubernetes_engine_monitoring.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnableStackdriverLoggingConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_stackdriver_logging.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnableStackdriverMonitoringConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_stackdriver_monitoring.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEEnableWorkloadIdentityConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_enable_workload_identity.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKELegacyAbacConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_legacy_abac.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEMasterAuthorizedNetworksEnabledConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_master_authorized_networks_enabled.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKENodeAutoRepairConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_node_auto_repair.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKENodeAutoUpgradeConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_node_auto_upgrade.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKEPrivateClusterConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_private_cluster.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKERestrictClientAuthenticationMethodsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_restrict_client_auth_methods.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPGKERestrictPodTrafficConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/gke_restrict_pod_traffic.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMAllowBanRolesConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/iam_allow_ban_roles.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMAllowedBindingsConstraintV3",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/iam_allowed_bindings.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMAllowedPolicyMemberDomainsConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/iam_allowed_policy_member_domains.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMAuditLogConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/iam_audit_log.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMCustomRolePermissionsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/iam_custom_role_permissions.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPIAMRequiredBindingsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/iam_required_bindings.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPNetworkEnableFirewallLogsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/network_enable_firewall_logs.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPNetworkEnableFlowLogsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/network_enable_flow_logs.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPNetworkEnablePrivateGoogleAccessConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/network_enable_private_google_access.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPNetworkRestrictDefaultV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/network_restrict_default.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPNetworkRoutingConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/network_routing.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPResourceValuePatternConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/resource_value_pattern.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPRestrictedFirewallRulesConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/restricted_firewall_rules.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPServiceUsageConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/serviceusage_service.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSpannerLocationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/spanner_location.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLAllowedAuthorizedNetworksConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_allowed_authorized_networks.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLBackupConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_backup.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLInstanceTypeConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_instance_type.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLLocationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_location.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLMaintenanceWindowConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_maintenance_window.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLPublicIpConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_public_ip.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLSSLConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_ssl.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPSQLWorldReadableConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/sql_world_readable.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPStorageBucketPolicyOnlyConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/storage_bucket_policy_only.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPStorageBucketRetentionConstraintV1",
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns"
+      ],
+      "subject": "policy-library/validator/storage_bucket_retention.rego",
+      "verdict": "outside"
+    },
+    {
+      "package": "templates.gcp.GCPStorageBucketWorldReadableConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/storage_bucket_world_readable.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPStorageCMEKEncryptionConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/storage_cmek_encryption.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPStorageLocationConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/storage_location.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPStorageLoggingConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/storage_logging.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPComputeExternalIpAccessConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vm_external_ip.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPVPCSCAllowedRegionsConstraintV2",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vpc_sc_allowlist_regions.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPVPCSCEnsureAccessLevelsConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vpc_sc_ensure_access_levels.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPVPCSCEnsureProjectConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vpc_sc_ensure_project.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPVPCSCEnsureServicesConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vpc_sc_ensure_services.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPVPCSCIPRangeConstraintV1",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vpc_sc_ip_range.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPVPCSCProjectPerimeterConstraintV3",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vpc_sc_project_perimeter.rego",
+      "verdict": "inside"
+    },
+    {
+      "package": "templates.gcp.GCPVPCSCProjectPerimeterConstraintV3",
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "policy-library/validator/vpc_sc_project_perimeter_v2.rego",
+      "verdict": "inside"
+    }
+  ],
+  "policies_considered": 87,
+  "schema_version": "v1",
+  "share_inside": 0.977,
+  "share_inside_of_judged": 0.977
+}

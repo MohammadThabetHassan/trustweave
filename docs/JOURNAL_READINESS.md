@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~9,500 words, 17 pages, 13 numbered results, 17 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~10,400 words, 18 pages, 13 numbered results, 19 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -140,6 +140,20 @@ exists.
 ### G6. The corpora are small, and from vendor test suites -- HALF CLOSED
 
 The gap named two things, and only one of them was about size.
+
+**Both halves have moved, and the corpus is now the paper's strongest part rather than its
+weakest.** Six policy languages, eight corpora, **6,437 artifacts, nothing undetermined**.
+Two of the three major clouds are in through their native policy language --- 1,651 AWS
+managed IAM policies and 3,659 Azure Policy built-in definitions, which together are 82% of
+the corpus and are evaluated in every account and every tenant of those clouds --- and the
+third through the Rego library Google publishes. 744 artifacts turn out not to be policies
+at all but schemas; of the 5,693 that are policies, **5,476 are inside: 96.2%**.
+
+The result worth more than the share is that we can now say *why* an artifact is outside,
+exhaustively: 744 are schemas, 215 perform a lookup of state the evaluator was not handed, 2
+read the clock, and nothing else occurs. `exclusion_taxonomy.py` reports any reason matching
+none of the three rather than bucketing it, so the exhaustiveness claim is refutable by its
+own instrument.
 
 **The size half is closed.** The membership measurement read 21 XACML policies, 49 Kyverno
 and 22 Cedar -- 92 in total -- because it had been scoped to the policies a *suite* study

@@ -703,9 +703,7 @@ def test_every_excluded_policy_schema_has_an_instantiation_in_the_corpus() -> No
     """
     import fragment_membership as core_module
 
-    root = Path(os.environ.get("TRUSTWEAVE_REGO_CORPUS", ""))
-    if not root.is_dir():
-        pytest.skip("set TRUSTWEAVE_REGO_CORPUS to the pinned Rego corpus to check this")
+    root = _pinned_corpus("TRUSTWEAVE_REGO_CORPUS")
 
     discovered = rego.discover(root)
     assert discovered, "the corpus root holds no Rego policies"
@@ -987,3 +985,143 @@ def test_the_construct_the_third_party_corpus_exposed_is_absent_from_the_vendor_
     ]
 
     assert using == [], f"the vendor corpus does use verifyImages: {using[:3]}"
+
+
+# --- Azure Policy, and the taxonomy over everything --------------------------------------
+
+azure = _load("fragment_membership_azure")
+taxonomy = _load("exclusion_taxonomy")
+
+
+def test_the_azure_measurement_judges_every_definition() -> None:
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
+    )
+
+    assert artifact["policies_considered"] == 3659
+    assert artifact["counts"] == {"inside": 2834, "outside": 825, "undetermined": 0}
+    subjects = [entry["subject"] for entry in artifact["policies"]]
+    assert len(set(subjects)) == len(subjects), "subjects must be unique or policies vanish"
+
+
+def test_azure_exclusions_split_into_schemas_and_runtime_reads() -> None:
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
+    )
+    outside = [entry for entry in artifact["policies"] if entry["verdict"] == "outside"]
+
+    schemas = [entry for entry in outside if "policy schema" in entry["reason"]]
+    runtime = [entry for entry in outside if "runtime state" in entry["reason"]]
+
+    assert len(schemas) == 716
+    assert len(runtime) == 109
+    assert len(schemas) + len(runtime) == len(outside) == 825
+
+
+def test_azure_membership_follows_the_operator_family() -> None:
+    """The third language where the family is the right unit, after XACML and IAM."""
+
+    for operator in ("equals", "Like", "notIn", "greaterOrEquals", "exists", "notequals"):
+        assert operator.lower() in azure.FINITELY_REFINING_OPERATORS, operator
+
+
+def test_azure_reads_a_parameterised_definition_with_defaults_as_a_policy() -> None:
+    """The distinction Gatekeeper could not show: defaults are an instantiation."""
+
+    with_defaults = {
+        "properties": {
+            "parameters": {"effect": {"type": "String", "defaultValue": "Audit"}},
+            "policyRule": {
+                "if": {"field": "type", "equals": "Microsoft.Compute/virtualMachines"},
+                "then": {"effect": "[parameters('effect')]"},
+            },
+        }
+    }
+    without = json.loads(json.dumps(with_defaults))
+    del without["properties"]["parameters"]["effect"]["defaultValue"]
+
+    assert azure.classify(json.dumps(with_defaults)).verdict == core.INSIDE
+    outcome = azure.classify(json.dumps(without))
+    assert outcome.verdict == core.OUTSIDE
+    assert "policy schema" in outcome.reason
+
+
+def test_azure_reference_is_a_lookup_but_subscription_is_ambient() -> None:
+    """`reference()` fetches another resource; `subscription()` is handed to the evaluator."""
+
+    def definition(expression: str) -> str:
+        return json.dumps(
+            {
+                "properties": {
+                    "policyRule": {
+                        "if": {"value": expression, "equals": "x"},
+                        "then": {"effect": "audit"},
+                    }
+                }
+            }
+        )
+
+    assert azure.classify(definition("[reference('r').x]")).verdict == core.OUTSIDE
+    assert azure.classify(definition("[subscription().displayName]")).verdict == core.INSIDE
+    assert azure.classify(definition("[resourceGroup().location]")).verdict == core.INSIDE
+
+
+def test_azure_does_not_read_prose_inside_a_string_literal_as_a_function_call() -> None:
+    """One built-in says "API Management services (microsoft.apimanagement/service)"."""
+
+    definition = json.dumps(
+        {
+            "properties": {
+                "policyRule": {
+                    "if": {"field": "type", "equals": "Microsoft.ApiManagement/service"},
+                    "then": {
+                        "effect": "audit",
+                        "details": {
+                            "message": "[concat('for type API Management services "
+                            "(microsoft.apimanagement/service), name ', parameters('n'))]"
+                        },
+                    },
+                },
+                "parameters": {"n": {"type": "String", "defaultValue": "x"}},
+            }
+        }
+    )
+
+    outcome = azure.classify(definition)
+
+    assert outcome.verdict == core.INSIDE
+    assert "services" not in outcome.detail["arm_functions"]
+
+
+def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
+    """The claim worth having, and the instrument can refute it."""
+
+    findings = taxonomy.measure(ROOT / "docs")
+
+    assert findings["taxonomy_is_exhaustive"], findings["exclusions_unclassified"]
+    assert findings["exclusions_unclassified"] == {}
+    assert findings["corpora"] == 8
+    assert findings["artifacts_considered"] == 6437
+    assert findings["artifacts_inside"] == 5476
+    assert findings["exclusions_by_kind"] == {
+        "not a policy": 744,
+        "reads state the evaluator was not handed": 215,
+        "reads the clock": 2,
+    }
+    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 961
+
+
+def test_the_committed_taxonomy_artifact_matches_a_fresh_computation() -> None:
+    committed = json.loads((ROOT / "docs" / "exclusion-taxonomy-v1.json").read_text("utf-8"))
+    fresh = taxonomy.measure(ROOT / "docs")
+
+    assert committed == fresh
+
+
+def test_no_corpus_leaves_anything_undetermined() -> None:
+    """The discipline that makes every share a verdict rather than a partial reading."""
+
+    findings = taxonomy.measure(ROOT / "docs")
+
+    for row in findings["rows"]:
+        assert row["undetermined"] == 0, row["corpus"]
