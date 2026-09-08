@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~8,100 words, 15 pages, 8 numbered results, 17 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~8,800 words, 16 pages, 13 numbered results, 17 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -277,11 +277,24 @@ related work --- is done. What remains is not research:
    repositories that ship them. This is the remaining half of G6 and it is possible from
    here: infrastructure-as-code repositories carry Kyverno `ClusterPolicy` and Gatekeeper
    `Constraint` manifests written by the organisations that run them. Not attempted.
-5. **Settle whether finite refinement is necessary as well as sufficient.** The development
-   proves the condition sufficient, and proves that arbitrary total computable guards make
-   equivalence undecidable, which leaves the boundary between the two unmapped. A tightness
-   result -- the weakest condition that still gives decidable equivalence -- is the one
-   place real theoretical weight is still available, and it is unattempted.
+5. ~~**Settle whether finite refinement is necessary as well as sufficient.**~~ **Done, and
+   it is necessary.** For effective finite-outcome guard families over an enumerable subject
+   space and a cell-expressive language, policy equivalence is decidable **if and only if**
+   the condition holds. Theorem 6 becomes a corollary. Two things fell out that were worth
+   more than the theorem:
+
+   - **The definition's finiteness clause does no work.** A guard reporting finitely many
+     outcomes gives an outcome map into a finite set whatever the guard is -- the halting
+     guard included -- so the clause is free, and all the content is in witnesses. A reading
+     that treats finiteness as the substance has it backwards.
+   - **The solver was already checking the right predicate.** `verify_witness_space.py`
+     certifies which candidate signatures are *achievable*, and achievability is occupancy,
+     which is the predicate the tightness theorem identifies as exactly the one that matters.
+     That was not why it was written.
+
+   Also separated: deciding *equivalence* needs occupancy and no witness, while the results
+   about *suites* need a witness one can put in a test case. The definition had bundled two
+   requirements serving different halves of the development.
 6. **Choose a venue against the ceiling below, not above it.** Software-testing or
    policy-analysis venues where an exactness result inside a characterised fragment is the
    contribution, and where a reported negative result is read as a virtue.

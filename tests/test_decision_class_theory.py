@@ -823,3 +823,75 @@ def test_the_rules_are_pairwise_disjoint_which_is_what_makes_swaps_equivalent() 
     ):
         overlapping = (left_trust & right_trust) and (left_actions & right_actions)
         assert not overlapping, f"{left} and {right} can both match a subject"
+
+
+# ---------------------------------------------------------------------------------------
+# Tightness: equivalence is decidable exactly when occupancy is
+# ---------------------------------------------------------------------------------------
+
+
+def test_equivalence_can_be_decided_from_occupancy_without_any_witness() -> None:
+    """The constructive half of the tightness theorem, run as an algorithm.
+
+    The theorem's forward direction says deciding equivalence needs only *occupancy* --
+    for each candidate outcome vector, whether any subject realises it -- and never needs a
+    witness, because the decision on an occupied vector is computed from the syntax. If
+    that is right, a procedure comparing decisions on occupied cells alone must agree with
+    the harness's own equivalence verdicts on every mutant. It does, on all 38.
+
+    This matters beyond tidiness. The results about *suites* do need witnesses, since a
+    suite is a set of subjects and not a set of cells, and separating the two is what
+    Theorem 23 and its remark are for.
+    """
+
+    document = _document()
+    reference = policy_mutation.decision_map(document)
+
+    def equivalent_by_occupancy(mutant: dict) -> bool:
+        # `decision_map` is keyed on the occupied cells only, so iterating it is exactly
+        # "compare where some subject exists" -- and no witness is read.
+        other = policy_mutation.decision_map(mutant)
+        return all(reference[cell] == other[cell] for cell in reference)
+
+    equivalent, live = _partition()
+    disagreements = []
+    for name, mutant in policy_mutation._mutants(document):
+        by_occupancy = equivalent_by_occupancy(mutant)
+        by_harness = name in equivalent
+        if by_occupancy != by_harness:
+            disagreements.append((name, by_occupancy, by_harness))
+
+    assert equivalent and live, "the operator set must produce both for this to test"
+    assert disagreements == [], disagreements
+
+
+def test_the_finite_image_clause_is_free_for_finitely_many_outcomes() -> None:
+    """Lemma 20: the first clause of the definition does no work in any real language.
+
+    A guard reporting values in a finite V gives an outcome map into V^n, which is finite
+    whatever the guards are -- including the halting guard of the undecidability theorem.
+    So the definition's content is entirely its second clause, about witnesses, and a
+    reading that treats finiteness as the substance has the theorem backwards.
+    """
+
+    import itertools
+
+    for outcomes in (2, 3, 4):
+        for arity in (1, 2, 3):
+            values = list(range(outcomes))
+            image = set(itertools.product(values, repeat=arity))
+            assert len(image) == outcomes**arity < float("inf")
+
+    # The halting guard: finite image, and the definition still excludes it, which is only
+    # possible because the exclusion comes from the second clause.
+    def halting_guard(steps_before_halt: int | None, subject_length: int) -> int:
+        if steps_before_halt is None:
+            return 0
+        return 1 if steps_before_halt <= subject_length else 0
+
+    realised = {halting_guard(None, n) for n in range(50)}
+    assert realised == {0}, "a machine that never halts occupies only one class"
+    realised = {halting_guard(7, n) for n in range(50)}
+    assert realised == {0, 1}, "one that halts occupies both"
+    # Which class a subject falls in is computable; *whether the true class is occupied at
+    # all* is the halting question, and that is what the second clause asks for.

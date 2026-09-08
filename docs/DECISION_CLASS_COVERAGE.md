@@ -658,6 +658,66 @@ occupied is the halting question. The results above rest on witness construction
 why [`verify_witness_space.py`](../scripts/verify_witness_space.py) certifies the
 construction and not the bound.
 
+### The condition is tight, and that took saying out loud
+
+Theorem 1 gives a sufficient condition and Theorem 6 gives an undecidable case, which left
+the boundary between them unmapped -- and "sufficient condition, plus one case that fails"
+is a weaker thing than it reads as, because it does not rule out a weaker condition doing the
+same work. It turns out no weaker condition does.
+
+Fix two hypotheses that hold of every language in the table above. A guard family is
+*finite-outcome* when its guards report values in a finite set, and *effective* when each is
+a total computable function; the subject space is enumerable. A policy language is
+*cell-expressive* when it can state a policy deciding one way on exactly the subjects with a
+given guard-outcome vector and the default elsewhere -- which needs negative literals, and
+which XACML, Rego, Cedar and IAM all have.
+
+**Lemma A.** For a finite-outcome family, Theorem 1's finiteness clause holds automatically:
+the outcome map lands in `V^n`. So that clause does no work in any real language, and the
+content of the condition is entirely its second half, about witnesses.
+
+**Occupancy.** Given guards `g_1..g_n` and a vector `v`, is there a subject whose outcome
+vector is `v`?
+
+**Lemma B.** For an effective finite-outcome family over an enumerable subject space,
+occupancy is decidable exactly when witnesses are constructible. Left to right: decide
+occupancy, then enumerate subjects and evaluate the guards -- each evaluation terminates
+because the guards are total -- returning the first match, a search that terminates because
+something realises `v`. Right to left: discard the witness.
+
+**Theorem 7 (tightness).** Under those hypotheses, policy equivalence is decidable **if and
+only if** occupancy is decidable -- equivalently, by Lemmas A and B, if and only if the guard
+family is finitely refining.
+
+*Proof.* (<=) List the guards of both policies. Both semantics factor through the outcome
+vector, so each is a function of it computable from the syntax. Enumerate the finitely many
+vectors, decide occupancy for each, and compare the two decisions where a subject exists;
+the unoccupied vectors are realised by nobody. Note what is absent: no witness is built.
+(=>) Given `g_1..g_n` and `v`, cell-expressiveness builds a policy deciding `d` on exactly
+the `v`-cell and the default elsewhere; compare it against the policy with no rules. They
+differ exactly when the cell is occupied, so an equivalence decider decides occupancy. []
+
+**Theorem 6 is now a corollary**: occupancy for `{g_e}` asks whether some subject satisfies
+`g_e`, which is whether `e` halts.
+
+Two consequences worth keeping.
+
+- **Deciding equivalence needs no witnesses; suites do.** The forward direction uses only
+  occupancy. Theorem 3 and Corollary 4 speak about a *suite*, which is a set of subjects
+  rather than of cells, so those need a witness one can put in a test case. Lemma B says
+  nothing is lost here, but the two are different requirements and the paper had bundled
+  them into one definition.
+- **The solver was already checking the right predicate.** What
+  [`verify_witness_space.py`](../scripts/verify_witness_space.py) certifies is which
+  candidate signatures are *achievable*, and achievability is occupancy -- the predicate
+  Theorem 7 identifies as the tight one. That was not the reason it was written, and it is
+  the strongest evidence available that the definition was pointing at the right thing
+  before anyone proved it was.
+
+`tests/test_decision_class_theory.py` runs the forward direction as an algorithm: deciding
+equivalence by comparing decisions on occupied cells, never reading a witness, agrees with
+the harness on all 38 mutants.
+
 So the boundary is not expressiveness in the loose sense, and it is easy to misplace it. A
 regular expression against a pattern the policy *writes down* stays inside: the pattern
 denotes a regular language, so it splits subjects two ways and a witness for either side is
