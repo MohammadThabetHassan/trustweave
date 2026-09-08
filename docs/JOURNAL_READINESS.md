@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~6,450 words, 8 numbered results, 15 references |
+| The manuscript (LaTeX, **kept outside this repository**) | ~7,200 words, 13 pages, 8 numbered results, 15 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -201,9 +201,17 @@ Claiming otherwise in a cover letter is the fastest way to lose a reviewer.
 The list that stood here --- manuscript, semantics, mechanisation, estimator comparison,
 related work --- is done. What remains is not research:
 
-1. **Compile the paper** on a machine with TeX, or on Overleaf. It has never been built, so
-   the first compile will produce the ordinary crop of layout complaints. The structure and
-   every figure are checked without compiling, so those are the only errors expected.
+1. ~~**Compile the paper.**~~ **Done, and it was worth doing.** The blocker was recorded as
+   "no TeX on this machine and no privileges to install one", and that was true of the
+   package manager and wrong about the problem: Tectonic is a single static binary that
+   needs no root and fetches packages on first run. The build is clean --- **13 pages, no
+   errors, no undefined references or citations, no overfull boxes**, one underfull box in a
+   bibliography entry with a long URL. Three overfull boxes and a numbering question were
+   found and fixed in the process, none of which any check in this repository could have
+   seen, because a document that has never been built has no layout to be wrong.
+
+   The lesson is worth keeping beside the finding: "the environment cannot do this" deserves
+   one more attempt than it usually gets.
 2. **Record the pinned commits and access dates for the three software entries.** The rest
    of the bibliography is done: all fifteen entries are verified against the publisher's
    record, and the two citations that had been flagged as unconfirmed both exist and were
