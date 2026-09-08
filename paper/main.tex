@@ -43,8 +43,8 @@ survivors. We show that for access-control policies the question is decidable, a
 decidability is a property of a policy's \emph{guards} rather than of any particular policy
 language: whenever each guard's induced partition of the subject space is determined by the
 policy text, the policy-relative quotient is finite with computable witnesses, semantic
-equivalence is a table comparison, and full coverage of the quotient kills every
-non-equivalent mutant by construction. The result is independent of the evaluation rule,
+equivalence is a table comparison, and covering the quotient decides the mutation score
+rather than estimating it. The result is independent of the evaluation rule,
 which we verify under first-match, Cedar's forbid-overrides, Kyverno's any-rule-fails, and a
 four-valued XACML algorithm --- and independent of the guards being two-valued, which we
 verify against guards that report \emph{indeterminate} when an attribute the policy names is
@@ -95,8 +95,10 @@ not measure it.
   \item A condition on guard families (\emph{finite refinement}, Definition~\ref{def:refining})
     under which the policy-relative quotient is finite with computable witnesses
     (Theorem~\ref{thm:quotient}), equivalence is decidable (Theorem~\ref{thm:equivalence}),
-    and coverage of the quotient decides the mutation score exactly
-    (Theorem~\ref{thm:kill}, Corollary~\ref{cor:score}).
+    and coverage decides the mutation score exactly (Theorem~\ref{thm:kill},
+    Corollary~\ref{cor:score}) --- for a syntactic operator set over a refinement of the
+    quotient, and for semantic mutants over the quotient itself, where the criterion is
+    necessary as well as sufficient (Corollary~\ref{cor:semantic}).
   \item Independence from the evaluation rule (Theorem~\ref{thm:combining}), verified under
     four rules drawn from deployed languages.
   \item A decision procedure for fragment membership, and its result on three published
@@ -274,10 +276,11 @@ the two decisions on one witness per class.
 \end{proof}
 
 \begin{definition}[Suites, witnessing, killing]
-A \emph{suite} $\Sigma$ is a finite set of pairs $(s,d) \in \Sub \times \Dom$. Its
-\emph{witnessed set} is $W(\Sigma) = \{s : (s,d) \in \Sigma\}$, read up to $\sim_P$.
-$\Sigma$ is \emph{consistent} with $P$ when $d = \sem{P}(s)$ for every pair. $\Sigma$
-\emph{kills} $M$ when $\sem{M}(s) \neq d$ for some pair. Write
+A \emph{suite} $\Sigma$ is a finite set of pairs $(s,d) \in \Sub \times \Dom$, and
+$W(\Sigma) = \{s : (s,d) \in \Sigma\} \subseteq \Sub$ is the set of subjects it witnesses.
+$\Sigma$ is \emph{consistent} with $P$ when $d = \sem{P}(s)$ for every pair, and
+\emph{covers} an equivalence $\approx$ on $\Sub$ when $W(\Sigma)$ meets every
+$\approx$-class. $\Sigma$ \emph{kills} $M$ when $\sem{M}(s) \neq d$ for some pair. Write
 $\Delta(P,M) = \{s : \sem{P}(s) \neq \sem{M}(s)\}$.
 \end{definition}
 
@@ -295,25 +298,57 @@ $\sem{M}(s) \neq d = \sem{P}(s)$, so $s \in \Delta(P,M)$, and $s \in W(\Sigma)$ 
 definition.
 \end{proof}
 
+Theorem~\ref{thm:kill} is about subjects, and turning it into a statement about coverage
+needs one step of care. $\Delta(P,M)$ is a union of classes of $\sim_P \cap \sim_M$, not of
+$\sim_P$: the mutant may draw a distinction $P$ does not, and then two subjects in one cell
+of $\sim_P$ can disagree about $M$. Witnessing one subject per cell of $\sim_P$ is therefore
+not by itself enough to hit $\Delta(P,M)$. What is enough is a partition fine enough for the
+mutants under consideration as well as for $P$.
+
 \begin{corollary}[Coverage decides the score]
 \label{cor:score}
-If $W(\Sigma) = \Sub/{\sim_P}$ then $\Sigma$ kills every mutant not equivalent to $P$, for
-any mutation operator set whatsoever.
+Let $\mathcal{M}$ be a finite set of mutants and let $\approx$ be the common refinement of
+$\sim_P$ and $\{\sim_M : M \in \mathcal{M}\}$, which is finite with computable witnesses by
+Theorem~\ref{thm:quotient} applied to the concatenation of all the rule sequences. If
+$\Sigma$ is consistent with $P$ and covers $\approx$, then $\Sigma$ kills every
+$M \in \mathcal{M}$ with $\sem{M} \neq \sem{P}$, whatever operators produced $\mathcal{M}$.
 \end{corollary}
 
 \begin{proof}
-A non-equivalent mutant has $\Delta(P,M) \neq \emptyset$ by Theorem~\ref{thm:equivalence},
-and it meets $W(\Sigma)$.
+$\sem{P}$ and each $\sem{M}$ are constant on $\approx$-classes, being constant on the
+classes of the coarser relations $\approx$ refines. Let $\sem{M} \neq \sem{P}$, so they
+differ at some $s$. As $\Sigma$ covers $\approx$ it has a pair at some $s'$ with
+$s' \approx s$, and constancy gives $\sem{P}(s') \neq \sem{M}(s')$, so
+$s' \in \Delta(P,M) \cap W(\Sigma)$. Theorem~\ref{thm:kill} kills $M$.
 \end{proof}
 
-\begin{remark}[The converse, and what it quantifies over]
-If $W(\Sigma) \neq \Sub/{\sim_P}$, pick a cell $s$ outside it and $d \neq \sem{P}(s)$. The
-function agreeing with $\sem{P}$ except at $s$, where it returns $d$, is non-equivalent and
-survives $\Sigma$. So over \emph{semantic} mutants --- arbitrary functions
-$\Sub/{\sim_P} \to \Dom$ --- full coverage is necessary as well as sufficient. Over the
-policies a given operator set generates it need not be, and a syntactic operator set can
-therefore report a complete score against an incomplete suite. This is why an
-implementation should report witnessed cells beside the score.
+\begin{corollary}[Semantic mutants: coverage of the quotient is exactly right]
+\label{cor:semantic}
+Let the mutants be the \emph{semantic} ones --- all functions $\Sub/{\sim_P} \to \Dom$.
+Then $\Sigma$ kills every non-equivalent mutant if and only if it covers $\sim_P$.
+\end{corollary}
+
+\begin{proof}
+Such a mutant is by construction constant on $\sim_P$-classes, so $\sim_P$ is its own common
+refinement with $\sim_P$ and Corollary~\ref{cor:score} gives sufficiency. For necessity, let
+a cell $C$ be unwitnessed and pick $d \neq \sem{P}(C)$. The mutant agreeing with $\sem{P}$
+off $C$ and returning $d$ on $C$ is non-equivalent, and every pair of $\Sigma$ lies off $C$,
+so none fails.
+\end{proof}
+
+\begin{remark}[What an implementation must enumerate]
+\label{rem:refinement}
+Corollary~\ref{cor:score} tells an implementation what to enumerate: not $\Sub/{\sim_P}$,
+but a partition refining it finely enough for the whole operator set. Ours enumerates the
+product of the per-component witness spaces, which is such a refinement --- every guard any
+mutant can state is a guard over the same finite vocabulary, so the product separates
+whatever a mutant can separate. The cost is paid on the necessity side rather than the
+soundness side: constancy on $\sim_P$-classes implies constancy on any refinement, so
+Corollary~\ref{cor:score} holds over the product, while Corollary~\ref{cor:semantic}'s
+converse weakens, because no policy the language can express differs at one product cell of
+a $\sim_P$-class and not at another. An implementation should therefore report the cells it
+witnessed beside the score: a syntactic operator set can report a complete score against a
+suite that leaves cells uncovered, and only the cell count shows it.
 \end{remark}
 
 \section{The evaluation rule does not matter}
@@ -556,10 +591,11 @@ ten points in 38\% of samples; only at 20 of 22 does it reliably come within ten
 \section{The proxy does not measure the criterion}
 \label{sec:negative}
 
-Corollary~\ref{cor:score} requires coverage of the quotient, which is cheap to check for one
-policy and needs the policy parsed. A tool wanting a language-independent proxy would
-instead count \emph{decisions witnessed}: does a suite ever elicit each element of $\Dom$?
-We measured that proxy on four ecosystems and it does not carry the criterion.
+Corollary~\ref{cor:score} requires coverage of a partition of the subject space, which is
+cheap to check for one policy but needs that policy parsed. A tool wanting a
+language-independent proxy would instead count \emph{decisions witnessed}: does a suite ever
+elicit each element of $\Dom$? We measured that proxy on four ecosystems and it does not
+carry the criterion.
 
 \paragraph{It is nearly information-free.} A threshold partitions subjects into flagged and
 unflagged, and if it flags almost none or almost all it distinguishes little whatever its
@@ -581,8 +617,10 @@ predicts detecting more faults --- and it is not, at $p = 0.157$ by a Jonckheere
 permutation test.
 
 \paragraph{What this does and does not say.} It does not refute Corollary~\ref{cor:score},
-which requires cell coverage; the stratified flag records only whether more than one decision
-was witnessed, which is a weak proxy for that. Nor is it evidence that the proxy works
+which requires witnessing every cell of a partition of the \emph{subject} space; the
+stratified flag records only whether a suite elicited more than one \emph{decision}, and a
+policy's cells outnumber its decisions by however many combinations its guards admit, so the
+flag is a weak proxy for cell coverage and the corollary predicts nothing about it. Nor is it evidence that the proxy works
 outside the fragment: all eight of those policies are image or registry policies, and
 image-policy suites being weak explains their scores without reference to coverage.
 
@@ -673,13 +711,14 @@ Kubernetes admission engines whose corpora we measure.
 
 \section{Threats to validity}
 
-\paragraph{Construct.} Our exactness claim is about the quotient. An implementation that
-enumerates the product of per-component witness spaces is enumerating a \emph{refinement} of
-the quotient: distinct product cells can answer every guard identically, and then they are
-one class. Soundness carries over, since $\sem{P}$ is constant on any refinement of a
-partition it is constant on, so Theorem~\ref{thm:kill} and Corollary~\ref{cor:score} hold as
-stated. The policy-level reading of the converse does not: where two cells belong to one
-class, no policy the language can express differs at one and not the other.
+\paragraph{Construct.} Our exactness claim is about a partition, and which partition matters.
+Remark~\ref{rem:refinement} states what an implementation enumerates and what that costs:
+a refinement of $\Sub/{\sim_P}$, sound for Corollary~\ref{cor:score} and weaker than
+Corollary~\ref{cor:semantic} on the necessity side. The figures in this paper are cell
+counts over that refinement, so where we report a suite as covering every cell, the claim is
+that it covers every cell of the enumerated partition --- which is the stronger of the two
+readings, but is not the same as covering every class of $\sim_P$ with the smallest possible
+suite.
 
 \paragraph{Internal.} The figures in Sections~\ref{sec:price} and~\ref{sec:negative} come
 from one reference policy and four corpora, and the operator set is syntactic, so scores
