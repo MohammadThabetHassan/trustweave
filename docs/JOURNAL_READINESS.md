@@ -8,7 +8,8 @@ reviewer makes.
 ## Status
 
 Of the seven gaps below, **G1, G2, G3, G4, G5 and G7 are closed**, and **G6 is half
-closed** -- the corpus is 8.8x larger than when the gap was written, but it is still vendor
+closed** -- the corpus is 10.8x larger and has a fourth ecosystem in it than when the gap
+was written, but it is still vendor
 test and conformance corpora rather than deployed policy, and that half is not closeable
 from this repository. Each closure is marked at its heading with what closed it, and the
 gap's original statement is left standing rather than rewritten, so the record shows what
@@ -49,9 +50,8 @@ long-form development and stay here; the paper is what a reviewer reads, and it 
 **Closed by** the manuscript and its bibliography: abstract, introduction with a contributions list,
 formal development, evaluation, both negative results, threats to validity, related work
 positioned against category-partition testing and the equivalent-mutant literature, and a
-bibliography of 13 entries. The bibliography deliberately omits fields that were not
-verified against a publisher record, and says so in its own header --- it must be completed
-before submission.
+bibliography of 15 entries, every one checked against the publisher's record via Crossref:
+authors, title, venue, year, volume, issue, pages and DOI, with eleven carrying a DOI.
 
 A journal cannot assess what is not in submittable form. Section 8 of the theory document is
 three objections answered in prose; that is not a survey of related work. The two documents
@@ -144,19 +144,25 @@ The gap named two things, and only one of them was about size.
 **The size half is closed.** The membership measurement read 21 XACML policies, 49 Kyverno
 and 22 Cedar -- 92 in total -- because it had been scoped to the policies a *suite* study
 could also score, and scoring needs a suite. Membership needs none: it is decided from
-policy text. Measured over the whole of each corpus it is **805 policies, 753 inside,
-nothing undetermined**, which is 8.8x the evidence for the paper's external-validity claim
-at no cost in rigour. Getting there took fixing the same mistake in two instruments -- an
-allowlist of function *names* where the criterion is about *kinds* of guard -- and every
-verdict in the original 92 is unchanged, which is the check that the widening added
-decisions rather than moving them.
+policy text. Measured over the whole of each corpus, and with Rego added, it is **991
+policies, 869 inside, nothing undetermined** across four ecosystems -- 10.8x the evidence
+for the paper's external-validity claim, at no cost in rigour. Every verdict in the original
+92 is unchanged, which is the check that the widening added decisions rather than moving
+them.
+
+Two mistakes had to be fixed to get there, and both were the same kind. In XACML and Kyverno
+the instruments held allowlists of function *names* where the criterion is about *kinds* of
+guard. And Rego had been left out altogether on the strength of an argument about the
+language rather than a measurement of its policies -- the argument was right that Rego *can*
+leave the fragment and wrong that its published policies do, and it took an AST-reading
+adapter with import propagation to find that out.
 
 **The provenance half is not, and is the gap that caps the paper.** These are still the
 projects' own test and conformance directories, not deployed policy, and the wide corpus is
-now dominated by XACML's conformance suite -- written to exercise the specification's
-function library, so it over-represents unusual functions and says little about what
-production policy looks like. Reading its 96.0% as the deployed share would be wrong and the
-paper's threats section says so. Separately, the Kyverno predictive experiment still has
+over half XACML's conformance suite -- written to exercise the specification's function
+library, so it over-represents unusual functions and says little about what production
+policy looks like. Reading its 96.0% as the deployed share would be wrong, the pooled 87.7%
+inherits that skew, and the paper's threats section says both. Separately, the Kyverno predictive experiment still has
 nine policies in its blind arm and its p-value still does not survive stratification;
 widening membership does not touch that, because the mutation scores it joins to exist only
 for the 49.
@@ -198,10 +204,12 @@ related work --- is done. What remains is not research:
 1. **Compile the paper** on a machine with TeX, or on Overleaf. It has never been built, so
    the first compile will produce the ordinary crop of layout complaints. The structure and
    every figure are checked without compiling, so those are the only errors expected.
-2. **Complete `refs.bib`** from publisher records. Volume, issue, page and DOI fields were
-   left out rather than filled from memory, and the file's header says so. Confirm the
-   `cedar2024` entry's canonical form, and record the pinned commits and access dates for
-   the Kyverno and Gatekeeper corpora.
+2. **Record the pinned commits and access dates for the three software entries.** The rest
+   of the bibliography is done: all fifteen entries are verified against the publisher's
+   record, and the two citations that had been flagged as unconfirmed both exist and were
+   cited correctly -- Martin and Xie, WWW 2007, pp. 667--676, and the Cedar paper, PACMPL
+   8(OOPSLA1), pp. 670--697. Worth stating plainly, because the alternative to checking a
+   half-remembered citation is a fabricated reference in a submitted paper.
 3. **Read the paper aloud once.** One pass has been done and it was worth doing --- it
    found three errors that the figure guard could not, because none of them was a number:
 
