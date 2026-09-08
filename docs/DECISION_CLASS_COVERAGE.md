@@ -432,8 +432,10 @@ Two things there are worth more than the 75.5%.
 **All 12 exclusions are `verifyImages`, and finding it needed somebody else's policy.** That
 block checks a signature or attestation against a registry and a transparency log, and binds
 the fetched attestation for its conditions to read -- data the admission request does not
-carry. The adapter did not recognise it, because the construct barely appears in the vendor's
-tested subset. Three third-party policies came back undetermined on attestation fields and
+carry. The adapter did not recognise it, and the reason is the point: `verifyImages` appears
+in **none** of the 235 vendor policies measured here, and in 11 of the 5,099 policy files the
+vendor's repository holds. An instrument validated only against the vendor corpus would never
+have been asked the question. Three third-party policies came back undetermined on attestation fields and
 one on `time_since`, and chasing those four produced two genuine additions: image
 verification as an external read, and the clock-reading `time_*` functions separated from the
 ones that are total on their arguments. Neither changed any vendor verdict, which is how it
@@ -710,6 +712,17 @@ which XACML, Rego, Cedar and IAM all have.
 **Lemma A.** For a finite-outcome family, Theorem 1's finiteness clause holds automatically:
 the outcome map lands in `V^n`. So that clause does no work in any real language, and the
 content of the condition is entirely its second half, about witnesses.
+
+**One word in that second half is load-bearing: the witness procedure must be *total*.**
+Theorem 1's clause reads "for every value in the image a witness is computable", which
+leaves open whether the procedure is defined off the image -- whether it also tells you
+which values are achieved. A total procedure does: run it, and check whether what comes back
+realises the candidate, which settles it because an achieved value would have produced a
+realising subject. The partial reading says strictly less and breaks the equivalence in
+Theorem 7 below in one direction. Totality is also the only reading an implementation can
+use, since it is handed a candidate and has to answer -- which is what `cells()` and
+`verify_witness_space.py` both do -- so nothing changes in practice and the statement is
+now honest about what it needs.
 
 **Occupancy.** Given guards `g_1..g_n` and a vector `v`, is there a subject whose outcome
 vector is `v`?

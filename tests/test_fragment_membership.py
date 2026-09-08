@@ -32,6 +32,23 @@ ECOSYSTEMS = ("xacml", "kyverno", "cedar")
 ALL_ECOSYSTEMS = ("xacml", "kyverno", "cedar", "rego", "iam")
 
 
+def _pinned_corpus(variable: str) -> Path:
+    """A corpus root from the environment, or skip.
+
+    `Path("")` is `.`, not a missing path, so testing the result of `os.environ.get` with a
+    default of `""` for `is_dir()` silently runs against the working directory instead of
+    skipping. That is how the vendor-corpus case below failed in a checkout with no corpus.
+    """
+
+    value = os.environ.get(variable, "").strip()
+    if not value:
+        pytest.skip(f"set {variable} to the pinned corpus to run this")
+    root = Path(value)
+    if not root.is_dir():
+        pytest.skip(f"{variable} does not name a directory")
+    return root
+
+
 def _load(name: str) -> ModuleType:
     if name in sys.modules:
         return sys.modules[name]
@@ -948,3 +965,25 @@ def test_pure_kyverno_time_functions_stay_inside() -> None:
     )
 
     assert outcome.verdict == core.INSIDE
+
+
+def test_the_construct_the_third_party_corpus_exposed_is_absent_from_the_vendor_one() -> None:
+    """Why a vendor corpus could not have found this gap.
+
+    `verifyImages` is the whole of the third-party corpus's 12 exclusions, and it appears in
+    none of the vendor policies the study measures. An instrument validated only against the
+    vendor's corpus would never have been asked the question, which is the argument for
+    going and getting policy somebody else wrote.
+    """
+    root = _pinned_corpus("TRUSTWEAVE_KYVERNO_CORPUS")
+
+    discovered = kyverno.discover(root)
+    assert discovered, "the corpus root holds no Kyverno policies"
+
+    using = [
+        subject
+        for subject, path in discovered
+        if "verifyImages" in path.read_text(encoding="utf-8", errors="ignore")
+    ]
+
+    assert using == [], f"the vendor corpus does use verifyImages: {using[:3]}"

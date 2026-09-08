@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~9,200 words, 17 pages, 13 numbered results, 17 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~9,500 words, 17 pages, 13 numbered results, 17 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -268,11 +268,21 @@ related work --- is done. What remains is not research:
      Theorem 1b as making the reorderings equivalent under *any* combining function, which
      it does not: a swap permutes which guard feeds which argument.
 
-   Both passes found things no figure guard can see, because none of the five findings was
-   a number. Two of the five were the prose disagreeing with an instrument that was already
+   A third pass has been done and found one more, in the newest material: the tightness
+   theorem's chain back to the definition needed the witness procedure to be **total**, and
+   the definition said only "for every value in the image", which leaves open whether the
+   procedure is defined off it. Under the partial reading the equivalence fails in one
+   direction. The definition now says total and explains why, the corollary now carries the
+   proof it was relying on implicitly, and the one claim about a vendor corpus that had been
+   softened to "barely appears" is stated as the checkable fact it is: `verifyImages` appears
+   in none of the 235 measured vendor policies.
+
+   All three passes found things no figure guard can see, because none of the six findings
+   was a number. Two of the five were the prose disagreeing with an instrument that was already
    right, which is the failure mode to watch for in a repository that keeps its documents
-   next to its measurements. A third pass by another author is still worth having; a rate
-   of five findings over two passes is not a rate that suggests the next one is empty.
+   next to its measurements. A fourth pass by another author is still worth having: six
+   findings over three passes, with the third finding a gap in material written the same
+   day, is not a rate that suggests the next one is empty.
 4. ~~**Mine a corpus from repositories that *use* these engines.**~~ **Attempted, and it
    found a defect.** 49 Kyverno policies from 31 repositories and 28 owners unaffiliated
    with Kyverno: 37 inside, 12 outside, none undetermined. The corpus is pinned file by
