@@ -9,6 +9,7 @@ enumeration over the real policy and the real mutant set rather than restating t
 
 from __future__ import annotations
 
+import copy
 import importlib.util
 import itertools
 from pathlib import Path
@@ -564,3 +565,133 @@ def test_capability_witnesses_reproduce_wildcard_matching(capabilities: list[str
     )
 
     assert policy_mutation._decide(policy, concrete) == policy_mutation._decide(policy, witness)
+
+
+# ---------------------------------------------------------------------------------------
+# What the enumerated object is, and what it is not
+# ---------------------------------------------------------------------------------------
+
+
+def _policy_with(rules: list[dict[str, Any]]) -> dict[str, Any]:
+    """The shipped policy with its rule set replaced, on the schema that allows every field."""
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"] = rules
+    return document
+
+
+def _rule(index: int, decision: str, **extra: Any) -> dict[str, Any]:
+    rule = copy.deepcopy(_document()["rules"][0])
+    rule.update(
+        {
+            "id": f"R-{index}",
+            "decision": decision,
+            "source_trust": ["trusted"],
+            "tool_action_classes": ["read"],
+        }
+    )
+    rule.update(extra)
+    return rule
+
+
+def _capability_signatures(document: dict[str, Any]) -> set[tuple[bool, ...]]:
+    space = policy_mutation.witness_space(document)
+    patterns = tuple(
+        pattern for rule in document["rules"] for pattern in rule.get("tool_capabilities") or []
+    )
+    return {
+        tuple(
+            any(policy_mutation.capability_matches(pattern, capability) for capability in witness)
+            for pattern in patterns
+        )
+        for witness in space["tool_capabilities"]
+    }
+
+
+def test_nested_capability_patterns_do_not_give_a_class_each() -> None:
+    """Anything matching `net.http` matches `net.*`, so one of the four subsets cannot exist.
+
+    Theorem 1's bound of `2^|K_P|` is an upper bound and stays true. The proof's claim that
+    each subset "is witnessed" does not: the signature "matches `net.http` but not `net.*`"
+    is occupied by no subject, and the subset `{net.http}` realises the same signature as
+    `{net.*, net.http}`.
+    """
+
+    document = _policy_with(
+        [
+            _rule(1, "allow", tool_capabilities=["net.*"]),
+            _rule(2, "deny", tool_capabilities=["net.http"]),
+        ]
+    )
+    space = policy_mutation.witness_space(document)
+
+    assert len(space["tool_capabilities"]) == 3
+    assert (False, True) not in _capability_signatures(document)
+
+
+def test_disjoint_capability_patterns_still_give_a_class_each() -> None:
+    """The collapse must come from subsumption, not from deduplicating indiscriminately."""
+
+    document = _policy_with(
+        [
+            _rule(1, "allow", tool_capabilities=["net.*"]),
+            _rule(2, "deny", tool_capabilities=["fs.*"]),
+        ]
+    )
+
+    assert len(policy_mutation.witness_space(document)["tool_capabilities"]) == 4
+    assert len(_capability_signatures(document)) == 4
+
+
+def test_every_enumerated_capability_class_has_a_distinct_signature() -> None:
+    """One witness per signature, so no class is counted twice."""
+
+    for patterns in (
+        ["net.*", "net.http"],
+        ["net.*", "net.http", "net.http.get"],
+        ["net.*", "fs.*", "net.http"],
+    ):
+        document = _policy_with(
+            [_rule(index, "allow", tool_capabilities=[p]) for index, p in enumerate(patterns)]
+        )
+        space = policy_mutation.witness_space(document)
+
+        assert len(_capability_signatures(document)) == len(space["tool_capabilities"]), patterns
+
+
+def test_the_enumerated_cells_are_a_refinement_of_the_quotient_not_the_quotient() -> None:
+    """Distinct cells can answer every predicate identically, and then they are one class.
+
+    A policy whose only purpose predicate is "intersects {a, b}" cannot tell `{a}` from
+    `{a, b}`, so the enumeration splits one class of `~P` into several. Soundness holds over
+    a refinement -- the decision is still constant on each cell, so Theorem 3 and Corollary
+    4 carry over. What the refinement costs is the policy-level reading of necessity: no
+    policy the language can express differs at one copy and not another.
+    """
+
+    document = _policy_with([_rule(1, "allow", purpose_tags=["a", "b"])])
+    policy = parse_policy(document)
+    enumerated = policy_mutation.cells(document)
+    signatures = {policy_mutation.predicate_signature(policy, cell) for cell in enumerated}
+
+    assert len(signatures) < len(enumerated), "expected the enumeration to refine ~P here"
+    # The refinement is sound: cells sharing a signature share a decision.
+    by_signature: dict[tuple[bool, ...], set[str]] = {}
+    for cell in enumerated:
+        signature = policy_mutation.predicate_signature(policy, cell)
+        by_signature.setdefault(signature, set()).add(policy_mutation._decide(policy, cell))
+    assert all(len(decisions) == 1 for decisions in by_signature.values())
+
+
+def test_a_cell_decides_the_same_as_every_other_cell_of_its_class() -> None:
+    """The property that makes the refinement usable, checked on the shipped policy."""
+
+    policy = parse_policy(_document())
+    grouped: dict[tuple[bool, ...], set[str]] = {}
+    for cell in _cells():
+        signature = policy_mutation.predicate_signature(policy, cell)
+        grouped.setdefault(signature, set()).add(policy_mutation._decide(policy, cell))
+
+    assert grouped
+    assert all(len(decisions) == 1 for decisions in grouped.values())

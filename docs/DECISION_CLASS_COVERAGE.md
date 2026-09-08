@@ -59,11 +59,29 @@ A membership predicate over a named set `N` distinguishes only which element of 
 is, or that it is in none, so `|N| + 1` classes suffice; classification adds the taxonomy
 because the bound predicates compare ranks within it. Purpose matching is non-empty
 intersection with a named set, so only the *subset of named tags* a subject carries matters:
-`2^|G_P|` classes. Capability matching is existential over (named pattern, subject
-capability), so only the *subset of named patterns some capability matches* matters:
-`2^|K_P|` classes, and each is witnessed, since a pattern `n.*` is matched by `n.w` for any
-`w` and an exact pattern by itself. Subjects agreeing on every component agree on every
-predicate, hence match the same rules, hence receive the same decision. []
+at most `2^|G_P|` classes. Capability matching is existential over (named pattern, subject
+capability), so only the *subset of named patterns some capability matches* matters: at most
+`2^|K_P|` classes. Subjects agreeing on every component agree on every predicate, hence
+match the same rules, hence receive the same decision. []
+
+**The two set-valued terms are bounds and not counts, and an earlier version of this proof
+claimed otherwise.** It asserted that each of the `2^|K_P|` subsets "is witnessed, since a
+pattern `n.*` is matched by `n.w` for any `w`". That is false when patterns nest. Every
+capability matching `net.http` also matches `net.*`, so on a policy naming both there is no
+subject at all whose capabilities match `net.http` and not `net.*`: one of the four subsets
+is occupied by nothing, and the subset `{net.http}` induces the same predicate answers as
+`{net.*, net.http}`. Three classes exist where the proof claimed four.
+
+The same holds for purpose tags for a different reason. A policy whose only purpose
+predicate is "intersects `{a, b}`" cannot tell `{a}` from `{b}` from `{a, b}`: one class,
+not three. There the collapse comes from the *predicate* being coarser than the subsets, not
+from the values subsuming one another.
+
+`witness_space()` now keeps one witness per achievable capability signature rather than one
+per subset, which is what makes the capability term a count of realisable classes.
+`tests/test_decision_class_theory.py` pins both counterexamples, including that disjoint
+patterns still give a class each, so the correction cannot be mistaken for deduplicating
+indiscriminately.
 
 `witness_space()` computes one representative per class and `cells()` enumerates the
 product; `abstract_cell()` maps a concrete subject to its representative. For the shipped
@@ -76,6 +94,46 @@ Theorem 1 is the load-bearing claim and it is checked, not merely argued:
 identifiers, unnamed purposes, capabilities inside and outside a wildcard namespace -- and
 asserts each decides exactly as its class witness does. Breaking the abstraction makes that
 test fail.
+
+### What the harness enumerates is a refinement of the quotient
+
+`cells()` returns the product of the per-attribute witness spaces. That is a *refinement* of
+`S/~P`, not the quotient itself: distinct cells can answer every predicate of every rule
+identically, and when they do they are one class. The purpose example above is exactly that,
+and it is not a corner case -- on a policy whose rules constrain only `trusted` and `read`,
+the product enumerates all three trust levels and all four action classes where the policy
+distinguishes two of each, so 48 cells stand for 16 classes.
+
+The distinction matters, and it cuts differently for different results.
+
+**Soundness carries over.** `[[P]]` is constant on each class of `~P` by Theorem 1, so it is
+constant on each cell of any refinement of it. Theorem 3 and Corollary 4 below quantify over
+cells and are therefore true as stated: a suite witnessing every cell witnesses every class,
+and the kill criterion is a set intersection either way. Nothing in the reported scores
+depends on the difference.
+
+**Necessity carries over as stated, but not as it is easy to read.** The converse in
+Corollary 4 is about *semantic* mutants -- arbitrary functions from cells to decisions -- and
+a function may differ at one cell whatever the cells are, so the argument and the test that
+checks it are sound on a refinement. Read instead as a claim about policies, it is not. If
+two cells belong to one class of `~P`, then **no policy the language can express differs at
+one of them and not the other**, so an unwitnessed cell whose twin is witnessed admits no
+expressible surviving mutant. The distinction is between what the operator set could in
+principle realise and what the language can say, and only the second needs the quotient.
+
+That distinction was nearly lost twice: once by a proof step claiming each capability subset
+is occupied, and once by an earlier draft of this very paragraph, which said flatly that
+tightness fails on a refinement. It does not. What fails is the policy-level reading, and the
+test in `tests/test_decision_class_theory.py` checks the semantic one, which is the weaker
+claim and the true one.
+
+Why the harness keeps the refinement rather than quotienting: a mutant is a different
+policy, so its predicate signatures are different objects, and quotienting each side
+separately would compare two policies over two different domains. Theorem 2's own
+requirement is the *common* refinement of `~P` and `~Q`, and the product of the witness
+spaces is one -- computed identically for reference and mutant, since the harness refuses a
+mutant that names a value the reference does not. Quotienting is available where a single
+policy is being described, and `predicate_signature()` is what computes the class of a cell.
 
 **Theorem 2 (decidable equivalence).** For policies `P` and `Q`, semantic equivalence is
 decidable: quotient by `~P n ~Q` -- computed from the values *either* policy names -- and
