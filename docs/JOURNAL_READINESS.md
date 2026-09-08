@@ -7,9 +7,9 @@ reviewer makes.
 
 ## Status
 
-Of the seven gaps below, **G1, G2, G3, G4, G5 and G7 are closed**, and **G6 is half
-closed** -- the corpus is 10.8x larger and has a fourth ecosystem in it than when the gap
-was written, but it is still vendor
+Of the seven gaps below, **G1, G2, G3, G4, G5 and G7 are closed**, and **G6 is mostly
+closed** -- the corpus is 28.7x larger and has five ecosystems rather than three, and one of
+them is deployed policy, but it is still vendor
 test and conformance corpora rather than deployed policy, and that half is not closeable
 from this repository. Each closure is marked at its heading with what closed it, and the
 gap's original statement is left standing rather than rewritten, so the record shows what
@@ -20,7 +20,7 @@ has not moved, because nothing closed here changes what sets it.
 
 | Artifact | Size |
 |---|---|
-| The manuscript (LaTeX, **kept outside this repository**) | ~7,200 words, 13 pages, 8 numbered results, 15 references, compiles clean |
+| The manuscript (LaTeX, **kept outside this repository**) | ~8,100 words, 15 pages, 8 numbered results, 17 references, compiles clean |
 [`DECISION_CLASS_COVERAGE.md`](DECISION_CLASS_COVERAGE.md) -- the theory | ~4,600 words, 7 numbered results |
 [`SUITE_COVERAGE_STUDY.md`](SUITE_COVERAGE_STUDY.md) -- the empirical study | ~4,600 words, 4 ecosystems |
 | Evidence artifacts | 9 committed JSON records, each regenerable |
@@ -157,9 +157,23 @@ language rather than a measurement of its policies -- the argument was right tha
 leave the fragment and wrong that its published policies do, and it took an AST-reading
 adapter with import propagation to find that out.
 
-**The provenance half is not, and is the gap that caps the paper.** These are still the
-projects' own test and conformance directories, not deployed policy, and the wide corpus is
-over half XACML's conformance suite -- written to exercise the specification's function
+**The provenance half is now half-answered too, and the premise it rested on was wrong.**
+This note said the gap needed "deployed policy, which the authors do not have". AWS
+publishes its managed IAM policies, they are attached in accounts worldwide, and IAM is the
+most widely used access-control policy language there is -- so the policy was there, and the
+claim that it was not had never been checked. **1,651 of 1,651 AWS managed policies are
+inside the fragment**, pinned at a commit, and the corpus is now 2,642 policies across five
+ecosystems with 2,520 inside.
+
+Two caveats ship with that, and the second is the one to keep. IAM is 62% of the pooled
+corpus and drags the total to 95.4%; excluding it the figure is 87.7%. And the IAM adapter
+has no path to a verdict of `outside`, so 100% is not the result of looking for exclusions
+and finding none -- it is principled, since IAM has no construct for reading state the
+evaluator was not handed, but it is weaker evidence than Kyverno's 87.2%, where the
+instrument had an outside branch and used it thirty times.
+
+**What still caps the paper.** Four of the five corpora are still the projects' own test and
+conformance directories, and the non-IAM corpus is over half XACML's conformance suite -- written to exercise the specification's function
 library, so it over-represents unusual functions and says little about what production
 policy looks like. Reading its 96.0% as the deployed share would be wrong, the pooled 87.7%
 inherits that skew, and the paper's threats section says both. Separately, the Kyverno predictive experiment still has
@@ -167,8 +181,12 @@ nine policies in its blind arm and its p-value still does not survive stratifica
 widening membership does not touch that, because the mutation scores it joins to exist only
 for the 49.
 
-**Closes the rest:** deployed policy, which the authors do not have, or a collaboration that
-supplies it. **Who:** not the authors alone.
+**Closes the rest:** policy written by the organisations that run it, rather than published
+by the vendors that ship the engine. AWS's managed library is deployed but it is still one
+vendor's library, not what its customers write. That needs a collaboration, or a corpus
+mined from infrastructure repositories that *use* these engines -- the second is possible
+from here and has not been attempted. **Who:** the authors could attempt the mining; the
+collaboration is not theirs alone to arrange.
 
 ### G7. Nothing is mechanised -- CLOSED
 
@@ -255,7 +273,16 @@ related work --- is done. What remains is not research:
    right, which is the failure mode to watch for in a repository that keeps its documents
    next to its measurements. A third pass by another author is still worth having; a rate
    of five findings over two passes is not a rate that suggests the next one is empty.
-4. **Choose a venue against the ceiling below, not above it.** Software-testing or
+4. **Mine a corpus from repositories that *use* these engines,** rather than from the
+   repositories that ship them. This is the remaining half of G6 and it is possible from
+   here: infrastructure-as-code repositories carry Kyverno `ClusterPolicy` and Gatekeeper
+   `Constraint` manifests written by the organisations that run them. Not attempted.
+5. **Settle whether finite refinement is necessary as well as sufficient.** The development
+   proves the condition sufficient, and proves that arbitrary total computable guards make
+   equivalence undecidable, which leaves the boundary between the two unmapped. A tightness
+   result -- the weakest condition that still gives decidable equivalence -- is the one
+   place real theoretical weight is still available, and it is unattempted.
+6. **Choose a venue against the ceiling below, not above it.** Software-testing or
    policy-analysis venues where an exactness result inside a characterised fragment is the
    contribution, and where a reported negative result is read as a virtue.
 
