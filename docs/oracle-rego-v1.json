@@ -2761,8 +2761,8 @@
       "by_adapter_kind": {
         "inside": 115,
         "outside: nondeterministic builtin": 1,
-        "outside: reads state the subject does not carry": 42,
-        "schema": 28
+        "outside: reads state the subject does not carry": 44,
+        "schema": 26
       },
       "by_engine_verdict": {
         "external": 45,
@@ -3404,8 +3404,8 @@
         },
         {
           "adapter": {
-            "kind": "schema",
-            "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for enforceScaleTargetRef, minimumReplicaSpread, ranges",
+            "kind": "outside: reads state the subject does not carry",
+            "reason": "reads a document the host injects: data.inventory",
             "verdict": "outside"
           },
           "agree": true,
@@ -3683,8 +3683,8 @@
         },
         {
           "adapter": {
-            "kind": "schema",
-            "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for includeStorageClassesInMessage",
+            "kind": "outside: reads state the subject does not carry",
+            "reason": "reads a document the host injects: data.inventory",
             "verdict": "outside"
           },
           "agree": true,

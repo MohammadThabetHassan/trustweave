@@ -575,9 +575,9 @@ def test_the_rego_measurement_counts_no_test_module_as_a_policy() -> None:
 
 
 def test_the_rego_exclusions_are_the_kinds_the_document_names() -> None:
-    """28 schemas, 33 reaching the inventory, 9 other data documents, one network call.
+    """26 schemas, 35 reaching the inventory, 9 other data documents, one network call.
 
-    Of the 33, 9 read `data.inventory` in their own body and 24 through one library rule;
+    Of the 35, 11 read `data.inventory` in their own body and 24 through one library rule;
     the count was 25 while propagation followed imports rather than the rules a policy
     evaluates, and the engine's dependency analysis disagreed on the twenty-fifth. Of the 9
     other documents, 8 are read directly and one through a rule in a sibling package. The
@@ -601,8 +601,8 @@ def test_the_rego_exclusions_are_the_kinds_the_document_names() -> None:
     )
     network = sum(1 for reason in reasons if "http.send" in reason)
 
-    assert parameters == 28
-    assert injected_directly == 9
+    assert parameters == 26
+    assert injected_directly == 11
     assert via_rule_injected == 24, "the rules a policy evaluates, not the libraries it imports"
     assert undefined_directly + via_rule_undefined == 9
     assert via_rule_undefined == 1
@@ -755,13 +755,19 @@ def test_the_artifact_records_the_schemas_separately_from_the_other_exclusions()
     schemas = [p for p in outside if "policy schema" in p["reason"]]
     reads_outside = [p for p in outside if "policy schema" not in p["reason"]]
 
-    assert len(schemas) == 28
-    assert len(reads_outside) == 43
+    assert len(schemas) == 26
+    assert len(reads_outside) == 45
     assert len(schemas) + len(reads_outside) == artifact["counts"]["outside"] == 71
     # And the share over artifacts that are actually policies.
     policies = artifact["policies_considered"] - len(schemas)
-    assert policies == 158
-    assert round(100 * artifact["counts"]["inside"] / policies, 1) == 72.8
+    assert policies == 160
+    assert round(100 * artifact["counts"]["inside"] / policies, 1) == 71.9
+
+    # Two modules are both, and the one an assignment cannot remove is the one reported.
+    doubly = [p for p in outside if len(p.get("reasons") or []) > 1]
+    both = [p for p in doubly if any("policy schema" in reason for reason in p["reasons"])]
+    assert len(both) == 2
+    assert all("policy schema" not in p["reason"] for p in both)
 
 
 # --- AWS IAM: the deployed-policy corpus -----------------------------------------------
@@ -1024,13 +1030,13 @@ def test_the_azure_measurement_judges_every_definition() -> None:
         (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
     )
 
-    assert artifact["policies_considered"] == 3659
-    assert artifact["counts"] == {"inside": 2834, "outside": 825, "undetermined": 0}
+    assert artifact["policies_considered"] == 3769
+    assert artifact["counts"] == {"inside": 2884, "outside": 885, "undetermined": 0}
     subjects = [entry["subject"] for entry in artifact["policies"]]
     assert len(set(subjects)) == len(subjects), "subjects must be unique or policies vanish"
 
 
-def test_azure_exclusions_split_into_schemas_and_runtime_reads() -> None:
+def test_azure_exclusions_split_into_schemas_reads_and_nondeterminism() -> None:
     artifact = json.loads(
         (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
     )
@@ -1038,10 +1044,70 @@ def test_azure_exclusions_split_into_schemas_and_runtime_reads() -> None:
 
     schemas = [entry for entry in outside if "policy schema" in entry["reason"]]
     runtime = [entry for entry in outside if "runtime state" in entry["reason"]]
+    nondeterministic = [
+        entry for entry in outside if "not a function of its arguments" in entry["reason"]
+    ]
 
-    assert len(schemas) == 716
-    assert len(runtime) == 109
-    assert len(schemas) + len(runtime) == len(outside) == 825
+    assert len(schemas) == 769
+    assert len(runtime) == 99
+    assert len(nondeterministic) == 17
+    assert len(schemas) + len(runtime) + len(nondeterministic) == len(outside) == 885
+
+
+def test_a_clock_read_is_the_same_kind_of_exclusion_in_azure_as_in_rego() -> None:
+    """`utcNow()` and `time.now_ns` are one obstruction and carry one name.
+
+    They were two: the Azure adapter pooled `utcNow` with `reference`, so a definition that
+    read the clock was reported as reading another resource's runtime state, and the pooled
+    taxonomy carried the same obstruction under two headings depending on the language.
+    """
+
+    assert "utcNow" in azure.NONDETERMINISTIC_ARM_FUNCTIONS
+    assert "newGuid" in azure.NONDETERMINISTIC_ARM_FUNCTIONS
+    assert not (azure.NONDETERMINISTIC_ARM_FUNCTIONS & azure.EXTERNAL_ARM_FUNCTIONS)
+
+    clock = azure.classify(
+        json.dumps(
+            {
+                "properties": {
+                    "policyRule": {
+                        "if": {"field": "tags['expiry']", "less": "[utcNow()]"},
+                        "then": {"effect": "deny"},
+                    }
+                }
+            }
+        )
+    )
+
+    assert clock.verdict == "outside"
+    assert "not a function of its arguments" in clock.reason
+    assert taxonomy.classify(clock.reason) == "reads evaluation-time state"
+
+
+def test_every_azure_obstruction_is_recorded_not_only_the_reported_one() -> None:
+    """A definition excluded twice over is visible as such, and the totals reconcile.
+
+    The reported reason is the obstruction that survives instantiation, so a parameterised
+    definition that also reads runtime state is reported as reading runtime state. Before
+    the evidence was recorded unconditionally, its undefaulted parameters were not in the
+    artifact at all, and the count of definitions awaiting an assignment could not be
+    derived from the measurement it was quoted beside.
+    """
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
+    )
+    outside = [entry for entry in artifact["policies"] if entry["verdict"] == "outside"]
+    undefaulted = [entry for entry in outside if entry.get("parameters_without_defaults")]
+    schemas = [entry for entry in outside if "policy schema" in entry["reason"]]
+    doubly = [entry for entry in outside if entry.get("reasons")]
+
+    assert len(undefaulted) == 855
+    assert len(schemas) + len(doubly) == len(undefaulted)
+    assert all(len(entry["reasons"]) > 1 for entry in doubly)
+    assert all(any("policy schema" in reason for reason in entry["reasons"]) for entry in doubly), (
+        "every doubly-excluded definition here is a schema reported under a stronger reason"
+    )
 
 
 def test_azure_membership_follows_the_operator_family() -> None:
@@ -1127,14 +1193,14 @@ def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     assert findings["taxonomy_is_exhaustive"], findings["exclusions_unclassified"]
     assert findings["exclusions_unclassified"] == {}
     assert findings["corpora"] == 8
-    assert findings["artifacts_considered"] == 6437
-    assert findings["artifacts_inside"] == 5444
+    assert findings["artifacts_considered"] == 6547
+    assert findings["artifacts_inside"] == 5494
     assert findings["exclusions_by_kind"] == {
-        "not a policy": 775,
-        "the subject does not determine the guard": 215,
-        "reads evaluation-time state": 3,
+        "not a policy": 826,
+        "the subject does not determine the guard": 207,
+        "reads evaluation-time state": 20,
     }
-    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 993
+    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1053
 
 
 def test_the_committed_taxonomy_artifact_matches_a_fresh_computation() -> None:
@@ -1205,7 +1271,7 @@ def test_the_cost_artifact_reports_a_tractable_median_for_both_clouds() -> None:
     findings = json.loads((ROOT / "docs" / "coverage-cost-v1.json").read_text("utf-8"))
 
     assert findings["azure"]["median_cells"] == 4
-    assert findings["azure"]["policies"] == 2834
+    assert findings["azure"]["policies"] == 2884
     assert findings["iam"]["median_cells"] == 60
     assert findings["iam"]["policies"] == 1651
     # The claim the paper makes: most deployed Azure policy is cheap to cover exhaustively.
@@ -1213,6 +1279,25 @@ def test_the_cost_artifact_reports_a_tractable_median_for_both_clouds() -> None:
     # And the honest tail.
     assert findings["azure"]["at_or_above_intractable"] == 27
     assert findings["iam"]["at_or_above_intractable"] == 131
+
+
+def test_the_cost_measurement_covers_exactly_the_policies_judged_inside() -> None:
+    """A cost distribution over more definitions than are inside is a distribution of what.
+
+    This corpus reuses a definition name across directories. The measurement walked
+    (name, path) pairs and so measured seven definitions twice, leaving a denominator
+    larger than the inside set it claimed to describe.
+    """
+
+    cost_artifact = json.loads((ROOT / "docs" / "coverage-cost-v1.json").read_text("utf-8"))
+    for ecosystem, stem in (
+        ("azure", "fragment-membership-azure-wide-v1"),
+        ("iam", "fragment-membership-iam-wide-v1"),
+    ):
+        membership = json.loads((ROOT / "docs" / f"{stem}.json").read_text("utf-8"))
+        inside = sum(1 for row in membership["policies"] if row["verdict"] == "inside")
+
+        assert cost_artifact[ecosystem]["policies"] == inside, ecosystem
 
 
 def test_the_bound_never_understates_a_group() -> None:

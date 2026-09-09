@@ -226,9 +226,15 @@ def measure(azure_root: Path, iam_root: Path, docs: Path) -> dict[str, Any]:
     cells: list[int] = []
     guards: list[int] = []
     if azure_root.is_dir():
+        # One measurement per subject, at the first path carrying it, because that is the
+        # path the membership verdict was reached on: this corpus reuses a definition name
+        # across directories, and counting pairs rather than subjects measured seven
+        # definitions twice and left the cost denominator larger than the inside set.
+        seen: set[str] = set()
         for subject, path in azure.discover(azure_root):
-            if subject not in inside:
+            if subject not in inside or subject in seen:
                 continue
+            seen.add(subject)
             document = json.loads(path.read_text(encoding="utf-8", errors="ignore"))
             rule = (document.get("properties") or {}).get("policyRule") or {}
             groups = azure_guards(rule.get("if"))
@@ -240,15 +246,22 @@ def measure(azure_root: Path, iam_root: Path, docs: Path) -> dict[str, Any]:
             "median_guards": int(statistics.median(guards)),
             "max_guards": max(guards),
         }
+        if len(cells) != len(inside):
+            raise SystemExit(
+                f"cost was measured over {len(cells)} definitions but "
+                f"{len(inside)} are inside the fragment; the two corpora disagree"
+            )
 
     iam = _adapter("iam")
     art = json.loads((docs / "fragment-membership-iam-wide-v1.json").read_text("utf-8"))
     inside = {row["subject"] for row in art["policies"] if row["verdict"] == "inside"}
     cells, guards = [], []
     if iam_root.is_dir():
+        seen = set()
         for subject, path in iam.discover(iam_root):
-            if subject not in inside:
+            if subject not in inside or subject in seen:
                 continue
+            seen.add(subject)
             document = iam.document_of(path.read_text(encoding="utf-8", errors="ignore"))
             if document is None:
                 continue

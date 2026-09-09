@@ -71,6 +71,14 @@ def flatten(tex: str) -> str:
 # A count as the paper prints it: digits, optionally grouped with LaTeX's thin space.
 _GROUPED = r"\d+(?:\{,\}\d+)*"
 
+# The four-corpus Rego row mixes the engine project's own libraries with third-party ones,
+# and the paper's external-validity claim turns on the split, so the split is derived from
+# the artifact rather than asserted in prose.
+_ENGINE_AUTHORED_REGO = frozenset({"gatekeeper-library", "opa-library"})
+
+# A spelled-out count, for pins on prose that writes small numbers as words.
+_WORD_PATTERN = r"[a-z]+"
+
 
 def _grouped(value: int) -> str:
     """A count as the paper prints it: LaTeX's thin space groups thousands.
@@ -86,6 +94,29 @@ def _grouped(value: int) -> str:
 
 def _pct(value: float) -> str:
     return f"{value * 100:.1f}"
+
+
+_WORDS = (
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+)
+
+
+def _word(value: int) -> str:
+    """A small count as the paper spells it. Prose numbers drift like printed ones."""
+
+    return _WORDS[value]
 
 
 def structural_findings(tex: str, bib: str) -> list[str]:
@@ -206,6 +237,14 @@ def numeric_claims(docs: Path) -> list[Claim]:
     # policy reading a document the bundle does not define, directly or through a sibling
     # package's rule; and a builtin that reaches past its arguments.
     schemas = sum("policy schema" in reason for reason in reasons)
+    # A template can be a schema and also read the inventory. The reported reason is the one
+    # an assignment does not remove, so `schemas` counts fewer templates than are schemas;
+    # both numbers appear in the paper and each is pinned to the one it means.
+    schema_reasons = [
+        entry
+        for entry in rego_outside
+        if any("policy schema" in reason for reason in (entry.get("reasons") or [entry["reason"]]))
+    ]
     injected_directly = sum(
         reason.startswith("reads a document the host injects") for reason in reasons
     )
@@ -222,10 +261,17 @@ def numeric_claims(docs: Path) -> list[Claim]:
     assert reads_outside == inventory + other_data + network, "an exclusion of no known kind"
     policies = rego["policies_considered"] - schemas
     defaults_some = sum(
-        1
+        1 for entry in schema_reasons if (entry.get("parameter_reads") or {}).get("with_default")
+    )
+    rego_doubly = [
+        entry
         for entry in rego_outside
-        if "policy schema" in entry["reason"]
-        and (entry.get("parameter_reads") or {}).get("with_default")
+        if len(entry.get("reasons") or []) > 1
+        and any("policy schema" in reason for reason in entry["reasons"])
+    ]
+    rego_sources = Counter(entry["subject"].split("/")[0] for entry in rego["policies"])
+    rego_third_party = sum(
+        count for name, count in rego_sources.items() if name not in _ENGINE_AUTHORED_REGO
     )
     claims += [
         (
@@ -251,23 +297,39 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "rego: the network call",
         ),
         (
-            r"(\d+) are not policies at all",
+            r"(\d+) are reported as not policies at all",
             (str(schemas),),
-            "rego: policy schemas",
+            "rego: policy schemas as reported",
         ),
         (
             r"parameters for all (\d+)",
-            (str(schemas),),
+            (str(len(schema_reasons)),),
             "rego: schemas with an instantiating constraint",
         ),
         (
-            r"(\d+) of the 28 do for some parameter",
+            rf"(\d+) of the {len(schema_reasons)} do for some parameter",
             (str(defaults_some),),
             "rego: schemas that default some parameter but not all",
         ),
         (
-            r"Over the (\d+) artifacts that are policies, (\d+) are inside, or "
-            r"(\d+\.\d)\\%",
+            r"In this sense (\d+) templates are schemas; (\w+) of them also",
+            (str(len(schema_reasons)), _word(len(rego_doubly))),
+            "rego: schemas that are also reported under a stronger reason",
+        ),
+        (
+            r"(\d+) of the (\d+) modules in the\s*four-corpus Rego row are third-party "
+            r"--- (\d+) from the Red Hat Community of Practice and (\d+) from",
+            (
+                str(rego_third_party),
+                str(rego["policies_considered"]),
+                str(rego_sources["redhat-cop-rego-policies"]),
+                str(rego_sources["instrumenta-policies"]),
+            ),
+            "rego: third-party modules in the four-corpus row",
+        ),
+        (
+            r"Over the (\d+) artifacts the measurement therefore counts as policies, "
+            r"(\d+) are inside, or\s*(\d+\.\d)\\%",
             (
                 str(policies),
                 str(rego["counts"]["inside"]),
@@ -369,6 +431,69 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
     ]
 
+    # Azure carries the largest corpus and the paragraph explaining it carries the most
+    # unpinned arithmetic in the paper, which is where 2{,}721 and 1{,}924 survived a
+    # re-measurement that moved them.
+    azure = _load(docs, "fragment-membership-azure-wide-v1")
+    azure_rows = azure["policies"]
+    azure_outside = [entry for entry in azure_rows if entry["verdict"] == "outside"]
+    azure_external = sum(
+        "runtime state of a resource" in entry["reason"] for entry in azure_outside
+    )
+    azure_nondeterministic = sum(
+        "not a function of its arguments" in entry["reason"] for entry in azure_outside
+    )
+    azure_schemas = sum("policy schema" in entry["reason"] for entry in azure_outside)
+    azure_parameterised = sum(1 for entry in azure_rows if entry.get("parameters_declared"))
+    azure_undefaulted = sum(1 for entry in azure_rows if entry.get("parameters_without_defaults"))
+    azure_doubly = sum(1 for entry in azure_outside if entry.get("reasons"))
+    claims += [
+        (
+            r"(\d+) definitions read one of these",
+            (str(azure_external),),
+            "azure: definitions reading state outside the resource",
+        ),
+        (
+            r"the (\d+) definitions calling them belong in the third row",
+            (str(azure_nondeterministic),),
+            "azure: definitions calling a nondeterministic function",
+        ),
+        (
+            r"The interesting part is the other (\d+)",
+            (str(azure_schemas),),
+            "azure: definitions reported as schemas",
+        ),
+        (
+            rf"({_GROUPED}) of\s*these definitions are parameterised and ({_GROUPED}) of them "
+            rf"are complete in that sense",
+            (
+                _grouped(azure_parameterised),
+                _grouped(azure_parameterised - azure_undefaulted),
+            ),
+            "azure: parameterised and complete by their own defaults",
+        ),
+        (
+            r"other (\d+) are not, and (\d+) of them are reported here as schemas",
+            (str(azure_undefaulted), str(azure_schemas)),
+            "azure: definitions awaiting an assignment",
+        ),
+        (
+            r"the remaining (\d+) read\s*runtime state or call one of the nondeterministic",
+            (str(azure_doubly),),
+            "azure: definitions carrying a second obstruction",
+        ),
+        (
+            r"(\d+) artifacts across the whole\s*corpus are in that position",
+            (str(azure_doubly + len(rego_doubly)),),
+            "the artifacts that are schemas and reported under a stronger reason",
+        ),
+        (
+            rf"({_GROUPED}) of its ({_GROUPED}) exclusions are",
+            (_grouped(azure_schemas), _grouped(len(azure_outside))),
+            "membership table caption: the Azure split",
+        ),
+    ]
+
     taxonomy = _load(docs, "exclusion-taxonomy-v1")
     kinds = taxonomy["exclusions_by_kind"]
     assert taxonomy["taxonomy_is_exhaustive"], taxonomy["exclusions_unclassified"]
@@ -379,6 +504,12 @@ def numeric_claims(docs: Path) -> list[Claim]:
     policies = taxonomy["policies_considered"]
     artifacts = taxonomy["artifacts_considered"]
     inside = taxonomy["artifacts_inside"]
+
+    rows = {entry["corpus"]: entry for entry in taxonomy["rows"]}
+    iam_total = rows["AWS IAM"]["policies_considered"]
+    iam_inside = rows["AWS IAM"]["inside"]
+    azure_total = rows["Azure Policy"]["policies_considered"]
+    xacml_total = rows["XACML"]["policies_considered"]
 
     def share(part: int) -> str:
         return f"{100 * part / exclusions:.1f}"
@@ -452,6 +583,59 @@ def numeric_claims(docs: Path) -> list[Claim]:
             (_grouped(artifacts), _grouped(schemas)),
             "abstract: corpus size and schemas",
         ),
+        # The contributions list restates the headline in a different phrasing, which is how
+        # it came to disagree with the abstract while every pin still passed: the pin
+        # anchored on the abstract's wording and never reached this sentence.
+        (
+            rf"eight corpora: ({_GROUPED}) artifacts, nothing undetermined, of which\s*"
+            rf"({_GROUPED}) of the ({_GROUPED}) that are policies lie inside",
+            (_grouped(artifacts), _grouped(inside), _grouped(policies)),
+            "contributions: corpus, inside and policies",
+        ),
+        (
+            rf"every one of the ({_GROUPED}) artifacts outside the fragment",
+            (_grouped(exclusions),),
+            "contributions: exclusions restated",
+        ),
+        (
+            rf"none of these ({_GROUPED}) exclusions refutes it",
+            (_grouped(exclusions),),
+            "membership: exclusions restated where exhaustiveness is qualified",
+        ),
+        (
+            r"IAM is (\d+\.\d)\\%\s*of the pooled artifacts and (\d+\.\d)\\% of the "
+            r"artifacts that are policies",
+            (_pct(iam_inside / artifacts), _pct(iam_inside / policies)),
+            "IAM's share of the pool",
+        ),
+        (
+            r"pooled share is (\d+\.\d)\\% of artifacts and (\d+\.\d)\\% of policies",
+            (
+                _pct((inside - iam_inside) / (artifacts - iam_total)),
+                _pct((inside - iam_inside) / (policies - iam_total)),
+            ),
+            "the pooled share with IAM removed",
+        ),
+        (
+            r"the pooled (\d+\.\d)\\% inherits that skew",
+            (_pct((inside - iam_inside) / (artifacts - iam_total)),),
+            "threats: the pooled share restated",
+        ),
+        (
+            r"left after IAM and Azure, (\d+\.\d)\\% are XACML",
+            (_pct(xacml_total / (artifacts - iam_total - azure_total)),),
+            "threats: XACML's share of the remainder",
+        ),
+        (
+            rf"Four of the ({_WORD_PATTERN}) corpora in Table",
+            (_word(len(taxonomy["rows"])),),
+            "threats: how many corpora there are",
+        ),
+        (
+            rf"The ({_WORD_PATTERN}) per-corpus shares are the",
+            (_word(len(taxonomy["rows"])),),
+            "threats: how many per-corpus shares there are",
+        ),
     ]
 
     cost = _load(docs, "coverage-cost-v1")
@@ -520,17 +704,18 @@ def numeric_claims(docs: Path) -> list[Claim]:
 
     rego_oracle = _load(docs, "oracle-rego-v1")
     interpreter = _load(docs, "interpreter-oracle-v1")
+    interpreter["skipped"] = interpreter["generated_skipped_as_too_large"]
     assert rego_oracle["disagreements"] == 0 and interpreter["disagreements"] == []
     dynamic_inside = sum(entry["inside_modules_checked"] for entry in rego_oracle["dynamic"])
     dynamic_tests = sum(entry["tests_compared"] for entry in rego_oracle["dynamic"])
     claims += [
         (
-            r"dependency analysis on all (\d+) Rego modules",
+            r"dependency analysis on all (\d+) modules",
             (str(rego_oracle["modules"]),),
             "oracle: modules the engine was asked about (abstract)",
         ),
         (
-            r"agree on every one of the (\d+) modules",
+            r"consistent on every one of the (\d+) modules",
             (str(rego_oracle["modules"]),),
             "oracle: modules the engine was asked about",
         ),
@@ -548,6 +733,18 @@ def numeric_claims(docs: Path) -> list[Claim]:
             r"over (\d+) policies\s*--- the shipped one, a richer variant and (\d+) generated",
             (str(interpreter["policies_checked"]), str(interpreter["generated_policies"])),
             "interpreter oracle: policies",
+        ),
+        (
+            rf"at ({_GROUPED}) classes one candidate of (\d+) was\s*skipped, at a quotient of "
+            rf"({_GROUPED}), and the largest quotient actually decided twice has\s*"
+            rf"({_GROUPED}) classes",
+            (
+                _grouped(interpreter["max_cells"]),
+                str(interpreter["generated_policies"] + interpreter["skipped"]),
+                _grouped(interpreter["smallest_quotient_skipped"]),
+                _grouped(interpreter["largest_quotient_checked"]),
+            ),
+            "interpreter oracle: the cap and what it excludes",
         ),
     ]
 

@@ -313,10 +313,10 @@
           "ranges"
         ]
       },
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for enforceScaleTargetRef, minimumReplicaSpread, ranges",
+      "reason": "reads a document the host injects: data.inventory",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for enforceScaleTargetRef, minimumReplicaSpread, ranges",
-        "reads a document the host injects: data.inventory"
+        "reads a document the host injects: data.inventory",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for enforceScaleTargetRef, minimumReplicaSpread, ranges"
       ],
       "subject": "gatekeeper-library/src/general/horizontalpodautoscaler/src.rego",
       "verdict": "outside"
@@ -441,10 +441,10 @@
           "includeStorageClassesInMessage"
         ]
       },
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for includeStorageClassesInMessage",
+      "reason": "reads a document the host injects: data.inventory",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for includeStorageClassesInMessage",
-        "reads a document the host injects: data.inventory"
+        "reads a document the host injects: data.inventory",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for includeStorageClassesInMessage"
       ],
       "subject": "gatekeeper-library/src/general/storageclass/src.rego",
       "verdict": "outside"

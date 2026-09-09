@@ -712,7 +712,13 @@ def _resolves_to_bundle(reference: list[str | None], declared: set[str]) -> bool
 
 
 def _external_findings(ast: dict[str, Any], declared: set[str]) -> tuple[list[str], list[str]]:
-    """(reasons this module reaches outside, unresolvable call names)."""
+    """(reasons this module reaches outside, unresolvable call names).
+
+    The reasons are ordered by the taxonomy's reporting rule: nondeterminism first, then
+    reading state the subject does not carry, then being a policy schema. Only the last is
+    removed by supplying an assignment, so the first entry is the obstruction that survives
+    instantiation and is the one the verdict names.
+    """
 
     references, calls = references_and_calls(ast)
     reasons: list[str] = []
@@ -722,15 +728,6 @@ def _external_findings(ast: dict[str, Any], declared: set[str]) -> tuple[list[st
         reasons.append(
             "calls a builtin whose result is not a function of its arguments: "
             + ", ".join(nondeterministic)
-        )
-
-    reads = parameter_reads(ast)
-    undefaulted = reads["without_default"] + [f"whole block to {name}" for name in reads["whole"]]
-    if undefaulted:
-        reasons.append(
-            "is a policy schema rather than a policy: its guard is stated against "
-            "parameters a Constraint supplies, so it determines no decision function "
-            "until one is applied; no default is given for " + ", ".join(undefaulted[:6])
         )
 
     injected = sorted(
@@ -775,6 +772,22 @@ def _external_findings(ast: dict[str, Any], declared: set[str]) -> tuple[list[st
                 reached.setdefault(f"{terminal[0]}.{terminal[1]}", cause)
     for terminal, cause in sorted(reached.items()):
         reasons.append(f"reaches outside through {terminal}, which {cause}")
+
+    # Last, because it is the one obstruction an assignment removes. A module that is a
+    # schema and also reads a document the host injects stays outside once a Constraint
+    # supplies its parameters, so the reason reported is the one that survives
+    # instantiation. Two modules of the wide corpus are in that position; before this
+    # ordering they were filed as schemas, which the Azure adapter -- reading the same
+    # distinction the other way round -- did not do, and the taxonomy carried both
+    # conventions at once.
+    reads = parameter_reads(ast)
+    undefaulted = reads["without_default"] + [f"whole block to {name}" for name in reads["whole"]]
+    if undefaulted:
+        reasons.append(
+            "is a policy schema rather than a policy: its guard is stated against "
+            "parameters a Constraint supplies, so it determines no decision function "
+            "until one is applied; no default is given for " + ", ".join(undefaulted[:6])
+        )
 
     known = builtins()
     # Rego packages span files: a rule defined in one file is visible, unqualified, to

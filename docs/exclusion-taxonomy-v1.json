@@ -1,16 +1,16 @@
 {
-  "artifacts_considered": 6437,
-  "artifacts_inside": 5444,
+  "artifacts_considered": 6547,
+  "artifacts_inside": 5494,
   "corpora": 8,
-  "exclusions": 993,
+  "exclusions": 1053,
   "exclusions_by_kind": {
-    "not a policy": 775,
-    "reads evaluation-time state": 3,
-    "the subject does not determine the guard": 215
+    "not a policy": 826,
+    "reads evaluation-time state": 20,
+    "the subject does not determine the guard": 207
   },
   "exclusions_unclassified": {},
-  "policies_considered": 5662,
-  "policy_schemas": 775,
+  "policies_considered": 5721,
+  "policy_schemas": 826,
   "rows": [
     {
       "artifact": "fragment-membership-iam-wide-v1",
@@ -26,13 +26,14 @@
       "artifact": "fragment-membership-azure-wide-v1",
       "corpus": "Azure Policy",
       "exclusions_by_kind": {
-        "not a policy": 716,
-        "the subject does not determine the guard": 109
+        "not a policy": 769,
+        "reads evaluation-time state": 17,
+        "the subject does not determine the guard": 99
       },
-      "inside": 2834,
-      "outside": 825,
-      "policies_considered": 3659,
-      "share_inside": 0.7745,
+      "inside": 2884,
+      "outside": 885,
+      "policies_considered": 3769,
+      "share_inside": 0.7652,
       "undetermined": 0
     },
     {
@@ -63,9 +64,9 @@
       "artifact": "fragment-membership-rego-wide-v1",
       "corpus": "Rego (four corpora)",
       "exclusions_by_kind": {
-        "not a policy": 28,
+        "not a policy": 26,
         "reads evaluation-time state": 1,
-        "the subject does not determine the guard": 42
+        "the subject does not determine the guard": 44
       },
       "inside": 115,
       "outside": 71,
@@ -110,6 +111,6 @@
     }
   ],
   "schema_version": "v1",
-  "share_inside_of_policies": 0.9615,
+  "share_inside_of_policies": 0.9603,
   "taxonomy_is_exhaustive": true
 }

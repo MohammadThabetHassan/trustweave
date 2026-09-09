@@ -80,7 +80,13 @@ CONCRETE_CAPABILITIES = (
 )
 IDENTIFIERS = ("alice", "bob", "mailer", "search", "crm", "ledger")
 PURPOSES = ("support", "billing", "audit", "marketing")
-MAX_CELLS = 4_000
+# The largest quotient the oracle will enumerate. Every class of a policy under the cap is
+# decided twice, so the cap is the only thing that keeps a generated policy out of the check
+# -- and a cap that silently drops the large quotients would leave the check biased towards
+# small ones. It is therefore an argument, the sizes of what it excludes are recorded, and
+# the default is high enough that the excluded candidates are the ones whose quotients run to
+# millions of classes rather than merely thousands.
+MAX_CELLS = 200_000
 
 
 def engine_decision(policy: Any, subject: tuple[Any, ...]) -> str:
@@ -231,7 +237,7 @@ def richer_policy(document: dict[str, Any]) -> dict[str, Any]:
     return richer
 
 
-def measure(policies: int, subjects: int, seed: int) -> dict[str, Any]:
+def measure(policies: int, subjects: int, seed: int, max_cells: int = MAX_CELLS) -> dict[str, Any]:
     generator = random.Random(seed)
     shipped = json.loads(SHIPPED_POLICY.read_text(encoding="utf-8"))
     checks = [
@@ -245,6 +251,7 @@ def measure(policies: int, subjects: int, seed: int) -> dict[str, Any]:
     ]
     rejected = skipped = 0
     generated = 0
+    skipped_sizes: list[int] = []
     while generated < policies:
         document = generate_policy(generator)
         if document is None:
@@ -254,8 +261,9 @@ def measure(policies: int, subjects: int, seed: int) -> dict[str, Any]:
         total = 1
         for values in space.values():
             total *= len(values)
-        if total > MAX_CELLS:
+        if total > max_cells:
             skipped += 1
+            skipped_sizes.append(total)
             continue
         generated += 1
         checks.append(check_policy(f"generated-{generated}", document, generator, subjects))
@@ -270,6 +278,12 @@ def measure(policies: int, subjects: int, seed: int) -> dict[str, Any]:
         "generated_policies": generated,
         "generated_rejected_by_parser": rejected,
         "generated_skipped_as_too_large": skipped,
+        "max_cells": max_cells,
+        "largest_quotient_checked": max(check["cells"] for check in checks),
+        "smallest_quotient_skipped": min(skipped_sizes, default=0),
+        "median_quotient_skipped": (
+            sorted(skipped_sizes)[len(skipped_sizes) // 2] if skipped_sizes else 0
+        ),
         "cells_checked": sum(check["cells"] for check in checks),
         "subjects_checked": sum(check["subjects"] for check in checks),
         "disagreements": disagreements,
@@ -282,14 +296,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--policies", type=int, default=200)
     parser.add_argument("--subjects", type=int, default=40)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
+    parser.add_argument("--max-cells", type=int, default=MAX_CELLS)
     parser.add_argument("--json", type=Path)
     args = parser.parse_args(argv)
 
-    findings = measure(args.policies, args.subjects, args.seed)
+    findings = measure(args.policies, args.subjects, args.seed, args.max_cells)
     print(
         f"{findings['policies_checked']} policies ({findings['generated_policies']} generated, "
         f"{findings['generated_rejected_by_parser']} rejected by the parser, "
-        f"{findings['generated_skipped_as_too_large']} too large): "
+        f"{findings['generated_skipped_as_too_large']} over {findings['max_cells']:,} "
+        f"classes, the smallest of them {findings['smallest_quotient_skipped']:,}): "
         f"{findings['cells_checked']} class witnesses and {findings['subjects_checked']} "
         f"concrete subjects decided by the engine and the harness; "
         f"{len(findings['disagreements'])} disagreements"

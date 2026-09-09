@@ -17,7 +17,7 @@ case-insensitively, so this adapter normalises before matching, as Azure does.
 
 Two things make this corpus more interesting than a fourth confirmation.
 
-**Parameters, and a distinction the Gatekeeper case did not force.** 3{,}276 of these
+**Parameters, and a distinction the Gatekeeper case did not force.** 2{,}792 of these
 definitions are parameterised, and a parameterised artifact is a policy schema rather than a
 policy -- the argument this study already had to make about constraint templates. But an
 Azure parameter may carry a `defaultValue`, and a definition whose every parameter has one
@@ -26,12 +26,17 @@ when a assignment supplies nothing. So the schema/policy line falls in a differe
 here, and the adapter draws it where the artifact does: full defaults means a policy, a
 parameter without a default means a schema awaiting an assignment.
 
-**A genuine lookup.** `reference()` reads the runtime state of a resource other than the one
+**A genuine lookup, and a clock read.** `reference()` reads the runtime state of a resource
+other than the one
 under evaluation, so a guard over it has no witness the policy determines. This is the
 Azure form of what `data.inventory` is in Gatekeeper and `context.apiCall` is in Kyverno,
 and it is the same reason. `subscription()` and `resourceGroup()` are not that: they return
 ambient properties of the evaluation, handed to the evaluator rather than fetched by the
-policy, and they sit in the subject exactly as Cedar's entity store does.
+policy, and they sit in the subject exactly as Cedar's entity store does. `utcNow()` and
+`newGuid()` are a third thing again: they read no resource, and they are not a function of
+their arguments, which is what OPA's own capability data says of `time.now_ns`. They are
+reported under that heading here so that the same obstruction carries the same name across
+languages.
 """
 
 from __future__ import annotations
@@ -169,6 +174,8 @@ PURE_ARM_FUNCTIONS = frozenset(
         "addDays",
         "tryGet",
         "null",
+        "true",
+        "false",
         "ipRangeContains",
         "copyIndex",
     }
@@ -176,9 +183,22 @@ PURE_ARM_FUNCTIONS = frozenset(
 
 # Functions that read state the policy was not handed. `reference` fetches the runtime
 # state of another resource; the deployment and key functions reach further still.
+# `claims` is here rather than with the ambient functions on purpose: it reads a claim of the
+# token belonging to whoever is making the request, so two deployments of an identical
+# resource by two principals can be decided differently. The resource under evaluation does
+# not determine the guard, which is the same reason `context.apiCall` puts a Kyverno policy
+# outside.
 EXTERNAL_ARM_FUNCTIONS = frozenset(
-    {"reference", "listKeys", "list", "providers", "deployment", "utcNow", "newGuid"}
+    {"reference", "listKeys", "list", "providers", "deployment", "claims"}
 )
+
+# Functions whose result is not a function of their arguments: two evaluations of the same
+# definition against the same resource in the same environment can differ. ARM documents
+# both as usable only in a parameter default, for exactly this reason. These are the ARM
+# counterparts of OPA's nondeterministic builtins, and they are reported as the same kind of
+# exclusion -- previously they were pooled with `reference`, which filed a clock read under
+# the heading for reading another resource.
+NONDETERMINISTIC_ARM_FUNCTIONS = frozenset({"utcNow", "newGuid"})
 
 # Directory names under which the corpus repeats a definition for a sovereign cloud.
 SOVEREIGN_CLOUD_DIRECTORIES = frozenset({"Azure Government", "Azure China"})
@@ -343,20 +363,46 @@ def classify(text: str) -> Verdict:
 
     operators, unrecognised = leaf_operators(rule.get("if"))
     functions = arm_functions(rule)
+    declared = properties.get("parameters")
     detail: dict[str, Any] = {
         "leaf_operators": sorted(operators),
         "arm_functions": sorted(functions),
+        # Recorded for every definition, inside or out, so that the corpus-wide parameter
+        # counts the study quotes are derivable from the artifact instead of from a separate
+        # pass over the corpus that nothing checks against it.
+        "parameters_declared": len(declared) if isinstance(declared, dict) else 0,
     }
 
     lowered = {name.lower() for name in functions}
+    nondeterministic = sorted(lowered & {name.lower() for name in NONDETERMINISTIC_ARM_FUNCTIONS})
     external = sorted(lowered & {name.lower() for name in EXTERNAL_ARM_FUNCTIONS})
+    complete, missing = unparameterised(properties)
+
+    # Every obstruction this definition carries, recorded whichever one the verdict names, so
+    # that a definition excluded for two reasons is visible as such in the artifact rather
+    # than only as the reason that happened to win. The order below is the reporting rule
+    # stated in the taxonomy: an assignment removes the schema obstruction and removes
+    # neither of the others, so the reason reported is the one that survives instantiation.
+    reasons: list[str] = []
+    if nondeterministic:
+        detail["nondeterministic_functions"] = nondeterministic
+        reasons.append(
+            "calls a template function whose result is not a function of its arguments: "
+            + ", ".join(nondeterministic)
+        )
     if external:
         detail["external_functions"] = external
-        return Verdict(
-            OUTSIDE,
-            "reads the runtime state of a resource other than the one under evaluation",
-            detail,
+        reasons.append("reads the runtime state of a resource other than the one under evaluation")
+    if not complete:
+        detail["parameters_without_defaults"] = missing
+        reasons.append(
+            "is a policy schema rather than a policy: a parameter it reads has no default, "
+            "so it determines no decision function until an assignment supplies one"
         )
+    if reasons:
+        if len(reasons) > 1:
+            detail["reasons"] = reasons
+        return Verdict(OUTSIDE, reasons[0], detail)
 
     if unrecognised:
         detail["unrecognised_leaf_keys"] = sorted(unrecognised)
@@ -366,16 +412,6 @@ def classify(text: str) -> Verdict:
     if unjudged:
         detail["unjudged_functions"] = unjudged
         return Verdict(UNDETERMINED, "calls a template function this test does not judge", detail)
-
-    complete, missing = unparameterised(properties)
-    if not complete:
-        detail["parameters_without_defaults"] = missing
-        return Verdict(
-            OUTSIDE,
-            "is a policy schema rather than a policy: a parameter it reads has no default, "
-            "so it determines no decision function until an assignment supplies one",
-            detail,
-        )
 
     if not operators:
         return Verdict(

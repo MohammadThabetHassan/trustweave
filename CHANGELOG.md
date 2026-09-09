@@ -4,96 +4,6 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [0.3.1] - Unreleased release candidate
 
-### Changed
-
-- The research write-ups moved out of the repository. A journal, and the similarity check
-  it runs, reads a publicly posted full text as prior dissemination, and that applies to
-  the long-form development as much as to the manuscript — including a prospectus that was
-  published on the docs site complete with the claim, the theorem statements, and the
-  measured figures. Every measurement artifact under `docs/` stays, each recording the
-  corpus commit it read, along with every instrument in `scripts/` that produced one.
-  `docs/site/RESEARCH_NOTE.md` says where the write-ups went and how to point the two
-  checks that read them at their new location.
-- `demo/research-assistant/demo.gif` is re-encoded from 1,345 KiB to 892 KiB with the same
-  44 frames, the same dimensions and the same per-frame timing. It is a recording of a real
-  run and is not regenerable from anything in this repository, so nothing was re-rendered:
-  `scripts/optimise_demo_gif.py` reads the frames that are there, quantises them to a
-  16-colour palette — the source holds 48 distinct colours, and 64 or 128 produce identical
-  output — and verifies that the count, size and timing survive. The reason it had grown to
-  more than twice what any case is allowed is that it had no budget and nothing measured it,
-  so `tests/test_demo_gif_budget.py` now holds it to 1,000 KiB and fails if any future GIF
-  appears in a directory no budget covers. The budget says how large a file may be; a
-  second check says how it got there, holding every demo GIF to its renderer's palette
-  width — 16 colours here, 64 for a case — read from the GIF's own colour tables rather
-  than through Pillow, which is an optional extra the CI environment does not install.
-  Every frame's local table is checked too, since a wide local palette would otherwise
-  defeat a narrow global one without changing a byte of the header.
-- The declaration-consistency case walkthroughs no longer print
-  `== Captured terminal output begins ==` into the terminal body. Distinguishing what
-  `run-case.sh` emitted from what the renderer added is worth keeping, so captured lines
-  now carry a rule down the left margin and one caption at the foot instead of two lines
-  of narration. The briefing dropped from seven labelled fields to the three a reviewer
-  needs, output advances two lines at a time rather than four, and the canvas follows the
-  content instead of leaving a third of the terminal empty. A 64-colour palette pays for
-  the extra frames: the largest case is 523 KiB against the 600 KiB budget, smaller than
-  before with two thirds more frames.
-
-### Fixed
-
-- The Rego fragment-membership adapter was checked against the engine that runs the
-  policies, and four verdicts changed. `opa deps` reports the base documents a package's
-  rules depend on from OPA's own compiler; `scripts/oracle_rego.py` puts every module of
-  both Rego corpora to it and to the adapter and requires the two readings to agree. On the
-  first run they did not. A published module calls `http.send(request, response)` as a
-  top-level statement, which in the AST is a bare list of terms rather than a `call` node,
-  and the walker looked for the wrapped form alone — it was recorded inside the fragment.
-  The five nondeterministic builtins the adapter listed by hand are a strict subset of the
-  nine the engine flags; the set now comes from `opa capabilities`. Propagating exclusions
-  along imports rather than along the rules a policy evaluates was wrong in both directions:
-  one `redhat-cop` policy imports `lib.openshift` and calls only a request-reading rule of
-  it, and was excluded; one `opa-library` policy reaches cluster state through a package
-  prefix indexed by a variable, and was not. And a ref's later `var` parts were read as
-  static keys, so `vetter[_].info[r]` resolved to nothing. The four-corpus artifact moves
-  from 116 inside of 186 to 115, with 24 rather than 25 excluded through a library rule.
-- Google's Config Validator templates take Constraint parameters through
-  `input.constraint`, not Gatekeeper's `input.parameters`, and the adapter knew only the
-  second convention. The same construct that made 28 Gatekeeper templates policy schemas
-  was counted as policy in Google's library, which reported 85 of 87 inside. The criterion
-  is now stated once and applied to both: an artifact is a schema when it reads a
-  parameter the policy supplies no default for, where `object.get` and Config Validator's
-  `lib.get_default` with a literal default are defaults, exactly as an Azure `defaultValue`
-  is. Google's library is 31 schemas, 15 templates complete by their own defaults, 39 that
-  read no parameter and 2 that read the clock: 54 of 87 inside. The corpus ships a sample
-  Constraint instantiating every one of the 31, and the test that checks that claim now
-  runs against both corpora. Pooled across eight corpora the exclusions become 993 — 775
-  schemas, 215 where the subject does not determine the guard, and 3 reading
-  evaluation-time state — with 5,444 of 5,662 policies inside.
-- The decision map `scripts/policy_mutation.py` builds was checked against the engine that
-  ships, and two defects the shipped policy never reaches were found and fixed. The theory
-  tests' "engine's own first-match evaluation" had called the harness's re-implementation;
-  `scripts/interpreter_oracle.py` decides every class witness and a seeded sample of
-  concrete subjects through `trustweave.engine.evaluate_flow` as well, over the shipped
-  policy, a richer variant and 200 generated policies the parser accepts. `abstract_cell`
-  collected every witness a subject's capabilities matched where the enumeration keeps one
-  representative per achievable signature, so under nested patterns a subject was placed on
-  a cell no decision map contained; it is placed by signature now. And the witness space had
-  no value for a classification outside the taxonomy, which the engine admits and which
-  fails every bound, so such a subject was placed on the first taxonomy entry and decided
-  wrongly; the outsider is a class of its own now. After both fixes the two agree on 223,452
-  class witnesses and 8,080 sampled subjects. The theory test decides through the engine.
-- The exclusion taxonomy's third row was named for the clock alone. The network call the
-  oracle found belongs to the same kind — state that does not exist until evaluation, which
-  no choice of subject fixes — so the row is "reads evaluation-time state" and holds three.
-- The manuscript guard's own perturbation tests carried figures by hand — a pooled count
-  summed over four ecosystems from before IAM and Azure joined the table, and mechanism
-  counts from before the worked example was corrected — and so could not run where the
-  manuscript lives. They derive their figures from the artifacts and the paper now, and the
-  guard pins 68 claims rather than 51.
-- The repository reality check read `<https://example.com>` — the angle-bracketed form
-  Markdown permits — as a broken local path. Nineteen valid DOI links were reported as
-  broken once a generated report used that form. The brackets are delimiters and are now
-  stripped before the scheme is tested.
-
 ### Added
 
 - `scripts/oracle_rego.py` and `docs/oracle-rego-v1.json`: the Rego membership instrument
@@ -129,7 +39,156 @@ All notable changes to TrustWeave are documented in this file. The project follo
 - Added an owner-facing GitHub governance decision record, a manually triggered least-privilege OpenSSF Scorecard assessment workflow that retains a local GitHub Actions artifact without publishing results, and a record template that prohibits score, badge, certification, or remediation claims before owner-reviewed evidence exists.
 - Added a fixed offline reviewer packet, consent-aware feedback and result-record templates, and a deterministic local artifact builder/verifier that allowlists public-safe files, records SHA-256 digests, rejects unsafe paths and credential-like content, and creates deterministic local ZIP packages without upload or network behavior.
 
+### Changed
+
+- The research write-ups moved out of the repository. A journal, and the similarity check
+  it runs, reads a publicly posted full text as prior dissemination, and that applies to
+  the long-form development as much as to the manuscript — including a prospectus that was
+  published on the docs site complete with the claim, the theorem statements, and the
+  measured figures. Every measurement artifact under `docs/` stays, each recording the
+  corpus commit it read, along with every instrument in `scripts/` that produced one.
+  `docs/site/RESEARCH_NOTE.md` says where the write-ups went and how to point the two
+  checks that read them at their new location.
+- `demo/research-assistant/demo.gif` is re-encoded from 1,345 KiB to 892 KiB with the same
+  44 frames, the same dimensions and the same per-frame timing. It is a recording of a real
+  run and is not regenerable from anything in this repository, so nothing was re-rendered:
+  `scripts/optimise_demo_gif.py` reads the frames that are there, quantises them to a
+  16-colour palette — the source holds 48 distinct colours, and 64 or 128 produce identical
+  output — and verifies that the count, size and timing survive. The reason it had grown to
+  more than twice what any case is allowed is that it had no budget and nothing measured it,
+  so `tests/test_demo_gif_budget.py` now holds it to 1,000 KiB and fails if any future GIF
+  appears in a directory no budget covers. The budget says how large a file may be; a
+  second check says how it got there, holding every demo GIF to its renderer's palette
+  width — 16 colours here, 64 for a case — read from the GIF's own colour tables rather
+  than through Pillow, which is an optional extra the CI environment does not install.
+  Every frame's local table is checked too, since a wide local palette would otherwise
+  defeat a narrow global one without changing a byte of the header.
+- The declaration-consistency case walkthroughs no longer print
+  `== Captured terminal output begins ==` into the terminal body. Distinguishing what
+  `run-case.sh` emitted from what the renderer added is worth keeping, so captured lines
+  now carry a rule down the left margin and one caption at the foot instead of two lines
+  of narration. The briefing dropped from seven labelled fields to the three a reviewer
+  needs, output advances two lines at a time rather than four, and the canvas follows the
+  content instead of leaving a third of the terminal empty. A 64-colour palette pays for
+  the extra frames: the largest case is 523 KiB against the 600 KiB budget, smaller than
+  before with two thirds more frames.
+
+- Separated the prepared source version from the last observed public package release in the compatibility contract so an unreleased candidate cannot be presented as published provenance evidence.
+- Replaced fragile README release-version prose with durable PyPI and GitHub Releases references while retaining the exact historical `0.3.0` release-evidence limit.
+- Rewrote the README around a verified two-minute quickstart with real output, a curated docs index, and a shorter plain-language explanation of the evidence-not-enforcement boundary.
+- Reorganized documentation: point-in-time release checklists, migration guides, audit records, and the maintainer handoff snapshot moved to `docs/archive/` with an index; ADRs moved to `docs/adr/`; the documentation site navigation is grouped by task (getting started, concepts, how-to, CLI, policies, assurance, releases).
+- Tightened the installation and troubleshooting pages, fixed stray code-block indentation, and made the missing-paths configuration error list exactly which paths it wants.
+- The mutation quality and survivor-parity gate moved out of an inline workflow script into
+  `scripts/mutation_gate.py`. The hosted job now invokes the same script a contributor can
+  run before pushing, which is what the previous arrangement made impossible.
+- The mutation scope covers sixteen modules; `code_sources.py` and `code_discovery.py`, the
+  intake and artifact production behind `trustweave discover`, are gated with the rest.
+- The mutation run now covers two scopes with two contracts. Sixteen modules are gated: a
+  95% threshold computed over that scope alone, exact survivor parity, a recorded proof for
+  every survivor, and no mutant without a covering test. `code_analysis.py` is ratcheted: it
+  is mutated on every run and held to a floor in `docs/mutation-ratchet-v1.json` that it may
+  not fall below. It is not gated because the triage would need a proof for each of its 353
+  survivors and most are not equivalences, but leaving it out of the run entirely meant its
+  rate could fall with nothing to say so.
+- A mutant reported as having no covering test is forbidden in the gated scope, where the
+  triage cannot account for it, and counted in the denominator of a ratcheted module, so
+  unreachable code lowers the rate rather than hiding in it. That accounting found the
+  call-depth fail-open fix had no test protecting it.
+- `scripts/fragment_membership.py` measures which published policies lie inside the
+  decidable fragment, one adapter per ecosystem: 15 of 21 XACML policies, 41 of 49 Kyverno
+  policies, and 22 of 22 Cedar policies, with nothing left undetermined in any of the
+  three. It replaces the XACML-only `scripts/xacml_fragment_membership.py`.
+
 ### Fixed
+
+- The Azure measurement did not reproduce from the commit it recorded. Re-cloning
+  `Azure/azure-policy` at the pinned `9780ba64` and re-running the adapter found 3,769
+  definitions where the committed artifact recorded 3,659: the tree measured had been an
+  earlier one, and 110 definitions under `samples/`, `patterns/` and
+  `ExternalEvaluationPolicies/` were absent from it while the newer commit hash was
+  recorded beside the result. Every Azure figure is re-measured at the pin, and the other
+  seven corpora were re-cloned and re-measured to check the same way: all seven reproduce
+  their committed artifacts exactly. Azure is now 2,884 of 3,769 inside, and the two
+  definitions that had been undetermined are judged — `true()` and `false()` are
+  constants, and `claims()` reads a claim of the requesting principal's token, which is
+  the same obstruction as Kyverno's `context.apiCall`.
+- A clock read was two different kinds of exclusion depending on the language. The Azure
+  adapter pooled `utcNow()` and `newGuid()` with `reference()`, so a definition reading the
+  clock was reported as reading another resource's runtime state, while the Rego adapter
+  reported `time.now_ns` as evaluation-time state; the pooled taxonomy therefore carried
+  one obstruction under two headings. The two adapters now share one reporting rule — the
+  obstruction that survives instantiation is the one named, so nondeterminism outranks
+  reading outside state, which outranks being a schema — and each records every obstruction
+  it found rather than only the one that won. That moves 17 Azure definitions to
+  evaluation-time state and two Rego modules to reading the inventory. Pooled across the
+  eight corpora: 1,053 exclusions — 826 schemas, 207 where the subject does not determine
+  the guard, 20 reading evaluation-time state — with 5,494 of 5,721 policies inside.
+- Azure definitions excluded for reading runtime state did not record their undefaulted
+  parameters, because the classifier returned before it looked, so the count of definitions
+  awaiting an assignment could not be derived from the artifact it was quoted beside. The
+  evidence is recorded unconditionally now: 855 definitions have a parameter with no
+  default, of which 769 are reported as schemas and 86 carry a stronger obstruction as well.
+- The coverage-cost measurement walked (name, path) pairs where the membership measurement
+  keys on the name, so seven Azure definitions were measured twice and the cost denominator
+  was larger than the inside set it described. It measures each definition once, at the path
+  the verdict was reached on, and fails loudly if the two ever disagree again.
+- The interpreter oracle skipped any generated policy whose quotient exceeded 4,000 classes,
+  which silently biased the check towards small quotients: 132 candidates were dropped. The
+  cap is an argument now, its default is 200,000, and the sizes of what it excludes are
+  recorded. One candidate of 201 is skipped, at 414,720 classes, and the check covers
+  1,702,668 class witnesses rather than 223,452 — still with no disagreement.
+
+- The Rego fragment-membership adapter was checked against the engine that runs the
+  policies, and four verdicts changed. `opa deps` reports the base documents a package's
+  rules depend on from OPA's own compiler; `scripts/oracle_rego.py` puts every module of
+  both Rego corpora to it and to the adapter and requires the two readings to agree. On the
+  first run they did not. A published module calls `http.send(request, response)` as a
+  top-level statement, which in the AST is a bare list of terms rather than a `call` node,
+  and the walker looked for the wrapped form alone — it was recorded inside the fragment.
+  The five nondeterministic builtins the adapter listed by hand are a strict subset of the
+  nine the engine flags; the set now comes from `opa capabilities`. Propagating exclusions
+  along imports rather than along the rules a policy evaluates was wrong in both directions:
+  one `redhat-cop` policy imports `lib.openshift` and calls only a request-reading rule of
+  it, and was excluded; one `opa-library` policy reaches cluster state through a package
+  prefix indexed by a variable, and was not. And a ref's later `var` parts were read as
+  static keys, so `vetter[_].info[r]` resolved to nothing. The four-corpus artifact moves
+  from 116 inside of 186 to 115, with 24 rather than 25 excluded through a library rule.
+- Google's Config Validator templates take Constraint parameters through
+  `input.constraint`, not Gatekeeper's `input.parameters`, and the adapter knew only the
+  second convention. The same construct that made 28 Gatekeeper templates policy schemas
+  was counted as policy in Google's library, which reported 85 of 87 inside. The criterion
+  is now stated once and applied to both: an artifact is a schema when it reads a
+  parameter the policy supplies no default for, where `object.get` and Config Validator's
+  `lib.get_default` with a literal default are defaults, exactly as an Azure `defaultValue`
+  is. Google's library is 31 schemas, 15 templates complete by their own defaults, 39 that
+  read no parameter and 2 that read the clock: 54 of 87 inside. The corpus ships a sample
+  Constraint instantiating every one of the 31, and the test that checks that claim now
+  runs against both corpora.
+- The decision map `scripts/policy_mutation.py` builds was checked against the engine that
+  ships, and two defects the shipped policy never reaches were found and fixed. The theory
+  tests' "engine's own first-match evaluation" had called the harness's re-implementation;
+  `scripts/interpreter_oracle.py` decides every class witness and a seeded sample of
+  concrete subjects through `trustweave.engine.evaluate_flow` as well, over the shipped
+  policy, a richer variant and 200 generated policies the parser accepts. `abstract_cell`
+  collected every witness a subject's capabilities matched where the enumeration keeps one
+  representative per achievable signature, so under nested patterns a subject was placed on
+  a cell no decision map contained; it is placed by signature now. And the witness space had
+  no value for a classification outside the taxonomy, which the engine admits and which
+  fails every bound, so such a subject was placed on the first taxonomy entry and decided
+  wrongly; the outsider is a class of its own now. After both fixes the two agree on 223,452
+  class witnesses and 8,080 sampled subjects. The theory test decides through the engine.
+- The exclusion taxonomy's third row was named for the clock alone. The network call the
+  oracle found belongs to the same kind — state that does not exist until evaluation, which
+  no choice of subject fixes — so the row is "reads evaluation-time state" and holds three.
+- The manuscript guard's own perturbation tests carried figures by hand — a pooled count
+  summed over four ecosystems from before IAM and Azure joined the table, and mechanism
+  counts from before the worked example was corrected — and so could not run where the
+  manuscript lives. They derive their figures from the artifacts and the paper now, and the
+  guard pins 68 claims rather than 51.
+- The repository reality check read `<https://example.com>` — the angle-bracketed form
+  Markdown permits — as a broken local path. Nineteen valid DOI links were reported as
+  broken once a generated report used that form. The brackets are delimiters and are now
+  stripped before the scheme is tested.
 
 - Effects that were reachable but unreported, each of which had the analyzer describe a
   tool as harmless when it was not: a symbol called through a local alias, a method on an
@@ -250,34 +309,6 @@ All notable changes to TrustWeave are documented in this file. The project follo
   This does not touch Corollary 4, which requires cell coverage rather than the
   decision-coverage proxy being stratified.
 
-### Changed
-
-- Separated the prepared source version from the last observed public package release in the compatibility contract so an unreleased candidate cannot be presented as published provenance evidence.
-- Replaced fragile README release-version prose with durable PyPI and GitHub Releases references while retaining the exact historical `0.3.0` release-evidence limit.
-- Rewrote the README around a verified two-minute quickstart with real output, a curated docs index, and a shorter plain-language explanation of the evidence-not-enforcement boundary.
-- Reorganized documentation: point-in-time release checklists, migration guides, audit records, and the maintainer handoff snapshot moved to `docs/archive/` with an index; ADRs moved to `docs/adr/`; the documentation site navigation is grouped by task (getting started, concepts, how-to, CLI, policies, assurance, releases).
-- Tightened the installation and troubleshooting pages, fixed stray code-block indentation, and made the missing-paths configuration error list exactly which paths it wants.
-- The mutation quality and survivor-parity gate moved out of an inline workflow script into
-  `scripts/mutation_gate.py`. The hosted job now invokes the same script a contributor can
-  run before pushing, which is what the previous arrangement made impossible.
-- The mutation scope covers sixteen modules; `code_sources.py` and `code_discovery.py`, the
-  intake and artifact production behind `trustweave discover`, are gated with the rest.
-- The mutation run now covers two scopes with two contracts. Sixteen modules are gated: a
-  95% threshold computed over that scope alone, exact survivor parity, a recorded proof for
-  every survivor, and no mutant without a covering test. `code_analysis.py` is ratcheted: it
-  is mutated on every run and held to a floor in `docs/mutation-ratchet-v1.json` that it may
-  not fall below. It is not gated because the triage would need a proof for each of its 353
-  survivors and most are not equivalences, but leaving it out of the run entirely meant its
-  rate could fall with nothing to say so.
-- A mutant reported as having no covering test is forbidden in the gated scope, where the
-  triage cannot account for it, and counted in the denominator of a ratcheted module, so
-  unreachable code lowers the rate rather than hiding in it. That accounting found the
-  call-depth fail-open fix had no test protecting it.
-- `scripts/fragment_membership.py` measures which published policies lie inside the
-  decidable fragment, one adapter per ecosystem: 15 of 21 XACML policies, 41 of 49 Kyverno
-  policies, and 22 of 22 Cedar policies, with nothing left undetermined in any of the
-  three. It replaces the XACML-only `scripts/xacml_fragment_membership.py`.
-
 ### Release status
 
 - Source metadata is prepared as `0.3.1`, but **`0.3.1` is not published, tagged, uploaded, or released**. The latest observed public package release remains `0.3.0` until a separately owner-authorized publication process completes and records new exact-file evidence.
@@ -358,7 +389,6 @@ All notable changes to TrustWeave are documented in this file. The project follo
 ## [0.2.0] - Unpublished immutable audit record
 
 > `v0.2.0` was created during pre-publication verification and intentionally remains unpublished. No PyPI file and no GitHub Release was created for it. The tag is retained unchanged for auditability; `0.2.1` is the corrected release target.
-
 
 ### Fixed
 
