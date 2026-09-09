@@ -6,6 +6,19 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/verify_corpus_provenance.py` re-measures every whole-corpus membership
+  artifact from the commits it records and diffs the counts, so the claim that a figure
+  reproduces is an instrument rather than a note. Its last run is
+  `docs/corpus-provenance-verification-v1.json`: 7 of 11 artifacts re-measured and all 7
+  reproduced, with a stated reason for each of the four it does not check. It takes the
+  corpora as an input rather than cloning them, so it needs no network and cannot depend on
+  a remote still serving a commit. The Azure discrepancy below is what it was written for.
+- The copy of an Azure definition that gets judged is now chosen rather than inherited from
+  the filesystem. 25 identifiers appear at two paths in the pinned tree and 7 of those pairs
+  state different rules, so keying on the identifier and keeping the first path visited
+  decides a verdict; `CANONICAL_DIRECTORIES` makes the published built-in win instead of
+  whichever path sorted first. The verdicts are unchanged, which is the point: the choice was
+  already being made, just not by anyone.
 - `scripts/oracle_rego.py` and `docs/oracle-rego-v1.json`: the Rego membership instrument
   checked against `opa deps` on all 273 measured modules, static and — for the 23 Gatekeeper
   templates that ship a suite and that the adapter calls inside — dynamic, running each
@@ -110,8 +123,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
   seven corpora were re-cloned and re-measured to check the same way: all seven reproduce
   their committed artifacts exactly. Azure is now 2,884 of 3,769 inside, and the two
   definitions that had been undetermined are judged — `true()` and `false()` are
-  constants, and `claims()` reads a claim of the requesting principal's token, which is
-  the same obstruction as Kyverno's `context.apiCall`.
+  constants, and `claims()` reads a value projected from a Resource Graph query the
+  definition declares and the platform runs across the tenant, which is the same
+  obstruction as Kyverno's `context.apiCall`.
 - A clock read was two different kinds of exclusion depending on the language. The Azure
   adapter pooled `utcNow()` and `newGuid()` with `reference()`, so a definition reading the
   clock was reported as reading another resource's runtime state, while the Rego adapter

@@ -183,11 +183,12 @@ PURE_ARM_FUNCTIONS = frozenset(
 
 # Functions that read state the policy was not handed. `reference` fetches the runtime
 # state of another resource; the deployment and key functions reach further still.
-# `claims` is here rather than with the ambient functions on purpose: it reads a claim of the
-# token belonging to whoever is making the request, so two deployments of an identical
-# resource by two principals can be decided differently. The resource under evaluation does
-# not determine the guard, which is the same reason `context.apiCall` puts a Kyverno policy
-# outside.
+# `claims` is here rather than with the ambient functions on purpose. Under Azure Policy's
+# external-evaluation feature a definition declares a Resource Graph query, the platform runs
+# it across the tenant and projects named values out of the result, and `claims()` reads one
+# of those -- in the pinned tree, how many other subnets share a network security group, or
+# whether a referencing resource exists. The resource under evaluation does not determine the
+# guard, which is the same reason `context.apiCall` puts a Kyverno policy outside.
 EXTERNAL_ARM_FUNCTIONS = frozenset(
     {"reference", "listKeys", "list", "providers", "deployment", "claims"}
 )
@@ -202,6 +203,14 @@ NONDETERMINISTIC_ARM_FUNCTIONS = frozenset({"utcNow", "newGuid"})
 
 # Directory names under which the corpus repeats a definition for a sovereign cloud.
 SOVEREIGN_CLOUD_DIRECTORIES = frozenset({"Azure Government", "Azure China"})
+
+# Where a definition identifier appears in more than one directory, the copy judged is the
+# one from the earliest directory here. The repository publishes the built-in definitions
+# under the first two and tutorial or pattern variants under the others, and a variant may
+# reuse a built-in's identifier while stating a different rule -- 25 identifiers appear
+# twice in the pinned tree and 7 of those pairs differ. Preferring the built-in is a choice,
+# and it is made here rather than left to whichever path happened to sort first.
+CANONICAL_DIRECTORIES = ("built-in-policies", "built-in-references")
 
 ARM_CALL = re.compile(r"([a-zA-Z][a-zA-Z0-9_]*)\s*\(")
 
@@ -316,8 +325,24 @@ def unparameterised(properties: dict[str, Any]) -> tuple[bool, list[str]]:
     return not missing, missing
 
 
+def _authority(path: Path, root: Path) -> tuple[int, str]:
+    """Sort key: canonical directories first, then a stable path order."""
+
+    try:
+        parts = path.relative_to(root).parts
+    except ValueError:  # pragma: no cover - a path from outside the corpus
+        parts = path.parts
+    top = parts[0] if parts else ""
+    rank = (
+        CANONICAL_DIRECTORIES.index(top)
+        if top in CANONICAL_DIRECTORIES
+        else len(CANONICAL_DIRECTORIES)
+    )
+    return rank, path.as_posix()
+
+
 def discover(root: Path) -> list[tuple[str, Path]]:
-    """Every built-in policy definition, named by the identifier Azure gives it.
+    """Every policy definition in the repository, named by the identifier Azure gives it.
 
     Not by file stem. This corpus organises definitions into category directories and
     reuses stems across them -- `Audit.json` and its like -- so keying on the stem
@@ -326,12 +351,18 @@ def discover(root: Path) -> list[tuple[str, Path]]:
     `name`, which is a GUID and unique; the path is the fallback for anything that does
     not. This is the same defect the Kyverno adapter had, found the same way, by an
     arithmetic check that did not add up.
+
+    Unique within a directory, that is. An identifier can appear again under `samples/` or
+    `patterns/` on a document stating a different rule, so the order paths are visited in
+    decides which copy is judged. It is decided by `CANONICAL_DIRECTORIES` and not by the
+    filesystem: the published built-in wins, and the variant is skipped by the core's
+    first-subject rule.
     """
 
     if not root.is_dir():
         return []
     found: list[tuple[str, Path]] = []
-    for path in sorted(root.rglob("*.json")):
+    for path in sorted(root.rglob("*.json"), key=lambda candidate: _authority(candidate, root)):
         if ".git" in path.parts:
             continue
         # The corpus ships each definition twice: once for the commercial cloud and once

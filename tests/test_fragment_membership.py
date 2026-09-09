@@ -1110,6 +1110,31 @@ def test_every_azure_obstruction_is_recorded_not_only_the_reported_one() -> None
     )
 
 
+def test_the_copy_judged_is_the_published_built_in_not_the_tutorial_variant() -> None:
+    """An identifier can name two different documents, and the choice between them is ours.
+
+    The repository publishes its built-in definitions under `built-in-policies/` and
+    `built-in-references/` and ships tutorial and pattern variants elsewhere, and a variant
+    may reuse a built-in's identifier on a document stating a different rule. Keying on the
+    identifier and keeping the first path visited therefore decides a verdict, and until
+    `CANONICAL_DIRECTORIES` existed it was decided by which path sorted first. It is the same
+    answer here, because `built-in-policies` happens to sort before `samples`, which is
+    exactly why it should not be left to sorting.
+    """
+
+    assert azure.CANONICAL_DIRECTORIES == ("built-in-policies", "built-in-references")
+
+    root = Path("root")
+    built_in = root / "built-in-policies" / "policyDefinitions" / "General" / "A.json"
+    sample = root / "samples" / "built-in-policy" / "a" / "azurepolicy.json"
+    pattern = root / "patterns" / "pattern-1.json"
+
+    ordered = sorted([sample, pattern, built_in], key=lambda path: azure._authority(path, root))
+
+    assert ordered[0] == built_in, "the published definition is judged, not a variant of it"
+    assert azure._authority(sample, root)[0] == azure._authority(pattern, root)[0]
+
+
 def test_azure_membership_follows_the_operator_family() -> None:
     """The third language where the family is the right unit, after XACML and IAM."""
 

@@ -200,7 +200,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     # The table carries an author column, so a row is
     #   <label> [\cite{...}] & <author> & <artifacts> & <inside> & <outside> & <und> & <share>
     TABLE_ROWS = (
-        ("Azure Policy built-ins", "fragment-membership-azure-wide-v1"),
+        ("Azure Policy repository", "fragment-membership-azure-wide-v1"),
         ("AWS IAM managed", "fragment-membership-iam-wide-v1"),
         ("XACML conformance", "fragment-membership-xacml-wide-v1"),
         ("Kyverno library", "fragment-membership-kyverno-wide-v1"),
@@ -627,9 +627,26 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "threats: XACML's share of the remainder",
         ),
         (
-            rf"Four of the ({_WORD_PATTERN}) corpora in Table",
+            rf"Four of the ({_WORD_PATTERN}) corpora",
             (_word(len(taxonomy["rows"])),),
-            "threats: how many corpora there are",
+            "how many corpora there are, wherever the count is restated",
+        ),
+        (
+            r"together they are (\d+)\\% of the corpus",
+            (str(round(100 * (iam_total + azure_total) / artifacts)),),
+            "the two cloud corpora as a share of the pool",
+        ),
+        (
+            rf"({_GROUPED}) of the ({_GROUPED}) Azure Policy definitions the measurement\s*"
+            rf"counts as policies",
+            (
+                _grouped(rows["Azure Policy"]["inside"]),
+                _grouped(
+                    rows["Azure Policy"]["policies_considered"]
+                    - rows["Azure Policy"]["exclusions_by_kind"].get("not a policy", 0)
+                ),
+            ),
+            "conclusion: the Azure definitions that are policies",
         ),
         (
             rf"The ({_WORD_PATTERN}) per-corpus shares are the",
@@ -703,6 +720,15 @@ def numeric_claims(docs: Path) -> list[Claim]:
     ]
 
     rego_oracle = _load(docs, "oracle-rego-v1")
+    provenance = _load(docs, "corpus-provenance-verification-v1")
+    claims += [
+        (
+            r"reproduces all (\d+) of them\. The (\w+) it does not check",
+            (str(provenance["reproduced"]), _word(provenance["artifacts"] - provenance["checked"])),
+            "provenance: corpora re-measured and corpora not checked",
+        ),
+    ]
+
     interpreter = _load(docs, "interpreter-oracle-v1")
     interpreter["skipped"] = interpreter["generated_skipped_as_too_large"]
     assert rego_oracle["disagreements"] == 0 and interpreter["disagreements"] == []
