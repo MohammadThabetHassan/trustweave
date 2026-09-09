@@ -282,10 +282,13 @@ def test_a_richer_guard_enlarges_the_quotient_rather_than_being_refused() -> Non
 
     space = policy_mutation.witness_space(_richer_policy())
 
-    assert len(space["source_data_classification"]) == 5
+    # Four taxonomy values, `unspecified`, and one value the policy does not know: the engine
+    # admits a classification that is not a near miss of a taxonomy entry, and such a value
+    # fails every bound, which no taxonomy value does.
+    assert len(space["source_data_classification"]) == 6
     assert len(space["purpose_tags"]) == 4, "every subset of the two named tags"
     assert len(space["tool_capabilities"]) == 4, "every subset of the two named patterns"
-    assert len(policy_mutation.cells(_richer_policy())) == 960
+    assert len(policy_mutation.cells(_richer_policy())) == 1152
 
 
 def test_a_wildcard_capability_pattern_gets_a_witness_that_matches_it() -> None:
@@ -489,9 +492,24 @@ _NAMED_CAPABILITIES = ("fs.read", "net.egress", "net.deep.thing", "unrelated.cap
 
 
 def _decide_concretely(policy: Any, subject: tuple) -> str:
-    """The engine's own first-match evaluation over an unabstracted subject."""
+    """The shipped engine's decision, through the entry point `trustweave scan` reaches.
 
-    return policy_mutation._decide(policy, subject)
+    This once called the harness's own `_decide`, so the abstraction theorem was checked
+    against the harness's reading of the engine rather than against the engine. It now
+    builds the `Source`, `Tool` and `Flow` the engine takes and calls `evaluate_flow`, which
+    is what `scripts/interpreter_oracle.py` does at scale.
+    """
+
+    from trustweave.engine import evaluate_flow
+    from trustweave.models import Flow, Source, Tool
+
+    trust, action, classification, source_id, tool_id, purposes, capabilities = subject
+    source = Source(
+        name=source_id, trust=trust, data_classification=classification, description="test"
+    )
+    tool = Tool(name=tool_id, action_class=action, capabilities=capabilities, description="test")
+    flow = Flow(source=source.name, tool=tool.name, purpose="test", purpose_tags=purposes)
+    return str(evaluate_flow(flow, source, tool, policy).decision)
 
 
 @given(

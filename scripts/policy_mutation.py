@@ -107,6 +107,24 @@ def _capability_classes(patterns: tuple[str, ...]) -> tuple[tuple[str, ...], ...
     that independently with an SMT solver rather than trusting this argument.
     """
 
+    return tuple(_capability_representatives(patterns).values())
+
+
+def _capability_representatives(
+    patterns: tuple[str, ...],
+) -> dict[tuple[bool, ...], tuple[str, ...]]:
+    """Signature -> the one witness set that stands for it in the enumeration.
+
+    Shared by `witness_space`, which enumerates the values, and `abstract_cell`, which must
+    place a concrete subject on exactly the representative the enumeration used. The two
+    once computed the representative differently -- the enumeration kept the first subset
+    realising a signature, the placement collected every witness the subject's capabilities
+    matched -- and for a subject holding `net.http` under a policy naming both `net.*` and
+    `net.http` that produced a pair of witnesses where the enumeration had one, a cell no
+    decision map contained. The interpreter oracle found it on generated policies; the
+    shipped policy names no capabilities and never could.
+    """
+
     seen: dict[tuple[bool, ...], tuple[str, ...]] = {}
     for subset in _subsets(patterns):
         witness = tuple(_capability_witness(pattern) for pattern in subset)
@@ -115,7 +133,7 @@ def _capability_classes(patterns: tuple[str, ...]) -> tuple[tuple[str, ...], ...
             for pattern in patterns
         )
         seen.setdefault(signature, witness)
-    return tuple(seen.values())
+    return seen
 
 
 def _subsets(values: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
@@ -138,8 +156,9 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
     Returned per attribute:
 
     trust, action           the full label domains
-    classification          the taxonomy plus any named value, but only when some rule
-                            constrains classification at all; otherwise one value
+    classification          the taxonomy, any named value, `unspecified` and one outsider,
+                            but only when some rule constrains classification at all;
+                            otherwise one value
     identifiers             each named value, the default, and one outsider
     purpose tags            every subset of the named tags, since matching is intersection
     capabilities            one witness per achievable capability signature. Not every
@@ -157,8 +176,14 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
         for rule in rules
     )
     if named_classifications or bounded:
+        # One value outside the taxonomy and unnamed is a class of its own: the engine admits
+        # any classification that is not a near miss of a taxonomy value, and such a value
+        # fails every bound and every membership test. `unspecified` plays that part unless
+        # the policy names it or the taxonomy contains it, so the outsider is added as well
+        # and a concrete value the policy does not know is placed on it, never on the first
+        # taxonomy entry -- which is where the interpreter oracle found it being placed.
         classifications = tuple(
-            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION))
+            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION, OUTSIDER))
         )
     else:
         classifications = (UNSPECIFIED_CLASSIFICATION,)
@@ -269,15 +294,22 @@ def abstract_cell(
     named_purposes = {tag for subset in space["purpose_tags"] for tag in subset}
     purposes = tuple(sorted(set(purpose_tags) & named_purposes))
 
-    witnessed_capabilities = {
-        witness for subset in space["tool_capabilities"] for witness in subset
-    }
-    hit = {
-        witness
-        for witness in witnessed_capabilities
-        for capability in tool_capabilities
-        if capability_matches(_pattern_of(witness), capability)
-    }
+    # The capability component is placed by signature: which named patterns the subject's
+    # capabilities match. The representative for that signature is whatever the enumeration
+    # used, recovered from the same construction, so a subject lands on a cell the decision
+    # map has rather than on a witness set of its own making.
+    patterns = tuple(
+        sorted(
+            {_pattern_of(witness) for subset in space["tool_capabilities"] for witness in subset}
+        )
+    )
+    signature = tuple(
+        any(capability_matches(pattern, capability) for capability in tool_capabilities)
+        for pattern in patterns
+    )
+    representatives = _capability_representatives(patterns)
+    if signature not in representatives:  # pragma: no cover - realised, hence achievable
+        raise SystemExit(f"a realised capability signature {signature} was not enumerated")
     return (
         source_trust,
         tool_action_class,
@@ -287,7 +319,7 @@ def abstract_cell(
         represent("source_identifier", source_identifier, DEFAULT_SOURCE_IDENTIFIER),
         represent("tool_identifier", tool_identifier, DEFAULT_TOOL_IDENTIFIER),
         purposes,
-        tuple(sorted(hit)),
+        representatives[signature],
     )
 
 
