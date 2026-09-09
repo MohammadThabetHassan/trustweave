@@ -198,21 +198,35 @@ def numeric_claims(docs: Path) -> list[Claim]:
         )
 
     rego = _load(docs, "fragment-membership-rego-wide-v1")
-    rego_reasons = Counter(entry["reason"] for entry in rego["policies"])
+    rego_outside = [entry for entry in rego["policies"] if entry["verdict"] == "outside"]
+    reasons = [entry["reason"] for entry in rego_outside]
 
-    def outside_because(fragment: str) -> int:
-        return sum(count for reason, count in rego_reasons.items() if fragment in reason)
-
-    # Two kinds of exclusion, deliberately not pooled: an artifact that is not a policy,
-    # and a policy whose guard reads state the subject does not carry.
-    schemas = outside_because("policy schema")
-    injected_directly = outside_because("the host injects")
-    via_library = outside_because("reaches outside")
-    inventory = injected_directly + via_library
-    outside_total = rego["counts"]["outside"]
-    reads_outside = outside_total - schemas
-    other_data = reads_outside - inventory
+    # The kinds of exclusion, deliberately not pooled: an artifact that is not a policy; a
+    # policy reading the injected inventory in its own body or through a library rule; a
+    # policy reading a document the bundle does not define, directly or through a sibling
+    # package's rule; and a builtin that reaches past its arguments.
+    schemas = sum("policy schema" in reason for reason in reasons)
+    injected_directly = sum(
+        reason.startswith("reads a document the host injects") for reason in reasons
+    )
+    via_rule = [reason for reason in reasons if reason.startswith("reaches outside through")]
+    via_rule_injected = sum("the host injects" in reason for reason in via_rule)
+    via_rule_undefined = sum("does not define" in reason for reason in via_rule)
+    undefined_directly = sum(
+        reason.startswith("reads a data document the bundle does not") for reason in reasons
+    )
+    network = sum("http.send" in reason for reason in reasons)
+    inventory = injected_directly + via_rule_injected
+    other_data = undefined_directly + via_rule_undefined
+    reads_outside = rego["counts"]["outside"] - schemas
+    assert reads_outside == inventory + other_data + network, "an exclusion of no known kind"
     policies = rego["policies_considered"] - schemas
+    defaults_some = sum(
+        1
+        for entry in rego_outside
+        if "policy schema" in entry["reason"]
+        and (entry.get("parameter_reads") or {}).get("with_default")
+    )
     claims += [
         (
             r"(\d+) are policies with a guard that reads state",
@@ -221,14 +235,20 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
         (
             r"(\d+) reach \\texttt\{data\.inventory\}.{0,90}?"
-            r"(\d+) directly, and (\d+)\s*by importing",
-            (str(inventory), str(injected_directly), str(via_library)),
+            r"(\d+) directly, and (\d+)\s*through a library rule",
+            (str(inventory), str(injected_directly), str(via_rule_injected)),
             "rego: policies reaching the injected inventory",
         ),
         (
-            r"remaining (\d+) read some other \\texttt\{data\} document",
-            (str(other_data),),
-            "rego: other data documents",
+            r"(\d+) read some other \\texttt\{data\} document the bundle does not\s*define, "
+            r"(\d+) in their own body and (\d+) through a rule",
+            (str(other_data), str(undefined_directly), str(via_rule_undefined)),
+            "rego: other data documents, directly and through a rule",
+        ),
+        (
+            r"and (\d+) calls\s*\\texttt\{http\.send\}",
+            (str(network),),
+            "rego: the network call",
         ),
         (
             r"(\d+) are not policies at all",
@@ -239,6 +259,11 @@ def numeric_claims(docs: Path) -> list[Claim]:
             r"parameters for all (\d+)",
             (str(schemas),),
             "rego: schemas with an instantiating constraint",
+        ),
+        (
+            r"(\d+) of the 28 do for some parameter",
+            (str(defaults_some),),
+            "rego: schemas that default some parameter but not all",
         ),
         (
             r"Over the (\d+) artifacts that are policies, (\d+) are inside, or "
@@ -252,8 +277,59 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
         (
             r"(\d+) of the (\d+) are outside only because",
-            (str(via_library), str(reads_outside)),
-            "rego: outside only via an imported library",
+            (str(via_rule_injected), str(reads_outside)),
+            "rego: outside only through a library rule",
+        ),
+    ]
+
+    # Google's library, under the same criterion as Gatekeeper's.
+    gcp = _load(docs, "fragment-membership-rego-gcp-v1")
+    gcp_schemas = sum("policy schema" in entry["reason"] for entry in gcp["policies"])
+    gcp_clock = sum("time.now_ns" in entry["reason"] for entry in gcp["policies"])
+    gcp_inside = [entry for entry in gcp["policies"] if entry["verdict"] == "inside"]
+    gcp_complete = sum(
+        1
+        for entry in gcp_inside
+        if (entry.get("parameter_reads") or {}).get("with_default")
+        or (entry.get("parameter_reads") or {}).get("guarded")
+    )
+    gcp_no_parameter = sum(1 for entry in gcp_inside if not entry.get("parameter_reads"))
+    gcp_policies = gcp["policies_considered"] - gcp_schemas
+    claims += [
+        (
+            r"(\d+) of the (\d+) artifacts read a parameter the template gives no default for",
+            (str(gcp_schemas), str(gcp["policies_considered"])),
+            "gcp: schemas",
+        ),
+        (
+            r"(\d+) read every parameter they use through",
+            (str(gcp_complete),),
+            "gcp: templates complete by their own defaults",
+        ),
+        (
+            r"(\d+) read no parameter; and (\d+) read the clock",
+            (str(gcp_no_parameter), str(gcp_clock)),
+            "gcp: templates reading no parameter, and the clock",
+        ),
+        (
+            r"Over the (\d+) Config Validator artifacts that are policies, (\d+) are inside, "
+            r"or (\d+\.\d)\\%",
+            (
+                str(gcp_policies),
+                str(gcp["counts"]["inside"]),
+                _pct(gcp["counts"]["inside"] / gcp_policies),
+            ),
+            "gcp: share over artifacts that are policies",
+        ),
+        (
+            r"instantiating every one of the (\d+)",
+            (str(gcp_schemas),),
+            "gcp: schemas with a sample constraint",
+        ),
+        (
+            r"all (\d+) Config Validator templates a sample Constraint",
+            (str(gcp_schemas),),
+            "gcp: schemas restated in the taxonomy discussion",
         ),
     ]
 
@@ -298,7 +374,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     assert taxonomy["taxonomy_is_exhaustive"], taxonomy["exclusions_unclassified"]
     schemas = kinds["not a policy"]
     lookups = kinds["the subject does not determine the guard"]
-    clock = kinds["reads the clock"]
+    evaluation_time = kinds["reads evaluation-time state"]
     exclusions = taxonomy["exclusions"]
     policies = taxonomy["policies_considered"]
     artifacts = taxonomy["artifacts_considered"]
@@ -319,9 +395,30 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "taxonomy: lookups",
         ),
         (
-            rf"A guard reads the clock & ({_GROUPED}) & (\d+\.\d)\\%",
-            (_grouped(clock), share(clock)),
-            "taxonomy: clock",
+            rf"A guard reads state that exists only at evaluation time & ({_GROUPED}) & "
+            r"(\d+\.\d)\\%",
+            (_grouped(evaluation_time), share(evaluation_time)),
+            "taxonomy: evaluation-time state",
+        ),
+        (
+            r"(\d+)\\% of exclusions are artifacts that are not yet policies",
+            (str(round(100 * schemas / exclusions)),),
+            "taxonomy: schema share restated in prose",
+        ),
+        (
+            rf"of the ({_GROUPED}) that are policies, ({_GROUPED}) lie inside: (\d+\.\d)\\%",
+            (_grouped(policies), _grouped(inside), _pct(inside / policies)),
+            "abstract: policies inside",
+        ),
+        (
+            rf"met by ({_GROUPED}) of the ({_GROUPED}) published policies",
+            (_grouped(inside), _grouped(policies)),
+            "conclusion: policies inside",
+        ),
+        (
+            r"(\d+)\\% is not policy that is too expressive",
+            (str(round(100 * schemas / exclusions)),),
+            "conclusion: schema share",
         ),
         (
             rf"Total exclusions & ({_GROUPED}) & 100\.0\\%",
@@ -418,6 +515,39 @@ def numeric_claims(docs: Path) -> list[Claim]:
             r"a chain of three gives (\d+) and (\d+)",
             (str(chain["candidate_signatures"]), str(chain["achievable_by_solver"])),
             "chained patterns: candidates and achievable",
+        ),
+    ]
+
+    rego_oracle = _load(docs, "oracle-rego-v1")
+    interpreter = _load(docs, "interpreter-oracle-v1")
+    assert rego_oracle["disagreements"] == 0 and interpreter["disagreements"] == []
+    dynamic_inside = sum(entry["inside_modules_checked"] for entry in rego_oracle["dynamic"])
+    dynamic_tests = sum(entry["tests_compared"] for entry in rego_oracle["dynamic"])
+    claims += [
+        (
+            r"dependency analysis on all (\d+) Rego modules",
+            (str(rego_oracle["modules"]),),
+            "oracle: modules the engine was asked about (abstract)",
+        ),
+        (
+            r"agree on every one of the (\d+) modules",
+            (str(rego_oracle["modules"]),),
+            "oracle: modules the engine was asked about",
+        ),
+        (
+            r"(\d+) templates with a suite of their own that we call inside, (\d+) tests",
+            (str(dynamic_inside), str(dynamic_tests)),
+            "oracle: templates and tests run under injected data",
+        ),
+        (
+            rf"({_GROUPED}) class\s*witnesses and ({_GROUPED}) sampled subjects",
+            (_grouped(interpreter["cells_checked"]), _grouped(interpreter["subjects_checked"])),
+            "interpreter oracle: witnesses and subjects",
+        ),
+        (
+            r"over (\d+) policies\s*--- the shipped one, a richer variant and (\d+) generated",
+            (str(interpreter["policies_checked"]), str(interpreter["generated_policies"])),
+            "interpreter oracle: policies",
         ),
     ]
 

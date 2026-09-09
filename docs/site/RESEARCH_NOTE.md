@@ -37,6 +37,11 @@ the write-ups is not a checkout with wrong ones.
 
 - `scripts/fragment_membership*.py`, `scripts/policy_mutation.py` and the rest of the
   measurement code.
+- `scripts/oracle_rego.py` and `scripts/interpreter_oracle.py`, which check those two
+  instruments against something other than their authors' reading of them: the Rego
+  adapter against OPA's own dependency analysis, and the decision map against the engine
+  that ships. Each needs its subject present — `opa` on the path and the pinned corpora for
+  the first — and each writes an artifact under `docs/` that lists what it found.
 - `docs/*.json` — every artifact, each recording the corpus commit it read.
 - The engineering documents that describe the tool rather than the research.
 

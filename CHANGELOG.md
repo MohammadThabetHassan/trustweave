@@ -40,6 +40,55 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
+- The Rego fragment-membership adapter was checked against the engine that runs the
+  policies, and four verdicts changed. `opa deps` reports the base documents a package's
+  rules depend on from OPA's own compiler; `scripts/oracle_rego.py` puts every module of
+  both Rego corpora to it and to the adapter and requires the two readings to agree. On the
+  first run they did not. A published module calls `http.send(request, response)` as a
+  top-level statement, which in the AST is a bare list of terms rather than a `call` node,
+  and the walker looked for the wrapped form alone — it was recorded inside the fragment.
+  The five nondeterministic builtins the adapter listed by hand are a strict subset of the
+  nine the engine flags; the set now comes from `opa capabilities`. Propagating exclusions
+  along imports rather than along the rules a policy evaluates was wrong in both directions:
+  one `redhat-cop` policy imports `lib.openshift` and calls only a request-reading rule of
+  it, and was excluded; one `opa-library` policy reaches cluster state through a package
+  prefix indexed by a variable, and was not. And a ref's later `var` parts were read as
+  static keys, so `vetter[_].info[r]` resolved to nothing. The four-corpus artifact moves
+  from 116 inside of 186 to 115, with 24 rather than 25 excluded through a library rule.
+- Google's Config Validator templates take Constraint parameters through
+  `input.constraint`, not Gatekeeper's `input.parameters`, and the adapter knew only the
+  second convention. The same construct that made 28 Gatekeeper templates policy schemas
+  was counted as policy in Google's library, which reported 85 of 87 inside. The criterion
+  is now stated once and applied to both: an artifact is a schema when it reads a
+  parameter the policy supplies no default for, where `object.get` and Config Validator's
+  `lib.get_default` with a literal default are defaults, exactly as an Azure `defaultValue`
+  is. Google's library is 31 schemas, 15 templates complete by their own defaults, 39 that
+  read no parameter and 2 that read the clock: 54 of 87 inside. The corpus ships a sample
+  Constraint instantiating every one of the 31, and the test that checks that claim now
+  runs against both corpora. Pooled across eight corpora the exclusions become 993 — 775
+  schemas, 215 where the subject does not determine the guard, and 3 reading
+  evaluation-time state — with 5,444 of 5,662 policies inside.
+- The decision map `scripts/policy_mutation.py` builds was checked against the engine that
+  ships, and two defects the shipped policy never reaches were found and fixed. The theory
+  tests' "engine's own first-match evaluation" had called the harness's re-implementation;
+  `scripts/interpreter_oracle.py` decides every class witness and a seeded sample of
+  concrete subjects through `trustweave.engine.evaluate_flow` as well, over the shipped
+  policy, a richer variant and 200 generated policies the parser accepts. `abstract_cell`
+  collected every witness a subject's capabilities matched where the enumeration keeps one
+  representative per achievable signature, so under nested patterns a subject was placed on
+  a cell no decision map contained; it is placed by signature now. And the witness space had
+  no value for a classification outside the taxonomy, which the engine admits and which
+  fails every bound, so such a subject was placed on the first taxonomy entry and decided
+  wrongly; the outsider is a class of its own now. After both fixes the two agree on 223,452
+  class witnesses and 8,080 sampled subjects. The theory test decides through the engine.
+- The exclusion taxonomy's third row was named for the clock alone. The network call the
+  oracle found belongs to the same kind — state that does not exist until evaluation, which
+  no choice of subject fixes — so the row is "reads evaluation-time state" and holds three.
+- The manuscript guard's own perturbation tests carried figures by hand — a pooled count
+  summed over four ecosystems from before IAM and Azure joined the table, and mechanism
+  counts from before the worked example was corrected — and so could not run where the
+  manuscript lives. They derive their figures from the artifacts and the paper now, and the
+  guard pins 68 claims rather than 51.
 - The repository reality check read `<https://example.com>` — the angle-bracketed form
   Markdown permits — as a broken local path. Nineteen valid DOI links were reported as
   broken once a generated report used that form. The brackets are delimiters and are now
@@ -47,6 +96,16 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/oracle_rego.py` and `docs/oracle-rego-v1.json`: the Rego membership instrument
+  checked against `opa deps` on all 273 measured modules, static and — for the 23 Gatekeeper
+  templates that ship a suite and that the adapter calls inside — dynamic, running each
+  suite as shipped and under two injected `data` documents standing for cluster state the
+  policy did not write. 230 tests give the same outcome either way. The artifact records
+  what the engine flags that the hand list lacked and what each corpus calls.
+- `scripts/interpreter_oracle.py` and `docs/interpreter-oracle-v1.json`: the harness's
+  decision map against `evaluate_flow`, with the seed, the policies, the counts and the
+  disagreements — listed rather than counted, so that a future one names a policy and a
+  subject.
 - `trustweave discover` statically analyzes local Python source for the tool surface an
   agent can reach, proposes an action class per tool from a versioned symbol catalog with
   the evidence that produced it, reports declaration drift in both directions against a

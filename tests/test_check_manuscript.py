@@ -115,22 +115,20 @@ def test_a_figure_changed_in_one_section_only_is_caught(workspace: Path) -> None
     not.
 
     The figure is derived from the artifacts rather than written here. Hard-coding it went
-    stale twice as the corpus grew, and a fixture that needs editing whenever the
-    measurement changes is a fixture that will one day be edited into passing vacuously.
+    stale twice as the corpus grew, and summing four ecosystems by hand went stale a third
+    time when IAM and Azure joined the table; the taxonomy artifact sums every corpus.
     """
-    pooled = sum(
-        checker._load(DOCS, f"fragment-membership-{slug}-wide-v1")["counts"]["inside"]
-        for slug in ("xacml", "kyverno", "cedar", "rego")
-    )
+
+    inside = checker._load(DOCS, "exclusion-taxonomy-v1")["artifacts_inside"]
+    pooled = checker._grouped(inside)
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    assert text.count(str(pooled)) >= 2, (
-        f"the fixture needs the pooled count {pooled} stated more than once"
-    )
-    paper.write_text(text.replace(str(pooled), str(pooled - 3), 1), encoding="utf-8")
+    assert text.count(pooled) >= 2, f"the fixture needs the pooled count {pooled} stated twice"
+    paper.write_text(text.replace(pooled, checker._grouped(inside - 3), 1), encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
-    assert any("pooled membership" in problem for problem in problems), problems
+
+    assert any("policies inside" in problem for problem in problems), problems
 
 
 def test_an_edited_phrasing_fails_rather_than_passing_silently(
@@ -189,25 +187,40 @@ def test_the_worked_example_accounts_for_every_equivalent_mutant() -> None:
 
 
 def test_a_decomposition_that_no_longer_sums_is_caught(workspace: Path) -> None:
+    """Lower one mechanism's count by one and the sum no longer meets the artifact.
+
+    The counts are read from the paper rather than written here: they changed once when
+    the worked example was corrected, and a test carrying the old ones tested nothing.
+    """
+
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    paper.write_text(text.replace("(13 mutants)", "(12 mutants)"), encoding="utf-8")
+    counts = [int(found) for found in checker.MECHANISM_COUNT.findall(checker.flatten(text))]
+    assert len(counts) >= 2, "the worked example must decompose the equivalent mutants"
+    first = counts[0]
+    paper.write_text(
+        text.replace(f"({first} mutants)", f"({first - 1} mutants)", 1), encoding="utf-8"
+    )
 
     problems = checker.check(paper, workspace / "docs")
-    assert any("account for 15 equivalent mutants" in problem for problem in problems), problems
+
+    expected = f"account for {sum(counts) - 1} equivalent mutants"
+    assert any(expected in problem for problem in problems), problems
 
 
 def test_a_removed_decomposition_is_caught_rather_than_passing(workspace: Path) -> None:
-    """Dropping one mechanism fails on the sum; dropping both must not pass silently."""
+    """Dropping one mechanism fails on the sum; dropping them all must not pass silently."""
+
+    import re
+
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    both_gone = text.replace(" is unobservable} (13 mutants)", "}").replace(
-        " is unobservable} (3 mutants)", "}"
-    )
-    assert "mutants)" not in both_gone or "is unobservable}" not in both_gone
-    paper.write_text(both_gone, encoding="utf-8")
+    all_gone = re.sub(r" is unobservable\} \(\d+ mutants\)", "}", text)
+    assert not checker.MECHANISM_COUNT.findall(checker.flatten(all_gone))
+    paper.write_text(all_gone, encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
+
     assert any("no longer decomposes" in problem for problem in problems), problems
 
 
