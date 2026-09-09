@@ -32,9 +32,13 @@ queries the API server; `verifyImages` fetches a signature from a registry; an X
 turns on something the subject does not fix, so no witness is constructible from the policy
 text and the partition is not the policy's to determine.
 
-**A guard reads the clock.** Two policies. Worth keeping separate from the category above
-rather than folded into it: the clock is not state that some other subject could have
-carried, it is state that does not exist until evaluation, so no choice of subject fixes it.
+**A guard reads state that exists only at evaluation time.** The clock, in two policies,
+and the network, in one -- a library helper that calls `http.send`. Worth keeping separate
+from the category above rather than folded into it: this is not state that some other
+subject could have carried, it is state that does not exist until evaluation, so no choice
+of subject fixes it. The row was named for the clock alone until the differential check
+against `opa deps` found the network call the adapter had missed, and a row that cannot
+take a fourth member honestly is a row that was named too narrowly.
 
     python scripts/exclusion_taxonomy.py [--json out.json]
 """
@@ -78,7 +82,7 @@ KINDS: dict[str, tuple[str, ...]] = {
         "reads outside the policy",
         "reads something outside the admission request",
     ),
-    "reads the clock": ("reads the clock", "not a function of its arguments"),
+    "reads evaluation-time state": ("reads the clock", "not a function of its arguments"),
 }
 
 

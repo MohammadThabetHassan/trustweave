@@ -23,8 +23,8 @@
   ],
   "corpus_scope": "wide",
   "counts": {
-    "inside": 116,
-    "outside": 70,
+    "inside": 115,
+    "outside": 71,
     "undetermined": 0
   },
   "ecosystem": "rego",
@@ -32,18 +32,34 @@
   "policies": [
     {
       "package": "k8sallowedrepos",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "repos"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for repos",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for repos"
       ],
       "subject": "gatekeeper-library/src/general/allowedrepos/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8sallowedreposv2",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowedImages"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedImages",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedImages"
       ],
       "subject": "gatekeeper-library/src/general/allowedreposv2/src.rego",
       "verdict": "outside"
@@ -92,9 +108,18 @@
     },
     {
       "package": "k8scontainerlimits",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "cpu",
+          "memory"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for cpu, memory",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for cpu, memory"
       ],
       "subject": "gatekeeper-library/src/general/containerlimits/src.rego",
       "verdict": "outside"
@@ -107,9 +132,18 @@
     },
     {
       "package": "k8scontainerrequests",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "cpu",
+          "memory"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for cpu, memory",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for cpu, memory"
       ],
       "subject": "gatekeeper-library/src/general/containerrequests/src.rego",
       "verdict": "outside"
@@ -122,9 +156,19 @@
     },
     {
       "package": "k8scontainerratios",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "cpuRatio"
+        ],
+        "without_default": [
+          "ratio"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ratio",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ratio"
       ],
       "subject": "gatekeeper-library/src/general/containerresourceratios/src.rego",
       "verdict": "outside"
@@ -137,9 +181,18 @@
     },
     {
       "package": "k8srequiredresources",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "limits",
+          "requests"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for limits, requests",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for limits, requests"
       ],
       "subject": "gatekeeper-library/src/general/containerresources/src.rego",
       "verdict": "outside"
@@ -152,9 +205,17 @@
     },
     {
       "package": "k8sdisallowedrepos",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "repos"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for repos",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for repos"
       ],
       "subject": "gatekeeper-library/src/general/disallowedrepos/src.rego",
       "verdict": "outside"
@@ -167,9 +228,17 @@
     },
     {
       "package": "k8sdisallowedtags",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "tags"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for tags",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for tags"
       ],
       "subject": "gatekeeper-library/src/general/disallowedtags/src.rego",
       "verdict": "outside"
@@ -200,27 +269,53 @@
     },
     {
       "package": "k8scontainerephemeralstoragelimit",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "ephemeral-storage"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ephemeral-storage",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ephemeral-storage"
       ],
       "subject": "gatekeeper-library/src/general/ephemeralstoragelimit/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8sexternalips",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowedIPs"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedIPs",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedIPs"
       ],
       "subject": "gatekeeper-library/src/general/externalip/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8shorizontalpodautoscaler",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "enforceScaleTargetRef",
+          "minimumReplicaSpread",
+          "ranges"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for enforceScaleTargetRef, minimumReplicaSpread, ranges",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for enforceScaleTargetRef, minimumReplicaSpread, ranges",
         "reads a document the host injects: data.inventory"
       ],
       "subject": "gatekeeper-library/src/general/horizontalpodautoscaler/src.rego",
@@ -261,27 +356,51 @@
     },
     {
       "package": "k8sreplicalimits",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "ranges"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ranges",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ranges"
       ],
       "subject": "gatekeeper-library/src/general/replicalimits/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8srequiredannotations",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "annotations"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for annotations",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for annotations"
       ],
       "subject": "gatekeeper-library/src/general/requiredannotations/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8srequiredlabels",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "labels"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for labels",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for labels"
       ],
       "subject": "gatekeeper-library/src/general/requiredlabels/src.rego",
       "verdict": "outside"
@@ -294,18 +413,37 @@
     },
     {
       "package": "k8srequiredprobes",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "probeTypes",
+          "probes"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for probeTypes, probes",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for probeTypes, probes"
       ],
       "subject": "gatekeeper-library/src/general/requiredprobes/src.rego",
       "verdict": "outside"
     },
     {
       "package": "k8sstorageclass",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "allowedStorageClasses"
+        ],
+        "without_default": [
+          "includeStorageClassesInMessage"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for includeStorageClassesInMessage",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for includeStorageClassesInMessage",
         "reads a document the host injects: data.inventory"
       ],
       "subject": "gatekeeper-library/src/general/storageclass/src.rego",
@@ -331,9 +469,18 @@
     },
     {
       "package": "verifydeprecatedapi",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "k8sVersion",
+          "kvs"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for k8sVersion, kvs",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for k8sVersion, kvs"
       ],
       "subject": "gatekeeper-library/src/general/verifydeprecatedapi/src.rego",
       "verdict": "outside"
@@ -364,9 +511,17 @@
     },
     {
       "package": "k8spspapparmor",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowedProfiles"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/apparmor/src.rego",
       "verdict": "outside"
@@ -385,9 +540,19 @@
     },
     {
       "package": "capabilities",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "allowedCapabilities"
+        ],
+        "without_default": [
+          "requiredDropCapabilities"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for requiredDropCapabilities",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for requiredDropCapabilities"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/capabilities/src.rego",
       "verdict": "outside"
@@ -400,9 +565,17 @@
     },
     {
       "package": "k8spspflexvolumes",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowedFlexVolumes"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedFlexVolumes",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedFlexVolumes"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/flexvolume-drivers/src.rego",
       "verdict": "outside"
@@ -415,9 +588,18 @@
     },
     {
       "package": "k8spspforbiddensysctls",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowedSysctls",
+          "forbiddenSysctls"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedSysctls, forbiddenSysctls",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedSysctls, forbiddenSysctls"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/forbidden-sysctls/src.rego",
       "verdict": "outside"
@@ -430,9 +612,19 @@
     },
     {
       "package": "k8spspfsgroup",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [
+          "rule"
+        ],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "ranges"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ranges",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for ranges"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/fsgroup/src.rego",
       "verdict": "outside"
@@ -475,9 +667,19 @@
     },
     {
       "package": "k8spsphostnetworkingports",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "hostNetwork",
+          "max",
+          "min"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for hostNetwork, max, min",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for hostNetwork, max, min"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/host-network-ports/src.rego",
       "verdict": "outside"
@@ -580,9 +782,19 @@
     },
     {
       "package": "k8spspseccomp",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "allowedLocalhostFiles"
+        ],
+        "without_default": [
+          "allowedProfiles"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/seccomp/src.rego",
       "verdict": "outside"
@@ -595,9 +807,19 @@
     },
     {
       "package": "k8spspseccomp",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "allowedLocalhostFiles"
+        ],
+        "without_default": [
+          "allowedProfiles"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/seccompv2/src.rego",
       "verdict": "outside"
@@ -616,9 +838,17 @@
     },
     {
       "package": "k8spspselinux",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowedSELinuxOptions"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedSELinuxOptions",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedSELinuxOptions"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/selinux/src.rego",
       "verdict": "outside"
@@ -637,9 +867,18 @@
     },
     {
       "package": "k8spspallowedusers",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "<computed>",
+          "runAsUser"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for <computed>, runAsUser",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for <computed>, runAsUser"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/users/src.rego",
       "verdict": "outside"
@@ -652,9 +891,17 @@
     },
     {
       "package": "k8spspvolumetypes",
-      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "volumes"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for volumes",
       "reasons": [
-        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied"
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for volumes"
       ],
       "subject": "gatekeeper-library/src/pod-security-policy/volumes/src.rego",
       "verdict": "outside"
@@ -715,16 +962,24 @@
     },
     {
       "package": "istio.audit",
-      "reason": "every guard reads the request and literals the policy contains",
+      "reason": "reaches outside through istio.audit.util.sidecar_injected_pods, which reads a data document the bundle does not define: data.kubernetes.pods",
+      "reasons": [
+        "reaches outside through istio.audit.util.sidecar_injected_pods, which reads a data document the bundle does not define: data.kubernetes.pods",
+        "reaches outside through istio.audit.vetter.mesh_version.istio_version, which reads a data document the bundle does not define: data.kubernetes.deployments.istio-system.istio-mixer.spec.template.spec.containers",
+        "reaches outside through istio.audit.vetter.mesh_version.pilot_version, which reads a data document the bundle does not define: data.kubernetes.deployments.istio-system.istio-pilot.spec.template.spec.containers",
+        "reaches outside through istio.audit.vetter.mtls_probes.mtls_enabled, which reads a data document the bundle does not define: data.kubernetes.configmaps.istio-system.istio",
+        "reaches outside through istio.audit.vetter.pods_in_mesh.info, which reads a data document the bundle does not define: data.kubernetes.pods",
+        "reaches outside through istio.audit.vetter.service_ports.warning, which reads a data document the bundle does not define: data.kubernetes.services"
+      ],
       "subject": "opa-library/istio/audit/audit.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "istio.audit.vetter.mesh_version",
       "reason": "reads a data document the bundle does not define: data.kubernetes.deployments",
       "reasons": [
         "reads a data document the bundle does not define: data.kubernetes.deployments",
-        "imports a library that reaches outside: istio.audit.util"
+        "reaches outside through istio.audit.util.sidecar_injected_pods, which reads a data document the bundle does not define: data.kubernetes.pods"
       ],
       "subject": "opa-library/istio/audit/mesh_version.rego",
       "verdict": "outside"
@@ -734,7 +989,7 @@
       "reason": "reads a data document the bundle does not define: data.kubernetes.configmaps",
       "reasons": [
         "reads a data document the bundle does not define: data.kubernetes.configmaps",
-        "imports a library that reaches outside: istio.audit.util"
+        "reaches outside through istio.audit.util.sidecar_injected_pods, which reads a data document the bundle does not define: data.kubernetes.pods"
       ],
       "subject": "opa-library/istio/audit/mtls_probes.rego",
       "verdict": "outside"
@@ -744,7 +999,7 @@
       "reason": "reads a data document the bundle does not define: data.kubernetes.pods",
       "reasons": [
         "reads a data document the bundle does not define: data.kubernetes.pods",
-        "imports a library that reaches outside: istio.audit.util"
+        "reaches outside through istio.audit.util.sidecar_injected_pods, which reads a data document the bundle does not define: data.kubernetes.pods"
       ],
       "subject": "opa-library/istio/audit/pods_in_mesh.rego",
       "verdict": "outside"
@@ -861,10 +1116,16 @@
       "verdict": "inside"
     },
     {
+      "evaluation_time_state": {
+        "http.send": "the network"
+      },
       "package": "kubernetes.lib",
-      "reason": "every guard reads the request and literals the policy contains",
+      "reason": "calls a builtin whose result is not a function of its arguments: http.send",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: http.send"
+      ],
       "subject": "opa-library/kubernetes/lib/sar.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "library.kubernetes.admission.mutating.test",
@@ -955,216 +1216,213 @@
     },
     {
       "package": "ocp.bestpractices.common_k8s_labels_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/common_k8s_labels_notset/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_env_maxmemory_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_env_maxmemory_notset/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_image_latest",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_image_latest/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_image_unknownregistries",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_image_unknownregistries/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_java_xmx_set",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_java_xmx_set/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_labelkey_inconsistent",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_labelkey_inconsistent/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_liveness_readinessprobe_equal",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_liveness_readinessprobe_equal/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_livenessprobe_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_livenessprobe_notset/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_readinessprobe_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_readinessprobe_notset/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_resources_limits_cpu_set",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_resources_limits_cpu_set/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_resources_limits_memory_greater_than",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_resources_limits_memory_greater_than/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_resources_limits_memory_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_resources_limits_memory_notset/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_resources_memoryunit_incorrect",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_resources_memoryunit_incorrect/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_resources_requests_cpuunit_incorrect",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_resources_requests_cpuunit_incorrect/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_resources_requests_memory_greater_than",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_resources_requests_memory_greater_than/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_secret_mounted_envs",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_secret_mounted_envs/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_volumemount_inconsistent_path",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_volumemount_inconsistent_path/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.container_volumemount_missing",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/container_volumemount_missing/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.deploymentconfig_triggers_containername",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/deploymentconfig_triggers_containername/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.deploymentconfig_triggers_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
-      "reasons": [
-        "imports a library that reaches outside: lib.openshift"
-      ],
+      "reason": "every guard reads the request and literals the policy contains",
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/deploymentconfig_triggers_notset/src.rego",
-      "verdict": "outside"
+      "verdict": "inside"
     },
     {
       "package": "ocp.bestpractices.pod_antiaffinity_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/pod_antiaffinity_notset/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.pod_hostnetwork",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/pod_hostnetwork/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.pod_replicas_below_one",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/pod_replicas_below_one/src.rego",
       "verdict": "outside"
     },
     {
       "package": "ocp.bestpractices.pod_replicas_not_odd",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/pod_replicas_not_odd/src.rego",
       "verdict": "outside"
@@ -1183,9 +1441,9 @@
     },
     {
       "package": "ocp.bestpractices.route_tls_termination_notset",
-      "reason": "imports a library that reaches outside: lib.openshift",
+      "reason": "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory",
       "reasons": [
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/bestpractices/route_tls_termination_notset/src.rego",
       "verdict": "outside"
@@ -1303,7 +1561,7 @@
       "reason": "reads a document the host injects: data.inventory",
       "reasons": [
         "reads a document the host injects: data.inventory",
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/requiresinventory/deployment_has_matching_poddisruptionbudget/src.rego",
       "verdict": "outside"
@@ -1313,7 +1571,7 @@
       "reason": "reads a document the host injects: data.inventory",
       "reasons": [
         "reads a document the host injects: data.inventory",
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/requiresinventory/deployment_has_matching_pvc/src.rego",
       "verdict": "outside"
@@ -1323,7 +1581,7 @@
       "reason": "reads a document the host injects: data.inventory",
       "reasons": [
         "reads a document the host injects: data.inventory",
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/requiresinventory/deployment_has_matching_service/src.rego",
       "verdict": "outside"
@@ -1333,7 +1591,7 @@
       "reason": "reads a document the host injects: data.inventory",
       "reasons": [
         "reads a document the host injects: data.inventory",
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/requiresinventory/deployment_has_matching_serviceaccount/src.rego",
       "verdict": "outside"
@@ -1343,7 +1601,7 @@
       "reason": "reads a document the host injects: data.inventory",
       "reasons": [
         "reads a document the host injects: data.inventory",
-        "imports a library that reaches outside: lib.openshift"
+        "reaches outside through lib.openshift._namespace_disabled_policies_label, which reads a document the host injects: data.inventory"
       ],
       "subject": "redhat-cop-rego-policies/policy/ocp/requiresinventory/service_has_matching_servicemonitor/src.rego",
       "verdict": "outside"
@@ -1369,6 +1627,6 @@
   ],
   "policies_considered": 186,
   "schema_version": "v1",
-  "share_inside": 0.6237,
-  "share_inside_of_judged": 0.6237
+  "share_inside": 0.6183,
+  "share_inside_of_judged": 0.6183
 }

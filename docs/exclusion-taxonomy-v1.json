@@ -1,16 +1,16 @@
 {
   "artifacts_considered": 6437,
-  "artifacts_inside": 5476,
+  "artifacts_inside": 5444,
   "corpora": 8,
-  "exclusions": 961,
+  "exclusions": 993,
   "exclusions_by_kind": {
-    "not a policy": 744,
-    "reads the clock": 2,
+    "not a policy": 775,
+    "reads evaluation-time state": 3,
     "the subject does not determine the guard": 215
   },
   "exclusions_unclassified": {},
-  "policies_considered": 5693,
-  "policy_schemas": 744,
+  "policies_considered": 5662,
+  "policy_schemas": 775,
   "rows": [
     {
       "artifact": "fragment-membership-iam-wide-v1",
@@ -64,24 +64,26 @@
       "corpus": "Rego (four corpora)",
       "exclusions_by_kind": {
         "not a policy": 28,
+        "reads evaluation-time state": 1,
         "the subject does not determine the guard": 42
       },
-      "inside": 116,
-      "outside": 70,
+      "inside": 115,
+      "outside": 71,
       "policies_considered": 186,
-      "share_inside": 0.6237,
+      "share_inside": 0.6183,
       "undetermined": 0
     },
     {
       "artifact": "fragment-membership-rego-gcp-v1",
       "corpus": "Rego (GCP library)",
       "exclusions_by_kind": {
-        "reads the clock": 2
+        "not a policy": 31,
+        "reads evaluation-time state": 2
       },
-      "inside": 85,
-      "outside": 2,
+      "inside": 54,
+      "outside": 33,
       "policies_considered": 87,
-      "share_inside": 0.977,
+      "share_inside": 0.6207,
       "undetermined": 0
     },
     {
@@ -108,6 +110,6 @@
     }
   ],
   "schema_version": "v1",
-  "share_inside_of_policies": 0.9619,
+  "share_inside_of_policies": 0.9615,
   "taxonomy_is_exhaustive": true
 }

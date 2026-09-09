@@ -8,8 +8,8 @@
   ],
   "corpus_scope": "wide",
   "counts": {
-    "inside": 85,
-    "outside": 2,
+    "inside": 54,
+    "outside": 33,
     "undetermined": 0
   },
   "ecosystem": "rego",
@@ -29,6 +29,15 @@
     },
     {
       "package": "templates.gcp.GCPAllowedResourceTypesConstraintV2",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "mode",
+          "resource_type_list"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/allowed_resource_types.rego",
       "verdict": "inside"
@@ -41,15 +50,34 @@
     },
     {
       "package": "templates.gcp.GCPAppEngineServiceVersionsConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "max_versions"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/app_service_versions.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPAppengineLocationConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "locations"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations"
+      ],
       "subject": "policy-library/validator/appengine_location.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPBigQueryCMEKEncryptionConstraintV1",
@@ -65,27 +93,79 @@
     },
     {
       "package": "templates.gcp.GCPBigQueryTableRetentionConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "maximum_retention_days",
+          "minimum_retention_days"
+        ],
+        "without_default": [
+          "exemptions"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions"
+      ],
       "subject": "policy-library/validator/bigquery_table_retention.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPBigQueryDatasetLocationConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "exemptions"
+        ],
+        "without_default": [
+          "locations",
+          "mode"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode"
+      ],
       "subject": "policy-library/validator/bq_dataset_location.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPCMEKRotationConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "exemptions",
+          "period"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/cmek_rotation.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPCMEKSettingsConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "rotation_period"
+        ],
+        "without_default": [
+          "algorithm",
+          "protection_level",
+          "purpose"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for algorithm, protection_level, purpose",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for algorithm, protection_level, purpose"
+      ],
       "subject": "policy-library/validator/cmek_settings.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPComputeBlockSSHKeysConstraintV1",
@@ -95,9 +175,22 @@
     },
     {
       "package": "templates.gcp.GCPComputeDiskResourcePoliciesConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exemptions",
+          "mode",
+          "resourcePolicies"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, mode, resourcePolicies",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, mode, resourcePolicies"
+      ],
       "subject": "policy-library/validator/compute_disk_resource_policies.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPComputeRequireOSLoginConstraintV1",
@@ -107,27 +200,69 @@
     },
     {
       "package": "templates.gcp.GCPComputeIpForwardConstraintV2",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "instances",
+          "match_mode",
+          "mode"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/compute_ip_forward.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPComputeAllowedNetworksConstraintV2",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "allowed"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/compute_network_interface.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPComputeZoneConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exemptions",
+          "mode",
+          "zones"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, mode, zones",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, mode, zones"
+      ],
       "subject": "policy-library/validator/compute_zone.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPDataprocLocationConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "locations"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations"
+      ],
       "subject": "policy-library/validator/dataproc_location.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPDNSSECConstraintV1",
@@ -137,27 +272,68 @@
     },
     {
       "package": "templates.gcp.GCPDNSSECPreventRSASHA1ConstraintV1",
+      "parameter_reads": {
+        "guarded": [
+          "keyType"
+        ],
+        "whole": [],
+        "with_default": [],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/dnssec_prevent_rsasha1.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPEnforceLabelConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "resource_types_to_scan"
+        ],
+        "without_default": [
+          "mandatory_labels"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mandatory_labels",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mandatory_labels"
+      ],
       "subject": "policy-library/validator/enforce_labels.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPEnforceNamingConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "naming_rules"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/gcp_enforce_naming.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPGLBExternalIpAccessConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "instances",
+          "mode"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for instances, mode",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for instances, mode"
+      ],
       "subject": "policy-library/validator/gcp_glb_external_ip.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPIAMRestrictServiceAccountCreationConstraintV1",
@@ -166,10 +342,22 @@
       "verdict": "inside"
     },
     {
+      "evaluation_time_state": {
+        "time.now_ns": "the clock"
+      },
       "package": "templates.gcp.GCPIAMRestrictServiceAccountKeyAgeConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "max_age"
+        ]
+      },
       "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
       "reasons": [
-        "calls a builtin whose result is not a function of its arguments: time.now_ns"
+        "calls a builtin whose result is not a function of its arguments: time.now_ns",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for max_age"
       ],
       "subject": "policy-library/validator/gcp_iam_restrict_service_account_key_age.rego",
       "verdict": "outside"
@@ -182,30 +370,85 @@
     },
     {
       "package": "templates.gcp.GCPLBAllowedForwardingRulesConstraintV2",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowlist"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowlist",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowlist"
+      ],
       "subject": "policy-library/validator/gcp_lb_forwarding_rules.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPGKEAllowedNodeSAConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "oauth_scopes"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/gke_allowed_node_sa_scopes.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GKEClusterLocationConstraintV3",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exemptions",
+          "locations",
+          "mode"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, locations, mode",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, locations, mode"
+      ],
       "subject": "policy-library/validator/gke_cluster_location.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GKEClusterVersionConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "exemptions",
+          "mode",
+          "version_type"
+        ],
+        "without_default": [
+          "versions"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for versions",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for versions"
+      ],
       "subject": "policy-library/validator/gke_cluster_version.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPGKEContainerOptimizedOSConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "cos_containerd_allowed"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/gke_container_optimized_os.rego",
       "verdict": "inside"
@@ -284,6 +527,16 @@
     },
     {
       "package": "templates.gcp.GCPGKEMasterAuthorizedNetworksEnabledConstraintV1",
+      "parameter_reads": {
+        "guarded": [
+          "authorized_networks"
+        ],
+        "whole": [],
+        "with_default": [
+          "authorized_networks"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/gke_master_authorized_networks_enabled.rego",
       "verdict": "inside"
@@ -320,39 +573,126 @@
     },
     {
       "package": "templates.gcp.GCPIAMAllowBanRolesConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "mode"
+        ],
+        "without_default": [
+          "roles"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for roles",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for roles"
+      ],
       "subject": "policy-library/validator/iam_allow_ban_roles.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPIAMAllowedBindingsConstraintV3",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [
+          "assetType"
+        ],
+        "whole": [],
+        "with_default": [
+          "assetNames",
+          "mode"
+        ],
+        "without_default": [
+          "members",
+          "role"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for members, role",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for members, role"
+      ],
       "subject": "policy-library/validator/iam_allowed_bindings.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPIAMAllowedPolicyMemberDomainsConstraintV2",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "allow_sub_domains",
+          "member_type_allowlist"
+        ],
+        "without_default": [
+          "domains"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for domains",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for domains"
+      ],
       "subject": "policy-library/validator/iam_allowed_policy_member_domains.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPIAMAuditLogConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowed_exemptions",
+          "log_types",
+          "services"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowed_exemptions, log_types, services",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowed_exemptions, log_types, services"
+      ],
       "subject": "policy-library/validator/iam_audit_log.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPIAMCustomRolePermissionsConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "mode",
+          "title"
+        ],
+        "without_default": [
+          "permissions"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for permissions",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for permissions"
+      ],
       "subject": "policy-library/validator/iam_custom_role_permissions.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPIAMRequiredBindingsConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [
+          "assetType"
+        ],
+        "whole": [],
+        "with_default": [
+          "assetNames"
+        ],
+        "without_default": [
+          "members",
+          "role"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for members, role",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for members, role"
+      ],
       "subject": "policy-library/validator/iam_required_bindings.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPNetworkEnableFirewallLogsConstraintV1",
@@ -380,36 +720,122 @@
     },
     {
       "package": "templates.gcp.GCPNetworkRoutingConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "mode"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/network_routing.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPResourceValuePatternConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [
+          "pattern"
+        ],
+        "whole": [],
+        "with_default": [
+          "mode",
+          "optional",
+          "pattern"
+        ],
+        "without_default": [
+          "asset_types",
+          "field_name"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for asset_types, field_name",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for asset_types, field_name"
+      ],
       "subject": "policy-library/validator/resource_value_pattern.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPRestrictedFirewallRulesConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "direction",
+          "enabled",
+          "exemptions_mode",
+          "mode",
+          "port",
+          "protocol",
+          "rule_type",
+          "source_ranges",
+          "source_service_accounts",
+          "source_tags",
+          "target_ranges",
+          "target_service_accounts",
+          "target_tags"
+        ],
+        "without_default": [
+          "exemptions",
+          "rules"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, rules",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, rules"
+      ],
       "subject": "policy-library/validator/restricted_firewall_rules.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPServiceUsageConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "mode"
+        ],
+        "without_default": [
+          "services"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for services",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for services"
+      ],
       "subject": "policy-library/validator/serviceusage_service.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPSpannerLocationConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "locations"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations"
+      ],
       "subject": "policy-library/validator/spanner_location.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPSQLAllowedAuthorizedNetworksConstraintV1",
+      "parameter_reads": {
+        "guarded": [
+          "ssl_enabled"
+        ],
+        "whole": [],
+        "with_default": [
+          "authorized_networks"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/sql_allowed_authorized_networks.rego",
       "verdict": "inside"
@@ -422,15 +848,42 @@
     },
     {
       "package": "templates.gcp.GCPSQLInstanceTypeConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "mode"
+        ],
+        "without_default": [
+          "sql_instance_types"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for sql_instance_types",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for sql_instance_types"
+      ],
       "subject": "policy-library/validator/sql_instance_type.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPSQLLocationConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "exemptions"
+        ],
+        "without_default": [
+          "locations",
+          "mode"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode"
+      ],
       "subject": "policy-library/validator/sql_location.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPSQLMaintenanceWindowConstraintV1",
@@ -463,19 +916,44 @@
       "verdict": "inside"
     },
     {
+      "evaluation_time_state": {
+        "time.now_ns": "the clock"
+      },
       "package": "templates.gcp.GCPStorageBucketRetentionConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exemptions",
+          "maximum_retention_days",
+          "minimum_retention_days"
+        ]
+      },
       "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
       "reasons": [
-        "calls a builtin whose result is not a function of its arguments: time.now_ns"
+        "calls a builtin whose result is not a function of its arguments: time.now_ns",
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, maximum_retention_days, minimum_retention_days"
       ],
       "subject": "policy-library/validator/storage_bucket_retention.rego",
       "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPStorageBucketWorldReadableConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exemptions"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions"
+      ],
       "subject": "policy-library/validator/storage_bucket_world_readable.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPStorageCMEKEncryptionConstraintV1",
@@ -485,9 +963,23 @@
     },
     {
       "package": "templates.gcp.GCPStorageLocationConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "exemptions"
+        ],
+        "without_default": [
+          "locations",
+          "mode"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode"
+      ],
       "subject": "policy-library/validator/storage_location.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPStorageLoggingConstraintV1",
@@ -497,55 +989,141 @@
     },
     {
       "package": "templates.gcp.GCPComputeExternalIpAccessConstraintV2",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "match_mode"
+        ],
+        "without_default": [
+          "instances",
+          "mode"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for instances, mode",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for instances, mode"
+      ],
       "subject": "policy-library/validator/vm_external_ip.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPVPCSCAllowedRegionsConstraintV2",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "regions"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for regions",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for regions"
+      ],
       "subject": "policy-library/validator/vpc_sc_allowlist_regions.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPVPCSCEnsureAccessLevelsConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "required_access_levels"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/vpc_sc_ensure_access_levels.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPVPCSCEnsureProjectConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "required_projects"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/vpc_sc_ensure_project.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPVPCSCEnsureServicesConstraintV1",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [
+          "required_services"
+        ],
+        "without_default": []
+      },
       "reason": "every guard reads the request and literals the policy contains",
       "subject": "policy-library/validator/vpc_sc_ensure_services.rego",
       "verdict": "inside"
     },
     {
       "package": "templates.gcp.GCPVPCSCIPRangeConstraintV1",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "maximum_cidr_size"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for maximum_cidr_size",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for maximum_cidr_size"
+      ],
       "subject": "policy-library/validator/vpc_sc_ip_range.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPVPCSCProjectPerimeterConstraintV3",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "mode",
+          "project_id",
+          "service_perimeters"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mode, project_id, service_perimeters",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mode, project_id, service_perimeters"
+      ],
       "subject": "policy-library/validator/vpc_sc_project_perimeter.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "package": "templates.gcp.GCPVPCSCProjectPerimeterConstraintV3",
-      "reason": "every guard reads the request and literals the policy contains",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "mode",
+          "project_number",
+          "service_perimeters"
+        ]
+      },
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mode, project_number, service_perimeters",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mode, project_number, service_perimeters"
+      ],
       "subject": "policy-library/validator/vpc_sc_project_perimeter_v2.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     }
   ],
   "policies_considered": 87,
   "schema_version": "v1",
-  "share_inside": 0.977,
-  "share_inside_of_judged": 0.977
+  "share_inside": 0.6207,
+  "share_inside_of_judged": 0.6207
 }

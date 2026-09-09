@@ -555,7 +555,7 @@ def test_the_rego_measurement_judges_every_policy() -> None:
     )
 
     assert artifact["corpus_scope"] == "wide"
-    assert artifact["counts"] == {"inside": 116, "outside": 70, "undetermined": 0}
+    assert artifact["counts"] == {"inside": 115, "outside": 71, "undetermined": 0}
     assert artifact["policies_considered"] == 186
 
 
@@ -575,7 +575,14 @@ def test_the_rego_measurement_counts_no_test_module_as_a_policy() -> None:
 
 
 def test_the_rego_exclusions_are_the_kinds_the_document_names() -> None:
-    """28 policy schemas, 34 reaching the injected inventory, 8 other data documents."""
+    """28 schemas, 33 reaching the inventory, 9 other data documents, one network call.
+
+    Of the 33, 9 read `data.inventory` in their own body and 24 through one library rule;
+    the count was 25 while propagation followed imports rather than the rules a policy
+    evaluates, and the engine's dependency analysis disagreed on the twenty-fifth. Of the 9
+    other documents, 8 are read directly and one through a rule in a sibling package. The
+    network call is `http.send` as a top-level statement, which the first walker did not see.
+    """
 
     artifact = json.loads(
         (ROOT / "docs" / "fragment-membership-rego-wide-v1.json").read_text("utf-8")
@@ -583,13 +590,32 @@ def test_the_rego_exclusions_are_the_kinds_the_document_names() -> None:
     reasons = [entry["reason"] for entry in artifact["policies"] if entry["verdict"] == "outside"]
 
     parameters = sum(1 for reason in reasons if "policy schema" in reason)
-    injected = sum(1 for reason in reasons if "the host injects" in reason)
-    via_library = sum(1 for reason in reasons if "reaches outside" in reason)
+    injected_directly = sum(
+        1 for reason in reasons if reason.startswith("reads a document the host injects")
+    )
+    via_rule = [reason for reason in reasons if reason.startswith("reaches outside through")]
+    via_rule_injected = sum(1 for reason in via_rule if "the host injects" in reason)
+    via_rule_undefined = sum(1 for reason in via_rule if "does not define" in reason)
+    undefined_directly = sum(
+        1 for reason in reasons if reason.startswith("reads a data document the bundle does not")
+    )
+    network = sum(1 for reason in reasons if "http.send" in reason)
 
     assert parameters == 28
-    assert injected + via_library == 34
-    assert via_library == 25, "the import graph is what makes these 25 outside"
-    assert len(reasons) - parameters - injected - via_library == 8
+    assert injected_directly == 9
+    assert via_rule_injected == 24, "the rules a policy evaluates, not the libraries it imports"
+    assert undefined_directly + via_rule_undefined == 9
+    assert via_rule_undefined == 1
+    assert network == 1
+    accounted = (
+        parameters
+        + injected_directly
+        + via_rule_injected
+        + undefined_directly
+        + via_rule_undefined
+        + network
+    )
+    assert accounted == len(reasons) == 71
 
 
 @opa_required
@@ -730,12 +756,12 @@ def test_the_artifact_records_the_schemas_separately_from_the_other_exclusions()
     reads_outside = [p for p in outside if "policy schema" not in p["reason"]]
 
     assert len(schemas) == 28
-    assert len(reads_outside) == 42
-    assert len(schemas) + len(reads_outside) == artifact["counts"]["outside"] == 70
+    assert len(reads_outside) == 43
+    assert len(schemas) + len(reads_outside) == artifact["counts"]["outside"] == 71
     # And the share over artifacts that are actually policies.
     policies = artifact["policies_considered"] - len(schemas)
     assert policies == 158
-    assert round(100 * artifact["counts"]["inside"] / policies, 1) == 73.4
+    assert round(100 * artifact["counts"]["inside"] / policies, 1) == 72.8
 
 
 # --- AWS IAM: the deployed-policy corpus -----------------------------------------------
@@ -1102,13 +1128,13 @@ def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     assert findings["exclusions_unclassified"] == {}
     assert findings["corpora"] == 8
     assert findings["artifacts_considered"] == 6437
-    assert findings["artifacts_inside"] == 5476
+    assert findings["artifacts_inside"] == 5444
     assert findings["exclusions_by_kind"] == {
-        "not a policy": 744,
+        "not a policy": 775,
         "the subject does not determine the guard": 215,
-        "reads the clock": 2,
+        "reads evaluation-time state": 3,
     }
-    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 961
+    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 993
 
 
 def test_the_committed_taxonomy_artifact_matches_a_fresh_computation() -> None:
@@ -1202,3 +1228,206 @@ def test_the_bound_never_understates_a_group() -> None:
         splitting = [k for k in kinds if k != "everything"]
         assert bound <= 2 ** len(splitting) or not splitting
         assert bound >= 1
+
+
+# ---------------------------------------------------------------------------------------
+# What the differential check against `opa deps` found in the Rego adapter, pinned so that
+# none of it comes back. Each case is the shape that was misread, reduced to a fixture.
+# ---------------------------------------------------------------------------------------
+
+
+@opa_required
+def test_rego_sees_a_builtin_called_as_a_top_level_statement() -> None:
+    """`http.send(req, out)` at the top of a body is a bare terms list, not a `call` node.
+
+    The walker looked for the wrapped form alone, and a published module making network
+    calls in exactly this way was recorded inside the fragment.
+    """
+
+    outcome = rego.classify(
+        "package p\n\n"
+        "allow {\n"
+        '  req := {"method": "GET", "url": "https://example.invalid"}\n'
+        "  http.send(req, out)\n"
+        "  out.status_code == 200\n"
+        "}\n"
+    )
+    assert outcome.verdict == core.OUTSIDE
+    assert "http.send" in outcome.reason
+    assert outcome.detail["evaluation_time_state"] == {"http.send": "the network"}
+
+
+@opa_required
+def test_rego_takes_its_nondeterministic_builtins_from_the_engine() -> None:
+    """The engine flags nine; the hand list had five. The engine's list is the one used."""
+
+    engine = rego.nondeterministic_builtins()
+    assert engine >= rego.NONDETERMINISTIC_BUILTINS
+    assert {"io.jwt.decode_verify", "uuid.rfc4122"} <= engine
+
+
+@opa_required
+def test_rego_reads_a_ref_index_variable_as_computed_not_as_a_key() -> None:
+    """`vetter[_].info[result]` indexes by variables; only string parts are static keys."""
+
+    ast = rego.parse("package p\n\nimport data.q.vetter\n\nx[r] {\n  vetter[_].info[r]\n}\n")
+    assert ast is not None
+    references = rego._every_name_path(ast["rules"][0]["body"])
+    assert ["vetter", None, "info", None] in references
+
+
+@opa_required
+def test_rego_input_alias_is_a_read_of_the_request_not_of_data() -> None:
+    """`import input as aws` makes `aws.SecurityGroups` the request, not `data.input`."""
+
+    outcome = rego.classify(
+        "package p\n\nimport input as aws\n\n"
+        "groups[id] = g {\n  aws.SecurityGroups[_] = g\n  g.GroupId = id\n}\n"
+    )
+    assert outcome.verdict == core.INSIDE
+
+
+@opa_required
+def test_rego_config_validator_parameters_without_a_default_make_a_schema(tmp_path: Path) -> None:
+    """Google's templates take parameters through `input.constraint`, not `input.parameters`.
+
+    The first adapter knew only the Gatekeeper plumbing and called every Config Validator
+    template a policy. The criterion is the same in both: a parameter read with no default
+    in the policy text is what makes a schema.
+    """
+
+    lib = tmp_path / "lib"
+    lib.mkdir()
+    (lib / "constraints.rego").write_text(
+        "package validator.gcp.lib\n\n"
+        "get_constraint_params(constraint) = params {\n  params := constraint.spec.parameters\n}\n"
+        "get_default(object, field, _default) = output {\n  object[field]\n"
+        "  output = object[field]\n}\n"
+        "get_default(object, field, _default) = output {\n  not object[field]\n"
+        "  output = _default\n}\n",
+        encoding="utf-8",
+    )
+    validator = tmp_path / "validator"
+    validator.mkdir()
+    (validator / "raw.rego").write_text(
+        "package templates.gcp.RawV1\n\nimport data.validator.gcp.lib as lib\n\n"
+        'deny[{"msg": msg}] {\n  constraint := input.constraint\n'
+        "  lib.get_constraint_params(constraint, params)\n"
+        "  input.asset.location != params.locations[_]\n"
+        '  msg := "bad location"\n}\n',
+        encoding="utf-8",
+    )
+    (validator / "defaulted.rego").write_text(
+        "package templates.gcp.DefaultedV1\n\nimport data.validator.gcp.lib as lib\n\n"
+        'deny[{"msg": msg}] {\n  constraint := input.constraint\n'
+        "  lib.get_constraint_params(constraint, params)\n"
+        '  mode := lib.get_default(params, "mode", "allowlist")\n'
+        '  mode == "denylist"\n'
+        '  msg := "denied"\n}\n',
+        encoding="utf-8",
+    )
+    subjects = dict(rego.discover(tmp_path))
+    raw = rego.classify(subjects["validator/raw.rego"].read_text(encoding="utf-8"))
+    defaulted = rego.classify(subjects["validator/defaulted.rego"].read_text(encoding="utf-8"))
+
+    assert raw.verdict == core.OUTSIDE and "policy schema" in raw.reason
+    assert raw.detail["parameter_reads"]["without_default"] == ["locations"]
+    assert defaulted.verdict == core.INSIDE
+    assert defaulted.detail["parameter_reads"]["with_default"] == ["mode"]
+
+
+@opa_required
+def test_rego_reach_follows_the_rules_a_policy_evaluates_not_its_imports(tmp_path: Path) -> None:
+    """One library rule reads the inventory; a policy calling a different one stays inside.
+
+    Import-level propagation excluded every importer of such a library. The engine's own
+    dependency analysis disagreed on one published policy, and this is that policy reduced.
+    """
+
+    lib = tmp_path / "lib"
+    lib.mkdir()
+    (lib / "openshift.rego").write_text(
+        "package lib.openshift\n\n"
+        'is_deploymentconfig {\n  input.review.object.kind == "DeploymentConfig"\n}\n\n'
+        "disabled_label = label {\n"
+        "  ns := data.inventory.cluster.v1.Namespace[input.review.object.metadata.namespace]\n"
+        '  label := ns.metadata.labels["disabled"]\n}\n',
+        encoding="utf-8",
+    )
+    policies = tmp_path / "policy"
+    policies.mkdir()
+    (policies / "calls_request_rule.rego").write_text(
+        "package p.a\n\nimport data.lib.openshift\n\n"
+        'violation[{"msg": msg}] {\n  openshift.is_deploymentconfig\n  msg := "dc"\n}\n',
+        encoding="utf-8",
+    )
+    (policies / "calls_inventory_rule.rego").write_text(
+        "package p.b\n\nimport data.lib.openshift\n\n"
+        'violation[{"msg": msg}] {\n  openshift.disabled_label == "x"\n  msg := "off"\n}\n',
+        encoding="utf-8",
+    )
+    subjects = dict(rego.discover(tmp_path))
+    request_only = rego.classify(subjects["policy/calls_request_rule.rego"].read_text("utf-8"))
+    via_inventory = rego.classify(subjects["policy/calls_inventory_rule.rego"].read_text("utf-8"))
+
+    assert request_only.verdict == core.INSIDE
+    assert via_inventory.verdict == core.OUTSIDE
+    assert "reaches outside through lib.openshift.disabled_label" in via_inventory.reason
+    assert "data.inventory" in via_inventory.reason
+
+
+@opa_required
+def test_rego_reach_resolves_a_package_prefix_indexed_by_a_variable(tmp_path: Path) -> None:
+    """`vetter[_].info[r]` evaluates every rule beneath the prefix, including one reading data."""
+
+    audit = tmp_path / "audit"
+    audit.mkdir()
+    (audit / "audit.rego").write_text(
+        "package istio.audit\n\nimport data.istio.audit.vetter\n\n"
+        "info[r] {\n  vetter[_].info[r]\n}\n",
+        encoding="utf-8",
+    )
+    (audit / "pods.rego").write_text(
+        "package istio.audit.vetter.pods\n\nimport data.kubernetes.pods\n\n"
+        'info[r] {\n  pods[_].metadata.name == "x"\n  r := "seen"\n}\n',
+        encoding="utf-8",
+    )
+    subjects = dict(rego.discover(tmp_path))
+    outcome = rego.classify(subjects["audit/audit.rego"].read_text(encoding="utf-8"))
+
+    assert outcome.verdict == core.OUTSIDE
+    assert "reaches outside through istio.audit.vetter.pods.info" in outcome.reason
+    assert "data.kubernetes.pods" in outcome.reason
+
+
+def test_the_gcp_measurement_applies_the_same_schema_criterion_as_gatekeeper() -> None:
+    """One criterion across both Rego corpora: a parameter read with no default is a schema.
+
+    The first GCP measurement reported 85 of 87 inside because the adapter knew only
+    Gatekeeper's `input.parameters` and not Config Validator's `input.constraint`. Under the
+    one criterion, 31 templates read a parameter they give no default for, 15 read every
+    parameter through `lib.get_default` and so carry their own instantiation, and 39 read no
+    parameter at all.
+    """
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-rego-gcp-v1.json").read_text("utf-8")
+    )
+    assert artifact["counts"] == {"inside": 54, "outside": 33, "undetermined": 0}
+    outside = [p for p in artifact["policies"] if p["verdict"] == "outside"]
+    schemas = [p for p in outside if "policy schema" in p["reason"]]
+    clock = [p for p in outside if "time.now_ns" in p["reason"]]
+    assert len(schemas) == 31
+    assert len(clock) == 2
+    assert all(p["parameter_reads"]["without_default"] for p in schemas)
+    inside = [p for p in artifact["policies"] if p["verdict"] == "inside"]
+    complete = [
+        p
+        for p in inside
+        if p.get("parameter_reads", {}).get("with_default")
+        or p.get("parameter_reads", {}).get("guarded")
+    ]
+    no_parameter = [p for p in inside if not p.get("parameter_reads")]
+    assert len(complete) == 15
+    assert len(no_parameter) == 39
+    assert not any(p.get("parameter_reads", {}).get("without_default") for p in inside)
