@@ -6,6 +6,14 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/azure_initiative_bindings.py` and
+  `docs/azure-initiative-bindings-v1.json` answer, from the corpus, whether the
+  instantiation a schema verdict presumes actually exists: 538 of the 769 Azure schemas are
+  included in a built-in initiative that binds every parameter they left without a default,
+  and 231 are in no initiative that binds anything. The 538 had been a hand count quoted
+  beside a denominator a re-measurement moved, and the completeness half of the claim --
+  that the initiative binds the parameters that had no default, rather than some other
+  parameter -- had never been checked at all.
 - `scripts/verify_corpus_provenance.py` re-measures every whole-corpus membership
   artifact from the commits it records and diffs the counts, so the claim that a figure
   reproduces is an instrument rather than a note. Its last run is

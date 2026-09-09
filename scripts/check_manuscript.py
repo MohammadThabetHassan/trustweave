@@ -720,6 +720,24 @@ def numeric_claims(docs: Path) -> list[Claim]:
     ]
 
     rego_oracle = _load(docs, "oracle-rego-v1")
+    initiatives = _load(docs, "azure-initiative-bindings-v1")
+    claims += [
+        (
+            r"(\d+) of the (\d+) Azure schemas are included in\s*a built-in initiative that "
+            r"binds every parameter they left without a default",
+            (
+                str(initiatives["schemas_an_initiative_completes"]),
+                str(initiatives["schemas"]),
+            ),
+            "azure: schemas an initiative instantiates completely",
+        ),
+        (
+            r"The remaining (\d+) Azure schemas are in no initiative",
+            (str(len(initiatives["schemas_left_uninstantiated"])),),
+            "azure: schemas no initiative binds",
+        ),
+    ]
+
     provenance = _load(docs, "corpus-provenance-verification-v1")
     claims += [
         (

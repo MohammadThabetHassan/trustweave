@@ -1210,6 +1210,32 @@ def test_azure_does_not_read_prose_inside_a_string_literal_as_a_function_call() 
     assert "services" not in outcome.detail["arm_functions"]
 
 
+def test_the_corpus_supplies_the_bindings_the_schema_verdict_presumes() -> None:
+    """Calling an artifact a schema is only worth doing if the instantiation exists.
+
+    For Gatekeeper and Config Validator the corpus ships a Constraint per template. Azure's
+    equivalent is an initiative that includes the definition and binds its parameters, and
+    the interesting half of the question is whether it binds the ones that had no default --
+    an initiative supplying some other parameter would leave the definition just as far from
+    being a policy. It does: every schema an initiative parameterises at all, it completes.
+    """
+
+    bindings = json.loads((ROOT / "docs" / "azure-initiative-bindings-v1.json").read_text("utf-8"))
+    membership = json.loads(
+        (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
+    )
+    schemas = [entry for entry in membership["policies"] if "policy schema" in entry["reason"]]
+
+    assert bindings["schemas"] == len(schemas)
+    assert bindings["schemas_an_initiative_completes"] == 538
+    assert (
+        bindings["schemas_an_initiative_completes"]
+        == (bindings["schemas_an_initiative_parameterises"])
+    ), "a partial binding would leave the definition a schema still"
+    assert len(bindings["schemas_left_uninstantiated"]) == bindings["schemas"] - 538
+    assert bindings["initiatives_read"] == 267
+
+
 def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     """The claim worth having, and the instrument can refute it."""
 
