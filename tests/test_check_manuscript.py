@@ -15,6 +15,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -253,3 +254,51 @@ def test_a_measured_corpus_the_bibliography_omits_is_caught(workspace: Path) -> 
     problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
 
     assert any("does not cite" in problem for problem in problems), problems
+
+
+def test_a_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Path) -> None:
+    """A plotted series is the one number in a paper no prose pin reaches.
+
+    The caption, the surrounding text and the artifact can all agree while the coordinates
+    a reader actually looks at are a measurement out of date, because nothing compares them.
+    """
+
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    series = re.search(r"\\addplot coordinates \{\(([\d.]+),0\)", text)
+    assert series, "the taxonomy figure no longer plots a first coordinate"
+    perturbed = text.replace(
+        f"\\addplot coordinates {{({series.group(1)},0)",
+        f"\\addplot coordinates {{({float(series.group(1)) - 1.1:.1f},0)",
+        1,
+    )
+    paper.write_text(perturbed, encoding="utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+
+    assert any("taxonomy figure" in problem for problem in problems), problems
+
+
+def test_a_cost_figure_series_that_drifts_is_caught(workspace: Path) -> None:
+    """The same check on the figure that had carried unpinned coordinates for a release."""
+
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    assert "(4,0." in text, "the cost figure no longer plots a four-cell share"
+    paper.write_text(text.replace("(4,0.", "(4,0.1", 1), encoding="utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+
+    assert any("cost figure" in problem for problem in problems), problems
+
+
+def test_a_figure_whose_label_moves_is_reported_rather_than_skipped(workspace: Path) -> None:
+    """A guard that quietly finds nothing to check is worse than no guard."""
+
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    paper.write_text(text.replace("\\label{fig:taxonomy}", "\\label{fig:elsewhere}"), "utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+
+    assert any("taxonomy figure states no data" in problem for problem in problems), problems

@@ -1103,6 +1103,98 @@ def claim_findings(flat: str, claims: list[Claim]) -> list[str]:
     return problems
 
 
+# --- figures ----------------------------------------------------------------------------
+#
+# A figure's data sits in `\addplot coordinates {...}` and no prose pin reaches it, so a
+# plotted series can go on agreeing with a caption that agrees with an artifact while the
+# series itself is a year out of date. These checks recompute each series from the artifact
+# it claims to come from and compare the coordinates.
+
+TAXONOMY_FIGURE_ORDER = (
+    "AWS IAM",
+    "Cedar",
+    "XACML",
+    "Kyverno (vendor)",
+    "Kyverno (third-party)",
+    "Rego (GCP library)",
+    "Rego (four corpora)",
+    "Azure Policy",
+)
+TAXONOMY_FIGURE_BANDS = (
+    "inside",
+    "not a policy",
+    "the subject does not determine the guard",
+    "reads evaluation-time state",
+    "undetermined",
+)
+
+
+def _plots(tex: str, label: str) -> list[list[tuple[str, str]]]:
+    """Every `\addplot coordinates {...}` series of the figure carrying `label`."""
+
+    end = tex.find(r"\label{" + label + "}")
+    if end < 0:
+        return []
+    start = tex.rfind(r"\begin{figure}", 0, end)
+    block = tex[start:end]
+    series = []
+    for body in re.findall(r"\\addplot[^{]*coordinates\s*\{([^}]*)\}", block):
+        series.append(re.findall(r"\(([-\d.e+]+)\s*,\s*([-\d.e+]+)\)", body))
+    return series
+
+
+def figure_findings(tex: str, docs: Path) -> list[str]:
+    problems: list[str] = []
+
+    taxonomy = _load(docs, "exclusion-taxonomy-v1")
+    rows = {row["corpus"]: row for row in taxonomy["rows"]}
+    expected: list[list[tuple[str, str]]] = []
+    for band in TAXONOMY_FIGURE_BANDS:
+        series = []
+        for index, corpus in enumerate(TAXONOMY_FIGURE_ORDER):
+            row = rows[corpus]
+            total = row["policies_considered"]
+            if band in ("inside", "undetermined"):
+                value = row[band]
+            else:
+                value = row["exclusions_by_kind"].get(band, 0)
+            series.append((f"{100 * value / total:.1f}", str(index)))
+        expected.append(series)
+
+    plotted = _plots(tex, "fig:taxonomy")
+    if not plotted:
+        problems.append("the taxonomy figure states no data, or its label has moved")
+    elif plotted != expected:
+        for band, want, got in zip(TAXONOMY_FIGURE_BANDS, expected, plotted, strict=False):
+            if want != got:
+                problems.append(
+                    f"taxonomy figure, {band!r} band: the manuscript plots "
+                    f"{[value for value, _ in got]} where the artifact gives "
+                    f"{[value for value, _ in want]}"
+                )
+        if len(plotted) != len(expected):
+            problems.append(
+                f"the taxonomy figure plots {len(plotted)} bands where the taxonomy has "
+                f"{len(expected)}"
+            )
+
+    cost = _load(docs, "coverage-cost-v1")
+    cost_plotted = _plots(tex, "fig:cost")
+    if not cost_plotted:
+        problems.append("the cost figure states no data, or its label has moved")
+    else:
+        for ecosystem, got in zip(("azure", "iam"), cost_plotted, strict=False):
+            shares = cost[ecosystem]["share_at_most"]
+            want = [(str(cells), f"{shares[cells]:g}") for cells in sorted(shares, key=int)]
+            have = [(cells, share) for cells, share in got]
+            if have != want:
+                problems.append(
+                    f"cost figure, {ecosystem} series: the manuscript plots {have} where "
+                    f"docs/coverage-cost-v1.json gives {want}"
+                )
+    return problems
+
+
 def check(paper: Path, docs: Path) -> list[str]:
     tex = paper.read_text(encoding="utf-8")
     bib = (paper.parent / "refs.bib").read_text(encoding="utf-8")
@@ -1111,6 +1203,7 @@ def check(paper: Path, docs: Path) -> list[str]:
     problems += claim_findings(flat, numeric_claims(docs))
     problems += decomposition_findings(flat, docs)
     problems += corpus_findings(bib, docs)
+    problems += figure_findings(tex, docs)
     return problems
 
 
