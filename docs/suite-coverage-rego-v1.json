@@ -1,0 +1,688 @@
+{
+  "schema_version": "trustweave.dev/suite-coverage/v1alpha1",
+  "ecosystem": "rego",
+  "corpus": [
+    {
+      "name": "instrumenta_policies",
+      "remote": "https://github.com/instrumenta/policies.git",
+      "commit": "9eafe392bbec10f34d0b46fafd16b3e919aae271"
+    },
+    {
+      "name": "open-policy-agent_gatekeeper-library",
+      "remote": "https://github.com/open-policy-agent/gatekeeper-library.git",
+      "commit": "e034212e94e666ab3ba69108d96222bffc8ef671"
+    },
+    {
+      "name": "open-policy-agent_library",
+      "remote": "https://github.com/open-policy-agent/library.git",
+      "commit": "75fd87df47be8616e6d5095e427f85030b60affc"
+    },
+    {
+      "name": "redhat-cop_rego-policies",
+      "remote": "https://github.com/redhat-cop/rego-policies.git",
+      "commit": "7659eb6afe9b8465081fbd4a96a758f4cc4f41a1"
+    }
+  ],
+  "decision_domains": {
+    "violation_set": [
+      "empty",
+      "nonempty"
+    ],
+    "boolean": [
+      "does_not_hold",
+      "holds"
+    ]
+  },
+  "extraction_rate": 0.9623,
+  "sufficient_for_summary": true,
+  "files_considered": 53,
+  "files_measured": 51,
+  "observations": 994,
+  "subjects_measured": 51,
+  "subjects_blind": 1,
+  "by_domain": {
+    "boolean": {
+      "subjects": 2,
+      "blind": 0,
+      "covering_domain": 2,
+      "domain_size": 2,
+      "witnessing_more_than_one": 2,
+      "share_witnessing_more_than_one": 1.0,
+      "share_covering_domain": 1.0
+    },
+    "violation_set": {
+      "subjects": 49,
+      "blind": 1,
+      "covering_domain": 48,
+      "domain_size": 2,
+      "witnessing_more_than_one": 48,
+      "share_witnessing_more_than_one": 0.9796,
+      "share_covering_domain": 0.9796
+    }
+  },
+  "not_extracted": [
+    {
+      "file": "instrumenta_policies/kubernetes/security_test.rego",
+      "reason": "2 test rules, no decision pinned"
+    },
+    {
+      "file": "open-policy-agent_library/kubernetes/lib/sar_test.rego",
+      "reason": "no test rules"
+    }
+  ],
+  "subjects": [
+    {
+      "domain": "boolean",
+      "subject": "open-policy-agent_gatekeeper-library/src/rego/lib_exclude_update/lib_exclude_update_test.rego::is_update",
+      "decisions_witnessed": [
+        "does_not_hold",
+        "holds"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "boolean",
+      "subject": "open-policy-agent_gatekeeper-library/src/rego/lib_exempt_container/lib_exempt_container_test.rego::is_exempt",
+      "decisions_witnessed": [
+        "does_not_hold",
+        "holds"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/allowedrepos/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/allowedreposv2/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/automount-serviceaccount-token/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/block-endpoint-edit-default-role/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/block-loadbalancer-services/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/block-nodeport-services/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/block-wildcard-ingress/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/containerlimits/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/containerrequests/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/containerresourceratios/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/containerresources/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/disallowanonymous/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/disallowedrepos/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/disallowedtags/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/disallowinteractive/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/ephemeralstoragelimit/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/externalip/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/horizontalpodautoscaler/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/httpsonly/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/imagedigests/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/noupdateserviceaccount/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/poddisruptionbudget/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/replicalimits/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/requiredannotations/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/requiredlabels/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/requiredprobes/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/storageclass/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/uniqueingresshost/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/uniqueserviceselector/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/general/verifydeprecatedapi/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty"
+      ],
+      "blind": true,
+      "domain_size": 2,
+      "decisions_unwitnessed": [
+        "nonempty"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/allow-privilege-escalation/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/apparmor/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/capabilities/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/flexvolume-drivers/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/forbidden-sysctls/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/fsgroup/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/host-filesystem/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/host-namespaces/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/host-network-ports/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/host-probes-lifecycle/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/host-process/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/privileged-containers/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/proc-mount/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/read-only-root-filesystem/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/seccomp/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/seccompv2/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/selinux/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/users/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "violation_set",
+      "subject": "open-policy-agent_gatekeeper-library/src/pod-security-policy/volumes/src_test.rego::violation",
+      "decisions_witnessed": [
+        "empty",
+        "nonempty"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    }
+  ]
+}

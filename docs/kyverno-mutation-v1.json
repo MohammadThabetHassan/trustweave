@@ -1,0 +1,823 @@
+{
+  "schema_version": "trustweave.dev/kyverno-mutation/v1alpha1",
+  "design": "case-control: every blind validate policy, plus covered ones in name order",
+  "comparison_group_attempts": 72,
+  "policies_scored": 49,
+  "skipped": [
+    {
+      "policy": "block-tekton-task-runs",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "check-deprecated-apis",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "deny-privileged-profile",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-default-tlsoptions",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-deprecated-apis",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "limit-containers-per-pod",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "application-prevent-default-project",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "applicationset-name-matches-project",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "block-ephemeral-containers",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "block-velero-restore",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "check-hpa-exists",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "check-routes",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "check-serviceaccount-secrets",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "deny-secret-service-account-token-type",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-capabilities-strict",
+      "reason": "2 policy files referenced"
+    },
+    {
+      "policy": "disallow-default-namespace",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-helm-tiller",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-host-path",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-jenkins-pipeline-strategy",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-etcd-encryption",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-min-tls-version",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-sidecar-injection-namespace",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "enforce-strict-mtls",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "forbid-cpu-limits",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "k10-data-protection-by-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "k10-validate-ns-by-preset-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "kasten-data-protection-by-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "kasten-immutable-location-profile",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "kasten-validate-ns-by-preset-label",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "limit-hostpath-type-pv",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "metadata-match-regex",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "pdb-maxunavailable",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "podsecurity-subrule-baseline",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "prevent-bare-pods",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "prevent-linkerd-pod-injection-override",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "require-annotations",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "require-container-port-names",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "require-image-checksum",
+      "reason": "2 mutable sites in the policy"
+    }
+  ],
+  "blind": {
+    "policies": 9,
+    "median_mutation_score": 0.5,
+    "mean_mutation_score": 0.4534,
+    "min": 0.0,
+    "max": 0.8333
+  },
+  "covered": {
+    "policies": 40,
+    "median_mutation_score": 0.625,
+    "mean_mutation_score": 0.6024,
+    "min": 0.25,
+    "max": 1.0
+  },
+  "permutation_test": {
+    "observed_difference": 0.149,
+    "p_value": 0.0428,
+    "method": "sampled, 100000 permutations, seed 0, one-sided"
+  },
+  "detail": [
+    {
+      "policy": "add-psa-namespace-reporting",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 2,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L26:true->false",
+        "L40:&&->||"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "advanced-restrict-image-registries",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 1,
+      "mutation_score": 0.8571,
+      "survivors": [
+        "L22:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "allowed-annotations",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L23:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "allowed-base-images",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 1,
+      "mutation_score": 0.8571,
+      "survivors": [
+        "L23:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "allowed-image-repos",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 3,
+      "mutation_score": 0.4,
+      "survivors": [
+        "L22:false->true",
+        "L37:.exists(->.all(",
+        "L37:==->!="
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "allowed-label-changes",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 1,
+      "mutation_score": 0.8333,
+      "survivors": [
+        "L22:false->true"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "application-field-validation",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 1,
+      "mutation_score": 0.8571,
+      "survivors": [
+        "L19:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "appproject-clusterresourceblacklist",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L21:true->false",
+        "L37:.all(->.exists("
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "block-images-with-volumes",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 1,
+      "mutation_score": 0.75,
+      "survivors": [
+        "L19:true->false"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "block-large-images",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L29:||->&&"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "block-stale-images",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 3,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L30:.all(->.exists(",
+        "L32:>=->>",
+        "L37:&&->||"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "block-updates-deletes",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 3,
+      "mutation_score": 0.4,
+      "survivors": [
+        "L13:true->false",
+        "L17:false->true",
+        "L27:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "check-env-vars",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 4,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L17:true->false",
+        "L21:true->false",
+        "L32:.exists(->.all(",
+        "L34:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "check-ingress-nginx-controller-version-and-annotation-policy",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 3,
+      "mutation_score": 0.625,
+      "survivors": [
+        "L56:||->&&",
+        "L59:==->!=",
+        "L59:||->&&"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "deny-commands-in-exec-probe",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 2,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L22:false->true",
+        "L35:.all(->.exists("
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-capabilities",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 1,
+      "mutation_score": 0.8,
+      "survivors": [
+        "L19:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-empty-ingress-host",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L20:false->true",
+        "L29:.all(->.exists("
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-host-namespaces",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 3,
+      "mutation_score": 0.5714,
+      "survivors": [
+        "L16:false->true",
+        "L22:true->false",
+        "L41:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-host-ports",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 1,
+      "mutation_score": 0.75,
+      "survivors": [
+        "L21:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-host-ports-range",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 3,
+      "mutation_score": 0.625,
+      "survivors": [
+        "L19:true->false",
+        "L43:<=-><",
+        "L43:>=->>"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-host-process",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 4,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L16:false->true",
+        "L22:true->false",
+        "L37:.all(->.exists(",
+        "L43:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-ingress-nginx-custom-snippets",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 1,
+      "mutation_score": 0.75,
+      "survivors": [
+        "L34:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-latest-tag",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L21:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-privilege-escalation",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 3,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L15:false->true",
+        "L21:true->false",
+        "L40:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-privileged-containers",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 2,
+      "mutation_score": 0.6,
+      "survivors": [
+        "L21:true->false",
+        "L36:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-proc-mount",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L23:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-security-context-constraint-anyuid",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 1,
+      "mutation_score": 0.75,
+      "survivors": [
+        "L17:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "disallow-self-provisioner-binding",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 2,
+      "mutation_score": 0.7143,
+      "survivors": [
+        "L17:true->false",
+        "L45:||->&&"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "disallow-selinux",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 7,
+      "survived": 1,
+      "mutation_score": 0.875,
+      "survivors": [
+        "L21:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "enforce-resources-as-ratio",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "decision_blind": false
+    },
+    {
+      "policy": "enforce-tls-hosts-host-subnets",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 1,
+      "mutation_score": 0.8,
+      "survivors": [
+        "L20:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "ensure-readonly-hostpath",
+      "mutants_applied": 7,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 4,
+      "mutation_score": 0.4286,
+      "survivors": [
+        "L16:true->false",
+        "L23:false->true",
+        "L39:.all(->.exists(",
+        "L40:.all(->.exists("
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "imagepullpolicy-always",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 3,
+      "mutation_score": 0.4,
+      "survivors": [
+        "L22:true->false",
+        "L31:.all(->.exists(",
+        "L33:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "ingress-host-match-tls",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 3,
+      "mutation_score": 0.4,
+      "survivors": [
+        "L22:false->true",
+        "L36:.all(->.exists(",
+        "L38:.exists(->.all("
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "kasten-hourly-rpo",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "decision_blind": false
+    },
+    {
+      "policy": "limit-configmap-for-sa",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 2,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L13:false->true",
+        "L19:&&->||"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "limit-hostpath-vols",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 1,
+      "mutation_score": 0.8,
+      "survivors": [
+        "L23:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "memory-requests-equal-limits",
+      "mutants_applied": 4,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 2,
+      "mutation_score": 0.5,
+      "survivors": [
+        "L21:false->true",
+        "L30:.all(->.exists("
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "nfs-subdir-external-provisioner-storage-path",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 1,
+      "mutation_score": 0.8333,
+      "survivors": [
+        "L20:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "only-trustworthy-registries-set-root",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 4,
+      "mutation_score": 0.2,
+      "survivors": [
+        "L29:||->&&",
+        "L43:||->&&",
+        "L44:Equals->NotEquals",
+        "L47:NotEquals->Equals"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "prevent-cr8escape",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L22:true->false",
+        "L32:&&->||"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "prevent-disabling-injection-pods",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 3,
+      "mutation_score": 0.4,
+      "survivors": [
+        "L17:false->true",
+        "L20:true->false",
+        "L36:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "prevent-linkerd-port-skipping",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L19:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-cpu-limits",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 6,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L15:true->false",
+        "L31:\"?*\"->\"*\"",
+        "L33:=(->(",
+        "L36:\"?*\"->\"*\"",
+        "L38:=(->(",
+        "L41:\"?*\"->\"*\""
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-encryption-aws-loadbalancers",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L19:true->false"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-image-source",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 5,
+      "mutation_score": 0.1667,
+      "survivors": [
+        "L31:||->&&",
+        "L46:||->&&",
+        "L47:NotEquals->Equals",
+        "L49:||->&&",
+        "L50:NotEquals->Equals"
+      ],
+      "decision_blind": true
+    },
+    {
+      "policy": "require-imagepullsecrets",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
+      "survivors": [
+        "L16:true->false",
+        "L36:\"?*\"->\"*\""
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "require-ingress-https",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 3,
+      "mutation_score": 0.4,
+      "survivors": [
+        "L16:false->true",
+        "L20:true->false",
+        "L32:false->true"
+      ],
+      "decision_blind": false
+    },
+    {
+      "policy": "team-validate-ns-name",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 0,
+      "survived": 6,
+      "mutation_score": 0.0,
+      "survivors": [
+        "L21:false->true",
+        "L35:==->!=",
+        "L35:false->true",
+        "L40:AnyNotIn->AnyIn",
+        "L41:==->!=",
+        "L41:false->true"
+      ],
+      "decision_blind": true
+    }
+  ]
+}

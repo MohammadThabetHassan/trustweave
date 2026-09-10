@@ -93,9 +93,8 @@ def test_a_survivor_differs_only_where_the_suite_never_looks() -> None:
         ("adversarial-scenarios.json", ADVERSARIAL_SUITE),
         ("default-scenarios.json", DEFAULT_SUITE),
     ):
-        witnessed = {
-            (trust, action) for trust, action, _ in policy_mutation._suite_expectations(suite_path)
-        }
+        space = policy_mutation.witness_space(document)
+        witnessed = {cell for cell, _ in policy_mutation._suite_expectations(suite_path, space)}
         for name in report["suites"][suite_name]["survivors"]:
             resolved = policy_mutation.decision_map(generated[name])
             differing = {cell for cell in reference if resolved[cell] != reference[cell]}

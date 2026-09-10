@@ -37,6 +37,7 @@ from trustweave.code_catalog import (
     PII_TOKENS,
     READ_RECEIVER_METHODS,
     READ_SYMBOLS,
+    RESULT_CONSTRUCTORS,
     SECRET_ENV_TOKENS,
     SENSITIVE_SYMBOLS,
     SQL_READ_TOKENS,
@@ -75,6 +76,27 @@ _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
 LANGCHAIN_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
     {"langchain_core.tools.tool", "langchain.tools.tool", "langchain.agents.tool"}
 )
+# Semantic Kernel registers a plugin method with a decorator carrying the exposed name.
+SEMANTIC_KERNEL_DECORATORS: Final[frozenset[str]] = frozenset(
+    {
+        "semantic_kernel.functions.kernel_function",
+        "semantic_kernel.functions.kernel_function_decorator.kernel_function",
+        "semantic_kernel.kernel_function",
+        "semantic_kernel.skill_definition.sk_function",
+    }
+)
+# LangChain's class-based tools. The exposed name is a class attribute and the behaviour is
+# in `_run` or `_arun`, so neither the decorator nor the factory path discovers them.
+BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(
+    {
+        "langchain_core.tools.BaseTool",
+        "langchain_core.tools.base.BaseTool",
+        "langchain.tools.BaseTool",
+        "langchain.tools.base.BaseTool",
+    }
+)
+BASE_TOOL_BODY_METHODS: Final[tuple[str, ...]] = ("_run", "run", "_arun", "arun")
+
 STRUCTURED_TOOL_FACTORIES: Final[frozenset[str]] = frozenset(
     {
         "langchain_core.tools.StructuredTool.from_function",
@@ -112,6 +134,11 @@ class DiscoveredTool:
     framework: str
     file: str
     line: int
+    # The Python symbol that implements the tool, when the registered name differs from it.
+    # `StructuredTool.from_function(func=summarize_bucket_object, name="object_summary")`
+    # exposes one name to the model and is implemented by another, and a reviewer checking
+    # the effects needs the second to find the code.
+    implementation: str | None = None
     signals: list[EffectSignal] = field(default_factory=list)
     reasons: set[str] = field(default_factory=set)
     budget_state: str = "complete"
@@ -123,13 +150,20 @@ class DiscoveredTool:
     def proposed_action_class(self) -> str:
         """Return the highest-precedence observed class, or ``unknown`` if refused."""
 
-        if self.reasons:
-            return UNKNOWN_ACTION_CLASS
         observed = {signal.action_class for signal in self.signals}
         highest = next(
             (candidate for candidate in ACTION_CLASS_PRECEDENCE if candidate in observed),
             "read",
         )
+        # Nothing outranks the top of the precedence order. Once a credential read or an
+        # arbitrary process launch has actually been observed, no unresolved call elsewhere
+        # in the tool can make the answer worse, so refusing would discard a finding rather
+        # than protect against one. The same exemption already applies to unplaced calls
+        # below; this extends it to the refusal reasons for the same reason.
+        if highest == ACTION_CLASS_PRECEDENCE[0]:
+            return highest
+        if self.reasons:
+            return UNKNOWN_ACTION_CLASS
         if self.unrecognized_calls and highest != ACTION_CLASS_PRECEDENCE[0]:
             # Something in the reachable set could not be placed, and an unseen effect
             # could outrank what was observed. Answering here would turn a gap in the
@@ -165,6 +199,9 @@ class _Module:
     self_origins: dict[str, dict[str, str]] = field(default_factory=dict)
     # Which class each discovered method belongs to, so self.* resolves per class.
     method_owner: dict[str, str] = field(default_factory=dict)
+    # Attributes bound directly to an imported symbol rather than to a constructed
+    # receiver, keyed by the owning class then the attribute.
+    self_symbols: dict[str, dict[str, str]] = field(default_factory=dict)
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -205,6 +242,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     # `send`, and would let a method body be attributed to an unrelated caller.
     methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     self_origins: dict[str, dict[str, str]] = {}
+    self_symbols: dict[str, dict[str, str]] = {}
     method_owner: dict[str, str] = {}
     for node in tree.body:
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
@@ -219,7 +257,20 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
             for child in own:
                 method_owner[f"{child.name}:{child.lineno}"] = node.name
             stored: dict[str, str] = {}
+            aliased: dict[str, str] = {}
             for inner in ast.walk(node):
+                if isinstance(inner, ast.Assign) and isinstance(
+                    inner.value, ast.Name | ast.Attribute
+                ):
+                    # `self._shell = os.system`: the attribute is the symbol itself, not a
+                    # constructed receiver, and calling it is calling that symbol.
+                    for target in inner.targets:
+                        if (
+                            isinstance(target, ast.Attribute)
+                            and isinstance(target.value, ast.Name)
+                            and target.value.id in _INSTANCE_RECEIVERS
+                        ):
+                            aliased[target.attr] = _dotted(inner.value) or ""
                 if not isinstance(inner, ast.Assign) or not isinstance(inner.value, ast.Call):
                     continue
                 for target in inner.targets:
@@ -231,6 +282,8 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                         stored[target.attr] = _dotted(inner.value.func) or ""
             if stored:
                 self_origins[node.name] = stored
+            if aliased:
+                self_symbols[node.name] = aliased
 
     indexed = _Module(
         path,
@@ -239,6 +292,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
         functions,
         wildcard,
         methods=methods,
+        self_symbols=self_symbols,
         self_origins={
             owner: {attr: _resolve_raw(spelled, bindings) for attr, spelled in stored.items()}
             for owner, stored in self_origins.items()
@@ -360,6 +414,66 @@ def _assigned_names(scope_body: list[ast.stmt]) -> set[str]:
             elif isinstance(node, ast.withitem) and isinstance(node.optional_vars, ast.Name):
                 bound.add(node.optional_vars.id)
     return bound
+
+
+def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
+    """Local names bound directly to an imported symbol.
+
+    `runner = sp.run` followed by `runner(argv)` is an ordinary way to write a call, and
+    reading the second line as an unresolvable callee reports arbitrary process launch as no
+    effect at all -- the most dangerous class, published as silence.
+
+    Only a direct name or attribute binding counts. Anything computed stays with
+    `_dynamic_locals`, and a name bound twice to different symbols is dropped rather than
+    resolved to whichever assignment came last.
+    """
+
+    aliases: dict[str, str] = {}
+    rebound: set[str] = set()
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Name | ast.Attribute):
+            continue
+        qualified = _resolve(_dotted(node.value), module)
+        if qualified is None or "." not in qualified:
+            continue
+        if target.id in aliases and aliases[target.id] != qualified:
+            rebound.add(target.id)
+        aliases[target.id] = qualified
+    for name in rebound:
+        aliases.pop(name, None)
+    return aliases
+
+
+def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
+    """Locals bound to an instance of a class this module defines.
+
+    `store = ContactStore(dsn)` then `store.forget(id)` puts the effect one hop away in a
+    method of a class written in the same file. Not following it left the tool with no
+    observed effect at all, and a tool with no effects is classified read -- so a database
+    delete was published as a benign read rather than as unknown.
+    """
+
+    classes = {node.name for node in module.tree.body if isinstance(node, ast.ClassDef)}
+    found: dict[str, str] = {}
+    rebound: set[str] = set()
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Call):
+            continue
+        constructed = _dotted(node.value.func)
+        if constructed not in classes:
+            continue
+        if target.id in found and found[target.id] != constructed:
+            rebound.add(target.id)
+        found[target.id] = constructed
+    for name in rebound:
+        found.pop(name, None)
+    return found
 
 
 def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
@@ -573,11 +687,26 @@ def _classify_call(
     origins: dict[str, tuple[str, ast.Call]],
     dynamic: set[str],
     self_attributes: dict[str, str] | None = None,
+    aliases: dict[str, str] | None = None,
+    self_aliases: dict[str, str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
     self_attributes = self_attributes or {}
     spelled = _dotted(call.func)
+    # A bare name bound to an imported symbol is that symbol.
+    if isinstance(call.func, ast.Name) and call.func.id not in dynamic:
+        spelled = (aliases or {}).get(call.func.id, spelled)
+    # So is an instance attribute bound to one: `self._shell = os.system` in __init__ makes
+    # `self._shell(...)` a shell invocation, and refusing it reports that as no effect.
+    if (
+        isinstance(call.func, ast.Attribute)
+        and isinstance(call.func.value, ast.Name)
+        and call.func.value.id in _INSTANCE_RECEIVERS
+    ):
+        bound = _resolve((self_aliases or {}).get(call.func.attr, ""), module)
+        if bound and "." in bound:
+            spelled = bound
     root = _root_name(call.func)
 
     if root is not None and root in dynamic:
@@ -605,6 +734,22 @@ def _classify_call(
         if root is not None and (root in module.bindings or root in origins):
             return None, None, "UNRESOLVED_CALLEE"
         return None, None, None
+
+    # `handle = anthropic.Anthropic()` then `handle.messages.create(...)`. The receiver is
+    # known, but the method sits behind an attribute chain, and reading only the first level
+    # left the call resolving to nothing at all -- neither an effect nor a refusal. Every
+    # LLM and cloud SDK is shaped this way, so egress published as silence.
+    if root is not None and root in origins and isinstance(call.func, ast.Attribute):
+        receiver, constructor = origins[root]
+        method = call.func.attr
+        if receiver in EXTERNAL_RECEIVERS:
+            return "external", f"{receiver}.{method}", None
+        if receiver in PATH_RECEIVERS:
+            if method in WRITE_RECEIVER_METHODS:
+                return "write", f"{receiver}.{method}", None
+            if method in READ_RECEIVER_METHODS:
+                action = "sensitive" if _is_credential_path(constructor) else "read"
+                return action, f"{receiver}.{method}", None
 
     if _is_instance_state_call(call):
         # self.client.post(...). Resolve it when the class stored a known receiver on that
@@ -701,6 +846,9 @@ def _classify_call(
     origin_root = qualified.split(".", 1)[0]
     imported_roots = {binding.split(".", 1)[0] for binding in module.bindings.values()}
     if origin_root in imported_roots and origin_root not in sys.stdlib_module_names:
+        if qualified in RESULT_CONSTRUCTORS:
+            # Wrapping a return value is not an effect, and must not outrank one.
+            return None, None, None
         return _UNRECOGNIZED, None, None
 
     return None, None, None
@@ -737,10 +885,13 @@ def _collect_signals(
 
     owner = module.method_owner.get(f"{function.name}:{function.lineno}")
     self_attributes = module.self_origins.get(owner or "", {})
+    self_aliases = module.self_symbols.get(owner or "", {})
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
+    aliases = _symbol_aliases(function, module)
+    instances = _local_instances(function, module)
     shadowed = _local_names(function)
 
     decorator_nodes = {
@@ -752,7 +903,9 @@ def _collect_signals(
             # performs, and classifying it made every decorated tool refuse on its own
             # registration call.
             continue
-        action, symbol, reason = _classify_call(node, module, origins, dynamic, self_attributes)
+        action, symbol, reason = _classify_call(
+            node, module, origins, dynamic, self_attributes, aliases, self_aliases
+        )
         if reason:
             tool.reasons.add(reason)
         if action == _UNRECOGNIZED:
@@ -762,6 +915,50 @@ def _collect_signals(
             tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
             continue
         if depth >= MAX_CALL_DEPTH:
+            continue
+        # A call on an instance of a class this module defines is one hop, like a helper.
+        if (
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id in instances
+        ):
+            owning = instances[node.func.value.id]
+            method = next(
+                (
+                    candidate
+                    for candidate in module.methods
+                    if candidate.name == node.func.attr
+                    and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owning
+                ),
+                None,
+            )
+            key = f"{owning}.{node.func.attr}"
+            if method is not None and key not in visited:
+                visited.add(key)
+                _collect_signals(tool, method, module, (*via, node.func.attr), depth + 1, visited)
+            continue
+        # A call to a sibling method of the same class is one hop, exactly like a module
+        # helper. Not following it left every effect reached through `self._invoke`
+        # invisible, which is how a shell invocation two hops down read as no effect.
+        if (
+            owner is not None
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id in _INSTANCE_RECEIVERS
+        ):
+            sibling = next(
+                (
+                    candidate
+                    for candidate in module.methods
+                    if candidate.name == node.func.attr
+                    and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owner
+                ),
+                None,
+            )
+            key = f"{owner}.{node.func.attr}"
+            if sibling is not None and key not in visited:
+                visited.add(key)
+                _collect_signals(tool, sibling, module, (*via, node.func.attr), depth + 1, visited)
             continue
         # Follow a call into a module-local helper so effects one hop away still count.
         spelled = _dotted(node.func)
@@ -822,6 +1019,8 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
             framework: str | None = None
             if qualified in LANGCHAIN_TOOL_DECORATORS:
                 framework = "langchain_tool_decorator"
+            elif qualified in SEMANTIC_KERNEL_DECORATORS:
+                framework = "semantic_kernel_decorator"
             elif qualified and qualified.endswith(".tool"):
                 # FastMCP and similar: @<server>.tool(). The receiver is a local object,
                 # so this is recorded as a lower-confidence framework, never as proof.
@@ -830,15 +1029,70 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
                 framework = "mcp_call_tool"
             if framework is None:
                 continue
+            registered = _tool_name_from_decorator(decorator, function.name)
             discovered.append(
                 DiscoveredTool(
-                    _tool_name_from_decorator(decorator, function.name),
+                    registered,
                     framework,
                     module.path,
                     function.lineno,
+                    implementation=function.name if registered != function.name else None,
                 )
             )
             break
+    return discovered
+
+
+def _class_attribute_string(node: ast.ClassDef, attribute: str) -> str | None:
+    """The literal string a class assigns to *attribute*, annotated or not."""
+
+    for child in node.body:
+        if isinstance(child, ast.AnnAssign) and isinstance(child.target, ast.Name):
+            target, value = child.target.id, child.value
+        elif (
+            isinstance(child, ast.Assign)
+            and len(child.targets) == 1
+            and isinstance(child.targets[0], ast.Name)
+        ):
+            target, value = child.targets[0].id, child.value
+        else:
+            continue
+        if target == attribute and value is not None:
+            return _constant_str(value)
+    return None
+
+
+def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
+    """LangChain tools written as a BaseTool subclass rather than a decorated function.
+
+    The tool is located at its `_run` body rather than at the class statement, so the
+    existing body resolution reaches the code that actually performs the effect. Without
+    this the whole class is invisible: the effects it performs are never attributed to any
+    tool, and a reviewer reading the discovery artifact sees a smaller tool surface than the
+    agent really exposes.
+    """
+
+    discovered: list[DiscoveredTool] = []
+    for node in module.tree.body:
+        if not isinstance(node, ast.ClassDef):
+            continue
+        if not any(_resolve(_dotted(base), module) in BASE_TOOL_CLASSES for base in node.bases):
+            continue
+        methods = {
+            child.name: child
+            for child in node.body
+            if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef)
+        }
+        body = next((methods[name] for name in BASE_TOOL_BODY_METHODS if name in methods), None)
+        discovered.append(
+            DiscoveredTool(
+                _class_attribute_string(node, "name") or node.name,
+                "langchain_base_tool_subclass",
+                module.path,
+                body.lineno if body is not None else node.lineno,
+                implementation=node.name,
+            )
+        )
     return discovered
 
 
@@ -852,14 +1106,27 @@ def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
             continue
         keyword = _keyword(node, "name")
         target = _keyword(node, "func") or _keyword(node, "fn") or _keyword(node, "coroutine")
-        fallback = target.id if isinstance(target, ast.Name) else "unnamed_tool"
+        # A factory may be handed a free function or a bound method. `func=summarize` names
+        # a module function; `coroutine=_instance.rotate_logs` names a method, and reading
+        # only the first form declared the second body unavailable and analysed nothing.
+        if isinstance(target, ast.Name):
+            implementation = target.id
+        elif isinstance(target, ast.Attribute):
+            implementation = target.attr
+        else:
+            implementation = None
+        reachable = implementation is not None and (
+            implementation in module.functions
+            or any(method.name == implementation for method in module.methods)
+        )
         tool = DiscoveredTool(
-            _constant_str(keyword) or fallback,
+            _constant_str(keyword) or implementation or "unnamed_tool",
             "structured_tool_factory",
             module.path,
             node.lineno,
+            implementation=implementation,
         )
-        if not isinstance(target, ast.Name) or target.id not in module.functions:
+        if not reachable:
             tool.reasons.add("BODY_UNAVAILABLE")
         discovered.append(tool)
     return discovered
@@ -914,7 +1181,11 @@ def analyze_sources(
 
     tools: list[DiscoveredTool] = []
     for module in modules:
-        candidates = _discover_decorated_tools(module) + _discover_factory_tools(module)
+        candidates = (
+            _discover_decorated_tools(module)
+            + _discover_class_tools(module)
+            + _discover_factory_tools(module)
+        )
         bound = _bound_tool_names(module)
         for name in sorted(bound):
             if name in module.functions and not any(
@@ -927,13 +1198,17 @@ def analyze_sources(
                 )
 
         for tool in candidates:
-            function = module.functions.get(tool.name)
+            function = module.functions.get(tool.implementation or tool.name) or (
+                module.functions.get(tool.name)
+            )
             if function is None:
                 function = next(
                     (
                         candidate
                         for candidate in module.methods
-                        if candidate.lineno == tool.line or candidate.name == tool.name
+                        if candidate.lineno == tool.line
+                        or candidate.name == (tool.implementation or tool.name)
+                        or candidate.name == tool.name
                     ),
                     None,
                 )

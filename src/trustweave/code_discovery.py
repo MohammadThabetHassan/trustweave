@@ -76,6 +76,7 @@ def _tool_entry(tool: DiscoveredTool, declared_names: set[str] | None) -> dict[s
     entry: dict[str, Any] = {
         "name": tool.name,
         "framework": tool.framework,
+        **({"implementation": tool.implementation} if tool.implementation is not None else {}),
         "location": {"file": tool.file, "line": str(tool.line)},
         "proposed_action_class": proposed,
         "confidence": tool.confidence(),

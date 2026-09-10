@@ -1,0 +1,577 @@
+{
+  "schema_version": "trustweave.dev/suite-coverage/v1alpha1",
+  "ecosystem": "cedar",
+  "corpus": [
+    {
+      "name": "cedar-policy_cedar-integration-tests",
+      "remote": "https://github.com/cedar-policy/cedar-integration-tests.git",
+      "commit": "6802e0280207feb682894b7cf39e00cb12280a8c"
+    }
+  ],
+  "decision_domains": {
+    "cedar_decision": [
+      "allow",
+      "deny"
+    ]
+  },
+  "extraction_rate": 1.0,
+  "sufficient_for_summary": true,
+  "files_considered": 24,
+  "files_measured": 24,
+  "observations": 78,
+  "subjects_measured": 23,
+  "subjects_blind": 2,
+  "by_domain": {
+    "cedar_decision": {
+      "subjects": 23,
+      "blind": 2,
+      "covering_domain": 21,
+      "domain_size": 2,
+      "witnessing_more_than_one": 21,
+      "share_witnessing_more_than_one": 0.913,
+      "share_covering_domain": 0.913
+    }
+  },
+  "not_extracted": [],
+  "subjects": [
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/decimal/policies_1.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/decimal/policies_2.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_1a.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_2a.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_2a.cedar.json",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_2b.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_2c.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_3a.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_3b.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_3c.cedar",
+      "decisions_witnessed": [
+        "allow"
+      ],
+      "blind": true,
+      "domain_size": 2,
+      "decisions_unwitnessed": [
+        "deny"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_4a.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_4d.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_4e.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_4f.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/example_use_cases/policies_5b.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/ip/policies_1.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/ip/policies_2.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/ip/policies_3.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/multi/policies_1.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/multi/policies_2.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/multi/policies_3.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/multi/policies_4.cedar",
+      "decisions_witnessed": [
+        "allow",
+        "deny"
+      ],
+      "blind": false,
+      "domain_size": 2,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "cedar_decision",
+      "subject": "tests/multi/policies_5.cedar",
+      "decisions_witnessed": [
+        "allow"
+      ],
+      "blind": true,
+      "domain_size": 2,
+      "decisions_unwitnessed": [
+        "deny"
+      ],
+      "covers_domain": false
+    }
+  ],
+  "extra": {
+    "tests/decimal/policies_1.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/decimal/policies_2.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_1a.cedar": {
+      "request_cells_witnessed": 2,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|delete|Photo": [
+          "deny"
+        ],
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_2a.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_2a.cedar.json": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_2b.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_2c.cedar": {
+      "request_cells_witnessed": 3,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|delete|Photo": [
+          "deny"
+        ],
+        "User|edit|Photo": [
+          "allow",
+          "deny"
+        ],
+        "User|view|Photo": [
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_3a.cedar": {
+      "request_cells_witnessed": 2,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "Administrator|view|Photo": [
+          "allow"
+        ],
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_3b.cedar": {
+      "request_cells_witnessed": 3,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|listAlbums|Account": [
+          "allow"
+        ],
+        "User|listPhotos|Album": [
+          "allow"
+        ],
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_3c.cedar": {
+      "request_cells_witnessed": 3,
+      "request_cells_witnessing_both_decisions": 0,
+      "cells": {
+        "User|edit|Photo": [
+          "allow"
+        ],
+        "User|view|Photo": [
+          "allow"
+        ],
+        "User|view|Video": [
+          "allow"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_4a.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_4d.cedar": {
+      "request_cells_witnessed": 2,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|edit|Photo": [
+          "allow"
+        ],
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_4e.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_4f.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/example_use_cases/policies_5b.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|addPhoto|Album": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/ip/policies_1.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/ip/policies_2.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/ip/policies_3.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/multi/policies_1.cedar": {
+      "request_cells_witnessed": 2,
+      "request_cells_witnessing_both_decisions": 2,
+      "cells": {
+        "User|edit|Photo": [
+          "allow",
+          "deny"
+        ],
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/multi/policies_2.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/multi/policies_3.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/multi/policies_4.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 1,
+      "cells": {
+        "User|view|Photo": [
+          "allow",
+          "deny"
+        ]
+      }
+    },
+    "tests/multi/policies_5.cedar": {
+      "request_cells_witnessed": 1,
+      "request_cells_witnessing_both_decisions": 0,
+      "cells": {
+        "User|view|Photo": [
+          "allow"
+        ]
+      }
+    }
+  }
+}

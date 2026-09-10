@@ -1,0 +1,424 @@
+{
+  "schema_version": "trustweave.dev/suite-coverage/v1alpha1",
+  "ecosystem": "xacml",
+  "corpus": [
+    {
+      "name": "authzforce_core",
+      "remote": "https://github.com/authzforce/core.git",
+      "commit": "ab73ad39cf037cdd87100e2148464b1d2d64d5b6"
+    },
+    {
+      "name": "wso2_balana",
+      "remote": "https://github.com/wso2/balana.git",
+      "commit": "474841718721f840fa39d13cfa3232f9cf864f3e"
+    }
+  ],
+  "decision_domains": {
+    "xacml_decision": [
+      "Deny",
+      "Indeterminate",
+      "NotApplicable",
+      "Permit"
+    ]
+  },
+  "extraction_rate": 1.0,
+  "sufficient_for_summary": true,
+  "files_considered": 59,
+  "files_measured": 59,
+  "observations": 65,
+  "subjects_measured": 21,
+  "subjects_blind": 4,
+  "by_domain": {
+    "xacml_decision": {
+      "subjects": 21,
+      "blind": 4,
+      "covering_domain": 1,
+      "domain_size": 4,
+      "witnessing_more_than_one": 17,
+      "share_witnessing_more_than_one": 0.8095,
+      "share_covering_domain": 0.0476
+    }
+  },
+  "not_extracted": [],
+  "subjects": [
+    {
+      "domain": "xacml_decision",
+      "subject": "advance/3/policy_0002",
+      "decisions_witnessed": [
+        "Permit"
+      ],
+      "blind": true,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Deny",
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "advance/3/policy_0003",
+      "decisions_witnessed": [
+        "Deny",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "advance/3/policy_0004",
+      "decisions_witnessed": [
+        "Permit"
+      ],
+      "blind": true,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Deny",
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0001",
+      "decisions_witnessed": [
+        "Deny",
+        "Indeterminate",
+        "NotApplicable",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [],
+      "covers_domain": true
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0002",
+      "decisions_witnessed": [
+        "Deny",
+        "NotApplicable",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0003",
+      "decisions_witnessed": [
+        "Deny",
+        "NotApplicable",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0004",
+      "decisions_witnessed": [
+        "Deny",
+        "NotApplicable",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0005",
+      "decisions_witnessed": [
+        "Deny",
+        "NotApplicable",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0006",
+      "decisions_witnessed": [
+        "Deny",
+        "Indeterminate",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0007",
+      "decisions_witnessed": [
+        "Deny",
+        "Indeterminate",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0008",
+      "decisions_witnessed": [
+        "Deny",
+        "Indeterminate",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0009",
+      "decisions_witnessed": [
+        "Indeterminate",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Deny",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0010",
+      "decisions_witnessed": [
+        "Deny",
+        "Indeterminate",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0011",
+      "decisions_witnessed": [
+        "Indeterminate",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Deny",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0014",
+      "decisions_witnessed": [
+        "Deny",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0015",
+      "decisions_witnessed": [
+        "Permit"
+      ],
+      "blind": true,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Deny",
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0016",
+      "decisions_witnessed": [
+        "Permit"
+      ],
+      "blind": true,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Deny",
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0017",
+      "decisions_witnessed": [
+        "Deny",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0018",
+      "decisions_witnessed": [
+        "Deny",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0019",
+      "decisions_witnessed": [
+        "Deny",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    },
+    {
+      "domain": "xacml_decision",
+      "subject": "basic/3/policy_0020",
+      "decisions_witnessed": [
+        "Deny",
+        "Permit"
+      ],
+      "blind": false,
+      "domain_size": 4,
+      "decisions_unwitnessed": [
+        "Indeterminate",
+        "NotApplicable"
+      ],
+      "covers_domain": false
+    }
+  ],
+  "extra": {
+    "advance/3/policy_0002": {
+      "cases": 1
+    },
+    "advance/3/policy_0003": {
+      "cases": 1
+    },
+    "advance/3/policy_0004": {
+      "cases": 1
+    },
+    "basic/3/policy_0001": {
+      "cases": 7
+    },
+    "basic/3/policy_0002": {
+      "cases": 3
+    },
+    "basic/3/policy_0003": {
+      "cases": 3
+    },
+    "basic/3/policy_0004": {
+      "cases": 3
+    },
+    "basic/3/policy_0005": {
+      "cases": 3
+    },
+    "basic/3/policy_0006": {
+      "cases": 3
+    },
+    "basic/3/policy_0007": {
+      "cases": 3
+    },
+    "basic/3/policy_0008": {
+      "cases": 3
+    },
+    "basic/3/policy_0009": {
+      "cases": 3
+    },
+    "basic/3/policy_0010": {
+      "cases": 3
+    },
+    "basic/3/policy_0011": {
+      "cases": 3
+    },
+    "basic/3/policy_0014": {
+      "cases": 1
+    },
+    "basic/3/policy_0015": {
+      "cases": 3
+    },
+    "basic/3/policy_0016": {
+      "cases": 3
+    },
+    "basic/3/policy_0017": {
+      "cases": 3
+    },
+    "basic/3/policy_0018": {
+      "cases": 3
+    },
+    "basic/3/policy_0019": {
+      "cases": 3
+    },
+    "basic/3/policy_0020": {
+      "cases": 3
+    }
+  }
+}
