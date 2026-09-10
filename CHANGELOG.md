@@ -6,6 +6,59 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/clone_pinned_corpora.py` puts every corpus on disk at the commit its artifact
+  records, deriving the list from the artifacts so it cannot drift from the measurement, and
+  refuses a checkout that did not finish. A blobless clone fetches file contents lazily and a
+  partial checkout still answers `git rev-parse HEAD` correctly, which is how one measurement
+  came to read a fifth of its repository and record the commit for all of it; re-running now
+  repairs such a tree rather than only reporting on it.
+- `.github/workflows/provenance.yml` runs that reproduction monthly and on request: it clones
+  all eleven pinned repositories, installs a digest-verified `opa`, re-measures, and fails if
+  any count differs from the committed artifact. It is deliberately not on push, because it
+  fetches roughly 700 MB from third-party repositories. Every other check in this repository
+  compares the artifacts with themselves, which cannot catch an artifact recording a commit
+  that does not describe what was read.
+- `docs/REPRODUCING_THE_STUDY.md` is the guide an artifact reviewer needs: what to install,
+  how to re-derive each artifact, what should match, why the manuscript is in a separate
+  private repository, and the four things this repository cannot check on its own. Named to
+  avoid collision with `docs/REPRODUCIBILITY.md`, which is about the tool's own deterministic
+  output; the two now cross-link.
+- The manuscript guard checks figure data. A plotted series lives in
+  `\addplot coordinates {...}` and no prose pin reaches it, so coordinates can go stale while
+  the caption, the surrounding text and the artifact all still agree. Each series is now
+  recomputed from its artifact and reported by name when it disagrees, and a figure whose
+  label moves is reported rather than silently skipped.
+- `scripts/azure_initiative_bindings.py` and
+  `docs/azure-initiative-bindings-v1.json` answer, from the corpus, whether the
+  instantiation a schema verdict presumes actually exists: 538 of the 769 Azure schemas are
+  included in a built-in initiative that binds every parameter they left without a default,
+  and 231 are in no initiative that binds anything. The 538 had been a hand count quoted
+  beside a denominator a re-measurement moved, and the completeness half of the claim --
+  that the initiative binds the parameters that had no default, rather than some other
+  parameter -- had never been checked at all.
+- `scripts/verify_corpus_provenance.py` re-measures every whole-corpus membership
+  artifact from the commits it records and diffs the counts, so the claim that a figure
+  reproduces is an instrument rather than a note. Its last run is
+  `docs/corpus-provenance-verification-v1.json`: 7 of 11 artifacts re-measured and all 7
+  reproduced, with a stated reason for each of the four it does not check. It takes the
+  corpora as an input rather than cloning them, so it needs no network and cannot depend on
+  a remote still serving a commit. The Azure discrepancy below is what it was written for.
+- The copy of an Azure definition that gets judged is now chosen rather than inherited from
+  the filesystem. 25 identifiers appear at two paths in the pinned tree and 7 of those pairs
+  state different rules, so keying on the identifier and keeping the first path visited
+  decides a verdict; `CANONICAL_DIRECTORIES` makes the published built-in win instead of
+  whichever path sorted first. The verdicts are unchanged, which is the point: the choice was
+  already being made, just not by anyone.
+- `scripts/oracle_rego.py` and `docs/oracle-rego-v1.json`: the Rego membership instrument
+  checked against `opa deps` on all 273 measured modules, static and — for the 23 Gatekeeper
+  templates that ship a suite and that the adapter calls inside — dynamic, running each
+  suite as shipped and under two injected `data` documents standing for cluster state the
+  policy did not write. 230 tests give the same outcome either way. The artifact records
+  what the engine flags that the hand list lacked and what each corpus calls.
+- `scripts/interpreter_oracle.py` and `docs/interpreter-oracle-v1.json`: the harness's
+  decision map against `evaluate_flow`, with the seed, the policies, the counts and the
+  disagreements — listed rather than counted, so that a future one names a policy and a
+  subject.
 - `trustweave discover` statically analyzes local Python source for the tool surface an
   agent can reach, proposes an action class per tool from a versioned symbol catalog with
   the evidence that produced it, reports declaration drift in both directions against a
@@ -14,20 +67,291 @@ All notable changes to TrustWeave are documented in this file. The project follo
   previously published boundary on repository analysis.
 - `trustweave.dev/code-discovery/v1alpha1` artifact contract and schema.
 - Ten `TW-CODE-*` review rules covering refusal, drift, and declaration mismatch.
-
-### Added
-
+- `discover` recognises the registration forms agents actually use: Semantic Kernel plugin
+  methods, LangChain `BaseTool` subclasses whose behaviour sits in `_run` or `_arun`, and
+  the names a low-level MCP server declares in `list_tools` and implements in one
+  `call_tool` handler. Every tool in the classification benchmark is now discovered.
+- Tools whose registered name differs from the function that implements them record both.
+  A factory can expose `object_summary` while the code that runs is
+  `summarize_bucket_object`; the artifact carries an `implementation` field and the report
+  prints it under the registered name.
+- `docs/classifier-evaluation-v1.json` records the benchmark result, broken down by
+  registration form and refusal reason, and a ratchet in the test suite holds accuracy,
+  precision when answering, tools discovered, and per-class recall against it.
 - Added versioned evaluation governance, a deterministic twelve-case synthetic corpus, local preflight validation, corpus lifecycle controls, reviewer quickstart, archive-readiness materials, and safe public-feedback/triage infrastructure. These are prepared repository-controlled foundations; no independent reviewer, pilot, adoption, benchmark, archive, or security-efficacy result is claimed.
 - Added an owner-facing GitHub governance decision record, a manually triggered least-privilege OpenSSF Scorecard assessment workflow that retains a local GitHub Actions artifact without publishing results, and a record template that prohibits score, badge, certification, or remediation claims before owner-reviewed evidence exists.
 - Added a fixed offline reviewer packet, consent-aware feedback and result-record templates, and a deterministic local artifact builder/verifier that allowlists public-safe files, records SHA-256 digests, rejects unsafe paths and credential-like content, and creates deterministic local ZIP packages without upload or network behavior.
 
 ### Changed
 
+- The research write-ups moved out of the repository. A journal, and the similarity check
+  it runs, reads a publicly posted full text as prior dissemination, and that applies to
+  the long-form development as much as to the manuscript — including a prospectus that was
+  published on the docs site complete with the claim, the theorem statements, and the
+  measured figures. Every measurement artifact under `docs/` stays, each recording the
+  corpus commit it read, along with every instrument in `scripts/` that produced one.
+  `docs/site/RESEARCH_NOTE.md` says where the write-ups went and how to point the two
+  checks that read them at their new location.
+- `demo/research-assistant/demo.gif` is re-encoded from 1,345 KiB to 892 KiB with the same
+  44 frames, the same dimensions and the same per-frame timing. It is a recording of a real
+  run and is not regenerable from anything in this repository, so nothing was re-rendered:
+  `scripts/optimise_demo_gif.py` reads the frames that are there, quantises them to a
+  16-colour palette — the source holds 48 distinct colours, and 64 or 128 produce identical
+  output — and verifies that the count, size and timing survive. The reason it had grown to
+  more than twice what any case is allowed is that it had no budget and nothing measured it,
+  so `tests/test_demo_gif_budget.py` now holds it to 1,000 KiB and fails if any future GIF
+  appears in a directory no budget covers. The budget says how large a file may be; a
+  second check says how it got there, holding every demo GIF to its renderer's palette
+  width — 16 colours here, 64 for a case — read from the GIF's own colour tables rather
+  than through Pillow, which is an optional extra the CI environment does not install.
+  Every frame's local table is checked too, since a wide local palette would otherwise
+  defeat a narrow global one without changing a byte of the header.
+- The declaration-consistency case walkthroughs no longer print
+  `== Captured terminal output begins ==` into the terminal body. Distinguishing what
+  `run-case.sh` emitted from what the renderer added is worth keeping, so captured lines
+  now carry a rule down the left margin and one caption at the foot instead of two lines
+  of narration. The briefing dropped from seven labelled fields to the three a reviewer
+  needs, output advances two lines at a time rather than four, and the canvas follows the
+  content instead of leaving a third of the terminal empty. A 64-colour palette pays for
+  the extra frames: the largest case is 523 KiB against the 600 KiB budget, smaller than
+  before with two thirds more frames.
+
 - Separated the prepared source version from the last observed public package release in the compatibility contract so an unreleased candidate cannot be presented as published provenance evidence.
 - Replaced fragile README release-version prose with durable PyPI and GitHub Releases references while retaining the exact historical `0.3.0` release-evidence limit.
 - Rewrote the README around a verified two-minute quickstart with real output, a curated docs index, and a shorter plain-language explanation of the evidence-not-enforcement boundary.
 - Reorganized documentation: point-in-time release checklists, migration guides, audit records, and the maintainer handoff snapshot moved to `docs/archive/` with an index; ADRs moved to `docs/adr/`; the documentation site navigation is grouped by task (getting started, concepts, how-to, CLI, policies, assurance, releases).
 - Tightened the installation and troubleshooting pages, fixed stray code-block indentation, and made the missing-paths configuration error list exactly which paths it wants.
+- The mutation quality and survivor-parity gate moved out of an inline workflow script into
+  `scripts/mutation_gate.py`. The hosted job now invokes the same script a contributor can
+  run before pushing, which is what the previous arrangement made impossible.
+- The mutation scope covers sixteen modules; `code_sources.py` and `code_discovery.py`, the
+  intake and artifact production behind `trustweave discover`, are gated with the rest.
+- The mutation run now covers two scopes with two contracts. Sixteen modules are gated: a
+  95% threshold computed over that scope alone, exact survivor parity, a recorded proof for
+  every survivor, and no mutant without a covering test. `code_analysis.py` is ratcheted: it
+  is mutated on every run and held to a floor in `docs/mutation-ratchet-v1.json` that it may
+  not fall below. It is not gated because the triage would need a proof for each of its 353
+  survivors and most are not equivalences, but leaving it out of the run entirely meant its
+  rate could fall with nothing to say so.
+- A mutant reported as having no covering test is forbidden in the gated scope, where the
+  triage cannot account for it, and counted in the denominator of a ratcheted module, so
+  unreachable code lowers the rate rather than hiding in it. That accounting found the
+  call-depth fail-open fix had no test protecting it.
+- `scripts/fragment_membership.py` measures which published policies lie inside the
+  decidable fragment, one adapter per ecosystem: 15 of 21 XACML policies, 41 of 49 Kyverno
+  policies, and 22 of 22 Cedar policies, with nothing left undetermined in any of the
+  three. It replaces the XACML-only `scripts/xacml_fragment_membership.py`.
+
+### Fixed
+
+- The Azure measurement did not reproduce from the commit it recorded. Re-cloning
+  `Azure/azure-policy` at the pinned `9780ba64` and re-running the adapter found 3,769
+  definitions where the committed artifact recorded 3,659: the tree measured had been an
+  earlier one, and 110 definitions under `samples/`, `patterns/` and
+  `ExternalEvaluationPolicies/` were absent from it while the newer commit hash was
+  recorded beside the result. Every Azure figure is re-measured at the pin, and the other
+  seven corpora were re-cloned and re-measured to check the same way: all seven reproduce
+  their committed artifacts exactly. Azure is now 2,884 of 3,769 inside, and the two
+  definitions that had been undetermined are judged — `true()` and `false()` are
+  constants, and `claims()` reads a value projected from a Resource Graph query the
+  definition declares and the platform runs across the tenant, which is the same
+  obstruction as Kyverno's `context.apiCall`.
+- A clock read was two different kinds of exclusion depending on the language. The Azure
+  adapter pooled `utcNow()` and `newGuid()` with `reference()`, so a definition reading the
+  clock was reported as reading another resource's runtime state, while the Rego adapter
+  reported `time.now_ns` as evaluation-time state; the pooled taxonomy therefore carried
+  one obstruction under two headings. The two adapters now share one reporting rule — the
+  obstruction that survives instantiation is the one named, so nondeterminism outranks
+  reading outside state, which outranks being a schema — and each records every obstruction
+  it found rather than only the one that won. That moves 17 Azure definitions to
+  evaluation-time state and two Rego modules to reading the inventory. Pooled across the
+  eight corpora: 1,053 exclusions — 826 schemas, 207 where the subject does not determine
+  the guard, 20 reading evaluation-time state — with 5,494 of 5,721 policies inside.
+- Azure definitions excluded for reading runtime state did not record their undefaulted
+  parameters, because the classifier returned before it looked, so the count of definitions
+  awaiting an assignment could not be derived from the artifact it was quoted beside. The
+  evidence is recorded unconditionally now: 855 definitions have a parameter with no
+  default, of which 769 are reported as schemas and 86 carry a stronger obstruction as well.
+- The coverage-cost measurement walked (name, path) pairs where the membership measurement
+  keys on the name, so seven Azure definitions were measured twice and the cost denominator
+  was larger than the inside set it described. It measures each definition once, at the path
+  the verdict was reached on, and fails loudly if the two ever disagree again.
+- The interpreter oracle skipped any generated policy whose quotient exceeded 4,000 classes,
+  which silently biased the check towards small quotients: 132 candidates were dropped. The
+  cap is an argument now, its default is 200,000, and the sizes of what it excludes are
+  recorded. One candidate of 201 is skipped, at 414,720 classes, and the check covers
+  1,702,668 class witnesses rather than 223,452 — still with no disagreement.
+
+- The Rego fragment-membership adapter was checked against the engine that runs the
+  policies, and four verdicts changed. `opa deps` reports the base documents a package's
+  rules depend on from OPA's own compiler; `scripts/oracle_rego.py` puts every module of
+  both Rego corpora to it and to the adapter and requires the two readings to agree. On the
+  first run they did not. A published module calls `http.send(request, response)` as a
+  top-level statement, which in the AST is a bare list of terms rather than a `call` node,
+  and the walker looked for the wrapped form alone — it was recorded inside the fragment.
+  The five nondeterministic builtins the adapter listed by hand are a strict subset of the
+  nine the engine flags; the set now comes from `opa capabilities`. Propagating exclusions
+  along imports rather than along the rules a policy evaluates was wrong in both directions:
+  one `redhat-cop` policy imports `lib.openshift` and calls only a request-reading rule of
+  it, and was excluded; one `opa-library` policy reaches cluster state through a package
+  prefix indexed by a variable, and was not. And a ref's later `var` parts were read as
+  static keys, so `vetter[_].info[r]` resolved to nothing. The four-corpus artifact moves
+  from 116 inside of 186 to 115, with 24 rather than 25 excluded through a library rule.
+- Google's Config Validator templates take Constraint parameters through
+  `input.constraint`, not Gatekeeper's `input.parameters`, and the adapter knew only the
+  second convention. The same construct that made 28 Gatekeeper templates policy schemas
+  was counted as policy in Google's library, which reported 85 of 87 inside. The criterion
+  is now stated once and applied to both: an artifact is a schema when it reads a
+  parameter the policy supplies no default for, where `object.get` and Config Validator's
+  `lib.get_default` with a literal default are defaults, exactly as an Azure `defaultValue`
+  is. Google's library is 31 schemas, 15 templates complete by their own defaults, 39 that
+  read no parameter and 2 that read the clock: 54 of 87 inside. The corpus ships a sample
+  Constraint instantiating every one of the 31, and the test that checks that claim now
+  runs against both corpora.
+- The decision map `scripts/policy_mutation.py` builds was checked against the engine that
+  ships, and two defects the shipped policy never reaches were found and fixed. The theory
+  tests' "engine's own first-match evaluation" had called the harness's re-implementation;
+  `scripts/interpreter_oracle.py` decides every class witness and a seeded sample of
+  concrete subjects through `trustweave.engine.evaluate_flow` as well, over the shipped
+  policy, a richer variant and 200 generated policies the parser accepts. `abstract_cell`
+  collected every witness a subject's capabilities matched where the enumeration keeps one
+  representative per achievable signature, so under nested patterns a subject was placed on
+  a cell no decision map contained; it is placed by signature now. And the witness space had
+  no value for a classification outside the taxonomy, which the engine admits and which
+  fails every bound, so such a subject was placed on the first taxonomy entry and decided
+  wrongly; the outsider is a class of its own now. After both fixes the two agree on 223,452
+  class witnesses and 8,080 sampled subjects. The theory test decides through the engine.
+- The exclusion taxonomy's third row was named for the clock alone. The network call the
+  oracle found belongs to the same kind — state that does not exist until evaluation, which
+  no choice of subject fixes — so the row is "reads evaluation-time state" and holds three.
+- The manuscript guard's own perturbation tests carried figures by hand — a pooled count
+  summed over four ecosystems from before IAM and Azure joined the table, and mechanism
+  counts from before the worked example was corrected — and so could not run where the
+  manuscript lives. They derive their figures from the artifacts and the paper now, and the
+  guard pins 68 claims rather than 51.
+- The repository reality check read `<https://example.com>` — the angle-bracketed form
+  Markdown permits — as a broken local path. Nineteen valid DOI links were reported as
+  broken once a generated report used that form. The brackets are delimiters and are now
+  stripped before the scheme is tested.
+
+- Effects that were reachable but unreported, each of which had the analyzer describe a
+  tool as harmless when it was not: a symbol called through a local alias, a method on an
+  instance the tool constructs, a sibling method reached through `self`, a client used
+  behind an attribute chain, a receiver handed to a helper, a credential path assembled by
+  `/` composition, and a literal argument the deciding call sees one frame up. Constructing
+  the object a protocol requires a tool to return no longer suppresses an observed effect.
+- An observed effect at the top of the precedence order is reported even when something
+  else in the same tool could not be resolved, since nothing outranks it. Below that class
+  the refusal stands.
+- The published mutation record and the survivor-triage inventory it describes stated
+  different totals -- 126 survivors of 6,691 mutants in the prose against 133 of 6,566 in
+  the inventory -- because nothing compared them. The repository-reality check now derives
+  every countable claim in the record from the inventory, so a regenerated inventory forces
+  the prose to be regenerated with it.
+- `collect_python_sources` reported a stat failure and a read failure through messages no
+  test asserted, and read sources with an encoding a mutation could drop in favour of the
+  platform locale, which on a POSIX or ASCII locale records a valid UTF-8 module as
+  `file_is_not_utf8`. All three are asserted now, and the stat path is no longer marked
+  `# pragma: no cover`.
+- Reading a credential file was reported as a benign read, at high confidence, in two of
+  the four ways an agent can write it. Through the builtin `open`, because that path
+  decided from the file mode alone and never consulted the credential-path table. And
+  through a `pathlib.Path` stored on `self` in `__init__`, because indexing a class kept
+  only the constructor's callee and discarded the literal that says the path is a secret.
+  The local-variable and inline spellings were already correct, so the same operation was
+  classified two different ways depending on style. All four now agree, and a test asserts
+  that they do. Writes keep the write class whatever the path, matching the existing
+  treatment of the pathlib write methods.
+- Removed `_env_is_secret`, which was defined, never called, and fully superseded by
+  `_environ_class`. It was found by the mutation gate's coverage accounting rather than by
+  a failing test: eighteen of its mutants were reported as having no covering test at all,
+  which is what an uncalled function looks like.
+- An action class the precedence order does not contain was reported as `read`, the most
+  benign class, instead of being refused. Signals are built from the catalogue, so that
+  state means the analyzer produced evidence it cannot interpret, and answering benignly
+  there is the one direction a security review must not fail in. A tool with no signals at
+  all is a different case and still reads as `read`.
+- An effect one frame past the call-depth budget was reported as a local read at high
+  confidence, with `budget_state` still `complete` and no reason recorded, so an outbound
+  call four frames down published as no effect at all. The breadth budget had always
+  reported itself; the depth budget now does the same, and such a tool is refused rather
+  than answered.
+- Four more effects that were reported as benign reads, each found by working the
+  classification benchmark's own failures. A receiver stored on `self` and reached through
+  an attribute chain, which is how every LLM and cloud SDK is written, so
+  `self.client.chat.completions.create(...)` published as a local read. An attribute taken
+  from a constructor, as in `self.chat = Chat(...).chat`, which was recorded as neither a
+  receiver nor a usable alias. A module-level singleton aliased to a local, which is how a
+  shared handle is normally reached. And `os.environ["DB_PASSWORD"]`: the traversal looked
+  only at call nodes, so the most ordinary spelling of reading a secret from the
+  environment was not seen at all, while `os.environ.get(...)` and `os.getenv(...)` both
+  were.
+- A tool whose body only raises `NotImplementedError` is refused as `BODY_UNAVAILABLE`
+  rather than classified. Its real routine is bound elsewhere, so having no effect in this
+  file is not evidence of having none.
+- A credential store reached through its backend was not recognised.
+  `keyring.get_password(...)` was catalogued but `keyring.get_keyring()` followed by
+  `backend.get_password(...)`, which is the form the library documents, was not. A
+  credential store is now a receiver in the same way a network client is, so the class
+  travels from the constructor through a local, an attribute chain, or an attribute stored
+  on `self`.
+- A file mode bound to a local was refused as though the caller supplied it. `mode = "w"`
+  then `open(path, mode)` now resolves, and so does a conditional whose arms are both
+  literals, since `"a" if event else "a+"` can only ever be an append. Where the arms
+  disagree, or the name is rebound, or the value comes from a parameter, the refusal
+  stands.
+- A method called on the result of another call could not be resolved, so the analyzer
+  refused on callees it could have named. A `pathlib` chain now keeps its receiver through
+  each link, so `Path(p).expanduser().resolve().stat()` is one read of one path and the
+  credential rule survives the chain. A method on a computed value -- `json.dumps(body)
+  .encode(...)`, `hashlib.new(algo, data).hexdigest()` -- is not an effect. A database
+  handle is plumbing, so `connect(dsn).cursor()` no longer poisons every database tool,
+  and the statement given to `execute` decides the class as before.
+- A SQL statement or file mode held in a module-level constant is resolved rather than
+  treated as built at runtime.
+- `eval` and `exec` applied to a caller-supplied argument are classified `sensitive`
+  rather than refused. They sat with `getattr` under dynamic dispatch, but `getattr`
+  selects a symbol while `eval` runs whatever it is handed: arbitrary code execution is
+  what `sensitive` means here, and it is knowable without reading the code. A constant
+  expression is left alone and `getattr` keeps its refusal.
+- Benchmark accuracy rises from 0.806 to 0.987 over the session on a benchmark that grew
+  from 72 cases to 75, the answer rate on decidable cases from 0.860 to 1.000, and
+  precision when answering from 0.918 to 0.9833. Accuracy on labels the two annotators
+  agree about is 1.000; the single remaining failure is the one case where they disagree.
+- Two whole registration forms were unrecognised, found by running discovery over agent
+  repositories with no connection to this project rather than over the benchmark. The
+  OpenAI Agents SDK's `@function_tool` was recognised by nothing, so 328 tools in one
+  repository were absent from the artifact rather than refused. CrewAI's `BaseTool`
+  subclasses were not recognised either and its decorator fell into the generic
+  `@<server>.tool()` bucket, so a repository reporting 75 tools -- every one of them `read`
+  at high confidence -- actually exposes 207, of which 16 are sensitive and 11 external.
+- `name_override=`, the OpenAI Agents SDK's spelling, is read as the registered name.
+  Reporting the Python function's name for a tool the model is shown under another is a
+  drift finding about nothing.
+- The framework recorded for a class-based tool names the project its base came from, so a
+  CrewAI tool is no longer reported as a LangChain one. The published
+  `langchain_base_tool_subclass` label is unchanged.
+- A third registration form was invisible: pydantic-ai's `@agent.tool_plain`, which does
+  not end in `.tool` and so missed the receiver-decorator rule. It is used 693 times in
+  that project's own repository, and none of those tools was reported. Hugging Face
+  smolagents is named as itself rather than reported as an unidentifiable receiver.
+- `scripts/wild_discovery_survey.py` records what discovery finds in third-party code, at
+  pinned commits: 1,998 tools across nine corpora from six projects, exercising all eleven
+  registration forms the documentation lists. It measures coverage rather than correctness,
+  which is the failure a self-authored benchmark cannot report, and it found three
+  invisible registration forms within minutes of first being run.
+- The survey also screens for correctness without labels: every tool classified `read`
+  whose registered name begins with a verb that would be odd for one. It flags 38 of 1,998,
+  and the five inspected are mock tools in test suites that return a formatted string, so
+  the reads are right and the names describe intent. It is a screen for candidate misses,
+  not a classification rule.
+- Corrected the reading of the study's one predictive result. The blind-against-covered
+  contrast on Kyverno, p = 0.043 one-sided, is confined to the eight policies that lie
+  outside the decidable fragment; inside it, over the larger arm of 41 policies, the
+  difference is 0.066 at p = 0.272. The pooled figure is therefore not evidence that the
+  criterion tracks fault detection where the criterion is exact, and the study now says so.
+  This does not touch Corollary 4, which requires cell coverage rather than the
+  decision-coverage proxy being stratified.
 
 ### Release status
 
@@ -109,7 +433,6 @@ All notable changes to TrustWeave are documented in this file. The project follo
 ## [0.2.0] - Unpublished immutable audit record
 
 > `v0.2.0` was created during pre-publication verification and intentionally remains unpublished. No PyPI file and no GitHub Release was created for it. The tag is retained unchanged for auditability; `0.2.1` is the corrected release target.
-
 
 ### Fixed
 

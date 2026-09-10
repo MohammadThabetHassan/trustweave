@@ -46,6 +46,9 @@ dev = [
   "mypy>=1.13",
   "bandit>=1.8",
   "mutmut==3.7.0",
+  # Certifies the witness construction in scripts/verify_witness_space.py. The proof step
+  # it checks was wrong once, so the check runs in CI rather than on a maintainer's machine.
+  "z3-solver>=4.12",
   "mkdocs-material>=9.5",
 ]
 
@@ -78,6 +81,8 @@ target-version = "py311"
 # Generated probe scripts in there are not project source and must not be linted.
 extend-exclude = [
   ".trustweave-dist-*",
+  # mutmut's mutated copy of the source tree. Linting it lints generated mutants.
+  "mutants",
   # Labelled benchmark inputs. Deliberately odd agent code, parsed and never
   # imported; linting it would be linting the test data.
   "benchmark/tool-classification/cases",
@@ -109,6 +114,13 @@ only_mutate = [
   "src/trustweave/commands/ci.py",
   "src/trustweave/bundle_policy.py",
   "src/trustweave/policy_weakening.py",
+  # Discovery intake and artifact production. code_analysis.py is not here yet:
+  # its kill rate is 70% and raising it is tracked in docs/MUTATION_TESTING.md.
+  "src/trustweave/code_sources.py",
+  "src/trustweave/code_discovery.py",
+  # Ratcheted rather than gated: mutated on every run and held to a floor, but not to the
+  # survivor-triage gate. See docs/MUTATION_TESTING.md.
+  "src/trustweave/code_analysis.py",
 ]
 also_copy = [
   ".github",

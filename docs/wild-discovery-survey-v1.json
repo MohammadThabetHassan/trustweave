@@ -1,0 +1,452 @@
+{
+  "corpora_surveyed": 9,
+  "corpus": {
+    "autogen": {
+      "commit": "027ecf0a379bcc1d09956d46d12d44a3ad9cee14",
+      "path": "python",
+      "remote": "https://github.com/microsoft/autogen.git"
+    },
+    "crewai": {
+      "commit": "1b855b4ff97d3fc8bf6dc0981fed5f0999a7cd81",
+      "path": "lib",
+      "remote": "https://github.com/crewAIInc/crewAI.git"
+    },
+    "modelcontextprotocol_servers": {
+      "commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+      "path": "src",
+      "remote": "https://github.com/modelcontextprotocol/servers.git"
+    },
+    "openai_agents_examples": {
+      "commit": "d3761b3e7b55b147610991bf736ce5ea0161cc82",
+      "path": "examples",
+      "remote": "https://github.com/openai/openai-agents-python.git"
+    },
+    "openai_agents_tests": {
+      "commit": "d3761b3e7b55b147610991bf736ce5ea0161cc82",
+      "path": "tests",
+      "remote": "https://github.com/openai/openai-agents-python.git"
+    },
+    "pydantic_ai_examples": {
+      "commit": "377f4c2315d225ead8f58c6e4abb8277b7be9bce",
+      "path": "examples",
+      "remote": "https://github.com/pydantic/pydantic-ai.git"
+    },
+    "pydantic_ai_tests": {
+      "commit": "377f4c2315d225ead8f58c6e4abb8277b7be9bce",
+      "path": "tests",
+      "remote": "https://github.com/pydantic/pydantic-ai.git"
+    },
+    "smolagents_examples": {
+      "commit": "30bb1161095dbae2271e6bc3cc4c219cc3897a57",
+      "path": "examples",
+      "remote": "https://github.com/huggingface/smolagents.git"
+    },
+    "smolagents_tests": {
+      "commit": "30bb1161095dbae2271e6bc3cc4c219cc3897a57",
+      "path": "tests",
+      "remote": "https://github.com/huggingface/smolagents.git"
+    }
+  },
+  "frameworks": {
+    "bound_plain_function": 36,
+    "crewai_base_tool_subclass": 133,
+    "crewai_tool_decorator": 71,
+    "langchain_base_tool_subclass": 1,
+    "langchain_tool_decorator": 1,
+    "mcp_call_tool": 1,
+    "mcp_declared_tool": 15,
+    "openai_agents_decorator": 328,
+    "semantic_kernel_decorator": 1,
+    "server_tool_decorator": 1362,
+    "smolagents_decorator": 49
+  },
+  "name_screen_hits": 38,
+  "schema_version": "v1",
+  "surveys": [
+    {
+      "action_classes": {
+        "read": 7,
+        "unknown": 5
+      },
+      "confidence": {
+        "high": 7,
+        "review": 5
+      },
+      "corpus": "autogen",
+      "frameworks": {
+        "bound_plain_function": 5,
+        "langchain_base_tool_subclass": 1,
+        "langchain_tool_decorator": 1,
+        "mcp_call_tool": 1,
+        "semantic_kernel_decorator": 1,
+        "server_tool_decorator": 3
+      },
+      "name_screen": [],
+      "refusal_reasons": {
+        "UNRESOLVED_CALLEE": 4
+      },
+      "tools": 12
+    },
+    {
+      "action_classes": {
+        "external": 11,
+        "read": 108,
+        "sensitive": 16,
+        "unknown": 72
+      },
+      "confidence": {
+        "high": 131,
+        "review": 76
+      },
+      "corpus": "crewai",
+      "frameworks": {
+        "bound_plain_function": 3,
+        "crewai_base_tool_subclass": 133,
+        "crewai_tool_decorator": 71
+      },
+      "name_screen": [
+        {
+          "file": "crewai/tests/tools/test_base_tool.py",
+          "line": "339",
+          "name": "execute_code"
+        },
+        {
+          "file": "crewai/tests/tools/test_base_tool.py",
+          "line": "349",
+          "name": "execute_code"
+        }
+      ],
+      "refusal_reasons": {
+        "BODY_UNAVAILABLE": 6,
+        "BUDGET_EXHAUSTED": 1,
+        "DYNAMIC_DISPATCH": 4,
+        "NONLITERAL_ARGUMENT": 3,
+        "UNRESOLVED_CALLEE": 55
+      },
+      "tools": 207
+    },
+    {
+      "action_classes": {
+        "unknown": 15
+      },
+      "confidence": {
+        "review": 15
+      },
+      "corpus": "modelcontextprotocol_servers",
+      "frameworks": {
+        "mcp_declared_tool": 15
+      },
+      "name_screen": [],
+      "refusal_reasons": {
+        "DYNAMIC_DISPATCH": 1,
+        "UNRESOLVED_CALLEE": 13
+      },
+      "tools": 15
+    },
+    {
+      "action_classes": {
+        "external": 1,
+        "read": 69,
+        "unknown": 9
+      },
+      "confidence": {
+        "high": 70,
+        "review": 9
+      },
+      "corpus": "openai_agents_examples",
+      "frameworks": {
+        "server_tool_decorator": 79
+      },
+      "name_screen": [
+        {
+          "file": "basic/stream_function_call_args.py",
+          "line": "20",
+          "name": "create_config"
+        },
+        {
+          "file": "agent_patterns/human_in_the_loop_custom_rejection.py",
+          "line": "33",
+          "name": "publish_announcement"
+        },
+        {
+          "file": "basic/tool_guardrails.py",
+          "line": "20",
+          "name": "send_email"
+        },
+        {
+          "file": "realtime/twilio_sip/agents.py",
+          "line": "34",
+          "name": "update_customer_record"
+        },
+        {
+          "file": "customer_service/main.py",
+          "line": "66",
+          "name": "update_seat"
+        },
+        {
+          "file": "realtime/app/agent.py",
+          "line": "38",
+          "name": "update_seat"
+        },
+        {
+          "file": "basic/stream_function_call_args.py",
+          "line": "14",
+          "name": "write_file"
+        }
+      ],
+      "refusal_reasons": {
+        "DYNAMIC_DISPATCH": 1,
+        "LEXICAL_ONLY": 1,
+        "UNRESOLVED_CALLEE": 3
+      },
+      "tools": 79
+    },
+    {
+      "action_classes": {
+        "read": 315,
+        "unknown": 23
+      },
+      "confidence": {
+        "high": 315,
+        "review": 23
+      },
+      "corpus": "openai_agents_tests",
+      "frameworks": {
+        "openai_agents_decorator": 328,
+        "server_tool_decorator": 10
+      },
+      "name_screen": [],
+      "refusal_reasons": {
+        "UNRESOLVED_CALLEE": 13
+      },
+      "tools": 338
+    },
+    {
+      "action_classes": {
+        "read": 12,
+        "unknown": 10
+      },
+      "confidence": {
+        "high": 12,
+        "review": 10
+      },
+      "corpus": "pydantic_ai_examples",
+      "frameworks": {
+        "server_tool_decorator": 22
+      },
+      "name_screen": [
+        {
+          "file": "pydantic_ai_examples/ag_ui/api/tool_approval.py",
+          "line": "28",
+          "name": "delete_file"
+        }
+      ],
+      "refusal_reasons": {
+        "UNRESOLVED_CALLEE": 2
+      },
+      "tools": 22
+    },
+    {
+      "action_classes": {
+        "read": 1081,
+        "sensitive": 1,
+        "unknown": 194
+      },
+      "confidence": {
+        "high": 1082,
+        "review": 194
+      },
+      "corpus": "pydantic_ai_tests",
+      "frameworks": {
+        "bound_plain_function": 28,
+        "server_tool_decorator": 1248
+      },
+      "name_screen": [
+        {
+          "file": "durable_exec/temporal/test_agent.py",
+          "line": "2185",
+          "name": "create_file"
+        },
+        {
+          "file": "durable_exec/test_dbos.py",
+          "line": "1624",
+          "name": "create_file"
+        },
+        {
+          "file": "durable_exec/test_prefect.py",
+          "line": "1603",
+          "name": "create_file"
+        },
+        {
+          "file": "test_agent.py",
+          "line": "10939",
+          "name": "create_file"
+        },
+        {
+          "file": "test_transcript_repair.py",
+          "line": "427",
+          "name": "create_file"
+        },
+        {
+          "file": "durable_exec/temporal/test_agent.py",
+          "line": "2190",
+          "name": "delete_file"
+        },
+        {
+          "file": "durable_exec/test_dbos.py",
+          "line": "1630",
+          "name": "delete_file"
+        },
+        {
+          "file": "durable_exec/test_prefect.py",
+          "line": "1609",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_ag_ui.py",
+          "line": "8156",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_ag_ui.py",
+          "line": "8207",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_ag_ui.py",
+          "line": "8519",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_agent.py",
+          "line": "10934",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_agent.py",
+          "line": "11388",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_agent.py",
+          "line": "12169",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_ui_web.py",
+          "line": "585",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_vercel_ai.py",
+          "line": "3605",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_vercel_ai.py",
+          "line": "3700",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_vercel_ai.py",
+          "line": "3756",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_vercel_ai.py",
+          "line": "3972",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_vercel_ai.py",
+          "line": "4073",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_vercel_ai.py",
+          "line": "4160",
+          "name": "delete_file"
+        },
+        {
+          "file": "test_vercel_ai.py",
+          "line": "4462",
+          "name": "delete_file"
+        },
+        {
+          "file": "models/test_anthropic.py",
+          "line": "12201",
+          "name": "delete_map"
+        },
+        {
+          "file": "models/test_openrouter.py",
+          "line": "889",
+          "name": "insert_level_with_spaces"
+        },
+        {
+          "file": "test_agent.py",
+          "line": "4233",
+          "name": "run_tool"
+        },
+        {
+          "file": "models/anthropic/test_unpaired_native_tool_calls.py",
+          "line": "688",
+          "name": "send_status"
+        },
+        {
+          "file": "test_agent.py",
+          "line": "11308",
+          "name": "update_file"
+        },
+        {
+          "file": "models/test_openai_responses.py",
+          "line": "4907",
+          "name": "update_plan"
+        }
+      ],
+      "refusal_reasons": {
+        "BODY_UNAVAILABLE": 3,
+        "UNRESOLVED_CALLEE": 42
+      },
+      "tools": 1276
+    },
+    {
+      "action_classes": {
+        "external": 7,
+        "read": 1,
+        "sensitive": 1,
+        "unknown": 1
+      },
+      "confidence": {
+        "high": 9,
+        "review": 1
+      },
+      "corpus": "smolagents_examples",
+      "frameworks": {
+        "smolagents_decorator": 10
+      },
+      "name_screen": [],
+      "refusal_reasons": {
+        "NONLITERAL_ARGUMENT": 1
+      },
+      "tools": 10
+    },
+    {
+      "action_classes": {
+        "read": 35,
+        "unknown": 4
+      },
+      "confidence": {
+        "high": 35,
+        "review": 4
+      },
+      "corpus": "smolagents_tests",
+      "frameworks": {
+        "smolagents_decorator": 39
+      },
+      "name_screen": [],
+      "refusal_reasons": {},
+      "tools": 39
+    }
+  ],
+  "tools_discovered": 1998
+}

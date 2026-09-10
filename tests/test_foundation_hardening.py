@@ -158,3 +158,27 @@ def test_repository_reality_check_accepts_tracked_public_contracts() -> None:
 
     assert completed.returncode == 0, completed.stdout + completed.stderr
     assert "issue forms, public documentation, release metadata" in completed.stdout
+
+
+def test_markdown_link_check_treats_an_angle_bracketed_url_as_a_url() -> None:
+    """Markdown allows `[x](<https://...>)`, and the check read it as a local path.
+
+    Every DOI link in the research agent's generated reports uses that form, so the scan
+    reported nineteen broken local links that were all valid URLs. The angle brackets are
+    delimiters, not part of the target.
+    """
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    specification = importlib.util.spec_from_file_location(
+        "reality_check_links", root / "scripts" / "reality_check.py"
+    )
+    assert specification and specification.loader
+    module = importlib.util.module_from_spec(specification)
+    sys.modules["reality_check_links"] = module
+    specification.loader.exec_module(module)
+
+    # The scan of the repository is clean, which it was not while the brackets were kept.
+    assert module._check_markdown_links() == []

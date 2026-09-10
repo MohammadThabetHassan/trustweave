@@ -1,0 +1,41 @@
+{
+  "arms": [
+    {
+      "decisions_witnessed": 1,
+      "mean_mutation_score": 0.3733,
+      "median_mutation_score": 0.2,
+      "policies": 5
+    },
+    {
+      "decisions_witnessed": 2,
+      "mean_mutation_score": 0.6011,
+      "median_mutation_score": 0.625,
+      "policies": 41
+    },
+    {
+      "decisions_witnessed": 3,
+      "mean_mutation_score": 0.5556,
+      "median_mutation_score": 0.6667,
+      "policies": 3
+    }
+  ],
+  "blindness_contrast_as_published": {
+    "blind_median": 0.5,
+    "blind_policies": 9,
+    "covered_median": 0.625,
+    "covered_policies": 40
+  },
+  "blindness_contrast_by_max_rule": {
+    "blind_median": 0.2,
+    "blind_policies": 5,
+    "sighted_median": 0.625,
+    "sighted_policies": 44
+  },
+  "jonckheere_statistic": 208.5,
+  "ordered_trend_supported_at_0_05": false,
+  "p_value_one_sided": 0.1571,
+  "permutations": 20000,
+  "policies_joined": 49,
+  "schema_version": "v1",
+  "seed": 0
+}

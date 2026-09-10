@@ -1,0 +1,315 @@
+{
+  "ecosystem": "kyverno",
+  "excluded_owners": [
+    "kyverno",
+    "nirmata"
+  ],
+  "files": [
+    {
+      "commit": "9d6e5c214b0a1ad18cacba8888605a239a4775aa",
+      "path": "Kyverno/disallow.yaml",
+      "repo": "AdminTurnedDevOps/kubernetes-examples",
+      "sha256": "8daeab0f568904f79a955a0bf3f0a6a41cbb9e579d71a7d1918878524bc8ef9e"
+    },
+    {
+      "commit": "ed44c464694ad3a724fc83a8bb6e84bf395897bb",
+      "path": "hack/kyverno-policy.yaml",
+      "repo": "ChaosInTheCRD/attestagon",
+      "sha256": "0b785ee9c09bf7bdcb5e7a13386f0b6189341db3978d2e79136504cac10b6556"
+    },
+    {
+      "commit": "eac9e40bd06cc0f218095d59b1e9dcc6086e720e",
+      "path": "policy.yaml",
+      "repo": "Cloud-Native-Security/website",
+      "sha256": "a33da7fe24aeaba47d0f9322e4c18f51aaa33e1fa91dfa2a03e73b264e723da2"
+    },
+    {
+      "commit": "9676ecbee151191a3a1ffdd11902c10bc2b598c9",
+      "path": "Kyverno/enforce-compliance-label.yaml",
+      "repo": "Marcusronney/LINUXtips-PICK",
+      "sha256": "370c63ed82e1696b8eceb74a4d4659957327132ca8bfb78d4614161b4daeccae"
+    },
+    {
+      "commit": "9676ecbee151191a3a1ffdd11902c10bc2b598c9",
+      "path": "Kyverno/require-resources-limits.yaml",
+      "repo": "Marcusronney/LINUXtips-PICK",
+      "sha256": "9595686eb760f8e4c929f0d3b141d95201b584d503e640b5e5ba564d5936798f"
+    },
+    {
+      "commit": "43747178609018815a419f0ab304bb7a7849f458",
+      "path": "infra/policies/disallow-root.yaml",
+      "repo": "Osomudeya/clearledger",
+      "sha256": "69a2ff5e10e4d7d48f0ba596b72966319ec8b1cb6a2f83002fc3c9be6b8d4e20"
+    },
+    {
+      "commit": "29f02ec0096e235ca5e66c8a30faa63dc47b46e9",
+      "path": "examples/security/cks-hardening.yaml",
+      "repo": "WhoisMonesh/K8S-Everything",
+      "sha256": "2bc507930f84cec674c2c3b6f156ef6428a195dedd9a82b70680e8d1993f86b7"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "path": "enforce-endpoint-security.yaml",
+      "repo": "adobeSlash/cilium-kyverno",
+      "sha256": "f3c269addd87d9ab0c30218e659c50cf78ed233e4d285d33a16a44ef274a1bec"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "path": "enforce-specified-ports.yaml",
+      "repo": "adobeSlash/cilium-kyverno",
+      "sha256": "2c4f7152045fec3f60226be026b63bb635376595886cbedddf8c2d40d06b18a1"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "path": "limit-ciliumnetworkpolicy-scope.yaml",
+      "repo": "adobeSlash/cilium-kyverno",
+      "sha256": "ead9517abbb63d56dc5c2264ef09dd9b4f39c3e8cffec89f56e65152df232a5e"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "path": "limit-endpoint-count.yaml",
+      "repo": "adobeSlash/cilium-kyverno",
+      "sha256": "7b00ec661a20f47454abdc32ccb34352ce31fd9679b4367b7a63f68e1c4a06ef"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "path": "restrict-egress-ports.yaml",
+      "repo": "adobeSlash/cilium-kyverno",
+      "sha256": "8c96971a6b2e84e879dd67f63f6152d09eb7def36d2275267ac98e4eb4600714"
+    },
+    {
+      "commit": "bbf6386acbaf68fb5912aec3e5ff441f144a2ad7",
+      "path": "kyverno/policies/require-labels.yaml",
+      "repo": "atkaridarshan04/cloudnative-devops-blueprint",
+      "sha256": "bff9008de2915bac749cb427b65229eb85d2fa90763f1df3919f73cafb00983c"
+    },
+    {
+      "commit": "1fe7e8b0938f16c69f1d7ea646912076adf1745c",
+      "path": "kyverno-falco-policies.yaml",
+      "repo": "chadmcrowell/k8s-from-scratch",
+      "sha256": "da9f9fd1afd1ec90c8db6c917941f51085f7d18ba29fc7ffb57a5ab386660f8e"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "path": "Cosign/kyverno-cosign-key.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "03feb2045c30de4cf83a9d549ee5c3a9d7c47bf7ab511ddfaa40caaeda3d103e"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "path": "Cosign/kyverno-cosign-key2.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "941c2ead98763129738b3798cbe1d6c00d5d63a020f9400a813cd920b850a653"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "path": "Cosign/kyverno-cosign-keyless.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "05179c223239c0eed0978ede10d4e9cb2821f8668abbcc6da5c5f0ff553c26e3"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "path": "Kyverno/KyvernoNoCEL/policy-pss.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "d16c37b8135396de8c02eb1bac047f84f8df85a995633d396cfc8e4ee291db20"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "path": "Kyverno/podprioritysimple-cel.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "c9ae5b779e127dff5afb92c3126221a13b33419d9323c8c20dee877841d9cbf6"
+    },
+    {
+      "commit": "126d42523e6ce70fe131d775dffa07c1db4d002c",
+      "path": "k8s/kyverno/kyv-require-ns-label.yaml",
+      "repo": "fabianlee/blogcode",
+      "sha256": "8381be0aae2db5efb8042e91b28616fae4396997bae3862b8c407e48161dedf3"
+    },
+    {
+      "commit": "408391c41bf4c6e975b87ea9d76063ca383ac008",
+      "path": "src/assets/kyverno/clusterpolicy.yaml",
+      "repo": "fabioluciano/kubestronaut",
+      "sha256": "02ed65f648eeba954b3778f5abe43dbfa0a8bf1adb2511b2bb947abc1de426e3"
+    },
+    {
+      "commit": "4642cae197231f45eef0b136d7c9326139ae5832",
+      "path": "kyverno/resource-limits.yaml",
+      "repo": "fellipe85/DesafioPick2024",
+      "sha256": "60d83be84bd5feb9b9ec6e8a8551e32ae97743cc60165d5aeb729456989197f2"
+    },
+    {
+      "commit": "4642cae197231f45eef0b136d7c9326139ae5832",
+      "path": "kyverno/root.yaml",
+      "repo": "fellipe85/DesafioPick2024",
+      "sha256": "fddb76b6b93beced01e44733d29e26b2285afae7d7a2c59064dc3db134fa5bba"
+    },
+    {
+      "commit": "4381c246c20d3a92dc6468e5791c49ad288e7c95",
+      "path": "policies/limits-pol.yaml",
+      "repo": "gbaeke/go-template",
+      "sha256": "e7a284d32a5dfe6964e4b786cc4cbe6cbe1e686faa0fb05bcad3a0fcd0e3c9b7"
+    },
+    {
+      "commit": "4381c246c20d3a92dc6468e5791c49ad288e7c95",
+      "path": "policies/restricted.yaml",
+      "repo": "gbaeke/go-template",
+      "sha256": "60cca5447193c1ce0f85b6d7ff5ffbac654ebf3f8aaa2afab948bc3dc5bcea66"
+    },
+    {
+      "commit": "bcb17bef7b994c8d228b8f1eae56c8437d22c152",
+      "path": "policies/block-task-runs.yaml",
+      "repo": "nadgowdas/protect-the-pipe-demo",
+      "sha256": "142077061afa6ad369fe35029d45c3eee2ca7d4639947a64f927c700f1f2fa6e"
+    },
+    {
+      "commit": "bcb17bef7b994c8d228b8f1eae56c8437d22c152",
+      "path": "policies/require-bundle.yaml",
+      "repo": "nadgowdas/protect-the-pipe-demo",
+      "sha256": "9a9c257fe02d3c72c0f0ea239b031c6f57ef6b9e31458d00c3433d791e2517b0"
+    },
+    {
+      "commit": "bcb17bef7b994c8d228b8f1eae56c8437d22c152",
+      "path": "policies/require-namespaces.yaml",
+      "repo": "nadgowdas/protect-the-pipe-demo",
+      "sha256": "5ea21c117fc58191de859fe7d7c5b89f255cab158a819862307af0341896c022"
+    },
+    {
+      "commit": "28c9c3c3f7517da5478c7e2853dacbc1fdb304e3",
+      "path": "k8s/extras/opensandbox/image-policy.yaml",
+      "repo": "open-ace/open-ace",
+      "sha256": "577f8240915dc9c293fa0199ae775c9925410ea29b212b4683e60b4f74ed25fa"
+    },
+    {
+      "commit": "d86c04dcad5b31a86ad097175ac9615f40b190d5",
+      "path": "examples/input-kyverno/kyverno.yaml",
+      "repo": "open-cluster-management-io/policy-generator-plugin",
+      "sha256": "069a750a067bc4a2aee4ff174c960d885dfaaf42fc1ba29e3a07329693327580"
+    },
+    {
+      "commit": "41c51e9b1dcb6b93910c47a0bc746c290fe07c0c",
+      "path": "k8s/policy/policy-check-sbom.yaml",
+      "repo": "paolomainardi/sigstore-demo",
+      "sha256": "97a17332655c6fbf651ce248687d2c3d4b05737871c9e3b1603abd6e8a395b93"
+    },
+    {
+      "commit": "41c51e9b1dcb6b93910c47a0bc746c290fe07c0c",
+      "path": "k8s/policy/policy-check-signature.yaml",
+      "repo": "paolomainardi/sigstore-demo",
+      "sha256": "518dbc943ef02fd658aced435e27abeb22aaa4fce565daffa29c1616580bd0d1"
+    },
+    {
+      "commit": "65ca87c14925a215f64c641eb07659fdb6617232",
+      "path": "clusterpool/hub/policy.yaml",
+      "repo": "piomin/openshift-cluster-config",
+      "sha256": "1d2eef5b2d8c6bf828935fd635e491c4540448e656034777b966fdf6fc029ff4"
+    },
+    {
+      "commit": "accb713adc19a4ba4a9f29f76962acbe46b28fa3",
+      "path": "demo/01-rebac-policies.yaml",
+      "repo": "pmady/rebac-kyverno",
+      "sha256": "191935db284707d40ffc544da94082da4f1e37ecdc034a77752b313cb4fa77b2"
+    },
+    {
+      "commit": "accb713adc19a4ba4a9f29f76962acbe46b28fa3",
+      "path": "demo/04-validate-policy.yaml",
+      "repo": "pmady/rebac-kyverno",
+      "sha256": "57d77f2add46d2d79a02d0c30eaf256afbc5e0f9fb689ed857ef44ddd6fec09f"
+    },
+    {
+      "commit": "f168e78cc2f3c25477c25455719241543f31abb1",
+      "path": "kubernetes/troubleshooting/kyverno.yaml",
+      "repo": "pulumi/customer-managed-workflow-agent",
+      "sha256": "97a285ff6c27b86bf68b661c173b6e5993ad0132aa31e3eaeed8c800f9a028ce"
+    },
+    {
+      "commit": "eaf58ea720459fd702c675c4a3a7e66dd65014bd",
+      "path": "restrict-sysctls.yaml",
+      "repo": "slaclab/slac-kyverno-policies",
+      "sha256": "0342b16065726c8e0a94ab44f637ebd2701d9484256a237cddf207c4f11a9ac7"
+    },
+    {
+      "commit": "3b1acdb8b68ad80a1687682845912cc10d33311d",
+      "path": "signed-policy.yaml",
+      "repo": "slashben/beat-ac-cosign-verifier",
+      "sha256": "7d0be78331dc7fc8032bac93cfc69b722590083a64e5a2166db36a158473509c"
+    },
+    {
+      "commit": "62b16b8fe66b00307d86d72c8da6bbf66109795d",
+      "path": "kubernetes/ingress-nginx/policy.yaml",
+      "repo": "timtorChen/homelab",
+      "sha256": "dd0f542979579f00f39c6f1ab819741c5485a6d9e2d0938259f60e0ced67c4bb"
+    },
+    {
+      "commit": "148365b42adc2b97fdf4a6f65a434460b99bcc90",
+      "path": "policies/kyverno-idp-crossplane.yaml",
+      "repo": "vfarcic/cncf-demo",
+      "sha256": "3b3ea02645b4238493df7a90382f46dac6b93f1a03951ae72f9d4f44132b8cff"
+    },
+    {
+      "commit": "148365b42adc2b97fdf4a6f65a434460b99bcc90",
+      "path": "policies/kyverno-idp-kubevela.yaml",
+      "repo": "vfarcic/cncf-demo",
+      "sha256": "e2e21da54e11736da8845b55ab930bb0fcac398ba0c7f700a24547a6545d7934"
+    },
+    {
+      "commit": "148365b42adc2b97fdf4a6f65a434460b99bcc90",
+      "path": "policies/kyverno.yaml",
+      "repo": "vfarcic/cncf-demo",
+      "sha256": "3875a905e09d7a0214e7fa0a083784ae1a76865c1ac63262ea5a3487c66b5a38"
+    },
+    {
+      "commit": "8d54d4ceae752f652174b33ead7aebd9abd0d1c9",
+      "path": "examples/k8s/kyverno-b-team.yaml",
+      "repo": "vfarcic/devops-toolkit-crossplane",
+      "sha256": "84408e70e184e8a21f58655048805f276e19869fb358530e2ab17e556fe7d62f"
+    },
+    {
+      "commit": "8d54d4ceae752f652174b33ead7aebd9abd0d1c9",
+      "path": "examples/k8s/kyverno.yaml",
+      "repo": "vfarcic/devops-toolkit-crossplane",
+      "sha256": "8c18f45110fefe778a24f4079c8efd5bde920e8200d9d7e8607d87be6c70f8ac"
+    },
+    {
+      "commit": "756eef750c07ec5cebf9ba14f1edb1c77bce11ca",
+      "path": "policies/kyverno.yaml",
+      "repo": "vfarcic/idp-demo",
+      "sha256": "8f8625866fdeb9d17cbc17e0db1e097f504ec0eff9dc1c12402537b854fa94ef"
+    },
+    {
+      "commit": "3ab27e303070c0bc7a3a9f5cb4d9ec266517522d",
+      "path": "cosign/kyverno.yaml",
+      "repo": "vfarcic/silly-demo",
+      "sha256": "7979ca195453feed5008585e5f2f39629ce772c0854ccc7e8a3d296c5d85b7af"
+    },
+    {
+      "commit": "926be39484441d92d6987bf4242aac4c88a081f4",
+      "path": "k8s/kyverno-allowlist.yaml",
+      "repo": "wiggitywhitney/cluster-whisperer",
+      "sha256": "f9413a3a63684ff6ac71fd29a5391ca99ac2694a447b8b139903c0025f05c9cb"
+    },
+    {
+      "commit": "8d182f1ed29353d155eacfec79dff66e4c4e3dea",
+      "path": "kyverno/policies_kyverno.yaml",
+      "repo": "willbossle/LINUXtips-PICK",
+      "sha256": "9e8dffc429a306a642acb985d7c9642122960b017c136fe1533df3ebf2871a78"
+    },
+    {
+      "commit": "839a54d2baede0aca46d4416d4f11857db3e4626",
+      "path": "kyverno/validate-xqueue-fields.yaml",
+      "repo": "wnqueiroz/platform-engineering-backstack",
+      "sha256": "5fffbad12c16b41f44cf9b2847bf691fbfaf1638495e717eb79843325584daae"
+    }
+  ],
+  "how_collected": "GitHub code search for Kyverno-specific fields restricted to YAML, with the vendor organisations kyverno and nirmata excluded, deduplicated by content hash, and filtered to documents declaring a kyverno.io policy kind. A convenience sample of what code search surfaced, not a random sample of deployed policy.",
+  "owners": 28,
+  "policies": 49,
+  "provenance": "third-party",
+  "queries": [
+    "validationFailureAction",
+    "validationFailureAction Enforce",
+    "validationFailureAction Audit",
+    "kyverno generateExisting"
+  ],
+  "repositories": 31,
+  "schema_version": "v1"
+}

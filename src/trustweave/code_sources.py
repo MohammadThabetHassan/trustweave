@@ -78,7 +78,7 @@ def _read_source(path: Path, root: Path) -> SourceFile | SkippedFile:
     relative = _relative_posix(path, root)
     try:
         size = path.stat().st_size
-    except OSError as error:  # pragma: no cover - stat failure is environment specific
+    except OSError as error:
         raise InputOutputError(f"could not stat local source file: {path}") from error
     if size > MAX_SOURCE_FILE_BYTES:
         return SkippedFile(relative, "file_exceeds_size_limit")

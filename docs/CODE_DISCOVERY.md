@@ -36,6 +36,7 @@ behind an attestation.
 | `BODY_UNAVAILABLE` | The tool was declared somewhere the implementation could not be located. |
 | `BUDGET_EXHAUSTED` | An analysis limit was reached before the reachable set was covered. |
 | `LEXICAL_ONLY` | Only naming evidence matched, with no observed behaviour. |
+| `UNCATALOGUED_SYMBOL` | A call resolved to a real symbol the catalog does not describe, so an unseen effect could outrank what was observed. |
 
 **It will not treat a name as behaviour.** A tool called `ssn_lookup` that only formats a
 string is not sensitive. Naming may push a tool to `unknown`; it never assigns a class.
@@ -94,12 +95,113 @@ The two that most often matter:
   another. This is the mislabelled trust boundary the product previously had no way to see.
 - **`TW-CODE-003`** — a tool exists in code and is not declared at all.
 
+## How a tool is recognised
+
+A tool is whatever the agent can be asked to invoke, and frameworks say so in several ways.
+Each recognised form is listed here because the set is the boundary of what discovery can
+see: a form that is missing is not reported as a gap, it is simply absent from the draft.
+
+| Form | Example | Name taken from |
+|---|---|---|
+| Decorator | `@tool` on a function, LangChain or CrewAI | the decorator's `name=`, else the function |
+| Agent SDK decorator | `@function_tool` from the OpenAI Agents SDK | the decorator's `name_override=`, else the function |
+| Plugin method | `@kernel_function(name="probe")` on a method | the decorator's `name=` |
+| Server decorator | `@server.tool()`, `@server.call_tool()` | the decorator's `name=`, else the function |
+| Factory | `StructuredTool.from_function(func=..., name=...)` | the `name=` argument |
+| Class-based tool | a `BaseTool` subclass with `_run` or `_arun`, LangChain or CrewAI | the `name` class attribute, else the class |
+| Bound list | a function passed in `tools=[...]` to an agent constructor | the function |
+
+Two names can differ. A factory registers `object_summary` while the code that runs is
+`summarize_bucket_object`, and a class-based tool registers `fetch_page` while the body sits
+in `FetchTool._run`. The artifact records the registered name as `name` and the implementing
+symbol as `implementation` whenever they differ, and the rendered report prints both -- the
+first is what the model sees, the second is what a reviewer has to open.
+
+## What it finds in code nobody here wrote
+
+The classification benchmark measures precision on 75 cases this project wrote and
+annotated. It is the right instrument for that and the wrong one for coverage: a
+registration form its authors did not know about produces no case and no gap, and the tools
+are simply absent from the artifact. Nothing in a self-authored benchmark can report that.
+
+`scripts/wild_discovery_survey.py` runs the published `discover` command over agent
+repositories with no connection to this project, at the commits recorded in
+[`wild-discovery-survey-v1.json`](wild-discovery-survey-v1.json).
+
+| Project | Corpora | Tools |
+|---|---:|---:|
+| `pydantic/pydantic-ai` | 2 | 1,298 |
+| `openai/openai-agents-python` | 2 | 417 |
+| `crewAIInc/crewAI` | 1 | 207 |
+| `huggingface/smolagents` | 2 | 49 |
+| `modelcontextprotocol/servers` | 1 | 15 |
+| `microsoft/autogen` | 1 | 12 |
+| **Total** | **9** | **1,998** |
+
+**All eleven registration forms in the table above are exercised by this corpus**, so none
+of them is a claim resting only on a case written here.
+
+### Three forms were missing, and each was invisible rather than refused
+
+The OpenAI Agents SDK registers with `@function_tool`, recognised by nothing: **328 tools
+absent**. pydantic-ai registers with `@agent.tool_plain`, which does not end in `.tool` and
+so missed the receiver-decorator rule: **693 uses in its own repository**, none reported.
+CrewAI's `BaseTool` subclasses were not recognised either, so a repository reporting **75
+tools, every one `read` at high confidence**, in fact exposes 207, of which 16 are sensitive
+and 11 external.
+
+For a command whose purpose is reporting the surface an agent exposes, an empty surface is
+the most fail-open answer available, and no benchmark case could have caught any of the
+three, because nobody here had written those forms down.
+
+### A correctness signal that needs no labels
+
+The survey reads unlabelled code, so it cannot say a verdict is right. It can say when one
+looks wrong. The name screen reports every tool the analyzer classified `read` whose
+registered name begins with a verb that would be odd for one -- `delete`, `write`, `send`,
+`execute`. It is a screen for finding candidate misses, never a classification rule: this
+document's own position is that a name is not behaviour.
+
+It flags **38 of 1,998 tools, 1.9%**. Five were inspected and all five are mock tools in
+test suites that append to a list and return a formatted string, so the reads are right and
+the names describe intent. That is not proof of correctness. It is the check that would have
+caught systematic under-reporting, run on code nobody here wrote, and it found none.
+
+### Limits
+
+The survey reports coverage, not correctness: 1,998 unlabelled tools say a tool was seen,
+not that its class is right. Nine corpora from six projects chosen by one person are not a
+sample of the ecosystem. And the next form missing from this list is as invisible today as
+`@function_tool` was before the survey existed.
+
+## Why a tool is left unknown
+
+A refusal is a result, not a gap. Each reason names the specific thing that could not be
+established, so a reviewer knows what to check rather than being told to check everything.
+
+| Reason | What it means |
+|---|---|
+| `UNRESOLVED_CALLEE` | the call reaches a name this module does not define or import |
+| `DYNAMIC_DISPATCH` | the callee is chosen at runtime, from a subscript or an unresolved call |
+| `NONLITERAL_ARGUMENT` | the argument decides the class and is not a literal here |
+| `BODY_UNAVAILABLE` | the registered target names no body the analyzer can read |
+| `LEXICAL_ONLY` | a name suggests personal data but nothing in the body acts on it |
+| `BUDGET_EXHAUSTED` | the reachable set grew past the per-tool bound |
+
+One refusal does not always withhold an answer. An effect at the top of the precedence order
+-- a credential read, an arbitrary process launch -- cannot be outranked by anything an
+unresolved call might also do, so it is reported even when something else in the same tool
+could not be placed. Below that top class the refusal stands, because an unseen effect
+really could be worse than what was observed.
+
 ## Limits
 
 Discovery is bounded by design. A public function that is not decorated as a tool, and not
 bound into a `tools=[...]` list reaching an agent constructor, is not reported as a tool —
 enumerating every function would inflate a draft with things that are not tools. Frameworks
-outside the recognised set are not discovered. AST shapes vary between interpreter
+outside the set listed above are not discovered, and a tool whose name is built at runtime --
+returned as a `Tool(name=...)` literal from a handler, say -- is discovered under the handler
+rather than under the name the model is given. AST shapes vary between interpreter
 versions, so a run on a different interpreter may resolve a different symbol set.
 
 Every artifact records these limits inline, so a reader who never opens this page still

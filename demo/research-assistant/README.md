@@ -6,6 +6,8 @@ A worked TrustWeave review of a realistic agent, ending with the tool catching a
 
 *(The recording above is generated from an actual run of `./run.sh` — the [`demo.cast`](demo.cast) file plays in any asciinema-compatible terminal player.)*
 
+The GIF is held to 1,000 KiB by `tests/test_demo_gif_budget.py`, and is currently 892 KiB across 44 frames. It had no budget for a long time and reached 1,345 KiB in 24-bit colour, which is more than twice what any declaration-consistency case is allowed; a terminal recording uses about four dozen colours, so `scripts/optimise_demo_gif.py` re-encodes it to a 16-colour palette and checks that the frame count, the dimensions and the per-frame timing all come out unchanged. Re-encode with that script rather than raising the budget.
+
 ## The setup
 
 A research assistant that answers questions by reading web pages and internal notes, queries company metrics on request, and posts summaries to Slack. Six declared flows connect three input sources to four tools:

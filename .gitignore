@@ -25,3 +25,30 @@ venv/
 
 # Scratch wheel builds from scripts/verify_distribution_artifacts.py
 .trustweave-dist-*/
+
+# mutmut writes a mutated copy of the tree here and caches results beside it. Both are
+# generated dev-tool output: leaving them untracked and unlinted keeps a local mutation
+# run from dirtying the working tree, which the distribution check requires to be clean.
+/mutants/
+/.mutmut-cache
+# The gate's own evidence, written by scripts/mutation_gate.py and uploaded by the
+# hosted job. Reproduced on demand, so it is never committed.
+/mutation-run.log
+/mutation-results.txt
+/mutation-quality.json
+
+# The journal manuscript is kept outside this repository: a public repo counts as
+# prior dissemination for a journal submission. See docs/JOURNAL_READINESS.md.
+paper/
+
+# Feynman writes research artifacts here; they are scratch, not repository content.
+outputs/
+.feynman/
+
+# Journal and article material is kept outside this repository: a public repo counts as
+# prior dissemination for a submission. See docs/RESEARCH_NOTE.md.
+DECISION_CLASS_COVERAGE.md
+SUITE_COVERAGE_STUDY.md
+JOURNAL_READINESS.md
+RESEARCH_PROSPECTUS.md
+RESEARCH_AGENT_SETUP.md

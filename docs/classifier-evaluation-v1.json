@@ -1,0 +1,116 @@
+{
+  "schema_version": "trustweave.dev/classification-evaluation/v1alpha1",
+  "cases": 75,
+  "overall": {
+    "accuracy": 0.9867,
+    "accuracy_on_agreed_labels_only": 1.0,
+    "answer_rate_on_decidable": 1.0,
+    "precision_when_answering": 0.9833,
+    "refusal_rate": 0.2,
+    "not_discovered": 0
+  },
+  "per_class": {
+    "read": {
+      "support": 16,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "write": {
+      "support": 14,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "sensitive": {
+      "support": 14,
+      "precision": 0.9333,
+      "recall": 1.0,
+      "f1": 0.9655
+    },
+    "external": {
+      "support": 16,
+      "precision": 1.0,
+      "recall": 0.9375,
+      "f1": 0.9677
+    },
+    "undecidable": {
+      "support": 15,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  },
+  "by_difficulty": {
+    "easy": 1.0,
+    "medium": 1.0,
+    "hard": 0.9688
+  },
+  "by_framework": {
+    "bound_plain_function": {
+      "cases": 8,
+      "accuracy": 1.0
+    },
+    "langchain_base_tool_subclass": {
+      "cases": 2,
+      "accuracy": 1.0
+    },
+    "langchain_tool_decorator": {
+      "cases": 21,
+      "accuracy": 1.0
+    },
+    "mcp_call_tool": {
+      "cases": 9,
+      "accuracy": 1.0
+    },
+    "mcp_declared_tool": {
+      "cases": 1,
+      "accuracy": 1.0
+    },
+    "semantic_kernel_decorator": {
+      "cases": 1,
+      "accuracy": 1.0
+    },
+    "server_tool_decorator": {
+      "cases": 18,
+      "accuracy": 0.9444
+    },
+    "structured_tool_factory": {
+      "cases": 15,
+      "accuracy": 1.0
+    }
+  },
+  "refusal_reasons": {
+    "UNRESOLVED_CALLEE": 11,
+    "DYNAMIC_DISPATCH": 7,
+    "BODY_UNAVAILABLE": 2,
+    "NONLITERAL_ARGUMENT": 1
+  },
+  "confusion": {
+    "read": {
+      "read": 16
+    },
+    "write": {
+      "write": 14
+    },
+    "sensitive": {
+      "sensitive": 14
+    },
+    "external": {
+      "sensitive": 1,
+      "external": 15
+    },
+    "undecidable": {
+      "undecidable": 15
+    }
+  },
+  "failures": [
+    {
+      "id": "SEN-005",
+      "family": "sensitive-priv",
+      "difficulty": "hard",
+      "expected": "external",
+      "predicted": "sensitive"
+    }
+  ]
+}

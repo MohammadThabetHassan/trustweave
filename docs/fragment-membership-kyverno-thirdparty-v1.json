@@ -1,0 +1,393 @@
+{
+  "corpus_scope": "third-party",
+  "counts": {
+    "inside": 37,
+    "outside": 12,
+    "undetermined": 0
+  },
+  "ecosystem": "kyverno",
+  "excluded_owners": [
+    "kyverno",
+    "nirmata"
+  ],
+  "how_collected": "GitHub code search for Kyverno-specific fields restricted to YAML, with the vendor organisations kyverno and nirmata excluded, deduplicated by content hash, and filtered to documents declaring a kyverno.io policy kind. A convenience sample of what code search surfaced, not a random sample of deployed policy.",
+  "owners": 28,
+  "policies": [
+    {
+      "commit": "9d6e5c214b0a1ad18cacba8888605a239a4775aa",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "AdminTurnedDevOps/kubernetes-examples/Kyverno/disallow.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ed44c464694ad3a724fc83a8bb6e84bf395897bb",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "ChaosInTheCRD/attestagon/hack/kyverno-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "eac9e40bd06cc0f218095d59b1e9dcc6086e720e",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "Cloud-Native-Security/website/policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9676ecbee151191a3a1ffdd11902c10bc2b598c9",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Marcusronney/LINUXtips-PICK/Kyverno/enforce-compliance-label.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "9676ecbee151191a3a1ffdd11902c10bc2b598c9",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Marcusronney/LINUXtips-PICK/Kyverno/require-resources-limits.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "43747178609018815a419f0ab304bb7a7849f458",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Osomudeya/clearledger/infra/policies/disallow-root.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "29f02ec0096e235ca5e66c8a30faa63dc47b46e9",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "WhoisMonesh/K8S-Everything/examples/security/cks-hardening.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "adobeSlash/cilium-kyverno/enforce-endpoint-security.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "adobeSlash/cilium-kyverno/enforce-specified-ports.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "adobeSlash/cilium-kyverno/limit-ciliumnetworkpolicy-scope.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "adobeSlash/cilium-kyverno/limit-endpoint-count.yaml",
+      "variable_roots": [
+        "length"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c53283664ecd6b6a36f1e89386cfabedcf63905a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "adobeSlash/cilium-kyverno/restrict-egress-ports.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "bbf6386acbaf68fb5912aec3e5ff441f144a2ad7",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "atkaridarshan04/cloudnative-devops-blueprint/kyverno/policies/require-labels.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1fe7e8b0938f16c69f1d7ea646912076adf1745c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "chadmcrowell/k8s-from-scratch/kyverno-falco-policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "erkules/k8sworkshop/Cosign/kyverno-cosign-key.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "erkules/k8sworkshop/Cosign/kyverno-cosign-key2.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "erkules/k8sworkshop/Cosign/kyverno-cosign-keyless.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "erkules/k8sworkshop/Kyverno/KyvernoNoCEL/policy-pss.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0852bdcf4a55aaddad53ce82dfb01053dee6215a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "erkules/k8sworkshop/Kyverno/podprioritysimple-cel.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "126d42523e6ce70fe131d775dffa07c1db4d002c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "fabianlee/blogcode/k8s/kyverno/kyv-require-ns-label.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "408391c41bf4c6e975b87ea9d76063ca383ac008",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "fabioluciano/kubestronaut/src/assets/kyverno/clusterpolicy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4642cae197231f45eef0b136d7c9326139ae5832",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "fellipe85/DesafioPick2024/kyverno/resource-limits.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4642cae197231f45eef0b136d7c9326139ae5832",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "fellipe85/DesafioPick2024/kyverno/root.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4381c246c20d3a92dc6468e5791c49ad288e7c95",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "gbaeke/go-template/policies/limits-pol.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4381c246c20d3a92dc6468e5791c49ad288e7c95",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "gbaeke/go-template/policies/restricted.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "bcb17bef7b994c8d228b8f1eae56c8437d22c152",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nadgowdas/protect-the-pipe-demo/policies/block-task-runs.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "bcb17bef7b994c8d228b8f1eae56c8437d22c152",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nadgowdas/protect-the-pipe-demo/policies/require-bundle.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "bcb17bef7b994c8d228b8f1eae56c8437d22c152",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nadgowdas/protect-the-pipe-demo/policies/require-namespaces.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "28c9c3c3f7517da5478c7e2853dacbc1fdb304e3",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "open-ace/open-ace/k8s/extras/opensandbox/image-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d86c04dcad5b31a86ad097175ac9615f40b190d5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "open-cluster-management-io/policy-generator-plugin/examples/input-kyverno/kyverno.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "41c51e9b1dcb6b93910c47a0bc746c290fe07c0c",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "paolomainardi/sigstore-demo/k8s/policy/policy-check-sbom.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "41c51e9b1dcb6b93910c47a0bc746c290fe07c0c",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "paolomainardi/sigstore-demo/k8s/policy/policy-check-signature.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "65ca87c14925a215f64c641eb07659fdb6617232",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "piomin/openshift-cluster-config/clusterpool/hub/policy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "accb713adc19a4ba4a9f29f76962acbe46b28fa3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "pmady/rebac-kyverno/demo/01-rebac-policies.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "accb713adc19a4ba4a9f29f76962acbe46b28fa3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "pmady/rebac-kyverno/demo/04-validate-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f168e78cc2f3c25477c25455719241543f31abb1",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "pulumi/customer-managed-workflow-agent/kubernetes/troubleshooting/kyverno.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "eaf58ea720459fd702c675c4a3a7e66dd65014bd",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "slaclab/slac-kyverno-policies/restrict-sysctls.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3b1acdb8b68ad80a1687682845912cc10d33311d",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "slashben/beat-ac-cosign-verifier/signed-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "62b16b8fe66b00307d86d72c8da6bbf66109795d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "timtorChen/homelab/kubernetes/ingress-nginx/policy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "148365b42adc2b97fdf4a6f65a434460b99bcc90",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vfarcic/cncf-demo/policies/kyverno-idp-crossplane.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "148365b42adc2b97fdf4a6f65a434460b99bcc90",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vfarcic/cncf-demo/policies/kyverno-idp-kubevela.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "148365b42adc2b97fdf4a6f65a434460b99bcc90",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vfarcic/cncf-demo/policies/kyverno.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8d54d4ceae752f652174b33ead7aebd9abd0d1c9",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vfarcic/devops-toolkit-crossplane/examples/k8s/kyverno-b-team.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8d54d4ceae752f652174b33ead7aebd9abd0d1c9",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vfarcic/devops-toolkit-crossplane/examples/k8s/kyverno.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "756eef750c07ec5cebf9ba14f1edb1c77bce11ca",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vfarcic/idp-demo/policies/kyverno.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3ab27e303070c0bc7a3a9f5cb4d9ec266517522d",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "vfarcic/silly-demo/cosign/kyverno.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "926be39484441d92d6987bf4242aac4c88a081f4",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "wiggitywhitney/cluster-whisperer/k8s/kyverno-allowlist.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8d182f1ed29353d155eacfec79dff66e4c4e3dea",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "willbossle/LINUXtips-PICK/kyverno/policies_kyverno.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "839a54d2baede0aca46d4416d4f11857db3e4626",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "wnqueiroz/platform-engineering-backstack/kyverno/validate-xqueue-fields.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    }
+  ],
+  "policies_considered": 49,
+  "policies_unavailable": [],
+  "provenance": "third-party",
+  "repositories": 31,
+  "schema_version": "v1",
+  "share_inside": 0.7551
+}

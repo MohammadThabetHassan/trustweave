@@ -22,6 +22,7 @@
   <a href="docs/site/INTEGRATIONS.md">Integration routes</a> ·
   <a href="docs/CLI_REFERENCE.md">CLI reference</a> ·
   <a href="docs/site/CURRENT_EVIDENCE.md">Current evidence</a> ·
+  <a href="docs/REPRODUCING_THE_STUDY.md">Reproducing the study</a> ·
   <a href="#docs">Docs</a> ·
   <a href="SECURITY.md">Security</a>
 </p>
@@ -157,7 +158,7 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 
 **Understanding it:** [Concepts](docs/site/concepts.md) · [How it compares](docs/site/COMPARISON.md) · [Architecture](docs/ARCHITECTURE.md) · [Threat model](docs/THREAT_MODEL.md) · [Product contract](docs/PRODUCT_CONTRACT.md) · [Reviewer workflow](docs/REVIEWER_WORKFLOW.md)
 
-**Trusting it:** [Current evidence](docs/site/CURRENT_EVIDENCE.md) · [Quality & test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
+**Trusting it:** [Current evidence](docs/site/CURRENT_EVIDENCE.md) · [Quality & test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Reproducing the study](docs/REPRODUCING_THE_STUDY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
 
 <details>
 <summary><strong>Everything else (schemas, risk, release records)</strong></summary>
@@ -169,12 +170,13 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 - [Resource bounds](docs/RESOURCE_BOUNDS.md)
 - [Release guide](docs/RELEASE.md) and [release history](https://github.com/MohammadThabetHassan/trustweave/releases)
 - Historical release checklists, migration guides, and audit records live under `docs/archive/` (added in this overhaul)
+- [Where the research write-ups are](docs/site/RESEARCH_NOTE.md) — the measurement artifacts under `docs/` are here; the papers written from them are not, until they are published
 
 </details>
 
 ## Quality, briefly
 
-95% branch coverage enforced in CI · 98.12% mutation score across fourteen high-risk modules, all survivors triaged · reproducible wheels with fixed epoch · SBOM + PyPI provenance attestations · zero runtime dependencies. The mutation measurement is scoped, recorded on 2026-08-20, and does not establish package-wide security; see the [mutation testing record](docs/MUTATION_TESTING.md). Source metadata is prepared as the unpublished `0.3.1` candidate; [`0.3.0` remains the latest published release](docs/RELEASE.md). Details in [QUALITY.md](docs/QUALITY.md).
+95% branch coverage enforced in CI · 98.01% mutation score across sixteen high-risk modules, all survivors triaged · reproducible wheels with fixed epoch · SBOM + PyPI provenance attestations · zero runtime dependencies. The mutation measurement is scoped, recorded on 2026-09-07, and does not establish package-wide security; see the [mutation testing record](docs/MUTATION_TESTING.md). Source metadata is prepared as the unpublished `0.3.1` candidate; [`0.3.0` remains the latest published release](docs/RELEASE.md). Details in [QUALITY.md](docs/QUALITY.md).
 
 Optional: YAML manifest support via `pip install "trustweave[yaml]"`.
 

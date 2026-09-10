@@ -8,7 +8,7 @@ This record helps the repository owner choose and verify a GitHub governance pro
 
 ## Current observed baseline
 
-**Observation date:** 2026-08-22  
+**Observation date:** 2026-08-22
 **Observed default-branch commit:** `97df6370eab29060d1606cda0710f05a87724562`
 
 | Control | Observed state | Interpretation |

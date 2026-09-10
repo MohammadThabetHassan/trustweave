@@ -32,8 +32,13 @@ CLASSES = ("read", "write", "sensitive", "external")
 REFUSED = "undecidable"
 
 
-def _predict(module: Path, tool_name: str) -> str:
-    """Return the class the analyzer proposes for *tool_name*, or ``undecidable``."""
+def _predict(module: Path, tool_name: str) -> tuple[str, str, list[str]]:
+    """Return the proposed class, the registration form, and any refusal reasons.
+
+    The framework and the reasons are carried alongside the verdict so the report can say
+    *which* registration forms and *which* refusals account for the remaining errors. A
+    single accuracy figure says the analyzer is wrong somewhere; these say where to look.
+    """
 
     tools, _ = analyze_sources(collect_python_sources(module))
     for tool in tools:
@@ -43,18 +48,24 @@ def _predict(module: Path, tool_name: str) -> str:
         if tool_name not in {tool.name, tool.implementation}:
             continue
         proposed = tool.proposed_action_class()
-        return REFUSED if proposed == "unknown" else proposed
+        return (
+            REFUSED if proposed == "unknown" else proposed,
+            tool.framework,
+            sorted(tool.reasons),
+        )
     # A tool the discoverer never found cannot be classified either.
-    return "not_discovered"
+    return "not_discovered", "none", []
 
 
 def evaluate() -> dict[str, Any]:
     index = json.loads((BENCHMARK / "benchmark.json").read_text(encoding="utf-8"))
     rows: list[dict[str, Any]] = []
     for case in index["cases"]:
-        predicted = _predict(BENCHMARK / case["module"], case["tool_name"])
+        predicted, framework, reasons = _predict(BENCHMARK / case["module"], case["tool_name"])
         rows.append(
             {
+                "framework": framework,
+                "reasons": reasons,
                 "id": case["id"],
                 "family": case["family"],
                 "difficulty": case["difficulty"],
@@ -66,7 +77,7 @@ def evaluate() -> dict[str, Any]:
         )
 
     labels = (*CLASSES, REFUSED, "not_discovered")
-    matrix = {expected: Counter() for expected in (*CLASSES, REFUSED)}
+    matrix: dict[str, Counter[str]] = {expected: Counter() for expected in (*CLASSES, REFUSED)}
     for row in rows:
         matrix[row["expected"]][row["predicted"]] += 1
 
@@ -119,6 +130,30 @@ def evaluate() -> dict[str, Any]:
             )
             for level in ("easy", "medium", "hard")
         },
+        # Which registration forms the analyzer handles, and which refusals remain. Both
+        # are ordered so the report is a work list rather than a summary.
+        "by_framework": {
+            framework: {
+                "cases": sum(1 for row in rows if row["framework"] == framework),
+                "accuracy": round(
+                    sum(row["correct"] for row in rows if row["framework"] == framework)
+                    / max(1, sum(1 for row in rows if row["framework"] == framework)),
+                    4,
+                ),
+            }
+            for framework in sorted({row["framework"] for row in rows})
+        },
+        "refusal_reasons": dict(
+            sorted(
+                Counter(
+                    reason
+                    for row in rows
+                    if row["predicted"] == REFUSED
+                    for reason in row["reasons"]
+                ).items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
         "confusion": {
             expected: {
                 label: matrix[expected][label] for label in labels if matrix[expected][label]
@@ -153,6 +188,10 @@ def main() -> int:
             f"  {label:12} n={scores['support']:<3} "
             f"P={scores['precision']:.3f} R={scores['recall']:.3f} F1={scores['f1']:.3f}"
         )
+    print("\nby framework:")
+    for framework, stats in report["by_framework"].items():
+        print(f"  {framework:32} n={stats['cases']:3}  accuracy={stats['accuracy']}")
+    print("\nrefusals by reason:", report["refusal_reasons"])
     print("\nby difficulty:", report["by_difficulty"])
     print(f"\nfailures: {len(report['failures'])}")
     for failure in report["failures"]:

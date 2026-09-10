@@ -1,6 +1,6 @@
 # Declaration-consistency case demos
 
-This directory contains a terminal-style walkthrough for every checked-in declaration-consistency fixture. Each animation opens with a readable case briefing—its scenario, review question, expected bounded result, and reason for inclusion—then advances through an actual local run of [`run-case.sh`](run-case.sh), and ends with a scope reminder. Each matching `.cast` file records that same paced walkthrough in an asciinema-compatible format.
+This directory contains a terminal-style walkthrough for every checked-in declaration-consistency fixture. Each animation opens with a short briefing — what is being compared, what outcome would be correct, and what the fixture does not claim — then advances through an actual local run of [`run-case.sh`](run-case.sh), and ends with a scope reminder. Each matching `.cast` file records the same walkthrough in an asciinema-compatible format.
 
 > **Scope boundary:** These are synthetic local fixtures. They compare exact labels in supplied static descriptors and supplied TrustWeave manifests. They do not import or execute OpenAI Agents, LangGraph, or CrewAI; authenticate the inputs; inspect source; establish runtime reachability; or prove security.
 
@@ -14,13 +14,17 @@ The checked-in GIFs and casts are **review illustrations**, not TrustWeave runti
 
 The project keeps the full visual catalog because each animation has a matching replayable cast and benchmark fixture. To keep that convenience proportionate, tests enforce an asset budget: each GIF must be at most **600 KiB**, each cast at most **12 KiB**, the complete GIF gallery at most **8 MiB**, and the checked-in font asset at most **400 KiB**. New cases must satisfy the same budget or use a deliberately reviewed alternative presentation design.
 
+The budget is what decides the presentation, not the reverse. Revealing output two lines at a time rather than four is worth the extra frames, and paying for them meant quantising each GIF to a 64-colour palette — which a terminal render barely notices, since it uses about a dozen. Without that the same animations came to roughly 650 KiB and would not have fit.
+
 ## Reproduce one case
 
 ```shell
 ./run-case.sh TW-COMP-011
 ```
 
-The runner first validates the selected checked-in fixture, verifies the complete fixture-provenance record, evaluates exactly that case, and writes its local report to `artifacts/TW-COMP-011/`. In the GIFs, the case briefing and result screens remain visible for several seconds; command output advances in short, readable stages rather than as a rapid full transcript. The marked block between **“Captured terminal output begins”** and **“Captured terminal output ends”** is the unmodified output emitted by `run-case.sh`; the briefing, markers, pacing, and final reminder are renderer additions and are intentionally shown as such.
+The runner first validates the selected checked-in fixture, verifies the complete fixture-provenance record, evaluates exactly that case, and writes its local report to `artifacts/TW-COMP-011/`. The briefing and result screens hold for a few seconds; output in between advances two lines at a time, at about the pace someone skims a terminal.
+
+Telling apart what `run-case.sh` actually emitted from what the renderer added around it matters, so the GIFs mark it: every line of captured output carries a **rule down the left margin**, and a caption at the foot of the terminal names it. The briefing, the pacing, the final reminder, and the caption itself are renderer additions and are outside that rule. The `.cast` files are text and have no margin to draw in, so they keep the older textual markers — **“Captured terminal output begins”** and **“Captured terminal output ends”** — for the same purpose. Earlier GIFs printed those two lines into the terminal body, which left the demo appearing to narrate itself; the rule says the same thing without spending two lines and a reader's attention on it.
 
 ## Case walkthroughs
 

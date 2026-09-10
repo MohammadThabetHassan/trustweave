@@ -1,4 +1,4 @@
-"""Machine-checked verification of the results in docs/DECISION_CLASS_COVERAGE.md.
+"""Machine-checked verification of the results in the decision-class coverage write-up.
 
 The exactness claims that document makes -- decidable equivalence, an exact kill criterion,
 cell coverage deciding the mutation score -- are proved there over a restricted policy
@@ -9,6 +9,7 @@ enumeration over the real policy and the real mutant set rather than restating t
 
 from __future__ import annotations
 
+import copy
 import importlib.util
 import itertools
 from pathlib import Path
@@ -281,10 +282,13 @@ def test_a_richer_guard_enlarges_the_quotient_rather_than_being_refused() -> Non
 
     space = policy_mutation.witness_space(_richer_policy())
 
-    assert len(space["source_data_classification"]) == 5
+    # Four taxonomy values, `unspecified`, and one value the policy does not know: the engine
+    # admits a classification that is not a near miss of a taxonomy entry, and such a value
+    # fails every bound, which no taxonomy value does.
+    assert len(space["source_data_classification"]) == 6
     assert len(space["purpose_tags"]) == 4, "every subset of the two named tags"
     assert len(space["tool_capabilities"]) == 4, "every subset of the two named patterns"
-    assert len(policy_mutation.cells(_richer_policy())) == 960
+    assert len(policy_mutation.cells(_richer_policy())) == 1152
 
 
 def test_a_wildcard_capability_pattern_gets_a_witness_that_matches_it() -> None:
@@ -364,10 +368,32 @@ def test_two_cases_differing_only_in_classification_no_longer_collapse(tmp_path:
 # ---------------------------------------------------------------------------------------
 
 
+def _research_document() -> Path:
+    """The long-form theory write-up, which is deliberately not in this repository.
+
+    It is the article in long form, and a public repository counts as prior dissemination
+    for a journal submission, so it lives beside the manuscript instead. These checks are
+    worth keeping -- a hand-copied table in a proof document is a claim like any other --
+    so they follow it via TRUSTWEAVE_RESEARCH_DIR and skip when it is not set.
+    """
+
+    from os import environ
+
+    directory = environ.get("TRUSTWEAVE_RESEARCH_DIR", "").strip()
+    if directory:
+        candidate = Path(directory) / "DECISION_CLASS_COVERAGE.md"
+        if candidate.is_file():
+            return candidate
+    in_tree = ROOT / "docs" / "DECISION_CLASS_COVERAGE.md"
+    if in_tree.is_file():
+        return in_tree
+    pytest.skip("set TRUSTWEAVE_RESEARCH_DIR to the directory holding DECISION_CLASS_COVERAGE.md")
+
+
 def test_the_documented_worked_example_matches_a_fresh_run() -> None:
     """A hand-copied table in a proof document is a claim, and claims here are checked."""
 
-    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    document = _research_document().read_text(encoding="utf-8")
     report = policy_mutation.analyze(POLICY, SUITES)
     live = report["mutants_live"]
 
@@ -390,7 +416,7 @@ def test_the_documented_worked_example_matches_a_fresh_run() -> None:
 
 def test_the_documented_mutant_counts_match_a_fresh_run() -> None:
     report = policy_mutation.analyze(POLICY, SUITES)
-    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    document = _research_document().read_text(encoding="utf-8")
 
     sentence = (
         f"{report['mutants_generated']} mutants are generated and "
@@ -448,7 +474,7 @@ def test_section_cross_references_in_the_document_resolve() -> None:
 
     import re
 
-    document = (ROOT / "docs" / "DECISION_CLASS_COVERAGE.md").read_text(encoding="utf-8")
+    document = _research_document().read_text(encoding="utf-8")
     headings = {int(match) for match in re.findall(r"^## (\d+)\.", document, re.MULTILINE)}
     referenced = {int(match) for match in re.findall(r"\bsection (\d+)\b", document, re.IGNORECASE)}
 
@@ -466,9 +492,24 @@ _NAMED_CAPABILITIES = ("fs.read", "net.egress", "net.deep.thing", "unrelated.cap
 
 
 def _decide_concretely(policy: Any, subject: tuple) -> str:
-    """The engine's own first-match evaluation over an unabstracted subject."""
+    """The shipped engine's decision, through the entry point `trustweave scan` reaches.
 
-    return policy_mutation._decide(policy, subject)
+    This once called the harness's own `_decide`, so the abstraction theorem was checked
+    against the harness's reading of the engine rather than against the engine. It now
+    builds the `Source`, `Tool` and `Flow` the engine takes and calls `evaluate_flow`, which
+    is what `scripts/interpreter_oracle.py` does at scale.
+    """
+
+    from trustweave.engine import evaluate_flow
+    from trustweave.models import Flow, Source, Tool
+
+    trust, action, classification, source_id, tool_id, purposes, capabilities = subject
+    source = Source(
+        name=source_id, trust=trust, data_classification=classification, description="test"
+    )
+    tool = Tool(name=tool_id, action_class=action, capabilities=capabilities, description="test")
+    flow = Flow(source=source.name, tool=tool.name, purpose="test", purpose_tags=purposes)
+    return str(evaluate_flow(flow, source, tool, policy).decision)
 
 
 @given(
@@ -564,3 +605,333 @@ def test_capability_witnesses_reproduce_wildcard_matching(capabilities: list[str
     )
 
     assert policy_mutation._decide(policy, concrete) == policy_mutation._decide(policy, witness)
+
+
+# ---------------------------------------------------------------------------------------
+# What the enumerated object is, and what it is not
+# ---------------------------------------------------------------------------------------
+
+
+def _policy_with(rules: list[dict[str, Any]]) -> dict[str, Any]:
+    """The shipped policy with its rule set replaced, on the schema that allows every field."""
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"] = rules
+    return document
+
+
+def _rule(index: int, decision: str, **extra: Any) -> dict[str, Any]:
+    rule = copy.deepcopy(_document()["rules"][0])
+    rule.update(
+        {
+            "id": f"R-{index}",
+            "decision": decision,
+            "source_trust": ["trusted"],
+            "tool_action_classes": ["read"],
+        }
+    )
+    rule.update(extra)
+    return rule
+
+
+def _capability_signatures(document: dict[str, Any]) -> set[tuple[bool, ...]]:
+    space = policy_mutation.witness_space(document)
+    patterns = tuple(
+        pattern for rule in document["rules"] for pattern in rule.get("tool_capabilities") or []
+    )
+    return {
+        tuple(
+            any(policy_mutation.capability_matches(pattern, capability) for capability in witness)
+            for pattern in patterns
+        )
+        for witness in space["tool_capabilities"]
+    }
+
+
+def test_nested_capability_patterns_do_not_give_a_class_each() -> None:
+    """Anything matching `net.http` matches `net.*`, so one of the four subsets cannot exist.
+
+    Theorem 1's bound of `2^|K_P|` is an upper bound and stays true. The proof's claim that
+    each subset "is witnessed" does not: the signature "matches `net.http` but not `net.*`"
+    is occupied by no subject, and the subset `{net.http}` realises the same signature as
+    `{net.*, net.http}`.
+    """
+
+    document = _policy_with(
+        [
+            _rule(1, "allow", tool_capabilities=["net.*"]),
+            _rule(2, "deny", tool_capabilities=["net.http"]),
+        ]
+    )
+    space = policy_mutation.witness_space(document)
+
+    assert len(space["tool_capabilities"]) == 3
+    assert (False, True) not in _capability_signatures(document)
+
+
+def test_disjoint_capability_patterns_still_give_a_class_each() -> None:
+    """The collapse must come from subsumption, not from deduplicating indiscriminately."""
+
+    document = _policy_with(
+        [
+            _rule(1, "allow", tool_capabilities=["net.*"]),
+            _rule(2, "deny", tool_capabilities=["fs.*"]),
+        ]
+    )
+
+    assert len(policy_mutation.witness_space(document)["tool_capabilities"]) == 4
+    assert len(_capability_signatures(document)) == 4
+
+
+def test_every_enumerated_capability_class_has_a_distinct_signature() -> None:
+    """One witness per signature, so no class is counted twice."""
+
+    for patterns in (
+        ["net.*", "net.http"],
+        ["net.*", "net.http", "net.http.get"],
+        ["net.*", "fs.*", "net.http"],
+    ):
+        document = _policy_with(
+            [_rule(index, "allow", tool_capabilities=[p]) for index, p in enumerate(patterns)]
+        )
+        space = policy_mutation.witness_space(document)
+
+        assert len(_capability_signatures(document)) == len(space["tool_capabilities"]), patterns
+
+
+def test_the_enumerated_cells_are_a_refinement_of_the_quotient_not_the_quotient() -> None:
+    """Distinct cells can answer every predicate identically, and then they are one class.
+
+    A policy whose only purpose predicate is "intersects {a, b}" cannot tell `{a}` from
+    `{a, b}`, so the enumeration splits one class of `~P` into several. Soundness holds over
+    a refinement -- the decision is still constant on each cell, so Theorem 3 and Corollary
+    4 carry over. What the refinement costs is the policy-level reading of necessity: no
+    policy the language can express differs at one copy and not another.
+    """
+
+    document = _policy_with([_rule(1, "allow", purpose_tags=["a", "b"])])
+    policy = parse_policy(document)
+    enumerated = policy_mutation.cells(document)
+    signatures = {policy_mutation.predicate_signature(policy, cell) for cell in enumerated}
+
+    assert len(signatures) < len(enumerated), "expected the enumeration to refine ~P here"
+    # The refinement is sound: cells sharing a signature share a decision.
+    by_signature: dict[tuple[bool, ...], set[str]] = {}
+    for cell in enumerated:
+        signature = policy_mutation.predicate_signature(policy, cell)
+        by_signature.setdefault(signature, set()).add(policy_mutation._decide(policy, cell))
+    assert all(len(decisions) == 1 for decisions in by_signature.values())
+
+
+def test_a_cell_decides_the_same_as_every_other_cell_of_its_class() -> None:
+    """The property that makes the refinement usable, checked on the shipped policy."""
+
+    policy = parse_policy(_document())
+    grouped: dict[tuple[bool, ...], set[str]] = {}
+    for cell in _cells():
+        signature = policy_mutation.predicate_signature(policy, cell)
+        grouped.setdefault(signature, set()).add(policy_mutation._decide(policy, cell))
+
+    assert grouped
+    assert all(len(decisions) == 1 for decisions in grouped.values())
+
+
+def test_the_quotient_bound_charges_only_for_components_a_guard_reads() -> None:
+    """Theorem 1's bound is a product of per-component counts, and this is why.
+
+    The bound was first written with a term per component of the subject regardless of
+    whether the policy mentioned it -- `(|I_P| + 2)` for source identifiers, and the
+    classification taxonomy's size for classifications. On this policy, which constrains
+    only trust and action, that reports 240 cells where there are 12. A bound off by a
+    factor of twenty on the paper's own running example is not a bound worth stating, and
+    the corrected form charges a factor of one for a component no guard reads.
+    """
+
+    document = _document()
+    named = {
+        "classifications": {
+            value for rule in document["rules"] for value in rule.get("data_classifications") or []
+        },
+        "sources": {value for rule in document["rules"] for value in rule.get("source_ids") or []},
+        "tools": {value for rule in document["rules"] for value in rule.get("tool_ids") or []},
+        "purposes": {value for rule in document["rules"] for value in rule.get("purposes") or []},
+        "capabilities": {
+            value for rule in document["rules"] for value in rule.get("required_capabilities") or []
+        },
+    }
+    assert all(not values for values in named.values()), named
+
+    trust = {value for rule in document["rules"] for value in rule["source_trust"]}
+    actions = {value for rule in document["rules"] for value in rule["tool_action_classes"]}
+
+    # Both halves of the minimum are load-bearing on this policy: it names every trust
+    # level, so that component is capped by its domain, and three of the four action
+    # classes, so that one is capped by the distinctions it draws plus one for the rest.
+    trust_domain, action_domain = 3, 4
+    assert len(trust) == trust_domain and len(actions) == action_domain - 1
+
+    corrected = min(trust_domain, len(trust) + 1) * min(action_domain, len(actions) + 1)
+    for values in named.values():
+        corrected *= 1 if not values else len(values) + 1
+
+    assert corrected == len(_cells()) == 12
+
+    # The shape that over-charged, kept here so the regression is named and not merely
+    # avoided: a term for every component of the subject rather than every component the
+    # policy reads -- a taxonomy factor and a "+2" on each identifier component.
+    taxonomy_size = 4
+    over_charged = trust_domain * action_domain * (taxonomy_size + 1) * 2 * 2
+    assert over_charged == 240
+    assert over_charged == 20 * corrected
+
+
+def test_two_equivalent_widenings_turn_on_rule_order_not_on_the_default() -> None:
+    """The paper's explanation of the equivalence rate, checked rather than asserted.
+
+    Eleven of the sixteen equivalent mutants are equivalent because TW-003 and TW-004
+    decide what the default already decides. Two are not, and the first version of that
+    explanation missed them: they widen a rule onto the one cell that decides
+    `require_approval`, and survive only because TW-002 precedes them and first-match
+    prefers it. Separating the two mechanisms matters, because the second is a property of
+    first-match and does not carry to an arbitrary combining function.
+    """
+
+    document = _document()
+    default = document["default_decision"]
+    rules = [
+        (
+            rule["id"],
+            set(rule["source_trust"]),
+            set(rule["tool_action_classes"]),
+            rule["decision"],
+        )
+        for rule in document["rules"]
+    ]
+    trust_levels = sorted({level for _, levels, _, _ in rules for level in levels})
+    actions = sorted({action for _, _, classes, _ in rules for action in classes})
+    actions = sorted(set(actions) | {"write"})
+
+    def decide(trust: str, action: str) -> str:
+        for _, levels, classes, decision in rules:
+            if trust in levels and action in classes:
+                return decision
+        return default
+
+    base = {(t, a): decide(t, a) for t in trust_levels for a in actions}
+    assert sorted(cell for cell, value in base.items() if value != default) == [
+        ("conditional", "external"),
+        ("trusted", "read"),
+    ]
+
+    # Every widening of a default-deciding rule, and whether it newly reaches a cell whose
+    # decision differs from that rule's own.
+    turns_on_order = []
+    for identifier, levels, classes, decision in rules:
+        if decision != default:
+            continue
+        widenings = [[(t, a) for t in levels] for a in actions if a not in classes]
+        widenings += [[(t, a) for a in classes] for t in trust_levels if t not in levels]
+        for newly in widenings:
+            if any(base[cell] != decision for cell in newly):
+                turns_on_order.append(identifier)
+
+    assert sorted(turns_on_order) == ["TW-003", "TW-004"], turns_on_order
+    assert len(turns_on_order) == 2
+
+    # And both are equivalent anyway, because an earlier rule claims that cell.
+    claiming = next(
+        index
+        for index, (_, levels, classes, _) in enumerate(rules)
+        if "conditional" in levels and "external" in classes
+    )
+    for identifier in turns_on_order:
+        position = next(i for i, rule in enumerate(rules) if rule[0] == identifier)
+        assert claiming < position, (identifier, claiming, position)
+
+
+def test_the_rules_are_pairwise_disjoint_which_is_what_makes_swaps_equivalent() -> None:
+    """Under first-match, and only under first-match: an arbitrary combiner is not immune."""
+
+    rules = [
+        (rule["id"], set(rule["source_trust"]), set(rule["tool_action_classes"]))
+        for rule in _document()["rules"]
+    ]
+
+    for (left, left_trust, left_actions), (right, right_trust, right_actions) in (
+        (a, b) for i, a in enumerate(rules) for b in rules[i + 1 :]
+    ):
+        overlapping = (left_trust & right_trust) and (left_actions & right_actions)
+        assert not overlapping, f"{left} and {right} can both match a subject"
+
+
+# ---------------------------------------------------------------------------------------
+# Tightness: equivalence is decidable exactly when occupancy is
+# ---------------------------------------------------------------------------------------
+
+
+def test_equivalence_can_be_decided_from_occupancy_without_any_witness() -> None:
+    """The constructive half of the tightness theorem, run as an algorithm.
+
+    The theorem's forward direction says deciding equivalence needs only *occupancy* --
+    for each candidate outcome vector, whether any subject realises it -- and never needs a
+    witness, because the decision on an occupied vector is computed from the syntax. If
+    that is right, a procedure comparing decisions on occupied cells alone must agree with
+    the harness's own equivalence verdicts on every mutant. It does, on all 38.
+
+    This matters beyond tidiness. The results about *suites* do need witnesses, since a
+    suite is a set of subjects and not a set of cells, and separating the two is what
+    Theorem 23 and its remark are for.
+    """
+
+    document = _document()
+    reference = policy_mutation.decision_map(document)
+
+    def equivalent_by_occupancy(mutant: dict) -> bool:
+        # `decision_map` is keyed on the occupied cells only, so iterating it is exactly
+        # "compare where some subject exists" -- and no witness is read.
+        other = policy_mutation.decision_map(mutant)
+        return all(reference[cell] == other[cell] for cell in reference)
+
+    equivalent, live = _partition()
+    disagreements = []
+    for name, mutant in policy_mutation._mutants(document):
+        by_occupancy = equivalent_by_occupancy(mutant)
+        by_harness = name in equivalent
+        if by_occupancy != by_harness:
+            disagreements.append((name, by_occupancy, by_harness))
+
+    assert equivalent and live, "the operator set must produce both for this to test"
+    assert disagreements == [], disagreements
+
+
+def test_the_finite_image_clause_is_free_for_finitely_many_outcomes() -> None:
+    """Lemma 20: the first clause of the definition does no work in any real language.
+
+    A guard reporting values in a finite V gives an outcome map into V^n, which is finite
+    whatever the guards are -- including the halting guard of the undecidability theorem.
+    So the definition's content is entirely its second clause, about witnesses, and a
+    reading that treats finiteness as the substance has the theorem backwards.
+    """
+
+    import itertools
+
+    for outcomes in (2, 3, 4):
+        for arity in (1, 2, 3):
+            values = list(range(outcomes))
+            image = set(itertools.product(values, repeat=arity))
+            assert len(image) == outcomes**arity < float("inf")
+
+    # The halting guard: finite image, and the definition still excludes it, which is only
+    # possible because the exclusion comes from the second clause.
+    def halting_guard(steps_before_halt: int | None, subject_length: int) -> int:
+        if steps_before_halt is None:
+            return 0
+        return 1 if steps_before_halt <= subject_length else 0
+
+    realised = {halting_guard(None, n) for n in range(50)}
+    assert realised == {0}, "a machine that never halts occupies only one class"
+    realised = {halting_guard(7, n) for n in range(50)}
+    assert realised == {0, 1}, "one that halts occupies both"
+    # Which class a subject falls in is computable; *whether the true class is occupied at
+    # all* is the halting question, and that is what the second clause asks for.

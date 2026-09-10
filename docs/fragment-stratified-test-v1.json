@@ -1,0 +1,53 @@
+{
+  "association_significant_inside_the_fragment": false,
+  "association_significant_outside_the_fragment": true,
+  "policies_joined": 49,
+  "schema_version": "v1",
+  "strata": [
+    {
+      "blind_mean": 0.4534,
+      "blind_median": 0.5,
+      "blind_policies": 9,
+      "covered_mean": 0.6024,
+      "covered_median": 0.625,
+      "covered_policies": 40,
+      "policies": 49,
+      "stratum": "all",
+      "test": {
+        "method": "sampled, 100000 permutations, seed 0, one-sided",
+        "observed_difference": 0.149,
+        "p_value": 0.0428
+      }
+    },
+    {
+      "blind_mean": 0.5119,
+      "blind_median": 0.6072,
+      "blind_policies": 4,
+      "covered_mean": 0.5779,
+      "covered_median": 0.6,
+      "covered_policies": 37,
+      "policies": 41,
+      "stratum": "inside",
+      "test": {
+        "method": "exact over 101270 splits, one-sided",
+        "observed_difference": 0.066,
+        "p_value": 0.2721
+      }
+    },
+    {
+      "blind_mean": 0.4067,
+      "blind_median": 0.25,
+      "blind_policies": 5,
+      "covered_mean": 0.9047,
+      "covered_median": 0.8571,
+      "covered_policies": 3,
+      "policies": 8,
+      "stratum": "outside",
+      "test": {
+        "method": "exact over 56 splits, one-sided",
+        "observed_difference": 0.4981,
+        "p_value": 0.0179
+      }
+    }
+  ]
+}

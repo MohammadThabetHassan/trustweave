@@ -40,6 +40,7 @@ from trustweave.models import DEFAULT_CLASSIFICATION_TAXONOMY, parse_policy  # n
 from trustweave.policy_predicates import (  # noqa: E402
     PolicySubject,
     capability_matches,
+    checks_for_rule,
     declared_controls,
     rule_matches,
 )
@@ -86,6 +87,55 @@ def _capability_witness(pattern: str) -> str:
     return pattern[:-1] + OUTSIDER if pattern.endswith(".*") else pattern
 
 
+def _capability_classes(patterns: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
+    """One witness per *achievable, distinct* capability signature.
+
+    Enumerating every subset of the named patterns over-counts, because patterns nest. Any
+    capability matching `net.http` also matches `net.*`, so the signature "matches
+    `net.http` but not `net.*`" is unsatisfiable, and the subset `{net.http}` realises the
+    same signature as `{net.*, net.http}`. Treating subsets as classes therefore both
+    invented a class no subject can occupy and counted one class twice.
+
+    That is not only a loose bound. Where two cells belong to one class, no policy the
+    language can express differs at one and not the other, so an unwitnessed cell whose
+    twin is witnessed admits no expressible surviving mutant -- the necessity argument
+    survives for semantic perturbations and not for policies. On a policy naming `net.*`
+    and `net.http` the subset enumeration reported 48 classes where there are 36.
+
+    Each signature here comes from a capability set that realises it, so the result contains
+    every achievable signature and nothing else. `scripts/verify_witness_space.py` checks
+    that independently with an SMT solver rather than trusting this argument.
+    """
+
+    return tuple(_capability_representatives(patterns).values())
+
+
+def _capability_representatives(
+    patterns: tuple[str, ...],
+) -> dict[tuple[bool, ...], tuple[str, ...]]:
+    """Signature -> the one witness set that stands for it in the enumeration.
+
+    Shared by `witness_space`, which enumerates the values, and `abstract_cell`, which must
+    place a concrete subject on exactly the representative the enumeration used. The two
+    once computed the representative differently -- the enumeration kept the first subset
+    realising a signature, the placement collected every witness the subject's capabilities
+    matched -- and for a subject holding `net.http` under a policy naming both `net.*` and
+    `net.http` that produced a pair of witnesses where the enumeration had one, a cell no
+    decision map contained. The interpreter oracle found it on generated policies; the
+    shipped policy names no capabilities and never could.
+    """
+
+    seen: dict[tuple[bool, ...], tuple[str, ...]] = {}
+    for subset in _subsets(patterns):
+        witness = tuple(_capability_witness(pattern) for pattern in subset)
+        signature = tuple(
+            any(capability_matches(pattern, capability) for capability in witness)
+            for pattern in patterns
+        )
+        seen.setdefault(signature, witness)
+    return seen
+
+
 def _subsets(values: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
     return tuple(
         combination
@@ -106,12 +156,14 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
     Returned per attribute:
 
     trust, action           the full label domains
-    classification          the taxonomy plus any named value, but only when some rule
-                            constrains classification at all; otherwise one value
+    classification          the taxonomy, any named value, `unspecified` and one outsider,
+                            but only when some rule constrains classification at all;
+                            otherwise one value
     identifiers             each named value, the default, and one outsider
     purpose tags            every subset of the named tags, since matching is intersection
-    capabilities            every subset of the named patterns, witnessed by a capability
-                            matching each, since matching is existential over the pair
+    capabilities            one witness per achievable capability signature. Not every
+                            subset of the named patterns is one: patterns nest, so
+                            `net.http` implies `net.*` and the subsets collapse
     """
 
     rules = [rule for rule in document.get("rules") or [] if isinstance(rule, dict)]
@@ -124,8 +176,14 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
         for rule in rules
     )
     if named_classifications or bounded:
+        # One value outside the taxonomy and unnamed is a class of its own: the engine admits
+        # any classification that is not a near miss of a taxonomy value, and such a value
+        # fails every bound and every membership test. `unspecified` plays that part unless
+        # the policy names it or the taxonomy contains it, so the outsider is added as well
+        # and a concrete value the policy does not know is placed on it, never on the first
+        # taxonomy entry -- which is where the interpreter oracle found it being placed.
         classifications = tuple(
-            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION))
+            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION, OUTSIDER))
         )
     else:
         classifications = (UNSPECIFIED_CLASSIFICATION,)
@@ -142,15 +200,60 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
         "source_identifier": identifiers("source_identifiers", DEFAULT_SOURCE_IDENTIFIER),
         "tool_identifier": identifiers("tool_identifiers", DEFAULT_TOOL_IDENTIFIER),
         "purpose_tags": _subsets(_named_by_rules(rules, "purpose_tags")),
-        "tool_capabilities": tuple(
-            tuple(_capability_witness(pattern) for pattern in subset)
-            for subset in _subsets(patterns)
-        ),
+        "tool_capabilities": _capability_classes(patterns),
     }
 
 
+def _subject_of(policy: Any, cell: Cell) -> PolicySubject:
+    return PolicySubject(
+        source_trust=cell[0],
+        tool_action_class=cell[1],
+        source_data_classification=cell[2],
+        source_identifier=cell[3],
+        tool_identifier=cell[4],
+        purpose_tags=cell[5],
+        tool_capabilities=cell[6],
+        declared_controls=declared_controls(policy),
+    )
+
+
+def predicate_signature(policy: Any, cell: Cell) -> tuple[bool, ...]:
+    """How this subject answers every predicate every rule of the policy states.
+
+    This is the definition of `~P`: first-match evaluation consults nothing else, so two
+    subjects with the same signature are one class, and any policy over the same named
+    values decides them alike.
+    """
+
+    subject = _subject_of(policy, cell)
+    return tuple(
+        bool(check["matched"])
+        for rule in policy.rules
+        for check in checks_for_rule(rule, subject, policy).values()
+    )
+
+
 def cells(document: dict[str, Any]) -> tuple[Cell, ...]:
-    """Every class of the quotient, in deterministic order."""
+    """Every class of the quotient, in deterministic order, one witness each.
+
+    The product of the per-attribute witness spaces is a *refinement* of `~P`, not the
+    quotient. Two components are set-valued and their predicates are existential, so
+    distinct subsets of the named values can answer every predicate identically: a policy
+    whose only purpose predicate is "intersects {a, b}" cannot tell `{a}` from `{a, b}`,
+    and any capability matching `net.http` also matches `net.*`, so the signature "matches
+    `net.http` but not `net.*`" is occupied by no subject at all.
+
+    Soundness is unaffected: the decision is constant on each class, hence on each cell of
+    any refinement, so Theorem 3 and Corollary 4 hold over what is enumerated here. What
+    the refinement costs is the policy-level reading of necessity -- no policy the language
+    can express differs at one cell of a class and not another, so an unwitnessed cell
+    whose twin is witnessed admits no expressible surviving mutant.
+
+    The product is kept rather than quotiented because a mutant is a different policy with
+    different signatures, and Theorem 2 needs the two compared over a *common* refinement.
+    `predicate_signature()` computes the class of a cell where a single policy is being
+    described, and the decision-class coverage write-up states the distinction.
+    """
 
     space = witness_space(document)
     total = 1
@@ -174,7 +277,11 @@ def abstract_cell(
     purpose_tags: tuple[str, ...] = (),
     tool_capabilities: tuple[str, ...] = (),
 ) -> Cell:
-    """Place one concrete subject in its class, so a test case can be located in the quotient."""
+    """Place one concrete subject in its class, so a test case can be located in the quotient.
+
+    The cell is a class of the *refinement* the harness enumerates rather than of `~P`
+    itself; see `cells` for why the two differ and what that costs.
+    """
 
     def represent(attribute: str, value: str | None, default: str) -> str:
         witnesses = space[attribute]
@@ -187,15 +294,22 @@ def abstract_cell(
     named_purposes = {tag for subset in space["purpose_tags"] for tag in subset}
     purposes = tuple(sorted(set(purpose_tags) & named_purposes))
 
-    witnessed_capabilities = {
-        witness for subset in space["tool_capabilities"] for witness in subset
-    }
-    hit = {
-        witness
-        for witness in witnessed_capabilities
-        for capability in tool_capabilities
-        if capability_matches(_pattern_of(witness), capability)
-    }
+    # The capability component is placed by signature: which named patterns the subject's
+    # capabilities match. The representative for that signature is whatever the enumeration
+    # used, recovered from the same construction, so a subject lands on a cell the decision
+    # map has rather than on a witness set of its own making.
+    patterns = tuple(
+        sorted(
+            {_pattern_of(witness) for subset in space["tool_capabilities"] for witness in subset}
+        )
+    )
+    signature = tuple(
+        any(capability_matches(pattern, capability) for capability in tool_capabilities)
+        for pattern in patterns
+    )
+    representatives = _capability_representatives(patterns)
+    if signature not in representatives:  # pragma: no cover - realised, hence achievable
+        raise SystemExit(f"a realised capability signature {signature} was not enumerated")
     return (
         source_trust,
         tool_action_class,
@@ -205,7 +319,7 @@ def abstract_cell(
         represent("source_identifier", source_identifier, DEFAULT_SOURCE_IDENTIFIER),
         represent("tool_identifier", tool_identifier, DEFAULT_TOOL_IDENTIFIER),
         purposes,
-        tuple(sorted(hit)),
+        representatives[signature],
     )
 
 
@@ -218,16 +332,7 @@ def _pattern_of(witness: str) -> str:
 def _decide(policy: Any, cell: Cell) -> str:
     """First-match evaluation over one class witness, using the engine's own predicates."""
 
-    subject = PolicySubject(
-        source_trust=cell[0],
-        tool_action_class=cell[1],
-        source_data_classification=cell[2],
-        source_identifier=cell[3],
-        tool_identifier=cell[4],
-        purpose_tags=cell[5],
-        tool_capabilities=cell[6],
-        declared_controls=declared_controls(policy),
-    )
+    subject = _subject_of(policy, cell)
     for rule in policy.rules:
         if rule_matches(rule, subject, policy):
             return str(rule.decision)

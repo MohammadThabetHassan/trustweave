@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import importlib.util
 import json
 import re
 import subprocess
@@ -131,19 +132,19 @@ RULE_PRODUCER_PATHS = (
     ROOT / "src" / "trustweave" / "trace_review.py",
 )
 RULE_IDENTIFIER = re.compile(r'"(TW-[A-Z0-9-]+)"')
+# Markers that do not depend on a run's totals. Everything countable is derived from the
+# survivor-triage inventory instead, by _check_mutation_record_matches_inventory, so the
+# prose and the inventory cannot drift apart the way they previously did.
 MUTATION_RECORD_MARKERS = (
     "`mutmut 3.7.0`",
-    "6,691 generated mutants; 6,565 killed; 126 survived; 0 without a selected test; "
-    "0 timed out; 0 suspicious.",
-    "98.12% killed (`6,565 / 6,691`)",
     "Linux with fork support",
     "**95% mutation threshold** for the measured high-risk scope",
-    "126 classified survivors",
-    "0 untriaged survivors",
-    "126 equivalent mutations",
-    "0 defensive mutations",
-    "0 mutations marked `needs_regression`",
     "release-blocking quality check",
+)
+MUTATION_TRIAGE_PATH = ROOT / "docs" / "mutation-survivor-triage-v1.json"
+MUTATION_AUDIT_PATH = ROOT / "docs" / "MUTATION_EQUIVALENCE_AUDIT.md"
+MUTATION_AUDIT_FAMILY_ROW = re.compile(
+    r"^\| (?!\*\*Total)(?!Reviewed)(?!---)([^|]+)\| +(\d+) \|", re.MULTILINE
 )
 GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
     "agent-security-bundle-v1alpha2.schema.json": (
@@ -262,7 +263,6 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     "docs/site/CURRENT_EVIDENCE.md": (
         "0.3.1",
         "0.3.0",
-        "98.12%",
         "not yet collected",
         "does **not** establish",
         "The documented merge policy requires green relevant checks",
@@ -374,6 +374,18 @@ MUTATION_SOURCE_SCOPE = [
     "src/trustweave/commands/ci.py",
     "src/trustweave/bundle_policy.py",
     "src/trustweave/policy_weakening.py",
+    # Discovery intake and artifact production, added once their kill rates cleared the
+    # gate.
+    "src/trustweave/code_sources.py",
+    "src/trustweave/code_discovery.py",
+]
+# Mutated and held to a floor, but not to the survivor-triage gate. code_analysis.py sits
+# at 80% and that gate additionally requires a recorded proof for every survivor, which at
+# 350 survivors cannot be written honestly because most are not equivalences. Leaving it
+# out of the run entirely left the module that performs the analysis under no control at
+# all, which is worse than a floor: the rate could fall and nothing would say so.
+MUTATION_RATCHET_SCOPE = [
+    "src/trustweave/code_analysis.py",
 ]
 REPRODUCIBILITY_RECORD_MARKERS = (
     "Clean-checkout staged-CI release verification",
@@ -580,9 +592,32 @@ def _check_contract_examples() -> list[str]:
 def _check_markdown_links() -> list[str]:
     failures: list[str] = []
     for document in sorted(ROOT.rglob("*.md")):
-        if any(part in {".git", "dist", "build", ".wheel-check"} for part in document.parts):
+        # mutants/ is a generated copy of the whole tree, so a mutation run would
+        # otherwise make this check fail on duplicates of the repository's own files.
+        # outputs/ and .feynman/ are scratch written by the research agent into the
+        # working tree; both are gitignored and neither is repository content.
+        if any(
+            part
+            in {
+                ".git",
+                "dist",
+                "build",
+                ".wheel-check",
+                "mutants",
+                ".mutmut-cache",
+                "outputs",
+                ".feynman",
+            }
+            for part in document.parts
+        ):
             continue
         for target in MARKDOWN_LINK.findall(document.read_text(encoding="utf-8")):
+            # Markdown permits a target wrapped in angle brackets, and `<https://...>` is
+            # a URL just as much as `https://...` is. Not stripping them made every such
+            # link look like a local path that does not exist.
+            target = target.strip()
+            if target.startswith("<") and target.endswith(">"):
+                target = target[1:-1].strip()
             if target.startswith(("http://", "https://", "mailto:", "#")):
                 continue
             relative_target = target.split("#", maxsplit=1)[0]
@@ -813,6 +848,41 @@ def _check_issue_templates() -> list[str]:
     return failures
 
 
+def _check_recorded_mutation_figure_agrees(summary: str) -> list[str]:
+    """Require the public evidence page to quote the mutation record, not a past one.
+
+    This page previously carried 6,565 of 6,691 across fourteen modules while the record
+    it summarises had moved to sixteen. The figure survived because it was pinned here as
+    a literal string, so the guard held the superseded number in place instead of
+    catching it. A figure that is recorded elsewhere should be compared against that
+    record rather than frozen in the checker.
+    """
+
+    record = MUTATION_RECORD_PATH
+    if not record.is_file():
+        return [f"Missing mutation record: {record.name}"]
+
+    scores = re.findall(
+        r"([\d,]+) killed / ([\d,]+) generated \(([\d.]+)% killed\)",
+        record.read_text(encoding="utf-8"),
+    )
+    if len(scores) != 1:
+        return [
+            f"docs/MUTATION_TESTING.md should record exactly one high-risk scope score; "
+            f"found {len(scores)}"
+        ]
+
+    killed, generated, percentage = scores[0]
+    failures: list[str] = []
+    for figure in (killed, generated, percentage + "%"):
+        if figure not in summary:
+            failures.append(
+                f"docs/site/CURRENT_EVIDENCE.md does not quote the recorded mutation "
+                f"figure {figure} from docs/MUTATION_TESTING.md"
+            )
+    return failures
+
+
 def _check_current_contract_documentation() -> list[str]:
     """Require concise maintained documentation to name the current emitted contracts."""
 
@@ -937,6 +1007,117 @@ def _check_changelog_version_synchronization() -> list[str]:
     return failures
 
 
+def _check_mutation_record_matches_inventory(mutation_record: str) -> list[str]:
+    """Require the published mutation prose to agree with the survivor-triage inventory.
+
+    The record used to carry its totals as prose while the inventory carried its own, and
+    the two drifted: the document claimed 126 survivors of 6,691 mutants while the
+    inventory held 133 of 6,566. Deriving every countable claim from the inventory means a
+    regenerated inventory forces the prose to be updated with it.
+    """
+
+    failures: list[str] = []
+    if not MUTATION_TRIAGE_PATH.exists():
+        return ["Missing docs/mutation-survivor-triage-v1.json"]
+    try:
+        inventory: Any = json.loads(MUTATION_TRIAGE_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        return [f"Invalid survivor triage inventory JSON: {error}"]
+    if not isinstance(inventory, dict):
+        return ["Survivor triage inventory must be a JSON object"]
+
+    counts = inventory.get("classification_counts")
+    survivor_count = inventory.get("survivor_count")
+    if not isinstance(counts, dict) or not isinstance(survivor_count, int):
+        return ["Survivor triage inventory lacks survivor_count and classification_counts"]
+
+    records = inventory.get("survivors")
+    if not isinstance(records, list) or len(records) != survivor_count:
+        failures.append("Survivor triage inventory survivor_count does not match its record count")
+
+    required = [
+        f"**{survivor_count} classified survivors**",
+        f"**{inventory.get('untriaged_count')} untriaged survivors**",
+        f"**{counts.get('equivalent')} equivalent mutations**",
+        f"**{counts.get('defensive')} defensive mutations**",
+        f"**{counts.get('needs_regression')} mutations marked `needs_regression`**",
+    ]
+    run_summary = inventory.get("mutation_run")
+    if isinstance(run_summary, str):
+        required.append(run_summary)
+    for marker in required:
+        if marker not in mutation_record:
+            failures.append(
+                "Mutation-testing record disagrees with the survivor triage inventory; "
+                f"expected to find: {marker}"
+            )
+    failures.extend(_check_equivalence_audit_matches_inventory(survivor_count))
+    return failures
+
+
+def _check_equivalence_audit_matches_inventory(survivor_count: int) -> list[str]:
+    """Require the audit's per-family counts to account for every survivor, exactly once.
+
+    The audit summarises the inventory by reviewed family. When a run adds survivors in a
+    module the audit has no row for, the families silently stop covering the inventory: the
+    audit read 126 across ten families while the inventory held 147 across fourteen
+    modules, with the engine, source-intake and discovery rows simply absent. Summing the
+    rows makes that arithmetic a checked claim.
+    """
+
+    if not MUTATION_AUDIT_PATH.exists():
+        return ["Missing docs/MUTATION_EQUIVALENCE_AUDIT.md"]
+    audit = MUTATION_AUDIT_PATH.read_text(encoding="utf-8")
+    rows = MUTATION_AUDIT_FAMILY_ROW.findall(audit)
+    if not rows:
+        return ["Mutation-equivalence audit states no reviewed-family counts"]
+    family_total = sum(int(count) for _, count in rows)
+    failures: list[str] = []
+    if family_total != survivor_count:
+        failures.append(
+            "Mutation-equivalence audit families do not account for the inventory: "
+            f"families sum to {family_total}, inventory holds {survivor_count}"
+        )
+    if f"| **Total retained equivalents** | **{survivor_count}** |" not in audit:
+        failures.append(
+            "Mutation-equivalence audit does not state the inventory's survivor total: "
+            f"expected {survivor_count}"
+        )
+    return failures
+
+
+def _check_manuscript_figures() -> list[str]:
+    """Require the paper's numbers to be the artifacts' numbers, when a paper is present.
+
+    Prose is the one place where a figure can be wrong without a test noticing, and the
+    manuscript restates measured values in its abstract, its tables and its conclusion.
+    `scripts/check_manuscript.py` pins each of them to the JSON an instrument wrote; this
+    delegates to it so a drifting paper fails the same gate as a drifting document.
+
+    The manuscript is not in this repository -- a journal reads a publicly posted full
+    text as prior dissemination -- so this checks nothing unless TRUSTWEAVE_PAPER points
+    at one. The artifacts remain the source of truth regardless.
+    """
+
+    specification = importlib.util.spec_from_file_location(
+        "check_manuscript", ROOT / "scripts" / "check_manuscript.py"
+    )
+    if specification is None or specification.loader is None:
+        return ["Cannot load scripts/check_manuscript.py"]
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+
+    paper = module.default_paper()
+    if not paper.is_file():
+        # The manuscript is kept outside the repository on purpose, so its absence is the
+        # normal case and not a failure. Set TRUSTWEAVE_PAPER to have it checked here.
+        return []
+    return [
+        f"Manuscript disagrees with its artifacts: {problem}"
+        for problem in module.check(paper, ROOT / "docs")
+    ]
+
+
 def _check_quality_evidence() -> list[str]:
     """Verify source-derived quality facts and the bounded mutation record."""
 
@@ -976,6 +1157,7 @@ def _check_quality_evidence() -> list[str]:
         for marker in MUTATION_RECORD_MARKERS:
             if marker not in mutation_record:
                 failures.append(f"Mutation-testing record lacks required evidence marker: {marker}")
+        failures.extend(_check_mutation_record_matches_inventory(mutation_record))
 
     if not RELEASE_REPRODUCIBILITY_HELPER_PATH.is_file():
         failures.append("Missing scripts/verify_release_reproducibility.py")
@@ -992,8 +1174,8 @@ def _check_quality_evidence() -> list[str]:
     mutation_config = project.get("tool", {}).get("mutmut")
     if not isinstance(mutation_config, dict):
         failures.append("pyproject.toml lacks a [tool.mutmut] configuration")
-    elif mutation_config.get("only_mutate") != MUTATION_SOURCE_SCOPE:
-        failures.append("Mutation configuration must cover the documented high-risk source scope")
+    elif mutation_config.get("only_mutate") != MUTATION_SOURCE_SCOPE + MUTATION_RATCHET_SCOPE:
+        failures.append("Mutation configuration must cover the gated and ratcheted scopes")
     return failures
 
 
@@ -1425,6 +1607,9 @@ def main() -> int:
     failures = (
         _check_schema_resource_synchronization()
         + _check_generated_artifact_schema_coverage()
+        + _check_recorded_mutation_figure_agrees(
+            (ROOT / "docs" / "site" / "CURRENT_EVIDENCE.md").read_text(encoding="utf-8")
+        )
         + _check_current_contract_documentation()
         + _check_json_documents()
         + _check_contract_examples()
@@ -1438,6 +1623,7 @@ def main() -> int:
         + _check_public_documents()
         + _check_changelog_version_synchronization()
         + _check_quality_evidence()
+        + _check_manuscript_figures()
         + _check_rule_registry()
         + _check_documentation_site()
         + _check_documentation_commands()

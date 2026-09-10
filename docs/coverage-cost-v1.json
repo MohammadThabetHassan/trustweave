@@ -1,0 +1,42 @@
+{
+  "azure": {
+    "at_or_above_intractable": 8,
+    "max_guards": 395,
+    "median_cells": 4,
+    "median_guards": 2,
+    "p75_cells": 4,
+    "p90_cells": 12,
+    "p99_cells": 2048,
+    "policies": 2150,
+    "share_at_most": {
+      "1000000": 0.9953,
+      "1024": 0.9837,
+      "16": 0.9288,
+      "256": 0.9795,
+      "4": 0.8051,
+      "64": 0.967,
+      "8": 0.8865
+    }
+  },
+  "iam": {
+    "at_or_above_intractable": 131,
+    "max_guards": 4587,
+    "median_cells": 60,
+    "median_guards": 16,
+    "p75_cells": 3240,
+    "p90_cells": 28835840,
+    "p99_cells": 1000000000,
+    "policies": 1651,
+    "share_at_most": {
+      "1000000": 0.8722,
+      "1024": 0.7032,
+      "16": 0.3446,
+      "256": 0.6293,
+      "4": 0.1593,
+      "64": 0.5161,
+      "8": 0.2411
+    }
+  },
+  "intractable_at": 1000000000,
+  "schema_version": "v1"
+}

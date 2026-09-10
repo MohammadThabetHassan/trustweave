@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 from types import ModuleType
 
@@ -128,3 +129,86 @@ def test_reality_check_verifies_package_provenance_controls() -> None:
     reality_check = _reality_check_module()
 
     assert reality_check._check_package_provenance_controls() == []
+
+
+def test_reality_check_ties_the_mutation_record_to_the_survivor_inventory() -> None:
+    """The published mutation prose must agree with the inventory it describes."""
+
+    reality_check = _reality_check_module()
+    record = reality_check.MUTATION_RECORD_PATH.read_text(encoding="utf-8")
+
+    assert reality_check._check_mutation_record_matches_inventory(record) == []
+
+
+def test_reality_check_rejects_a_mutation_record_that_contradicts_the_inventory() -> None:
+    """A stale survivor count in the prose must be reported, not tolerated.
+
+    The record and the inventory previously disagreed -- 126 survivors of 6,691 mutants in
+    the prose against 133 of 6,566 in the inventory -- because nothing compared them.
+    """
+
+    reality_check = _reality_check_module()
+
+    failures = reality_check._check_mutation_record_matches_inventory(
+        "A record that states no counts at all."
+    )
+
+    assert failures, "a record stating no counts must not satisfy the inventory check"
+    assert any("classified survivors" in failure for failure in failures)
+
+
+def test_reality_check_ties_the_public_evidence_page_to_the_mutation_record() -> None:
+    """The page that summarises the run must quote the run that is recorded."""
+
+    reality_check = _reality_check_module()
+    summary = (reality_check.ROOT / "docs" / "site" / "CURRENT_EVIDENCE.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert reality_check._check_recorded_mutation_figure_agrees(summary) == []
+
+
+def test_reality_check_rejects_a_superseded_mutation_figure_on_the_evidence_page() -> None:
+    """A figure from an earlier scope must be reported, not carried forward.
+
+    The page published 6,565 of 6,691 across fourteen modules while the record it
+    summarises had moved to sixteen. It survived because the checker pinned the
+    percentage as a literal, so the guard preserved the stale figure rather than
+    catching it.
+    """
+
+    reality_check = _reality_check_module()
+
+    failures = reality_check._check_recorded_mutation_figure_agrees(
+        "The recorded Linux run killed 6,565 of 6,691 mutants (98.12%)."
+    )
+
+    assert failures, "a superseded figure must not satisfy the evidence-page check"
+    assert any("7,222" in failure for failure in failures)
+
+
+def test_reality_check_ties_the_equivalence_audit_to_the_survivor_inventory() -> None:
+    """The audit's reviewed families must account for every survivor in the inventory."""
+
+    reality_check = _reality_check_module()
+    inventory = json.loads(reality_check.MUTATION_TRIAGE_PATH.read_text(encoding="utf-8"))
+
+    assert (
+        reality_check._check_equivalence_audit_matches_inventory(inventory["survivor_count"]) == []
+    )
+
+
+def test_reality_check_rejects_an_audit_that_does_not_account_for_every_survivor() -> None:
+    """A run that adds survivors in an unreviewed module must fail, not pass silently.
+
+    The audit summed to 126 across ten families while the inventory held 147 across
+    fourteen modules, with no row at all for the engine, source-intake or discovery
+    survivors, because nothing added the rows up.
+    """
+
+    reality_check = _reality_check_module()
+
+    failures = reality_check._check_equivalence_audit_matches_inventory(10_000)
+
+    assert failures, "an audit that accounts for far fewer survivors must be reported"
+    assert any("do not account for the inventory" in failure for failure in failures)

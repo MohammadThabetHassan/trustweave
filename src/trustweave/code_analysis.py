@@ -28,17 +28,22 @@ from trustweave.code_catalog import (
     ACTION_CLASS_PRECEDENCE,
     CREDENTIAL_PATH_SUFFIXES,
     CREDENTIAL_PATH_TOKENS,
+    DB_CONNECTION_SYMBOLS,
     DB_EXECUTE_METHODS,
+    DB_PLUMBING_METHODS,
     EGRESS_COMMANDS,
     EXTERNAL_RECEIVERS,
     EXTERNAL_SYMBOLS,
     HIGH_SPECIFICITY_PII_TOKENS,
+    PATH_PRESERVING_METHODS,
     PATH_RECEIVERS,
     PII_TOKENS,
+    PURE_RESULT_SYMBOLS,
     READ_RECEIVER_METHODS,
     READ_SYMBOLS,
     RESULT_CONSTRUCTORS,
     SECRET_ENV_TOKENS,
+    SENSITIVE_RECEIVERS,
     SENSITIVE_SYMBOLS,
     SQL_READ_TOKENS,
     SQL_WRITE_TOKENS,
@@ -72,10 +77,42 @@ _UNRECOGNIZED: Final[str] = "\x00unrecognized"
 _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
     {"eval", "exec", "getattr", "globals", "importlib.import_module", "vars"}
 )
+# Of those, the ones that run code rather than select a symbol. `getattr` resolves a name;
+# `eval` executes whatever it is handed, so a caller-supplied argument to it is arbitrary
+# code execution and that is a finding rather than an inability to make one.
+_CODE_EXECUTION_SYMBOLS: Final[frozenset[str]] = frozenset({"eval", "exec"})
 
 LANGCHAIN_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
     {"langchain_core.tools.tool", "langchain.tools.tool", "langchain.agents.tool"}
 )
+# The OpenAI Agents SDK registers a plain function as a tool. It is a major framework and
+# was recognised by nothing here, so a review of an agent built on it reported no tools at
+# all -- not a refusal, an empty surface, which is the most fail-open answer available.
+OPENAI_AGENTS_DECORATORS: Final[frozenset[str]] = frozenset(
+    {
+        "agents.function_tool",
+        "agents.tool.function_tool",
+        "openai.agents.function_tool",
+    }
+)
+# CrewAI registers tools both ways. Neither was named here, so its decorator fell into the
+# generic `@<server>.tool()` bucket, which the record describes as "FastMCP and similar"
+# and treats as a lower-confidence guess, and its class-based tools were not found at all.
+CREWAI_TOOL_DECORATORS: Final[frozenset[str]] = frozenset(
+    {"crewai.tools.tool", "crewai_tools.tool", "crewai.tools.base_tool.tool"}
+)
+# Hugging Face smolagents, whose decorator resolves to a package name and so can be
+# reported as itself rather than as an unidentifiable receiver.
+SMOLAGENTS_DECORATORS: Final[frozenset[str]] = frozenset(
+    {"smolagents.tool", "smolagents.tools.tool"}
+)
+# Attribute decorators registered on an object built at runtime: `@server.tool()` for
+# FastMCP, `@agent.tool` and `@agent.tool_plain` for pydantic-ai. Which library the
+# receiver belongs to cannot be known from the source, so the framework is recorded as the
+# shape rather than as a guess at the project. `tool_plain` had to be listed: pydantic-ai
+# uses it 693 times in its own repository and, not ending in `.tool`, every one of those
+# tools was absent from the artifact rather than reported.
+RECEIVER_TOOL_SUFFIXES: Final[tuple[str, ...]] = (".tool", ".tool_plain")
 # Semantic Kernel registers a plugin method with a decorator carrying the exposed name.
 SEMANTIC_KERNEL_DECORATORS: Final[frozenset[str]] = frozenset(
     {
@@ -87,15 +124,25 @@ SEMANTIC_KERNEL_DECORATORS: Final[frozenset[str]] = frozenset(
 )
 # LangChain's class-based tools. The exposed name is a class attribute and the behaviour is
 # in `_run` or `_arun`, so neither the decorator nor the factory path discovers them.
-BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(
-    {
-        "langchain_core.tools.BaseTool",
-        "langchain_core.tools.base.BaseTool",
-        "langchain.tools.BaseTool",
-        "langchain.tools.base.BaseTool",
-    }
-)
+# The project each base belongs to, so the reported framework names the library a reviewer
+# would search for. It is spelled out rather than derived from the module path, because
+# `langchain_core.tools.BaseTool` and `langchain.tools.BaseTool` are the same framework and
+# splitting on the first dot would have renamed the published `langchain_base_tool_subclass`.
+BASE_TOOL_FRAMEWORKS: Final[dict[str, str]] = {
+    "langchain_core.tools.BaseTool": "langchain",
+    "langchain_core.tools.base.BaseTool": "langchain",
+    "langchain.tools.BaseTool": "langchain",
+    "langchain.tools.base.BaseTool": "langchain",
+    "crewai.tools.BaseTool": "crewai",
+    "crewai.tools.base_tool.BaseTool": "crewai",
+    "crewai_tools.BaseTool": "crewai",
+}
+BASE_TOOL_CLASSES: Final[frozenset[str]] = frozenset(BASE_TOOL_FRAMEWORKS)
 BASE_TOOL_BODY_METHODS: Final[tuple[str, ...]] = ("_run", "run", "_arun", "arun")
+# A low-level MCP server declares the names it exposes in its `list_tools` handler and
+# implements all of them in one `call_tool` handler, so the model sees names that appear
+# nowhere as a function.
+MCP_TOOL_DECLARATIONS: Final[frozenset[str]] = frozenset({"mcp.types.Tool", "mcp.Tool"})
 
 STRUCTURED_TOOL_FACTORIES: Final[frozenset[str]] = frozenset(
     {
@@ -151,10 +198,15 @@ class DiscoveredTool:
         """Return the highest-precedence observed class, or ``unknown`` if refused."""
 
         observed = {signal.action_class for signal in self.signals}
-        highest = next(
-            (candidate for candidate in ACTION_CLASS_PRECEDENCE if candidate in observed),
-            "read",
-        )
+        placed = [candidate for candidate in ACTION_CLASS_PRECEDENCE if candidate in observed]
+        if observed and not placed:
+            # Every signal carries a class the precedence order does not contain, so the
+            # analyzer produced evidence it cannot interpret. Falling through to "read"
+            # here reported the most benign class available on the strength of evidence
+            # that says nothing, which is the one direction this must not fail in. A tool
+            # with no signals at all is a different case and still reads as "read" below.
+            return UNKNOWN_ACTION_CLASS
+        highest = placed[0] if placed else "read"
         # Nothing outranks the top of the precedence order. Once a credential read or an
         # arbitrary process launch has actually been observed, no unresolved call elsewhere
         # in the tool can make the answer worse, so refusing would discard a finding rather
@@ -171,6 +223,23 @@ class DiscoveredTool:
             # must never fail in.
             return UNKNOWN_ACTION_CLASS
         return highest
+
+    def refusal_reasons(self) -> set[str]:
+        """Every reason the class was not proposed, or an empty set when it was.
+
+        `unrecognized_calls` can refuse on its own -- a call resolved to a real symbol the
+        catalogue does not describe, so an unseen effect could outrank what was observed --
+        and it was not part of `reasons`, so such a tool was published as `unknown` with no
+        explanation at all. docs/CODE_DISCOVERY.md promises that ambiguity produces a
+        reason, and this is what keeps that true.
+        """
+
+        if self.proposed_action_class() != UNKNOWN_ACTION_CLASS:
+            return set()
+        reasons = set(self.reasons)
+        if self.unrecognized_calls:
+            reasons.add("UNCATALOGUED_SYMBOL")
+        return reasons
 
     def confidence(self) -> str:
         if self.reasons:
@@ -202,6 +271,17 @@ class _Module:
     # Attributes bound directly to an imported symbol rather than to a constructed
     # receiver, keyed by the owning class then the attribute.
     self_symbols: dict[str, dict[str, str]] = field(default_factory=dict)
+    # Attributes whose constructor named a credential path, keyed by the owning class.
+    # `self.key = Path("~/.ssh/id_rsa")` in __init__ is the same read as the local form,
+    # and only the literal in the constructor says so, so it is recorded here rather than
+    # discarded with the rest of the constructor's arguments.
+    self_credentials: dict[str, set[str]] = field(default_factory=dict)
+    # Functions defined inside another function. Real servers register their handlers
+    # inside a factory -- `async def serve(): @server.call_tool() ...` is how every
+    # official MCP reference server is written -- so these must be discoverable as tools.
+    # They are deliberately kept out of `functions`, which is the bare-name resolution
+    # map: a nested helper must not satisfy a call to an imported name.
+    nested: list[ast.FunctionDef | ast.AsyncFunctionDef] = field(default_factory=list)
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -242,8 +322,10 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     # `send`, and would let a method body be attributed to an unrelated caller.
     methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     self_origins: dict[str, dict[str, str]] = {}
+    self_credentials: dict[str, set[str]] = {}
     self_symbols: dict[str, dict[str, str]] = {}
     method_owner: dict[str, str] = {}
+    nested: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     for node in tree.body:
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
             functions.setdefault(node.name, node)
@@ -258,9 +340,12 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                 method_owner[f"{child.name}:{child.lineno}"] = node.name
             stored: dict[str, str] = {}
             aliased: dict[str, str] = {}
+            credentials: set[str] = set()
             for inner in ast.walk(node):
-                if isinstance(inner, ast.Assign) and isinstance(
-                    inner.value, ast.Name | ast.Attribute
+                if (
+                    isinstance(inner, ast.Assign)
+                    and isinstance(inner.value, ast.Name | ast.Attribute)
+                    and _rooted_constructor(inner.value) is None
                 ):
                     # `self._shell = os.system`: the attribute is the symbol itself, not a
                     # constructed receiver, and calling it is calling that symbol.
@@ -271,7 +356,14 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                             and target.value.id in _INSTANCE_RECEIVERS
                         ):
                             aliased[target.attr] = _dotted(inner.value) or ""
-                if not isinstance(inner, ast.Assign) or not isinstance(inner.value, ast.Call):
+                if not isinstance(inner, ast.Assign):
+                    continue
+                constructed = (
+                    inner.value
+                    if isinstance(inner.value, ast.Call)
+                    else _rooted_constructor(inner.value)
+                )
+                if constructed is None:
                     continue
                 for target in inner.targets:
                     if (
@@ -279,11 +371,30 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                         and isinstance(target.value, ast.Name)
                         and target.value.id in _INSTANCE_RECEIVERS
                     ):
-                        stored[target.attr] = _dotted(inner.value.func) or ""
+                        stored[target.attr] = _dotted(constructed.func) or ""
+                        if _is_credential_path(constructed):
+                            credentials.add(target.attr)
             if stored:
                 self_origins[node.name] = stored
             if aliased:
                 self_symbols[node.name] = aliased
+            if credentials:
+                self_credentials[node.name] = credentials
+
+    # Anything defined inside a function body. Class methods are already collected above
+    # and module-level functions are in `functions`, so this is exactly the remainder.
+    top_level = {id(node) for node in tree.body}
+    owned = {id(method) for method in methods}
+    for outer in ast.walk(tree):
+        if not isinstance(outer, ast.FunctionDef | ast.AsyncFunctionDef):
+            continue
+        for inner in ast.walk(outer):
+            if inner is outer or not isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
+                continue
+            if id(inner) in top_level or id(inner) in owned:
+                continue
+            if not any(existing is inner for existing in nested):
+                nested.append(inner)
 
     indexed = _Module(
         path,
@@ -292,12 +403,14 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
         functions,
         wildcard,
         methods=methods,
+        nested=nested,
         self_symbols=self_symbols,
         self_origins={
             owner: {attr: _resolve_raw(spelled, bindings) for attr, spelled in stored.items()}
             for owner, stored in self_origins.items()
         },
         method_owner=method_owner,
+        self_credentials=self_credentials,
     )
     indexed.module_origins = _scope_origins(tree.body, indexed)
     return indexed
@@ -349,13 +462,34 @@ def _instance_attribute(call: ast.Call) -> str | None:
     return None
 
 
+def _rooted_constructor(value: ast.expr) -> ast.Call | None:
+    """The constructor at the root of an attribute chain, as in ``Chat(...).chat``.
+
+    Recording only a bare ``self.x = C()`` missed the shape an SDK client is usually built
+    with, where a sub-object is taken at construction time. The receiver is still the
+    constructor, so the attribute is tracked against it.
+    """
+
+    current: ast.AST = value
+    while isinstance(current, ast.Attribute):
+        current = current.value
+    return current if isinstance(current, ast.Call) else None
+
+
 def _is_instance_state_call(call: ast.Call) -> bool:
-    """True for a call reached through an attribute of ``self`` or ``cls``."""
+    """True for a call reached through an attribute of ``self`` or ``cls``.
+
+    The chain may be of any depth. Requiring exactly ``self.x.y()`` resolved
+    ``self.client.post(...)`` but not ``self.client.chat.completions.create(...)``, and the
+    second is how every LLM and cloud SDK is written, so the egress published as a local
+    read. A bare ``self.method()`` is still excluded here: that is a sibling method, which
+    the traversal follows rather than classifies.
+    """
 
     func = call.func
     if not isinstance(func, ast.Attribute) or not isinstance(func.value, ast.Attribute):
         return False
-    return isinstance(func.value.value, ast.Name) and func.value.value.id in _INSTANCE_RECEIVERS
+    return _instance_attribute(call) is not None
 
 
 def _root_name(node: ast.AST) -> str | None:
@@ -447,6 +581,59 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
     return aliases
 
 
+def _path_segments(value: ast.expr) -> list[ast.expr]:
+    """Constant string parts of a path expression, including `/` composition.
+
+    `home = Path.home()` then `home / ".ssh" / "id_rsa"` puts the part that decides whether
+    this is an ordinary read or a credential read in the composition rather than in the
+    constructor. Recording only the constructor's arguments read the private key as an
+    ordinary file.
+    """
+
+    return [
+        node
+        for node in ast.walk(value)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+    ]
+
+
+def _third_party_parameters(
+    function: ast.FunctionDef | ast.AsyncFunctionDef, module: _Module
+) -> set[str]:
+    """Parameters annotated as a type from an imported non-standard-library package.
+
+    `def git_commit(repo: git.Repo, message: str)` then `repo.index.commit(message)` is a
+    call on an object the caller supplied, whose methods the catalog says nothing about.
+    Producing neither an effect nor a refusal there classified a tool that writes to a git
+    repository as a benign read, with high confidence -- the one direction this must not
+    fail in. The annotation is the evidence that the receiver is third-party state; an
+    unannotated parameter, or one annotated as a builtin, stays benign so an ordinary pure
+    function is still positively classified.
+    """
+
+    arguments = function.args
+    parameters = [
+        *arguments.posonlyargs,
+        *arguments.args,
+        *arguments.kwonlyargs,
+        *([arguments.vararg] if arguments.vararg else []),
+        *([arguments.kwarg] if arguments.kwarg else []),
+    ]
+    found: set[str] = set()
+    for parameter in parameters:
+        if parameter.annotation is None:
+            continue
+        qualified = _resolve(_dotted(parameter.annotation), module)
+        if not qualified or "." not in qualified:
+            continue
+        root = qualified.split(".", 1)[0]
+        if root in sys.stdlib_module_names:
+            continue
+        if root in {binding.split(".", 1)[0] for binding in module.bindings.values()}:
+            found.add(parameter.arg)
+    return found
+
+
 def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
     """Locals bound to an instance of a class this module defines.
 
@@ -457,16 +644,39 @@ def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
     """
 
     classes = {node.name for node in module.tree.body if isinstance(node, ast.ClassDef)}
+    # A module-level singleton is the other half of the same pattern. `STORE =
+    # ContactStore(...)` at import time, then `store = STORE` inside the tool, is how a
+    # shared handle is normally reached, and seeing only in-function constructions left
+    # that whole shape invisible. Only top-level statements are read, never the bodies of
+    # other functions, so one function's local cannot leak into another's.
     found: dict[str, str] = {}
+    for statement in module.tree.body:
+        if not isinstance(statement, ast.Assign) or len(statement.targets) != 1:
+            continue
+        bound = statement.targets[0]
+        if not isinstance(bound, ast.Name) or not isinstance(statement.value, ast.Call):
+            continue
+        singleton = _dotted(statement.value.func)
+        if singleton in classes and singleton is not None:
+            found[bound.id] = singleton
+
     rebound: set[str] = set()
     for node in ast.walk(scope):
         if not isinstance(node, ast.Assign) or len(node.targets) != 1:
             continue
         target = node.targets[0]
-        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Call):
+        if not isinstance(target, ast.Name):
             continue
-        constructed = _dotted(node.value.func)
-        if constructed not in classes:
+        if isinstance(node.value, ast.Call):
+            constructed = _dotted(node.value.func)
+            if constructed not in classes:
+                continue
+        elif isinstance(node.value, ast.Name):
+            # An alias of a handle already known to be an instance keeps its class.
+            constructed = found.get(node.value.id)
+            if constructed is None:
+                continue
+        else:
             continue
         if target.id in found and found[target.id] != constructed:
             rebound.add(target.id)
@@ -543,7 +753,11 @@ def _scope_origins(
                 return origins[value.id][0]
             return None
         qualified = _resolve(_dotted(value.func), module)
-        if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+        if (
+            qualified in EXTERNAL_RECEIVERS
+            or qualified in PATH_RECEIVERS
+            or qualified in SENSITIVE_RECEIVERS
+        ):
             return qualified
         # `Path.home()` and `Path.cwd()` return the receiver they are called on.
         if isinstance(value.func, ast.Attribute):
@@ -565,7 +779,11 @@ def _scope_origins(
                 call = (
                     statement.value
                     if isinstance(statement.value, ast.Call)
-                    else ast.Call(func=ast.Name(id=origin), args=[], keywords=[])
+                    else ast.Call(
+                        func=ast.Name(id=origin),
+                        args=_path_segments(statement.value),
+                        keywords=[],
+                    )
                 )
                 for target in statement.targets:
                     if isinstance(target, ast.Name):
@@ -589,14 +807,20 @@ def _scope_origins(
     return origins
 
 
-def _sql_class(call: ast.Call) -> str | None:
-    """Classify a database execute call by the leading keyword of its literal query."""
+def _sql_class(call: ast.Call, literals: dict[str, ast.expr] | None = None) -> str | None:
+    """Classify a database execute call by the leading keyword of its literal query.
+
+    The statement is very often a module-level constant rather than an inline string, so
+    resolving only inline literals refused an ordinary reporting query as though it were
+    built at runtime.
+    """
 
     if not isinstance(call.func, ast.Attribute) or call.func.attr not in DB_EXECUTE_METHODS:
         return None
-    query = _constant_str(call.args[0]) if call.args else None
-    if query is None:
+    candidates = _literal_strings(call.args[0], literals) if call.args else None
+    if not candidates or len(candidates) != 1:
         return None
+    query = next(iter(candidates))
     head = query.strip().split(None, 1)
     if not head:
         return None
@@ -608,16 +832,89 @@ def _sql_class(call: ast.Call) -> str | None:
     return None
 
 
-def _open_class(call: ast.Call) -> tuple[str | None, str | None]:
-    """Return (action_class, refusal_reason) for a builtin ``open`` call."""
+def _literal_strings(node: ast.AST | None, literals: dict[str, ast.expr] | None) -> set[str] | None:
+    """Every string the expression can evaluate to, or None when that is not decidable.
+
+    A mode assigned to a local before the call is still a literal, and returning None for
+    it refused an ordinary `mode = "w"` as though the value came from outside. A
+    conditional is decidable too when both arms are: `"a" if event else "a+"` can only ever
+    be one of two append modes, so the class is the same either way. The caller refuses
+    when the arms disagree, which keeps the one case that genuinely cannot be read.
+    """
+
+    if isinstance(node, ast.Constant):
+        return {node.value} if isinstance(node.value, str) else None
+    if isinstance(node, ast.Name) and literals and node.id in literals:
+        return _literal_strings(literals[node.id], literals)
+    if isinstance(node, ast.IfExp):
+        taken = _literal_strings(node.body, literals)
+        otherwise = _literal_strings(node.orelse, literals)
+        return taken | otherwise if taken and otherwise else None
+    return None
+
+
+def _local_literals(scope: ast.AST, module: _Module | None = None) -> dict[str, ast.expr]:
+    """Names bound once to an expression whose value is decidable from the source.
+
+    Module-level constants are seeded first, because a SQL statement or a file mode is
+    usually defined once at the top of the file and referenced from the function. Only
+    top-level statements are read, so one function's local cannot leak into another's.
+    """
+
+    found: dict[str, ast.expr] = {}
+    if module is not None:
+        for statement in module.tree.body:
+            if not isinstance(statement, ast.Assign) or len(statement.targets) != 1:
+                continue
+            bound = statement.targets[0]
+            if isinstance(bound, ast.Name) and isinstance(
+                statement.value, ast.Constant | ast.IfExp
+            ):
+                found[bound.id] = statement.value
+    rebound: set[str] = set()
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name):
+            continue
+        if not isinstance(node.value, ast.Constant | ast.IfExp):
+            continue
+        if target.id in found:
+            rebound.add(target.id)
+        found[target.id] = node.value
+    for name in rebound:
+        found.pop(name, None)
+    return found
+
+
+def _open_class(
+    call: ast.Call, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None]:
+    """Return (action_class, refusal_reason) for a builtin ``open`` call.
+
+    A read of a credential path is sensitive rather than a plain read, which is the rule
+    every other read in this module already applies. Without it the two spellings of the
+    same operation disagreed: ``Path("~/.ssh/id_rsa").read_text()`` was sensitive while
+    ``open("~/.ssh/id_rsa")`` was a benign read at high confidence, and the second is the
+    more common idiom. Writes keep the write class whatever the path, matching the
+    treatment of the pathlib write methods.
+    """
 
     mode_node = call.args[1] if len(call.args) > 1 else _keyword(call, "mode")
     if mode_node is None:
-        return "read", None
-    mode = _constant_str(mode_node)
-    if mode is None:
+        return ("sensitive" if _is_credential_path(call) else "read"), None
+    modes = _literal_strings(mode_node, literals)
+    if not modes:
         return None, "NONLITERAL_ARGUMENT"
-    return ("write" if any(flag in mode for flag in "wax+") else "read"), None
+    classes = {"write" if any(flag in mode for flag in "wax+") else "read" for mode in modes}
+    if len(classes) != 1:
+        # The arms disagree, so the same call is a read on one path and a write on the
+        # other. Answering either way would be a guess.
+        return None, "NONLITERAL_ARGUMENT"
+    if classes == {"write"}:
+        return "write", None
+    return ("sensitive" if _is_credential_path(call) else "read"), None
 
 
 def _subprocess_class(call: ast.Call) -> str:
@@ -635,7 +932,9 @@ def _subprocess_class(call: ast.Call) -> str:
     return "sensitive"
 
 
-def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None, str | None]:
+def _environ_class(
+    call: ast.Call, symbol: str, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None, str | None]:
     """Classify one environment read, refusing when the key decides the answer.
 
     A literal key can be judged against the secret-name vocabulary. A key supplied at
@@ -645,7 +944,20 @@ def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None,
 
     if symbol.rsplit(".", 1)[-1] in {"items", "copy", "values"} or qualified_is_bulk(symbol):
         return "sensitive", symbol, None
-    key = _constant_str(call.args[0]) if call.args else None
+    return _environ_key_class(call.args[0] if call.args else None, symbol, literals)
+
+
+def _environ_key_class(
+    argument: ast.expr | None, symbol: str, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None, str | None]:
+    """Judge one environment variable name, whether it was a call argument or a key."""
+
+    # A helper that takes the variable name as a parameter is still reading a named
+    # variable; the name is simply one frame up. Without this a secret read moved into a
+    # one-line helper became unclassifiable.
+    if isinstance(argument, ast.Name) and literals and argument.id in literals:
+        argument = literals[argument.id]
+    key = _constant_str(argument) if argument is not None else None
     if key is None:
         return None, None, "NONLITERAL_ARGUMENT"
     tokens = {token for token in key.casefold().replace("-", "_").split("_") if token}
@@ -654,18 +966,31 @@ def _environ_class(call: ast.Call, symbol: str) -> tuple[str | None, str | None,
     return None, None, None
 
 
+def _classify_subscript(
+    node: ast.Subscript,
+    module: _Module,
+    origins: dict[str, tuple[str, ast.Call]],
+    literals: dict[str, ast.expr] | None = None,
+) -> tuple[str | None, str | None, str | None]:
+    """Classify `os.environ["NAME"]`, which is a read but not a call.
+
+    `os.environ.get("DB_PASSWORD")` and `os.getenv("DB_PASSWORD")` were both classified
+    sensitive while `os.environ["DB_PASSWORD"]`, which is the more common spelling, was not
+    seen at all: the traversal only ever looked at call nodes, so the most ordinary way to
+    read a secret from the environment published as no effect.
+    """
+
+    target = _dotted(node.value)
+    resolved = _resolve(target, module) if target else None
+    if resolved != _ENVIRON_ORIGIN:
+        root = node.value.id if isinstance(node.value, ast.Name) else None
+        if root is None or (origins.get(root) or ("", None))[0] != _ENVIRON_ORIGIN:
+            return None, None, None
+    return _environ_key_class(node.slice, f"{_ENVIRON_ORIGIN}.__getitem__", literals)
+
+
 def qualified_is_bulk(symbol: str) -> bool:
     return symbol in _ENVIRON_BULK
-
-
-def _env_is_secret(call: ast.Call, qualified: str) -> bool:
-    if qualified in _ENVIRON_BULK:
-        return True
-    key = _constant_str(call.args[0]) if call.args else None
-    if key is None:
-        return False
-    tokens = {token for token in key.casefold().replace("-", "_").split("_") if token}
-    return bool(tokens & SECRET_ENV_TOKENS)
 
 
 def _is_credential_path(call: ast.Call) -> bool:
@@ -681,6 +1006,30 @@ def _is_credential_path(call: ast.Call) -> bool:
     return False
 
 
+def _unwound_receiver(call: ast.Call, module: _Module) -> tuple[str | None, ast.Call | None]:
+    """Resolve a chain of receiver-preserving methods back to its constructor.
+
+    `Path(p).expanduser().resolve().stat()` is one read of one path, but each link is a
+    call on the result of the previous one, so the constructor was three levels down and
+    the whole chain resolved to nothing at all.
+    """
+
+    current = call
+    while True:
+        origin = _resolve(_dotted(current.func), module)
+        if origin is not None:
+            return origin, current
+        func = current.func
+        if (
+            isinstance(func, ast.Attribute)
+            and isinstance(func.value, ast.Call)
+            and func.attr in PATH_PRESERVING_METHODS
+        ):
+            current = func.value
+            continue
+        return None, None
+
+
 def _classify_call(
     call: ast.Call,
     module: _Module,
@@ -689,6 +1038,9 @@ def _classify_call(
     self_attributes: dict[str, str] | None = None,
     aliases: dict[str, str] | None = None,
     self_aliases: dict[str, str] | None = None,
+    literals: dict[str, ast.expr] | None = None,
+    opaque: set[str] | None = None,
+    self_credentials: set[str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -718,10 +1070,16 @@ def _classify_call(
         # constructor is the receiver, and its arguments carry the literal that decides
         # whether this is an ordinary read or a credential read.
         if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Call):
-            inner = call.func.value
-            origin = _resolve(_dotted(inner.func), module)
+            origin, inner = _unwound_receiver(call.func.value, module)
             method = call.func.attr
+            if inner is None:
+                inner = call.func.value
             if origin in PATH_RECEIVERS:
+                if method in PATH_PRESERVING_METHODS:
+                    # A link in the chain, not an effect: it returns another path and
+                    # touches nothing. Refusing on it made the whole tool unknown even
+                    # once the read at the end of the chain had been resolved.
+                    return None, None, None
                 if method in WRITE_RECEIVER_METHODS:
                     return "write", f"{origin}.{method}", None
                 if method in READ_RECEIVER_METHODS:
@@ -729,6 +1087,17 @@ def _classify_call(
                     return action, f"{origin}.{method}", None
             if origin in EXTERNAL_RECEIVERS:
                 return "external", f"{origin}.{method}", None
+            if origin in SENSITIVE_RECEIVERS:
+                return "sensitive", f"{origin}.{method}", None
+            if origin in PURE_RESULT_SYMBOLS:
+                # A method on a computed value. It cannot have an effect, so refusing on
+                # it reported the tool as unknown over a call that says nothing.
+                return None, None, None
+            if origin in DB_CONNECTION_SYMBOLS and method in DB_PLUMBING_METHODS:
+                # `connect(dsn).cursor()` hands back a handle. The statement given to
+                # execute is what decides the class, and it is judged wherever it appears,
+                # so refusing here made every database tool written this way unknown.
+                return None, None, None
         # Otherwise a method on an expression result. Only evidence if the chain roots at
         # a name this module resolves; a call on a parameter or literal is not.
         if root is not None and (root in module.bindings or root in origins):
@@ -744,6 +1113,8 @@ def _classify_call(
         method = call.func.attr
         if receiver in EXTERNAL_RECEIVERS:
             return "external", f"{receiver}.{method}", None
+        if receiver in SENSITIVE_RECEIVERS:
+            return "sensitive", f"{receiver}.{method}", None
         if receiver in PATH_RECEIVERS:
             if method in WRITE_RECEIVER_METHODS:
                 return "write", f"{receiver}.{method}", None
@@ -760,11 +1131,23 @@ def _classify_call(
         method = call.func.attr if isinstance(call.func, ast.Attribute) else ""
         if origin in EXTERNAL_RECEIVERS:
             return "external", f"{origin}.{method}", None
+        if origin in SENSITIVE_RECEIVERS:
+            return "sensitive", f"{origin}.{method}", None
         if origin in PATH_RECEIVERS:
             if method in WRITE_RECEIVER_METHODS:
                 return "write", f"{origin}.{method}", None
             if method in READ_RECEIVER_METHODS:
-                return "read", f"{origin}.{method}", None
+                # The constructor ran in __init__, so its literal is not in this call.
+                # Whether it named a credential path was recorded when the class was
+                # indexed; without it `self.key = Path("~/.ssh/id_rsa")` read as benign
+                # while the same two lines inside the tool read as sensitive.
+                credential = attribute is not None and attribute in (self_credentials or set())
+                return ("sensitive" if credential else "read"), f"{origin}.{method}", None
+        return None, None, "UNRESOLVED_CALLEE"
+
+    # A method on a parameter the signature declares as third-party state. What it does is
+    # decided by the caller, so it is refused rather than reported as no effect.
+    if opaque and root in opaque and isinstance(call.func, ast.Attribute) and root not in origins:
         return None, None, "UNRESOLVED_CALLEE"
 
     qualified = _resolve(spelled, module)
@@ -775,10 +1158,18 @@ def _classify_call(
         constant_target = _constant_str(call.args[1]) if len(call.args) > 1 else None
         if spelled in {"getattr", "vars"} and constant_target is not None:
             return None, None, None
+        if spelled in _CODE_EXECUTION_SYMBOLS:
+            source = call.args[0] if call.args else None
+            if source is not None and not isinstance(source, ast.Constant):
+                # Running code the caller supplied is privileged execution, which is what
+                # `sensitive` means here, and it is knowable without reading the code. A
+                # refusal said only that the behaviour could not be determined, which is
+                # weaker than the truth and left the finding to be guessed at.
+                return "sensitive", spelled, None
         return None, None, "DYNAMIC_DISPATCH"
 
     if spelled == "open" and "open" not in module.bindings:
-        open_action, open_reason = _open_class(call)
+        open_action, open_reason = _open_class(call, literals)
         return open_action, "open", open_reason
 
     is_process_launch = qualified.startswith("subprocess.") or qualified in {
@@ -792,7 +1183,7 @@ def _classify_call(
     if qualified in SENSITIVE_SYMBOLS:
         return "sensitive", qualified, None
     if qualified in _ENVIRON_READERS or qualified in _ENVIRON_BULK:
-        return _environ_class(call, qualified)
+        return _environ_class(call, qualified, literals)
     if qualified in EXTERNAL_SYMBOLS:
         return "external", qualified, None
     if qualified in WRITE_SYMBOLS:
@@ -801,7 +1192,7 @@ def _classify_call(
         action = "sensitive" if _is_credential_path(call) else "read"
         return action, qualified, None
 
-    sql = _sql_class(call)
+    sql = _sql_class(call, literals)
     if sql is not None:
         return sql, f"{sql}_sql_statement", None
 
@@ -812,7 +1203,7 @@ def _classify_call(
         and (origins.get(call.func.value.id) or ("", None))[0] == _ENVIRON_ORIGIN
         and call.func.attr in {"get", "setdefault", "items", "copy", "values"}
     ):
-        return _environ_class(call, f"os.environ.{call.func.attr}")
+        return _environ_class(call, f"os.environ.{call.func.attr}", literals)
 
     if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name):
         tracked = origins.get(call.func.value.id)
@@ -835,7 +1226,11 @@ def _classify_call(
         # A recognised execute whose query is not a literal cannot be classified.
         return None, None, "NONLITERAL_ARGUMENT"
 
-    if qualified in EXTERNAL_RECEIVERS or qualified in PATH_RECEIVERS:
+    if (
+        qualified in EXTERNAL_RECEIVERS
+        or qualified in PATH_RECEIVERS
+        or qualified in SENSITIVE_RECEIVERS
+    ):
         # Constructing a recognised receiver is not itself an effect; its methods are.
         return None, None, None
 
@@ -868,6 +1263,82 @@ def _lexical_pii_tokens(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set
     return found
 
 
+def _is_unimplemented(function: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
+    """True when the body is a stub that raises rather than doing anything.
+
+    A tool whose body is `raise NotImplementedError(...)` has its real implementation
+    bound somewhere else, usually by a deployment layer. It has no observable effect in
+    this file, and a tool with no effects is classified `read`, so a surface whose
+    behaviour is entirely unknown was published as a benign one.
+    """
+
+    statements = [
+        statement
+        for statement in function.body
+        if not (isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant))
+    ]
+    if not statements:
+        return False
+    return all(_raises_not_implemented(statement) for statement in statements)
+
+
+def _raises_not_implemented(statement: ast.stmt) -> bool:
+    """True for `raise NotImplementedError` in either its bare or called form."""
+
+    if not isinstance(statement, ast.Raise) or statement.exc is None:
+        return False
+    raised = statement.exc.func if isinstance(statement.exc, ast.Call) else statement.exc
+    return _dotted(raised) in {"NotImplementedError", "NotImplemented"}
+
+
+def _would_descend(
+    node: ast.Call,
+    module: _Module,
+    instances: dict[str, str],
+    owner: str | None,
+    visited: set[str],
+) -> bool:
+    """Whether the traversal would follow this call if the depth budget allowed.
+
+    The three conditions mirror the three descent branches in `_collect_signals`, and only
+    the existence of a target: the branches below resolve it again because they need the
+    function object. Keeping them in step is what
+    `test_a_call_followed_below_the_depth_limit_is_flagged_at_it` checks, by taking one
+    call and showing it is followed at one depth and reported at the next.
+    """
+
+    if (
+        isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id in instances
+    ):
+        owning = instances[node.func.value.id]
+        return f"{owning}.{node.func.attr}" not in visited and any(
+            candidate.name == node.func.attr
+            and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owning
+            for candidate in module.methods
+        )
+    if (
+        owner is not None
+        and isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id in _INSTANCE_RECEIVERS
+    ):
+        return f"{owner}.{node.func.attr}" not in visited and any(
+            candidate.name == node.func.attr
+            and module.method_owner.get(f"{candidate.name}:{candidate.lineno}") == owner
+            for candidate in module.methods
+        )
+    spelled = _dotted(node.func)
+    return bool(
+        spelled
+        and "." not in spelled
+        and spelled not in module.bindings
+        and spelled in module.functions
+        and spelled not in visited
+    )
+
+
 def _collect_signals(
     tool: DiscoveredTool,
     function: ast.FunctionDef | ast.AsyncFunctionDef,
@@ -875,6 +1346,8 @@ def _collect_signals(
     via: tuple[str, ...],
     depth: int,
     visited: set[str],
+    literals: dict[str, ast.expr] | None = None,
+    inherited: dict[str, tuple[str, ast.Call]] | None = None,
 ) -> None:
     """Walk one function, recording signals and following module-local helpers."""
 
@@ -883,14 +1356,23 @@ def _collect_signals(
         tool.budget_state = "exhausted"
         return
 
+    if depth == 0 and _is_unimplemented(function):
+        tool.reasons.add("BODY_UNAVAILABLE")
+
     owner = module.method_owner.get(f"{function.name}:{function.lineno}")
     self_attributes = module.self_origins.get(owner or "", {})
     self_aliases = module.self_symbols.get(owner or "", {})
+    self_credentials = module.self_credentials.get(owner or "", set())
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
+    # Receivers the caller handed over, before the callee's own bindings, which win.
+    origins.update(inherited or {})
     origins.update(_scope_origins(function.body, module, self_attributes))
     dynamic = _dynamic_locals(function, module)
     aliases = _symbol_aliases(function, module)
+    # Constants the caller supplied, plus constants bound in this function's own body.
+    literals = {**_local_literals(function, module), **(literals or {})}
+    opaque = _third_party_parameters(function, module)
     instances = _local_instances(function, module)
     shadowed = _local_names(function)
 
@@ -898,13 +1380,29 @@ def _collect_signals(
         id(inner) for decorator in function.decorator_list for inner in ast.walk(decorator)
     }
     for node in ast.walk(function):
+        if isinstance(node, ast.Subscript):
+            action, symbol, reason = _classify_subscript(node, module, origins, literals)
+            if reason:
+                tool.reasons.add(reason)
+            elif action and symbol:
+                tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
+            continue
         if not isinstance(node, ast.Call) or id(node) in decorator_nodes:
             # A decorator registers the tool with a framework. It is not behaviour the tool
             # performs, and classifying it made every decorated tool refuse on its own
             # registration call.
             continue
         action, symbol, reason = _classify_call(
-            node, module, origins, dynamic, self_attributes, aliases, self_aliases
+            node,
+            module,
+            origins,
+            dynamic,
+            self_attributes,
+            aliases,
+            self_aliases,
+            literals,
+            opaque,
+            self_credentials,
         )
         if reason:
             tool.reasons.add(reason)
@@ -915,6 +1413,16 @@ def _collect_signals(
             tool.signals.append(EffectSignal(action, symbol, module.path, node.lineno, via))
             continue
         if depth >= MAX_CALL_DEPTH:
+            # The traversal stops here. If there was something to follow, say so: a tool
+            # whose only effect sits one frame past the limit was reported as a local read
+            # at high confidence, with budget_state "complete" and no reason recorded, so
+            # an outbound call four frames down published as no effect at all. The breadth
+            # limit above has always reported itself; this is the same admission for depth,
+            # and it reports it under the same published reason, since a reviewer acts on
+            # "the body was not fully covered" the same way whichever limit stopped it.
+            if _would_descend(node, module, instances, owner, visited):
+                tool.reasons.add("BUDGET_EXHAUSTED")
+                tool.budget_state = "exhausted"
             continue
         # A call on an instance of a class this module defines is one hop, like a helper.
         if (
@@ -974,8 +1482,25 @@ def _collect_signals(
             if spelled in visited:
                 continue
             visited.add(spelled)
+            helper = module.functions[spelled]
+            # Constants the caller supplies are bound to the helper's parameters, so a
+            # decision that depends on a literal is still decidable one frame down.
+            passed: dict[str, ast.expr] = {
+                parameter.arg: argument
+                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                if isinstance(argument, ast.Constant)
+            }
+            # A receiver created in one function and handed to another keeps its identity.
+            # `session = ClientSession()`, then `_collect(session, symbol)`, then
+            # `session.get(url)` is how async clients are written, and losing the receiver
+            # at the call boundary reported the egress as an unresolvable callee.
+            handed: dict[str, tuple[str, ast.Call]] = {
+                parameter.arg: origins[argument.id]
+                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                if isinstance(argument, ast.Name) and argument.id in origins
+            }
             _collect_signals(
-                tool, module.functions[spelled], module, (*via, spelled), depth + 1, visited
+                tool, helper, module, (*via, spelled), depth + 1, visited, passed, handed
             )
 
     if module.wildcard_import:
@@ -1000,30 +1525,45 @@ def _decorator_names(
     return resolved
 
 
+# Keywords a framework uses to override the name the model is shown. `name` is the common
+# spelling; the OpenAI Agents SDK calls it `name_override`, and reading only the first
+# reported the Python function's name for a tool exposed under a different one, which is a
+# drift finding about nothing.
+TOOL_NAME_KEYWORDS: Final[tuple[str, ...]] = ("name", "name_override", "tool_name")
+
+
 def _tool_name_from_decorator(decorator: ast.AST, fallback: str) -> str:
     if isinstance(decorator, ast.Call):
         positional = _constant_str(decorator.args[0]) if decorator.args else None
         if positional:
             return positional
-        keyword = _keyword(decorator, "name")
-        named = _constant_str(keyword) if keyword is not None else None
-        if named:
-            return named
+        for spelling in TOOL_NAME_KEYWORDS:
+            keyword = _keyword(decorator, spelling)
+            named = _constant_str(keyword) if keyword is not None else None
+            if named:
+                return named
     return fallback
 
 
 def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
     discovered: list[DiscoveredTool] = []
-    for function in [*module.functions.values(), *module.methods]:
+    for function in [*module.functions.values(), *module.methods, *module.nested]:
         for qualified, decorator in _decorator_names(function, module):
             framework: str | None = None
             if qualified in LANGCHAIN_TOOL_DECORATORS:
                 framework = "langchain_tool_decorator"
+            elif qualified in OPENAI_AGENTS_DECORATORS:
+                framework = "openai_agents_decorator"
+            elif qualified in CREWAI_TOOL_DECORATORS:
+                framework = "crewai_tool_decorator"
+            elif qualified in SMOLAGENTS_DECORATORS:
+                framework = "smolagents_decorator"
             elif qualified in SEMANTIC_KERNEL_DECORATORS:
                 framework = "semantic_kernel_decorator"
-            elif qualified and qualified.endswith(".tool"):
-                # FastMCP and similar: @<server>.tool(). The receiver is a local object,
-                # so this is recorded as a lower-confidence framework, never as proof.
+            elif qualified and qualified.endswith(RECEIVER_TOOL_SUFFIXES):
+                # FastMCP, pydantic-ai and similar: a decorator taken from an object built
+                # at runtime. The receiver is a local, so this is recorded as a
+                # lower-confidence framework, never as proof of which library it is.
                 framework = "server_tool_decorator"
             elif qualified and qualified.endswith(".call_tool"):
                 framework = "mcp_call_tool"
@@ -1076,8 +1616,20 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
     for node in module.tree.body:
         if not isinstance(node, ast.ClassDef):
             continue
-        if not any(_resolve(_dotted(base), module) in BASE_TOOL_CLASSES for base in node.bases):
+        resolved_base = next(
+            (
+                base
+                for base in (_resolve(_dotted(base), module) for base in node.bases)
+                if base in BASE_TOOL_CLASSES
+            ),
+            None,
+        )
+        if resolved_base is None:
             continue
+        # The framework is read from the base the class actually derives from. Reporting
+        # every subclass as LangChain's named the wrong project for a CrewAI tool, in the
+        # field a reviewer uses to find the registration.
+        framework = f"{BASE_TOOL_FRAMEWORKS[resolved_base]}_base_tool_subclass"
         methods = {
             child.name: child
             for child in node.body
@@ -1087,13 +1639,97 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
         discovered.append(
             DiscoveredTool(
                 _class_attribute_string(node, "name") or node.name,
-                "langchain_base_tool_subclass",
+                framework,
                 module.path,
                 body.lineno if body is not None else node.lineno,
                 implementation=node.name,
             )
         )
     return discovered
+
+
+ENUM_BASE_NAMES: Final[frozenset[str]] = frozenset({"Enum", "StrEnum", "IntEnum"})
+
+
+def _enum_string_members(tree: ast.Module) -> dict[str, str]:
+    """Module-level string enum members, so `GitTools.STATUS` resolves to `git_status`.
+
+    Naming tools with a `str, Enum` is the idiomatic pattern in the MCP reference servers.
+    Without resolving it the declared names are invisible and the artifact reports the
+    handler function instead of the names the model is actually offered.
+    """
+
+    members: dict[str, str] = {}
+    for node in tree.body:
+        if not isinstance(node, ast.ClassDef):
+            continue
+        bases = {(_dotted(base) or "").rsplit(".", 1)[-1] for base in node.bases}
+        if not bases & ENUM_BASE_NAMES:
+            continue
+        for child in node.body:
+            if not isinstance(child, ast.Assign) or len(child.targets) != 1:
+                continue
+            target = child.targets[0]
+            literal = _constant_str(child.value)
+            if isinstance(target, ast.Name) and literal is not None:
+                members[f"{node.name}.{target.id}"] = literal
+    return members
+
+
+def _declared_tool_name(keyword: ast.AST | None, members: dict[str, str]) -> str | None:
+    """The literal a `Tool(name=...)` argument denotes, directly or through an enum."""
+
+    literal = _constant_str(keyword) if keyword is not None else None
+    if literal is not None:
+        return literal
+    dotted = _dotted(keyword) if keyword is not None else None
+    if not dotted:
+        return None
+    if dotted.endswith(".value"):
+        dotted = dotted[: -len(".value")]
+    return members.get(dotted)
+
+
+def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
+    """Tools an MCP server declares in `list_tools` and implements in `call_tool`.
+
+    The handler is one function that dispatches on a name argument, so discovering it as a
+    single tool named after the function reports a surface the model never sees: the model
+    is offered `plugin_bridge`, not `handle_call`. Each declared name is reported instead,
+    sharing the handler's body, because that body is what any of them runs.
+    """
+
+    declared: list[str] = []
+    members = _enum_string_members(module.tree)
+    handler: ast.FunctionDef | ast.AsyncFunctionDef | None = None
+    for function in [*module.functions.values(), *module.methods, *module.nested]:
+        for qualified, _decorator in _decorator_names(function, module):
+            if qualified is None:
+                continue
+            if qualified.endswith(".list_tools"):
+                for node in ast.walk(function):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    if _resolve(_dotted(node.func), module) not in MCP_TOOL_DECLARATIONS:
+                        continue
+                    name = _declared_tool_name(_keyword(node, "name"), members)
+                    if name:
+                        declared.append(name)
+            elif qualified.endswith(".call_tool"):
+                handler = function
+
+    if not declared or handler is None:
+        return []
+    return [
+        DiscoveredTool(
+            name,
+            "mcp_declared_tool",
+            module.path,
+            handler.lineno,
+            implementation=handler.name,
+        )
+        for name in sorted(set(declared))
+    ]
 
 
 def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
@@ -1181,11 +1817,22 @@ def analyze_sources(
 
     tools: list[DiscoveredTool] = []
     for module in modules:
+        declared_mcp = _discover_declared_mcp_tools(module)
         candidates = (
             _discover_decorated_tools(module)
             + _discover_class_tools(module)
             + _discover_factory_tools(module)
         )
+        if declared_mcp:
+            # The declared names replace the handler-named tool they all dispatch through,
+            # rather than sitting beside it as a duplicate of the same body.
+            handlers = {tool.implementation for tool in declared_mcp}
+            candidates = [
+                tool
+                for tool in candidates
+                if not (tool.framework == "mcp_call_tool" and tool.name in handlers)
+            ]
+            candidates += declared_mcp
         bound = _bound_tool_names(module)
         for name in sorted(bound):
             if name in module.functions and not any(
@@ -1205,7 +1852,7 @@ def analyze_sources(
                 function = next(
                     (
                         candidate
-                        for candidate in module.methods
+                        for candidate in [*module.methods, *module.nested]
                         if candidate.lineno == tool.line
                         or candidate.name == (tool.implementation or tool.name)
                         or candidate.name == tool.name
