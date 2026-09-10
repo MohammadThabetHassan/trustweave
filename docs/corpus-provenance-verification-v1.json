@@ -41,18 +41,18 @@
       "ecosystem": "azure",
       "measured": {
         "counts": {
-          "inside": 2193,
-          "outside": 1576,
-          "undetermined": 0
+          "inside": 2150,
+          "outside": 1562,
+          "undetermined": 57
         },
         "policies_considered": 3769
       },
       "measured_from": "azure-policy",
       "recorded": {
         "counts": {
-          "inside": 2193,
-          "outside": 1576,
-          "undetermined": 0
+          "inside": 2150,
+          "outside": 1562,
+          "undetermined": 57
         },
         "policies_considered": 3769
       },
@@ -324,5 +324,5 @@
     }
   ],
   "schema_version": "v1",
-  "verified_on": "2026-09-09"
+  "verified_on": "2026-09-10"
 }

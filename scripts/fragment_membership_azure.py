@@ -418,18 +418,6 @@ def classify(text: str) -> Verdict:
     # it. This is the refusal the procedure is built to make, and it is the honest verdict --
     # the templates are public and the project already has a Rego adapter, so fetching and
     # judging them is the obvious next step rather than something the criterion forbids.
-    delegated = sorted(key for key in DELEGATING_DETAIL_KEYS if key in details)
-    if delegated:
-        detail["delegates_guard_to"] = delegated
-        source = details.get(delegated[0])
-        if isinstance(source, dict) and source.get("url"):
-            detail["guard_source"] = source.get("url")
-        return Verdict(
-            UNDETERMINED,
-            "delegates its guard to a policy program the definition does not contain",
-            detail,
-        )
-
     operators, unrecognised = leaf_operators(rule.get("if"))
     if existence is not None:
         more_operators, more_unrecognised = leaf_operators(existence)
@@ -440,16 +428,33 @@ def classify(text: str) -> Verdict:
     detail: dict[str, Any] = {
         "leaf_operators": sorted(operators),
         "arm_functions": sorted(functions),
-        # Recorded for every definition, inside or out, so that the corpus-wide parameter
-        # counts the study quotes are derivable from the artifact instead of from a separate
-        # pass over the corpus that nothing checks against it.
+        # Recorded for every definition, inside or out or unjudged, so that the corpus-wide
+        # parameter counts the study quotes are derivable from the artifact instead of from a
+        # separate pass over the corpus that nothing checks against it. Whether a parameter
+        # carries a default is a fact about the document, and stays knowable even when the
+        # guard is a program the document does not contain.
         "parameters_declared": len(declared) if isinstance(declared, dict) else 0,
     }
+    _, missing_defaults = unparameterised(properties)
+    if missing_defaults:
+        detail["parameters_without_defaults"] = missing_defaults
+
+    delegated = sorted(key for key in DELEGATING_DETAIL_KEYS if key in details)
+    if delegated:
+        detail["delegates_guard_to"] = delegated
+        delegated_source = details.get(delegated[0])
+        if isinstance(delegated_source, dict) and delegated_source.get("url"):
+            detail["guard_source"] = delegated_source["url"]
+        return Verdict(
+            UNDETERMINED,
+            "delegates its guard to a policy program the definition does not contain",
+            detail,
+        )
 
     lowered = {name.lower() for name in functions}
     nondeterministic = sorted(lowered & {name.lower() for name in NONDETERMINISTIC_ARM_FUNCTIONS})
     external = sorted(lowered & {name.lower() for name in EXTERNAL_ARM_FUNCTIONS})
-    complete, missing = unparameterised(properties)
+    complete = not missing_defaults
 
     # Every obstruction this definition carries, recorded whichever one the verdict names, so
     # that a definition excluded for two reasons is visible as such in the artifact rather
@@ -484,7 +489,6 @@ def classify(text: str) -> Verdict:
         detail["external_functions"] = external
         reasons.append("reads the runtime state of a resource other than the one under evaluation")
     if not complete:
-        detail["parameters_without_defaults"] = missing
         reasons.append(
             "is a policy schema rather than a policy: a parameter it reads has no default, "
             "so it determines no decision function until an assignment supplies one"

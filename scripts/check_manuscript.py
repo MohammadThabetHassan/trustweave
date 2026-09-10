@@ -505,6 +505,17 @@ def numeric_claims(docs: Path) -> list[Claim]:
     azure_related = [
         entry for entry in azure_outside if "related resource exists" in entry["reason"]
     ]
+    # The caption counts exclusions, so it counts the schema obstruction among the artifacts
+    # the procedure judged; `azure_undefaulted` counts every definition carrying it, judged
+    # or not, and the two differ by the definitions whose guard is a program elsewhere.
+    azure_outside_schemas = sum(
+        1 for entry in azure_outside if entry.get("parameters_without_defaults")
+    )
+    azure_outside_both = sum(
+        1
+        for entry in azure_outside
+        if entry.get("parameters_without_defaults") and "related resource exists" in entry["reason"]
+    )
     azure_with_condition = sum(
         1
         for entry in azure_related
@@ -532,6 +543,11 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "azure: definitions deciding on a related resource",
         ),
         (
+            r"Azure row reads (\d+\.\d)\\% rather than the 76\.5\\% we first reported",
+            (_pct(azure["counts"]["inside"] / azure["policies_considered"]),),
+            "azure: the row's share after the guard regions were corrected",
+        ),
+        (
             rf"the existence condition, which decides ({_GROUPED})\s*definitions",
             (_grouped(azure_with_condition),),
             "azure: definitions with an existence condition",
@@ -551,9 +567,9 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "azure: parameterised and complete by their own defaults",
         ),
         (
-            r"other (\d+) are not, and those (\d+) are the Azure contribution",
-            (str(azure_undefaulted), str(azure_undefaulted)),
-            "azure: definitions awaiting an assignment",
+            r"other (\d+) are not, and the (\d+) of them the procedure could judge",
+            (str(azure_undefaulted), str(azure_outside_schemas)),
+            "azure: definitions awaiting an assignment, and those it could judge",
         ),
         (
             r"moved this row by (\d+) definitions when a second guard region",
@@ -567,8 +583,8 @@ def numeric_claims(docs: Path) -> list[Claim]:
             (
                 _grouped(len(azure_related)),
                 _grouped(len(azure_outside)),
-                _grouped(azure_undefaulted),
-                _grouped(azure_undefaulted - azure_schemas),
+                _grouped(azure_outside_schemas),
+                _grouped(azure_outside_both),
             ),
             "membership table caption: the Azure split",
         ),
@@ -622,6 +638,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     policies = taxonomy["policies_considered"]
     artifacts = taxonomy["artifacts_considered"]
     inside = taxonomy["artifacts_inside"]
+    undetermined = sum(row["undetermined"] for row in taxonomy["rows"])
 
     rows = {entry["corpus"]: entry for entry in taxonomy["rows"]}
     iam_total = rows["AWS IAM"]["policies_considered"]
@@ -694,8 +711,8 @@ def numeric_claims(docs: Path) -> list[Claim]:
             (
                 _grouped(policies),
                 _grouped(inside),
-                str(policies - inside),
-                "0",
+                _grouped(exclusions - schemas),
+                str(undetermined),
                 _pct(inside / policies),
             ),
             "membership table: the policies row",
@@ -706,18 +723,19 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "membership table: the schemas row",
         ),
         (
-            rf"({_GROUPED}) artifacts, none left undetermined --- ({_GROUPED}) turn out",
-            (_grouped(artifacts), _grouped(schemas)),
-            "abstract: corpus size and schemas",
+            rf"({_GROUPED})\s*artifacts, of which the procedure declines to judge (\d+) --- "
+            rf"({_GROUPED}) turn out",
+            (_grouped(artifacts), str(undetermined), _grouped(schemas)),
+            "abstract: corpus size, refusals and schemas",
         ),
         # The contributions list restates the headline in a different phrasing, which is how
         # it came to disagree with the abstract while every pin still passed: the pin
         # anchored on the abstract's wording and never reached this sentence.
         (
-            rf"eight corpora: ({_GROUPED}) artifacts, nothing undetermined, of which\s*"
-            rf"({_GROUPED}) of the ({_GROUPED}) that are policies lie inside",
-            (_grouped(artifacts), _grouped(inside), _grouped(policies)),
-            "contributions: corpus, inside and policies",
+            rf"eight corpora: ({_GROUPED}) artifacts, (\d+) of which it declines to judge,\s*"
+            rf"of which ({_GROUPED}) of the ({_GROUPED}) that are policies lie inside",
+            (_grouped(artifacts), str(undetermined), _grouped(inside), _grouped(policies)),
+            "contributions: corpus, refusals, inside and policies",
         ),
         (
             rf"every one of the ({_GROUPED}) artifacts outside the fragment",
@@ -850,8 +868,9 @@ def numeric_claims(docs: Path) -> list[Claim]:
     initiatives = _load(docs, "azure-initiative-bindings-v1")
     claims += [
         (
-            r"(\d+) of the (\d+) Azure schemas are included in\s*a built-in initiative that "
-            r"binds every parameter they left without a default",
+            r"(\d+) of the (\d+) Azure definitions with an\s*undefaulted parameter are "
+            r"included in\s*a built-in initiative that binds every parameter they left "
+            r"without a default",
             (
                 str(initiatives["schemas_an_initiative_completes"]),
                 str(initiatives["schemas"]),

@@ -1145,13 +1145,13 @@ azure = _load("fragment_membership_azure")
 taxonomy = _load("exclusion_taxonomy")
 
 
-def test_the_azure_measurement_judges_every_definition() -> None:
+def test_the_azure_measurement_judges_every_definition_it_can_read() -> None:
     artifact = json.loads(
         (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
     )
 
     assert artifact["policies_considered"] == 3769
-    assert artifact["counts"] == {"inside": 2193, "outside": 1576, "undetermined": 0}
+    assert artifact["counts"] == {"inside": 2150, "outside": 1562, "undetermined": 57}
     subjects = [entry["subject"] for entry in artifact["policies"]]
     assert len(set(subjects)) == len(subjects), "subjects must be unique or policies vanish"
 
@@ -1171,11 +1171,11 @@ def test_azure_exclusions_split_into_schemas_reads_and_nondeterminism() -> None:
     related = [entry for entry in outside if "related resource exists" in entry["reason"]]
 
     assert len(related) == 1444
-    assert len(schemas) == 120
+    assert len(schemas) == 106
     assert len(runtime) == 3
     assert len(nondeterministic) == 9
     assert len(related) + len(schemas) + len(runtime) + len(nondeterministic) == len(outside)
-    assert len(outside) == 1576
+    assert len(outside) == 1562
 
 
 def test_a_clock_read_is_the_same_kind_of_exclusion_in_azure_as_in_rego() -> None:
@@ -1226,7 +1226,10 @@ def test_every_azure_obstruction_is_recorded_not_only_the_reported_one() -> None
     schemas = [entry for entry in outside if "policy schema" in entry["reason"]]
     doubly = [entry for entry in outside if entry.get("reasons")]
 
-    assert len(undefaulted) == 855
+    # Every definition carrying the schema obstruction, judged or not: the 57 whose guard is
+    # a program elsewhere still declare parameters, and whether one carries a default is a
+    # fact about the document rather than about our ability to read its guard.
+    assert len(undefaulted) == 841, "every exclusion carrying the schema obstruction"
     assert len(schemas) + len(doubly) == len(undefaulted)
     assert all(len(entry["reasons"]) > 1 for entry in doubly)
     assert all(any("policy schema" in reason for reason in entry["reasons"]) for entry in doubly), (
@@ -1469,13 +1472,13 @@ def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     assert findings["exclusions_unclassified"] == {}
     assert findings["corpora"] == 8
     assert findings["artifacts_considered"] == 7006
-    assert findings["artifacts_inside"] == 5229
+    assert findings["artifacts_inside"] == 5186
     assert findings["exclusions_by_kind"] == {
-        "not a policy": 916,
+        "not a policy": 902,
         "the subject does not determine the guard": 841,
         "reads evaluation-time state": 20,
     }
-    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1777
+    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1763
 
 
 def test_the_taxonomy_counts_over_every_obstruction_not_the_reported_one() -> None:
@@ -1512,7 +1515,10 @@ def test_the_taxonomy_counts_over_every_obstruction_not_the_reported_one() -> No
     findings = taxonomy.measure(ROOT / "docs")
     azure_row = next(row for row in findings["rows"] if row["corpus"] == "Azure Policy")
 
-    assert azure_row["exclusions_by_kind"]["not a policy"] == carrying == 855
+    # The row counts the ones it could judge; `carrying` counts every definition with an
+    # undefaulted parameter, and the 14 it declined to judge are the difference.
+    assert azure_row["exclusions_by_kind"]["not a policy"] == 841
+    assert carrying == 855
 
 
 def test_the_committed_taxonomy_artifact_matches_a_fresh_computation() -> None:
@@ -1522,13 +1528,39 @@ def test_the_committed_taxonomy_artifact_matches_a_fresh_computation() -> None:
     assert committed == fresh
 
 
-def test_no_corpus_leaves_anything_undetermined() -> None:
-    """The discipline that makes every share a verdict rather than a partial reading."""
+def test_the_only_refusals_are_the_delegated_azure_guards() -> None:
+    """A refusal has to be accounted for, or a share stops being a verdict on a whole corpus.
+
+    Seven of the eight corpora leave nothing undetermined. Azure leaves 57, all of them
+    definitions that name a Gatekeeper policy program at a URL instead of stating a
+    condition: their guard is not in the artifact, and an offline procedure has nothing to
+    read. That is the one place the answer is bounded by the instrument rather than by the
+    criterion, and it is reported rather than resolved by guessing.
+    """
 
     findings = taxonomy.measure(ROOT / "docs")
+    azure = json.loads(
+        (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
+    )
 
     for row in findings["rows"]:
-        assert row["undetermined"] == 0, row["corpus"]
+        expected = 57 if row["corpus"] == "Azure Policy" else 0
+        assert row["undetermined"] == expected, row["corpus"]
+
+    unjudged = [entry for entry in azure["policies"] if entry["verdict"] == "undetermined"]
+    assert len(unjudged) == 57
+    assert all(entry.get("delegates_guard_to") for entry in unjudged)
+    assert all("does not contain" in entry["reason"] for entry in unjudged)
+    # 55 name the program by URL and 2 carry it inline; either way the location is recorded,
+    # so the refusal can be lifted by fetching rather than by re-deriving anything.
+    by_url = [
+        entry for entry in unjudged if str(entry.get("guard_source", "")).startswith("https://")
+    ]
+    inline = [entry for entry in unjudged if entry["delegates_guard_to"] == ["constraintTemplate"]]
+
+    assert len(by_url) == 55
+    assert len(inline) == 2
+    assert len(by_url) + len(inline) == len(unjudged)
 
 
 # --- What exhaustive coverage costs -----------------------------------------------------
@@ -1583,7 +1615,7 @@ def test_the_cost_artifact_reports_a_tractable_median_for_both_clouds() -> None:
     findings = json.loads((ROOT / "docs" / "coverage-cost-v1.json").read_text("utf-8"))
 
     assert findings["azure"]["median_cells"] == 4
-    assert findings["azure"]["policies"] == 2193
+    assert findings["azure"]["policies"] == 2150
     assert findings["iam"]["median_cells"] == 60
     assert findings["iam"]["policies"] == 1651
     # The claim the paper makes: most deployed Azure policy is cheap to cover exhaustively.

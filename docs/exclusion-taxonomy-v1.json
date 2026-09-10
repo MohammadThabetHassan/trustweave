@@ -1,16 +1,16 @@
 {
   "artifacts_considered": 7006,
-  "artifacts_inside": 5229,
+  "artifacts_inside": 5186,
   "corpora": 8,
-  "exclusions": 1777,
+  "exclusions": 1763,
   "exclusions_by_kind": {
-    "not a policy": 916,
+    "not a policy": 902,
     "reads evaluation-time state": 20,
     "the subject does not determine the guard": 841
   },
   "exclusions_unclassified": {},
-  "policies_considered": 6090,
-  "policy_schemas": 916,
+  "policies_considered": 6104,
+  "policy_schemas": 902,
   "rows": [
     {
       "artifact": "fragment-membership-iam-wide-v1",
@@ -26,15 +26,15 @@
       "artifact": "fragment-membership-azure-wide-v1",
       "corpus": "Azure Policy",
       "exclusions_by_kind": {
-        "not a policy": 855,
+        "not a policy": 841,
         "reads evaluation-time state": 4,
         "the subject does not determine the guard": 717
       },
-      "inside": 2193,
-      "outside": 1576,
+      "inside": 2150,
+      "outside": 1562,
       "policies_considered": 3769,
-      "share_inside": 0.5819,
-      "undetermined": 0
+      "share_inside": 0.5704,
+      "undetermined": 57
     },
     {
       "artifact": "fragment-membership-xacml-wide-v1",
@@ -111,6 +111,6 @@
     }
   ],
   "schema_version": "v1",
-  "share_inside_of_policies": 0.8586,
+  "share_inside_of_policies": 0.8496,
   "taxonomy_is_exhaustive": true
 }

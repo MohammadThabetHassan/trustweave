@@ -10,9 +10,9 @@
   ],
   "corpus_scope": "wide",
   "counts": {
-    "inside": 2193,
-    "outside": 1576,
-    "undetermined": 0
+    "inside": 2150,
+    "outside": 1562,
+    "undetermined": 57
   },
   "ecosystem": "azure",
   "measured_subjects_not_found": [],
@@ -377,13 +377,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-no-latest-image/v2/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "021f8078-41a0-40e6-81b6-c6597da9f3ee",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -680,13 +684,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-resource-requests/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "03a4ecdb-0684-4039-be91-2762979e1bc8",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -1737,13 +1745,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/windows-block-host-process/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "077f0ce1-86d6-4058-bc60-de05067e8622",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -2267,13 +2279,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/allowed-host-paths/v4/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 10,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "098fc59e-46c7-4d99-9b16-64990e543d75",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -4608,13 +4624,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-restricted-image-pulls/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "12db3749-7e03-4b9f-b443-d37d3fb9f8d9",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -4865,13 +4885,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-no-vulnerable-images/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 8,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "13cd7ae3-5bc0-4ac4-a62d-4f7c120b9759",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -5438,13 +5462,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/allowed-volume-types/v2/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 8,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "16697877-1118-4fb1-9b65-9898ec2509ec",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -6105,13 +6133,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-enforce-pre-stop-hook/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "1a3b9003-eac6-4d39-a184-4a567ace7645",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -6142,13 +6174,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/ingress-https-only/v2/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -6686,13 +6722,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-no-privilege-escalation/v4/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 9,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "1c6e92c9-99f0-4e55-9cf2-0c234dc48f99",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -7022,13 +7062,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-endpoint-edit-default-role/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "1ddac26b-ed48-4c30-8cc5-3a68c79b8001",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -8187,6 +8231,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/service-allowed-ports/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -8194,9 +8242,9 @@
       "parameters_without_defaults": [
         "allowedServicePortsList"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "233a2a17-77ca-4fb1-9b6b-69223d272a44",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -12047,13 +12095,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/pod-enforce-antiaffinity/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "34c88cd4-5d72-4dbb-bf77-12c3cafe8791",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -14446,13 +14498,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/load-balancer-no-public-ips/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "3fc4dc25-5baf-40d8-9b05-7fe74c1bc64e",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -15043,13 +15099,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-automount-token/v2/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "423dd1ba-798e-40e4-9c4d-b6902674b423",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -15502,6 +15562,9 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "constraintTemplate"
+      ],
       "leaf_operators": [
         "in"
       ],
@@ -15509,9 +15572,9 @@
       "parameters_without_defaults": [
         "allowedContainerPortsList"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "440b515e-a580-421e-abeb-b159a61ddcbc",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -15993,6 +16056,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/pod-enforce-labels/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -16000,9 +16067,9 @@
       "parameters_without_defaults": [
         "labelsList"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "46592696-4c7b-4bf3-9e45-6c2763bdc0a6",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -16189,13 +16256,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-host-namespace/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "47a1ee2f-2a2a-4576-bf2a-e0e36709c2b8",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -16463,6 +16534,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/restricted-taints/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
@@ -16470,9 +16545,9 @@
       "parameters_without_defaults": [
         "reservedTaints"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "48940d92-ff05-449e-9111-e742d9280451",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -17934,13 +18009,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/enforce-csi-driver/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "4f3823b6-6dac-4b5a-9c61-ce1afb829f17",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -18233,13 +18312,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-allowed-pull-policy/v2/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 8,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "50c83470-d2f0-4dda-a716-1938a4825f62",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -18423,13 +18506,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/enforce-apparmor-profile/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 9,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "511f5417-5d12-434d-ab2e-816901e72a5e",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -18890,13 +18977,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/restricted-node-edits/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 8,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "53a4a537-990c-495a-92e0-7c21a465442c",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -18993,13 +19084,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/windows-block-container-admin/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "5485eac0-7e8f-4964-998b-a44f4f0c1e75",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -19388,6 +19483,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/forbidden-sysctl-interfaces/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -19395,9 +19494,9 @@
       "parameters_without_defaults": [
         "forbiddenSysctls"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "56d0a13f-712f-466b-8416-56fb354fb823",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -19639,6 +19738,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/windows-container-allowed-usernames/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -19646,9 +19749,9 @@
       "parameters_without_defaults": [
         "allowedUserNames"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "57dde185-5c62-4063-b965-afbb201e9c1c",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -21138,6 +21241,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/allowed-sysctl-interfaces/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -21145,9 +21252,9 @@
       "parameters_without_defaults": [
         "allowedSysctls"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "5e5a0673-649e-4d50-bf9d-5a387a4e2081",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -22826,13 +22933,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-naked-pods/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "65280eef-c8b4-425e-9aec-af55e55bf581",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -28822,13 +28933,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/host-network-ports/v4/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 9,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "82985f06-dc18-4a48-bc1c-b9f4f0098cfe",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -29044,6 +29159,10 @@
       "arm_functions": [
         "parameters"
       ],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/restricted-labels/v1/template.yaml",
       "leaf_operators": [
         "equals",
         "in"
@@ -29054,9 +29173,9 @@
         "allowedUsers",
         "labelsV2"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "83a0809a-a4e3-4ef2-8a24-2afc156607af",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -32983,13 +33102,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-no-privilege/v2/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 8,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "95edb821-ddaf-4404-9732-666045e056b4",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -33322,13 +33445,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/allowed-seccomp-profiles/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 9,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "975ce327-682c-4f2e-aa46-b9598289b86c",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -33999,6 +34126,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/enforce-required-annotation/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -34006,9 +34137,9 @@
       "parameters_without_defaults": [
         "kind"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "9a5f4e39-e427-4d5d-ae73-93db00328bec",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -34987,13 +35118,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-default-namespace/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "9f061a12-e40d-4183-a00e-171812443373",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -35794,6 +35929,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/restricted-labels/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
@@ -35803,9 +35942,9 @@
         "allowedUsers",
         "labels"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "a22123bd-b9da-4c86-9424-24903e91fd55",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -35976,13 +36115,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-disallowed-capabilities/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 9,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "a27c700f-8a22-44ec-961c-41625264370b",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -36074,13 +36217,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/windows-container-resources/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "a2abc456-f0ae-464b-bd3a-07a3cdbd7fb1",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -36280,13 +36427,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-admin-rolebindings/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "a3dc4946-dba6-43e6-950d-f96532848c9f",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -39389,13 +39540,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/unique-service-selectors/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "b0fdedee-7b9e-4a17-9f5d-5e8e912d2f01",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -39514,13 +39669,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-enforce-probes/v2/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 9,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "b1a9997f-2883-4f12-bdff-2280f99b5915",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -39753,13 +39912,16 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "constraintTemplate"
+      ],
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 3,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "b2fd3e59-6390-4f2b-8247-ea676bd03e2d",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -40875,6 +41037,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-resource/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -40883,9 +41049,9 @@
         "kind",
         "namespaces"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "b81f454c-eebb-4e4f-9dfe-dca060e8a8fd",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -43330,13 +43496,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-allowed-capabilities/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 10,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "c26596ff-4d70-4e6a-9a30-c2506bd2f80c",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -45093,13 +45263,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/block-wildcard-roles/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "ca8d5704-aa2b-40cf-b110-dc19052825ad",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -46041,13 +46215,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/image-integrity-notation-verification/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "cf426bb8-b320-4321-8545-1b784a5df3a4",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -46649,13 +46827,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-disallowed-capabilities/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "d2e7ea85-6b44-4317-a0be-1b951587f626",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -47126,13 +47308,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/allowed-external-ips/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "d46c275d-1680-448d-b2ec-e495a3b6cc89",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -47985,13 +48171,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/require-ingress-host/v2/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "d8c942c6-16a3-400b-8f2e-785f44030036",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -48176,13 +48366,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/disallowed-bad-pod-disruption-budgets/v2/template.yaml",
       "leaf_operators": [
         "equals"
       ],
       "parameters_declared": 6,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "d9e8f2c1-4c5a-4f5c-8b5a-2abf1e9f7b4d",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -49262,13 +49456,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/read-only-root-filesystem/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 8,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "df49d893-a74c-421d-bc95-c663042e5b80",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -49833,13 +50031,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/selinux/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 10,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "e1e6c427-07d9-46ab-9689-bfa85431e636",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -49935,6 +50137,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/print-mutations-annotations/v1/template.yaml",
       "leaf_operators": [
         "equals"
       ],
@@ -49942,9 +50148,9 @@
       "parameters_without_defaults": [
         "messages"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "e24df237-32cb-4a6c-a2f6-85b499cda9f2",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -50152,6 +50358,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-resource-limits/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -50160,9 +50370,9 @@
         "cpuLimit",
         "memoryLimit"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "e345eecc-fa47-480f-9e88-67dcc122b164",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -53316,13 +53526,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/allowed-users-groups/v3/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 16,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "f06ddb64-5fa3-4b77-b166-acb36f7f6042",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -54296,13 +54510,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/flexvolume-drivers/v1/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 7,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "f4a8fce0-2dd5-4c21-9a36-8f0ec809d663",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [
@@ -55200,13 +55418,17 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/allowed-proc-mount-types/v4/template.yaml",
       "leaf_operators": [
         "in"
       ],
       "parameters_declared": 9,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "f85eb0dd-92ee-40e9-8a76-db25a507d6d3",
-      "verdict": "inside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -56634,6 +56856,10 @@
     },
     {
       "arm_functions": [],
+      "delegates_guard_to": [
+        "templateInfo"
+      ],
+      "guard_source": "https://store.policy.core.windows.net/kubernetes/container-allowed-images/v2/template.yaml",
       "leaf_operators": [
         "in"
       ],
@@ -56641,9 +56867,9 @@
       "parameters_without_defaults": [
         "allowedContainerImagesRegex"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "delegates its guard to a policy program the definition does not contain",
       "subject": "febd0533-8e55-448f-b837-bd0e06f16469",
-      "verdict": "outside"
+      "verdict": "undetermined"
     },
     {
       "arm_functions": [],
@@ -58407,6 +58633,6 @@
   ],
   "policies_considered": 3769,
   "schema_version": "v1",
-  "share_inside": 0.5819,
-  "share_inside_of_judged": 0.5819
+  "share_inside": 0.5704,
+  "share_inside_of_judged": 0.5792
 }
