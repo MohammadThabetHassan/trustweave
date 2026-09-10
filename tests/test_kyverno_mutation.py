@@ -199,3 +199,45 @@ def test_a_pascal_case_condition_operator_is_untouched_by_the_cel_table() -> Non
     """`Equals` is a Kyverno condition operator, not a CEL one; it must edit once."""
 
     assert _names("      operator: Equals\n") == ["L1:Equals->NotEquals"]
+
+
+def test_a_policy_name_that_is_not_unique_is_refused_rather_than_guessed(tmp_path: Path) -> None:
+    """The corpus reuses names across dialects, and the experiment used to keep one silently.
+
+    `other/allowed-annotations` is a ClusterPolicy whose guard is a JMESPath pattern,
+    `other-cel/allowed-annotations` is a ClusterPolicy whose guard is a CEL expression, and
+    `other-vpol/allowed-annotations` is a ValidatingPolicy. Keying the corpus on the basename
+    collapsed those to one entry and kept whichever sorted last, so a mutation score could be
+    paired with a different policy's coverage flag. On the pinned corpus that affected 427 of
+    495 test suites and 33 of the 49 policies the experiment scored.
+    """
+
+    for dialect in ("other", "other-cel", "other-vpol"):
+        directory = tmp_path / dialect / "allowed-annotations" / ".kyverno-test"
+        directory.mkdir(parents=True)
+        (directory / "kyverno-test.yaml").write_text("name: t\n", encoding="utf-8")
+
+    try:
+        kyverno_mutation._suite_directories(tmp_path)
+    except SystemExit as refusal:
+        message = str(refusal)
+    else:  # pragma: no cover - the guard must fire
+        raise AssertionError("a duplicated policy name was accepted")
+
+    assert "allowed-annotations" in message
+    assert "3 directories" in message
+    assert "coverage flag" in message, "the message must say why it matters"
+
+
+def test_unique_policy_names_are_accepted(tmp_path: Path) -> None:
+    """The guard must not refuse a corpus that is actually unambiguous."""
+
+    for name in ("first", "second"):
+        directory = tmp_path / "other" / name / ".kyverno-test"
+        directory.mkdir(parents=True)
+        (directory / "kyverno-test.yaml").write_text("name: t\n", encoding="utf-8")
+
+    found = kyverno_mutation._suite_directories(tmp_path)
+
+    assert sorted(found) == ["first", "second"]
+    assert found["first"].name == ".kyverno-test"

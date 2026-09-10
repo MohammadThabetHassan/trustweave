@@ -17,12 +17,14 @@ surviving mutant is a statement about the suite rather than about the parser.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import itertools
 import json
 import math
 import random
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -297,6 +299,76 @@ def permutation_test(blind: list[float], covered: list[float]) -> dict[str, Any]
     }
 
 
+def _kyverno_version() -> str | None:
+    """The CLI that decided every mutation score, so a score can be reproduced."""
+
+    if shutil.which("kyverno") is None:  # pragma: no cover - guarded before analyze runs
+        return None
+    try:
+        finished = subprocess.run(
+            ["kyverno", "version"], capture_output=True, text=True, check=False, timeout=60
+        )
+    except (OSError, subprocess.SubprocessError):  # pragma: no cover
+        return None
+    for line in finished.stdout.splitlines():
+        if ":" in line and "version" in line.lower():
+            return line.split(":", 1)[1].strip()
+    return finished.stdout.strip()[:80] or None
+
+
+def _corpus_provenance(root: Path) -> list[dict[str, str]]:
+    """The commit the corpus was at, borrowed from the same helper the other studies use."""
+
+    module_path = Path(__file__).resolve().parent / "suite_coverage.py"
+    specification = importlib.util.spec_from_file_location(
+        "suite_coverage_kyverno_mut", module_path
+    )
+    if specification is None or specification.loader is None:  # pragma: no cover
+        return []
+    module = importlib.util.module_from_spec(specification)
+    sys.modules.setdefault(specification.name, module)
+    specification.loader.exec_module(module)
+    repositories: list[dict[str, str]] = module.provenance(root)
+    return repositories
+
+
+def _suite_directories(root: Path) -> dict[str, Path]:
+    """{policy name: its test directory}, refusing to guess when a name is not unique.
+
+    This used to be a dict comprehension keyed on `path.parent.parent.name`, which is a
+    basename, and the corpus reuses one. `other/allowed-annotations` is a ClusterPolicy whose
+    guard is a JMESPath pattern, `other-cel/allowed-annotations` is a ClusterPolicy whose
+    guard is a CEL expression, and `other-vpol/allowed-annotations` is a ValidatingPolicy --
+    three different policies with three different guard languages, collapsed to one key, of
+    which the comprehension silently kept whichever sorted last. 260 of the corpus's 495 test
+    suites were being dropped that way, and 33 of the 49 policies this experiment scored had
+    a colliding name, so the suite whose mutants were scored need not have been the suite the
+    coverage flag was computed from.
+
+    Rather than pick a winner, this refuses. An experiment that pairs an exposure with the
+    wrong outcome is worse than one that does not run, and the caller is told exactly which
+    names are ambiguous so the corpus can be keyed by path instead.
+    """
+
+    found: dict[str, list[Path]] = {}
+    for path in sorted(root.rglob("kyverno-test.yaml")):
+        found.setdefault(path.parent.parent.name, []).append(path.parent)
+    ambiguous = {name: paths for name, paths in found.items() if len(paths) > 1}
+    if ambiguous:
+        listed = ", ".join(
+            f"{name} ({len(paths)} directories)" for name, paths in sorted(ambiguous.items())[:6]
+        )
+        raise SystemExit(
+            f"{len(ambiguous)} policy names are not unique in {root}, covering "
+            f"{sum(len(paths) for paths in ambiguous.values())} of "
+            f"{sum(len(paths) for paths in found.values())} test suites: {listed}"
+            f"{' and more' if len(ambiguous) > 6 else ''}. Scoring one of them and labelling "
+            "it by name would pair a mutation score with another policy's coverage flag. Key "
+            "the corpus by path relative to its root before running this experiment."
+        )
+    return {name: paths[0] for name, paths in found.items()}
+
+
 def analyze(
     root: Path,
     coverage: dict[str, Any],
@@ -305,9 +377,7 @@ def analyze(
     attempts: int = 200,
 ) -> dict[str, Any]:
     blind, covered = blind_validate_rules(coverage)
-    directories = {
-        path.parent.parent.name: path.parent for path in sorted(root.rglob("kyverno-test.yaml"))
-    }
+    directories = _suite_directories(root)
 
     # Every blind policy is measured. The comparison group is then filled by walking the
     # covered policies in name order until enough of them score, rather than by taking a
@@ -363,6 +433,11 @@ def analyze(
     return {
         "schema_version": SCHEMA_VERSION,
         "design": "case-control: every blind validate policy, plus covered ones in name order",
+        # Without these the run cannot be reproduced even in principle: the first version of
+        # this artifact recorded neither, so the corpus it read and the engine that scored the
+        # mutants were both unknown after the fact.
+        "kyverno_version": _kyverno_version(),
+        "corpus": _corpus_provenance(root),
         "comparison_group_attempts": attempted,
         "policies_scored": len(scored),
         "skipped": [
