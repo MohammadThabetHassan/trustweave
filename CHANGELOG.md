@@ -146,16 +146,63 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 - The Azure measurement did not reproduce from the commit it recorded. Re-cloning
   `Azure/azure-policy` at the pinned `9780ba64` and re-running the adapter found 3,769
-  definitions where the committed artifact recorded 3,659: the tree measured had been an
-  earlier one, and 110 definitions under `samples/`, `patterns/` and
-  `ExternalEvaluationPolicies/` were absent from it while the newer commit hash was
-  recorded beside the result. Every Azure figure is re-measured at the pin, and the other
-  seven corpora were re-cloned and re-measured to check the same way: all seven reproduce
-  their committed artifacts exactly. Azure is now 2,884 of 3,769 inside, and the two
-  definitions that had been undetermined are judged — `true()` and `false()` are
-  constants, and `claims()` reads a value projected from a Resource Graph query the
-  definition declares and the platform runs across the tenant, which is the same
-  obstruction as Kyverno's `context.apiCall`.
+  definitions where the committed artifact recorded 3,659. The commit was right; the
+  working tree was not — only `built-in-policies/` had been materialised, a blobless clone
+  whose checkout did not finish, so the adapter walked a fifth of the repository while the
+  artifact recorded a commit describing all of it. We first published the wrong diagnosis,
+  having inferred from the file counts that an older tree had been measured; the missing
+  subject set is exactly the `built-in-policies` subtree at that same commit, which the
+  inference did not fit. Every Azure figure is re-measured at the pin, and the other seven
+  corpora were re-cloned and re-measured the same way: all seven reproduce their committed
+  artifacts exactly. Each artifact now records `tracked_files` and `files_present` per
+  repository, so an incomplete checkout is visible in the measurement's own artifact rather
+  than only in a later re-run. Two definitions that had been undetermined are judged —
+  `true()` and `false()` are constants, and `claims()` reads a value projected from a
+  Resource Graph query the definition declares and the platform runs across the tenant,
+  which is the same obstruction as Kyverno's `context.apiCall`.
+
+- Two guard regions were read wrongly and one was not read at all, which is the largest
+  correction in this release. A definition's decision is made by `policyRule.if` and, for
+  the `AuditIfNotExists` and `DeployIfNotExists` effects, by
+  `then.details.existenceCondition`; `then.details.deployment` is the remediation template
+  and runs after the decision. The adapter read leaf operators from `if` while scanning the
+  *whole* rule for template functions, so 96 of 99 exclusions for reading another resource's
+  runtime state were `reference()` calls inside a remediation template, and the existence
+  condition — the deciding guard of 1,330 definitions — was never read. 651 definitions were
+  reported inside on a guard the instrument had not looked at. An existence test over a
+  related resource is outside the fragment for the same reason Gatekeeper's injected
+  inventory is: the evaluator fetches those resources after `if` matches, and they are not in
+  the request the decision is about. 1,444 definitions decide that way, and the Azure row is
+  2,150 of 3,769 inside rather than the 2,884 the re-measurement alone had produced.
+- 57 Azure definitions are declined rather than judged, and they are the study's first
+  refusals. Azure Policy for Kubernetes states no condition tree: `then.details.templateInfo`
+  names a Gatekeeper ConstraintTemplate — a Rego program — at an HTTPS URL, so the guard is
+  not in the artifact and an offline procedure has nothing to read. 43 of the 57 had been
+  reported inside because the part that could be read contained nothing alarming. The
+  program's location is recorded, so the refusal can be lifted by fetching rather than by
+  re-deriving anything, and the parameter evidence is recorded for them too.
+- XACML was selected by filename — `TestPolicy_*.xml` or `Policy.xml` — which is not a
+  property of a document and was deciding the corpus. 459 policies were left out, among them
+  every one that reads the clock. Selection is by root element now, subjects are named by
+  path rather than by directory (naming them by directory collapsed 1,007 documents to 539),
+  and `environment:current-time` and its siblings are recognised, so the 15 clock readers
+  land in the same taxonomy row as Azure's `utcNow` and Rego's `time.now_ns`.
+- Kyverno's external-context test asked whether the string `configMap` occurred anywhere in
+  the file, which is true of a description sentence, of a CEL read of
+  `object.spec.volumes.configMap`, and of a payload injecting `configMapRef`. It reads the
+  parsed document now, walking every `context` list wherever it sits — including inside a
+  `foreach`, which a first attempt missed and which would have turned five image-registry
+  policies into false negatives. `namespaceSelector` is recognised: the AdmissionReview
+  carries the namespace's name, not its labels.
+- The taxonomy counts over every obstruction an artifact carries rather than the one the
+  verdict reports. The reported reason is the one that survives instantiation, so the size of
+  the "not a policy" row was depending on which other obstruction outranked it — it would
+  have moved by 749 Azure definitions when a second guard region was read, without one
+  artifact changing its schema status. Reporting and counting are now separate questions.
+
+  **Pooled across the eight corpora, and authoritative for this release:** 7,006 artifacts;
+  902 policy schemas; 5,186 of the 6,104 artifacts that are policies inside the fragment
+  (85.0%); 1,763 exclusions (902 / 841 / 20); 57 declined.
 - A clock read was two different kinds of exclusion depending on the language. The Azure
   adapter pooled `utcNow()` and `newGuid()` with `reference()`, so a definition reading the
   clock was reported as reading another resource's runtime state, while the Rego adapter
@@ -163,10 +210,10 @@ All notable changes to TrustWeave are documented in this file. The project follo
   one obstruction under two headings. The two adapters now share one reporting rule — the
   obstruction that survives instantiation is the one named, so nondeterminism outranks
   reading outside state, which outranks being a schema — and each records every obstruction
-  it found rather than only the one that won. That moves 17 Azure definitions to
-  evaluation-time state and two Rego modules to reading the inventory. Pooled across the
-  eight corpora: 1,053 exclusions — 826 schemas, 207 where the subject does not determine
-  the guard, 20 reading evaluation-time state — with 5,494 of 5,721 policies inside.
+  it found rather than only the one that won, so a clock read is one row of the taxonomy in
+  every language. The pooled totals this fix produced were superseded within this same
+  release cycle by the Azure guard-region correction; the authoritative totals are recorded
+  with it.
 - Azure definitions excluded for reading runtime state did not record their undefaulted
   parameters, because the classifier returned before it looked, so the count of definitions
   awaiting an assignment could not be derived from the artifact it was quoted beside. The
