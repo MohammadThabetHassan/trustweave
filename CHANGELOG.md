@@ -6,6 +6,28 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/clone_pinned_corpora.py` puts every corpus on disk at the commit its artifact
+  records, deriving the list from the artifacts so it cannot drift from the measurement, and
+  refuses a checkout that did not finish. A blobless clone fetches file contents lazily and a
+  partial checkout still answers `git rev-parse HEAD` correctly, which is how one measurement
+  came to read a fifth of its repository and record the commit for all of it; re-running now
+  repairs such a tree rather than only reporting on it.
+- `.github/workflows/provenance.yml` runs that reproduction monthly and on request: it clones
+  all eleven pinned repositories, installs a digest-verified `opa`, re-measures, and fails if
+  any count differs from the committed artifact. It is deliberately not on push, because it
+  fetches roughly 700 MB from third-party repositories. Every other check in this repository
+  compares the artifacts with themselves, which cannot catch an artifact recording a commit
+  that does not describe what was read.
+- `docs/REPRODUCING_THE_STUDY.md` is the guide an artifact reviewer needs: what to install,
+  how to re-derive each artifact, what should match, why the manuscript is in a separate
+  private repository, and the four things this repository cannot check on its own. Named to
+  avoid collision with `docs/REPRODUCIBILITY.md`, which is about the tool's own deterministic
+  output; the two now cross-link.
+- The manuscript guard checks figure data. A plotted series lives in
+  `\addplot coordinates {...}` and no prose pin reaches it, so coordinates can go stale while
+  the caption, the surrounding text and the artifact all still agree. Each series is now
+  recomputed from its artifact and reported by name when it disagrees, and a figure whose
+  label moves is reported rather than silently skipped.
 - `scripts/azure_initiative_bindings.py` and
   `docs/azure-initiative-bindings-v1.json` answer, from the corpus, whether the
   instantiation a schema verdict presumes actually exists: 538 of the 769 Azure schemas are

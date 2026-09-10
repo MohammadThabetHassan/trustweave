@@ -22,6 +22,7 @@
   <a href="docs/site/INTEGRATIONS.md">Integration routes</a> ·
   <a href="docs/CLI_REFERENCE.md">CLI reference</a> ·
   <a href="docs/site/CURRENT_EVIDENCE.md">Current evidence</a> ·
+  <a href="docs/REPRODUCING_THE_STUDY.md">Reproducing the study</a> ·
   <a href="#docs">Docs</a> ·
   <a href="SECURITY.md">Security</a>
 </p>
@@ -157,7 +158,7 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 
 **Understanding it:** [Concepts](docs/site/concepts.md) · [How it compares](docs/site/COMPARISON.md) · [Architecture](docs/ARCHITECTURE.md) · [Threat model](docs/THREAT_MODEL.md) · [Product contract](docs/PRODUCT_CONTRACT.md) · [Reviewer workflow](docs/REVIEWER_WORKFLOW.md)
 
-**Trusting it:** [Current evidence](docs/site/CURRENT_EVIDENCE.md) · [Quality & test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
+**Trusting it:** [Current evidence](docs/site/CURRENT_EVIDENCE.md) · [Quality & test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Reproducing the study](docs/REPRODUCING_THE_STUDY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
 
 <details>
 <summary><strong>Everything else (schemas, risk, release records)</strong></summary>

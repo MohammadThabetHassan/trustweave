@@ -4,6 +4,8 @@
 
 TrustWeave makes **deterministic decisions** about declared and pre-recorded local evidence. This document distinguishes that guarantee from byte reproducibility, generation provenance, and local file integrity so that a timestamp is never mistaken for a policy input or runtime-security claim.
 
+This page is about the *tool's* output. For reproducing the **research measurements** — the corpus study, the cost measurement, and the checks behind them — see [reproducing the study's measurements](REPRODUCING_THE_STUDY.md).
+
 ## Guarantees
 
 | Property | TrustWeave guarantee | Explicit limit |

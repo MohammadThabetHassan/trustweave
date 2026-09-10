@@ -1,0 +1,88 @@
+# Re-measure every corpus from the commit its artifact records, and diff the counts.
+#
+# Every other check in this repository compares the artifacts with themselves or with the
+# code that reads them, which cannot catch the one failure that actually happened: an
+# artifact recording a commit that did not describe what was read. A blobless clone whose
+# checkout stopped part-way still answers `git rev-parse HEAD` correctly, so a measurement
+# over a fifth of a repository recorded the commit for all of it, and nothing in CI could
+# have noticed.
+#
+# This job is the check that could. It clones each corpus at its recorded commit, refuses a
+# checkout that did not finish, re-runs the same adapter over the same root, and fails if any
+# count differs from the committed artifact.
+#
+# It is deliberately not on push: it fetches roughly 700 MB from eleven third-party
+# repositories, so it runs monthly and on request. That also means a failure here can be a
+# corpus that moved rather than a defect of ours, and the report says which.
+
+name: Corpus provenance
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Monthly, at an off-peak minute so it does not collide with the hour's cron surge.
+    - cron: "17 4 1 * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provenance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  remeasure:
+    name: Re-measure every corpus from its recorded commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install the policy engine the Rego adapter asks
+        # Pinned by version and verified by digest: this binary decides whether our Rego
+        # verdicts stand, so a silent substitution would invalidate the check it serves.
+        env:
+          OPA_VERSION: "1.20.2"
+          OPA_SHA256: "69da5179ee403d10fa11bab6cfb4ffb0d23dba5f9b682fa977db772a1da5670f"
+        run: |
+          set -euo pipefail
+          url="https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64_static"
+          curl --fail --silent --show-error --location --retry 3 -o /tmp/opa "$url"
+          echo "${OPA_SHA256}  /tmp/opa" | sha256sum --check --strict
+          chmod +x /tmp/opa
+          sudo mv /tmp/opa /usr/local/bin/opa
+          opa version
+
+      - name: Clone every pinned corpus, refusing an unfinished checkout
+        run: |
+          python scripts/clone_pinned_corpora.py \
+            --into "${RUNNER_TEMP}/corpora" \
+            --json "${RUNNER_TEMP}/clone-report.json"
+
+      - name: Re-measure and diff against the committed artifacts
+        run: |
+          python scripts/verify_corpus_provenance.py \
+            --corpora "${RUNNER_TEMP}/corpora" \
+            --json "${RUNNER_TEMP}/provenance-report.json"
+
+      - name: Keep both reports, whether or not the diff was clean
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: corpus-provenance-reports
+          path: |
+            ${{ runner.temp }}/clone-report.json
+            ${{ runner.temp }}/provenance-report.json
+          if-no-files-found: warn
+          retention-days: 90
