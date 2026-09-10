@@ -318,7 +318,7 @@ def test_every_xacml_policy_outside_is_outside_for_the_same_reason() -> None:
 # an allowlist of function *names* where the criterion is about *kinds* of predicate.
 
 
-WIDE_FIGURES = {"xacml": (548, 526, 22), "kyverno": (235, 205, 30), "cedar": (22, 22, 0)}
+WIDE_FIGURES = {"xacml": (1007, 951, 56), "kyverno": (235, 206, 29), "cedar": (22, 22, 0)}
 
 
 @pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
@@ -374,6 +374,126 @@ def test_widening_added_verdicts_and_moved_none(ecosystem: str) -> None:
     assert set(joined) <= set(wide), sorted(set(joined) - set(wide))
     moved = {name: (joined[name], wide[name]) for name in joined if joined[name] != wide[name]}
     assert moved == {}, moved
+
+
+def test_the_clock_is_one_obstruction_in_every_language_including_xacml() -> None:
+    """The claim the paper makes, checked in the language that was the exception.
+
+    Azure's `utcNow()`, Rego's `time.now_ns` and Kyverno's `now()` were all reported as
+    reading evaluation-time state. XACML's clock arrives through an attribute designator
+    rather than a function, so a scan over function identifiers could not see it, and 15
+    conformance policies that read it were reported inside.
+    """
+
+    policy = (
+        '<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="p" '
+        'RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:'
+        'deny-overrides"><Target/><Rule RuleId="r" Effect="Permit"><Condition>'
+        '<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-greater-than">'
+        "<AttributeDesignator "
+        'AttributeId="urn:oasis:names:tc:xacml:1.0:environment:current-time" '
+        'Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" '
+        'DataType="http://www.w3.org/2001/XMLSchema#time" MustBePresent="false"/>'
+        "</Apply></Condition></Rule></Policy>"
+    )
+
+    outcome = xacml.classify(policy)
+
+    assert outcome.verdict == "outside"
+    assert "reads the clock" in outcome.reason
+    assert outcome.detail["clock_designators"] == [
+        "urn:oasis:names:tc:xacml:1.0:environment:current-time"
+    ]
+    assert taxonomy.classify(outcome.reason) == "reads evaluation-time state"
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-xacml-wide-v1.json").read_text("utf-8")
+    )
+    clock = [entry for entry in artifact["policies"] if "reads the clock" in entry["reason"]]
+    assert len(clock) == 15
+    assert all(entry["verdict"] == "outside" for entry in clock)
+
+
+def test_a_xacml_policy_is_selected_by_what_it_is_not_what_it_is_called() -> None:
+    """Selection by filename decided the corpus, and decided out every clock reader.
+
+    The wide corpus took `TestPolicy_*.xml` under a `policies/` directory and files named
+    `Policy.xml`, which is how the two projects happen to name most conformance cases. 459
+    policies were left out by that, among them all 15 that read the clock, so the row
+    reported no clock reader because none had been selected.
+    """
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-xacml-wide-v1.json").read_text("utf-8")
+    )
+
+    assert artifact["policies_considered"] == 1007
+    names = [entry["subject"].rsplit("/", 1)[-1] for entry in artifact["policies"]]
+    assert any(not name.startswith(("TestPolicy_", "Policy.xml")) for name in names)
+    # And the joined corpus is still contained in it, under the names the study gave it.
+    joined = json.loads((ROOT / "docs" / "fragment-membership-xacml-v1.json").read_text("utf-8"))
+    wide = {entry["subject"] for entry in artifact["policies"]}
+    assert {entry["subject"] for entry in joined["policies"]} <= wide
+
+
+def test_kyverno_reads_context_from_the_parse_and_not_from_the_prose() -> None:
+    """A description sentence is not a data fetch, and neither is a mutation payload.
+
+    The external-context test asked whether the string `configMap` occurred anywhere in the
+    file. It occurs in a policy's own description, in a CEL expression reading
+    `object.spec.volumes.configMap`, and in a payload injecting `configMapRef` into a pod --
+    none of which fetches anything. Three of the corpus's exclusions were that mistake.
+    """
+
+    prose = (
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: p\n"
+        "  annotations:\n    policies.kyverno.io/description: >-\n"
+        "      Stored in a ConfigMap so that you can automount them.\n"
+        "spec:\n  rules:\n  - name: r\n    match:\n      any:\n"
+        "      - resources:\n          kinds:\n          - Pod\n"
+        "    validate:\n      pattern:\n        spec:\n          containers:\n"
+        "          - name: '*'\n"
+    )
+    fetches = (
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: q\n"
+        "spec:\n  rules:\n  - name: r\n    match:\n      any:\n"
+        "      - resources:\n          kinds:\n          - Pod\n"
+        "    context:\n    - name: cm\n      configMap:\n        name: settings\n"
+        "        namespace: default\n"
+        "    validate:\n      pattern:\n        spec:\n          containers:\n"
+        "          - name: '*'\n"
+    )
+
+    assert kyverno.classify(prose).verdict == "inside"
+    fetched = kyverno.classify(fetches)
+    assert fetched.verdict == "outside"
+    assert "context entry fetches" in fetched.reason
+
+    nested = fetches.replace(
+        "    context:\n    - name: cm\n      configMap:",
+        "    mutate:\n      foreach:\n      - list: request.object.spec.containers\n"
+        "        context:\n        - name: cm\n          configMap:",
+    )
+    assert kyverno.classify(nested).verdict == "outside", "context inside a foreach still counts"
+
+
+def test_kyverno_selecting_on_namespace_labels_is_outside() -> None:
+    """The AdmissionReview carries the namespace's name, not the namespace object."""
+
+    policy = (
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: p\n"
+        "spec:\n  rules:\n  - name: r\n    match:\n      any:\n"
+        "      - resources:\n          kinds:\n          - Pod\n"
+        "          namespaceSelector:\n            matchLabels:\n              tier: prod\n"
+        "    validate:\n      pattern:\n        spec:\n          containers:\n"
+        "          - name: '*'\n"
+    )
+
+    outcome = kyverno.classify(policy)
+
+    assert outcome.verdict == "outside"
+    assert "Namespace labels" in outcome.reason
+    assert taxonomy.classify(outcome.reason) == "the subject does not determine the guard"
 
 
 def test_xacml_membership_follows_the_family_not_the_datatype() -> None:
@@ -1031,7 +1151,7 @@ def test_the_azure_measurement_judges_every_definition() -> None:
     )
 
     assert artifact["policies_considered"] == 3769
-    assert artifact["counts"] == {"inside": 2884, "outside": 885, "undetermined": 0}
+    assert artifact["counts"] == {"inside": 2193, "outside": 1576, "undetermined": 0}
     subjects = [entry["subject"] for entry in artifact["policies"]]
     assert len(set(subjects)) == len(subjects), "subjects must be unique or policies vanish"
 
@@ -1048,10 +1168,14 @@ def test_azure_exclusions_split_into_schemas_reads_and_nondeterminism() -> None:
         entry for entry in outside if "not a function of its arguments" in entry["reason"]
     ]
 
-    assert len(schemas) == 769
-    assert len(runtime) == 99
-    assert len(nondeterministic) == 17
-    assert len(schemas) + len(runtime) + len(nondeterministic) == len(outside) == 885
+    related = [entry for entry in outside if "related resource exists" in entry["reason"]]
+
+    assert len(related) == 1444
+    assert len(schemas) == 120
+    assert len(runtime) == 3
+    assert len(nondeterministic) == 9
+    assert len(related) + len(schemas) + len(runtime) + len(nondeterministic) == len(outside)
+    assert len(outside) == 1576
 
 
 def test_a_clock_read_is_the_same_kind_of_exclusion_in_azure_as_in_rego() -> None:
@@ -1133,6 +1257,101 @@ def test_the_copy_judged_is_the_published_built_in_not_the_tutorial_variant() ->
 
     assert ordered[0] == built_in, "the published definition is judged, not a variant of it"
     assert azure._authority(sample, root)[0] == azure._authority(pattern, root)[0]
+
+
+def test_the_existence_condition_is_a_guard_and_the_deployment_template_is_not() -> None:
+    """The two regions an Azure decision is made in, and the one it is not.
+
+    `if` selects resources and `then.details.existenceCondition` decides compliance for the
+    `AuditIfNotExists` and `DeployIfNotExists` shapes; `then.details.deployment` is the
+    remediation template, which runs after the decision and cannot affect it. Reading
+    operators from `if` while scanning the whole `policyRule` for functions was the
+    inconsistency: 96 of 99 exclusions for reading another resource's runtime state were
+    `reference()` calls in a remediation template, and the existence condition -- deciding
+    1,330 definitions -- was never read at all.
+    """
+
+    remediation_only = json.dumps(
+        {
+            "properties": {
+                "policyRule": {
+                    "if": {"field": "type", "equals": "Microsoft.Storage/storageAccounts"},
+                    "then": {
+                        "effect": "deployIfNotExists",
+                        "details": {
+                            "deployment": {
+                                "properties": {
+                                    "parameters": {
+                                        "id": {"value": "[reference('other').outputs.id]"}
+                                    }
+                                }
+                            }
+                        },
+                    },
+                }
+            }
+        }
+    )
+    guard_in_existence = json.dumps(
+        {
+            "properties": {
+                "policyRule": {
+                    "if": {"field": "type", "equals": "Microsoft.Sql/servers"},
+                    "then": {
+                        "effect": "auditIfNotExists",
+                        "details": {
+                            "type": "Microsoft.Sql/servers/auditingSettings",
+                            "existenceCondition": {"field": "name", "equals": "default"},
+                        },
+                    },
+                }
+            }
+        }
+    )
+
+    remediation = azure.classify(remediation_only)
+    existence = azure.classify(guard_in_existence)
+
+    # A `reference()` reached only by the remediation template decides nothing, so it is not
+    # an exclusion at all: the guard here is `if`, and `if` reads the resource and a literal.
+    assert remediation.verdict == "inside"
+    assert "runtime state of a resource" not in remediation.reason
+    # Naming a related resource type is an existence test, and that is an exclusion.
+    assert existence.verdict == "outside"
+    assert "related resource exists" in existence.reason
+    assert existence.detail["related_resource"]["has_existence_condition"] is True
+    assert existence.detail["leaf_operators"] == ["equals"], "the existence condition is read"
+
+
+def test_an_existence_test_over_a_related_resource_is_outside_the_fragment() -> None:
+    """Why: the resource under evaluation does not determine whether another one exists.
+
+    `AuditIfNotExists` asks whether a related resource exists satisfying a condition --
+    among the subject's children by default, or anywhere in its resource group. The
+    evaluator fetches those after `if` has matched; they are not in the request the decision
+    is about. That is Gatekeeper's injected inventory in Azure's clothing, and the corpus
+    makes the point plainly: one definition's compliance turns on whether a Security Center
+    assessment result exists for the app, which is another service's output entirely.
+    """
+
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
+    )
+    related = [
+        entry
+        for entry in artifact["policies"]
+        if "related resource exists" in entry.get("reason", "")
+    ]
+
+    assert len(related) == 1444
+    assert all(entry["verdict"] == "outside" for entry in related)
+    scopes = {str(entry["related_resource"]["scope"]).lower() for entry in related}
+    assert scopes <= {"resource", "resourcegroup", "subscription"}, scopes
+    with_condition = [
+        entry for entry in related if entry["related_resource"]["has_existence_condition"]
+    ]
+    assert len(with_condition) == 1330
+    assert taxonomy.classify(related[0]["reason"]) == "the subject does not determine the guard"
 
 
 def test_azure_membership_follows_the_operator_family() -> None:
@@ -1224,15 +1443,20 @@ def test_the_corpus_supplies_the_bindings_the_schema_verdict_presumes() -> None:
     membership = json.loads(
         (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
     )
-    schemas = [entry for entry in membership["policies"] if "policy schema" in entry["reason"]]
+    # Selected by the evidence, not the reported reason: a definition that is a schema and
+    # also tests a related resource reports the second, because an assignment removes only
+    # the first, so the reason string would have found 120 of the 855.
+    schemas = [
+        entry for entry in membership["policies"] if entry.get("parameters_without_defaults")
+    ]
 
-    assert bindings["schemas"] == len(schemas)
-    assert bindings["schemas_an_initiative_completes"] == 538
+    assert bindings["schemas"] == len(schemas) == 855
+    assert bindings["schemas_an_initiative_completes"] == 555
     assert (
         bindings["schemas_an_initiative_completes"]
         == (bindings["schemas_an_initiative_parameterises"])
     ), "a partial binding would leave the definition a schema still"
-    assert len(bindings["schemas_left_uninstantiated"]) == bindings["schemas"] - 538
+    assert len(bindings["schemas_left_uninstantiated"]) == bindings["schemas"] - 555
     assert bindings["initiatives_read"] == 267
 
 
@@ -1244,14 +1468,51 @@ def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     assert findings["taxonomy_is_exhaustive"], findings["exclusions_unclassified"]
     assert findings["exclusions_unclassified"] == {}
     assert findings["corpora"] == 8
-    assert findings["artifacts_considered"] == 6547
-    assert findings["artifacts_inside"] == 5494
+    assert findings["artifacts_considered"] == 7006
+    assert findings["artifacts_inside"] == 5229
     assert findings["exclusions_by_kind"] == {
-        "not a policy": 826,
-        "the subject does not determine the guard": 207,
+        "not a policy": 916,
+        "the subject does not determine the guard": 841,
         "reads evaluation-time state": 20,
     }
-    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1053
+    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1777
+
+
+def test_the_taxonomy_counts_over_every_obstruction_not_the_reported_one() -> None:
+    """Otherwise the size of a row depends on which other obstruction outranked it.
+
+    A verdict reports the obstruction an assignment cannot remove, so a parameterised
+    definition that also tests a related resource reports the test. Counting by the reported
+    reason made the "not a policy" row move by 735 Azure definitions when a second guard
+    region was read for the first time -- without one artifact changing its schema status.
+    """
+
+    reported_schema = {"reason": "is a policy schema rather than a policy: no default for x"}
+    reported_read = {
+        "reason": "the decision turns on whether a related resource exists, which the "
+        "resource under evaluation does not determine",
+        "reasons": [
+            "the decision turns on whether a related resource exists, which the resource "
+            "under evaluation does not determine",
+            "is a policy schema rather than a policy: no default for x",
+        ],
+    }
+    read_only = {"reason": "reads a document the host injects: data.inventory"}
+
+    assert taxonomy.kind_of(reported_schema) == "not a policy"
+    assert taxonomy.kind_of(reported_read) == "not a policy", "a schema is not a policy"
+    assert taxonomy.classify(reported_read["reason"]) == "the subject does not determine the guard"
+    assert taxonomy.kind_of(read_only) == "the subject does not determine the guard"
+
+    # And over the corpus: the row equals the artifacts carrying the schema obstruction.
+    artifact = json.loads(
+        (ROOT / "docs" / "fragment-membership-azure-wide-v1.json").read_text("utf-8")
+    )
+    carrying = sum(1 for entry in artifact["policies"] if entry.get("parameters_without_defaults"))
+    findings = taxonomy.measure(ROOT / "docs")
+    azure_row = next(row for row in findings["rows"] if row["corpus"] == "Azure Policy")
+
+    assert azure_row["exclusions_by_kind"]["not a policy"] == carrying == 855
 
 
 def test_the_committed_taxonomy_artifact_matches_a_fresh_computation() -> None:
@@ -1322,13 +1583,13 @@ def test_the_cost_artifact_reports_a_tractable_median_for_both_clouds() -> None:
     findings = json.loads((ROOT / "docs" / "coverage-cost-v1.json").read_text("utf-8"))
 
     assert findings["azure"]["median_cells"] == 4
-    assert findings["azure"]["policies"] == 2884
+    assert findings["azure"]["policies"] == 2193
     assert findings["iam"]["median_cells"] == 60
     assert findings["iam"]["policies"] == 1651
     # The claim the paper makes: most deployed Azure policy is cheap to cover exhaustively.
     assert findings["azure"]["share_at_most"]["8"] > 0.8
     # And the honest tail.
-    assert findings["azure"]["at_or_above_intractable"] == 27
+    assert findings["azure"]["at_or_above_intractable"] == 8
     assert findings["iam"]["at_or_above_intractable"] == 131
 
 

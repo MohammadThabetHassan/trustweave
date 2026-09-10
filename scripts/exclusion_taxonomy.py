@@ -77,8 +77,10 @@ KINDS: dict[str, tuple[str, ...]] = {
         "reads a data document",
         "reaches outside",
         "runtime state of a resource",
+        "whether a related resource exists",
         "verifies an image",
         "selects over request content",
+        "selects on Namespace labels",
         "reads outside the policy",
         "reads something outside the admission request",
     ),
@@ -91,6 +93,26 @@ def classify(reason: str) -> str | None:
         if any(needle in reason for needle in needles):
             return kind
     return None
+
+
+def kind_of(entry: dict[str, Any]) -> str | None:
+    """Which row an exclusion belongs in, over every obstruction it carries.
+
+    The verdict *reports* the obstruction that survives instantiation, so an artifact that is
+    a schema and also reads state the subject does not carry is reported under the read. That
+    is the right thing to tell a reader about one artifact and the wrong thing to count by:
+    it made the size of the "not a policy" row depend on which other obstruction happened to
+    outrank it, and the row moved by 649 Azure definitions when a second guard region was
+    read for the first time without any artifact changing its schema status. So the row is
+    decided over all the reasons an adapter recorded, and being a schema decides it: an
+    artifact that determines no decision function is not a policy, whatever else is also true
+    of it, which is the argument the row is named for.
+    """
+
+    reasons = entry.get("reasons") or [entry["reason"]]
+    if any(classify(reason) == "not a policy" for reason in reasons):
+        return "not a policy"
+    return classify(entry["reason"])
 
 
 def measure(docs: Path) -> dict[str, Any]:
@@ -106,7 +128,7 @@ def measure(docs: Path) -> dict[str, Any]:
         for entry in findings["policies"]:
             if entry["verdict"] != "outside":
                 continue
-            kind = classify(entry["reason"])
+            kind = kind_of(entry)
             if kind is None:
                 unclassified[entry["reason"][:120]] += 1
             else:

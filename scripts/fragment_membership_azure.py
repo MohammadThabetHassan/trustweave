@@ -212,6 +212,16 @@ SOVEREIGN_CLOUD_DIRECTORIES = frozenset({"Azure Government", "Azure China"})
 # and it is made here rather than left to whichever path happened to sort first.
 CANONICAL_DIRECTORIES = ("built-in-policies", "built-in-references")
 
+# Keys under `then.details` that name a policy program living somewhere else. An Azure
+# definition targeting a Kubernetes cluster does not state its own guard: it points at a
+# Gatekeeper ConstraintTemplate published at a URL --
+# `store.policy.core.windows.net/kubernetes/<name>/v1/template.yaml` -- and the decision is
+# made by the Rego inside that template against the values the definition supplies. The `if`
+# region only selects which clusters the rule applies to. Reading `if` alone and reporting
+# "every guard compares the resource under evaluation against literals in the policy" was
+# therefore false of 43 definitions: the guard was not in the file at all.
+DELEGATING_DETAIL_KEYS = ("templateInfo", "constraintTemplate")
+
 ARM_CALL = re.compile(r"([a-zA-Z][a-zA-Z0-9_]*)\s*\(")
 
 # ARM string literals are single-quoted, and their contents are prose. One built-in reads
@@ -392,8 +402,40 @@ def classify(text: str) -> Verdict:
     properties = _properties(document) or {}
     rule = properties.get("policyRule") or {}
 
+    # The guard regions, and only those. A definition's decision is made by `if` and, for
+    # the `AuditIfNotExists` and `DeployIfNotExists` shapes, by
+    # `then.details.existenceCondition`; `then.details.deployment` is the remediation
+    # template, which is the effect and decides nothing. Walking the whole `policyRule` for
+    # functions while reading only `if` for operators was inconsistent in a way that mattered:
+    # 96 of 99 exclusions for reading another resource's runtime state were `reference()`
+    # calls inside a remediation template, and the existence condition -- the deciding guard
+    # of 1,330 definitions -- was never read at all.
+    then = rule.get("then") if isinstance(rule.get("then"), dict) else {}
+    details = then.get("details") if isinstance(then.get("details"), dict) else {}
+    existence = details.get("existenceCondition")
+
+    # Before anything else: if the guard is not in this document, nothing can be said about
+    # it. This is the refusal the procedure is built to make, and it is the honest verdict --
+    # the templates are public and the project already has a Rego adapter, so fetching and
+    # judging them is the obvious next step rather than something the criterion forbids.
+    delegated = sorted(key for key in DELEGATING_DETAIL_KEYS if key in details)
+    if delegated:
+        detail["delegates_guard_to"] = delegated
+        source = details.get(delegated[0])
+        if isinstance(source, dict) and source.get("url"):
+            detail["guard_source"] = source.get("url")
+        return Verdict(
+            UNDETERMINED,
+            "delegates its guard to a policy program the definition does not contain",
+            detail,
+        )
+
     operators, unrecognised = leaf_operators(rule.get("if"))
-    functions = arm_functions(rule)
+    if existence is not None:
+        more_operators, more_unrecognised = leaf_operators(existence)
+        operators |= more_operators
+        unrecognised |= more_unrecognised
+    functions = arm_functions(rule.get("if")) | arm_functions(existence)
     declared = properties.get("parameters")
     detail: dict[str, Any] = {
         "leaf_operators": sorted(operators),
@@ -415,11 +457,28 @@ def classify(text: str) -> Verdict:
     # stated in the taxonomy: an assignment removes the schema obstruction and removes
     # neither of the others, so the reason reported is the one that survives instantiation.
     reasons: list[str] = []
+    # `then.details.type` names a resource other than the one under evaluation, and the
+    # decision is whether such a resource exists -- among the subject's children by default,
+    # or anywhere in its resource group under `existenceScope`. The evaluator fetches those
+    # resources after `if` has matched; they are not in the request the decision is about.
+    # This is the Azure form of Gatekeeper's injected inventory, and it is outside for the
+    # same reason: supplying the value is not the same as the subject determining it.
+    if "type" in details or existence is not None:
+        detail["related_resource"] = {
+            "type": details.get("type"),
+            "scope": details.get("existenceScope", "resource"),
+            "has_existence_condition": existence is not None,
+        }
+        reasons.append(
+            "the decision turns on whether a related resource exists, which the resource "
+            "under evaluation does not determine"
+        )
     if nondeterministic:
         detail["nondeterministic_functions"] = nondeterministic
-        reasons.append(
+        reasons.insert(
+            0,
             "calls a template function whose result is not a function of its arguments: "
-            + ", ".join(nondeterministic)
+            + ", ".join(nondeterministic),
         )
     if external:
         detail["external_functions"] = external

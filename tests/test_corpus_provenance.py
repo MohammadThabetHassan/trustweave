@@ -159,3 +159,67 @@ def test_a_pooled_row_is_measured_from_the_directory_that_holds_its_corpora() ->
 
     assert verifier._measurement_root([root / "a"]) == root / "a"
     assert verifier._measurement_root([root / "a", root / "b"]) == root
+
+
+def test_the_provenance_records_how_much_of_the_commit_was_on_disk() -> None:
+    """The field whose absence let a measurement over a fifth of a repository look complete.
+
+    Two Azure artifacts recorded commit `9780ba64`, one reporting 3,659 definitions and the
+    other 3,769. The commit was right both times; the working tree was not -- the first had
+    only `built-in-policies/` on disk, a blobless clone whose checkout did not finish -- and
+    no field in either artifact could tell them apart.
+    """
+
+    stems = sorted((ROOT / "docs").glob("fragment-membership-*-wide-v1.json"))
+    stems.append(ROOT / "docs" / "fragment-membership-rego-gcp-v1.json")
+
+    assert stems, "no whole-corpus artifacts to check"
+    for path in stems:
+        artifact = json.loads(path.read_text(encoding="utf-8"))
+        for entry in artifact["corpus"]:
+            assert entry["tracked_files"] > 0, (path.name, entry["name"])
+            assert entry["files_present"] == entry["tracked_files"], (
+                f"{path.name}: {entry['name']} was measured over an incomplete checkout "
+                f"({entry['files_present']} of {entry['tracked_files']} files present)"
+            )
+
+
+def test_the_report_says_whether_each_checkout_was_complete() -> None:
+    report = _report()
+
+    for row in report["rows"]:
+        if row["verdict"] not in ("reproduced", "differs"):
+            continue
+        assert row["corpus_recorded_a_complete_checkout"] is True, row["artifact"]
+        for entry in row["corpus"]:
+            assert entry["checkout_was_complete"] is True, (row["artifact"], entry["name"])
+
+
+def test_the_third_party_corpus_was_refetched_and_its_decay_recorded() -> None:
+    """A corpus collected by code search does not stay fetchable, and that is a finding.
+
+    Re-fetching the 49 files at the commits the manifest records found 18 gone three weeks
+    later. Every one that could be fetched still hashed to its recorded sha256 and was
+    judged identically, so the corrected Kyverno adapter leaves the third-party verdicts as
+    measured; the 18 rest on the verification done when they were collected.
+    """
+
+    for candidate in (ROOT, *ROOT.parents):
+        path = candidate / "docs" / "third-party-kyverno-revalidation-v1.json"
+        if path.is_file():
+            break
+    else:  # pragma: no cover - the artifact is committed
+        raise AssertionError("docs/third-party-kyverno-revalidation-v1.json is missing")
+    revalidation = json.loads(path.read_text(encoding="utf-8"))
+    measured = json.loads(
+        (ROOT / "docs" / "fragment-membership-kyverno-thirdparty-v1.json").read_text("utf-8")
+    )
+
+    assert revalidation["verdicts_changed_among_those_refetched"] == []
+    assert revalidation["files_in_manifest"] == measured["policies_considered"] == 49
+    assert (
+        revalidation["files_still_fetchable_at_their_commit"]
+        + revalidation["files_no_longer_available"]
+        == 49
+    )
+    assert revalidation["files_no_longer_available"] == 18

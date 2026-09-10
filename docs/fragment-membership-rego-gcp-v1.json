@@ -2,8 +2,10 @@
   "corpus": [
     {
       "commit": "4a2abc741583884dd38ca3b9bf2ff5a4d205a609",
+      "files_present": 953,
       "name": "policy-library",
-      "remote": "https://github.com/GoogleCloudPlatform/policy-library.git"
+      "remote": "https://github.com/GoogleCloudPlatform/policy-library.git",
+      "tracked_files": 953
     }
   ],
   "corpus_scope": "wide",

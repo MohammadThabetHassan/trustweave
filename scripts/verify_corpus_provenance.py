@@ -131,9 +131,25 @@ def verify(corpora: Path, docs: Path = DOCS) -> dict[str, Any]:
                 "commit": entry.get("commit"),
                 "remote": entry.get("remote"),
                 "found": entry.get("commit") in available,
+                # Recorded by the measurement: what the commit contains, and what was on
+                # disk to be read. A commit says which tree was meant and these say how much
+                # of it arrived, which is the distinction that let an Azure measurement over
+                # a fifth of its repository record the commit for all of it.
+                "tracked_files": entry.get("tracked_files"),
+                "files_present": entry.get("files_present"),
+                "checkout_was_complete": (
+                    None
+                    if entry.get("tracked_files") is None
+                    else entry.get("tracked_files") == entry.get("files_present")
+                ),
             }
             for entry in recorded
         ]
+        incomplete = [
+            entry["name"] for entry in row["corpus"] if entry["checkout_was_complete"] is False
+        ]
+        if incomplete:
+            row["measured_over_an_incomplete_checkout"] = incomplete
         missing = [entry for entry in row["corpus"] if not entry["found"]]
         if missing:
             rows.append(
@@ -161,6 +177,9 @@ def verify(corpora: Path, docs: Path = DOCS) -> dict[str, Any]:
             "counts": fresh["counts"],
         }
         row["verdict"] = "reproduced" if row["recorded"] == row["measured"] else "differs"
+        row["corpus_recorded_a_complete_checkout"] = all(
+            entry["checkout_was_complete"] for entry in row["corpus"]
+        )
         rows.append(row)
 
     checked = [row for row in rows if row["verdict"] in ("reproduced", "differs")]

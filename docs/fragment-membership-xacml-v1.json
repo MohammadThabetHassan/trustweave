@@ -2,13 +2,17 @@
   "corpus": [
     {
       "commit": "ab73ad39cf037cdd87100e2148464b1d2d64d5b6",
+      "files_present": 1934,
       "name": "authzforce-core",
-      "remote": "https://github.com/authzforce/core.git"
+      "remote": "https://github.com/authzforce/core.git",
+      "tracked_files": 1934
     },
     {
       "commit": "474841718721f840fa39d13cfa3232f9cf864f3e",
+      "files_present": 1731,
       "name": "wso2-balana",
-      "remote": "https://github.com/wso2/balana.git"
+      "remote": "https://github.com/wso2/balana.git",
+      "tracked_files": 1731
     }
   ],
   "corpus_scope": "joined-to-study",

@@ -2,8 +2,10 @@
   "corpus": [
     {
       "commit": "6802e0280207feb682894b7cf39e00cb12280a8c",
+      "files_present": 69,
       "name": "cedar-integration-tests",
-      "remote": "https://github.com/cedar-policy/cedar-integration-tests.git"
+      "remote": "https://github.com/cedar-policy/cedar-integration-tests.git",
+      "tracked_files": 69
     }
   ],
   "corpus_scope": "joined-to-study",

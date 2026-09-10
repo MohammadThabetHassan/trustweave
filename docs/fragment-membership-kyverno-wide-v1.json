@@ -2,14 +2,16 @@
   "corpus": [
     {
       "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4",
+      "files_present": 6272,
       "name": "kyverno-policies",
-      "remote": "https://github.com/kyverno/policies.git"
+      "remote": "https://github.com/kyverno/policies.git",
+      "tracked_files": 6272
     }
   ],
   "corpus_scope": "wide",
   "counts": {
-    "inside": 205,
-    "outside": 30,
+    "inside": 206,
+    "outside": 29,
     "undetermined": 0
   },
   "ecosystem": "kyverno",
@@ -52,12 +54,14 @@
       "verdict": "inside"
     },
     {
-      "external_context_sources": [
-        "configMap"
+      "cel_calls": [
+        "exists",
+        "map"
       ],
-      "reason": "a context entry fetches data from outside the admission request",
+      "reason": "every guard reads the admission request and literals in the policy",
       "subject": "add-certificates-volume",
-      "verdict": "outside"
+      "variable_roots": [],
+      "verdict": "inside"
     },
     {
       "cel_calls": [
@@ -76,12 +80,14 @@
       "verdict": "inside"
     },
     {
-      "external_context_sources": [
-        "configMap"
+      "cel_calls": [
+        "indexOf",
+        "map"
       ],
-      "reason": "a context entry fetches data from outside the admission request",
+      "reason": "every guard reads the admission request and literals in the policy",
       "subject": "add-env-vars-from-cm",
-      "verdict": "outside"
+      "variable_roots": [],
+      "verdict": "inside"
     },
     {
       "reason": "every guard reads the admission request and literals in the policy",
@@ -190,13 +196,12 @@
       "verdict": "inside"
     },
     {
-      "cel_calls": [
-        "orValue"
+      "namespace_selectors": [
+        "matchConstraints.namespaceSelector"
       ],
-      "reason": "every guard reads the admission request and literals in the policy",
+      "reason": "selects on Namespace labels, which the admission request does not carry",
       "subject": "add-pod-priorityclassname",
-      "variable_roots": [],
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "cel_calls": [
@@ -377,17 +382,12 @@
       "verdict": "inside"
     },
     {
-      "cel_calls": [
-        "escapeKey",
-        "filter",
-        "join",
-        "map",
-        "size"
+      "namespace_selectors": [
+        "matchConstraints.namespaceSelector"
       ],
-      "reason": "every guard reads the admission request and literals in the policy",
+      "reason": "selects on Namespace labels, which the admission request does not carry",
       "subject": "backup-all-volumes",
-      "variable_roots": [],
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "reason": "every guard reads the admission request and literals in the policy",
@@ -1759,12 +1759,10 @@
       "verdict": "inside"
     },
     {
-      "external_context_sources": [
-        "configMap"
-      ],
-      "reason": "a context entry fetches data from outside the admission request",
+      "reason": "every guard reads the admission request and literals in the policy",
       "subject": "restrict-volume-types",
-      "verdict": "outside"
+      "variable_roots": [],
+      "verdict": "inside"
     },
     {
       "reason": "every guard reads the admission request and literals in the policy",
@@ -1871,6 +1869,6 @@
   ],
   "policies_considered": 235,
   "schema_version": "v1",
-  "share_inside": 0.8723,
-  "share_inside_of_judged": 0.8723
+  "share_inside": 0.8766,
+  "share_inside_of_judged": 0.8766
 }

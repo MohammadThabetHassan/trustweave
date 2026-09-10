@@ -15,8 +15,10 @@ constructible from the policy. `now()` is the same problem with the clock.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
+from typing import Any
 
 import yaml
 from fragment_membership import INSIDE, OUTSIDE, UNDETERMINED, Verdict
@@ -279,10 +281,83 @@ def _variable_roots(text: str) -> set[str]:
     return roots
 
 
+def _documents(text: str) -> list[dict[str, Any]]:
+    """Every YAML document in the file that is a mapping, or none if it will not parse."""
+
+    try:
+        loaded = list(yaml.safe_load_all(text))
+    except yaml.YAMLError:
+        return []
+    return [document for document in loaded if isinstance(document, dict)]
+
+
+def _context_entries(text: str) -> list[dict[str, Any]]:
+    """The context entries the policy declares, from the parsed document.
+
+    Context entries live at `spec.rules[].context[]` in a ClusterPolicy and at
+    `spec.context[]` in the newer validating and mutating shapes. Reading them from the
+    parse is the whole point: the previous test asked whether the string `configMap`
+    occurred anywhere in the file, which is true of a description sentence, of a CEL
+    expression reading `object.spec.volumes.configMap`, and of a mutation payload injecting
+    `configMapRef` -- none of which fetches anything. Three of the corpus's exclusions were
+    that mistake.
+    """
+
+    entries: list[dict[str, Any]] = []
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "context" and isinstance(value, list):
+                    entries.extend(item for item in value if isinstance(item, dict))
+                walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    # Every `context` list anywhere in the document, not just on the rule. Kyverno declares
+    # them on a rule, on the spec of the newer shapes, and inside a `foreach` -- and it was
+    # the last of those that made a first version of this walk report five image-registry
+    # policies as reading nothing outside.
+    for document in _documents(text):
+        walk(document)
+    return entries
+
+
+def _namespace_selectors(text: str) -> list[str]:
+    """Match and exclude clauses that select on Namespace labels.
+
+    The AdmissionReview carries the resource and its namespace's *name*, not the namespace
+    object, so Kyverno resolves a `namespaceSelector` against labels it fetches for itself.
+    A guard behind one is therefore not determined by the request.
+    """
+
+    found: list[str] = []
+    for document in _documents(text):
+        specification = document.get("spec")
+        if not isinstance(specification, dict):
+            continue
+        for rule in (specification.get("rules") or []) + [specification]:
+            if not isinstance(rule, dict):
+                continue
+            for clause_name in ("match", "exclude", "matchConstraints"):
+                clause = rule.get(clause_name)
+                if isinstance(clause, dict) and "namespaceSelector" in json.dumps(clause):
+                    found.append(f"{clause_name}.namespaceSelector")
+    return sorted(set(found))
+
+
 def classify(text: str) -> Verdict:
     detail: dict[str, object] = {}
 
-    sources = [source for source in EXTERNAL_CONTEXT_SOURCES if source in text]
+    sources = sorted(
+        {
+            source
+            for entry in _context_entries(text)
+            for source in entry
+            if source in EXTERNAL_CONTEXT_SOURCES
+        }
+    )
     if sources:
         return Verdict(
             OUTSIDE,
@@ -312,6 +387,14 @@ def classify(text: str) -> Verdict:
             OUTSIDE,
             "a CEL expression reads something outside the admission request",
             {"external_cel_calls": external_calls},
+        )
+
+    selectors = _namespace_selectors(text)
+    if selectors:
+        return Verdict(
+            OUTSIDE,
+            "selects on Namespace labels, which the admission request does not carry",
+            {"namespace_selectors": selectors},
         )
 
     roots = _variable_roots(text)

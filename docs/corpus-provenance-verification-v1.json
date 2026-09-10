@@ -28,17 +28,21 @@
       "artifact": "fragment-membership-azure-wide-v1",
       "corpus": [
         {
+          "checkout_was_complete": true,
           "commit": "9780ba642eaf7abee804be93cccaede6751bcc65",
+          "files_present": 6378,
           "found": true,
           "name": "azure-policy",
-          "remote": "https://github.com/Azure/azure-policy.git"
+          "remote": "https://github.com/Azure/azure-policy.git",
+          "tracked_files": 6378
         }
       ],
+      "corpus_recorded_a_complete_checkout": true,
       "ecosystem": "azure",
       "measured": {
         "counts": {
-          "inside": 2884,
-          "outside": 885,
+          "inside": 2193,
+          "outside": 1576,
           "undetermined": 0
         },
         "policies_considered": 3769
@@ -46,8 +50,8 @@
       "measured_from": "azure-policy",
       "recorded": {
         "counts": {
-          "inside": 2884,
-          "outside": 885,
+          "inside": 2193,
+          "outside": 1576,
           "undetermined": 0
         },
         "policies_considered": 3769
@@ -64,12 +68,16 @@
       "artifact": "fragment-membership-cedar-wide-v1",
       "corpus": [
         {
+          "checkout_was_complete": true,
           "commit": "6802e0280207feb682894b7cf39e00cb12280a8c",
+          "files_present": 69,
           "found": true,
           "name": "cedar-integration-tests",
-          "remote": "https://github.com/cedar-policy/cedar-integration-tests.git"
+          "remote": "https://github.com/cedar-policy/cedar-integration-tests.git",
+          "tracked_files": 69
         }
       ],
+      "corpus_recorded_a_complete_checkout": true,
       "ecosystem": "cedar",
       "measured": {
         "counts": {
@@ -94,12 +102,16 @@
       "artifact": "fragment-membership-iam-wide-v1",
       "corpus": [
         {
+          "checkout_was_complete": true,
           "commit": "1c72947906e6e3f5580c3ec74c5b97a7bc28ed2f",
+          "files_present": 8584,
           "found": true,
           "name": "iam-dataset",
-          "remote": "https://github.com/iann0036/iam-dataset.git"
+          "remote": "https://github.com/iann0036/iam-dataset.git",
+          "tracked_files": 8584
         }
       ],
+      "corpus_recorded_a_complete_checkout": true,
       "ecosystem": "iam",
       "measured": {
         "counts": {
@@ -136,17 +148,21 @@
       "artifact": "fragment-membership-kyverno-wide-v1",
       "corpus": [
         {
+          "checkout_was_complete": true,
           "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4",
+          "files_present": 6272,
           "found": true,
           "name": "kyverno-policies",
-          "remote": "https://github.com/kyverno/policies.git"
+          "remote": "https://github.com/kyverno/policies.git",
+          "tracked_files": 6272
         }
       ],
+      "corpus_recorded_a_complete_checkout": true,
       "ecosystem": "kyverno",
       "measured": {
         "counts": {
-          "inside": 205,
-          "outside": 30,
+          "inside": 206,
+          "outside": 29,
           "undetermined": 0
         },
         "policies_considered": 235
@@ -154,8 +170,8 @@
       "measured_from": "kyverno-policies",
       "recorded": {
         "counts": {
-          "inside": 205,
-          "outside": 30,
+          "inside": 206,
+          "outside": 29,
           "undetermined": 0
         },
         "policies_considered": 235
@@ -166,12 +182,16 @@
       "artifact": "fragment-membership-rego-gcp-v1",
       "corpus": [
         {
+          "checkout_was_complete": true,
           "commit": "4a2abc741583884dd38ca3b9bf2ff5a4d205a609",
+          "files_present": 953,
           "found": true,
           "name": "policy-library",
-          "remote": "https://github.com/GoogleCloudPlatform/policy-library.git"
+          "remote": "https://github.com/GoogleCloudPlatform/policy-library.git",
+          "tracked_files": 953
         }
       ],
+      "corpus_recorded_a_complete_checkout": true,
       "ecosystem": "rego",
       "measured": {
         "counts": {
@@ -196,30 +216,43 @@
       "artifact": "fragment-membership-rego-wide-v1",
       "corpus": [
         {
+          "checkout_was_complete": true,
           "commit": "e034212e94e666ab3ba69108d96222bffc8ef671",
+          "files_present": 2456,
           "found": true,
           "name": "gatekeeper-library",
-          "remote": "https://github.com/open-policy-agent/gatekeeper-library.git"
+          "remote": "https://github.com/open-policy-agent/gatekeeper-library.git",
+          "tracked_files": 2456
         },
         {
+          "checkout_was_complete": true,
           "commit": "9eafe392bbec10f34d0b46fafd16b3e919aae271",
+          "files_present": 7,
           "found": true,
           "name": "instrumenta-policies",
-          "remote": "https://github.com/instrumenta/policies.git"
+          "remote": "https://github.com/instrumenta/policies.git",
+          "tracked_files": 7
         },
         {
+          "checkout_was_complete": true,
           "commit": "75fd87df47be8616e6d5095e427f85030b60affc",
+          "files_present": 53,
           "found": true,
           "name": "opa-library",
-          "remote": "https://github.com/open-policy-agent/library.git"
+          "remote": "https://github.com/open-policy-agent/library.git",
+          "tracked_files": 53
         },
         {
+          "checkout_was_complete": true,
           "commit": "7659eb6afe9b8465081fbd4a96a758f4cc4f41a1",
+          "files_present": 187,
           "found": true,
           "name": "redhat-cop-rego-policies",
-          "remote": "https://github.com/redhat-cop/rego-policies.git"
+          "remote": "https://github.com/redhat-cop/rego-policies.git",
+          "tracked_files": 187
         }
       ],
+      "corpus_recorded_a_complete_checkout": true,
       "ecosystem": "rego",
       "measured": {
         "counts": {
@@ -250,35 +283,42 @@
       "artifact": "fragment-membership-xacml-wide-v1",
       "corpus": [
         {
+          "checkout_was_complete": true,
           "commit": "ab73ad39cf037cdd87100e2148464b1d2d64d5b6",
+          "files_present": 1934,
           "found": true,
           "name": "authzforce-core",
-          "remote": "https://github.com/authzforce/core.git"
+          "remote": "https://github.com/authzforce/core.git",
+          "tracked_files": 1934
         },
         {
+          "checkout_was_complete": true,
           "commit": "474841718721f840fa39d13cfa3232f9cf864f3e",
+          "files_present": 1731,
           "found": true,
           "name": "wso2-balana",
-          "remote": "https://github.com/wso2/balana.git"
+          "remote": "https://github.com/wso2/balana.git",
+          "tracked_files": 1731
         }
       ],
+      "corpus_recorded_a_complete_checkout": true,
       "ecosystem": "xacml",
       "measured": {
         "counts": {
-          "inside": 526,
-          "outside": 22,
+          "inside": 951,
+          "outside": 56,
           "undetermined": 0
         },
-        "policies_considered": 548
+        "policies_considered": 1007
       },
       "measured_from": "xacml",
       "recorded": {
         "counts": {
-          "inside": 526,
-          "outside": 22,
+          "inside": 951,
+          "outside": 56,
           "undetermined": 0
         },
-        "policies_considered": 548
+        "policies_considered": 1007
       },
       "verdict": "reproduced"
     }

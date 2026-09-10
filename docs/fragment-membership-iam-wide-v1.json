@@ -2,8 +2,10 @@
   "corpus": [
     {
       "commit": "1c72947906e6e3f5580c3ec74c5b97a7bc28ed2f",
+      "files_present": 8584,
       "name": "iam-dataset",
-      "remote": "https://github.com/iann0036/iam-dataset.git"
+      "remote": "https://github.com/iann0036/iam-dataset.git",
+      "tracked_files": 8584
     }
   ],
   "corpus_scope": "wide",

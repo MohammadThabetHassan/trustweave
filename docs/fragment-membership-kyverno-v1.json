@@ -2,8 +2,10 @@
   "corpus": [
     {
       "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4",
+      "files_present": 6272,
       "name": "kyverno-policies",
-      "remote": "https://github.com/kyverno/policies.git"
+      "remote": "https://github.com/kyverno/policies.git",
+      "tracked_files": 6272
     }
   ],
   "corpus_scope": "joined-to-study",

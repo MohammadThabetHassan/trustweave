@@ -28,6 +28,7 @@ import argparse
 import importlib
 import importlib.util
 import json
+import subprocess
 import sys
 from collections import Counter
 from dataclasses import dataclass, field
@@ -121,7 +122,53 @@ def provenance(root: Path) -> list[dict[str, str]]:
     sys.modules.setdefault("suite_coverage", module)
     specification.loader.exec_module(module)
     repositories: list[dict[str, str]] = module.provenance(root)
-    return repositories
+    return [{**entry, **_tree_state(root, str(entry["name"]))} for entry in repositories]
+
+
+def _tree_state(root: Path, name: str) -> dict[str, int]:
+    """How much of the pinned commit was actually on disk when this measurement ran.
+
+    A commit is not enough to reproduce a measurement, and this is the field whose absence
+    proved it. Two Azure artifacts recorded commit `9780ba64`, one reporting 3,659
+    definitions and the other 3,769, and nothing in either could tell them apart. The
+    commit was right both times; the working tree was not. The first had only
+    `built-in-policies/` on disk -- a blobless clone whose checkout did not complete -- so
+    the adapter walked a fifth of the repository and the artifact recorded a commit
+    describing all of it.
+
+    `tracked_files` is what the commit contains and `files_present` is what was readable, so
+    a measurement over an incomplete checkout is visible in its own artifact rather than
+    only in a later re-run.
+    """
+
+    candidates = (
+        [root, *(child for child in root.iterdir() if child.is_dir())] if root.is_dir() else []
+    )
+    for candidate in candidates:
+        if candidate.name != name or not (candidate / ".git").exists():
+            continue
+        tracked = _git_lines(candidate, "ls-tree", "-r", "--name-only", "HEAD")
+        if tracked is None:
+            return {}
+        present = sum(1 for name_ in tracked if (candidate / name_).exists())
+        return {"tracked_files": len(tracked), "files_present": present}
+    return {}
+
+
+def _git_lines(repository: Path, *arguments: str) -> list[str] | None:
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(repository), *arguments],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=180,
+        )
+    except (OSError, subprocess.SubprocessError):  # pragma: no cover - git absent or wedged
+        return None
+    if completed.returncode != 0:
+        return None
+    return [line for line in completed.stdout.splitlines() if line]
 
 
 def discovery_for(adapter: Adapter, wide: bool) -> Any:

@@ -1,16 +1,16 @@
 {
-  "artifacts_considered": 6547,
-  "artifacts_inside": 5494,
+  "artifacts_considered": 7006,
+  "artifacts_inside": 5229,
   "corpora": 8,
-  "exclusions": 1053,
+  "exclusions": 1777,
   "exclusions_by_kind": {
-    "not a policy": 826,
+    "not a policy": 916,
     "reads evaluation-time state": 20,
-    "the subject does not determine the guard": 207
+    "the subject does not determine the guard": 841
   },
   "exclusions_unclassified": {},
-  "policies_considered": 5721,
-  "policy_schemas": 826,
+  "policies_considered": 6090,
+  "policy_schemas": 916,
   "rows": [
     {
       "artifact": "fragment-membership-iam-wide-v1",
@@ -26,47 +26,48 @@
       "artifact": "fragment-membership-azure-wide-v1",
       "corpus": "Azure Policy",
       "exclusions_by_kind": {
-        "not a policy": 769,
-        "reads evaluation-time state": 17,
-        "the subject does not determine the guard": 99
+        "not a policy": 855,
+        "reads evaluation-time state": 4,
+        "the subject does not determine the guard": 717
       },
-      "inside": 2884,
-      "outside": 885,
+      "inside": 2193,
+      "outside": 1576,
       "policies_considered": 3769,
-      "share_inside": 0.7652,
+      "share_inside": 0.5819,
       "undetermined": 0
     },
     {
       "artifact": "fragment-membership-xacml-wide-v1",
       "corpus": "XACML",
       "exclusions_by_kind": {
-        "the subject does not determine the guard": 22
+        "reads evaluation-time state": 15,
+        "the subject does not determine the guard": 41
       },
-      "inside": 526,
-      "outside": 22,
-      "policies_considered": 548,
-      "share_inside": 0.9599,
+      "inside": 951,
+      "outside": 56,
+      "policies_considered": 1007,
+      "share_inside": 0.9444,
       "undetermined": 0
     },
     {
       "artifact": "fragment-membership-kyverno-wide-v1",
       "corpus": "Kyverno (vendor)",
       "exclusions_by_kind": {
-        "the subject does not determine the guard": 30
+        "the subject does not determine the guard": 29
       },
-      "inside": 205,
-      "outside": 30,
+      "inside": 206,
+      "outside": 29,
       "policies_considered": 235,
-      "share_inside": 0.8723,
+      "share_inside": 0.8766,
       "undetermined": 0
     },
     {
       "artifact": "fragment-membership-rego-wide-v1",
       "corpus": "Rego (four corpora)",
       "exclusions_by_kind": {
-        "not a policy": 26,
+        "not a policy": 28,
         "reads evaluation-time state": 1,
-        "the subject does not determine the guard": 44
+        "the subject does not determine the guard": 42
       },
       "inside": 115,
       "outside": 71,
@@ -78,8 +79,7 @@
       "artifact": "fragment-membership-rego-gcp-v1",
       "corpus": "Rego (GCP library)",
       "exclusions_by_kind": {
-        "not a policy": 31,
-        "reads evaluation-time state": 2
+        "not a policy": 33
       },
       "inside": 54,
       "outside": 33,
@@ -111,6 +111,6 @@
     }
   ],
   "schema_version": "v1",
-  "share_inside_of_policies": 0.9603,
+  "share_inside_of_policies": 0.8586,
   "taxonomy_is_exhaustive": true
 }

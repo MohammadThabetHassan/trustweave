@@ -591,8 +591,10 @@
       "corpus": [
         {
           "commit": "4a2abc741583884dd38ca3b9bf2ff5a4d205a609",
+          "files_present": 953,
           "name": "policy-library",
-          "remote": "https://github.com/GoogleCloudPlatform/policy-library.git"
+          "remote": "https://github.com/GoogleCloudPlatform/policy-library.git",
+          "tracked_files": 953
         }
       ],
       "detail": [
@@ -2773,23 +2775,31 @@
       "corpus": [
         {
           "commit": "e034212e94e666ab3ba69108d96222bffc8ef671",
+          "files_present": 2456,
           "name": "gatekeeper-library",
-          "remote": "https://github.com/open-policy-agent/gatekeeper-library.git"
+          "remote": "https://github.com/open-policy-agent/gatekeeper-library.git",
+          "tracked_files": 2456
         },
         {
           "commit": "9eafe392bbec10f34d0b46fafd16b3e919aae271",
+          "files_present": 7,
           "name": "instrumenta-policies",
-          "remote": "https://github.com/instrumenta/policies.git"
+          "remote": "https://github.com/instrumenta/policies.git",
+          "tracked_files": 7
         },
         {
           "commit": "75fd87df47be8616e6d5095e427f85030b60affc",
+          "files_present": 53,
           "name": "opa-library",
-          "remote": "https://github.com/open-policy-agent/library.git"
+          "remote": "https://github.com/open-policy-agent/library.git",
+          "tracked_files": 53
         },
         {
           "commit": "7659eb6afe9b8465081fbd4a96a758f4cc4f41a1",
+          "files_present": 187,
           "name": "redhat-cop-rego-policies",
-          "remote": "https://github.com/redhat-cop/rego-policies.git"
+          "remote": "https://github.com/redhat-cop/rego-policies.git",
+          "tracked_files": 187
         }
       ],
       "detail": [

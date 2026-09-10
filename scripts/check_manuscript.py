@@ -30,6 +30,7 @@ authors cannot run locally, so they have to be caught by reading.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import re
@@ -148,6 +149,60 @@ def structural_findings(tex: str, bib: str) -> list[str]:
     return problems
 
 
+def _evaluation_time_rows(docs: Path) -> list[tuple[str, dict]]:
+    """Every exclusion the taxonomy counts in its evaluation-time row, with its corpus."""
+
+    module = _taxonomy()
+    found: list[tuple[str, dict]] = []
+    for label, stem in module.CORPORA:
+        artifact = json.loads((docs / f"{stem}.json").read_text(encoding="utf-8"))
+        for entry in artifact["policies"]:
+            if entry["verdict"] != "outside":
+                continue
+            if module.kind_of(entry) == "reads evaluation-time state":
+                found.append((label, entry))
+    return found
+
+
+def _reads(entry: dict, *needles: str) -> bool:
+    blob = json.dumps(entry).lower()
+    return any(needle in blob for needle in needles)
+
+
+def clock_readers(docs: Path) -> int:
+    return sum(
+        1
+        for _, entry in _evaluation_time_rows(docs)
+        if _reads(entry, "utcnow", "current-time", "current-date", "time.now_ns")
+    )
+
+
+def clock_languages(docs: Path) -> int:
+    return len(
+        {
+            label
+            for label, entry in _evaluation_time_rows(docs)
+            if _reads(entry, "utcnow", "current-time", "current-date", "time.now_ns")
+        }
+    )
+
+
+def network_readers(docs: Path) -> int:
+    return sum(
+        1 for _, entry in _evaluation_time_rows(docs) if _reads(entry, "http.send", "lookup_ip")
+    )
+
+
+def _taxonomy() -> Any:
+    specification = importlib.util.spec_from_file_location(
+        "exclusion_taxonomy_pins", Path(__file__).resolve().parent / "exclusion_taxonomy.py"
+    )
+    assert specification and specification.loader
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
+
+
 def numeric_claims(docs: Path) -> list[Claim]:
     """(anchored pattern, the artifact's values, what the claim is)."""
     claims: list[Claim] = []
@@ -259,7 +314,9 @@ def numeric_claims(docs: Path) -> list[Claim]:
     other_data = undefined_directly + via_rule_undefined
     reads_outside = rego["counts"]["outside"] - schemas
     assert reads_outside == inventory + other_data + network, "an exclusion of no known kind"
-    policies = rego["policies_considered"] - schemas
+    # The taxonomy counts a schema as not a policy whatever else is true of it, so the
+    # denominator here is the count over every obstruction and not over the reported reason.
+    policies = rego["policies_considered"] - len(schema_reasons)
     defaults_some = sum(
         1 for entry in schema_reasons if (entry.get("parameter_reads") or {}).get("with_default")
     )
@@ -297,9 +354,9 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "rego: the network call",
         ),
         (
-            r"(\d+) are reported as not policies at all",
-            (str(schemas),),
-            "rego: policy schemas as reported",
+            r"(\d+) are not policies at all",
+            (str(len(schema_reasons)),),
+            "rego: policy schemas, counted over every obstruction",
         ),
         (
             r"parameters for all (\d+)",
@@ -328,8 +385,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "rego: third-party modules in the four-corpus row",
         ),
         (
-            r"Over the (\d+) artifacts the measurement therefore counts as policies, "
-            r"(\d+) are inside, or\s*(\d+\.\d)\\%",
+            r"Over the (\d+)\s*artifacts that are policies, (\d+) are inside, or (\d+\.\d)\\%",
             (
                 str(policies),
                 str(rego["counts"]["inside"]),
@@ -446,22 +502,44 @@ def numeric_claims(docs: Path) -> list[Claim]:
     azure_schemas = sum("policy schema" in entry["reason"] for entry in azure_outside)
     azure_parameterised = sum(1 for entry in azure_rows if entry.get("parameters_declared"))
     azure_undefaulted = sum(1 for entry in azure_rows if entry.get("parameters_without_defaults"))
-    azure_doubly = sum(1 for entry in azure_outside if entry.get("reasons"))
+    azure_related = [
+        entry for entry in azure_outside if "related resource exists" in entry["reason"]
+    ]
+    azure_with_condition = sum(
+        1
+        for entry in azure_related
+        if (entry.get("related_resource") or {}).get("has_existence_condition")
+    )
     claims += [
         (
-            r"(\d+) definitions read one of these",
+            r"Only (\d+) definitions read one of these from a guard\s*region",
             (str(azure_external),),
-            "azure: definitions reading state outside the resource",
+            "azure: definitions reading state outside the resource from a guard",
         ),
         (
-            r"the (\d+) definitions calling them belong in the third row",
-            (str(azure_nondeterministic),),
+            r"Another (\w+) definitions are excluded for something that is not a read",
+            (_word(azure_nondeterministic),),
             "azure: definitions calling a nondeterministic function",
         ),
         (
             r"The interesting part is the other (\d+)",
             (str(azure_schemas),),
             "azure: definitions reported as schemas",
+        ),
+        (
+            rf"({_GROUPED}) definitions decide this way",
+            (_grouped(len(azure_related)),),
+            "azure: definitions deciding on a related resource",
+        ),
+        (
+            rf"the existence condition, which decides ({_GROUPED})\s*definitions",
+            (_grouped(azure_with_condition),),
+            "azure: definitions with an existence condition",
+        ),
+        (
+            r"Only (\d+) of them are reported as schemas, because (\d+) also",
+            (str(azure_schemas), str(azure_undefaulted - azure_schemas)),
+            "azure: schemas reported as such, and those reported under the existence test",
         ),
         (
             rf"({_GROUPED}) of\s*these definitions are parameterised and ({_GROUPED}) of them "
@@ -473,24 +551,64 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "azure: parameterised and complete by their own defaults",
         ),
         (
-            r"other (\d+) are not, and (\d+) of them are reported here as schemas",
-            (str(azure_undefaulted), str(azure_schemas)),
+            r"other (\d+) are not, and those (\d+) are the Azure contribution",
+            (str(azure_undefaulted), str(azure_undefaulted)),
             "azure: definitions awaiting an assignment",
         ),
         (
-            r"the remaining (\d+) read\s*runtime state or call one of the nondeterministic",
-            (str(azure_doubly),),
-            "azure: definitions carrying a second obstruction",
+            r"moved this row by (\d+) definitions when a second guard region",
+            (str(azure_undefaulted - azure_schemas),),
+            "azure: how far counting by the reported reason would move the row",
         ),
         (
-            r"(\d+) artifacts across the whole\s*corpus are in that position",
-            (str(azure_doubly + len(rego_doubly)),),
-            "the artifacts that are schemas and reported under a stronger reason",
-        ),
-        (
-            rf"({_GROUPED}) of its ({_GROUPED}) exclusions are",
-            (_grouped(azure_schemas), _grouped(len(azure_outside))),
+            rf"({_GROUPED}) of its ({_GROUPED}) exclusions test whether a related resource\s*"
+            rf"exists, ({_GROUPED}) are\s*parameterised definitions that are policy schemas "
+            rf"rather than policies, and ({_GROUPED}) are both",
+            (
+                _grouped(len(azure_related)),
+                _grouped(len(azure_outside)),
+                _grouped(azure_undefaulted),
+                _grouped(azure_undefaulted - azure_schemas),
+            ),
             "membership table caption: the Azure split",
+        ),
+    ]
+
+    xacml_wide = _load(docs, "fragment-membership-xacml-wide-v1")
+    xacml_clock = sum(
+        1 for entry in xacml_wide["policies"] if "reads the clock" in entry.get("reason", "")
+    )
+    revalidation = _load(docs, "third-party-kyverno-revalidation-v1")
+    claims += [
+        (
+            rf"({_GROUPED}) conformance\s*policies that read the clock were reported inside",
+            (_grouped(xacml_clock),),
+            "xacml: policies reading the clock",
+        ),
+        (
+            rf"the corpus is ({_GROUPED}) documents rather than 548",
+            (_grouped(xacml_wide["policies_considered"]),),
+            "xacml: the corpus after selecting by root element",
+        ),
+        (
+            rf"({_GROUPED}) policies were left out of it",
+            (_grouped(xacml_wide["policies_considered"] - 548),),
+            "xacml: policies the filename convention left out",
+        ),
+        (
+            rf"found ({_GROUPED}) no longer available",
+            (_grouped(revalidation["files_no_longer_available"]),),
+            "third-party: files that could not be re-fetched",
+        ),
+        (
+            rf"Every one of the ({_GROUPED}) still reachable",
+            (_grouped(revalidation["files_still_fetchable_at_their_commit"]),),
+            "third-party: files still reachable",
+        ),
+        (
+            rf"({_GROUPED}) of its subjects",
+            (_grouped(revalidation["files_no_longer_available"]),),
+            "third-party: subjects whose verification cannot be repeated",
         ),
     ]
 
@@ -530,6 +648,15 @@ def numeric_claims(docs: Path) -> list[Claim]:
             r"(\d+\.\d)\\%",
             (_grouped(evaluation_time), share(evaluation_time)),
             "taxonomy: evaluation-time state",
+        ),
+        (
+            rf"the clock in ({_GROUPED}) policies across (\w+)\s*languages, the network in (\w+)",
+            (
+                _grouped(clock_readers(docs)),
+                _word(clock_languages(docs)),
+                _word(network_readers(docs)),
+            ),
+            "taxonomy: the composition of the evaluation-time row",
         ),
         (
             r"(\d+)\\% of exclusions are artifacts that are not yet policies",

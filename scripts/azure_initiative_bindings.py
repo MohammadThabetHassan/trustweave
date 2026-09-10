@@ -72,10 +72,14 @@ def bindings(corpus: Path) -> tuple[dict[str, set[str]], int]:
 
 def measure(corpus: Path, docs: Path = DOCS) -> dict[str, Any]:
     artifact = json.loads((docs / f"{MEMBERSHIP}.json").read_text(encoding="utf-8"))
+    # Selected by the evidence, not by the reported reason. A definition that is a schema and
+    # also tests a related resource reports the second, because an assignment removes only the
+    # first -- so keying on the reason string would have measured 120 definitions here and
+    # called it the schema population when the population is 855.
     schemas = {
-        entry["subject"]: entry.get("parameters_without_defaults") or []
+        entry["subject"]: entry["parameters_without_defaults"]
         for entry in artifact["policies"]
-        if "policy schema" in entry["reason"]
+        if entry.get("parameters_without_defaults")
     }
     bound, initiatives = bindings(corpus)
 

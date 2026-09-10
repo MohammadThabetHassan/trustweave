@@ -206,27 +206,55 @@ WIDE_POLICY_NAMES = ("Policy.xml", "policy.xml")
 
 
 def discover_wide(root: Path) -> list[tuple[str, Path]]:
-    """Every conformance policy in the corpus, single-case suites included."""
+    """Every XACML policy document in the corpus, selected by what it is.
 
-    found = list(discover(root))
-    seen = {path for _, path in found}
-    for name in WIDE_POLICY_NAMES:
-        for path in sorted(root.rglob(name)):
-            if path in seen:
-                continue
-            seen.add(path)
-            found.append((wide_subject_for(path, root), path))
+    Selection used to be by filename -- `TestPolicy_*.xml` under a `policies/` directory, or
+    a file called `Policy.xml` -- which is how the two projects happen to name most of their
+    conformance cases. It is not a property of the documents, and it silently decided the
+    corpus: 459 policies were left out, among them every one of the 15 that read the standard
+    clock designators, so the XACML row reported no clock reader because none had been
+    selected rather than because none exists. A XACML policy is a document whose root element
+    is `Policy` or `PolicySet`, and that is the criterion now.
+    """
+
+    # The documents a study scores keep the names the study gave them, so the wide corpus
+    # still contains the joined one and the two can be compared subject by subject.
+    found: list[tuple[str, Path]] = list(discover(root))
+    seen: set[Path] = {path for _, path in found}
+    for path in sorted(root.rglob("*.xml")):
+        if path in seen:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        try:
+            tag = ElementTree.fromstring(text).tag
+        except ElementTree.ParseError:
+            continue
+        if tag.rsplit("}", 1)[-1] not in ("Policy", "PolicySet"):
+            continue
+        seen.add(path)
+        found.append((wide_subject_for(path, root), path))
     found.sort(key=lambda pair: pair[0])
     return found
 
 
 def wide_subject_for(path: Path, root: Path) -> str:
-    """A policy's directory path relative to the corpus, which names it uniquely."""
+    """A policy's own path relative to the corpus, which names it uniquely.
+
+    The directory used to be enough, because selection took at most one `Policy.xml` from
+    each. Selecting by root element puts several policies in one directory -- the OASIS
+    conformance cases sit together as `IIC001Policy.xml`, `IIC002Policy.xml` and so on -- and
+    naming them by their directory collapsed 1{,}007 documents to 539 subjects, silently
+    dropping the rest through the core's first-subject rule. This is the same defect the
+    Azure adapter had, and it is caught the same way, by a count that did not add up.
+    """
 
     try:
-        relative = path.parent.relative_to(root)
+        relative = path.relative_to(root)
     except ValueError:  # pragma: no cover - rglob results are always under the root.
-        relative = path.parent
+        relative = path
     return relative.as_posix()
 
 
@@ -263,6 +291,27 @@ def _guard_elements(text: str) -> list[str]:
     )
 
 
+# The standard environment attributes a PDP supplies from its own clock when the request
+# does not carry them. XACML 3.0 requires the PDP to fill these in, so a policy naming one
+# is asking the evaluator what time it is: the same obstruction as Rego's `time.now_ns` and
+# Azure's `utcNow()`, and it belongs in the same row of the taxonomy. Nothing in the function
+# scan could see it, because the clock arrives through an attribute designator rather than a
+# function, and so 15 conformance policies that read it were reported inside.
+CLOCK_DESIGNATORS = frozenset(
+    {
+        "urn:oasis:names:tc:xacml:1.0:environment:current-time",
+        "urn:oasis:names:tc:xacml:1.0:environment:current-date",
+        "urn:oasis:names:tc:xacml:1.0:environment:current-dateTime",
+    }
+)
+
+
+def clock_designators(text: str) -> list[str]:
+    """Every standard clock attribute the document names."""
+
+    return sorted(name for name in CLOCK_DESIGNATORS if name in text)
+
+
 def classify(text: str) -> Verdict:
     try:
         ElementTree.fromstring(text)
@@ -273,6 +322,14 @@ def classify(text: str) -> Verdict:
     external = sorted(set(functions) & EXTERNAL_FUNCTIONS)
     unrecognised = sorted(function for function in functions if not is_finitely_refining(function))
 
+    clock = clock_designators(text)
+    if clock:
+        return Verdict(
+            OUTSIDE,
+            "reads the clock: the evaluator supplies the standard environment time "
+            "attributes from its own clock when the request omits them",
+            {"clock_designators": clock, "functions": functions},
+        )
     if CONTENT_SELECTION in text:
         return Verdict(OUTSIDE, "selects over request content with XPath", {"functions": functions})
     if external:
