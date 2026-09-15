@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+from collections.abc import Sequence
+from dataclasses import replace
+from itertools import product
+from math import prod
+from typing import Any, cast
 
-from trustweave.models import Policy
+from trustweave.models import Policy, PolicyRule
 from trustweave.policy_predicates import rule_covers, rule_is_possible
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
@@ -13,6 +17,55 @@ REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 REQUIRED_APPROVAL_BINDINGS = frozenset(
     {"actor", "tool", "target", "parameters", "issued_at", "expires_at"}
 )
+# Rule fields whose subject carries exactly one value, so a rule naming several is the
+# union of one cell per value. These are the fields a collective cover is enumerated over.
+_CELL_FIELDS = (
+    "source_trust",
+    "tool_action_classes",
+    "source_identifiers",
+    "tool_identifiers",
+    "source_data_classifications",
+)
+# The enumeration is declined above this many cells and the pairwise answer stands. The
+# artifact says which happened: `shadowed_by_rules` is empty either way, but a declined
+# enumeration is the one case where "no cover found" was not actually looked for.
+MAX_COVERAGE_CELLS = 10_000
+
+
+def _covering_rules(
+    earlier: Sequence[PolicyRule], later: PolicyRule, policy: Policy
+) -> tuple[str | None, list[str]]:
+    """Return (the one earlier rule that covers *later* on its own, every rule in the cover).
+
+    A single covering rule was the only kind looked for, and absence of one was reported
+    as ``reachable: true``. Three allow rules, one per trust label, followed by a deny rule
+    naming all three, left the deny rule unreachable with no finding and a clear review.
+    The later rule is therefore split into one cell per combination of the single-valued
+    fields it names, and it is shadowed when every cell has some earlier rule covering it.
+    That is exact for those fields; the pairwise coverage test decides the rest, so a
+    cover it cannot see still reports the rule as reachable. Both ids are returned so the
+    artifact keeps naming the single shadowing rule where there is one.
+    """
+
+    possible = [rule for rule in earlier if rule_is_possible(rule, policy)]
+    single = next((rule for rule in possible if rule_covers(rule, later, policy)), None)
+    if single is not None:
+        return single.id, [single.id]
+    if not possible:
+        return None, []
+    fields = [name for name in _CELL_FIELDS if getattr(later, name)]
+    domains = [getattr(later, name) for name in fields]
+    if prod(len(domain) for domain in domains) > MAX_COVERAGE_CELLS:
+        return None, []
+    used: set[str] = set()
+    for values in product(*domains):
+        narrowed = {name: (value,) for name, value in zip(fields, values, strict=True)}
+        cell = replace(later, **cast(dict[str, Any], narrowed))
+        cover = next((rule for rule in possible if rule_covers(rule, cell, policy)), None)
+        if cover is None:
+            return None, []
+        used.add(cover.id)
+    return None, sorted(used)
 
 
 def review_policy(
@@ -34,24 +87,53 @@ def review_policy(
         )
 
     coverage_rules: dict[str, dict[str, object]] = {}
+    rules_by_id = {rule.id: rule for rule in policy.rules}
     for later_index, later_rule in enumerate(policy.rules):
-        shadowing_rule = next(
-            (
-                earlier_rule
-                for earlier_rule in policy.rules[:later_index]
-                if rule_is_possible(earlier_rule, policy)
-                and rule_covers(earlier_rule, later_rule, policy)
-            ),
-            None,
-        )
+        single_id, covering_ids = _covering_rules(policy.rules[:later_index], later_rule, policy)
+        shadowing_rule = rules_by_id[single_id] if single_id is not None else None
         impossible = not rule_is_possible(later_rule, policy)
         if include_coverage:
             coverage_rules[later_rule.id] = {
-                "reachable": shadowing_rule is None and not impossible,
+                "reachable": not covering_ids and not impossible,
                 "possible": not impossible,
-                "shadowed_by": shadowing_rule.id if shadowing_rule is not None else None,
+                "shadowed_by": single_id,
+                "shadowed_by_rules": covering_ids,
                 "decision": later_rule.decision,
             }
+        if shadowing_rule is None and covering_ids:
+            named = ", ".join(covering_ids)
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-002",
+                    "message": (
+                        f"Rule {later_rule.id} is shadowed by earlier rules {named} together "
+                        "under first-match semantics and cannot determine a decision."
+                    ),
+                }
+            )
+            if {rules_by_id[rule_id].decision for rule_id in covering_ids} != {later_rule.decision}:
+                findings.append(
+                    {
+                        "severity": "review",
+                        "id": "TW-POL-007",
+                        "message": (
+                            f"Rule {later_rule.id} conflicts with shadowing rules {named}: "
+                            "their declared decisions differ."
+                        ),
+                    }
+                )
+            else:
+                findings.append(
+                    {
+                        "severity": "review",
+                        "id": "TW-POL-009",
+                        "message": (
+                            f"Rule {later_rule.id} is redundant because shadowing rules {named} "
+                            "all specify the same decision."
+                        ),
+                    }
+                )
         if shadowing_rule is not None:
             findings.append(
                 {
@@ -208,9 +290,7 @@ def review_policy(
         review["coverage"] = {
             "rules": coverage_rules,
             "shadowed_rules": sorted(
-                rule_id
-                for rule_id, result in coverage_rules.items()
-                if result["shadowed_by"] is not None
+                rule_id for rule_id, result in coverage_rules.items() if result["shadowed_by_rules"]
             ),
             "impossible_rules": sorted(
                 rule_id for rule_id, result in coverage_rules.items() if result["possible"] is False

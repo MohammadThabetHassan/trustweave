@@ -22,6 +22,7 @@
           "type": "boolean"
         },
         "shadowed_by": {
+          "description": "The one earlier rule that covers this rule on its own, or null when no single rule does.",
           "oneOf": [
             {
               "$ref": "#/$defs/rule_id"
@@ -30,12 +31,21 @@
               "type": "null"
             }
           ]
+        },
+        "shadowed_by_rules": {
+          "description": "Every earlier rule in the cover that makes this rule unreachable: the single shadowing rule, or several rules that together cover every cell of this rule. Empty when no cover was found.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule_id"
+          },
+          "maxItems": 1000000
         }
       },
       "required": [
         "reachable",
         "possible",
         "shadowed_by",
+        "shadowed_by_rules",
         "decision"
       ],
       "type": "object"

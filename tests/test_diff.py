@@ -823,3 +823,55 @@ def test_policy_weakening_classifier_ignores_unchanged_order_of_overlapping_rule
     )
 
     assert signals == []
+
+
+def test_reordering_a_wildcard_deny_below_an_exact_allow_is_a_review_signal() -> None:
+    """`deny net.*` above `allow net.http` denies net.http; swapped, it allows it.
+
+    The overlap helper compared capability patterns as strings, so the two were disjoint
+    and the swap produced an empty signals list. A flow's capabilities are a set matched
+    by any pattern, so no capability constraint can prove two rules apart.
+    """
+
+    deny = _structural_rule("TW-NET-DENY", "deny")
+    deny["tool_capabilities"] = ["net.*"]
+    allow = _structural_rule("TW-NET-HTTP-ALLOW", "allow")
+    allow["tool_capabilities"] = ["net.http"]
+
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [deny, allow], "after": [allow, deny]}]
+    )
+
+    assert [signal["id"] for signal in signals] == ["TW-DIFF-011"]
+    assert signals[0]["subject"]["reordered_rule_ids"] == ["TW-NET-DENY", "TW-NET-HTTP-ALLOW"]
+
+
+def test_reordering_rules_that_differ_only_by_purpose_tag_is_a_review_signal() -> None:
+    """A flow tagged with both purposes matches both rules, so their order matters."""
+
+    first = _structural_rule("TW-PURPOSE-A", "deny")
+    first["purpose_tags"] = ["billing"]
+    second = _structural_rule("TW-PURPOSE-B", "allow")
+    second["purpose_tags"] = ["support"]
+
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [first, second], "after": [second, first]}]
+    )
+
+    assert [signal["id"] for signal in signals] == ["TW-DIFF-011"]
+    assert signals[0]["subject"]["reordered_rule_ids"] == ["TW-PURPOSE-A", "TW-PURPOSE-B"]
+
+
+def test_reordering_rules_with_disjoint_trust_labels_is_still_neutral() -> None:
+    """A single-valued subject field with disjoint values keeps proving two rules apart."""
+
+    first = _structural_rule("TW-TRUST-A", "deny")
+    first["source_trust"] = ["trusted"]
+    second = _structural_rule("TW-TRUST-B", "allow")
+    second["source_trust"] = ["untrusted"]
+
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [first, second], "after": [second, first]}]
+    )
+
+    assert signals == []

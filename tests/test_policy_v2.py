@@ -377,12 +377,14 @@ def test_policy_coverage_detects_shadowing_when_declared_controls_are_static() -
                 "reachable": True,
                 "possible": True,
                 "shadowed_by": None,
+                "shadowed_by_rules": [],
                 "decision": "deny",
             },
             "TW-V2-STATIC-CONTROL-LATER": {
                 "reachable": False,
                 "possible": True,
                 "shadowed_by": "TW-V2-STATIC-CONTROL-FIRST",
+                "shadowed_by_rules": ["TW-V2-STATIC-CONTROL-FIRST"],
                 "decision": "deny",
             },
         },
@@ -428,6 +430,7 @@ def test_policy_coverage_reports_a_redundant_shadowed_rule_separately() -> None:
         "reachable": False,
         "possible": True,
         "shadowed_by": "TW-V2-001",
+        "shadowed_by_rules": ["TW-V2-001"],
         "decision": "deny",
     }
 

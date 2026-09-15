@@ -144,9 +144,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
-- Defects an external review confirmed against 0.3.1, each reproduced from the
+- Four defects an external review confirmed against 0.3.1, each reproduced from the
   review's own snippet before it was fixed and each kept as a behavioural regression case.
-  All had the same shape: a confident, clear answer where the evidence supported none.
+  All four had the same shape: a confident, clear answer where the evidence supported none.
   - Import bindings are lexical. They were collected with `ast.walk` over the whole
     module, so `from builtins import print as action` inside one function overwrote the
     module-level `from os import system as action` that a tool elsewhere was calling, and
@@ -158,6 +158,20 @@ All notable changes to TrustWeave are documented in this file. The project follo
     `access` once, bound to `"r"`, and the write was never seen. A constant argument and
     a handed-over receiver are the two things the walk binds into the helper's frame, so
     they are now part of the visit key.
+  - Reordering `deny net.*` above `allow net.http` produced no review signal. The overlap
+    helper compared capability patterns as strings, so `net.*` and `net.http` were
+    disjoint. A flow carries a *set* of capabilities and a set of purpose tags, matched
+    when any one of them does, so neither field can prove two rules apart; only the
+    single-valued subject fields (trust, action class, identifiers, classification set)
+    still do. Such a reordering is now reported under `TW-DIFF-011`.
+  - Three `allow` rules, one per trust label, followed by a `deny` naming all three left
+    the deny rule reported `reachable: true` with a clear review, because only a single
+    covering earlier rule was looked for. The review now splits a rule into one cell per
+    combination of the single-valued fields it names and reports it shadowed when every
+    cell has some earlier cover. The coverage artifact gains `shadowed_by_rules`, the
+    rules in that cover; `shadowed_by` keeps naming the one rule that covers on its own.
+    `reachable: true` still means no cover was found, not that a witness exists, and the
+    CLI reference now says so.
 - `dbm.open(..., "c")` followed by a subscript store was a high-confidence `read`: the
   opener was an uncatalogued standard-library call, so benign, and the store is not a
   call. `dbm.open` and `shelve.open` are now judged by their flag the way `open` is by
