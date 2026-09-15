@@ -31,6 +31,21 @@ _SET_LIKE_MATCHING_FIELDS = frozenset(
         "tool_capabilities",
     }
 )
+# Fields whose subject carries exactly one value, so two rules naming disjoint value sets
+# can never match the same declared flow. `purpose_tags` and `tool_capabilities` are not
+# here: a flow carries a *set* of purposes and a set of capabilities, and a rule matches
+# when any one of them does, so a flow tagged with both purposes matches a rule for either.
+# Treating those two fields as disjoint predicates is what let `deny net.*` and
+# `allow net.http` swap places with no review signal.
+_SCALAR_SUBJECT_FIELDS = frozenset(
+    {
+        "source_trust",
+        "tool_action_classes",
+        "source_identifiers",
+        "tool_identifiers",
+        "source_data_classifications",
+    }
+)
 
 
 def _mapping(value: Any) -> Mapping[str, Any]:
@@ -91,9 +106,16 @@ def _matching_predicate_changed(
 
 
 def _rules_could_overlap(first: Mapping[str, Any], second: Mapping[str, Any]) -> bool:
-    """Conservatively identify whether two rules may match the same declared flow."""
+    """Conservatively identify whether two rules may match the same declared flow.
 
-    for field in _SET_LIKE_MATCHING_FIELDS:
+    Only a single-valued subject field can prove two rules apart, and only when both rules
+    constrain it to disjoint values. Capability patterns are never compared as strings:
+    `net.*` and `net.http` are different strings and overlapping predicates, and a flow can
+    carry a capability matching each of two unrelated patterns anyway. Classification
+    bounds are not compared either, so a pair that differs only there is reported.
+    """
+
+    for field in _SCALAR_SUBJECT_FIELDS:
         first_values = set(_matching_values(first, field))
         second_values = set(_matching_values(second, field))
         if first_values and second_values and first_values.isdisjoint(second_values):

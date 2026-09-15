@@ -341,6 +341,7 @@ def test_policy_coverage_does_not_shadow_with_an_impossible_earlier_rule() -> No
         "reachable": True,
         "possible": True,
         "shadowed_by": None,
+        "shadowed_by_rules": [],
         "decision": "allow",
     }
     assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
@@ -552,3 +553,124 @@ def test_policy_v1alpha2_parser_accepts_values_at_exact_text_boundaries() -> Non
     control["binds_to"] = ["b" * 4_096]
 
     parse_policy(document)
+
+
+def _label_rule(identifier: str, trust: list[str], decision: str) -> dict[str, object]:
+    return {
+        "id": identifier,
+        "description": f"Read rule for {', '.join(trust)}.",
+        "source_trust": trust,
+        "tool_action_classes": ["read"],
+        "decision": decision,
+        "rationale": "Test-only collective-coverage rule.",
+    }
+
+
+def _label_policy(rules: list[dict[str, object]]) -> dict[str, object]:
+    document = _copy_policy_document()
+    document["rules"] = rules
+    return document
+
+
+def test_a_rule_covered_by_several_earlier_rules_together_is_shadowed() -> None:
+    """Three allow rules, one per trust label, then a deny naming all three: it never runs.
+
+    Only a single covering rule was looked for, so this reported reachable, no findings,
+    and a clear review.
+    """
+
+    review = review_policy(
+        parse_policy(
+            _label_policy(
+                [
+                    _label_rule("R-T", ["trusted"], "allow"),
+                    _label_rule("R-C", ["conditional"], "allow"),
+                    _label_rule("R-U", ["untrusted"], "allow"),
+                    _label_rule("R-DENY-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+                ]
+            )
+        ),
+        include_coverage=True,
+    )
+
+    assert review["summary"]["status"] == "review_required"
+    assert [(finding["id"], finding["message"]) for finding in review["findings"]] == [
+        (
+            "TW-POL-002",
+            "Rule R-DENY-ALL is shadowed by earlier rules R-C, R-T, R-U together under "
+            "first-match semantics and cannot determine a decision.",
+        ),
+        (
+            "TW-POL-007",
+            "Rule R-DENY-ALL conflicts with shadowing rules R-C, R-T, R-U: their declared "
+            "decisions differ.",
+        ),
+    ]
+    assert review["coverage"]["rules"]["R-DENY-ALL"] == {
+        "reachable": False,
+        "possible": True,
+        "shadowed_by": None,
+        "shadowed_by_rules": ["R-C", "R-T", "R-U"],
+        "decision": "deny",
+    }
+    assert review["coverage"]["shadowed_rules"] == ["R-DENY-ALL"]
+    report = render_policy_review_report(review)
+    assert "| `R-DENY-ALL` | False | True | R-C, R-T, R-U |" in report
+
+
+def test_a_rule_collectively_covered_with_the_same_decision_is_redundant() -> None:
+    review = review_policy(
+        parse_policy(
+            _label_policy(
+                [
+                    _label_rule("R-T", ["trusted"], "deny"),
+                    _label_rule("R-CU", ["conditional", "untrusted"], "deny"),
+                    _label_rule("R-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+                ]
+            )
+        ),
+        include_coverage=True,
+    )
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-002", "TW-POL-009"]
+    assert review["findings"][1]["message"] == (
+        "Rule R-ALL is redundant because shadowing rules R-CU, R-T all specify the same decision."
+    )
+
+
+def test_a_rule_only_partly_covered_by_earlier_rules_stays_reachable() -> None:
+    """Two of three labels covered leaves a witness, so no finding and no shadow."""
+
+    review = review_policy(
+        parse_policy(
+            _label_policy(
+                [
+                    _label_rule("R-T", ["trusted"], "allow"),
+                    _label_rule("R-C", ["conditional"], "allow"),
+                    _label_rule("R-DENY-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+                ]
+            )
+        ),
+        include_coverage=True,
+    )
+
+    assert review["findings"] == []
+    assert review["coverage"]["rules"]["R-DENY-ALL"]["reachable"] is True
+    assert review["coverage"]["rules"]["R-DENY-ALL"]["shadowed_by_rules"] == []
+
+
+def test_an_impossible_earlier_rule_does_not_count_towards_a_collective_cover() -> None:
+    rules = [
+        _label_rule("R-T", ["trusted"], "allow"),
+        _label_rule("R-CU", ["conditional", "untrusted"], "allow"),
+        _label_rule("R-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+    ]
+    rules[1]["required_controls"] = ["approval.fail_closed"]
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document.pop("approval_control")
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
+    assert review["coverage"]["rules"]["R-ALL"]["reachable"] is True

@@ -23,25 +23,29 @@
         "decision": "allow",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       },
       "TW-002": {
         "decision": "require_approval",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       },
       "TW-003": {
         "decision": "deny",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       },
       "TW-004": {
         "decision": "deny",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       }
     },
     "shadowed_rules": []

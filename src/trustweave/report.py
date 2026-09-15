@@ -316,12 +316,19 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
         )
         for rule_id, raw_result in sorted(coverage_rules.items()):
             result = _as_mapping(raw_result)
+            # One rule shadows on its own, or several do together; name whichever it is.
+            covering = result.get("shadowed_by_rules")
+            shadowed_by = (
+                ", ".join(str(rule) for rule in covering)
+                if isinstance(covering, list) and covering
+                else result.get("shadowed_by") or "—"
+            )
             lines.append(
                 "| `{rule_id}` | {reachable} | {possible} | {shadowed_by} |".format(
                     rule_id=rule_id,
                     reachable=result.get("reachable", "unknown"),
                     possible=result.get("possible", "unknown"),
-                    shadowed_by=result.get("shadowed_by") or "—",
+                    shadowed_by=shadowed_by,
                 )
             )
 
