@@ -50,6 +50,13 @@ binding or a tracked constructor.
 Signals are gathered over the tool body and module-local helpers it calls, to a bounded
 depth, with each hop recorded. Precedence is `sensitive` > `external` > `write` > `read`.
 
+Two rules about scope keep that walk honest. Import bindings are lexical: a name means
+what the enclosing function imported, then what the module imported, and an import inside
+some other function is invisible. And a helper is walked once per set of arguments that
+can change what it does -- a constant, or a receiver handed over -- so `access("r")`
+followed by `access("w")` is read as a read and then a write, not as a read twice. A
+helper called with an argument the source does not decide is refused, not assumed benign.
+
 | Class | Recognised by |
 |---|---|
 | `external` | HTTP and mail clients, sockets, cloud and model SDK clients, and shelling out to a transfer tool such as `curl` or `scp`. |

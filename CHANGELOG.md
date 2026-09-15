@@ -144,6 +144,27 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
+- Defects an external review confirmed against 0.3.1, each reproduced from the
+  review's own snippet before it was fixed and each kept as a behavioural regression case.
+  All had the same shape: a confident, clear answer where the evidence supported none.
+  - Import bindings are lexical. They were collected with `ast.walk` over the whole
+    module, so `from builtins import print as action` inside one function overwrote the
+    module-level `from os import system as action` that a tool elsewhere was calling, and
+    a shell invocation was published as `read` at high confidence with no signals. Each
+    scope now contributes only its own imports; a function's are layered over the
+    module's while that function is walked.
+  - A helper is walked once per set of arguments that decide its effect. Visits were
+    keyed by helper name alone, so `access("r")` followed by `access("w")` walked
+    `access` once, bound to `"r"`, and the write was never seen. A constant argument and
+    a handed-over receiver are the two things the walk binds into the helper's frame, so
+    they are now part of the visit key.
+- `dbm.open(..., "c")` followed by a subscript store was a high-confidence `read`: the
+  opener was an uncatalogued standard-library call, so benign, and the store is not a
+  call. `dbm.open` and `shelve.open` are now judged by their flag the way `open` is by
+  its mode -- `"r"` is a read, everything else opens the store for writing, and a flag
+  the source does not decide is refused. This is the one case of the review's broader
+  point, that unresolved behaviour is silently benign, that came with a reproducible
+  snippet; the general audit it asks for is not done here.
 - The Azure measurement did not reproduce from the commit it recorded. Re-cloning
   `Azure/azure-policy` at the pinned `9780ba64` and re-running the adapter found 3,769
   definitions where the committed artifact recorded 3,659: the tree measured had been an
