@@ -14,7 +14,9 @@ These don't compete. A reasonable stack uses several: SAST on the code, a scanne
 
 ## What TrustWeave does that the others don't
 
-Configuration drift is invisible to everything above except declaration review. A pull request that adds a flow from an untrusted source to an external tool changes your attack surface without touching application code. SAST sees no vulnerability, runtime guards meet the new path only after deployment, and scanners only cover the servers involved. TrustWeave makes that diff explicit and reviewable, deterministically, from checked-in files.
+Configuration drift is not what the approaches above look for. A pull request that adds a flow from an untrusted source to an external tool changes your attack surface without touching application code. SAST sees no vulnerability, runtime guards meet the new path only after deployment, and scanners only cover the servers involved. TrustWeave makes that diff explicit and reviewable, deterministically, from checked-in files.
+
+That is not a claim that configuration review itself is new. Conftest tests structured configuration against Rego policy, and OPA ships its own policy testing; either could be pointed at an agent manifest. What TrustWeave adds is the agent-specific model -- source trust, tool action class, capability, and flow, with first-match decisions a reviewer can read per flow -- the baseline-and-candidate diff with named review signals, and evidence artifacts that chain to the files they were produced from. Whether that saves a reviewer time over a hand-written Conftest policy is a measurement this project has not made; see the [current evidence](CURRENT_EVIDENCE.md) page for what has and has not been collected.
 
 ## What we won't claim
 
