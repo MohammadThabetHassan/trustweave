@@ -774,3 +774,156 @@ def test_other_path_constructors_also_keep_the_receiver(tmp_path: Path, construc
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert tools[0].proposed_action_class() == "write"
+
+
+# ---------------------------------------------------------------------------------------
+# scope: what a name means depends on where it is read
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_helper_called_twice_is_read_once_per_decisive_argument(tmp_path: Path) -> None:
+    """`access("r")` then `access("w")`: the second call opens the file for writing.
+
+    A visit keyed by helper name alone walked `access` once, bound to "r", and the write
+    was never seen -- the tool published as read, high confidence, no finding.
+    """
+
+    tool = _one(
+        tmp_path,
+        "def access(mode):\n"
+        "    return open('notes.txt', mode)\n\n\n"
+        "@tool\ndef update() -> str:\n"
+        '    """Read, then write."""\n'
+        "    access('r')\n"
+        "    access('w')\n"
+        "    return 'done'\n",
+    )
+
+    assert tool.proposed_action_class() == "write"
+    assert tool.confidence() == "high"
+    assert sorted(signal.action_class for signal in tool.signals) == ["read", "write"]
+    assert all(signal.via == ("update", "access") for signal in tool.signals)
+
+
+def test_a_helper_called_with_an_unreadable_argument_is_refused_not_benign(tmp_path: Path) -> None:
+    tool = _one(
+        tmp_path,
+        "def access(mode):\n"
+        "    return open('notes.txt', mode)\n\n\n"
+        "@tool\ndef update(mode: str) -> str:\n"
+        '    """Open in whatever mode the caller asks for."""\n'
+        "    access(mode)\n"
+        "    return 'done'\n",
+    )
+
+    assert tool.proposed_action_class() == "unknown"
+    assert "NONLITERAL_ARGUMENT" in tool.reasons
+
+
+def test_a_local_import_in_another_function_does_not_rebind_the_module_import(
+    tmp_path: Path,
+) -> None:
+    """Import bindings are lexical: `unrelated` rebinding `action` is invisible to `launch`.
+
+    Collecting imports with `ast.walk` over the whole module let the function-local
+    `from builtins import print as action` overwrite the module-level `from os import
+    system as action`, and a shell invocation was published as read with no signals.
+    """
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef launch(command: str) -> str:\n"
+        '    """Run a command."""\n'
+        "    return action(command)\n\n\n"
+        "def unrelated():\n"
+        "    from builtins import print as action\n"
+        "    action('hello')\n",
+        preamble="from os import system as action\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+    assert [(signal.action_class, signal.symbol) for signal in tool.signals] == [
+        ("sensitive", "os.system")
+    ]
+
+
+def test_a_function_local_import_binds_inside_that_function(tmp_path: Path) -> None:
+    """The other direction: an import made inside the tool resolves inside the tool."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef launch(command: str) -> str:\n"
+        '    """Run a command."""\n'
+        "    from os import system as action\n"
+        "    return action(command)\n",
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tool.signals] == ["os.system"]
+
+
+def test_a_module_level_conditional_import_still_binds(tmp_path: Path) -> None:
+    """`try: import x` at module level is module scope; only function bodies are not."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef launch(command: str) -> str:\n"
+        '    """Run a command."""\n'
+        "    return runner(command)\n",
+        preamble="try:\n    from os import system as runner\nexcept ImportError:\n"
+        "    runner = None\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+# ---------------------------------------------------------------------------------------
+# keyed stores: dbm and shelve are opened by flag, like open is by mode
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("call", "expected"),
+    [
+        ("dbm.open('cache', 'c')", "write"),
+        ("dbm.open('cache', 'n')", "write"),
+        ("dbm.open('cache', flag='w')", "write"),
+        ("dbm.open('cache', 'r')", "read"),
+        ("dbm.open('cache')", "read"),
+        ("shelve.open('cache')", "write"),
+        ("shelve.open('cache', 'r')", "read"),
+    ],
+)
+def test_a_keyed_store_is_classified_by_its_open_flag(
+    tmp_path: Path, call: str, expected: str
+) -> None:
+    """`dbm.open(..., "c")` then `db[key] = value` was a high-confidence read."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef store(key: str, value: str) -> str:\n"
+        '    """Remember a value."""\n'
+        f"    db = {call}\n"
+        "    db[key] = value\n"
+        "    return 'ok'\n",
+        preamble="import dbm\nimport shelve\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == expected
+    assert tool.confidence() == "high"
+    assert [signal.symbol for signal in tool.signals] == [call.split("(")[0]]
+
+
+def test_a_keyed_store_with_an_unreadable_flag_is_refused(tmp_path: Path) -> None:
+    tool = _one(
+        tmp_path,
+        "@tool\ndef store(key: str, value: str, flag: str) -> str:\n"
+        '    """Remember a value."""\n'
+        "    db = dbm.open('cache', flag)\n"
+        "    db[key] = value\n"
+        "    return 'ok'\n",
+        preamble="import dbm\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "unknown"
+    assert "NONLITERAL_ARGUMENT" in tool.reasons

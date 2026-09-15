@@ -314,6 +314,22 @@ READ_SYMBOLS: Final[frozenset[str]] = frozenset(
     }
 )
 
+# Local key-value stores opened by a flag, mapped to the flag each opener assumes when
+# none is given. `dbm.open("cache", "c")` followed by `db[key] = value` was a
+# high-confidence read: the opener was an uncatalogued standard-library call, so benign,
+# and the subscript store was not a call at all. The flag is what decides the class -- "r"
+# is a read, and "w", "c", and "n" all open the store for writing -- so it is judged like
+# the mode of `open`. shelve creates the store by default, dbm opens it read-only.
+KEYED_STORE_OPENERS: Final[MappingProxyType[str, str]] = MappingProxyType(
+    {
+        "dbm.open": "r",
+        "dbm.dumb.open": "r",
+        "dbm.gnu.open": "r",
+        "dbm.ndbm.open": "r",
+        "shelve.open": "c",
+    }
+)
+
 READ_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
     {
         "exists",

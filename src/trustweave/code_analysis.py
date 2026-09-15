@@ -21,7 +21,9 @@ from __future__ import annotations
 
 import ast
 import sys
-from dataclasses import dataclass, field
+from collections import deque
+from collections.abc import Iterator
+from dataclasses import dataclass, field, replace
 from typing import Final
 
 from trustweave.code_catalog import (
@@ -35,6 +37,7 @@ from trustweave.code_catalog import (
     EXTERNAL_RECEIVERS,
     EXTERNAL_SYMBOLS,
     HIGH_SPECIFICITY_PII_TOKENS,
+    KEYED_STORE_OPENERS,
     PATH_PRESERVING_METHODS,
     PATH_RECEIVERS,
     PII_TOKENS,
@@ -295,13 +298,38 @@ def _dotted(node: ast.AST) -> str | None:
     return None
 
 
-def _index_module(path: str, tree: ast.Module) -> _Module:
-    bindings: dict[str, str] = {}
-    functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
-    wildcard = False
+def _scope_nodes(body: list[ast.stmt]) -> Iterator[ast.AST]:
+    """Every node that belongs to this scope, in the same breadth-first order as `ast.walk`.
 
-    # Imports may appear at any depth, so bindings are collected across the whole tree.
-    for node in ast.walk(tree):
+    Blocks -- `if`, `try`, `with`, loops -- are entered, because a name they bind is bound
+    in the enclosing scope. Function, class, and lambda bodies are not, because a name
+    bound inside them is not visible here. This is the distinction `ast.walk` erases.
+    """
+
+    queue: deque[ast.AST] = deque(body)
+    while queue:
+        node = queue.popleft()
+        yield node
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | ast.Lambda):
+            # The definition is a statement of this scope; its body is not.
+            continue
+        queue.extend(ast.iter_child_nodes(node))
+
+
+def _import_bindings(body: list[ast.stmt]) -> tuple[dict[str, str], bool]:
+    """Import bindings made by this statement list, and whether one of them is a wildcard.
+
+    Bindings are lexical. The module's used to be collected with `ast.walk` over the whole
+    tree, so `from builtins import print as action` inside one function overwrote the
+    module-level `from os import system as action` that a tool two functions away was
+    calling, and a shell invocation was published as no effect at high confidence. Each
+    scope now contributes only the imports it makes; a function's own imports are layered
+    over the module's when that function is walked.
+    """
+
+    bindings: dict[str, str] = {}
+    wildcard = False
+    for node in _scope_nodes(body):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 bindings[alias.asname or alias.name.split(".")[0]] = (
@@ -316,6 +344,21 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                 bindings[alias.asname or alias.name] = (
                     f"{source_module}.{alias.name}" if source_module else alias.name
                 )
+    return bindings, wildcard
+
+
+def _scoped(module: _Module, function: ast.FunctionDef | ast.AsyncFunctionDef) -> _Module:
+    """The module as seen from inside *function*: its own imports win over the module's."""
+
+    local_bindings, _ = _import_bindings(function.body)
+    if not local_bindings:
+        return module
+    return replace(module, bindings={**module.bindings, **local_bindings})
+
+
+def _index_module(path: str, tree: ast.Module) -> _Module:
+    functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
+    bindings, wildcard = _import_bindings(tree.body)
 
     # Only module-level functions may be reached by a bare name. Indexing class methods
     # and nested functions here would let `Class.send` satisfy a call to an imported
@@ -917,6 +960,30 @@ def _open_class(
     return ("sensitive" if _is_credential_path(call) else "read"), None
 
 
+def _keyed_store_class(
+    call: ast.Call, qualified: str, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None]:
+    """Return (action_class, refusal_reason) for a `dbm.open`-style store opener.
+
+    The flag is the second positional argument or the `flag` keyword, and defaults per
+    opener. Only "r" opens the store read-only; every other flag opens it for writing,
+    which is the effect the subscript store that follows will have. A flag that cannot be
+    read from the source is refused, exactly as an unreadable `open` mode is.
+    """
+
+    flag_node = call.args[1] if len(call.args) > 1 else _keyword(call, "flag")
+    if flag_node is None:
+        flags: set[str] | None = {KEYED_STORE_OPENERS[qualified]}
+    else:
+        flags = _literal_strings(flag_node, literals)
+    if not flags:
+        return None, "NONLITERAL_ARGUMENT"
+    classes = {"read" if flag.startswith("r") else "write" for flag in flags}
+    if len(classes) != 1:
+        return None, "NONLITERAL_ARGUMENT"
+    return classes.pop(), None
+
+
 def _subprocess_class(call: ast.Call) -> str:
     """Subprocess is privileged execution unless its argv head is a known egress tool."""
 
@@ -1172,6 +1239,10 @@ def _classify_call(
         open_action, open_reason = _open_class(call, literals)
         return open_action, "open", open_reason
 
+    if qualified in KEYED_STORE_OPENERS:
+        store_action, store_reason = _keyed_store_class(call, qualified, literals)
+        return store_action, qualified, store_reason
+
     is_process_launch = qualified.startswith("subprocess.") or qualified in {
         "os.system",
         "os.popen",
@@ -1291,12 +1362,38 @@ def _raises_not_implemented(statement: ast.stmt) -> bool:
     return _dotted(raised) in {"NotImplementedError", "NotImplemented"}
 
 
+def _helper_visit_key(
+    spelled: str,
+    helper: ast.FunctionDef | ast.AsyncFunctionDef,
+    node: ast.Call,
+    origins: dict[str, tuple[str, ast.Call]],
+) -> str:
+    """One visit per helper *and* per set of arguments that can change what it does.
+
+    Visits used to be keyed by helper name alone, so `access("r")` followed by
+    `access("w")` walked the helper once, with mode bound to "r", and the write on the
+    second call was never seen: the tool published as read at high confidence with no
+    finding. A constant argument and a handed-over receiver are exactly the two things the
+    walk binds into the helper's frame, so they are exactly what distinguishes one visit
+    from another. A call whose arguments decide nothing keeps the bare name as its key.
+    """
+
+    decisive: list[str] = []
+    for parameter, argument in zip(helper.args.args, node.args, strict=False):
+        if isinstance(argument, ast.Constant):
+            decisive.append(f"{parameter.arg}={argument.value!r}")
+        elif isinstance(argument, ast.Name) and argument.id in origins:
+            decisive.append(f"{parameter.arg}~{origins[argument.id][0]}")
+    return f"{spelled}({', '.join(decisive)})" if decisive else spelled
+
+
 def _would_descend(
     node: ast.Call,
     module: _Module,
     instances: dict[str, str],
     owner: str | None,
     visited: set[str],
+    origins: dict[str, tuple[str, ast.Call]],
 ) -> bool:
     """Whether the traversal would follow this call if the depth budget allowed.
 
@@ -1330,13 +1427,12 @@ def _would_descend(
             for candidate in module.methods
         )
     spelled = _dotted(node.func)
-    return bool(
-        spelled
-        and "." not in spelled
-        and spelled not in module.bindings
-        and spelled in module.functions
-        and spelled not in visited
-    )
+    if not spelled or "." in spelled or spelled in module.bindings:
+        return False
+    helper = module.functions.get(spelled)
+    if helper is None:
+        return False
+    return _helper_visit_key(spelled, helper, node, origins) not in visited
 
 
 def _collect_signals(
@@ -1363,17 +1459,20 @@ def _collect_signals(
     self_attributes = module.self_origins.get(owner or "", {})
     self_aliases = module.self_symbols.get(owner or "", {})
     self_credentials = module.self_credentials.get(owner or "", set())
+    # Names in this frame resolve through this function's own imports first. `module`
+    # itself is what a helper is handed, since the helper has its own scope.
+    scope = _scoped(module, function)
     # Module-level bindings are the fallback; the function's own bindings win over them.
     origins = dict(module.module_origins)
     # Receivers the caller handed over, before the callee's own bindings, which win.
     origins.update(inherited or {})
-    origins.update(_scope_origins(function.body, module, self_attributes))
-    dynamic = _dynamic_locals(function, module)
-    aliases = _symbol_aliases(function, module)
+    origins.update(_scope_origins(function.body, scope, self_attributes))
+    dynamic = _dynamic_locals(function, scope)
+    aliases = _symbol_aliases(function, scope)
     # Constants the caller supplied, plus constants bound in this function's own body.
-    literals = {**_local_literals(function, module), **(literals or {})}
-    opaque = _third_party_parameters(function, module)
-    instances = _local_instances(function, module)
+    literals = {**_local_literals(function, scope), **(literals or {})}
+    opaque = _third_party_parameters(function, scope)
+    instances = _local_instances(function, scope)
     shadowed = _local_names(function)
 
     decorator_nodes = {
@@ -1381,7 +1480,7 @@ def _collect_signals(
     }
     for node in ast.walk(function):
         if isinstance(node, ast.Subscript):
-            action, symbol, reason = _classify_subscript(node, module, origins, literals)
+            action, symbol, reason = _classify_subscript(node, scope, origins, literals)
             if reason:
                 tool.reasons.add(reason)
             elif action and symbol:
@@ -1394,7 +1493,7 @@ def _collect_signals(
             continue
         action, symbol, reason = _classify_call(
             node,
-            module,
+            scope,
             origins,
             dynamic,
             self_attributes,
@@ -1420,7 +1519,7 @@ def _collect_signals(
             # limit above has always reported itself; this is the same admission for depth,
             # and it reports it under the same published reason, since a reviewer acts on
             # "the body was not fully covered" the same way whichever limit stopped it.
-            if _would_descend(node, module, instances, owner, visited):
+            if _would_descend(node, scope, instances, owner, visited, origins):
                 tool.reasons.add("BUDGET_EXHAUSTED")
                 tool.budget_state = "exhausted"
             continue
@@ -1470,7 +1569,7 @@ def _collect_signals(
             continue
         # Follow a call into a module-local helper so effects one hop away still count.
         spelled = _dotted(node.func)
-        if spelled and "." not in spelled and spelled not in module.bindings:
+        if spelled and "." not in spelled and spelled not in scope.bindings:
             if spelled in shadowed:
                 # The caller binds this name itself -- a parameter or a local. Whatever
                 # runs is supplied from outside, so following a module function of the
@@ -1479,10 +1578,11 @@ def _collect_signals(
                 continue
             if spelled not in module.functions:
                 continue
-            if spelled in visited:
-                continue
-            visited.add(spelled)
             helper = module.functions[spelled]
+            key = _helper_visit_key(spelled, helper, node, origins)
+            if key in visited:
+                continue
+            visited.add(key)
             # Constants the caller supplies are bound to the helper's parameters, so a
             # decision that depends on a literal is still decidable one frame down.
             passed: dict[str, ast.expr] = {
