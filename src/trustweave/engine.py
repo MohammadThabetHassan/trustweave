@@ -156,6 +156,14 @@ def _reject_near_miss_classifications(manifest: AgentManifest, policy: Policy) -
         )
 
 
+# review_trace evaluates one observed call at a time, so it never builds a bundle and
+# never reaches evaluate_manifest. The near-miss guard is a property of the manifest and
+# policy pair rather than of any one flow, so it is published under a public name for the
+# review commands to run directly instead of evaluating every declared flow for its side
+# effect.
+reject_near_miss_classifications = _reject_near_miss_classifications
+
+
 def evaluate_manifest(manifest: AgentManifest, policy: Policy) -> tuple[Finding, ...]:
     """Evaluate every declared path in a manifest without executing the agent or tools."""
 
