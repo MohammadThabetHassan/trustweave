@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 from typing import Any
 
+from trustweave.bundles import validate_bundle
 from trustweave.commands._shared import BUNDLE_FILE, configured_paths
 from trustweave.engine import build_bundle
 from trustweave.io import load_document, write_json
@@ -36,7 +37,12 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     )
     manifest = parse_manifest(load_document(paths["manifest"]))
     policy = parse_policy(load_document(paths["policy"]))
-    path = write_json(
-        paths["output_dir"] / BUNDLE_FILE, build_bundle(manifest, policy, generated_at)
-    )
+    bundle = build_bundle(manifest, policy, generated_at)
+    # attest and diff both re-derive a bundle's findings before they will trust it. Scan
+    # used to write whatever build_bundle returned, so a bundle those two commands refuse
+    # was only discovered a command or two later, against coordinates inside a rendered
+    # copy the user never wrote. Round-tripping here costs roughly 6x the build and
+    # refuses with the identical message.
+    validate_bundle(bundle, "bundle")
+    path = write_json(paths["output_dir"] / BUNDLE_FILE, bundle)
     return f"Wrote Agent Security Bundle: {path}", 0
