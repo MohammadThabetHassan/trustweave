@@ -77,7 +77,7 @@ trustweave verify \
 
 The example uses only checked-in local files. Inspect any command with `trustweave --help` or `python -m trustweave --help`. For a more involved walkthrough, see the [research-assistant demo](demo/research-assistant/) or the [step-by-step guide](docs/site/WALKTHROUGH.md).
 
-Bundles follow the `trustweave.dev/bundle/v1alpha2` contract, and risk decisions use stable `trustweave/fingerprint/v3` identities. Passing bundle and test-result paths to `verify` checks those exact local bytes; with only an attestation, `verify` checks only the statement’s internal consistency.
+Bundles follow the `trustweave.dev/bundle/v1alpha2` contract, and risk decisions use stable `trustweave/fingerprint/v4` identities. Passing bundle and test-result paths to `verify` checks those exact local bytes; with only an attestation, `verify` checks only the statement’s internal consistency.
 
 ## Why
 

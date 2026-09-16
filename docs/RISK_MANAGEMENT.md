@@ -28,7 +28,7 @@ The command accepts one or more supported local review artifacts by exact schema
 | `severity` | `critical`, `high`, `medium`, `low`, or `info`. Legacy `review` findings normalize to `medium`. |
 | `message` | The supplied local finding message. |
 | `subject` | Stable declared affected identity when the source artifact provides one. |
-| `fingerprint` | `trustweave/fingerprint/v3`: SHA-256 over evidence kind, identifier, and stable subject. Human-readable wording, review severity, timestamps, artifact paths, and output directories are intentionally excluded. |
+| `fingerprint` | `trustweave/fingerprint/v4`: SHA-256 over evidence kind, identifier, and stable subject. Human-readable wording, review severity, timestamps, artifact paths, and output directories are intentionally excluded. |
 | `source_artifact_paths` | Optional sorted local input paths that contributed an exact duplicate semantic finding; paths do not change identity or authenticate a file. |
 | `risk_state` | `new`, `baselined`, `suppressed`, `expired_baseline`, `expired_suppression`, `not_yet_applicable_baseline`, `not_yet_applicable_suppression`, `severity_escalated_baseline`, or `severity_escalated_suppression`. |
 
@@ -36,11 +36,11 @@ The command writes `trustweave.dev/risk-review/v1alpha2` JSON and a reviewer-fac
 
 The default `--fail-on high` exits with status `1` only for active `critical` or `high` findings. `--fail-on medium`, `low`, or `info` tightens the gate. `--fail-on none` reports the evidence without changing the exit code. Baselined and suppressed findings are inactive only while the exact decision is applicable. Expired entries, future-created decisions (`not_yet_applicable_*`), and severity escalation (`severity_escalated_*`) remain active reviewer work.
 
-To retain active risk evidence in a separately authorized SARIF consumer, pass the local JSON output to `trustweave sarif --risk-review artifacts/risk-review.json`. Every active state is exported: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Baselined and suppressed entries remain visible in the local risk-review report but are intentionally omitted from active SARIF results. The canonical semantic fingerprint is preserved as `trustweave/fingerprint/v3`.
+To retain active risk evidence in a separately authorized SARIF consumer, pass the local JSON output to `trustweave sarif --risk-review artifacts/risk-review.json`. Every active state is exported: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Baselined and suppressed entries remain visible in the local risk-review report but are intentionally omitted from active SARIF results. The canonical semantic fingerprint is preserved as `trustweave/fingerprint/v4`.
 
 ## Baseline contract
 
-A baseline is an explicit temporary acceptance of a known local finding. It uses `trustweave.dev/risk-baseline/v1alpha2` and binds the `trustweave/fingerprint/v3` finding identity to its rule identifier, stable-subject digest, accepted severity, non-empty reason and owner, creation timestamp, and ISO 8601 expiry. It applies only while the observed severity is no more severe than the recorded acceptance; a later escalation becomes active reviewer work. Legacy `v1alpha1` documents are rejected for explicit migration rather than silently reinterpreted.
+A baseline is an explicit temporary acceptance of a known local finding. It uses `trustweave.dev/risk-baseline/v1alpha2` and binds the `trustweave/fingerprint/v4` finding identity to its rule identifier, stable-subject digest, accepted severity, non-empty reason and owner, creation timestamp, and ISO 8601 expiry. It applies only while the observed severity is no more severe than the recorded acceptance; a later escalation becomes active reviewer work. Legacy `v1alpha1` documents are rejected for explicit migration rather than silently reinterpreted.
 
 ```json
 {
@@ -48,7 +48,7 @@ A baseline is an explicit temporary acceptance of a known local finding. It uses
   "baseline": [
     {
       "fingerprint": "<64-character-sha256>",
-      "fingerprint_schema_version": "trustweave/fingerprint/v3",
+      "fingerprint_schema_version": "trustweave/fingerprint/v4",
       "rule_id": "TW-POL-004",
       "subject_digest": "<64-character-sha256>",
       "accepted_severity": "medium",

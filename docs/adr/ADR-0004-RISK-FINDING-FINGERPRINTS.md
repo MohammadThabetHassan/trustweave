@@ -2,7 +2,10 @@
 
 ## Status
 
-Accepted for `trustweave/fingerprint/v3`.
+Accepted for `trustweave/fingerprint/v3`. Identity moved to `trustweave/fingerprint/v4` when rule-level
+policy-review findings gained a `rule` subject key: a producer must place in the stable subject every fact
+it uses to distinguish two findings, because wording is not fingerprint material. Decision documents
+recorded under v3 fail by name rather than orphaning silently.
 
 ## Context
 
