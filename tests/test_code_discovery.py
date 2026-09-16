@@ -1494,8 +1494,14 @@ def test_a_builtin_annotated_parameter_stays_benign(tmp_path: Path) -> None:
     assert tools[0].proposed_action_class() == "read"
 
 
-def test_an_unannotated_parameter_stays_benign(tmp_path: Path) -> None:
-    """Nothing declares it third-party state, so nothing is claimed about it."""
+def test_a_method_on_an_unannotated_parameter_is_refused(tmp_path: Path) -> None:
+    """This was `read` at high confidence with no signal and no reason.
+
+    Nothing declares the parameter third-party state, and nothing declares it benign either:
+    what `mailbox.post(payload)` does is decided entirely by the caller. Answering `read`
+    there made deleting the annotation widen the answer -- the same body with `mailbox:
+    sdk.Mailbox` was already refused -- and cleared the review gate.
+    """
 
     _write(
         tmp_path,
@@ -1509,7 +1515,9 @@ def test_an_unannotated_parameter_stays_benign(tmp_path: Path) -> None:
     )
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
-    assert tools[0].proposed_action_class() == "read"
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].confidence() == "review"
+    assert tools[0].reasons == {"UNRESOLVED_CALLEE"}
 
 
 # ---------------------------------------------------------------------------------------

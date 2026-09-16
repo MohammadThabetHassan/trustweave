@@ -20,6 +20,7 @@ otherwise would put a guess behind an attestation.
 from __future__ import annotations
 
 import ast
+import builtins
 import sys
 from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
@@ -88,9 +89,12 @@ _ENVIRON_READERS: Final[frozenset[str]] = frozenset(
 _ENVIRON_BULK: Final[frozenset[str]] = frozenset(
     {"os.environ.items", "os.environ.copy", "os.environ.values"}
 )
-_KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(
-    {"bool", "bytes", "dict", "float", "frozenset", "int", "list", "open", "set", "str", "tuple"}
-)
+# The builtin namespace, read from the interpreter rather than written down, the way
+# `sys.stdlib_module_names` already is. A bare call that resolves to no binding, no
+# module-level definition and no builtin reaches a name this file does not contain, and is
+# refused; a hand-written list of eleven names would have refused `len`, `sorted` and every
+# exception constructor instead.
+_KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(dir(builtins))
 _INSTANCE_RECEIVERS: Final[frozenset[str]] = frozenset({"self", "cls"})
 # Every spelling of the builtin `open`. `io.open is open` is literally true and
 # `codecs.open` is the same call with an encoding, so all three are judged by their mode.
@@ -828,6 +832,41 @@ def _annotation_types(annotation: ast.expr) -> list[ast.expr]:
     return [annotation]
 
 
+# Annotations that name no particular type, so a parameter carrying one says as little as
+# an unannotated parameter does.
+_OPEN_ENDED_ANNOTATIONS: Final[frozenset[str]] = frozenset({"typing.Any", "Any", "object"})
+
+
+def _unresolved_parameters(
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    literals: dict[str, ast.expr] | None = None,
+) -> set[str]:
+    """Parameters this module can say nothing at all about.
+
+    A method called on one of these is decided entirely by the caller. Reporting no effect
+    there is what let `def relay(client, target): return client.send(target)` publish as
+    `read` at high confidence with an empty signal list -- the same body with the parameter
+    annotated as an unresolvable SDK type was already refused, so deleting information
+    widened the answer and cleared the review gate.
+
+    A parameter annotated as a type the module can see is not included: a builtin or a
+    standard-library annotation is what keeps an ordinary pure function positively
+    classified. Nor is one the caller bound to a literal, since that value is known.
+    `self` and `cls` are the instance, which the class index resolves, and `*args` and
+    `**kwargs` are a tuple and a dict by construction.
+    """
+
+    arguments = function.args
+    found: set[str] = set()
+    for parameter in (*arguments.posonlyargs, *arguments.args, *arguments.kwonlyargs):
+        if parameter.arg in _INSTANCE_RECEIVERS or parameter.arg in (literals or {}):
+            continue
+        annotation = parameter.annotation
+        if annotation is None or _dotted(annotation) in _OPEN_ENDED_ANNOTATIONS:
+            found.add(parameter.arg)
+    return found
+
+
 def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
     """Locals bound to an instance of a class this module defines.
 
@@ -1478,6 +1517,7 @@ def _classify_call(
     literals: dict[str, ast.expr] | None = None,
     opaque: set[str] | None = None,
     self_credentials: set[str] | None = None,
+    unresolved: set[str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -1536,6 +1576,7 @@ def _classify_call(
                 literals,
                 opaque,
                 self_credentials,
+                unresolved,
             )
 
     if spelled is None:
@@ -1581,8 +1622,10 @@ def _classify_call(
             if effect is not None:
                 return effect
         # Otherwise a method on an expression result. Only evidence if the chain roots at
-        # a name this module resolves; a call on a parameter or literal is not.
+        # a name this module resolves; a call on a literal is not.
         if root is not None and (root in module.bindings or root in origins):
+            return None, None, "UNRESOLVED_CALLEE"
+        if root is not None and root in (unresolved or set()):
             return None, None, "UNRESOLVED_CALLEE"
         return None, None, None
 
@@ -1723,6 +1766,26 @@ def _classify_call(
             return None, None, None
         return _UNRECOGNIZED, None, None
 
+    # A method on a value the module can say nothing about -- an unannotated parameter that
+    # carries no receiver and no caller literal. What it does is decided entirely by the
+    # caller, so reporting no effect published `client.send(target)` as a benign read at
+    # high confidence, while the same body with an unresolvable annotation was refused.
+    # This is the last question asked, so every catalogued symbol, every tracked receiver
+    # and the SQL rules are all decided first.
+    if (
+        isinstance(call.func, ast.Attribute)
+        and root is not None
+        and root in (unresolved or set())
+        and root not in origins
+        and call.func.attr not in DB_PLUMBING_METHODS
+    ):
+        # A database handle is the exception, for the reason the chained form already
+        # states: `conn.cursor()` and `conn.commit()` move a handle around, and the
+        # statement given to execute is what decides the class wherever the handle came
+        # from. Refusing on the plumbing would make every database tool written this way
+        # unknown even though its one decisive statement was read.
+        return None, None, "UNRESOLVED_CALLEE"
+
     return None, None, None
 
 
@@ -1791,6 +1854,32 @@ def _helper_visit_key(
         elif isinstance(argument, ast.Name) and argument.id in origins:
             decisive.append(f"{parameter.arg}~{origins[argument.id][0]}")
     return f"{spelled}({', '.join(decisive)})" if decisive else spelled
+
+
+def _defined_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    """Functions and classes defined inside this body, at any block depth.
+
+    Their bodies are inside the walked subtree, so their effects are already counted and a
+    call to one is not an unresolved callee.
+    """
+
+    return {
+        node.name
+        for node in ast.walk(function)
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef)
+    }
+
+
+def _module_definitions(module: _Module) -> set[str]:
+    """Every name a bare call can reach at module level: a `def` or a `class`.
+
+    Classes are included because constructing one is an ordinary call, and the effects of
+    its methods are followed through `_local_instances` rather than at the constructor.
+    """
+
+    return {node.name for node in module.tree.body if isinstance(node, ast.ClassDef)} | set(
+        module.functions
+    )
 
 
 def _would_descend(
@@ -1884,6 +1973,11 @@ def _collect_signals(
     opaque = _third_party_parameters(function, scope)
     instances = _local_instances(function, scope)
     shadowed = _local_names(function)
+    unresolved = _unresolved_parameters(function, literals) - set(origins)
+    # Names a bare call may reach without leaving this file: what the module defines at its
+    # top level, what this body defines inside itself -- those bodies are walked, so their
+    # effects are already counted -- and the builtins.
+    definitions = _defined_names(function) | _module_definitions(module) | _KNOWN_BUILTINS
 
     decorator_nodes = {
         id(inner) for decorator in function.decorator_list for inner in ast.walk(decorator)
@@ -1925,6 +2019,7 @@ def _collect_signals(
             literals,
             opaque,
             self_credentials,
+            unresolved,
         )
         if reason:
             tool.reasons.add(reason)
@@ -2000,6 +2095,15 @@ def _collect_signals(
                 tool.reasons.add("UNRESOLVED_CALLEE")
                 continue
             if spelled not in module.functions:
+                if spelled not in definitions:
+                    # The call reaches a name this module does not define, import, or get
+                    # from the builtins: a function defined only inside a conditional
+                    # block, a closure variable from a factory, or a name that is simply
+                    # not there. Falling off the end here was the last fail-open path --
+                    # the tool published `read` at high confidence with no signal and no
+                    # reason, which is the same record a tool that genuinely does nothing
+                    # produces, and `docs/CODE_DISCOVERY.md` promises the two are distinct.
+                    tool.reasons.add("UNRESOLVED_CALLEE")
                 continue
             helper = module.functions[spelled]
             key = _helper_visit_key(spelled, helper, node, origins)
