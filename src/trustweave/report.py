@@ -348,12 +348,16 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
                 if isinstance(covering, list) and covering
                 else _cell(result.get("shadowed_by") or "—")
             )
+            reachable = _cell(result.get("reachable", "unknown"))
             if result.get("cover_search") == "declined":
+                # The search that decides reachability did not run, so printing True here
+                # would read as a verdict the review never reached.
                 shadowed_by = "not searched (rule names more cells than the enumeration limit)"
+                reachable = "not established"
             lines.append(
                 "| `{rule_id}` | {reachable} | {possible} | {shadowed_by} |".format(
                     rule_id=_cell(rule_id),
-                    reachable=_cell(result.get("reachable", "unknown")),
+                    reachable=reachable,
                     possible=_cell(result.get("possible", "unknown")),
                     shadowed_by=shadowed_by,
                 )
