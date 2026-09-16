@@ -11,6 +11,7 @@
         "artifact_schema_version": {
           "enum": [
             "trustweave.dev/policy-review/v1alpha1",
+            "trustweave.dev/policy-review/v1alpha2",
             "trustweave.dev/trace-review/v1alpha1",
             "trustweave.dev/mcp-profile-review/v1alpha1",
             "trustweave.dev/bundle-diff/v1alpha1",

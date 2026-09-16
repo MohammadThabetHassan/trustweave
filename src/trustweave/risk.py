@@ -39,6 +39,7 @@ _ORDERED_SUBJECT_FIELDS = frozenset({"path"})
 
 _ARTIFACT_CONTRACTS: dict[str, tuple[str, str]] = {
     "trustweave.dev/policy-review/v1alpha1": ("findings", "declared_configuration"),
+    "trustweave.dev/policy-review/v1alpha2": ("findings", "declared_configuration"),
     "trustweave.dev/trace-review/v1alpha1": ("findings", "pre_recorded_trace_metadata"),
     "trustweave.dev/mcp-profile-review/v1alpha1": ("findings", "pre_recorded_mcp_metadata"),
     "trustweave.dev/bundle-diff/v1alpha1": ("signals", "configuration_difference"),
@@ -164,7 +165,10 @@ def _fallback_subject(
 ) -> Mapping[str, Any]:
     """Preserve legacy distinctness when an older artifact has no structured subject."""
 
-    if schema_version == "trustweave.dev/policy-review/v1alpha1":
+    if schema_version in {
+        "trustweave.dev/policy-review/v1alpha1",
+        "trustweave.dev/policy-review/v1alpha2",
+    }:
         policy = artifact.get("policy")
         if isinstance(policy, str):
             return {"policy": policy}

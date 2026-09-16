@@ -228,7 +228,7 @@ def test_policy_review_preserves_exact_missing_and_incomplete_approval_artifacts
         parse_policy(missing_document), generated_at="2026-08-15T00:00:00+00:00"
     )
     assert missing_review == {
-        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "schema_version": "trustweave.dev/policy-review/v1alpha2",
         "generated_at": "2026-08-15T00:00:00+00:00",
         "policy": "support-agent-boundary-policy",
         "approval_control": {
@@ -809,3 +809,56 @@ def test_a_policy_level_finding_keeps_the_policy_as_its_whole_subject() -> None:
         "TW-POL-001": {"policy": "shadow-demo"},
         "TW-POL-004": {"policy": "shadow-demo"},
     }
+
+
+def _published_schema(name: str) -> dict[str, object]:
+    return json.loads((ROOT / "schemas" / name).read_text("utf-8"))
+
+
+def test_the_emitted_coverage_artifact_validates_against_its_own_published_schema() -> None:
+    """The new coverage fields were added to v1alpha1's `required` under an unchanged const.
+
+    `coverage` and `coverage_result` both set `additionalProperties: false`, so the edited
+    schema rejected every artifact 0.3.0 emitted and a consumer pinned to the released 0.3.0
+    schema rejected every new artifact. The new fields live in v1alpha2 instead.
+    """
+
+    review = review_policy(
+        parse_policy(_shadow_demo_policy()),
+        generated_at="2026-09-16T00:00:00+00:00",
+        include_coverage=True,
+    )
+
+    schema = _published_schema("policy-review-v1alpha2.schema.json")
+    assert review["schema_version"] == "trustweave.dev/policy-review/v1alpha2"
+    assert list(Draft202012Validator(schema).iter_errors(review)) == []
+
+
+def test_the_published_v1alpha1_schema_still_accepts_a_v0_3_0_coverage_artifact() -> None:
+    """Pins the other direction: the released contract must keep reading released evidence."""
+
+    released = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "generated_at": "2026-08-15T00:00:00+00:00",
+        "policy": "support-agent-boundary-policy",
+        "approval_control": {"high_impact_approval_rules": ["TW-002"], "declared": True},
+        "findings": [],
+        "summary": {"rules": 1, "review_findings": 0, "status": "clear"},
+        "limits": ["Local evidence only."],
+        "coverage": {
+            "rules": {
+                "TW-001": {
+                    "reachable": True,
+                    "possible": True,
+                    "shadowed_by": None,
+                    "decision": "allow",
+                }
+            },
+            "shadowed_rules": [],
+            "impossible_rules": [],
+        },
+    }
+
+    schema = _published_schema("policy-review-v1alpha1.schema.json")
+
+    assert list(Draft202012Validator(schema).iter_errors(released)) == []

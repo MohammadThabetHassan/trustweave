@@ -15,7 +15,8 @@ Schema `$id` values and the attestation `predicate_type` use `https://trustweave
 | Risk suppressions | `trustweave.dev/risk-suppressions/v1alpha2` | `trustweave.dev/risk-suppressions/v1alpha1` decision documents require explicit migration and are not silently reinterpreted. | [`risk-suppressions-v1alpha2.schema.json`](../schemas/risk-suppressions-v1alpha2.schema.json) |
 | Local attestation | `trustweave.dev/attestation/v1alpha3` | The verifier retains documented local `trustweave.dev/attestation/v1alpha1` and `trustweave.dev/attestation/v1alpha2` readers. | [`attestation-v1alpha3.schema.json`](../schemas/attestation-v1alpha3.schema.json) |
 | Synthetic test results | `trustweave.dev/test-results/v1alpha1` | Current contract. | [`test-results-v1alpha1.schema.json`](../schemas/test-results-v1alpha1.schema.json) |
-| Policy, trace, MCP, chain, and framework reviews | Versioned `v1alpha1` contracts | Current contracts are listed in the schema catalog. | [`schemas/`](../schemas/) |
+| Policy review | `trustweave.dev/policy-review/v1alpha2` | `trustweave.dev/policy-review/v1alpha1` remains the published v0.3.0 contract, unchanged, and is still accepted by SARIF export and risk normalization. | [`policy-review-v1alpha2.schema.json`](../schemas/policy-review-v1alpha2.schema.json) |
+| Trace, MCP, chain, and framework reviews | Versioned `v1alpha1` contracts | Current contracts are listed in the schema catalog. | [`schemas/`](../schemas/) |
 
 > **Release boundary.** Published `trustweave==0.3.0` emits `trustweave.dev/bundle-diff/v1alpha3`. The historical `v1alpha1` and `v1alpha2` formats remain readable only through the documented bounded readers; historical evidence is not silently relabeled.
 
@@ -26,6 +27,26 @@ Bundle v1alpha2 is the first bundle contract that makes the complete normalized 
 Historical v1alpha1 bundles retain their original bounded schema and are not relabeled or augmented. In published `0.3.0`, `trustweave diff` accepts either supported bundle version and emits `trustweave.dev/bundle-diff/v1alpha3`, recording `base.bundle_schema_version`, `head.bundle_schema_version`, and a normalized policy-only delta. The strictly bounded v1alpha3 policy delta makes security-relevant changes visible even when current declared flow outcomes do not change: fail-closed to fail-open (`TW-DIFF-004`), default to allow (`TW-DIFF-005`), approval-control removal (`TW-DIFF-006`), approval-binding removal (`TW-DIFF-007`), rule-decision weakening (`TW-DIFF-008`), required-control removal (`TW-DIFF-009`), classification-taxonomy change (`TW-DIFF-010`), structural rule-set or matching-boundary changes (`TW-DIFF-011`), and a rule that gained a required control the policy does not declare (`TW-DIFF-012`). The structural signal covers added or removed rules, matching predicates, and potentially order-sensitive first-match changes; it requires human review but does not prove that every reported change is insecure or that every possible policy weakening is detected. Regenerate a bundle with the current CLI to migrate it; do not edit its version string in place.
 
 > A stable bundle payload changes when declared source or tool identifiers, trust, action classes, classifications, capabilities, policy decisions, severity, rule predicates, required controls, or approval bindings change. Provenance timestamps remain separate from that security-relevant evidence identity.
+
+## Policy-review migration
+
+Policy review emits `trustweave.dev/policy-review/v1alpha2`. The v1alpha1 schema is the
+published `0.3.0` document and is left exactly as released: the collective-cover fields
+`shadowed_by_rules` and `cover_search` had been added to its `required` list under an
+unchanged version constant, and because `coverage` and `coverage_result` both set
+`additionalProperties: false` that broke validation in both directions — the edited schema
+rejected every artifact `0.3.0` emitted, and a consumer pinned to the released schema
+rejected every new artifact. `docs/contracts/compatibility-v1.json` classes a new emitted
+artifact contract with a documented migration as **minor**, so it takes a new version
+rather than a relaxation: making the fields optional would not have helped, because the
+released schema's `additionalProperties: false` still rejects an artifact that carries
+them.
+
+v1alpha2 adds `coverage_result.shadowed_by_rules` and `coverage_result.cover_search`,
+`coverage.declined_rules`, the `rule` key on a rule-level finding subject, and constrains
+declared rule identifiers with the same `rule_identifier` pattern the bundle schema uses
+rather than the `TW-` finding-identifier pattern. Regenerate a policy review with the
+current CLI; do not edit an artifact's version string in place.
 
 ## Risk-review migration
 
