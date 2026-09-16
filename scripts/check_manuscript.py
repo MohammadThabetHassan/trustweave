@@ -800,42 +800,10 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
     ]
 
-    cost = _load(docs, "coverage-cost-v1")
-    azure_cost, iam_cost = cost["azure"], cost["iam"]
-    claims += [
-        (
-            rf"two guards and at most ({_GROUPED}) cells",
-            (_grouped(azure_cost["median_cells"]),),
-            "coverage cost: azure median cells",
-        ),
-        (
-            rf"the median is ({_GROUPED}) cells",
-            (_grouped(iam_cost["median_cells"]),),
-            "coverage cost: iam median cells",
-        ),
-        (
-            r"(\d+\.\d)\\% of them need at most eight",
-            (f"{100 * azure_cost['share_at_most']['8']:.1f}",),
-            "coverage cost: azure share at most eight",
-        ),
-        (
-            rf"and (\d+) of ({_GROUPED}) have a quotient too large",
-            (
-                str(azure_cost["at_or_above_intractable"]),
-                _grouped(azure_cost["policies"]),
-            ),
-            "coverage cost: azure intractable",
-        ),
-        (
-            rf"(\d+\.\d)\\% need at most 64, with (\d+) of ({_GROUPED}) out of reach",
-            (
-                f"{100 * iam_cost['share_at_most']['64']:.1f}",
-                str(iam_cost["at_or_above_intractable"]),
-                _grouped(iam_cost["policies"]),
-            ),
-            "coverage cost: iam share and intractable",
-        ),
-    ]
+    # No coverage-cost claims are pinned. `docs/coverage-cost-v1.json` carries an
+    # `invalidated` block: its distribution rested on a guard grouping that under-counted
+    # set-membership operators, so a guard that held the manuscript to those numbers would be
+    # certifying a withdrawn measurement rather than checking one.
 
     witness = _load(docs, "witness-space-verification-v1")
     claims.append(
@@ -1178,20 +1146,7 @@ def figure_findings(tex: str, docs: Path) -> list[str]:
                 f"{len(expected)}"
             )
 
-    cost = _load(docs, "coverage-cost-v1")
-    cost_plotted = _plots(tex, "fig:cost")
-    if not cost_plotted:
-        problems.append("the cost figure states no data, or its label has moved")
-    else:
-        for ecosystem, got in zip(("azure", "iam"), cost_plotted, strict=False):
-            shares = cost[ecosystem]["share_at_most"]
-            want = [(str(cells), f"{shares[cells]:g}") for cells in sorted(shares, key=int)]
-            have = [(cells, share) for cells, share in got]
-            if have != want:
-                problems.append(
-                    f"cost figure, {ecosystem} series: the manuscript plots {have} where "
-                    f"docs/coverage-cost-v1.json gives {want}"
-                )
+    # `fig:cost` is not checked, for the reason recorded beside the withdrawn cost claims.
     return problems
 
 
