@@ -184,7 +184,9 @@ def test_reality_check_rejects_a_superseded_mutation_figure_on_the_evidence_page
     )
 
     assert failures, "a superseded figure must not satisfy the evidence-page check"
-    assert any("7,222" in failure for failure in failures)
+    # The message names the figure the record currently holds, so this expectation moves
+    # with the record rather than pinning a run that has been superseded.
+    assert any("9,692" in failure for failure in failures)
 
 
 def test_reality_check_ties_the_equivalence_audit_to_the_survivor_inventory() -> None:

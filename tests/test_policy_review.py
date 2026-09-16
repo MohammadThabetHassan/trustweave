@@ -620,6 +620,14 @@ def test_a_rule_covered_by_several_earlier_rules_together_is_shadowed() -> None:
         "decision": "deny",
     }
     assert review["coverage"]["shadowed_rules"] == ["R-DENY-ALL"]
+    # The collective branch emits its own findings, and each must carry the subject that
+    # tells one rule's risk apart from its siblings. `test_every_rule_level_finding_names_
+    # the_rule_it_is_about` pins the single-shadowing branch; this pins this one, which
+    # builds its findings at a different site and had no assertion on the key at all.
+    assert [(finding["id"], finding["subject"]) for finding in review["findings"]] == [
+        ("TW-POL-002", {"policy": "support-agent-boundary-policy", "rule": "R-DENY-ALL"}),
+        ("TW-POL-007", {"policy": "support-agent-boundary-policy", "rule": "R-DENY-ALL"}),
+    ]
     report = render_policy_review_report(review)
     assert "| `R-DENY-ALL` | False | True | R-C, R-T, R-U |" in report
 
@@ -642,6 +650,11 @@ def test_a_rule_collectively_covered_with_the_same_decision_is_redundant() -> No
     assert review["findings"][1]["message"] == (
         "Rule R-ALL is redundant because shadowing rules R-CU, R-T all specify the same decision."
     )
+    # The redundancy branch is a third emission site, and it too must name its rule.
+    assert [(finding["id"], finding["subject"]) for finding in review["findings"]] == [
+        ("TW-POL-002", {"policy": "support-agent-boundary-policy", "rule": "R-ALL"}),
+        ("TW-POL-009", {"policy": "support-agent-boundary-policy", "rule": "R-ALL"}),
+    ]
 
 
 def test_a_rule_only_partly_covered_by_earlier_rules_stays_reachable() -> None:
