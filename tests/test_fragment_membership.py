@@ -220,22 +220,70 @@ class TestKyvernoAdapter:
 
         assert outcome.verdict == core.UNDETERMINED
 
+    def test_a_parenthesised_expression_over_the_request_is_inside(self) -> None:
+        """`( ... ) | sort(@)` opens with a bracket, and the root is what follows it."""
+
+        outcome = kyverno.classify(
+            "spec:\n  rules:\n  - name: r\n    preconditions:\n      all:\n"
+            '      - key: "{{ (request.object.spec.rules[].host || `[]`) | sort(@) }}"\n'
+            '        operator: Equals\n        value: "{{ request.object.spec.tls }}"\n'
+        )
+
+        assert outcome.verdict == core.INSIDE, outcome.detail
+
+    def test_a_pure_string_filter_over_the_request_is_inside(self) -> None:
+        """`regex_replace_all` rewrites the string it is handed and reads nothing else."""
+
+        outcome = kyverno.classify(
+            "spec:\n  rules:\n  - name: r\n    mutate:\n      foreach:\n"
+            "      - list: request.object.spec.containers\n        patchStrategicMerge:\n"
+            "          spec:\n            containers:\n"
+            '            - name: "{{ element.name }}"\n'
+            "              image: \"{{ regex_replace_all('^x/(.*)$', "
+            "'{{element.image}}', 'y/$1') }}\"\n"
+        )
+
+        assert outcome.verdict == core.INSIDE, outcome.detail
+
     def test_a_policy_is_resolved_through_its_test_manifest(self, tmp_path: Path) -> None:
-        """38 of 49 scored policies exist at several paths, so the stem is not an identity."""
+        """Most scored policies exist at several paths, so no stem or directory is an identity."""
 
         for variant in ("other", "other-vpol"):
             directory = tmp_path / variant / "demo"
             (directory / ".kyverno-test").mkdir(parents=True)
             (directory / "demo.yaml").write_text(f"# {variant}\n", encoding="utf-8")
             (directory / ".kyverno-test" / "kyverno-test.yaml").write_text(
-                "policies:\n- ../demo.yaml\n", encoding="utf-8"
+                "kind: Test\npolicies:\n- ../demo.yaml\nresults:\n- policy: demo\n  result: pass\n",
+                encoding="utf-8",
             )
 
         found = kyverno.discover(tmp_path)
 
         assert [subject for subject, _ in found] == ["demo"]
-        # The experiment keys by policy directory keeping the last in sorted order.
-        assert found[0][1].parent.parent.name == "other-vpol"
+        # The experiment keys by the name the manifest states and measures the first manifest
+        # in path order, which is the base directory; the verdict must describe that file.
+        assert found[0][1].parent.parent.name == "other"
+
+    def test_discovery_keys_exactly_as_the_mutation_experiment_does(self, tmp_path: Path) -> None:
+        """One function decides which file a name means, or the stratified join is unsound."""
+
+        for variant, stated in (("other", "alpha"), ("other-cel", "alpha"), ("other", "beta")):
+            directory = tmp_path / variant / stated
+            (directory / ".kyverno-test").mkdir(parents=True, exist_ok=True)
+            (directory / f"{stated}.yaml").write_text(f"# {variant}/{stated}\n", encoding="utf-8")
+            (directory / ".kyverno-test" / "kyverno-test.yaml").write_text(
+                f"kind: Test\npolicies:\n- ../{stated}.yaml\nresults:\n- policy: {stated}\n"
+                "  result: pass\n",
+                encoding="utf-8",
+            )
+        mutation = _load("kyverno_mutation")
+
+        discovered = {subject: path for subject, path in kyverno.discover(tmp_path)}
+        measured = {name: paths[0] for name, paths in mutation.policy_manifests(tmp_path).items()}
+
+        assert set(discovered) == set(measured) == {"alpha", "beta"}
+        for name, path in discovered.items():
+            assert path.parent == measured[name].parent
 
 
 class TestCedarAdapter:
@@ -329,7 +377,7 @@ def test_the_committed_measurement_judges_every_policy(ecosystem: str) -> None:
 
 
 def test_the_committed_measurements_hold_the_quoted_figures() -> None:
-    figures = {"xacml": (21, 15, 6), "kyverno": (49, 40, 9), "cedar": (22, 22, 0)}
+    figures = {"xacml": (21, 15, 6), "kyverno": (52, 39, 13), "cedar": (22, 22, 0)}
     for ecosystem, (total, inside, outside) in figures.items():
         artifact = json.loads(
             (ROOT / "docs" / f"fragment-membership-{ecosystem}-v1.json").read_text(encoding="utf-8")
@@ -358,7 +406,7 @@ def test_every_xacml_policy_outside_is_outside_for_the_same_reason() -> None:
 # an allowlist of function *names* where the criterion is about *kinds* of predicate.
 
 
-WIDE_FIGURES = {"xacml": (1007, 953, 54), "kyverno": (235, 203, 32), "cedar": (22, 22, 0)}
+WIDE_FIGURES = {"xacml": (1007, 953, 54), "kyverno": (237, 206, 31), "cedar": (22, 22, 0)}
 
 
 @pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
@@ -1618,14 +1666,14 @@ def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     assert findings["taxonomy_is_exhaustive"], findings["exclusions_unclassified"]
     assert findings["exclusions_unclassified"] == {}
     assert findings["corpora"] == 8
-    assert findings["artifacts_considered"] == 7006
-    assert findings["artifacts_inside"] == 5172
+    assert findings["artifacts_considered"] == 7008
+    assert findings["artifacts_inside"] == 5175
     assert findings["exclusions_by_kind"] == {
         "not a policy": 916,
-        "the subject does not determine the guard": 855,
+        "the subject does not determine the guard": 854,
         "reads evaluation-time state": 20,
     }
-    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1791
+    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1790
 
 
 def test_the_taxonomy_counts_over_every_obstruction_not_the_reported_one() -> None:

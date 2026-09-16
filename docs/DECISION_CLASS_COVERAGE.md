@@ -396,14 +396,14 @@ fragment covers, since membership is decided from policy text and needs no suite
 | Azure Policy repository | Microsoft | 3,769 | **2,137** | 1,589 | 43 | 56.7% |
 | AWS IAM managed | AWS | 1,651 | **1,651** | 0 | 0 | 100.0% |
 | XACML conformance | OASIS impls. | 1,007 | **953** | 54 | 0 | 94.6% |
-| Kyverno library | Kyverno | 235 | **203** | 32 | 0 | 86.4% |
+| Kyverno library | Kyverno | 237 | **206** | 31 | 0 | 86.9% |
 | Rego, four corpora | mixed | 186 | **115** | 71 | 0 | 61.8% |
 | Rego, GCP library | Google | 87 | **54** | 33 | 0 | 62.1% |
 | Kyverno, third-party | 28 owners | 49 | **37** | 12 | 0 | 75.5% |
 | Cedar integration | Cedar | 22 | **22** | 0 | 0 | 100.0% |
-| **Total** | | **7,006** | **5,172** | **1,791** | **43** | **73.8%** |
+| **Total** | | **7,008** | **5,175** | **1,790** | **43** | **73.8%** |
 | *of which policy schemas* | | **916** | | | | |
-| *artifacts that are policies* | | **6,090** | **5,172** | **875** | **43** | **84.9%** |
+| *artifacts that are policies* | | **6,092** | **5,175** | **874** | **43** | **84.9%** |
 
 Read the Azure row alone and it misleads: two of its reasons overlap. 1,444 of its 1,589
 exclusions test whether a *related* resource exists, 855 are parameterised definitions that
@@ -536,7 +536,7 @@ Two things there are worth more than the 75.5%.
 block checks a signature or attestation against a registry and a transparency log, and binds
 the fetched attestation for its conditions to read -- data the admission request does not
 carry. The adapter did not recognise it, and the reason is the point: `verifyImages` appears
-in **none** of the 235 vendor policies measured here, and in 11 of the 5,099 policy files the
+in **none** of the 237 vendor policies measured here, and in 11 of the 5,099 policy files the
 vendor's repository holds. An instrument validated only against the vendor corpus would never
 have been asked the question. Three third-party policies came back undetermined on attestation fields and
 one on `time_since`, and chasing those four produced two genuine additions: image
@@ -742,11 +742,14 @@ while these were written, each time by reversing a number that had looked settle
    no backreferences, so the pattern denotes a regular language and a witness for either
    side of the split is constructible. The figure became 15.
 3. The Kyverno corpus ships most policies three times -- a classic `ClusterPolicy`, a `-cel`
-   variant, and a `-vpol` `ValidatingPolicy` -- and **38 of the 49 policies the mutation
-   experiment scored exist at more than one path**. Keying on the file name picked whichever
-   sorted first, which joined a verdict about one file to a mutation score for another. The
-   adapter now resolves policies through each `kyverno-test.yaml` exactly as
-   `scripts/kyverno_mutation.py` does, which is what makes the join sound.
+   variant, and a `-vpol` `ValidatingPolicy` -- and **34 of the 52 policies the mutation
+   experiment scores are named by more than one test manifest**. Keying on the file name
+   picked whichever sorted first, which joined a verdict about one file to a mutation score
+   for another; keying test directories by name and keeping the last in sorted order, as the
+   experiment once did, measured the variant under the base policy's name. Both scripts now
+   key a policy by the name its test manifests state and take the first manifest in path
+   order -- the base directory -- so a verdict and a score describe the same file, and the
+   artifact records the sibling manifests as `manifest_candidates`.
 
 Three limits belong with the figures. These are curated upstream test corpora, not deployed
 policy. Membership is a property of the guards, so a policy inside the fragment gets the

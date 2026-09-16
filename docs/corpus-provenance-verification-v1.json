@@ -162,7 +162,7 @@
           "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4",
           "files_present": 6272,
           "found": true,
-          "name": "kyverno-policies",
+          "name": "kyverno",
           "remote": "https://github.com/kyverno/policies.git",
           "tracked_files": 6272
         }
@@ -171,20 +171,20 @@
       "ecosystem": "kyverno",
       "measured": {
         "counts": {
-          "inside": 203,
-          "outside": 32,
+          "inside": 206,
+          "outside": 31,
           "undetermined": 0
         },
-        "policies_considered": 235
+        "policies_considered": 237
       },
-      "measured_from": "kyverno-policies",
+      "measured_from": "kyverno",
       "recorded": {
         "counts": {
-          "inside": 203,
-          "outside": 32,
+          "inside": 206,
+          "outside": 31,
           "undetermined": 0
         },
-        "policies_considered": 235
+        "policies_considered": 237
       },
       "verdict": "reproduced"
     },
@@ -272,7 +272,7 @@
         },
         "policies_considered": 186
       },
-      "measured_from": "rego-wide",
+      "measured_from": "rego",
       "recorded": {
         "counts": {
           "inside": 115,
