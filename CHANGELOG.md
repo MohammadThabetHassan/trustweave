@@ -191,7 +191,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
   the source does not decide is refused. This is the one case of the review's broader
   point, that unresolved behaviour is silently benign, that came with a reproducible
   snippet; the general audit it asks for is not done here.
-- A multi-agent audit of this branch (about 600 independent reviewer and verifier agents
+- A multi-agent audit of this branch (about 600 separately prompted reviewer and verifier agents
   over the code, the research harness and both manuscripts, every error claim adversarially
   verified before it was accepted) confirmed thirty-five errors. Thirty-one are fixed below,
   each reproduced from the audit's own probe before it was touched and each kept as a
