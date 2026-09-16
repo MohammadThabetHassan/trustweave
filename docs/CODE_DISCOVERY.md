@@ -30,7 +30,7 @@ behind an attestation.
 
 | Reason | What it means |
 |---|---|
-| `UNRESOLVED_CALLEE` | The call target could not be tied back to an imported symbol. |
+| `UNRESOLVED_CALLEE` | The call target could not be tied back to anything the module names: a bare name with no import, definition or builtin behind it, a method on a parameter the module can say nothing about, or a receiver rebound to two different things. |
 | `DYNAMIC_DISPATCH` | Behaviour is selected at runtime, through a lookup table, `getattr`, or `eval`. |
 | `NONLITERAL_ARGUMENT` | An argument that decides the effect is a variable, so both readings stay open. |
 | `BODY_UNAVAILABLE` | The tool was declared somewhere the implementation could not be located. |
@@ -66,7 +66,15 @@ helper called with an argument the source does not decide is refused, not assume
 
 `read` is a positive classification, not a fallback. A tool with no recognised effect at
 all is `read`; a tool whose effects could not be resolved is `unknown`. Collapsing those
-two would teach reviewers to bulk-accept `unknown`.
+two would teach reviewers to bulk-accept `unknown`. For that sentence to be true, every
+call in a `read` tool's body has to be nameable: a bare name the module neither imports
+nor defines, and a method on an unannotated parameter, are refused as `UNRESOLVED_CALLEE`
+rather than read as benign, and a test re-derives that property from the labelled benchmark
+without asking the analyzer. One asymmetry is deliberate and worth knowing: a resolved call
+into a standard-library symbol the catalog does not describe stays benign, because nearly
+every tool formats a string or logs a line, while a resolved call into an uncatalogued
+third-party package refuses (`UNCATALOGUED_SYMBOL`), because such a package could do
+anything.
 
 ## Declaration coverage
 
@@ -197,7 +205,7 @@ established, so a reviewer knows what to check rather than being told to check e
 
 | Reason | What it means |
 |---|---|
-| `UNRESOLVED_CALLEE` | the call reaches a name this module does not define or import |
+| `UNRESOLVED_CALLEE` | the call reaches a name this module does not define, import or know as a builtin, a method on a parameter it can say nothing about, or a receiver bound to two different things |
 | `DYNAMIC_DISPATCH` | the callee is chosen at runtime, from a subscript or an unresolved call |
 | `NONLITERAL_ARGUMENT` | the argument decides the class and is not a literal here |
 | `BODY_UNAVAILABLE` | the registered target names no body the analyzer can read |
