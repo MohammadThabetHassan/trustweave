@@ -875,3 +875,149 @@ def test_reordering_rules_with_disjoint_trust_labels_is_still_neutral() -> None:
     )
 
     assert signals == []
+
+
+# ---------------------------------------------------------------------------------------
+# Flows that differ only in their purpose tags (audit E-14a)
+# ---------------------------------------------------------------------------------------
+
+
+def _tagged_manifest(*tag_sets: list[str]) -> dict[str, object]:
+    """Return a manifest whose flows share a source, tool and purpose but not their tags."""
+
+    return {
+        "schema_version": "trustweave.dev/v1alpha1",
+        "name": "audit-tagged-flows",
+        "description": "Two declared paths that differ only in why the data is used.",
+        "sources": [
+            {
+                "name": "crm",
+                "trust": "untrusted",
+                "data_classification": "internal",
+                "description": "Customer records supplied by an untrusted integration.",
+            }
+        ],
+        "tools": [
+            {
+                "name": "reader",
+                "action_class": "read",
+                "capabilities": ["record.read"],
+                "description": "Reads customer records.",
+            }
+        ],
+        "flows": [
+            {"source": "crm", "tool": "reader", "purpose": "lookup", "purpose_tags": tags}
+            for tags in tag_sets
+        ],
+    }
+
+
+def _tagged_policy() -> dict[str, object]:
+    """Return a v1alpha2 policy that decides the two flows apart on their purpose tags."""
+
+    return {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "audit-purpose-tag-policy",
+        "default_decision": "deny",
+        "rules": [
+            {
+                "id": "TW-BILLING-READ",
+                "description": "Billing lookups of customer records are reviewed and allowed.",
+                "source_trust": ["untrusted"],
+                "tool_action_classes": ["read"],
+                "purpose_tags": ["billing"],
+                "decision": "allow",
+                "rationale": "Billing lookups are covered by the reviewed billing boundary.",
+            }
+        ],
+    }
+
+
+def _tagged_bundle(*tag_sets: list[str]) -> dict[str, object]:
+    return build_bundle(parse_manifest(_tagged_manifest(*tag_sets)), parse_policy(_tagged_policy()))
+
+
+def test_two_flows_differing_only_in_purpose_tags_can_be_diffed() -> None:
+    """The diff refused a bundle scan had just written, naming ('crm', 'reader', 'lookup').
+
+    Auditor's probe: scan a manifest with flows
+    {'source':'crm','tool':'reader','purpose':'lookup','purpose_tags':['billing']} and
+    {...'purpose_tags':['marketing']}, then diff the resulting bundle against itself.
+    validate_bundle accepted the bundle (findings are compared as a multiset) while
+    _findings_by_key keyed on (source, tool, purpose) alone and raised
+    "bundle contains duplicate finding for ('crm', 'reader', 'lookup')" at exit 2.
+    """
+
+    bundle = _tagged_bundle(["billing"], ["marketing"])
+
+    assert [
+        (finding["flow"]["purpose_tags"], finding["decision"]) for finding in bundle["findings"]
+    ] == [
+        (["billing"], "allow"),
+        (["marketing"], "deny"),
+    ]
+
+    diff = diff_bundles(bundle, bundle)
+
+    assert diff["summary"]["added_paths"] == 0
+    assert diff["summary"]["removed_paths"] == 0
+    assert diff["summary"]["decision_changes"] == 0
+    assert diff["signals"] == []
+
+
+def test_two_byte_identical_flows_are_still_refused_and_the_message_names_the_flow() -> None:
+    """Pins the refusal direction: only genuinely repeated flows remain a diff error.
+
+    The old message called two distinct findings "duplicate" and printed a bare tuple.
+    Folding purpose tags into the key leaves exactly one collision -- a flow declared
+    twice, byte for byte -- and the message now names the bundle, the finding index and
+    every field of the flow it repeats.
+    """
+
+    bundle = _tagged_bundle(["billing"], ["billing"])
+
+    with pytest.raises(ValidationError) as error:
+        diff_bundles(bundle, bundle)
+
+    assert str(error.value) == (
+        "base bundle findings[1] repeats a declared flow already indexed by this diff: "
+        "source crm, tool reader, purpose lookup, purpose_tags ['billing']"
+    )
+
+
+def test_retagging_a_flow_reads_as_one_removed_and_one_added_declared_path() -> None:
+    """Retagging is an add plus a remove, because the tags are part of the flow identity.
+
+    This is the cost of the fix and it is deliberate: a flow whose purpose tags changed
+    may match a different policy rule, so it is a different declared path, not the same
+    path with a new decision.
+    """
+
+    base = _tagged_bundle(["billing"])
+    head = _tagged_bundle(["marketing"])
+
+    diff = diff_bundles(base, head)
+
+    assert diff["summary"]["added_paths"] == 1
+    assert diff["summary"]["removed_paths"] == 1
+    assert diff["summary"]["decision_changes"] == 0
+    assert diff["changes"]["paths"]["added"][0]["flow"]["purpose_tags"] == ["marketing"]
+    assert diff["changes"]["paths"]["removed"][0]["flow"]["purpose_tags"] == ["billing"]
+
+
+def test_the_published_decision_change_key_stays_three_elements() -> None:
+    """bundle-diff v1alpha3 pins the key to source, tool and purpose; the fix must not widen it."""
+
+    base = _tagged_bundle(["billing"])
+    head_policy = _tagged_policy()
+    rules = head_policy["rules"]
+    assert isinstance(rules, list)
+    rules[0]["decision"] = "require_approval"
+    rules[0]["rationale"] = "Billing lookups now require a human approval."
+    head = build_bundle(parse_manifest(_tagged_manifest(["billing"])), parse_policy(head_policy))
+
+    diff = diff_bundles(base, head)
+
+    changed = diff["changes"]["paths"]["decision_changed"]
+    assert [entry["key"] for entry in changed] == [["crm", "reader", "lookup"]]
+    assert changed[0]["after"]["flow"]["purpose_tags"] == ["billing"]
