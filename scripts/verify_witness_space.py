@@ -123,6 +123,61 @@ def purpose_signature_achievable(
     return solver.check() == z3.sat
 
 
+def dominates(broad: str, narrow: str) -> bool:
+    """Whether every capability matching `narrow` matches `broad` as well.
+
+    A final-wildcard pattern matches every string carrying its stem as a prefix, so it
+    dominates any pattern whose own stem or literal extends that prefix. A literal matches
+    one string, so it dominates only itself and never a wildcard, whose witness is its stem
+    followed by a tail no literal ends with.
+    """
+
+    if broad.endswith(".*"):
+        stem = broad[:-1]
+        return (narrow[:-1] if narrow.endswith(".*") else narrow).startswith(stem)
+    return not narrow.endswith(".*") and broad == narrow
+
+
+def capability_signature_achievable_by_criterion(
+    patterns: tuple[str, ...], signature: tuple[bool, ...]
+) -> bool:
+    """The closed form the paper states: no pattern marked false dominates one marked true.
+
+    Matching is monotone in the capability set, so a signature is realised by some set
+    exactly when each true pattern has a single witness that no false pattern matches, and
+    for wildcard and literal patterns such a witness exists exactly when no false pattern
+    dominates the true one. The solver check above decides the same question by search;
+    this decides it by the criterion, and `check()` records whether the two agree.
+    """
+
+    return not any(
+        dominates(unwanted, wanted)
+        for wanted, held in zip(patterns, signature, strict=True)
+        if held
+        for unwanted, denied in zip(patterns, signature, strict=True)
+        if not denied
+    )
+
+
+def purpose_signature_achievable_by_criterion(
+    rule_sets: tuple[tuple[str, ...], ...], signature: tuple[bool, ...]
+) -> bool:
+    """A true intersection test needs a tag no false test names: each named set marked true
+    must contain a tag outside the union of the sets marked false."""
+
+    denied = {
+        tag
+        for rule_set, held in zip(rule_sets, signature, strict=True)
+        if not held
+        for tag in rule_set
+    }
+    return all(
+        not set(rule_set) <= denied
+        for rule_set, held in zip(rule_sets, signature, strict=True)
+        if held
+    )
+
+
 def _constructed_capability_signatures(patterns: tuple[str, ...]) -> set[tuple[bool, ...]]:
     """What `witness_space()` produces for a policy naming exactly these patterns.
 
@@ -161,13 +216,20 @@ def check() -> dict[str, Any]:
             if capability_signature_achievable(patterns, signature)
         }
         constructed = _constructed_capability_signatures(patterns)
+        by_criterion = {
+            signature
+            for signature in itertools.product((False, True), repeat=len(patterns))
+            if capability_signature_achievable_by_criterion(patterns, signature)
+        }
         findings["capabilities"].append(
             {
                 "patterns": list(patterns),
                 "candidate_signatures": 2 ** len(patterns),
                 "achievable_by_solver": len(achievable),
+                "achievable_by_criterion": len(by_criterion),
                 "produced_by_construction": len(constructed),
                 "agree": achievable == constructed,
+                "criterion_agrees": by_criterion == achievable,
                 "unachievable_but_produced": sorted(str(s) for s in constructed - achievable),
                 "achievable_but_missing": sorted(str(s) for s in achievable - constructed),
             }
@@ -179,13 +241,20 @@ def check() -> dict[str, Any]:
             for signature in itertools.product((False, True), repeat=len(rule_sets))
             if purpose_signature_achievable(tags, rule_sets, signature)
         }
+        by_criterion = {
+            signature
+            for signature in itertools.product((False, True), repeat=len(rule_sets))
+            if purpose_signature_achievable_by_criterion(rule_sets, signature)
+        }
         findings["purposes"].append(
             {
                 "named_tags": list(tags),
                 "rule_sets": [list(entry) for entry in rule_sets],
                 "candidate_signatures": 2 ** len(rule_sets),
                 "achievable_by_solver": len(achievable),
+                "achievable_by_criterion": len(by_criterion),
                 "subsets_enumerated": 2 ** len(tags),
+                "criterion_agrees": by_criterion == achievable,
             }
         )
 
@@ -193,6 +262,12 @@ def check() -> dict[str, Any]:
     findings["capability_cases_agreeing"] = sum(
         1 for entry in findings["capabilities"] if entry["agree"]
     )
+    findings["cases_where_the_criterion_agrees_with_the_solver"] = sum(
+        1
+        for entry in (*findings["capabilities"], *findings["purposes"])
+        if entry["criterion_agrees"]
+    )
+    findings["cases"] = len(findings["capabilities"]) + len(findings["purposes"])
     findings["solver"] = z3.get_version_string() if z3 is not None else None
     return findings
 
@@ -234,7 +309,13 @@ def main(argv: list[str] | None = None) -> int:
         args.json.write_text(
             json.dumps(findings, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
-    return 0 if findings["capability_cases_agreeing"] == findings["capability_cases"] else 1
+    print(
+        f"{findings['cases_where_the_criterion_agrees_with_the_solver']} of {findings['cases']} "
+        "cases: the closed-form criterion agrees with the solver"
+    )
+    complete = findings["capability_cases_agreeing"] == findings["capability_cases"]
+    criterion = findings["cases_where_the_criterion_agrees_with_the_solver"] == findings["cases"]
+    return 0 if complete and criterion else 1
 
 
 if __name__ == "__main__":
