@@ -44,6 +44,6 @@ reproducible = true
 
 The `validate` stage invokes the authoritative typed parsers before any output directory preparation or artifact publication. It semantically validates configured manifests, policies, scenarios, chain manifests, traces, MCP profiles, risk decisions, and both bundle inputs. It also checks that the output directory traverses no symbolic link and that `sarif_output` stays inside it, without creating either path. A failed semantic validation leaves pre-existing output artifacts untouched.
 
-Publication is a second boundary. `ci` stages every artifact in a temporary directory and then replaces the output directory wholesale, so it refuses to publish into a directory holding anything this run did not produce, naming the entries it found. Point `output_dir` at a dedicated directory rather than at a source tree.
+Publication is a second boundary. `ci` stages every artifact in a temporary directory and then replaces the output directory wholesale, so it refuses to publish into a directory holding anything this run did not produce, naming the entries it found. That includes a previous run's artifact the selected stages do not write again, and a hidden *directory*; hidden files such as `.gitkeep` do not block a publish but are replaced with the directory. Point `output_dir` at a dedicated directory rather than at a source tree.
 
 > Configuration selects local evidence inputs and outputs. It does not authenticate a policy, authorize an action, execute a tool, enforce a runtime control, or establish that a declared system is secure.

@@ -82,23 +82,72 @@ def test_ci_refuses_to_publish_over_a_directory_it_did_not_write(tmp_path: Path)
     staging = tmp_path / "staging"
     staging.mkdir()
 
-    with pytest.raises(InputOutputError, match="did not write"):
+    with pytest.raises(InputOutputError, match="did not produce"):
         _publish_directory(staging, output)
 
     assert (output / "a.txt").read_text(encoding="utf-8") == "important work"
 
 
-def test_ci_still_publishes_over_its_own_previous_artifacts(tmp_path: Path) -> None:
+def test_ci_still_publishes_over_the_artifacts_this_run_reproduces(tmp_path: Path) -> None:
+    """Replacing an artifact this run wrote again is the ordinary case and stays allowed."""
+
     output = tmp_path / "artifacts"
     output.mkdir()
     (output / "agent-security-bundle.json").write_text("{}", encoding="utf-8")
     staging = tmp_path / "staging"
     staging.mkdir()
-    (staging / "report.md").write_text("fresh", encoding="utf-8")
+    (staging / "agent-security-bundle.json").write_text("fresh", encoding="utf-8")
 
     _publish_directory(staging, output)
 
-    assert (output / "report.md").read_text(encoding="utf-8") == "fresh"
+    assert (output / "agent-security-bundle.json").read_text(encoding="utf-8") == "fresh"
+
+
+def test_a_previous_runs_artifact_this_run_does_not_reproduce_stops_the_publish(
+    tmp_path: Path,
+) -> None:
+    """The recognised set was every *_FILE constant, so a stage that never ran still deleted.
+
+    A hand-written report.md in the output directory was destroyed by a run whose stages
+    produced no report, because report.md was a name TrustWeave might have written. The
+    set is now exactly what this run staged, so evidence nothing is about to replace stops
+    the publish instead of disappearing.
+    """
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    (output / "report.md").write_text("MY HAND WRITTEN REPORT", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "chain-review.json").write_text("{}", encoding="utf-8")
+
+    with pytest.raises(InputOutputError, match="did not produce"):
+        _publish_directory(staging, output)
+
+    assert (output / "report.md").read_text(encoding="utf-8") == "MY HAND WRITTEN REPORT"
+
+
+def test_a_hidden_directory_beside_the_artifacts_stops_the_publish(tmp_path: Path) -> None:
+    """Dot entries were skipped wholesale, so a hidden tree was deleted unexamined.
+
+    The audit's probe left `.secrets/key.pem` holding "PRIVATE KEY MATERIAL" beside the
+    artifacts; `ci` published at exit 0 and the directory was gone afterwards, with no
+    backup left behind. Only hidden *files* are exempt now.
+    """
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    secrets = output / ".secrets"
+    secrets.mkdir()
+    (secrets / "key.pem").write_text("PRIVATE KEY MATERIAL", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "chain-review.json").write_text("{}", encoding="utf-8")
+
+    with pytest.raises(InputOutputError, match=r"\.secrets"):
+        _publish_directory(staging, output)
+
+    assert (secrets / "key.pem").read_text(encoding="utf-8") == "PRIVATE KEY MATERIAL"
 
 
 def test_the_publish_refusal_counts_and_names_the_entries_it_found(tmp_path: Path) -> None:
@@ -159,16 +208,6 @@ def test_publication_into_a_missing_directory_is_allowed(tmp_path: Path) -> None
     assert (tmp_path / "absent" / "report.md").exists()
 
 
-def test_the_artifact_allow_list_covers_both_shared_and_ci_owned_names() -> None:
-    from trustweave.commands.ci import _known_artifact_names
-
-    known = _known_artifact_names()
-
-    assert "agent-security-bundle.json" in known
-    assert "ci-summary.json" in known
-    assert "code-discovery.json" in known
-
-
 def test_exactly_five_unrelated_entries_are_listed_without_a_more_suffix(
     tmp_path: Path,
 ) -> None:
@@ -203,22 +242,10 @@ def test_the_publish_refusal_message_is_exact(tmp_path: Path) -> None:
         _publish_directory(staging, output)
 
     assert str(raised.value) == (
-        f"Refusing to publish CI artifacts into {output}: it holds 2 entries TrustWeave "
-        "did not write (alpha.txt, beta.txt). Point output_dir at a dedicated directory, "
-        "or empty this one first."
+        f"Refusing to publish CI artifacts into {output}: it holds 2 entries this run "
+        "did not produce (alpha.txt, beta.txt). Point output_dir at a dedicated "
+        "directory, or empty this one first."
     )
-
-
-def test_the_artifact_allow_list_holds_only_filenames(tmp_path: Path) -> None:
-    """Every entry is a *_FILE constant; schema versions and other strings stay out."""
-
-    from trustweave.commands.ci import CI_SUMMARY_SCHEMA_VERSION, _known_artifact_names
-
-    known = _known_artifact_names()
-
-    assert CI_SUMMARY_SCHEMA_VERSION not in known
-    assert all("/" not in name for name in known)
-    assert all(name.count(".") == 1 for name in known)
 
 
 def test_at_most_five_entries_are_listed_and_the_rest_are_counted(tmp_path: Path) -> None:
@@ -235,8 +262,8 @@ def test_at_most_five_entries_are_listed_and_the_rest_are_counted(tmp_path: Path
         _publish_directory(staging, output)
 
     assert str(raised.value) == (
-        f"Refusing to publish CI artifacts into {output}: it holds 6 entries TrustWeave "
-        "did not write (a.txt, b.txt, c.txt, d.txt, e.txt and 1 more). Point output_dir "
+        f"Refusing to publish CI artifacts into {output}: it holds 6 entries this run "
+        "did not produce (a.txt, b.txt, c.txt, d.txt, e.txt and 1 more). Point output_dir "
         "at a dedicated directory, or empty this one first."
     )
 
@@ -273,7 +300,7 @@ def test_publication_still_refuses_content_this_run_did_not_stage(tmp_path: Path
     staging.mkdir()
     (staging / "report.md").write_text("fresh", encoding="utf-8")
 
-    with pytest.raises(InputOutputError, match="did not write"):
+    with pytest.raises(InputOutputError, match="did not produce"):
         _publish_directory(staging, output)
 
     assert (output / "handover.md").read_text(encoding="utf-8") == "real work"

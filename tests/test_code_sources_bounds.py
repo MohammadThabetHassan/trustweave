@@ -173,6 +173,48 @@ def test_a_symlinked_module_does_not_stop_the_walk(tmp_path: Path) -> None:
     assert found == ["real.py"]
 
 
+def test_a_symlinked_module_is_recorded_as_skipped_rather_than_dropped(tmp_path: Path) -> None:
+    """A symlinked .py file left on a bare `continue`, so files_skipped stayed 0.
+
+    Not following a link out of the analyzed tree is deliberate and documented. Being
+    silent about it is not: this module's docstring says limits are explicit and refuse
+    loudly, and an oversized file is already recorded as skipped. The audit measured a
+    monorepo whose `agent/tools/ops.py` is a link into a shared directory: the
+    run_maintenance tool, classified sensitive, disappeared from the discovery and the
+    artifact still reported files_analyzed 4, files_skipped 0.
+    """
+
+    real = _write(tmp_path, "real.py", "x = 1\n")
+    (tmp_path / "aaa_link.py").symlink_to(real)
+
+    collection = collect_python_sources(tmp_path)
+
+    assert [(entry.relative_path, entry.reason) for entry in collection.skipped] == [
+        ("aaa_link.py", "path_is_symlink")
+    ]
+    assert [entry.relative_path for entry in collection.files] == ["real.py"]
+
+
+def test_a_tree_of_only_symlinked_modules_is_not_reported_as_an_empty_clean_tree(
+    tmp_path: Path,
+) -> None:
+    """The stronger shape: a clean bill of health over a directory holding two .py entries."""
+
+    real = _write(tmp_path, "sub/real.py", "x = 1\n")
+    linked = tmp_path / "src"
+    linked.mkdir()
+    (linked / "ops.py").symlink_to(real)
+    (linked / "passwd.py").symlink_to(real)
+
+    collection = collect_python_sources(linked)
+
+    assert collection.files == ()
+    assert [entry.reason for entry in collection.skipped] == [
+        "path_is_symlink",
+        "path_is_symlink",
+    ]
+
+
 def test_a_skipped_file_does_not_stop_the_walk(tmp_path: Path) -> None:
     """The oversized file sorts first; the readable one after it must still be collected."""
 
