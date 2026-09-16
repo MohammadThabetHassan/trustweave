@@ -13,12 +13,12 @@
           "path": "attestation.json"
         },
         {
-          "digest": "68f06480f2b2aa25273b5762063339439fff5ed6339e4be6ecf4a4723a3c394e",
+          "digest": "1cd239c11cc58659a2bd5e3d5094699a430a8f7cf58b63d88abc906af7a158e7",
           "digest_kind": "canonical-json-sha256",
           "path": "chain-review.json"
         },
         {
-          "digest": "ba12f3c8024a39b744b55fa047f13edede46cf74212f5b81cd23f11facf57bc5",
+          "digest": "97d6e7da1dc6c196eb40555a6563ae7b6e0aa874fb90546b436f2ba93bda6e19",
           "digest_kind": "bytes-sha256",
           "path": "chain-review.md"
         },

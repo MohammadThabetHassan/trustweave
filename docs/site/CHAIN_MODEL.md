@@ -18,7 +18,9 @@ trustweave chain-check \
   --output-dir artifacts/chain
 ```
 
-The deterministic traversal starts only from declared untrusted sources and records ordered node identities for declared paths that reach sensitive data and an external action. Distinct routes remain distinct even when their propagated metadata is identical.
+The deterministic traversal starts only from declared untrusted sources and records ordered node identities for declared paths that reach sensitive data and an external action. Distinct routes remain distinct even when their propagated metadata is identical. A declared external action is recorded as a path and the traversal continues through that node's own declared successors, so data a declared external call brings back is reviewed rather than dropped; a successor already on the current path is never followed twice, so a declared cycle cannot enumerate itself.
+
+A classification propagates only when the graph treats it as sensitive. That set defaults to `confidential` and `restricted`, and a graph may declare its own `classification_taxonomy` and `sensitive_classifications` instead. Propagation compares exact strings, so a value that only looks like a declared one — `Restricted` against `restricted` — is refused rather than silently propagating nothing, and a term outside the taxonomy is named in the review's `warnings` list.
 
 ## Controls and findings
 

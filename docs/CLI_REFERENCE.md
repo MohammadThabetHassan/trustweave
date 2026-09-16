@@ -135,7 +135,7 @@ A successful statement-only result does not establish that a reviewer’s curren
 trustweave chain-check --input PATH [--output-dir DIR] [--max-nodes N] [--max-paths N] [--max-edges N] [--max-depth N] [--max-states N] [--exit-on-review]
 ```
 
-`chain-check` reviews only an explicitly supplied trust-boundary graph. It deterministically propagates declared sensitive classifications and fail-closed approval state along supplied edges, terminates at declared external actions, and reports when any local traversal budget makes the review incomplete. It does not discover or execute runtime paths.
+`chain-check` reviews only an explicitly supplied trust-boundary graph. It deterministically propagates declared sensitive classifications and fail-closed approval state along supplied edges, records each declared external action as a reviewable path while continuing through that node's own declared successors, never follows a node already on the current path, and reports when any local traversal budget makes the review incomplete. Sensitive classifications default to `confidential` and `restricted`; a graph may declare its own `classification_taxonomy` and `sensitive_classifications` instead, and a classification that only looks like a declared one is refused rather than propagating nothing. It does not discover or execute runtime paths.
 
 | Input | Required | Description |
 |---|---:|---|

@@ -11,6 +11,12 @@
       "maxItems": 1000,
       "items": {"$ref": "#/$defs/finding"}
     },
+    "warnings": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 4096}
+    },
     "paths": {
       "type": "array",
       "maxItems": 1000,

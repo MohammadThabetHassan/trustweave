@@ -46,7 +46,8 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         "Declared sanitizer coverage is incomplete",
         (
             "A supplied sanitizer does not list coverage for every propagated sensitive "
-            "classification."
+            "classification, on a declared path where a sensitive classification still "
+            "reaches the external action."
         ),
         "Review the sanitizer’s stated coverage and any residual classification.",
     ),
