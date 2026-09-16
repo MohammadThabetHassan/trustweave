@@ -20,6 +20,7 @@
     "impossible_rules": [],
     "rules": {
       "TW-001": {
+        "cover_search": "complete",
         "decision": "allow",
         "possible": true,
         "reachable": true,
@@ -27,6 +28,7 @@
         "shadowed_by_rules": []
       },
       "TW-002": {
+        "cover_search": "complete",
         "decision": "require_approval",
         "possible": true,
         "reachable": true,
@@ -34,6 +36,7 @@
         "shadowed_by_rules": []
       },
       "TW-003": {
+        "cover_search": "complete",
         "decision": "deny",
         "possible": true,
         "reachable": true,
@@ -41,6 +44,7 @@
         "shadowed_by_rules": []
       },
       "TW-004": {
+        "cover_search": "complete",
         "decision": "deny",
         "possible": true,
         "reachable": true,

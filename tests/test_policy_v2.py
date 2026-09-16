@@ -378,6 +378,7 @@ def test_policy_coverage_detects_shadowing_when_declared_controls_are_static() -
                 "possible": True,
                 "shadowed_by": None,
                 "shadowed_by_rules": [],
+                "cover_search": "complete",
                 "decision": "deny",
             },
             "TW-V2-STATIC-CONTROL-LATER": {
@@ -385,6 +386,7 @@ def test_policy_coverage_detects_shadowing_when_declared_controls_are_static() -
                 "possible": True,
                 "shadowed_by": "TW-V2-STATIC-CONTROL-FIRST",
                 "shadowed_by_rules": ["TW-V2-STATIC-CONTROL-FIRST"],
+                "cover_search": "complete",
                 "decision": "deny",
             },
         },
@@ -431,6 +433,7 @@ def test_policy_coverage_reports_a_redundant_shadowed_rule_separately() -> None:
         "possible": True,
         "shadowed_by": "TW-V2-001",
         "shadowed_by_rules": ["TW-V2-001"],
+        "cover_search": "complete",
         "decision": "deny",
     }
 

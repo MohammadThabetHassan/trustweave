@@ -172,6 +172,18 @@ All notable changes to TrustWeave are documented in this file. The project follo
     rules in that cover; `shadowed_by` keeps naming the one rule that covers on its own.
     `reachable: true` still means no cover was found, not that a witness exists, and the
     CLI reference now says so.
+- The import-scope fix above initially layered only the tool's own imports over the
+  module's, which read a tool registered inside a factory -- the shape every MCP
+  reference server uses -- as if the factory's imports did not exist, and published a
+  shell invocation reached that way as `read`; a wildcard import inside a function was
+  likewise dropped instead of forcing a refusal. Names now resolve through every
+  enclosing function, innermost first, and a node inside a nested function is judged in
+  that function's scope. A multi-agent audit of the branch caught both before it was
+  pushed; both are regression cases now.
+- A rule naming more than 10,000 combinations of its single-valued fields is not
+  enumerated for a collective cover, and the artifact used to say `reachable: true`
+  about it as if it had been. The coverage entry now carries `cover_search`, `complete`
+  or `declined`, and the Markdown report says the cover was not searched.
 - `dbm.open(..., "c")` followed by a subscript store was a high-confidence `read`: the
   opener was an uncatalogued standard-library call, so benign, and the store is not a
   call. `dbm.open` and `shelve.open` are now judged by their flag the way `open` is by

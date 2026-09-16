@@ -342,6 +342,7 @@ def test_policy_coverage_does_not_shadow_with_an_impossible_earlier_rule() -> No
         "possible": True,
         "shadowed_by": None,
         "shadowed_by_rules": [],
+        "cover_search": "complete",
         "decision": "allow",
     }
     assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
@@ -611,6 +612,7 @@ def test_a_rule_covered_by_several_earlier_rules_together_is_shadowed() -> None:
         "possible": True,
         "shadowed_by": None,
         "shadowed_by_rules": ["R-C", "R-T", "R-U"],
+        "cover_search": "complete",
         "decision": "deny",
     }
     assert review["coverage"]["shadowed_rules"] == ["R-DENY-ALL"]
@@ -674,3 +676,24 @@ def test_an_impossible_earlier_rule_does_not_count_towards_a_collective_cover() 
 
     assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
     assert review["coverage"]["rules"]["R-ALL"]["reachable"] is True
+
+
+def test_a_rule_naming_too_many_cells_says_its_cover_was_not_searched() -> None:
+    """Above the enumeration limit the artifact must not read as a reachability verdict."""
+
+    rules = [_label_rule("R-T", ["trusted"], "allow"), _label_rule("R-C", ["conditional"], "allow")]
+    big = _label_rule("R-BIG", ["trusted", "conditional", "untrusted"], "deny")
+    big["source_identifiers"] = [f"source-{index}" for index in range(101)]
+    big["tool_identifiers"] = [f"tool-{index}" for index in range(101)]
+    rules.append(big)
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    entry = review["coverage"]["rules"]["R-BIG"]
+    assert entry["cover_search"] == "declined"
+    assert entry["reachable"] is True
+    assert entry["shadowed_by_rules"] == []
+    assert review["coverage"]["rules"]["R-C"]["cover_search"] == "complete"
+    assert "not searched" in render_policy_review_report(review)

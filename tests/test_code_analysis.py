@@ -927,3 +927,74 @@ def test_a_keyed_store_with_an_unreadable_flag_is_refused(tmp_path: Path) -> Non
 
     assert tool.proposed_action_class() == "unknown"
     assert "NONLITERAL_ARGUMENT" in tool.reasons
+
+
+def test_a_tool_built_inside_a_factory_sees_the_factory_imports(tmp_path: Path) -> None:
+    """Names resolve through every enclosing function, not only the tool's own body.
+
+    Layering only the tool's own imports over the module's read a factory-registered
+    tool -- the shape every MCP reference server uses -- as if the factory's imports did
+    not exist, and a shell invocation reached that way published as `read`.
+    """
+
+    tool = _one(
+        tmp_path,
+        "def make_tools():\n"
+        "    from os import system as run\n\n"
+        "    @tool\n"
+        "    def go(command: str) -> str:\n"
+        '        """Run it."""\n'
+        "        return run(command)\n\n"
+        "    return [go]\n",
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tool.signals] == ["os.system"]
+
+
+def test_a_two_level_factory_still_resolves_the_outermost_import(tmp_path: Path) -> None:
+    tool = _one(
+        tmp_path,
+        "def outer():\n"
+        "    from os import system as run\n\n"
+        "    def inner():\n"
+        "        @tool\n"
+        "        def go(command: str) -> str:\n"
+        '            """Run it."""\n'
+        "            return run(command)\n\n"
+        "        return go\n\n"
+        "    return inner()\n",
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_nested_helper_inside_the_tool_resolves_its_own_imports(tmp_path: Path) -> None:
+    """A helper defined inside the tool body is walked in its own scope."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef go(command: str) -> str:\n"
+        '    """Run it."""\n'
+        "    def helper(argument):\n"
+        "        from os import system as run\n"
+        "        return run(argument)\n"
+        "    return helper(command)\n",
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_wildcard_import_inside_the_tool_refuses(tmp_path: Path) -> None:
+    """A star import anywhere in the lexical chain leaves free names unresolvable."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef go(command: str) -> str:\n"
+        '    """Run it."""\n'
+        "    from os import *  # noqa: F403\n"
+        "    return system(command)\n",
+    )
+
+    assert tool.proposed_action_class() == "unknown"
+    assert "UNRESOLVED_CALLEE" in tool.reasons
