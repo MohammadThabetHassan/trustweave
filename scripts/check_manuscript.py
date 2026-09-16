@@ -842,6 +842,52 @@ def numeric_claims(docs: Path) -> list[Claim]:
             (str(chain["candidate_signatures"]), str(chain["achievable_by_solver"])),
             "chained patterns: candidates and achievable",
         ),
+        (
+            r"the criterion agrees with the solver on all (\d+) cases",
+            (str(witness["cases_where_the_criterion_agrees_with_the_solver"]),),
+            "witness criterion: cases agreeing with the solver",
+        ),
+    ]
+
+    kyverno_oracle = _load(docs, "oracle-kyverno-v1")
+    assert kyverno_oracle["disagreements"] == 0
+    kyverno_dynamic = kyverno_oracle["dynamic"]
+    claims += [
+        (
+            r"every one of the (\d+)\s*policies in Table~\\ref\{tab:membership\}'s Kyverno row",
+            (str(kyverno_oracle["policies"]),),
+            "kyverno oracle: policies judged",
+        ),
+        (
+            rf"identical\s*outcomes: all (\d+) do, over ({_GROUPED}) tests",
+            (
+                str(kyverno_dynamic["inside_policies_invariant_under_injected_labels"]),
+                _grouped(kyverno_dynamic["tests_compared"]),
+            ),
+            "kyverno oracle: inside policies invariant and tests compared",
+        ),
+        (
+            r"for the (\d+) outside policies whose suites stub\s*external data",
+            (str(kyverno_oracle["static"]["outside_policies_whose_suite_stubs_external_data"]),),
+            "kyverno oracle: outside policies with stubs",
+        ),
+        (
+            r"stubs kept: (\d+) change outcome, .*? and (\d+) do not",
+            (
+                str(
+                    kyverno_dynamic[
+                        "outside_policies_whose_outcomes_changed_when_stubs_were_removed"
+                    ]
+                ),
+                str(kyverno_dynamic["outside_policies_unchanged_when_stubs_were_removed"]),
+            ),
+            "kyverno oracle: outside policies changed and unchanged under stub removal",
+        ),
+        (
+            r"disagrees with the adapter on none of the (\d+)\.",
+            (str(kyverno_oracle["policies"]),),
+            "kyverno oracle: no disagreement",
+        ),
     ]
 
     rego_oracle = _load(docs, "oracle-rego-v1")
