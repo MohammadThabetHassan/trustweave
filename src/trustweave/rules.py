@@ -162,6 +162,20 @@ _RULES: Final[dict[str, RuleDefinition]] = {
             "accepting the change."
         ),
     ),
+    "TW-DIFF-012": RuleDefinition(
+        "TW-DIFF-012",
+        "declared_bundle_difference",
+        "Policy rule gained a required control the policy does not declare",
+        (
+            "A supplied policy-only delta adds a required control that the supplied policy does "
+            "not declare, so the rule can no longer match any declared flow and the decision "
+            "falls through to a later rule or the default decision."
+        ),
+        (
+            "Declare the required control or restore the rule's boundary; review the decision "
+            "the affected paths now receive."
+        ),
+    ),
     "TW-MCP-001": RuleDefinition(
         "TW-MCP-001",
         "pre_recorded_mcp_metadata",

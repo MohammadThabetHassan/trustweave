@@ -189,6 +189,8 @@ def _review_signals(
     capability_changes: Sequence[Mapping[str, Any]],
     changed_findings: Sequence[Mapping[str, Any]],
     policy_changes: Sequence[Mapping[str, Any]],
+    base_policy: Mapping[str, Any],
+    head_policy: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
     signals: list[dict[str, Any]] = []
     for item in list(tool_changes["added"]) + list(tool_changes["changed"]):
@@ -258,7 +260,9 @@ def _review_signals(
                     },
                 )
             )
-    signals.extend(_policy_review_signals(policy_changes))
+    signals.extend(
+        _policy_review_signals(policy_changes, base_policy=base_policy, head_policy=head_policy)
+    )
     return signals
 
 
@@ -314,6 +318,8 @@ def diff_bundles(
         capability_changes,
         review_relevant_findings,
         policy_changes["changed"],
+        _mapping(base_bundle.get("policy")),
+        _mapping(head_bundle.get("policy")),
     )
 
     diff: dict[str, object] = {
