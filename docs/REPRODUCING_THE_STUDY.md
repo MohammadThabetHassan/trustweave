@@ -1,8 +1,7 @@
 # Reproducing the study's measurements
 
 This is about the **research measurements** — how much published policy lies inside the
-decidable fragment, what exhaustive coverage costs, and the checks behind those numbers. For
-the separate question of whether the *tool* produces byte-identical output from the same
+decidable fragment and the checks behind those numbers. For the separate question of whether the *tool* produces byte-identical output from the same
 inputs, see the [reproducibility and integrity contract](REPRODUCIBILITY.md).
 
 Every measured figure in this project comes from a script in `scripts/` and is recorded in an
@@ -84,13 +83,13 @@ python scripts/fragment_membership.py azure /tmp/corpora/fragment-membership-azu
 
 # the pooled taxonomy, computed from the membership artifacts
 python scripts/exclusion_taxonomy.py --json docs/exclusion-taxonomy-v1.json
-
-# what exhaustive coverage costs on deployed cloud policy
-python scripts/coverage_cost.py \
-  --azure /tmp/corpora/fragment-membership-azure-wide-v1/azure-policy \
-  --iam /tmp/corpora/fragment-membership-iam-wide-v1 \
-  --json docs/coverage-cost-v1.json
 ```
+
+`docs/coverage-cost-v1.json` is deliberately absent from that list. Its distribution is
+withdrawn — the grouping rule behind it under-counted set-membership guards — and the artifact
+carries an `invalidated` block saying so. `scripts/coverage_cost.py` refuses to overwrite it
+without `--replace-invalidated`, so a re-run of this page cannot quietly turn a retraction back
+into a measurement.
 
 ### 4. Re-run the checks that hold the instruments to something other than themselves
 

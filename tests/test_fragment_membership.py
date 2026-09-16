@@ -1611,18 +1611,25 @@ def test_literals_are_counted_as_mutually_exclusive() -> None:
     assert cost.cells_from_groups({"Action": ["everything"]}, frozenset()) == 1
 
 
-def test_the_cost_artifact_reports_a_tractable_median_for_both_clouds() -> None:
+def test_the_cost_artifact_is_marked_withdrawn_rather_than_quoted() -> None:
+    """This test used to assert the medians 4 and 60 as findings worth publishing.
+
+    They rested on a grouping rule that counted `in`, `notin`, `containsKey` and
+    `notContainsKey` as holding of at most one value each, so on a component carrying two of
+    them the count was an under-estimate -- the direction the docstring promised was safe.
+    The claim is withdrawn, so what the artifact owes a reader is the notice, not the numbers.
+    """
+
     findings = json.loads((ROOT / "docs" / "coverage-cost-v1.json").read_text("utf-8"))
 
-    assert findings["azure"]["median_cells"] == 4
-    assert findings["azure"]["policies"] == 2150
-    assert findings["iam"]["median_cells"] == 60
-    assert findings["iam"]["policies"] == 1651
-    # The claim the paper makes: most deployed Azure policy is cheap to cover exhaustively.
-    assert findings["azure"]["share_at_most"]["8"] > 0.8
-    # And the honest tail.
-    assert findings["azure"]["at_or_above_intractable"] == 8
-    assert findings["iam"]["at_or_above_intractable"] == 131
+    notice = findings["invalidated"]
+    assert notice["withdrawn"]
+    # Both counterexamples the withdrawal rests on, with the count each one refutes.
+    reported = {entry["reported"] for entry in notice["counterexamples"]}
+    realisable = {entry["realisable_signatures"] for entry in notice["counterexamples"]}
+    assert reported == {3} and realisable == {4}
+    assert len(notice["counterexamples"]) == 2
+    assert "IAM" in notice["same_defect_in_iam"] or "iam" in notice["same_defect_in_iam"]
 
 
 def test_the_cost_measurement_covers_exactly_the_policies_judged_inside() -> None:
@@ -1645,18 +1652,111 @@ def test_the_cost_measurement_covers_exactly_the_policies_judged_inside() -> Non
 
 
 def test_the_bound_never_understates_a_group() -> None:
-    """It is an over-estimate by construction, so a cost claim is safe in one direction."""
+    """Over-estimation is the whole claim, and an empty exclusive set never tested it.
+
+    Every case here passed `frozenset()`, so the `exclusive` branch -- the one that was
+    wrong -- never ran. With a real exclusive set the old grouping returned 3 for a pair of
+    `in` guards and for a pair of `containsKey` guards, against four realisable signatures,
+    and 6 for five `in` guards against a worst case of 32.
+    """
 
     for kinds in (
         ["literal", "prefix"],
         ["literal", "wildcard", "prefix"],
         ["wildcard"] * 3,
         ["literal"] * 4 + ["everything"],
+        # The same shapes again, this time through a non-empty exclusive set, plus the
+        # operators the withdrawal was filed over.
+        ["equals", "equals"],
+        ["in", "in"],
+        ["containsKey", "containsKey"],
+        ["in"] * 5,
+        ["equals", "in", "like"],
     ):
-        bound = cost.cells_from_groups({"c": kinds}, frozenset())
+        bound = cost.cells_from_groups({"c": kinds}, cost.AZURE_EXCLUSIVE)
         splitting = [k for k in kinds if k != "everything"]
         assert bound <= 2 ** len(splitting) or not splitting
         assert bound >= 1
+
+    # The counterexamples, pinned as values rather than as an inequality.
+    assert cost.cells_from_groups({"c": ["in", "in"]}, cost.AZURE_EXCLUSIVE) == 4
+    assert cost.cells_from_groups({"c": ["containsKey", "containsKey"]}, cost.AZURE_EXCLUSIVE) == 4
+    assert cost.cells_from_groups({"c": ["in"] * 5}, cost.AZURE_EXCLUSIVE) == 32
+    # The control from the same probe: `equals` really is one value at most, so `n + 1` holds.
+    assert cost.cells_from_groups({"c": ["equals", "equals"]}, cost.AZURE_EXCLUSIVE) == 3
+
+
+def test_an_iam_condition_over_several_values_is_not_a_single_value_guard() -> None:
+    """`iam_guards` recorded one guard per (operator, key) while the value is an array.
+
+    `StringEquals` against `["a", "b"]` is true of either, so two such guards on one key
+    realise four signatures. The old grouping called them exclusive and counted three.
+    """
+
+    def guards(value: object) -> dict[str, list[str]]:
+        return cost.iam_guards(
+            {
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": "s3:GetObject",
+                        "Condition": {"StringEquals": {"aws:PrincipalTag/x": value}},
+                    }
+                ]
+            }
+        )
+
+    assert guards("a")["condition:aws:PrincipalTag/x"] == ["StringEquals"]
+    assert guards(["a"])["condition:aws:PrincipalTag/x"] == ["StringEquals"]
+    assert guards(["a", "b"])["condition:aws:PrincipalTag/x"] == [cost.MULTI_VALUED]
+    single = {"condition:k": ["StringEquals", "StringEquals"]}
+    multiple = {"condition:k": [cost.MULTI_VALUED, cost.MULTI_VALUED]}
+    assert cost.cells_from_groups(single, cost.IAM_EXCLUSIVE) == 3
+    assert cost.cells_from_groups(multiple, cost.IAM_EXCLUSIVE) == 4
+
+
+def test_a_quotient_past_the_enumeration_limit_keeps_its_exact_size() -> None:
+    """The 10**9 cap was published verbatim as the IAM 99th percentile.
+
+    A clamp makes a corpus whose tail is a billion and one whose tail is 10**24 read
+    identically, and the artifact then states the instrument's limit as a measurement.
+    """
+
+    huge = cost.cells_from_groups({"c": ["wildcard"] * 90}, frozenset())
+    assert huge == 2**90
+    distribution = cost._distribution([1, 2, huge, huge, huge])
+    assert distribution["p99_cells"] == huge
+    assert distribution["exceeds_enumeration_limit"] is True
+    assert distribution["at_or_above_enumeration_limit"] == 3
+    assert cost._distribution([1, 2, 3])["exceeds_enumeration_limit"] is False
+
+
+def test_the_cost_script_will_not_overwrite_a_withdrawn_artifact(tmp_path: Path) -> None:
+    """A plain re-run would have replaced the invalidation notice with fresh numbers.
+
+    That is how a retraction becomes a revision, so the refusal is the point: replacing the
+    artifact is allowed, doing it without saying so is not.
+    """
+
+    destination = tmp_path / "coverage-cost-v1.json"
+    destination.write_text(json.dumps({"invalidated": {"withdrawn": "2026-09-16"}}), "utf-8")
+    with pytest.raises(SystemExit) as refusal:
+        cost._refuse_to_replace_an_invalidated_artifact(destination)
+    assert "--replace-invalidated" in str(refusal.value)
+
+    # A destination that does not exist, or carries no notice, is written without complaint.
+    cost._refuse_to_replace_an_invalidated_artifact(tmp_path / "absent.json")
+    plain = tmp_path / "plain.json"
+    plain.write_text(json.dumps({"schema_version": "v1"}), "utf-8")
+    cost._refuse_to_replace_an_invalidated_artifact(plain)
+
+
+def test_the_iam_cost_measurement_is_checked_against_its_corpus_like_azure_is() -> None:
+    """The completeness check existed for Azure only, so IAM drift was invisible."""
+
+    source = (ROOT / "scripts" / "coverage_cost.py").read_text("utf-8")
+    assert source.count("the two corpora disagree") == 2
+    assert "IAM policies but" in source
 
 
 # ---------------------------------------------------------------------------------------

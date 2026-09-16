@@ -18,10 +18,16 @@ of two counts:
   them; that is the same trap the capability-pattern remark in the paper describes, and the
   first version of this script fell into it.
 
-Counting is deliberately an over-estimate. The real quotient is smaller, because unachievable
-signatures are discarded -- which is what the solver certification is about -- so a claim of
-the form "this many policies need at most this many cases" is safe in the direction that
-matters.
+Counting is an over-estimate only where the guard grouping is sound, and the first version
+of this script assumed soundness rather than checking it. It read `in`, `notin`, `containsKey`
+and `notContainsKey` as holding of at most one value each, and it read one AWS condition guard
+per (operator, key) pair while an IAM condition value is an array. Both are false: two `in`
+guards over disjoint lists realise four signatures on one component, not three, and so does a
+pair of `containsKey` guards. Where that happens the count *under*-estimates, which is the one
+direction a "this many policies need at most this many cases" claim cannot survive. Those
+operators are counted in the exponential branch here, and the published measurement that rested
+on the old grouping is withdrawn rather than restated: `docs/coverage-cost-v1.json` carries an
+`invalidated` block and this script refuses to overwrite it without `--replace-invalidated`.
 
     python scripts/coverage_cost.py [--json out.json]
 """
@@ -41,17 +47,27 @@ ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 
 # Above this the quotient is not enumerable in practice and the exact score is unavailable;
-# `policy_mutation.py` refuses rather than pretending, and so does this count.
-INTRACTABLE = 10**9
+# `policy_mutation.py` refuses rather than pretending. The count itself is *not* clamped to it:
+# clamping published the cap verbatim as a percentile, so a corpus whose tail is 10^9 and one
+# whose tail is 10^300 read identically. The exact integer is kept and the limit is reported
+# separately, as `exceeds_enumeration_limit`.
+ENUMERATION_LIMIT = 10**9
 
 CONNECTIVES = frozenset({"allof", "anyof", "not"})
 OPERANDS = ("field", "value", "count")
 
 # Guards that hold of at most one value of their component, so `n` of them cut it into at
 # most `n + 1` classes.
-AZURE_EXCLUSIVE = frozenset(
-    {"equals", "notequals", "in", "notin", "exists", "containskey", "notcontainskey"}
-)
+# `in`/`notin`/`containsKey`/`notContainsKey` are deliberately absent: each holds of a *set*
+# of values, so two of them on one component can be independently true or false and realise
+# four signatures rather than three. They are counted in the exponential branch below.
+AZURE_EXCLUSIVE = frozenset({"equals", "notequals", "exists"})
+# What `iam_guards` records for a condition guard whose comparison value is an array of more
+# than one entry. It is in neither exclusive set and is not a pattern kind, so it lands in the
+# exponential branch of `cells_from_groups`, which is where a guard that can hold of several
+# values belongs.
+MULTI_VALUED = "multi-valued"
+
 IAM_EXCLUSIVE = frozenset(
     {
         "stringequals",
@@ -115,6 +131,11 @@ def cells_from_groups(groups: dict[str, list[str]], exclusive: frozenset[str]) -
     * A pattern with an interior or trailing-question wildcard can overlap another
       arbitrarily, so those need the exponential.
     * A pattern of `*` alone is true of everything and splits nothing.
+    * Everything else -- set-membership operators included -- needs the exponential, because
+      two guards over different sets can be independently true of one value.
+
+    The result is the exact product, never clamped: a clamp published the cap itself as a
+    percentile and hid how far past it the tail went.
     """
 
     product = 1
@@ -133,7 +154,7 @@ def cells_from_groups(groups: dict[str, list[str]], exclusive: frozenset[str]) -
         bound *= 2 ** kinds["wildcard"]
         # Never claim more than the unconditional bound for the group.
         total = sum(count for kind, count in kinds.items() if kind != "everything")
-        product = min(product * min(bound, 2**total if total < 64 else bound), INTRACTABLE)
+        product *= min(bound, 2**total)
     return product
 
 
@@ -189,8 +210,13 @@ def iam_guards(document: dict[str, Any]) -> dict[str, list[str]]:
             for operator, comparison in condition.items():
                 if not isinstance(comparison, dict):
                     continue
-                for key in comparison:
-                    groups[f"condition:{key}"].append(operator)
+                for key, value in comparison.items():
+                    # An IAM condition value is an array. `StringEquals` against a two-element
+                    # array is true of either element, so it is not the one-value-at-most guard
+                    # `IAM_EXCLUSIVE` describes: two of them on one key realise four signatures.
+                    # Only a single-valued comparison keeps the `n + 1` counting.
+                    single = not isinstance(value, list) or len(value) == 1
+                    groups[f"condition:{key}"].append(operator if single else MULTI_VALUED)
     return groups
 
 
@@ -207,7 +233,11 @@ def _distribution(cells: list[int]) -> dict[str, Any]:
         "p75_cells": percentile(0.75),
         "p90_cells": percentile(0.90),
         "p99_cells": percentile(0.99),
-        "at_or_above_intractable": sum(1 for value in ordered if value >= INTRACTABLE),
+        "at_or_above_enumeration_limit": sum(1 for value in ordered if value >= ENUMERATION_LIMIT),
+        # The percentiles above are exact integers. This says whether any of them, or any
+        # policy at all, is past the point where enumerating the quotient stops being a
+        # thing anyone can do -- which the old clamp hid by publishing the limit as a value.
+        "exceeds_enumeration_limit": bool(ordered and ordered[-1] >= ENUMERATION_LIMIT),
         "share_at_most": {
             str(threshold): round(
                 sum(1 for value in ordered if value <= threshold) / len(ordered), 4
@@ -218,7 +248,7 @@ def _distribution(cells: list[int]) -> dict[str, Any]:
 
 
 def measure(azure_root: Path, iam_root: Path, docs: Path) -> dict[str, Any]:
-    findings: dict[str, Any] = {"schema_version": "v1", "intractable_at": INTRACTABLE}
+    findings: dict[str, Any] = {"schema_version": "v1", "enumeration_limit": ENUMERATION_LIMIT}
 
     azure = _adapter("azure")
     art = json.loads((docs / "fragment-membership-azure-wide-v1.json").read_text("utf-8"))
@@ -274,7 +304,38 @@ def measure(azure_root: Path, iam_root: Path, docs: Path) -> dict[str, Any]:
             "median_guards": int(statistics.median(guards)),
             "max_guards": max(guards),
         }
+        # The same check Azure gets. It was written for Azure only, so an IAM corpus that had
+        # drifted from the membership artifact would have produced a cost distribution over a
+        # different population than the one it claimed to describe, silently.
+        if len(cells) != len(inside):
+            raise SystemExit(
+                f"cost was measured over {len(cells)} IAM policies but "
+                f"{len(inside)} are inside the fragment; the two corpora disagree"
+            )
     return findings
+
+
+def _refuse_to_replace_an_invalidated_artifact(destination: Path) -> None:
+    """Stop a re-run from quietly restoring a measurement the project withdrew.
+
+    The published distribution rested on a grouping rule that was wrong in the unsafe
+    direction, so the artifact carries an `invalidated` block instead of numbers anyone should
+    quote. A plain re-run of this script would overwrite that notice with fresh numbers and
+    leave no trace that a claim had ever been withdrawn, which is how a retraction becomes a
+    revision. Replacing it is allowed; doing it by accident is not.
+    """
+
+    if not destination.is_file():
+        return
+    try:
+        existing = json.loads(destination.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+    if isinstance(existing, dict) and "invalidated" in existing:
+        raise SystemExit(
+            f"{destination} carries an invalidation notice and will not be overwritten; "
+            "pass --replace-invalidated if the withdrawal is being lifted deliberately"
+        )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -283,7 +344,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--iam", type=Path, required=True)
     parser.add_argument("--docs", type=Path, default=ROOT / "docs")
     parser.add_argument("--json", type=Path)
+    parser.add_argument(
+        "--replace-invalidated",
+        action="store_true",
+        help="overwrite an artifact carrying an invalidation notice (say why in the commit)",
+    )
     arguments = parser.parse_args(argv)
+
+    if arguments.json is not None and not arguments.replace_invalidated:
+        _refuse_to_replace_an_invalidated_artifact(arguments.json)
 
     findings = measure(arguments.azure, arguments.iam, arguments.docs)
     for name in ("azure", "iam"):
@@ -298,7 +367,10 @@ def main(argv: list[str] | None = None) -> int:
         )
         for threshold, share in row["share_at_most"].items():
             print(f"    at most {threshold:>8} cells: {100 * share:5.1f}%")
-        print(f"  intractable (>= {INTRACTABLE:,}): {row['at_or_above_intractable']}")
+        print(
+            f"  past the enumeration limit (>= {ENUMERATION_LIMIT:,}): "
+            f"{row['at_or_above_enumeration_limit']}"
+        )
     if arguments.json:
         arguments.json.write_text(
             json.dumps(findings, indent=2, sort_keys=True) + "\n", encoding="utf-8"
