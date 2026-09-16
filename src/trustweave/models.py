@@ -155,6 +155,7 @@ def contains_control_characters(value: str) -> bool:
         for character in value
     )
 
+
 # The published bundle schema bounds every declared manifest collection, but nothing
 # enforced those bounds at authoring time, so `scan` wrote bundles that `attest` and
 # `diff` then refused and that failed their own JSON Schema. They are declared here
