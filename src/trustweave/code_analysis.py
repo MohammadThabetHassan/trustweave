@@ -35,6 +35,7 @@ from trustweave.code_catalog import (
     DB_CONNECTION_SYMBOLS,
     DB_EXECUTE_METHODS,
     DB_PLUMBING_METHODS,
+    DB_SCRIPT_METHODS,
     EGRESS_COMMANDS,
     EXTERNAL_RECEIVERS,
     EXTERNAL_SYMBOLS,
@@ -50,6 +51,7 @@ from trustweave.code_catalog import (
     SECRET_ENV_TOKENS,
     SENSITIVE_RECEIVERS,
     SENSITIVE_SYMBOLS,
+    SQL_CTE_TOKEN,
     SQL_READ_TOKENS,
     SQL_WRITE_TOKENS,
     UNKNOWN_ACTION_CLASS,
@@ -766,29 +768,64 @@ def _third_party_parameters(
     fail in. The annotation is the evidence that the receiver is third-party state; an
     unannotated parameter, or one annotated as a builtin, stays benign so an ordinary pure
     function is still positively classified.
+
+    An annotation is read through its wrappers. `git.Repo | None`, `Optional[git.Repo]`,
+    `list[git.Repo]` and the quoted `"git.Repo"` all name the same third-party type, and
+    reading only a bare dotted spelling meant one ` | None` turned a refusal into a benign
+    high-confidence read of a tool that commits to a repository.
     """
 
+    found: set[str] = set()
+    imported_roots = {binding.split(".", 1)[0] for binding in module.bindings.values()}
+    for parameter in _parameters(function):
+        if parameter.annotation is None:
+            continue
+        for named in _annotation_types(parameter.annotation):
+            qualified = _resolve(_dotted(named), module)
+            if not qualified or "." not in qualified:
+                continue
+            root = qualified.split(".", 1)[0]
+            if root in sys.stdlib_module_names:
+                continue
+            if root in imported_roots:
+                found.add(parameter.arg)
+    return found
+
+
+def _parameters(function: ast.FunctionDef | ast.AsyncFunctionDef) -> list[ast.arg]:
+    """Every parameter the signature declares, in the order Python binds them."""
+
     arguments = function.args
-    parameters = [
+    return [
         *arguments.posonlyargs,
         *arguments.args,
         *arguments.kwonlyargs,
         *([arguments.vararg] if arguments.vararg else []),
         *([arguments.kwarg] if arguments.kwarg else []),
     ]
-    found: set[str] = set()
-    for parameter in parameters:
-        if parameter.annotation is None:
-            continue
-        qualified = _resolve(_dotted(parameter.annotation), module)
-        if not qualified or "." not in qualified:
-            continue
-        root = qualified.split(".", 1)[0]
-        if root in sys.stdlib_module_names:
-            continue
-        if root in {binding.split(".", 1)[0] for binding in module.bindings.values()}:
-            found.add(parameter.arg)
-    return found
+
+
+def _annotation_types(annotation: ast.expr) -> list[ast.expr]:
+    """Every type an annotation names, unwrapping unions, containers and quotes."""
+
+    if isinstance(annotation, ast.Constant) and isinstance(annotation.value, str):
+        # An explicitly quoted annotation. PEP 563 does not stringify annotations in the
+        # AST, so this arises only where the author wrote the quotes.
+        try:
+            parsed = ast.parse(annotation.value, mode="eval")
+        except SyntaxError:
+            return []
+        return _annotation_types(parsed.body)
+    if isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BitOr):
+        return [*_annotation_types(annotation.left), *_annotation_types(annotation.right)]
+    if isinstance(annotation, ast.Subscript):
+        inner = annotation.slice
+        elements = inner.elts if isinstance(inner, ast.Tuple) else [inner]
+        return [
+            annotation.value,
+            *[named for element in elements for named in _annotation_types(element)],
+        ]
+    return [annotation]
 
 
 def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
@@ -846,15 +883,7 @@ def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
 def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
     """Every name the function itself binds: parameters first, then local assignments."""
 
-    arguments = function.args
-    parameters = [
-        *arguments.posonlyargs,
-        *arguments.args,
-        *arguments.kwonlyargs,
-        *([arguments.vararg] if arguments.vararg else []),
-        *([arguments.kwarg] if arguments.kwarg else []),
-    ]
-    names = {parameter.arg for parameter in parameters}
+    names = {parameter.arg for parameter in _parameters(function)}
     return names | _assigned_names(function.body)
 
 
@@ -993,7 +1022,7 @@ def _scope_origins(
 
 
 def _sql_class(call: ast.Call, literals: dict[str, ast.expr] | None = None) -> str | None:
-    """Classify a database execute call by the leading keyword of its literal query.
+    """Classify a database execute call from its literal query.
 
     The statement is very often a module-level constant rather than an inline string, so
     resolving only inline literals refused an ordinary reporting query as though it were
@@ -1006,15 +1035,60 @@ def _sql_class(call: ast.Call, literals: dict[str, ast.expr] | None = None) -> s
     if not candidates or len(candidates) != 1:
         return None
     query = next(iter(candidates))
+    if call.func.attr in DB_SCRIPT_METHODS:
+        # One call, several statements. Any write in any of them decides the class, and a
+        # statement that is neither is not answered at all.
+        statements = [statement for statement in query.split(";") if statement.strip()]
+        classes = [_statement_class(statement) for statement in statements]
+        if not classes or None in classes:
+            return None
+        return "write" if "write" in classes else "read"
+    return _statement_class(query)
+
+
+def _statement_class(query: str) -> str | None:
+    """The class of one SQL statement, or None when its leading keyword is not catalogued."""
+
     head = query.strip().split(None, 1)
     if not head:
         return None
     token = head[0].casefold()
     if token in SQL_WRITE_TOKENS:
         return "write"
+    if token == SQL_CTE_TOKEN:
+        # A common table expression is named by `WITH` and decided by what follows it.
+        # Reading the leading keyword alone gave `WITH stale AS (SELECT ...) DELETE FROM
+        # events ...` an affirmative read signal: positive wrong evidence, which no refusal
+        # can demote. Both SQLite and PostgreSQL run data-modifying CTEs, and PostgreSQL
+        # puts the DELETE inside the parentheses, so the whole statement is read rather than
+        # the part after the CTE list.
+        return "write" if _has_write_verb(query) else "read"
     if token in SQL_READ_TOKENS:
         return "read"
     return None
+
+
+def _has_write_verb(query: str) -> bool:
+    """Whether a data-modifying keyword appears as a verb anywhere in the statement."""
+
+    words = _sql_words(query)
+    for index, word in enumerate(words):
+        if word.casefold() not in SQL_WRITE_TOKENS:
+            continue
+        if words[index + 1 : index + 2] == ["("]:
+            # `REPLACE(col, ...)` and `TRUNCATE(value)` are functions, not statements.
+            continue
+        return True
+    return False
+
+
+def _sql_words(query: str) -> list[str]:
+    """The statement split into words, with its punctuation separated out."""
+
+    spaced = query
+    for punctuation in "(),;":
+        spaced = spaced.replace(punctuation, f" {punctuation} ")
+    return spaced.split()
 
 
 def _literal_strings(node: ast.AST | None, literals: dict[str, ast.expr] | None) -> set[str] | None:
