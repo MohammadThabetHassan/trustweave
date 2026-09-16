@@ -22,6 +22,7 @@ _MAX_INTEGER = 2_147_483_647
 _IDENTIFIER_PATTERN = re.compile(r"^TW-[A-Z0-9-]{1,120}$")
 _EVIDENCE_KIND_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,127}$")
 _METADATA_KEY_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
+_CONTROL_CHARACTER_PATTERN = re.compile(r"[\x00-\x1f\x7f\u2028\u2029]")
 _ORDERED_SEQUENCE_FIELDS = frozenset({"path"})
 
 _MetadataScalar = str | bool | int
@@ -147,6 +148,12 @@ def _validate_text(value: Any, path: str, maximum: int = _MAX_METADATA_STRING_LE
         raise ValueError(
             f"canonical finding {path} must be a non-empty string up to {maximum} characters"
         )
+    # This module deliberately imports nothing from the package, so the control-character
+    # rule that models.contains_control_characters states is restated here rather than
+    # shared. A finding carries text straight into Markdown rows; a newline or a NUL in it
+    # closes the row and lets the remainder of the value write structure of its own.
+    if _CONTROL_CHARACTER_PATTERN.search(value):
+        raise ValueError(f"canonical finding {path} must not contain control characters")
 
 
 def _validate_evidence_kind(value: Any) -> None:

@@ -7,7 +7,14 @@ from dataclasses import dataclass
 from typing import Any
 
 from trustweave.engine import evaluate_flow
-from trustweave.models import AgentManifest, Flow, Policy, ValidationError, reject_unknown_fields
+from trustweave.models import (
+    AgentManifest,
+    Flow,
+    Policy,
+    ValidationError,
+    contains_control_characters,
+    reject_unknown_fields,
+)
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
@@ -39,7 +46,10 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
 def _text(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
-    return value.strip()
+    text = value.strip()
+    if contains_control_characters(text):
+        raise ValidationError(f"{path} must not contain control characters")
+    return text
 
 
 def _tool_name(call: Mapping[str, Any], path: str) -> str:
