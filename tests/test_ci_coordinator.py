@@ -1873,6 +1873,9 @@ def test_ci_handle_rejects_partial_artifact_prerequisites(
     monkeypatch.setattr(ci_command, "parse_policy", lambda _document: object())
     monkeypatch.setattr(ci_command, "parse_scenarios", lambda _document: object())
     monkeypatch.setattr(ci_command, "build_bundle", lambda *_args: {})
+    # The scan stage now round-trips its own bundle through validate_bundle, which the
+    # stub above cannot satisfy. This test is about stage prerequisites, not bundle content.
+    monkeypatch.setattr(ci_command, "validate_bundle", lambda *_args: None)
     monkeypatch.setattr(ci_command, "run_scenarios", lambda *_args: {})
 
     attestation_outputs: list[Path | None] = [None, tmp_path / "test-results.json"]

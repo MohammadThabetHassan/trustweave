@@ -463,9 +463,11 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         if "scan" in stages:
             manifest = parse_manifest(read_json(paths["manifest"]))
             policy = parse_policy(read_json(paths["policy"]))
-            bundle_path = write_json(
-                staging / BUNDLE_FILE, build_bundle(manifest, policy, generated_at)
-            )
+            bundle = build_bundle(manifest, policy, generated_at)
+            # The same round-trip `scan` performs. Without it the staged run could write a
+            # bundle its own attest and diff stages refuse, which is where this bites.
+            validate_bundle(bundle, "bundle")
+            bundle_path = write_json(staging / BUNDLE_FILE, bundle)
             artifacts.append(BUNDLE_FILE)
         if "scenarios" in stages:
             policy = policy or parse_policy(read_json(paths["policy"]))
