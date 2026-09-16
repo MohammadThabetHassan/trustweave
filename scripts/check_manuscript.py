@@ -402,7 +402,19 @@ def numeric_claims(docs: Path) -> list[Claim]:
 
     # Google's library, under the same criterion as Gatekeeper's.
     gcp = _load(docs, "fragment-membership-rego-gcp-v1")
-    gcp_schemas = sum("policy schema" in entry["reason"] for entry in gcp["policies"])
+    # The taxonomy counts a schema as not a policy whatever else is true of it, so this has to
+    # read every reason and not just the reported one. Reading `reason` alone counted 31 where
+    # `exclusion_taxonomy.kind_of()` counts 33 -- the two templates that are schemas and also
+    # read the clock -- so the guard pinned the paragraph to one convention and the taxonomy
+    # total in the same run to the other.
+    gcp_schemas = sum(
+        any("policy schema" in reason for reason in (entry.get("reasons") or [entry["reason"]]))
+        for entry in gcp["policies"]
+    )
+    # The instantiation claim is narrower than the schema count and has to stay pinned to its
+    # own set: it was checked against the templates whose only obstruction is the missing
+    # binding, and a sample Constraint would not rescue the two that also read the clock.
+    gcp_schemas_reported = sum("policy schema" in entry["reason"] for entry in gcp["policies"])
     gcp_clock = sum("time.now_ns" in entry["reason"] for entry in gcp["policies"])
     gcp_inside = [entry for entry in gcp["policies"] if entry["verdict"] == "inside"]
     gcp_complete = sum(
@@ -441,12 +453,12 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
         (
             r"instantiating every one of the (\d+)",
-            (str(gcp_schemas),),
+            (str(gcp_schemas_reported),),
             "gcp: schemas with a sample constraint",
         ),
         (
             r"all (\d+) Config Validator templates a sample Constraint",
-            (str(gcp_schemas),),
+            (str(gcp_schemas_reported),),
             "gcp: schemas restated in the taxonomy discussion",
         ),
     ]
