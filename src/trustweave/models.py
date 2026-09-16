@@ -139,6 +139,18 @@ DEFAULT_CLASSIFICATION_TAXONOMY = ("public", "internal", "confidential", "restri
 CAPABILITY_PATTERN_MAX_LENGTH = 128
 IDENTIFIER_MAX_LENGTH = 64
 
+# The published bundle schema bounds every declared manifest collection, but nothing
+# enforced those bounds at authoring time, so `scan` wrote bundles that `attest` and
+# `diff` then refused and that failed their own JSON Schema. They are declared here
+# rather than imported from bundles.py, which imports this module and not the reverse.
+# MAX_MANIFEST_FLOWS equals bundles.MAX_BUNDLE_FINDINGS on purpose: the evaluator emits
+# exactly one finding per declared flow, so one bound is the other.
+MAX_MANIFEST_SOURCES = 1_000
+MAX_MANIFEST_TOOLS = 1_000
+MAX_MANIFEST_FLOWS = 10_000
+MAX_TOOL_CAPABILITIES = 128
+MAX_FLOW_PURPOSE_TAGS = 128
+
 
 def _string(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
@@ -261,7 +273,9 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
         raise ValidationError("manifest.schema_version must be trustweave.dev/v1alpha1")
 
     sources: list[Source] = []
-    for index, raw_source in enumerate(_sequence(root.get("sources"), "manifest.sources")):
+    raw_sources = _sequence(root.get("sources"), "manifest.sources")
+    _at_most(raw_sources, "manifest.sources", MAX_MANIFEST_SOURCES)
+    for index, raw_source in enumerate(raw_sources):
         source = _mapping(raw_source, f"manifest.sources[{index}]")
         reject_unknown_fields(
             source,
@@ -291,7 +305,9 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     _unique_names([source.name for source in sources], "manifest.sources.name")
 
     tools: list[Tool] = []
-    for index, raw_tool in enumerate(_sequence(root.get("tools"), "manifest.tools")):
+    raw_tools = _sequence(root.get("tools"), "manifest.tools")
+    _at_most(raw_tools, "manifest.tools", MAX_MANIFEST_TOOLS)
+    for index, raw_tool in enumerate(raw_tools):
         tool = _mapping(raw_tool, f"manifest.tools[{index}]")
         reject_unknown_fields(
             tool,
@@ -304,13 +320,15 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             raise ValidationError(
                 f"manifest.tools[{index}].action_class must be one of {allowed_actions}"
             )
+        raw_capabilities = _sequence(
+            tool.get("capabilities"), f"manifest.tools[{index}].capabilities"
+        )
+        _at_most(raw_capabilities, f"manifest.tools[{index}].capabilities", MAX_TOOL_CAPABILITIES)
         capabilities = tuple(
             validate_capability_pattern(
                 capability, f"manifest.tools[{index}].capabilities", allow_namespace=False
             )
-            for capability in _sequence(
-                tool.get("capabilities"), f"manifest.tools[{index}].capabilities"
-            )
+            for capability in raw_capabilities
         )
         if not capabilities:
             raise ValidationError(f"manifest.tools[{index}].capabilities must not be empty")
@@ -332,7 +350,9 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     source_names = {source.name for source in sources}
     tool_names = {tool.name for tool in tools}
     flows: list[Flow] = []
-    for index, raw_flow in enumerate(_sequence(root.get("flows"), "manifest.flows")):
+    raw_flows = _sequence(root.get("flows"), "manifest.flows")
+    _at_most(raw_flows, "manifest.flows", MAX_MANIFEST_FLOWS)
+    for index, raw_flow in enumerate(raw_flows):
         flow = _mapping(raw_flow, f"manifest.flows[{index}]")
         reject_unknown_fields(
             flow,
@@ -349,11 +369,13 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             raise ValidationError(
                 f"manifest.flows[{index}].tool references unknown tool {tool_name}"
             )
+        raw_purpose_tags = _sequence(
+            flow.get("purpose_tags", []), f"manifest.flows[{index}].purpose_tags"
+        )
+        _at_most(raw_purpose_tags, f"manifest.flows[{index}].purpose_tags", MAX_FLOW_PURPOSE_TAGS)
         purpose_tags = tuple(
             validate_identifier(value, f"manifest.flows[{index}].purpose_tags")
-            for value in _sequence(
-                flow.get("purpose_tags", []), f"manifest.flows[{index}].purpose_tags"
-            )
+            for value in raw_purpose_tags
         )
         _unique_names(list(purpose_tags), f"manifest.flows[{index}].purpose_tags")
         flows.append(
