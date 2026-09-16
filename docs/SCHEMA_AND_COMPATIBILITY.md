@@ -48,6 +48,13 @@ declared rule identifiers with the same `rule_identifier` pattern the bundle sch
 rather than the `TW-` finding-identifier pattern. Regenerate a policy review with the
 current CLI; do not edit an artifact's version string in place.
 
+The same widening applies in place to `test-results-v1alpha1` (`results[].rule_id`) and
+`trace-review-v1alpha1` (`calls[].rule_id`), which describe the same user-declared rule
+identifiers. Both keep their version constant: the pattern only accepts more than before,
+so no artifact that validated stops validating, and the artifacts it now accepts were
+already being written. `TW-` remains correct for the *finding* namespace, so
+`finding-v1alpha1.schema.json` and each review schema's own `findings[].id` are unchanged.
+
 ## Risk-review migration
 
 Risk-review v1alpha2 carries the canonical `trustweave/fingerprint/v4` identity and adds explicit reviewer-visible lifecycle distinctions. The `v3` namespace is retired: policy-review and declared-chain findings now carry a subject that names the rule, sanitizer, or propagated classifications the finding is about, so their fingerprints changed. A `v3` baseline or suppression document is refused by name rather than silently orphaned — re-run baseline creation against a fresh risk review; never copy a fingerprint string forward. Active states include `new`, expired decisions, `not_yet_applicable_baseline`, `not_yet_applicable_suppression`, `severity_escalated_baseline`, and `severity_escalated_suppression`. A rule-ID or subject-digest mismatch remains active and is reported in `mismatched_decisions`; unused decisions remain in `orphaned_decisions`.
