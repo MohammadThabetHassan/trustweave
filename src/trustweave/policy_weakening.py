@@ -145,8 +145,33 @@ def _reordered_overlapping_rule_ids(before: Any, after: Any) -> list[str]:
     return sorted(reordered)
 
 
-def policy_review_signals(policy_changes: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def _declared_controls(policy: Mapping[str, Any]) -> frozenset[str]:
+    """Mirror the engine's design-time control declarations on a normalized policy payload.
+
+    This reads the bundle's own normalized policy rather than re-parsing it, because the
+    only question here is which controls the policy declares, and `policy_predicates`
+    derives exactly this set from `approval_control`.
+    """
+
+    control = policy.get("approval_control")
+    if not isinstance(control, Mapping):
+        return frozenset()
+    controls = {"approval"}
+    if control.get("fail_closed") is True:
+        controls.add("approval.fail_closed")
+    return frozenset(controls)
+
+
+def policy_review_signals(
+    policy_changes: Sequence[Mapping[str, Any]],
+    *,
+    base_policy: Mapping[str, Any] | None = None,
+    head_policy: Mapping[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     """Classify deterministic policy weakenings and structural review obligations."""
+
+    base_declared = _declared_controls(base_policy or {})
+    head_declared = _declared_controls(head_policy or {})
 
     signals: dict[str, dict[str, Any]] = {}
 
@@ -236,6 +261,7 @@ def policy_review_signals(policy_changes: Sequence[Mapping[str, Any]]) -> list[d
         after_rules = _rules_by_identifier(rules_change.get("after"))
         weakened_decisions: list[str] = []
         removed_controls: list[str] = []
+        impossible_controls: list[str] = []
         matching_predicate_changed: list[str] = []
         for identifier in sorted(set(before_rules) & set(after_rules)):
             before_rule = before_rules[identifier]
@@ -261,6 +287,19 @@ def policy_review_signals(policy_changes: Sequence[Mapping[str, Any]]) -> list[d
             }
             if before_controls - after_controls:
                 removed_controls.append(identifier)
+            if (
+                after_controls - before_controls
+                and before_controls <= base_declared
+                and not after_controls <= head_declared
+            ):
+                # The rule was satisfiable and is not any more. `required_controls` is a
+                # policy-global satisfiability gate, so naming a control the policy does not
+                # declare switches the whole rule off -- the same effect as deleting it,
+                # which TW-DIFF-011 reports. Only this direction is a weakening: adding a
+                # control the policy does declare narrows the rule without killing it, so the
+                # symmetric treatment of `required_controls` as a matching predicate would
+                # co-fire on a harmless addition.
+                impossible_controls.append(identifier)
             if _matching_predicate_changed(before_rule, after_rule):
                 matching_predicate_changed.append(identifier)
         if weakened_decisions:
@@ -276,6 +315,15 @@ def policy_review_signals(policy_changes: Sequence[Mapping[str, Any]]) -> list[d
                 "One or more declared policy rules lost required controls; review the affected "
                 "approval and fail-closed obligations.",
                 {"rule_ids": removed_controls},
+            )
+
+        if impossible_controls:
+            add(
+                "TW-DIFF-012",
+                "One or more declared policy rules gained a required control this policy does "
+                "not declare; the rule can no longer match any declared flow and those paths "
+                "now take a later rule or the default decision.",
+                {"rule_ids": impossible_controls},
             )
 
         added_rule_ids = sorted(set(after_rules) - set(before_rules))

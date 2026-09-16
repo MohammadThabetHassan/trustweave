@@ -7,7 +7,7 @@ import pytest
 
 from trustweave.cli import main
 from trustweave.diff import diff_bundles
-from trustweave.engine import build_bundle
+from trustweave.engine import build_bundle, decision_for_scenario
 from trustweave.io import load_document, write_json
 from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.policy_weakening import policy_review_signals
@@ -1021,3 +1021,157 @@ def test_the_published_decision_change_key_stays_three_elements() -> None:
     changed = diff["changes"]["paths"]["decision_changed"]
     assert [entry["key"] for entry in changed] == [["crm", "reader", "lookup"]]
     assert changed[0]["after"]["flow"]["purpose_tags"] == ["billing"]
+
+
+_REQUIRED_CONTROLS_PROBE_MANIFEST: dict[str, object] = {
+    "schema_version": "trustweave.dev/v1alpha1",
+    "name": "required-controls-probe",
+    "description": "One benign declared flow, so only policy deltas produce signals.",
+    "sources": [
+        {
+            "name": "operator",
+            "trust": "trusted",
+            "data_classification": "public",
+            "description": "The authenticated operator.",
+        }
+    ],
+    "tools": [
+        {
+            "name": "reader",
+            "action_class": "read",
+            "capabilities": ["doc.read"],
+            "description": "A read-only tool.",
+        }
+    ],
+    "flows": [{"source": "operator", "tool": "reader", "purpose": "read"}],
+}
+
+
+def _probe_policy_diff(
+    base_policy_document: dict[str, object], head_policy_document: dict[str, object]
+) -> dict[str, object]:
+    """Diff two policies over a manifest whose only flow is benign under both."""
+
+    manifest = parse_manifest(json.loads(json.dumps(_REQUIRED_CONTROLS_PROBE_MANIFEST)))
+    return diff_bundles(
+        build_bundle(manifest, parse_policy(base_policy_document)),
+        build_bundle(manifest, parse_policy(head_policy_document)),
+        generated_at="2026-08-20T00:00:00+00:00",
+    )
+
+
+def _required_controls_probe_policy() -> dict[str, object]:
+    """The auditor's probe: a deny rule in front of a broad allow, and no declared control."""
+
+    return {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "required-controls-probe",
+        "default_decision": "allow",
+        "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+        "rules": [
+            {
+                "id": "TW-DENYEXT",
+                "description": "Deny untrusted input to external actions.",
+                "source_trust": ["untrusted"],
+                "tool_action_classes": ["external"],
+                "decision": "deny",
+                "rationale": "Untrusted text must not leave the declared boundary.",
+            },
+            {
+                "id": "TW-ALLOWEXT",
+                "description": "Every other declared path may act externally.",
+                "source_trust": ["trusted", "conditional", "untrusted"],
+                "tool_action_classes": ["read", "write", "sensitive", "external"],
+                "decision": "allow",
+                "rationale": "Broad allow rule behind the deny rule.",
+            },
+        ],
+    }
+
+
+def test_a_rule_that_gains_a_required_control_the_policy_does_not_declare_is_reported() -> None:
+    """Turning a deny rule off by adding an unsatisfiable control emitted no signal at all.
+
+    `required_controls` is a policy-global satisfiability gate, so naming a control the policy
+    does not declare switches the whole rule off. The probe: `TW-DENYEXT` gains
+    `required_controls: ["approval"]` while the policy declares no approval control, so
+    `decision_for_scenario(policy, "untrusted", "external")` goes from
+    `("deny", "TW-DENYEXT")` to `("allow", "TW-ALLOWEXT")` and `trustweave diff` emitted
+    nothing: no signal, no decision change, exit 0.
+    """
+
+    base = _required_controls_probe_policy()
+    head = json.loads(json.dumps(base))
+    head_rules = head["rules"]
+    assert isinstance(head_rules, list)
+    head_rules[0]["required_controls"] = ["approval"]
+
+    assert decision_for_scenario(parse_policy(base), "untrusted", "external") == (
+        "deny",
+        "TW-DENYEXT",
+    )
+    assert decision_for_scenario(parse_policy(head), "untrusted", "external") == (
+        "allow",
+        "TW-ALLOWEXT",
+    )
+
+    diff = _probe_policy_diff(base, head)
+
+    assert _signal_ids(diff) == {"TW-DIFF-012"}
+    _policy_signal(
+        diff,
+        "TW-DIFF-012",
+        "One or more declared policy rules gained a required control this policy does not "
+        "declare; the rule can no longer match any declared flow and those paths now take a "
+        "later rule or the default decision.",
+        {"rule_ids": ["TW-DENYEXT"]},
+    )
+
+
+def test_a_rule_that_gains_a_required_control_the_policy_declares_is_not_a_weakening() -> None:
+    """Pins the refusal direction that keeps `required_controls` out of the matching fields.
+
+    Adding a control the policy does declare narrows the rule without switching it off, so it
+    must not co-fire. Treating `required_controls` as a symmetric matching predicate instead
+    would report this harmless addition.
+    """
+
+    base = _required_controls_probe_policy()
+    base["approval_control"] = {
+        "mechanism": "human-review-queue",
+        "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+        "fail_closed": True,
+    }
+    head = json.loads(json.dumps(base))
+    head_rules = head["rules"]
+    assert isinstance(head_rules, list)
+    head_rules[0]["required_controls"] = ["approval"]
+
+    diff = _probe_policy_diff(base, head)
+
+    assert _signal_ids(diff) == set()
+    assert diff["summary"]["decision_changes"] == 0
+
+
+def test_removing_the_approval_control_under_a_rule_that_requires_it_stays_one_signal() -> None:
+    """The rule is unchanged, so only the approval-control removal is reported.
+
+    The new signal is directional on the rule's own declaration; a policy-level control
+    removal is already `TW-DIFF-006` and must not be reported twice.
+    """
+
+    base = _required_controls_probe_policy()
+    base["approval_control"] = {
+        "mechanism": "human-review-queue",
+        "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+        "fail_closed": True,
+    }
+    base_rules = base["rules"]
+    assert isinstance(base_rules, list)
+    base_rules[0]["required_controls"] = ["approval"]
+    head = json.loads(json.dumps(base))
+    head.pop("approval_control")
+
+    diff = _probe_policy_diff(base, head)
+
+    assert _signal_ids(diff) == {"TW-DIFF-006"}

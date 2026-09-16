@@ -171,7 +171,10 @@ def review_policy(
                         ),
                     }
                 )
-        if include_coverage and impossible:
+        if impossible:
+            # A rule that names a control the policy does not declare can never match, so the
+            # decision falls through. That is a fact about the policy, not a coverage
+            # diagnostic: gating it on --coverage meant plain `policy-check` reported nothing.
             findings.append(
                 {
                     "severity": "review",

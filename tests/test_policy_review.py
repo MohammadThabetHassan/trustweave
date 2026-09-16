@@ -697,3 +697,29 @@ def test_a_rule_naming_too_many_cells_says_its_cover_was_not_searched() -> None:
     assert entry["shadowed_by_rules"] == []
     assert review["coverage"]["rules"]["R-C"]["cover_search"] == "complete"
     assert "not searched" in render_policy_review_report(review)
+
+
+def test_a_rule_requiring_undeclared_controls_is_reported_without_the_coverage_flag() -> None:
+    """Plain `policy-check` said `clear` about a policy with a rule that can never match.
+
+    TW-POL-008 was emitted only inside the `include_coverage` guard, and `--coverage` is off
+    by default and absent from the CI default stages, so the second line of defence against
+    an unsatisfiable `required_controls` was suppressed in the common run.
+    """
+
+    rules = [_label_rule("R-IMPOSSIBLE", ["trusted"], "allow")]
+    rules[0]["required_controls"] = ["approval.fail_closed"]
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document.pop("approval_control")
+
+    review = review_policy(parse_policy(document))
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-008"]
+    assert review["findings"][0]["severity"] == "review"
+    assert review["findings"][0]["message"] == (
+        "Rule R-IMPOSSIBLE requires declared controls that this policy does not provide and "
+        "cannot determine a decision."
+    )
+    assert review["summary"]["status"] == "review_required"
+    assert "coverage" not in review
