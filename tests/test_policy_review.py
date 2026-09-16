@@ -13,6 +13,7 @@ from trustweave.io import load_document
 from trustweave.models import ValidationError, parse_policy
 from trustweave.policy_review import review_policy
 from trustweave.report import render_policy_review_report
+from trustweave.scenarios import parse_scenarios, run_scenarios
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / "policies" / "default-policy.json"
@@ -938,3 +939,67 @@ def test_a_declined_cover_search_is_reported_without_the_coverage_flag() -> None
         "of 10000, so its first-match reachability was not established."
     )
     assert "coverage" not in review
+
+
+def test_the_shipped_demo_policy_emits_schema_valid_coverage_and_synthetic_results() -> None:
+    """`policy-check --coverage` and `test` wrote schema-invalid evidence at exit 0.
+
+    The policy-review, test-results and trace-review schemas constrained *policy rule ids*
+    with the *finding* identifier pattern `^TW-[A-Z0-9-]{1,120}$`, while
+    `models.validate_rule_identifier` accepts any bounded ASCII identifier. The shipped
+    `demo/research-assistant` policy names its rules `RA-001`..`RA-004`, so every
+    `coverage.rules` key's `shadowed_by`, `coverage.shadowed_rules`,
+    `coverage.impossible_rules`, `approval_control.high_impact_approval_rules` and
+    `results[].rule_id` violated their own published contract.
+    """
+
+    demo = ROOT / "demo" / "research-assistant"
+    policy = parse_policy(load_document(demo / "policies" / "boundary-policy.json"))
+    scenarios = parse_scenarios(load_document(demo / "scenarios" / "regressions.json"))
+
+    review = review_policy(policy, generated_at="2026-09-16T00:00:00+00:00", include_coverage=True)
+    results = run_scenarios(policy, scenarios, generated_at="2026-09-16T00:00:00+00:00")
+
+    assert review["approval_control"]["high_impact_approval_rules"] == ["RA-002"]
+    assert [result["rule_id"] for result in results["results"]][:1] == ["RA-001"]
+    assert (
+        list(
+            Draft202012Validator(
+                _published_schema("policy-review-v1alpha2.schema.json")
+            ).iter_errors(review)
+        )
+        == []
+    )
+    assert (
+        list(
+            Draft202012Validator(
+                _published_schema("test-results-v1alpha1.schema.json")
+            ).iter_errors(results)
+        )
+        == []
+    )
+
+
+def test_the_finding_identifier_namespace_still_requires_the_tw_prefix() -> None:
+    """Pins the refusal direction: only *policy rule* ids were widened.
+
+    `TW-` is right for the finding namespace, so `finding-v1alpha1.schema.json` keeps it and
+    each review schema keeps the strict pattern on its own `findings[].id`.
+    """
+
+    finding_schema = _published_schema("finding-v1alpha1.schema.json")
+    declared_finding = {
+        "id": "RA-001",
+        "severity": "review",
+        "message": "A declared rule identifier is not a finding identifier.",
+        "evidence_kind": "declared_policy_structure",
+    }
+
+    assert list(Draft202012Validator(finding_schema).iter_errors(declared_finding))
+    for name in (
+        "policy-review-v1alpha2.schema.json",
+        "test-results-v1alpha1.schema.json",
+        "trace-review-v1alpha1.schema.json",
+    ):
+        rule_identifier = _published_schema(name)["$defs"]["rule_identifier"]
+        assert list(Draft202012Validator(rule_identifier).iter_errors("RA-002")) == []
