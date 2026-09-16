@@ -2,18 +2,22 @@
   "capabilities": [
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 1,
       "achievable_by_solver": 1,
       "agree": true,
       "candidate_signatures": 1,
+      "criterion_agrees": true,
       "patterns": [],
       "produced_by_construction": 1,
       "unachievable_but_produced": []
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 2,
       "achievable_by_solver": 2,
       "agree": true,
       "candidate_signatures": 2,
+      "criterion_agrees": true,
       "patterns": [
         "net.*"
       ],
@@ -22,9 +26,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 3,
       "achievable_by_solver": 3,
       "agree": true,
       "candidate_signatures": 4,
+      "criterion_agrees": true,
       "patterns": [
         "net.*",
         "net.http"
@@ -34,9 +40,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 4,
       "achievable_by_solver": 4,
       "agree": true,
       "candidate_signatures": 4,
+      "criterion_agrees": true,
       "patterns": [
         "net.*",
         "fs.*"
@@ -46,9 +54,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 4,
       "achievable_by_solver": 4,
       "agree": true,
       "candidate_signatures": 4,
+      "criterion_agrees": true,
       "patterns": [
         "net.http",
         "net.https"
@@ -58,9 +68,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 5,
       "achievable_by_solver": 5,
       "agree": true,
       "candidate_signatures": 8,
+      "criterion_agrees": true,
       "patterns": [
         "net.*",
         "net.http",
@@ -71,9 +83,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 6,
       "achievable_by_solver": 6,
       "agree": true,
       "candidate_signatures": 8,
+      "criterion_agrees": true,
       "patterns": [
         "net.*",
         "fs.*",
@@ -84,9 +98,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 8,
       "achievable_by_solver": 8,
       "agree": true,
       "candidate_signatures": 8,
+      "criterion_agrees": true,
       "patterns": [
         "a",
         "b",
@@ -97,9 +113,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 3,
       "achievable_by_solver": 3,
       "agree": true,
       "candidate_signatures": 4,
+      "criterion_agrees": true,
       "patterns": [
         "net.*",
         "net.trustweave-witness-outsider"
@@ -109,9 +127,11 @@
     },
     {
       "achievable_but_missing": [],
+      "achievable_by_criterion": 2,
       "achievable_by_solver": 2,
       "agree": true,
       "candidate_signatures": 2,
+      "criterion_agrees": true,
       "patterns": [
         "trustweave-witness-outsider"
       ],
@@ -121,10 +141,14 @@
   ],
   "capability_cases": 10,
   "capability_cases_agreeing": 10,
+  "cases": 14,
+  "cases_where_the_criterion_agrees_with_the_solver": 14,
   "purposes": [
     {
+      "achievable_by_criterion": 2,
       "achievable_by_solver": 2,
       "candidate_signatures": 2,
+      "criterion_agrees": true,
       "named_tags": [
         "a",
         "b"
@@ -138,8 +162,10 @@
       "subsets_enumerated": 4
     },
     {
+      "achievable_by_criterion": 4,
       "achievable_by_solver": 4,
       "candidate_signatures": 4,
+      "criterion_agrees": true,
       "named_tags": [
         "a",
         "b"
@@ -155,8 +181,10 @@
       "subsets_enumerated": 4
     },
     {
+      "achievable_by_criterion": 4,
       "achievable_by_solver": 4,
       "candidate_signatures": 4,
+      "criterion_agrees": true,
       "named_tags": [
         "a",
         "b",
@@ -175,8 +203,10 @@
       "subsets_enumerated": 8
     },
     {
+      "achievable_by_criterion": 2,
       "achievable_by_solver": 2,
       "candidate_signatures": 2,
+      "criterion_agrees": true,
       "named_tags": [
         "a"
       ],
