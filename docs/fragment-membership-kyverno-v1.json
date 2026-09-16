@@ -10,8 +10,8 @@
   ],
   "corpus_scope": "joined-to-study",
   "counts": {
-    "inside": 41,
-    "outside": 8,
+    "inside": 40,
+    "outside": 9,
     "undetermined": 0
   },
   "ecosystem": "kyverno",
@@ -109,12 +109,12 @@
       "verdict": "outside"
     },
     {
-      "reason": "every guard reads the admission request and literals in the policy",
-      "subject": "block-updates-deletes",
-      "variable_roots": [
-        "request"
+      "rbac_selectors": [
+        "exclude.clusterRoles"
       ],
-      "verdict": "inside"
+      "reason": "selects on the requester's role bindings, which the admission request does not carry",
+      "subject": "block-updates-deletes",
+      "verdict": "outside"
     },
     {
       "reason": "every guard reads the admission request and literals in the policy",
@@ -429,6 +429,6 @@
   ],
   "policies_considered": 49,
   "schema_version": "v1",
-  "share_inside": 0.8367,
-  "share_inside_of_judged": 0.8367
+  "share_inside": 0.8163,
+  "share_inside_of_judged": 0.8163
 }

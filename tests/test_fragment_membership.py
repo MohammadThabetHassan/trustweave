@@ -274,6 +274,46 @@ class TestCedarAdapter:
 
         assert outcome.verdict == core.INSIDE
 
+    def test_a_url_inside_a_string_does_not_start_a_comment(self) -> None:
+        """`COMMENT = re.compile(r"//.*")` had no string state, and failed unsafely.
+
+        A `//` inside a string literal deleted the rest of the physical line before any
+        operator scan ran, so a policy that should be refused came back `inside` -- a
+        confident wrong verdict rather than an abstention, because truncation is line-local.
+        """
+
+        refused = cedar.classify(
+            "permit(principal, action, resource) when { resource.tags.someUnknownExtension(1) };\n"
+        )
+        assert refused.verdict == core.UNDETERMINED
+        assert refused.detail["unrecognised"] == ["someUnknownExtension"]
+
+        with_url = cedar.classify(
+            "permit(principal, action, resource) when "
+            '{ resource.url like "https://x/*" && resource.tags.someUnknownExtension(1) };\n'
+        )
+        assert with_url.verdict == core.UNDETERMINED, "a URL must not swallow the guard"
+        assert with_url.detail["unrecognised"] == ["someUnknownExtension"]
+
+        # An entity UID holding a URL is the same shape, and a later statement on one line
+        # must survive the earlier one's string.
+        uid = cedar.classify(
+            'permit(principal, action, resource == Doc::"https://ex.com/a") '
+            "when { resource.t.weirdCall(1) };\n"
+        )
+        assert uid.verdict == core.UNDETERMINED
+
+    def test_a_real_comment_after_a_string_is_still_a_comment(self) -> None:
+        """The other direction: string awareness must not stop comments being stripped."""
+
+        outcome = cedar.classify(
+            'permit(principal, action, resource) when { resource.url == "https://x/y" }; '
+            "// mentions mysteryOp() in prose\n"
+        )
+
+        assert outcome.verdict == core.INSIDE
+        assert outcome.detail["constructors"] == []
+
 
 @pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
 def test_the_committed_measurement_judges_every_policy(ecosystem: str) -> None:
@@ -289,7 +329,7 @@ def test_the_committed_measurement_judges_every_policy(ecosystem: str) -> None:
 
 
 def test_the_committed_measurements_hold_the_quoted_figures() -> None:
-    figures = {"xacml": (21, 15, 6), "kyverno": (49, 41, 8), "cedar": (22, 22, 0)}
+    figures = {"xacml": (21, 15, 6), "kyverno": (49, 40, 9), "cedar": (22, 22, 0)}
     for ecosystem, (total, inside, outside) in figures.items():
         artifact = json.loads(
             (ROOT / "docs" / f"fragment-membership-{ecosystem}-v1.json").read_text(encoding="utf-8")
@@ -318,7 +358,7 @@ def test_every_xacml_policy_outside_is_outside_for_the_same_reason() -> None:
 # an allowlist of function *names* where the criterion is about *kinds* of predicate.
 
 
-WIDE_FIGURES = {"xacml": (1007, 951, 56), "kyverno": (235, 206, 29), "cedar": (22, 22, 0)}
+WIDE_FIGURES = {"xacml": (1007, 953, 54), "kyverno": (235, 203, 32), "cedar": (22, 22, 0)}
 
 
 @pytest.mark.parametrize("ecosystem", ECOSYSTEMS)
@@ -494,6 +534,58 @@ def test_kyverno_selecting_on_namespace_labels_is_outside() -> None:
     assert outcome.verdict == "outside"
     assert "Namespace labels" in outcome.reason
     assert taxonomy.classify(outcome.reason) == "the subject does not determine the guard"
+
+
+def test_kyverno_selecting_on_the_requesters_cluster_roles_is_outside() -> None:
+    """Kyverno fetches these; the AdmissionReview does not carry them.
+
+    The adapter had a branch for `namespaceSelector` and none for `roles`/`clusterRoles`,
+    which fail the identical test: `pkg/webhooks/handlers/enrich.go` fills `request.Roles`
+    and `request.ClusterRoles` from `userinfo.GetRoleRef()`, which lists RoleBindings and
+    ClusterRoleBindings out of the cluster. Three vendor policies gate on cluster RBAC --
+    `block-updates-deletes`, `deny-privileged-profile`, `disallow-default-tlsoptions`, each
+    `background: false` -- and all three shipped `inside` with the affirmative reason that
+    every guard reads the admission request and literals in the policy.
+    """
+
+    policy = (
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: p\n"
+        "spec:\n  background: false\n  rules:\n  - name: r\n    match:\n      any:\n"
+        "      - resources:\n          kinds:\n          - Pod\n"
+        "    exclude:\n      any:\n      - clusterRoles:\n        - cluster-admin\n"
+        "    validate:\n      pattern:\n        spec:\n          containers:\n"
+        "          - name: '*'\n"
+    )
+
+    outcome = kyverno.classify(policy)
+
+    assert outcome.verdict == "outside"
+    assert "role bindings" in outcome.reason
+    assert outcome.detail["rbac_selectors"] == ["exclude.clusterRoles"]
+    assert taxonomy.classify(outcome.reason) == "the subject does not determine the guard"
+
+
+def test_kyverno_selecting_on_the_requesters_own_identity_stays_inside() -> None:
+    """The refusal direction. `subjects` is matched against the request's own userInfo."""
+
+    policy = (
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: p\n"
+        "spec:\n  rules:\n  - name: r\n    match:\n      any:\n"
+        "      - resources:\n          kinds:\n          - Pod\n"
+        "        subjects:\n        - kind: User\n          name: alice\n"
+        "    validate:\n      pattern:\n        spec:\n          containers:\n"
+        "          - name: '*'\n"
+    )
+
+    assert kyverno.classify(policy).verdict == core.INSIDE
+    # And a resource *kind* called Role is a value, not a selector key.
+    kinds_only = (
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: p\n"
+        "spec:\n  rules:\n  - name: r\n    match:\n      any:\n"
+        "      - resources:\n          kinds:\n          - Role\n          - ClusterRole\n"
+        "    validate:\n      pattern:\n        rules:\n        - verbs:\n          - get\n"
+    )
+    assert kyverno.classify(kinds_only).verdict == core.INSIDE
 
 
 def test_xacml_membership_follows_the_family_not_the_datatype() -> None:
@@ -909,22 +1001,61 @@ def test_the_iam_measurement_judges_every_policy() -> None:
     assert artifact["counts"] == {"inside": 1651, "outside": 0, "undetermined": 0}
 
 
-def test_the_iam_adapter_has_no_path_to_outside_and_the_paper_says_so() -> None:
-    """The caveat that keeps the 100% honest, asserted where it cannot be forgotten.
+def test_an_iam_clock_condition_key_is_outside_like_its_xacml_analogue() -> None:
+    """This test used to assert that the adapter contained no OUTSIDE branch at all.
 
-    IAM offers no construct by which a policy reads state the evaluator was not handed --
-    no lookup, no clock call, no external fetch, and every condition key travels with the
-    request -- so the adapter has no `outside` branch. That makes the figure weaker
-    evidence than Kyverno's 87.2%, where the instrument had one and used it 30 times. If
-    someone later adds an `outside` branch, this test should fail and the paper's caveat
-    should be revisited.
+    The caveat it pinned said IAM "offers no construct by which a policy reads state the
+    evaluator was not handed -- no lookup, no clock call, no external fetch, and every
+    condition key travels with the request". That is false of the language: `aws:CurrentTime`,
+    `aws:EpochTime`, `aws:TokenIssueTime` and `aws:MultiFactorAuthAge` are resolved from a
+    clock, and XACML's adapter routes the analogous designators outside. With no outside
+    branch at all, 1,651 of 1,651 inside could not have come out otherwise. The corpus
+    contains none of these keys, so the published 100% does not move -- what moves is the
+    reason it is allowed to stand.
     """
-    source = (ROOT / "scripts" / "fragment_membership_iam.py").read_text("utf-8")
-    body = source.split('"""', 2)[-1]
 
-    assert "OUTSIDE" not in body.replace(
-        "from fragment_membership import INSIDE, OUTSIDE, UNDETERMINED, Verdict", ""
-    ), "the adapter gained an outside branch; the paper's caveat needs updating"
+    def policy(key: str, operator: str = "DateLessThan") -> str:
+        return json.dumps(
+            {
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": "s3:GetObject",
+                        "Resource": "*",
+                        "Condition": {operator: {key: "2026-01-01T00:00:00Z"}},
+                    }
+                ]
+            }
+        )
+
+    for key in ("aws:CurrentTime", "aws:EpochTime", "aws:TokenIssueTime", "aws:MultiFactorAuthAge"):
+        outcome = iam.classify(policy(key))
+        assert outcome.verdict == core.OUTSIDE, key
+        assert "reads the clock" in outcome.reason
+        assert outcome.detail["clock_condition_keys"] == [key]
+    # Case is not load-bearing: AWS condition keys are matched case-insensitively.
+    assert iam.classify(policy("AWS:CurrentTime")).verdict == core.OUTSIDE
+
+
+def test_an_iam_condition_key_the_request_carries_stays_inside() -> None:
+    """The refusal direction, so the new branch cannot quietly swallow ordinary keys."""
+
+    def policy(key: str) -> str:
+        return json.dumps(
+            {
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": "s3:GetObject",
+                        "Resource": "*",
+                        "Condition": {"StringEquals": {key: "x"}},
+                    }
+                ]
+            }
+        )
+
+    for key in ("aws:PrincipalTag/Project", "aws:RequestTag/expirationDate", "s3:prefix"):
+        assert iam.classify(policy(key)).verdict == core.INSIDE, key
 
 
 def test_iam_membership_follows_the_operator_family_not_the_datatype() -> None:
@@ -1151,7 +1282,7 @@ def test_the_azure_measurement_judges_every_definition_it_can_read() -> None:
     )
 
     assert artifact["policies_considered"] == 3769
-    assert artifact["counts"] == {"inside": 2150, "outside": 1562, "undetermined": 57}
+    assert artifact["counts"] == {"inside": 2137, "outside": 1589, "undetermined": 43}
     subjects = [entry["subject"] for entry in artifact["policies"]]
     assert len(set(subjects)) == len(subjects), "subjects must be unique or policies vanish"
 
@@ -1171,11 +1302,13 @@ def test_azure_exclusions_split_into_schemas_reads_and_nondeterminism() -> None:
     related = [entry for entry in outside if "related resource exists" in entry["reason"]]
 
     assert len(related) == 1444
-    assert len(schemas) == 106
-    assert len(runtime) == 3
+    assert len(schemas) == 112
+    # 3 definitions read `reference()`; the other 21 read a property of the object
+    # `resourceGroup()` or `subscription()` returns, which is that object's own state.
+    assert len(runtime) == 24
     assert len(nondeterministic) == 9
     assert len(related) + len(schemas) + len(runtime) + len(nondeterministic) == len(outside)
-    assert len(outside) == 1562
+    assert len(outside) == 1589
 
 
 def test_a_clock_read_is_the_same_kind_of_exclusion_in_azure_as_in_rego() -> None:
@@ -1229,12 +1362,19 @@ def test_every_azure_obstruction_is_recorded_not_only_the_reported_one() -> None
     # Every definition carrying the schema obstruction, judged or not: the 57 whose guard is
     # a program elsewhere still declare parameters, and whether one carries a default is a
     # fact about the document rather than about our ability to read its guard.
-    assert len(undefaulted) == 841, "every exclusion carrying the schema obstruction"
-    assert len(schemas) + len(doubly) == len(undefaulted)
+    assert len(undefaulted) == 855, "every exclusion carrying the schema obstruction"
+    carrying_schema = [
+        entry
+        for entry in outside
+        if "policy schema" in entry["reason"]
+        or any("policy schema" in reason for reason in entry.get("reasons") or [])
+    ]
+    assert carrying_schema == undefaulted
     assert all(len(entry["reasons"]) > 1 for entry in doubly)
-    assert all(any("policy schema" in reason for reason in entry["reasons"]) for entry in doubly), (
-        "every doubly-excluded definition here is a schema reported under a stronger reason"
-    )
+    # Most doubly-excluded definitions are schemas reported under a stronger reason, but not
+    # all: 3 both turn on a related resource and read `resourcegroup().managedBy`, and neither
+    # obstruction is removed by an assignment.
+    assert len(doubly) - len(carrying_schema) + len(schemas) == 3
 
 
 def test_the_copy_judged_is_the_published_built_in_not_the_tutorial_variant() -> None:
@@ -1401,8 +1541,15 @@ def test_azure_reference_is_a_lookup_but_subscription_is_ambient() -> None:
         )
 
     assert azure.classify(definition("[reference('r').x]")).verdict == core.OUTSIDE
-    assert azure.classify(definition("[subscription().displayName]")).verdict == core.INSIDE
-    assert azure.classify(definition("[resourceGroup().location]")).verdict == core.INSIDE
+    # These two were pinned INSIDE on the ground that an ambient call is "handed to the
+    # evaluator". The criterion the taxonomy actually states is whether the subject determines
+    # the guard, and a subscription's display name and a resource group's location are the
+    # second object's own state -- exactly what `reference()` is excluded for.
+    assert azure.classify(definition("[subscription().displayName]")).verdict == core.OUTSIDE
+    assert azure.classify(definition("[resourceGroup().location]")).verdict == core.OUTSIDE
+    # The segments of the resource's own id stay inside, which is what keeps the branch narrow.
+    assert azure.classify(definition("[resourceGroup().name]")).verdict == core.INSIDE
+    assert azure.classify(definition("[subscription().subscriptionId]")).verdict == core.INSIDE
 
 
 def test_azure_does_not_read_prose_inside_a_string_literal_as_a_function_call() -> None:
@@ -1472,13 +1619,13 @@ def test_the_exclusion_taxonomy_is_exhaustive_over_every_corpus() -> None:
     assert findings["exclusions_unclassified"] == {}
     assert findings["corpora"] == 8
     assert findings["artifacts_considered"] == 7006
-    assert findings["artifacts_inside"] == 5186
+    assert findings["artifacts_inside"] == 5172
     assert findings["exclusions_by_kind"] == {
-        "not a policy": 902,
-        "the subject does not determine the guard": 841,
+        "not a policy": 916,
+        "the subject does not determine the guard": 855,
         "reads evaluation-time state": 20,
     }
-    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1763
+    assert sum(findings["exclusions_by_kind"].values()) == findings["exclusions"] == 1791
 
 
 def test_the_taxonomy_counts_over_every_obstruction_not_the_reported_one() -> None:
@@ -1515,9 +1662,11 @@ def test_the_taxonomy_counts_over_every_obstruction_not_the_reported_one() -> No
     findings = taxonomy.measure(ROOT / "docs")
     azure_row = next(row for row in findings["rows"] if row["corpus"] == "Azure Policy")
 
-    # The row counts the ones it could judge; `carrying` counts every definition with an
-    # undefaulted parameter, and the 14 it declined to judge are the difference.
-    assert azure_row["exclusions_by_kind"]["not a policy"] == 841
+    # The two agree. They did not: 14 definitions that delegate their guard returned
+    # UNDETERMINED before the schema reason was reached, so they carried the evidence of being
+    # schemas while sitting in the policy denominator. Being a schema decides it, so they are
+    # judged `outside` and the row is the whole population.
+    assert azure_row["exclusions_by_kind"]["not a policy"] == 855
     assert carrying == 855
 
 
@@ -1531,11 +1680,14 @@ def test_the_committed_taxonomy_artifact_matches_a_fresh_computation() -> None:
 def test_the_only_refusals_are_the_delegated_azure_guards() -> None:
     """A refusal has to be accounted for, or a share stops being a verdict on a whole corpus.
 
-    Seven of the eight corpora leave nothing undetermined. Azure leaves 57, all of them
+    Seven of the eight corpora leave nothing undetermined. Azure leaves 43, all of them
     definitions that name a Gatekeeper policy program at a URL instead of stating a
     condition: their guard is not in the artifact, and an offline procedure has nothing to
     read. That is the one place the answer is bounded by the instrument rather than by the
     criterion, and it is reported rather than resolved by guessing.
+
+    There were 57. The other 14 declare a parameter with no default, and being a schema
+    decides an artifact before its guard has to be read at all.
     """
 
     findings = taxonomy.measure(ROOT / "docs")
@@ -1544,22 +1696,22 @@ def test_the_only_refusals_are_the_delegated_azure_guards() -> None:
     )
 
     for row in findings["rows"]:
-        expected = 57 if row["corpus"] == "Azure Policy" else 0
+        expected = 43 if row["corpus"] == "Azure Policy" else 0
         assert row["undetermined"] == expected, row["corpus"]
 
     unjudged = [entry for entry in azure["policies"] if entry["verdict"] == "undetermined"]
-    assert len(unjudged) == 57
+    assert len(unjudged) == 43
     assert all(entry.get("delegates_guard_to") for entry in unjudged)
     assert all("does not contain" in entry["reason"] for entry in unjudged)
-    # 55 name the program by URL and 2 carry it inline; either way the location is recorded,
+    # 42 name the program by URL and 1 carries it inline; either way the location is recorded,
     # so the refusal can be lifted by fetching rather than by re-deriving anything.
     by_url = [
         entry for entry in unjudged if str(entry.get("guard_source", "")).startswith("https://")
     ]
     inline = [entry for entry in unjudged if entry["delegates_guard_to"] == ["constraintTemplate"]]
 
-    assert len(by_url) == 55
-    assert len(inline) == 2
+    assert len(by_url) == 42
+    assert len(inline) == 1
     assert len(by_url) + len(inline) == len(unjudged)
 
 
@@ -1648,6 +1800,12 @@ def test_the_cost_measurement_covers_exactly_the_policies_judged_inside() -> Non
         membership = json.loads((ROOT / "docs" / f"{stem}.json").read_text("utf-8"))
         inside = sum(1 for row in membership["policies"] if row["verdict"] == "inside")
 
+        if "invalidated" in cost_artifact:
+            # A withdrawn distribution is a record of what was once measured, not a live
+            # claim, so it is not held to the membership artifact it no longer describes.
+            # Azure moved from 2,150 inside to 2,137 after the adapter corrections, which is
+            # a second reason nothing in that artifact should be quoted.
+            continue
         assert cost_artifact[ecosystem]["policies"] == inside, ecosystem
 
 
@@ -1960,3 +2118,162 @@ def test_the_gcp_measurement_applies_the_same_schema_criterion_as_gatekeeper() -
     assert len(complete) == 15
     assert len(no_parameter) == 39
     assert not any(p.get("parameter_reads", {}).get("without_default") for p in inside)
+
+
+# ---------------------------------------------------------------------------------------
+# The adapter corrections of the membership audit, each pinned to the shape that was
+# misread. Every one of them pulled artifacts *into* the fragment, which is the direction
+# the "refuses rather than guesses" contract exists to prevent.
+# ---------------------------------------------------------------------------------------
+
+
+def test_xacml_does_not_read_a_commented_out_condition() -> None:
+    """Two conformance policies were excluded for a function only their comments name.
+
+    `PREDICATE_ID` ran over the raw document while guard elements and well-formedness came
+    from the parsed tree, which drops comments. `IIF301_FIXED_NO_XPATH` and
+    `IIF310_FIXED_NO_XPATH` have their entire `<Condition>` commented out under the note
+    "XPath support is optional in XACML 3.0 therefore removed here", and both shipped
+    OUTSIDE with `external_functions: ["xpath-node-count"]`.
+    """
+
+    live = (
+        '<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" '
+        'PolicyId="p" RuleCombiningAlgId="a"><Target/>'
+        '<Rule RuleId="r" Effect="Permit"><Condition>'
+        '<Apply FunctionId="urn:oasis:names:tc:xacml:3.0:function:xpath-node-count"/>'
+        "</Condition></Rule></Policy>"
+    )
+    commented = live.replace(
+        '<Condition><Apply FunctionId="urn:oasis:names:tc:xacml:3.0:function:'
+        'xpath-node-count"/></Condition>',
+        "<!-- XPath support is optional in XACML 3.0 therefore removed here"
+        '<Condition><Apply FunctionId="urn:oasis:names:tc:xacml:3.0:function:'
+        'xpath-node-count"/></Condition> -->',
+    )
+
+    assert xacml.classify(live).verdict == core.OUTSIDE
+    outcome = xacml.classify(commented)
+    assert outcome.verdict == core.INSIDE
+    assert outcome.detail["functions"] == []
+
+
+def test_xacml_does_not_admit_a_vendor_function_on_a_family_name_coincidence() -> None:
+    """The URN was reduced to its last colon segment before anything looked at it.
+
+    No acceptance path inspected the namespace, so `urn:acme:pdp:function:consult-oracle:equal`
+    was admitted as finitely refining by the family suffix rule -- the guess the adapter's own
+    `EXTERNAL_FUNCTIONS` mechanism exists to make impossible. The leak is one-directional: a
+    coincidence can only pull a vendor URN into INSIDE.
+    """
+
+    # A bare local name has no namespace to check, and keeps the family rule.
+    assert xacml.is_finitely_refining("integer-greater-than")
+    assert xacml.is_finitely_refining("urn:oasis:names:tc:xacml:1.0:function:integer-greater-than")
+
+    assert not xacml.is_finitely_refining("urn:acme:pdp:function:ask-the-network:greater-than")
+    assert not xacml.is_finitely_refining("urn:acme:pdp:function:query-ldap:is-in")
+
+    # The explicit lists still admit by local name, which is why the corpus's one vendor
+    # `...:test-extensible-value:equal` document does not move.
+    assert xacml.is_finitely_refining("urn:ow2:authzforce:feature:pdp:function:x:equal")
+
+
+def test_azure_reads_the_property_and_not_the_ambient_call_name() -> None:
+    """`PURE_ARM_FUNCTIONS` listed the bare call, so every property read came with it."""
+
+    reads = azure.ambient_property_reads({"value": "[resourcegroup().managedBy]", "equals": "x"})
+    assert reads == {"resourcegroup().managedBy"}
+    assert azure.ambient_property_reads({"value": "[resourceGroup().name]", "equals": "x"}) == set()
+    assert (
+        azure.ambient_property_reads({"value": "[subscription().subscriptionId]", "equals": "x"})
+        == set()
+    )
+    # A bare call passed to another function reads no property and stays pure.
+    assert azure.ambient_property_reads({"value": "[concat(resourceGroup())]"}) == set()
+
+
+def test_an_azure_schema_that_delegates_its_guard_is_still_not_a_policy() -> None:
+    """Being a schema decides an artifact before its guard has to be readable.
+
+    The delegation branch returned UNDETERMINED before the schema reason was reached, so 14
+    definitions that are schemas by this adapter's own test sat in the policy denominator of
+    the pooled share while the artifact recorded the evidence that they were not policies.
+    """
+
+    def definition(with_default: bool) -> str:
+        parameter = (
+            {"type": "String"} if not with_default else {"type": "String", "defaultValue": "x"}
+        )
+        return json.dumps(
+            {
+                "properties": {
+                    "parameters": {"limit": parameter},
+                    "policyRule": {
+                        "if": {"field": "type", "equals": "Microsoft.Kubernetes/connectedClusters"},
+                        "then": {
+                            "effect": "audit",
+                            "details": {
+                                "templateInfo": {
+                                    "sourceType": "PublicURL",
+                                    "url": "https://store.policy.core.windows.net/t.yaml",
+                                }
+                            },
+                        },
+                    },
+                }
+            }
+        )
+
+    schema = azure.classify(definition(with_default=False))
+    assert schema.verdict == core.OUTSIDE
+    assert "policy schema" in schema.reason
+    # The delegation is still recorded, so the refusal can be lifted by fetching.
+    assert schema.detail["delegates_guard_to"] == ["templateInfo"]
+    assert taxonomy.classify(schema.reason) == "not a policy"
+
+    # A definition whose parameters all carry defaults is still refused: its guard really is
+    # somewhere else, and that is not something being a policy makes readable.
+    delegating = azure.classify(definition(with_default=True))
+    assert delegating.verdict == core.UNDETERMINED
+    assert "does not contain" in delegating.reason
+
+
+def test_the_cedar_archive_row_is_measured_and_kept_out_of_the_published_row() -> None:
+    """22 tracked `.cedar` files were the whole "wide" Cedar row; 7,497 sat in a tarball.
+
+    The adapter had no wide walk at all, so `fragment_membership.py`'s
+    `getattr(adapter, "discover_wide", adapter.discover)` made the wide row the narrow one.
+    The archive is fuzzer output, so it is measured under its own scope rather than folded
+    into the corpus row, and the published row is unchanged.
+    """
+
+    published = json.loads(
+        (ROOT / "docs" / "fragment-membership-cedar-wide-v1.json").read_text("utf-8")
+    )
+    archive = json.loads(
+        (ROOT / "docs" / "fragment-membership-cedar-archive-v1.json").read_text("utf-8")
+    )
+
+    assert published["corpus_scope"] == "wide"
+    assert published["policies_considered"] == 22
+    assert archive["corpus_scope"] == "archive"
+    assert archive["policies_considered"] == 7497
+    assert archive["counts"] == {"inside": 6541, "outside": 0, "undetermined": 956}
+    assert archive["corpus"][0]["commit"] == published["corpus"][0]["commit"]
+    (source,) = archive["archives"]
+    assert source["archive"] == "corpus-tests.tar.gz"
+    assert source["cedar_members"] == 7497
+    assert source["sha256"] == ("d8fd6e25ac1816a9db70c8ed2194101dbceabcede1da5599700660ad28bde5c4")
+    # The claim the archive refutes: the OLD draft said the refusal path "is exercised on
+    # synthetic inputs because the corpus never triggers it".
+    assert archive["counts"]["undetermined"] > 0
+
+
+def test_an_archive_walk_is_asked_for_and_never_substituted() -> None:
+    """A `getattr` fallback is how the Cedar row came to mean something nobody chose."""
+
+    assert core.discovery_for(cedar, wide=True) is cedar.discover
+    assert core.discovery_for(cedar, wide=False, archive=True) is cedar.discover_archive
+    with pytest.raises(SystemExit, match="no archive"):
+        core.discovery_for(iam, wide=False, archive=True)

@@ -17,8 +17,8 @@
   ],
   "corpus_scope": "wide",
   "counts": {
-    "inside": 951,
-    "outside": 56,
+    "inside": 953,
+    "outside": 54,
     "undetermined": 0
   },
   "ecosystem": "xacml",
@@ -4364,28 +4364,18 @@
       "verdict": "inside"
     },
     {
-      "external_functions": [
-        "xpath-node-count"
-      ],
-      "functions": [
-        "integer-equal",
-        "xpath-node-count"
-      ],
-      "reason": "names a function that reads outside the policy and the request attributes",
+      "functions": [],
+      "guard_elements": [],
+      "reason": "states no predicate, so every subject falls in one decision class",
       "subject": "authzforce-core/pdp-testutils/src/test/resources/conformance/xacml-3.0-from-2.0-ct/mandatory/IIF301_FIXED_NO_XPATH/Policy.xml",
-      "verdict": "outside"
+      "verdict": "inside"
     },
     {
-      "external_functions": [
-        "xpath-node-count"
-      ],
-      "functions": [
-        "integer-equal",
-        "xpath-node-count"
-      ],
-      "reason": "names a function that reads outside the policy and the request attributes",
+      "functions": [],
+      "guard_elements": [],
+      "reason": "states no predicate, so every subject falls in one decision class",
       "subject": "authzforce-core/pdp-testutils/src/test/resources/conformance/xacml-3.0-from-2.0-ct/mandatory/IIF310_FIXED_NO_XPATH/Policy.xml",
-      "verdict": "outside"
+      "verdict": "inside"
     },
     {
       "functions": [
@@ -10072,6 +10062,6 @@
   ],
   "policies_considered": 1007,
   "schema_version": "v1",
-  "share_inside": 0.9444,
-  "share_inside_of_judged": 0.9444
+  "share_inside": 0.9464,
+  "share_inside_of_judged": 0.9464
 }

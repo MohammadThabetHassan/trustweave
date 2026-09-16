@@ -34,7 +34,17 @@ components of the subject to each other. Its outcome is still binary and a witne
 either side is still constructible -- a request whose resource matches its own principal's
 name, and one whose resource does not. The store, the parameters and the interpolated
 attribute are all in the subject; what leaves the fragment is a guard reading something the
-subject does not carry, and IAM's condition keys are all carried by the request.
+subject does not carry.
+
+That last clause used to end "and IAM's condition keys are all carried by the request",
+which is false of the language. `aws:CurrentTime`, `aws:EpochTime`, `aws:TokenIssueTime` and
+`aws:MultiFactorAuthAge` are derived from a clock at evaluation time, and a guard over one
+of them is the same obstruction the XACML adapter routes outside through its
+`CLOCK_DESIGNATORS` and the taxonomy files under "reads evaluation-time state". None of them
+occurs in this corpus -- so the 100% is unchanged -- but the reason for the 100% is now a
+statement about this corpus rather than a false universal about the language. The adapter
+also had no OUTSIDE branch of any kind, which meant 1,651 of 1,651 inside could not have
+come out otherwise.
 
 The adapter refuses rather than guesses: an operator from no known family, or a statement
 shape it does not recognise, is undetermined.
@@ -46,9 +56,29 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fragment_membership import INSIDE, UNDETERMINED, Verdict
+from fragment_membership import INSIDE, OUTSIDE, UNDETERMINED, Verdict
 
 ECOSYSTEM = "iam"
+
+# Request context keys whose value is read from a clock rather than carried by the request.
+# A guard over one of them decides differently for the same request at two different moments,
+# so no witness for either side is constructible from the policy plus the subject. This is
+# XACML's `CLOCK_DESIGNATORS` in AWS spelling, and it lands in the same taxonomy row as
+# Rego's `time.now_ns` and Azure's `utcNow()`.
+#
+# `aws:TokenIssueTime` is included on the fail-closed reading: it exists only for temporary
+# credentials and is a timestamp the evaluator resolves, and an adapter that is unsure should
+# exclude rather than admit. Two of the audit's reviewers argued it is a fixed value carried
+# with the credential and should stay inside; nothing in this corpus distinguishes the two
+# readings, because none of these keys occurs in it.
+CLOCK_CONDITION_KEYS = frozenset(
+    {
+        "aws:currenttime",
+        "aws:epochtime",
+        "aws:tokenissuetime",
+        "aws:multifactorauthage",
+    }
+)
 
 # Condition operator families whose partition is fixed by literals in the policy. Each
 # compares a request context key against values the policy writes down, so it names
@@ -182,6 +212,7 @@ def classify(text: str) -> Verdict:
         )
 
     operators: set[str] = set()
+    clock_keys: set[str] = set()
     unrecognised_shapes: list[str] = []
     for statement in statements:
         condition = statement.get("Condition")
@@ -194,11 +225,24 @@ def classify(text: str) -> Verdict:
             operators.add(operator)
             if not isinstance(comparison, dict):
                 unrecognised_shapes.append(f"{operator} does not compare named keys")
+                continue
+            for key in comparison:
+                if isinstance(key, str) and key.lower() in CLOCK_CONDITION_KEYS:
+                    clock_keys.add(key)
 
     detail: dict[str, Any] = {
         "statements": len(statements),
         "condition_operators": sorted(operators),
     }
+
+    if clock_keys:
+        detail["clock_condition_keys"] = sorted(clock_keys)
+        return Verdict(
+            OUTSIDE,
+            "reads the clock: the value of this condition key is resolved at evaluation "
+            "time and is not carried by the request",
+            detail,
+        )
 
     if unrecognised_shapes:
         detail["unrecognised_shapes"] = sorted(set(unrecognised_shapes))

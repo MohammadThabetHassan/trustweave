@@ -1,8 +1,12 @@
 {
-  "artifacts": 11,
+  "artifacts": 12,
   "checked": 7,
   "differing": [],
   "not_checked": [
+    {
+      "artifact": "fragment-membership-cedar-archive-v1",
+      "why": "measured over policies sealed inside an archive the corpus tracks, which this check does not unpack"
+    },
     {
       "artifact": "fragment-membership-cedar-v1",
       "why": "measured over the subjects of a study, not the whole corpus"
@@ -41,22 +45,28 @@
       "ecosystem": "azure",
       "measured": {
         "counts": {
-          "inside": 2150,
-          "outside": 1562,
-          "undetermined": 57
+          "inside": 2137,
+          "outside": 1589,
+          "undetermined": 43
         },
         "policies_considered": 3769
       },
       "measured_from": "azure-policy",
       "recorded": {
         "counts": {
-          "inside": 2150,
-          "outside": 1562,
-          "undetermined": 57
+          "inside": 2137,
+          "outside": 1589,
+          "undetermined": 43
         },
         "policies_considered": 3769
       },
       "verdict": "reproduced"
+    },
+    {
+      "artifact": "fragment-membership-cedar-archive-v1",
+      "ecosystem": "cedar",
+      "verdict": "skipped",
+      "why": "measured over policies sealed inside an archive the corpus tracks, which this check does not unpack"
     },
     {
       "artifact": "fragment-membership-cedar-v1",
@@ -161,8 +171,8 @@
       "ecosystem": "kyverno",
       "measured": {
         "counts": {
-          "inside": 206,
-          "outside": 29,
+          "inside": 203,
+          "outside": 32,
           "undetermined": 0
         },
         "policies_considered": 235
@@ -170,8 +180,8 @@
       "measured_from": "kyverno-policies",
       "recorded": {
         "counts": {
-          "inside": 206,
-          "outside": 29,
+          "inside": 203,
+          "outside": 32,
           "undetermined": 0
         },
         "policies_considered": 235
@@ -262,7 +272,7 @@
         },
         "policies_considered": 186
       },
-      "measured_from": "rego",
+      "measured_from": "rego-wide",
       "recorded": {
         "counts": {
           "inside": 115,
@@ -305,8 +315,8 @@
       "ecosystem": "xacml",
       "measured": {
         "counts": {
-          "inside": 951,
-          "outside": 56,
+          "inside": 953,
+          "outside": 54,
           "undetermined": 0
         },
         "policies_considered": 1007
@@ -314,8 +324,8 @@
       "measured_from": "xacml",
       "recorded": {
         "counts": {
-          "inside": 951,
-          "outside": 56,
+          "inside": 953,
+          "outside": 54,
           "undetermined": 0
         },
         "policies_considered": 1007
@@ -324,5 +334,5 @@
     }
   ],
   "schema_version": "v1",
-  "verified_on": "2026-09-10"
+  "verified_on": "2026-09-16"
 }
