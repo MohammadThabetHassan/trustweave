@@ -228,11 +228,14 @@ def measure_policy(name: str, test_directory: Path, limit: int | None) -> dict[s
     killed = 0
     survivors: list[str] = []
     unrunnable = 0
+    # Resolved before staging: `_policy_files` resolves the manifest's references, so a
+    # corpus named by a relative path would otherwise put the policy outside its own root.
+    test_directory = test_directory.resolve()
     root = test_directory.parent
     with tempfile.TemporaryDirectory() as workspace:
         staged_root = Path(workspace) / root.name
         shutil.copytree(root, staged_root)
-        staged_policy = staged_root / policy_path.relative_to(root)
+        staged_policy = staged_root / policy_path.resolve().relative_to(root)
         staged_tests = staged_root / test_directory.relative_to(root)
         for mutant in mutants:
             staged_policy.write_text(mutant.source, encoding="utf-8")
@@ -344,6 +347,27 @@ def manifest_blindness(manifest: Path) -> dict[str, bool]:
     return blind
 
 
+def manifest_decisions(manifest: Path) -> dict[str, dict[str, int]]:
+    """{policy: {rule: decisions witnessed}} for the validate rules this manifest exercises.
+
+    The graded reading of the experiment -- does witnessing more decisions predict detecting
+    more faults -- needs the same exposure the blind flag is read from: this manifest, not
+    the pooled artifact whose subject is a name three dialect variants share.
+    """
+
+    reading = suite_coverage_kyverno.read(manifest, manifest.as_posix())
+    witnessed: dict[str, set[str]] = {}
+    for observation in reading.observations:
+        if observation.domain != "kyverno_validate":
+            continue
+        witnessed.setdefault(observation.subject, set()).add(observation.decision)
+    counts: dict[str, dict[str, int]] = {}
+    for subject, decisions in sorted(witnessed.items()):
+        policy, _, rule = subject.partition("/")
+        counts.setdefault(policy, {})[rule or "*"] = len(decisions)
+    return counts
+
+
 # Enumerating every split is exact and cheap at these sample sizes; beyond this many it is
 # sampled instead, with a fixed seed so the reported figure is reproducible.
 MAX_EXACT_SPLITS = 400_000
@@ -445,6 +469,7 @@ def analyze(
         result["decision_blind"] = local[name]
         result["corpus_blind"] = corpus_blind
         result["test_cases"] = manifest_cases(manifest).get(name, 0)
+        result["decisions_witnessed"] = manifest_decisions(manifest).get(name, {})
         if len(candidates) > 1:
             result["manifest_candidates"] = [path.as_posix() for path in candidates]
         return result

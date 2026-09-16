@@ -1,15 +1,15 @@
 {
-  "artifacts_considered": 7006,
-  "artifacts_inside": 5172,
+  "artifacts_considered": 7008,
+  "artifacts_inside": 5175,
   "corpora": 8,
-  "exclusions": 1791,
+  "exclusions": 1790,
   "exclusions_by_kind": {
     "not a policy": 916,
     "reads evaluation-time state": 20,
-    "the subject does not determine the guard": 855
+    "the subject does not determine the guard": 854
   },
   "exclusions_unclassified": {},
-  "policies_considered": 6090,
+  "policies_considered": 6092,
   "policy_schemas": 916,
   "rows": [
     {
@@ -53,12 +53,12 @@
       "artifact": "fragment-membership-kyverno-wide-v1",
       "corpus": "Kyverno (vendor)",
       "exclusions_by_kind": {
-        "the subject does not determine the guard": 32
+        "the subject does not determine the guard": 31
       },
-      "inside": 203,
-      "outside": 32,
-      "policies_considered": 235,
-      "share_inside": 0.8638,
+      "inside": 206,
+      "outside": 31,
+      "policies_considered": 237,
+      "share_inside": 0.8692,
       "undetermined": 0
     },
     {
@@ -111,6 +111,6 @@
     }
   ],
   "schema_version": "v1",
-  "share_inside_of_policies": 0.8493,
+  "share_inside_of_policies": 0.8495,
   "taxonomy_is_exhaustive": true
 }

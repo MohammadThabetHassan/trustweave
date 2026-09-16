@@ -34,7 +34,7 @@ stratified = _load("fragment_stratified_test")
 
 class TestStratifiedAssociation:
     def test_every_scored_policy_carries_a_fragment_verdict(self) -> None:
-        assert len(stratified.joined_rows()) == 49
+        assert len(stratified.joined_rows()) == 52
 
     def test_the_pooled_arm_reproduces_the_published_figure(self) -> None:
         """If it did not, the strata would not be comparable with the published claim."""
@@ -42,16 +42,21 @@ class TestStratifiedAssociation:
         findings = stratified.run(seed=0)
         pooled = next(entry for entry in findings["strata"] if entry["stratum"] == "all")
 
-        assert pooled["test"]["observed_difference"] == 0.149
-        assert pooled["test"]["p_value"] == pytest.approx(0.0428, abs=0.004)
+        assert pooled["test"]["observed_difference"] == 0.2228
+        assert pooled["test"]["p_value"] == pytest.approx(0.0127, abs=0.003)
 
-    def test_the_association_is_confined_to_the_policies_outside_the_fragment(self) -> None:
-        """The finding, and it is a caveat on a published claim rather than support for it."""
+    def test_the_association_reproduces_inside_the_fragment_and_not_outside(self) -> None:
+        """The corrected join reverses the earlier reading, which had the association confined
+        to the outside stratum: that was a fact about which sibling dialect had been measured,
+        not about the fragment. Outside, six against seven decides nothing either way."""
 
         findings = stratified.run(seed=0)
 
-        assert findings["association_significant_inside_the_fragment"] is False
-        assert findings["association_significant_outside_the_fragment"] is True
+        assert findings["association_significant_inside_the_fragment"] is True
+        assert findings["association_significant_outside_the_fragment"] is False
+        outside = next(entry for entry in findings["strata"] if entry["stratum"] == "outside")
+        assert outside["policies"] == 13
+        assert outside["test"]["method"] == "exact over 1716 splits, one-sided"
 
     def test_the_committed_artifact_matches_a_fresh_run(self) -> None:
         committed = json.loads(

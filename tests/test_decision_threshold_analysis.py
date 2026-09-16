@@ -141,7 +141,7 @@ class TestMeasuredFindings:
 
 class TestGradedTrend:
     def test_every_scored_policy_joins_to_a_coverage_verdict(self, trend: ModuleType) -> None:
-        assert len(trend.joined_rows()) == 49
+        assert len(trend.joined_rows()) == 52
 
     def test_jonckheere_is_maximal_when_every_higher_group_scores_higher(
         self, trend: ModuleType
@@ -164,10 +164,10 @@ class TestGradedTrend:
     def test_the_published_blindness_contrast_is_reproduced(self, trend: ModuleType) -> None:
         findings = trend.run(permutations=100, seed=0)
         published = findings["blindness_contrast_as_published"]
-        assert published["blind_policies"] == 9
+        assert published["blind_policies"] == 12
         assert published["covered_policies"] == 40
-        assert published["blind_median"] == 0.5
-        assert published["covered_median"] == 0.625
+        assert published["blind_median"] == 0.7084
+        assert published["covered_median"] == 0.775
 
 
 def test_the_committed_artifacts_match_a_fresh_computation(threshold: ModuleType) -> None:
