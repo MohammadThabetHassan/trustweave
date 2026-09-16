@@ -23,8 +23,10 @@ the subject the decision is about together with literals in the policy.
 
 That criterion sorts the cases consistently where "was it handed over" does not. Cedar's
 entity hierarchy is part of the authorization request, so it is the subject, and a hierarchy
-of unbounded depth stays inside. Azure's `subscription()` and `resourceGroup()` are
-derivable from the resource under evaluation, so they too are the subject. But Gatekeeper's
+of unbounded depth stays inside. Azure's `subscription()` and `resourceGroup()` sort by the
+property read off them rather than by the call: `.id`, `.name`, `.subscriptionId` and
+`.tenantId` are segments of the resource's own id and so are the subject, while `.managedBy`,
+`.location` and `.tags` are a second object's stored state and are not. But Gatekeeper's
 inventory is ambient cluster state rather than the admission request; an ARM `reference()`
 names a resource other than the one being evaluated; a Kyverno `context` entry or CEL call
 queries the API server; `verifyImages` fetches a signature from a registry; an XACML
@@ -81,6 +83,7 @@ KINDS: dict[str, tuple[str, ...]] = {
         "verifies an image",
         "selects over request content",
         "selects on Namespace labels",
+        "selects on the requester's role bindings",
         "reads outside the policy",
         "reads something outside the admission request",
     ),

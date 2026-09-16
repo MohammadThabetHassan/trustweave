@@ -6,6 +6,25 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/oracle_kyverno.py` and `docs/oracle-kyverno-v1.json` check the Kyverno membership
+  adapter against the engine that runs the policies, the behavioural check the write-up had
+  listed as unbuilt. Every one of the 237 measured policies has its own suite run under the
+  Kyverno CLI as shipped, under injected namespace labels and a global value the policy did
+  not write, and -- where the suite stubs context variables, namespace labels or a context
+  file -- with those stubs removed and the request-field stubs kept. All 206 policies the
+  adapter calls inside are invariant under injection over 2,129 tests and none of their
+  suites stubs anything external; 24 of the 27 outside policies whose suites stub external
+  data change outcome when it is removed, 3 never reach the guard and are reported rather
+  than judged, and 4 stub nothing a suite could supply. The engine disagrees with the
+  adapter on none. `tests/test_oracle_kyverno.py` holds the artifact to those counts and
+  exercises the stub classification and the perturbations on small suites.
+- The witness construction has a closed-form criterion, stated as a lemma in the manuscript
+  and computed by `scripts/verify_witness_space.py` beside the solver's answer and the
+  harness's enumeration: a signature over existential set guards is achievable exactly when
+  no guard marked false dominates one marked true. The certificate records all three and
+  they agree on every one of the 14 cases; `tests/test_witness_criterion.py` holds the
+  criterion to the construction without a solver, so the lemma is load-bearing in CI where
+  z3 is not installed.
 - `scripts/clone_pinned_corpora.py` puts every corpus on disk at the commit its artifact
   records, deriving the list from the artifacts so it cannot drift from the measurement, and
   refuses a checkout that did not finish. A blobless clone fetches file contents lazily and a
@@ -30,9 +49,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
   label moves is reported rather than silently skipped.
 - `scripts/azure_initiative_bindings.py` and
   `docs/azure-initiative-bindings-v1.json` answer, from the corpus, whether the
-  instantiation a schema verdict presumes actually exists: 538 of the 769 Azure schemas are
+  instantiation a schema verdict presumes actually exists: 555 of the 855 Azure schemas are
   included in a built-in initiative that binds every parameter they left without a default,
-  and 231 are in no initiative that binds anything. The 538 had been a hand count quoted
+  and 300 are in no initiative that binds anything. The earlier 538 had been a hand count quoted
   beside a denominator a re-measurement moved, and the completeness half of the claim --
   that the initiative binds the parameters that had no default, rather than some other
   parameter -- had never been checked at all.
@@ -84,6 +103,25 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- The Kyverno mutation experiment was rerun under the corrected keying, and the result
+  moved. `docs/kyverno-mutation-v1.json` now records 52 scored policies, 12 blind against
+  40 covered, a difference in mean mutation score of 0.223 at p = 0.013 one-sided
+  (`--comparison 40`, invocation recorded), where the previous artifact recorded 49, 9
+  against 40 and p = 0.043 on a join that measured one sibling dialect and labelled another.
+  Each detail row now records `decisions_witnessed` per rule from the scored manifest, and
+  `scripts/decision_trend_test.py` reads that field in preference to the pooled coverage
+  artifact. The stratified test reverses: the association reproduces inside the fragment
+  (39 policies, p = 0.039) and not outside it (13 policies, p = 0.129 exact over 1,716
+  splits), where the earlier artifact had it confined to the outside stratum. Both readings
+  rest on small blind arms of six, and the manuscript now says the split should be expected
+  to move under a different but defensible choice of sibling.
+- `fragment_membership_kyverno.discover` keys policies exactly as the mutation experiment
+  does -- by the name each test manifest states, measuring the first manifest in path order
+  -- rather than by directory name keeping the last, so a membership verdict and a mutation
+  score describe one file. The wide Kyverno row is now 237 policies, 206 inside and 31
+  outside (86.9%), from 235, 203 and 32; pooled figures move to 7,008 artifacts, 6,092
+  policies and 5,175 inside (85.0%), and the exclusion taxonomy to 1,790. The provenance
+  check re-measures the new row and reproduces it.
 - The research write-ups moved out of the repository. A journal, and the similarity check
   it runs, reads a publicly posted full text as prior dissemination, and that applies to
   the long-form development as much as to the manuscript — including a prospectus that was
@@ -144,6 +182,235 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
+- The Kyverno adapter left two base-directory policies undetermined that read only the
+  request: a parenthesised JMESPath expression opened with the bracket and produced an
+  empty variable root, and `regex_replace_all` -- a string filter total on its arguments --
+  was not in the list of pure functions. Both are inside now, with Kyverno's other pure
+  string filters added beside `regex_match`; `random` is deliberately absent.
+- `scripts/kyverno_mutation.py` staged a policy outside its own root when the corpus was
+  named by a relative path, because the manifest's policy references were resolved and the
+  root was not; the test directory is resolved before staging.
+- Four defects a contributor review of 0.3.1 confirmed (written by a project contributor and manuscript coauthor; see `docs/evaluation/CONFLICTS_AND_LIMITATIONS.md`), each reproduced from the
+  review's own snippet before it was fixed and each kept as a behavioural regression case.
+  All four had the same shape: a confident, clear answer where the evidence supported none.
+  - Import bindings are lexical. They were collected with `ast.walk` over the whole
+    module, so `from builtins import print as action` inside one function overwrote the
+    module-level `from os import system as action` that a tool elsewhere was calling, and
+    a shell invocation was published as `read` at high confidence with no signals. Each
+    scope now contributes only its own imports; a function's are layered over the
+    module's while that function is walked.
+  - A helper is walked once per set of arguments that decide its effect. Visits were
+    keyed by helper name alone, so `access("r")` followed by `access("w")` walked
+    `access` once, bound to `"r"`, and the write was never seen. A constant argument and
+    a handed-over receiver are the two things the walk binds into the helper's frame, so
+    they are now part of the visit key.
+  - Reordering `deny net.*` above `allow net.http` produced no review signal. The overlap
+    helper compared capability patterns as strings, so `net.*` and `net.http` were
+    disjoint. A flow carries a *set* of capabilities and a set of purpose tags, matched
+    when any one of them does, so neither field can prove two rules apart; only the
+    single-valued subject fields (trust, action class, identifiers, classification set)
+    still do. Such a reordering is now reported under `TW-DIFF-011`.
+  - Three `allow` rules, one per trust label, followed by a `deny` naming all three left
+    the deny rule reported `reachable: true` with a clear review, because only a single
+    covering earlier rule was looked for. The review now splits a rule into one cell per
+    combination of the single-valued fields it names and reports it shadowed when every
+    cell has some earlier cover. The coverage artifact gains `shadowed_by_rules`, the
+    rules in that cover; `shadowed_by` keeps naming the one rule that covers on its own.
+    `reachable: true` still means no cover was found, not that a witness exists, and the
+    CLI reference now says so.
+- The import-scope fix above initially layered only the tool's own imports over the
+  module's, which read a tool registered inside a factory -- the shape every MCP
+  reference server uses -- as if the factory's imports did not exist, and published a
+  shell invocation reached that way as `read`; a wildcard import inside a function was
+  likewise dropped instead of forcing a refusal. Names now resolve through every
+  enclosing function, innermost first, and a node inside a nested function is judged in
+  that function's scope. A multi-agent audit of the branch caught both before it was
+  pushed; both are regression cases now.
+- A rule naming more than 10,000 combinations of its single-valued fields is not
+  enumerated for a collective cover, and the artifact used to say `reachable: true`
+  about it as if it had been. The coverage entry now carries `cover_search`, `complete`
+  or `declined`, and the Markdown report says the cover was not searched.
+- `dbm.open(..., "c")` followed by a subscript store was a high-confidence `read`: the
+  opener was an uncatalogued standard-library call, so benign, and the store is not a
+  call. `dbm.open` and `shelve.open` are now judged by their flag the way `open` is by
+  its mode -- `"r"` is a read, everything else opens the store for writing, and a flag
+  the source does not decide is refused. This is the one case of the review's broader
+  point, that unresolved behaviour is silently benign, that came with a reproducible
+  snippet; the general audit it asks for is not done here.
+- A multi-agent audit of this branch (about 600 separately prompted reviewer and verifier agents
+  over the code, the research harness and both manuscripts, every error claim adversarially
+  verified before it was accepted) confirmed thirty-five errors. Thirty-one are fixed below,
+  each reproduced from the audit's own probe before it was touched and each kept as a
+  regression case; the four that are not (the new manuscript's missing revision package and
+  its section 8 prose, which have no source on this machine, and the Kyverno mutation rerun,
+  which needs a `kyverno` binary) are recorded in the audit report rather than papered over.
+  Almost all of them had one shape: a confident, clear answer where the evidence supported
+  none.
+
+  **Discovery analyzer.**
+  - A callee the module cannot name is refused rather than read as benign. `read` at high
+    confidence was reached both when the analyzer resolved everything and saw nothing and
+    when it resolved nothing at all, and the two records were identical: `client.send(target)`
+    on an unannotated parameter, or a call to a name the module neither defines nor imports,
+    published `read`, `signals: []`, `status: clear`. A bare name now refuses when it reaches
+    no binding, no module-level definition, no definition inside the walked body and no
+    builtin, and a method on a parameter the module can say nothing about refuses too, asked
+    last so catalogued symbols, tracked receivers and SQL literals are decided first. Database
+    plumbing on a handed-in connection stays exempt, because the statement given to execute
+    decides the class wherever the handle came from. The classifier benchmark is unchanged
+    (98.67% accuracy, 98.33% precision when answering); an invariant test re-derives from the
+    labelled corpus, without asking the analyzer, that every call in a `read`/high tool is
+    nameable.
+  - Receivers bound inside a block, inherited, or rebound are no longer lost. A client built
+    inside `try`, `if` or `for` never entered the origin table, so every method on it fell to
+    the benign floor; the optional-dependency idiom failed the same way at module scope, and a
+    credential read one block deeper dropped from `sensitive` to `read`. Origins are now
+    collected through blocks, seeded with the module's, each enclosing function's and any
+    receiver handed over by a caller, and an ambiguous rebinding is a refusal rather than a
+    deletion. Tuple unpacking, the walrus and conditional expressions bind receivers too.
+  - Every spelling of `open` is judged by its mode, and archive handles are catalogued.
+    `zipfile.ZipFile(a).extractall(d)` and the `tarfile` form, the Zip Slip primitive,
+    produced no signal at all; `Path(p).open("w")` was a read; and one `from io import open`
+    disabled mode analysis for every open in the file. The rule dispatches on the resolved
+    qualified name, `Path.open` is judged with its mode at the first argument, and archives
+    are a receiver family of their own.
+  - Module-level aliases, `getattr` with a constant name and `/`-composed paths are
+    resolved. `_run = subprocess.run` at module level was invisible while the function-local
+    form was sensitive; `getattr(os, "system")(cmd)` was exempted from the dispatch refusal
+    on the ground that getattr resolves a name, and then nothing resolved it;
+    `(BASE / name).write_text(body)` reached a silent fall-through. Credential paths are
+    judged from the joined segments and from the keyword spelling, so `open(file=...)`
+    agrees with its positional twin.
+  - Wrapped annotations, whole SQL statements and the rest of the launch families. A
+    data-modifying CTE received an affirmative `read` signal because `with` was a read token;
+    `executescript` matched nothing; `Optional[X]`, `X | None`, `list[X]` and quoted
+    annotations skipped the opacity marking; nine `os` exec/spawn members,
+    `subprocess.getstatusoutput`, the `asyncio` subprocess launchers and `webbrowser.open`
+    were uncatalogued.
+  - A helper's arguments are bound the way Python binds them. `ast.arguments.args` excludes
+    positional-only parameters, so `def access(path, /, mode)` bound the mode to the filename
+    and made two calls that decide differently share one visit key, defeating the
+    repeated-helper fix for the exact example the documentation advertises.
+  - A tool is analysed from the body discovery matched, not the one a name finds. A
+    module-level `def send` beat the decorated `Mailer.send` it shadows, so the artifact
+    named one function's line with another function's signals.
+
+  **Policy review, weakening and risk identity.**
+  - Every review finding carries a subject that tells it apart from its siblings. The risk
+    fingerprint deliberately excludes wording, and policy review put the rule id only in the
+    message, so every finding of one identifier in one policy collapsed to one risk identity:
+    a four-rule policy with three shadowed rules produced seven review findings, four risk
+    findings and four SARIF results, and baselining one rule's finding baselined the other
+    two with it. Rule-level findings now carry `{"policy", "rule"}`, `TW-CHAIN-003` carries
+    its sanitizer, `TW-CHAIN-001/002` their classifications, `normalize_findings` refuses an
+    artifact whose findings share an identity but not their text, and the fingerprint moves to
+    `trustweave/fingerprint/v4` so a stale decision document fails by name.
+  - A bounded rule no longer shadows an unbounded catch-all. `_bounds_cover` modelled an
+    unbounded rule as the full taxonomy interval, but an unbounded rule matches any
+    classification while a bounded one matches only values inside the declared taxonomy, and
+    the engine admits out-of-taxonomy values deliberately. A `require_approval` catch-all was
+    reported unreachable, with `TW-POL-002` and `TW-POL-007` advising its deletion, while the
+    engine fired it on the same policy.
+  - A declined cover search is a finding. Above `MAX_COVERAGE_CELLS` the artifact carried a
+    `cover_search: declined` marker, but nothing reads a field as an obligation, so a provably
+    dead rule naming 16,384 combinations was still `status: clear` at exit 0. `TW-POL-010`
+    is emitted per declined rule with or without `--coverage`, `coverage.declined_rules` lists
+    them, the Markdown report prints "not established" rather than `True`, and the cap is in
+    `docs/RESOURCE_BOUNDS.md`.
+  - A rule switched off by an undeclared required control is reported. `required_controls`
+    is a policy-global satisfiability gate, so adding a control the policy does not declare
+    switches a rule off, which is deletion by another name; `diff` emitted nothing and
+    `TW-POL-008` was gated behind `--coverage`. `TW-DIFF-012` fires on the possible-to-
+    impossible transition, and `TW-POL-008` is emitted from a plain policy check.
+  - Policy review is published as v1alpha2, and the released v1alpha1 schema is restored
+    byte for byte. The collective-cover work had added required fields under the unchanged
+    v1alpha1 constant, which broke strict validation in both directions.
+  - Declared policy rule ids are no longer constrained by the finding-id pattern in the
+    policy-review, test-results and trace-review schemas, so the shipped
+    `demo/research-assistant` policy (`RA-...` ids) validates against its own evidence.
+
+  **Bundles, manifests and scan.**
+  - `diff` refused bundles `scan` had just written: two flows sharing source, tool and
+    purpose but differing in purpose tags, the field a v1alpha2 rule matches on, were
+    "duplicate findings". The sorted purpose tags are part of the flow key now; a flow
+    declared twice byte for byte is still refused, naming the flow.
+  - `scan` and the `ci` scan stage round-trip their bundle through `validate_bundle` before
+    writing it, so a bundle `attest` and `diff` would refuse is refused at scan time with the
+    same message and no file is left behind. Measured cost: about six times the build step,
+    2.85 s at the 10,000-finding ceiling.
+  - `parse_manifest` bounded nothing. The `_at_most` helper it shares with `parse_policy` was
+    never called from it, so a 10,001-flow manifest scanned at exit 0 into a bundle `attest`
+    refused. Sources, tools, flows, capabilities and purpose tags are bounded at the input
+    file, mirrored as `maxItems` in both copies of the manifest schema.
+  - The `REVIEW_REQUIRED` placeholder is refused wherever a manifest string field begins with
+    it, naming the field. The documentation said the discovery draft failed validation because
+    the parser rejected the placeholder; it failed for other reasons, and a lazy-reviewer loop
+    applying one minimal fix per error reached a passing scan with eight placeholders left.
+
+  **Review commands, evidence and I/O.**
+  - Markdown forgery in every reviewer-facing artifact. Declared text was interpolated into
+    Markdown unescaped and no validator refused control characters, so a chain sink node id
+    ending in `<!--` forged a "no issues found" section and hid the genuine high-severity
+    findings. The string validators refuse control characters as `risk._artifact_path`
+    already did, and every rendered cell is escaped.
+  - A chain review that stopped at a budget published "clear". Only `TW-CHAIN-004` at
+    medium survived a truncated traversal, which a `high` gate, the shipped `init` default,
+    ignores. `ci` now exits for review whenever an analysis is incomplete, and `ci-summary`
+    status is three-valued: `clear`, `review_required`, `incomplete`.
+  - `trace-review` ran neither the near-miss classification guard `scan` enforces nor every
+    declared flow for a pair, so a `Restricted` label passed as allow and swapping two
+    manifest entries flipped the verdict. It shares the guard now and reports the strictest
+    verdict across a pair's flows.
+  - Four false negatives in declared-chain analysis: one self-loop ended the whole traversal;
+    traversal halted at the first external node; the sensitive vocabulary was the hardcoded
+    pair `confidential`/`restricted` with no near-miss guard; and an incomplete sanitizer
+    covered downstream was described more broadly than it is detected. A chain manifest may
+    now declare `classification_taxonomy` and `sensitive_classifications`, unrecognised terms
+    reach a new `warnings` channel, depth is budgeted per path, and the walk continues through
+    an external node with an explicit simple-path guard.
+  - `attest` hashed the test-results file verbatim while re-deriving the bundle beside it, so
+    a failing run rewritten to `"passed"` attested, verified and rendered as passed.
+    `validate_test_results` re-derives every status, the summary and every recorded input
+    against the policy the bundle embeds.
+  - `output_dir` containment was documented and not enforced; the symlink check lived only
+    in `ci`. Every command's artifact directory now goes through one `io` check, and a
+    configuration-supplied `output_dir` with a `..` component is refused; an explicit
+    `--output-dir` stays free and may be absolute.
+  - `discover` records a symlinked `.py` file it declined to follow as `path_is_symlink`
+    instead of reporting `files_skipped: 0`, and `ci` no longer deletes hidden directories or
+    files a run did not stage.
+
+  **Research harness and corpora.**
+  - The cloud coverage-cost result is withdrawn. The instrument read set-membership and
+    key-presence operators as single-valued and one IAM guard per condition key while AWS
+    condition values are arrays, so the bound it promised was safe under-estimated: two `in`
+    guards on one component gave 3 against four realisable signatures. The artifact keeps its
+    numbers under an `invalidated` block and refuses regeneration without a flag, the recipe
+    is struck from the reproduction guide, the five pins and the cost figure leave the
+    manuscript guard, and the instrument is repaired for any future measurement without its
+    output being published.
+  - Every mutant is decided over the pooled common refinement. A deletion that removed the
+    last occurrence of a literal aborted the whole analysis on a premise its own comment
+    stated falsely, including on the repository's own fixture named for the case.
+  - The outsider witness is derived per policy. One fixed string stood for "a value this
+    policy does not name" and was itself a legal identifier, classification and capability
+    tail, so a policy naming it lost that class and a mutant differing only there was
+    reported equivalent. The solver cross-check gains the two pattern sets that expose it.
+  - A suite that contradicts its own policy is refused before scoring. A one-case suite
+    asserting an allow the policy denies scored 95.5% against the consistent 63.6%.
+  - Six membership-adapter verdicts, all pulling artifacts inside: Kyverno `roles` and
+    `clusterRoles`, Azure `resourceGroup()` and `subscription()` property reads, Azure
+    schemas counted in the policy denominator, IAM clock-dependent condition keys, XACML
+    matching function ids inside comments, and a Cedar comment regex without string state.
+    Pooled: 5,172 of 6,090 policies inside (84.9%, was 85.0%), 916 schemas, Azure 2,137
+    inside, Kyverno 203 of 235, XACML 953 of 1,007. A Cedar archive walk over the 7,497
+    policies sealed in the corpus's own tarball is published separately as
+    `fragment-membership-cedar-archive-v1.json` and does not replace the 22-file row.
+  - Kyverno mutation policies are keyed by the name their manifest states, so the base
+    directory is measured rather than a `-cel`/`-vpol` sibling, and `decision_blind` comes from
+    the manifest actually run. `docs/kyverno-mutation-v1.json` is left as published and no
+    longer describes what the script produces; its scores need a rerun with the `kyverno`
+    binary before they are quoted again.
 - The Azure measurement did not reproduce from the commit it recorded. Re-cloning
   `Azure/azure-policy` at the pinned `9780ba64` and re-running the adapter found 3,769
   definitions where the committed artifact recorded 3,659: the tree measured had been an
@@ -151,7 +418,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
   `ExternalEvaluationPolicies/` were absent from it while the newer commit hash was
   recorded beside the result. Every Azure figure is re-measured at the pin, and the other
   seven corpora were re-cloned and re-measured to check the same way: all seven reproduce
-  their committed artifacts exactly. Azure is now 2,884 of 3,769 inside, and the two
+  their committed artifacts exactly. Azure is 2,150 of 3,769 inside at that re-measurement
+  (2,137 after the adapter corrections below), and the two
   definitions that had been undetermined are judged — `true()` and `false()` are
   constants, and `claims()` reads a value projected from a Resource Graph query the
   definition declares and the platform runs across the tenant, which is the same

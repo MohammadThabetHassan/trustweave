@@ -9,7 +9,8 @@ import pytest
 import trustweave.risk as risk_module
 from trustweave.cli import EXIT_REVIEW, EXIT_SUCCESS, main
 from trustweave.io import canonical_json
-from trustweave.models import ValidationError
+from trustweave.models import ValidationError, parse_manifest, parse_policy
+from trustweave.policy_review import review_policy
 from trustweave.risk import (
     RISK_BASELINE_SCHEMA_VERSION,
     RISK_REVIEW_SCHEMA_VERSION,
@@ -20,6 +21,8 @@ from trustweave.risk import (
     should_fail,
     validate_decision_document,
 )
+from trustweave.sarif import build_sarif
+from trustweave.trace_review import review_trace
 
 
 def _decision_entry(
@@ -34,7 +37,7 @@ def _decision_entry(
     document = normalized.as_dict()
     return {
         "fingerprint": str(document["fingerprint"]),
-        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "fingerprint_schema_version": "trustweave/fingerprint/v4",
         "rule_id": str(document["id"]),
         "subject_digest": sha256(canonical_json(document["subject"]).encode("utf-8")).hexdigest(),
         "accepted_severity": accepted_severity or str(document["severity"]),
@@ -48,7 +51,7 @@ def _decision_entry(
 def _orphaned_decision(fingerprint: str) -> dict[str, str]:
     return {
         "fingerprint": fingerprint,
-        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "fingerprint_schema_version": "trustweave/fingerprint/v4",
         "rule_id": "TW-ORPHAN-001",
         "subject_digest": "a" * 64,
         "accepted_severity": "low",
@@ -379,7 +382,7 @@ def test_create_baseline_rejects_invalid_provenance_and_incomplete_active_findin
         "findings": [
             {
                 "fingerprint": "a" * 64,
-                "fingerprint_schema_version": "trustweave/fingerprint/v3",
+                "fingerprint_schema_version": "trustweave/fingerprint/v4",
                 "id": "TW-POL-004",
                 "severity": "high",
                 "subject": {"tool": "lookup"},
@@ -470,7 +473,7 @@ def test_baseline_create_and_decision_validation_commands_are_explicit_and_local
                 "findings": [
                     {
                         "fingerprint": "a" * 64,
-                        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+                        "fingerprint_schema_version": "trustweave/fingerprint/v4",
                         "id": "TW-POL-004",
                         "severity": "high",
                         "subject": {"tool": "lookup"},
@@ -506,7 +509,7 @@ def test_baseline_create_and_decision_validation_commands_are_explicit_and_local
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     entry = baseline["baseline"][0]
     assert entry["fingerprint"] == "a" * 64
-    assert entry["fingerprint_schema_version"] == "trustweave/fingerprint/v3"
+    assert entry["fingerprint_schema_version"] == "trustweave/fingerprint/v4"
     assert entry["accepted_severity"] == "high"
     assert entry["owner"] == "security-review"
     assert entry["created_at"] == "2026-08-14T00:00:00+00:00"
@@ -1197,7 +1200,7 @@ def test_baseline_creation_deduplicates_active_fingerprints_and_normalizes_metad
 
     finding = {
         "fingerprint": "a" * 64,
-        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "fingerprint_schema_version": "trustweave/fingerprint/v4",
         "id": "TW-POL-004",
         "severity": "high",
         "subject": {"tool": "lookup", "source": "customer"},
@@ -1223,7 +1226,7 @@ def test_baseline_creation_deduplicates_active_fingerprints_and_normalizes_metad
         "baseline": [
             {
                 "fingerprint": "a" * 64,
-                "fingerprint_schema_version": "trustweave/fingerprint/v3",
+                "fingerprint_schema_version": "trustweave/fingerprint/v4",
                 "rule_id": "TW-POL-004",
                 "subject_digest": (
                     "6e3a3401ac246fb8882b3e82fca71a46c4069c311262c406a57dd20fef71ddd0"
@@ -1345,7 +1348,7 @@ def test_baseline_creation_rejects_every_invalid_fingerprint_form(fingerprint: s
         "findings": [
             {
                 "fingerprint": fingerprint,
-                "fingerprint_schema_version": "trustweave/fingerprint/v3",
+                "fingerprint_schema_version": "trustweave/fingerprint/v4",
                 "id": "TW-POL-004",
                 "severity": "high",
                 "subject": {"tool": "lookup"},
@@ -1370,7 +1373,7 @@ def test_baseline_creation_retains_every_distinct_active_fingerprint() -> None:
     findings = [
         {
             "fingerprint": character * 64,
-            "fingerprint_schema_version": "trustweave/fingerprint/v3",
+            "fingerprint_schema_version": "trustweave/fingerprint/v4",
             "id": f"TW-POL-00{index}",
             "severity": "high",
             "subject": {"tool": f"lookup-{index}"},
@@ -1491,7 +1494,7 @@ def test_baseline_creation_skips_inactive_findings_before_later_active_evidence(
 
     inactive = {
         "fingerprint": "a" * 64,
-        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "fingerprint_schema_version": "trustweave/fingerprint/v4",
         "id": "TW-POL-004",
         "severity": "high",
         "subject": {"tool": "lookup"},
@@ -1499,7 +1502,7 @@ def test_baseline_creation_skips_inactive_findings_before_later_active_evidence(
     }
     active = {
         "fingerprint": "b" * 64,
-        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "fingerprint_schema_version": "trustweave/fingerprint/v4",
         "id": "TW-POL-005",
         "severity": "low",
         "subject": {"tool": "archive"},
@@ -1540,7 +1543,7 @@ def test_baseline_creation_skips_inactive_findings_before_later_active_evidence(
         (
             "fingerprint_schema_version",
             "unknown",
-            "risk_review.findings[0].fingerprint_schema_version must be trustweave/fingerprint/v3",
+            "risk_review.findings[0].fingerprint_schema_version must be trustweave/fingerprint/v4",
         ),
         ("severity", "review", "risk_review.findings[0].severity must be one of"),
         ("subject", {}, "risk_review.findings[0].subject must bind a v1alpha2 decision"),
@@ -1554,7 +1557,7 @@ def test_baseline_creation_preserves_exact_active_finding_diagnostics(
 
     finding: dict[str, object] = {
         "fingerprint": "a" * 64,
-        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "fingerprint_schema_version": "trustweave/fingerprint/v4",
         "id": "TW-POL-004",
         "severity": "high",
         "subject": {"tool": "lookup"},
@@ -1692,7 +1695,7 @@ def test_risk_normalization_preserves_optional_reviewer_text_and_fingerprint_mat
 
     normalized = normalize_findings(artifact)[0]
     expected_material = {
-        "fingerprint_schema_version": "trustweave/fingerprint/v3",
+        "fingerprint_schema_version": "trustweave/fingerprint/v4",
         "evidence_kind": "declared_configuration",
         "id": "TW-POL-042",
         "subject": {"tool": "lookup"},
@@ -2214,3 +2217,245 @@ def test_risk_helpers_preserve_legacy_subject_metadata_and_decision_diagnostics(
     with pytest.raises(ValidationError) as error:
         validate_decision_document({}, "unsupported")
     assert str(error.value) == "decision_kind must be baseline or suppressions"
+
+
+def _shadow_demo_review() -> dict[str, object]:
+    """The audit's reproduction, as a policy-review artifact: one broad rule, three shadowed."""
+
+    def rule(identifier: str, trust: list[str], decision: str) -> dict[str, object]:
+        return {
+            "id": identifier,
+            "description": f"Shadow-demo rule {identifier}.",
+            "source_trust": trust,
+            "tool_action_classes": ["read", "external"],
+            "decision": decision,
+            "rationale": "Test-only shadowing fixture.",
+        }
+
+    document = {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "shadow-demo",
+        "default_decision": "deny",
+        "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+        "approval_control": {
+            "mechanism": "human-review-queue",
+            "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+            "fail_closed": True,
+        },
+        "rules": [
+            rule("TW-BROAD", ["trusted", "conditional", "untrusted"], "allow"),
+            rule("TW-SHADOW-A", ["trusted"], "deny"),
+            rule("TW-SHADOW-B", ["conditional"], "allow"),
+            rule("TW-SHADOW-C", ["untrusted"], "deny"),
+        ],
+    }
+    return review_policy(
+        parse_policy(document), generated_at="2026-09-16T00:00:00+00:00", include_coverage=True
+    )
+
+
+def test_every_policy_review_finding_survives_risk_check_and_sarif_export() -> None:
+    """A seven-finding policy review became a four-finding risk review and four SARIF results.
+
+    Every rule-level finding shared `{"policy": "shadow-demo"}`, so all but one finding per
+    rule id collapsed onto one fingerprint and the rest were dropped with no count anywhere
+    in `risk-review.json`, the Markdown, or the SARIF export.
+    """
+
+    review = _shadow_demo_review()
+
+    canonical = normalize_findings(review)
+    risk_review = review_risks([review], reviewed_at="2026-09-16T00:00:00+00:00")
+    sarif = build_sarif({"policy": ("artifacts/policy-review.json", review)})
+
+    assert len(review["findings"]) == 7
+    assert len({finding.fingerprint for finding in canonical}) == 7
+    assert risk_review["summary"]["findings"] == 7
+    assert risk_review["summary"]["new"] == 7
+    assert risk_review["summary"]["status"] == "review_required"
+    assert len(sarif["runs"][0]["results"]) == 7
+
+
+def test_a_baseline_over_one_shadowed_rule_leaves_the_other_rules_active() -> None:
+    """Baselining any one finding used to baseline every finding of that id in the policy.
+
+    Accepting the two `TW-SHADOW-A` findings must leave the `TW-SHADOW-B` and `TW-SHADOW-C`
+    findings active, which is exactly the distinction the collapsed subject destroyed.
+    """
+
+    review = _shadow_demo_review()
+    accepted = [
+        finding
+        for finding in normalize_findings(review)
+        if finding.subject.get("rule") == "TW-SHADOW-A"
+    ]
+    baseline = {
+        "schema_version": RISK_BASELINE_SCHEMA_VERSION,
+        "baseline": [_decision_entry(finding) for finding in accepted],
+    }
+
+    risk_review = review_risks(
+        [review], baseline_document=baseline, reviewed_at="2026-08-20T00:00:00+00:00"
+    )
+
+    assert len(accepted) == 2
+    assert risk_review["summary"]["baselined"] == 2
+    assert risk_review["summary"]["new"] == 5
+    assert risk_review["summary"]["orphaned_baseline"] == 0
+    assert risk_review["summary"]["status"] == "review_required"
+
+
+def test_two_different_findings_with_one_identity_are_refused_rather_than_deduplicated() -> None:
+    """The dropped duplicates were invisible, so an artifact that asserts them now fails closed.
+
+    The fingerprint excludes wording, so a producer emitting two findings with one
+    identifier and one subject but different reviewer-facing text is asserting they are the
+    same risk. Keeping the lexically smallest message and dropping the rest recorded nothing.
+    """
+
+    artifact = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "policy": "indistinct-demo",
+        "findings": [
+            {
+                "id": "TW-POL-002",
+                "severity": "review",
+                "evidence_kind": "declared_configuration",
+                "message": "Rule TW-A is shadowed by earlier rule TW-BROAD.",
+                "subject": {"policy": "indistinct-demo"},
+            },
+            {
+                "id": "TW-POL-002",
+                "severity": "review",
+                "evidence_kind": "declared_configuration",
+                "message": "Rule TW-B is shadowed by earlier rule TW-BROAD.",
+                "subject": {"policy": "indistinct-demo"},
+            },
+        ],
+    }
+
+    with pytest.raises(ValidationError) as error:
+        normalize_findings(artifact)
+
+    assert "contains two different TW-POL-002 findings with one identity" in str(error.value)
+
+
+def test_repeating_one_identical_observation_remains_a_single_risk() -> None:
+    """Pins the refusal direction: identical text under one identity is one risk, not an error.
+
+    Three identical trace calls legitimately produce three identical findings; only a
+    producer that distinguishes them in wording alone is refused.
+    """
+
+    finding = {
+        "id": "TW-TRACE-001",
+        "severity": "medium",
+        "evidence_kind": "pre_recorded_trace_metadata",
+        "message": "A supplied trace call references an undeclared source.",
+        "subject": {"agent": "repeat-demo"},
+    }
+    artifact = {
+        "schema_version": "trustweave.dev/trace-review/v1alpha1",
+        "agent": "repeat-demo",
+        "findings": [dict(finding), dict(finding), dict(finding)],
+    }
+
+    canonical = normalize_findings(artifact)
+
+    assert len(canonical) == 3
+    assert len({item.fingerprint for item in canonical}) == 1
+
+
+def test_a_decision_document_from_the_previous_fingerprint_namespace_is_refused() -> None:
+    """Per-rule subjects change every policy-review fingerprint, so stale decisions must fail.
+
+    Left at `trustweave/fingerprint/v3`, every existing entry would simply stop matching and
+    be reported as orphaned, which no exit code reads: the visible symptom would be
+    `baselined: N -> 0` with the findings quietly returning as new.
+    """
+
+    review = _shadow_demo_review()
+    stale = {
+        "schema_version": RISK_BASELINE_SCHEMA_VERSION,
+        "baseline": [
+            {
+                **_decision_entry(normalize_findings(review)[0]),
+                "fingerprint_schema_version": "trustweave/fingerprint/v3",
+            }
+        ],
+    }
+
+    with pytest.raises(ValidationError) as error:
+        review_risks([review], baseline_document=stale, reviewed_at="2026-08-20T00:00:00+00:00")
+
+    assert str(error.value) == (
+        "baseline[0].fingerprint_schema_version must be trustweave/fingerprint/v4"
+    )
+
+
+def test_the_identity_guard_accepts_the_artifacts_every_shipped_producer_writes() -> None:
+    """A reader-side refusal must not reject evidence the tool itself emits.
+
+    The guard rejects two findings that share an identifier and subject but differ in
+    wording. Trace review scopes each finding to `(source, tool)` and its message is a
+    function of exactly those, so two undeclared sources are two identities rather than one
+    refusal — the case that would otherwise have broken `risk-check` on a real trace.
+    """
+
+    manifest = parse_manifest(
+        {
+            "schema_version": "trustweave.dev/v1alpha1",
+            "name": "guard-probe",
+            "description": "Guard probe manifest.",
+            "sources": [
+                {
+                    "name": "web",
+                    "trust": "untrusted",
+                    "data_classification": "public",
+                    "description": "Declared source.",
+                }
+            ],
+            "tools": [
+                {
+                    "name": "reader",
+                    "action_class": "read",
+                    "capabilities": ["doc.read"],
+                    "description": "Declared tool.",
+                }
+            ],
+            "flows": [{"source": "web", "tool": "reader", "purpose": "read"}],
+        }
+    )
+    policy = parse_policy(
+        {
+            "schema_version": "trustweave.dev/policy/v1alpha2",
+            "name": "guard-policy",
+            "default_decision": "deny",
+            "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+            "rules": [
+                {
+                    "id": "TW-DENY",
+                    "description": "Deny untrusted external actions.",
+                    "source_trust": ["untrusted"],
+                    "tool_action_classes": ["external"],
+                    "decision": "deny",
+                    "rationale": "Test-only rule.",
+                }
+            ],
+        }
+    )
+    trace = {
+        "schema_version": "trustweave.dev/trace/v1alpha1",
+        "messages": [],
+        "events": [],
+        "tool_calls": [
+            {"source": "ghost-a", "tool": "reader"},
+            {"source": "ghost-b", "tool": "reader"},
+        ],
+    }
+
+    review = review_trace(manifest, policy, trace, generated_at="2026-09-16T00:00:00+00:00")
+    canonical = normalize_findings(review)
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-TRACE-001", "TW-TRACE-001"]
+    assert len({finding.fingerprint for finding in canonical}) == 2

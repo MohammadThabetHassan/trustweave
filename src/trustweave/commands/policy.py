@@ -12,7 +12,7 @@ from trustweave.commands._shared import (
     POLICY_REVIEW_REPORT_FILE,
     configured_paths,
 )
-from trustweave.io import load_document, write_json, write_text
+from trustweave.io import load_document, resolve_artifact_dir, write_json, write_text
 from trustweave.models import parse_policy
 from trustweave.policy_review import review_policy
 from trustweave.report import render_policy_review_report
@@ -48,9 +48,10 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     paths = configured_paths(args.config, {"policy": args.policy, "output_dir": output_dir})
     policy = parse_policy(load_document(paths["policy"]))
     review = review_policy(policy, generated_at, include_coverage=args.coverage)
-    json_path = write_json(paths["output_dir"] / POLICY_REVIEW_FILE, review)
+    output_dir = resolve_artifact_dir(paths["output_dir"])
+    json_path = write_json(output_dir / POLICY_REVIEW_FILE, review)
     markdown_path = write_text(
-        paths["output_dir"] / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
+        output_dir / POLICY_REVIEW_REPORT_FILE, render_policy_review_report(review)
     )
     has_findings = int(review["summary"]["review_findings"]) > 0
     code = EXIT_REVIEW if args.exit_on_review and has_findings else 0

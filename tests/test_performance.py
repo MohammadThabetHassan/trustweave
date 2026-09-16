@@ -6,9 +6,11 @@ import json
 from time import perf_counter
 from typing import Any
 
+import pytest
+
 from trustweave.chain import review_declared_chains
 from trustweave.engine import decision_for_scenario, evaluate_manifest
-from trustweave.models import parse_manifest, parse_policy
+from trustweave.models import MAX_MANIFEST_FLOWS, ValidationError, parse_manifest, parse_policy
 from trustweave.sarif import build_sarif
 
 
@@ -64,10 +66,16 @@ def _allow_policy() -> dict[str, object]:
     }
 
 
-def test_declared_flow_scale_gate_covers_10_1000_and_50000_flows() -> None:
+def test_declared_flow_scale_gate_covers_10_1000_and_the_manifest_bound() -> None:
+    """The gate used to run 50,000 flows; a manifest is now bounded at MAX_MANIFEST_FLOWS.
+
+    The bound is the bundle's own finding limit, applied at the input file, so the largest
+    manifest the tool accepts is the one to time. One flow past it is refused by name.
+    """
+
     policy = parse_policy(_allow_policy())
     observed: dict[int, tuple[int, float]] = {}
-    for flow_count in (10, 1_000, 50_000):
+    for flow_count in (10, 1_000, MAX_MANIFEST_FLOWS):
         manifest = parse_manifest(_flow_manifest(flow_count))
         started = perf_counter()
         findings = evaluate_manifest(manifest, policy)
@@ -79,8 +87,11 @@ def test_declared_flow_scale_gate_covers_10_1000_and_50000_flows() -> None:
 
     assert observed[10][0] == 10
     assert observed[1_000][0] == 1_000
-    assert observed[50_000][0] == 50_000
-    assert observed[50_000][1] < 15.0
+    assert observed[MAX_MANIFEST_FLOWS][0] == MAX_MANIFEST_FLOWS
+    assert observed[MAX_MANIFEST_FLOWS][1] < 15.0
+
+    with pytest.raises(ValidationError, match="manifest.flows must contain at most 10000 entries"):
+        parse_manifest(_flow_manifest(MAX_MANIFEST_FLOWS + 1))
 
 
 def test_policy_rule_scale_gate_covers_10_and_1000_rules() -> None:

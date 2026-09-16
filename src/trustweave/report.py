@@ -5,7 +5,27 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from trustweave.models import contains_control_characters
 from trustweave.rules import RULES
+
+
+def _cell(value: Any) -> str:
+    """Render one value into a Markdown table cell or header line without letting it escape.
+
+    Every renderer here reads generated JSON back from disk, so a value can carry text no
+    validator saw. Two characters decide whether the document still describes the artifact
+    it came from: a pipe ends the cell it sits in, and an unterminated ``<!--`` opens a
+    CommonMark HTML block that runs to the end of the document and hides every genuine
+    finding after it. Control characters are folded to a space for the same reason a
+    validator refuses them upstream.
+    """
+
+    text = str(value)
+    if contains_control_characters(text):
+        text = "".join(
+            " " if contains_control_characters(character) else character for character in text
+        )
+    return text.replace("|", "\\|").replace("<!--", "&lt;!--")
 
 
 def _as_mapping(value: Any) -> Mapping[str, Any]:
@@ -47,17 +67,17 @@ def render_report(
     lines = [
         "# TrustWeave Security Evidence Report",
         "",
-        f"**Agent:** `{manifest.get('name', 'unknown')}`  ",
-        f"**Bundle schema:** `{bundle.get('schema_version', 'unknown')}`  ",
-        f"**Evidence chain:** `{evidence_chain}`",
+        f"**Agent:** `{_cell(manifest.get('name', 'unknown'))}`  ",
+        f"**Bundle schema:** `{_cell(bundle.get('schema_version', 'unknown'))}`  ",
+        f"**Evidence chain:** `{_cell(evidence_chain)}`",
         "",
         "## Decision summary",
         "",
         "| Decision | Declared paths |",
         "|---|---:|",
-        f"| Allow | {summary.get('allow', 0)} |",
-        f"| Require approval | {summary.get('require_approval', 0)} |",
-        f"| Deny | {summary.get('deny', 0)} |",
+        f"| Allow | {_cell(summary.get('allow', 0))} |",
+        f"| Require approval | {_cell(summary.get('require_approval', 0))} |",
+        f"| Deny | {_cell(summary.get('deny', 0))} |",
         "",
         "## Declared trust-boundary paths",
         "",
@@ -71,12 +91,12 @@ def render_report(
         tool = _as_mapping(finding.get("tool"))
         lines.append(
             "| {source} | {trust} | {tool} | {action} | **{decision}** | {rule} |".format(
-                source=source.get("name", "unknown"),
-                trust=source.get("trust", "unknown"),
-                tool=tool.get("name", "unknown"),
-                action=tool.get("action_class", "unknown"),
-                decision=finding.get("decision", "unknown"),
-                rule=finding.get("rule_id") or "default",
+                source=_cell(source.get("name", "unknown")),
+                trust=_cell(source.get("trust", "unknown")),
+                tool=_cell(tool.get("name", "unknown")),
+                action=_cell(tool.get("action_class", "unknown")),
+                decision=_cell(finding.get("decision", "unknown")),
+                rule=_cell(finding.get("rule_id") or "default"),
             )
         )
 
@@ -87,10 +107,10 @@ def render_report(
             "",
             "| Status | Result |",
             "|---|---:|",
-            f"| Total | {test_summary.get('total', 0)} |",
-            f"| Passed | {test_summary.get('passed', 0)} |",
-            f"| Failed | {test_summary.get('failed', 0)} |",
-            f"| Overall | **{test_summary.get('status', 'unknown')}** |",
+            f"| Total | {_cell(test_summary.get('total', 0))} |",
+            f"| Passed | {_cell(test_summary.get('passed', 0))} |",
+            f"| Failed | {_cell(test_summary.get('failed', 0))} |",
+            f"| Overall | **{_cell(test_summary.get('status', 'unknown'))}** |",
             "",
             "## Evidence limits",
             "",
@@ -123,35 +143,40 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
     lines = [
         "# TrustWeave Bundle Diff Report",
         "",
-        f"**Base agent:** `{_as_mapping(diff.get('base')).get('agent', 'unknown')}`  ",
-        f"**Head agent:** `{_as_mapping(diff.get('head')).get('agent', 'unknown')}`",
+        f"**Base agent:** `{_cell(_as_mapping(diff.get('base')).get('agent', 'unknown'))}`  ",
+        f"**Head agent:** `{_cell(_as_mapping(diff.get('head')).get('agent', 'unknown'))}`",
         "",
         "## Change summary",
         "",
         "| Category | Added | Removed | Changed |",
         "|---|---:|---:|---:|",
         (
-            f"| Sources | {summary.get('added_sources', 0)} | "
-            f"{summary.get('removed_sources', 0)} | {summary.get('changed_sources', 0)} |"
+            f"| Sources | {_cell(summary.get('added_sources', 0))} | "
+            f"{_cell(summary.get('removed_sources', 0))} | "
+            f"{_cell(summary.get('changed_sources', 0))} |"
         ),
         (
-            f"| Tools | {summary.get('added_tools', 0)} | "
-            f"{summary.get('removed_tools', 0)} | {summary.get('changed_tools', 0)} |"
+            f"| Tools | {_cell(summary.get('added_tools', 0))} | "
+            f"{_cell(summary.get('removed_tools', 0))} | "
+            f"{_cell(summary.get('changed_tools', 0))} |"
         ),
         "",
         "| Capability outcome | Count |",
         "|---|---:|",
-        f"| Tools with capability changes | {summary.get('tools_with_capability_changes', 0)} |",
-        f"| Added capabilities | {summary.get('added_capabilities', 0)} |",
-        f"| Removed capabilities | {summary.get('removed_capabilities', 0)} |",
+        (
+            "| Tools with capability changes | "
+            f"{_cell(summary.get('tools_with_capability_changes', 0))} |"
+        ),
+        f"| Added capabilities | {_cell(summary.get('added_capabilities', 0))} |",
+        f"| Removed capabilities | {_cell(summary.get('removed_capabilities', 0))} |",
         "",
         "| Path outcome | Count |",
         "|---|---:|",
-        f"| Added paths | {summary.get('added_paths', 0)} |",
-        f"| Removed paths | {summary.get('removed_paths', 0)} |",
-        f"| Policy decision changes | {summary.get('decision_changes', 0)} |",
-        f"| Policy-only changes | {summary.get('policy_changes', 0)} |",
-        f"| Review signals | {summary.get('review_signals', 0)} |",
+        f"| Added paths | {_cell(summary.get('added_paths', 0))} |",
+        f"| Removed paths | {_cell(summary.get('removed_paths', 0))} |",
+        f"| Policy decision changes | {_cell(summary.get('decision_changes', 0))} |",
+        f"| Policy-only changes | {_cell(summary.get('policy_changes', 0))} |",
+        f"| Review signals | {_cell(summary.get('review_signals', 0))} |",
         "",
         "## Review signals",
         "",
@@ -164,9 +189,9 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
             signal = _as_mapping(raw_signal)
             lines.append(
                 "| {severity} | `{identifier}` | {message} |".format(
-                    severity=signal.get("severity", "unknown"),
-                    identifier=signal.get("id", "unknown"),
-                    message=signal.get("message", "unknown"),
+                    severity=_cell(signal.get("severity", "unknown")),
+                    identifier=_cell(signal.get("id", "unknown")),
+                    message=_cell(signal.get("message", "unknown")),
                 )
             )
 
@@ -180,17 +205,17 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
         for raw_change in capability_changes:
             change = _as_mapping(raw_change)
             added = (
-                ", ".join(str(capability) for capability in _as_sequence(change.get("added")))
+                ", ".join(_cell(capability) for capability in _as_sequence(change.get("added")))
                 or "—"
             )
             removed = (
-                ", ".join(str(capability) for capability in _as_sequence(change.get("removed")))
+                ", ".join(_cell(capability) for capability in _as_sequence(change.get("removed")))
                 or "—"
             )
             lines.append(
                 "| {tool} | {action_class} | {added} | {removed} |".format(
-                    tool=change.get("name", "unknown"),
-                    action_class=change.get("action_class", "unknown"),
+                    tool=_cell(change.get("name", "unknown")),
+                    action_class=_cell(change.get("action_class", "unknown")),
                     added=added,
                     removed=removed,
                 )
@@ -206,10 +231,10 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
             change = _as_mapping(raw_change)
             lines.append(
                 "| {path} | `{before}` | `{after}` | {security_relevant} |".format(
-                    path=change.get("path", "unknown"),
-                    before=change.get("before"),
-                    after=change.get("after"),
-                    security_relevant=change.get("security_relevant", False),
+                    path=_cell(change.get("path", "unknown")),
+                    before=_cell(change.get("before")),
+                    after=_cell(change.get("after")),
+                    security_relevant=_cell(change.get("security_relevant", False)),
                 )
             )
 
@@ -225,11 +250,11 @@ def render_diff_report(diff: Mapping[str, Any]) -> str:
             key = _as_sequence(change.get("key"))
             before = _as_mapping(change.get("before"))
             after = _as_mapping(change.get("after"))
-            source = key[0] if len(key) > 0 else "unknown"
-            tool = key[1] if len(key) > 1 else "unknown"
+            source = _cell(key[0] if len(key) > 0 else "unknown")
+            tool = _cell(key[1] if len(key) > 1 else "unknown")
             lines.append(
-                f"| {source} | {tool} | {before.get('decision', 'unknown')} | "
-                f"{after.get('decision', 'unknown')} |"
+                f"| {source} | {tool} | {_cell(before.get('decision', 'unknown'))} | "
+                f"{_cell(after.get('decision', 'unknown'))} |"
             )
 
     lines.extend(
@@ -258,30 +283,30 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
     findings = _as_sequence(review.get("findings"))
     approval_rules = _as_sequence(approval_control.get("high_impact_approval_rules"))
     approval_bindings = _as_sequence(approval_control.get("binds_to"))
-    approval_rule_value = ", ".join(str(rule) for rule in approval_rules) or "none"
-    approval_binding_value = ", ".join(str(binding) for binding in approval_bindings)
+    approval_rule_value = ", ".join(_cell(rule) for rule in approval_rules) or "none"
+    approval_binding_value = ", ".join(_cell(binding) for binding in approval_bindings)
     if not approval_binding_value:
         approval_binding_value = "not declared"
     lines = [
         "# TrustWeave Policy Review Report",
         "",
-        f"**Policy:** `{review.get('policy', 'unknown')}`  ",
-        f"**Status:** **{summary.get('status', 'unknown')}**",
+        f"**Policy:** `{_cell(review.get('policy', 'unknown'))}`  ",
+        f"**Status:** **{_cell(summary.get('status', 'unknown'))}**",
         "",
         "| Metric | Value |",
         "|---|---:|",
-        f"| Rules reviewed | {summary.get('rules', 0)} |",
-        f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        f"| Rules reviewed | {_cell(summary.get('rules', 0))} |",
+        f"| Findings requiring review | {_cell(summary.get('review_findings', 0))} |",
         "",
         "## Declared approval boundary",
         "",
         "| Control | Declared value |",
         "|---|---|",
         f"| High-impact approval rules | {approval_rule_value} |",
-        f"| Approval control declared | {approval_control.get('declared', False)} |",
-        f"| Mechanism | {approval_control.get('mechanism', 'not declared')} |",
+        f"| Approval control declared | {_cell(approval_control.get('declared', False))} |",
+        f"| Mechanism | {_cell(approval_control.get('mechanism', 'not declared'))} |",
         f"| Approval bindings | {approval_binding_value} |",
-        f"| Fail closed | {approval_control.get('fail_closed', 'not declared')} |",
+        f"| Fail closed | {_cell(approval_control.get('fail_closed', 'not declared'))} |",
         "",
         "## Findings",
         "",
@@ -294,9 +319,9 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
             finding = _as_mapping(raw_finding)
             lines.append(
                 "| {severity} | `{identifier}` | {message} |".format(
-                    severity=finding.get("severity", "unknown"),
-                    identifier=finding.get("id", "unknown"),
-                    message=finding.get("message", "unknown"),
+                    severity=_cell(finding.get("severity", "unknown")),
+                    identifier=_cell(finding.get("id", "unknown")),
+                    message=_cell(finding.get("message", "unknown")),
                 )
             )
 
@@ -316,12 +341,25 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
         )
         for rule_id, raw_result in sorted(coverage_rules.items()):
             result = _as_mapping(raw_result)
+            # One rule shadows on its own, or several do together; name whichever it is.
+            covering = result.get("shadowed_by_rules")
+            shadowed_by = (
+                ", ".join(_cell(rule) for rule in covering)
+                if isinstance(covering, list) and covering
+                else _cell(result.get("shadowed_by") or "—")
+            )
+            reachable = _cell(result.get("reachable", "unknown"))
+            if result.get("cover_search") == "declined":
+                # The search that decides reachability did not run, so printing True here
+                # would read as a verdict the review never reached.
+                shadowed_by = "not searched (rule names more cells than the enumeration limit)"
+                reachable = "not established"
             lines.append(
                 "| `{rule_id}` | {reachable} | {possible} | {shadowed_by} |".format(
-                    rule_id=rule_id,
-                    reachable=result.get("reachable", "unknown"),
-                    possible=result.get("possible", "unknown"),
-                    shadowed_by=result.get("shadowed_by") or "—",
+                    rule_id=_cell(rule_id),
+                    reachable=reachable,
+                    possible=_cell(result.get("possible", "unknown")),
+                    shadowed_by=shadowed_by,
                 )
             )
 
@@ -349,18 +387,18 @@ def render_trace_review_report(review: Mapping[str, Any]) -> str:
     lines = [
         "# TrustWeave Offline Trace Review",
         "",
-        f"**Agent:** `{review.get('agent', 'unknown')}`  ",
-        f"**Policy:** `{review.get('policy', 'unknown')}`  ",
-        f"**Status:** **{summary.get('status', 'unknown')}**",
+        f"**Agent:** `{_cell(review.get('agent', 'unknown'))}`  ",
+        f"**Policy:** `{_cell(review.get('policy', 'unknown'))}`  ",
+        f"**Status:** **{_cell(summary.get('status', 'unknown'))}**",
         "",
         "## Review summary",
         "",
         "| Metric | Value |",
         "|---|---:|",
-        f"| Messages observed | {summary.get('messages_observed', 0)} |",
-        f"| Tool calls observed | {summary.get('tool_calls_observed', 0)} |",
-        f"| Untrusted-context events | {summary.get('untrusted_context_events', 0)} |",
-        f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        f"| Messages observed | {_cell(summary.get('messages_observed', 0))} |",
+        f"| Tool calls observed | {_cell(summary.get('tool_calls_observed', 0))} |",
+        f"| Untrusted-context events | {_cell(summary.get('untrusted_context_events', 0))} |",
+        f"| Findings requiring review | {_cell(summary.get('review_findings', 0))} |",
         "",
         "## Tool-call observations",
         "",
@@ -371,12 +409,12 @@ def render_trace_review_report(review: Mapping[str, Any]) -> str:
         observation = _as_mapping(raw_observation)
         lines.append(
             "| {index} | {source} | {tool} | {action_class} | {decision} | **{status}** |".format(
-                index=observation.get("index", "unknown"),
-                source=observation.get("source", "unknown"),
-                tool=observation.get("tool", "unknown"),
-                action_class=observation.get("action_class", "not available"),
-                decision=observation.get("decision", "not available"),
-                status=observation.get("status", "unknown"),
+                index=_cell(observation.get("index", "unknown")),
+                source=_cell(observation.get("source", "unknown")),
+                tool=_cell(observation.get("tool", "unknown")),
+                action_class=_cell(observation.get("action_class", "not available")),
+                decision=_cell(observation.get("decision", "not available")),
+                status=_cell(observation.get("status", "unknown")),
             )
         )
 
@@ -389,10 +427,10 @@ def render_trace_review_report(review: Mapping[str, Any]) -> str:
             finding = _as_mapping(raw_finding)
             lines.append(
                 "| {severity} | `{identifier}` | {index} | {message} |".format(
-                    severity=finding.get("severity", "unknown"),
-                    identifier=finding.get("id", "unknown"),
-                    index=finding.get("index", "not available"),
-                    message=finding.get("message", "unknown"),
+                    severity=_cell(finding.get("severity", "unknown")),
+                    identifier=_cell(finding.get("id", "unknown")),
+                    index=_cell(finding.get("index", "not available")),
+                    message=_cell(finding.get("message", "unknown")),
                 )
             )
 
@@ -424,18 +462,21 @@ def render_mcp_profile_review_report(review: Mapping[str, Any]) -> str:
     lines = [
         "# TrustWeave MCP Metadata Profile Review",
         "",
-        f"**Profile:** `{profile.get('name', 'unknown')}`  ",
-        f"**Transport:** `{profile.get('transport', 'unknown')}`  ",
-        f"**Resource URI:** `{profile.get('resource_uri', 'not declared')}`  ",
-        f"**Authorization expected:** `{profile.get('authorization_expected', 'unknown')}`  ",
-        f"**Status:** **{summary.get('status', 'unknown')}**",
+        f"**Profile:** `{_cell(profile.get('name', 'unknown'))}`  ",
+        f"**Transport:** `{_cell(profile.get('transport', 'unknown'))}`  ",
+        f"**Resource URI:** `{_cell(profile.get('resource_uri', 'not declared'))}`  ",
+        (
+            "**Authorization expected:** "
+            f"`{_cell(profile.get('authorization_expected', 'unknown'))}`  "
+        ),
+        f"**Status:** **{_cell(summary.get('status', 'unknown'))}**",
         "",
         "## Review summary",
         "",
         "| Metric | Value |",
         "|---|---:|",
-        f"| Tools reviewed | {summary.get('tools_reviewed', 0)} |",
-        f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        f"| Tools reviewed | {_cell(summary.get('tools_reviewed', 0))} |",
+        f"| Findings requiring review | {_cell(summary.get('review_findings', 0))} |",
         "",
         "## Declared tool mappings",
         "",
@@ -447,11 +488,11 @@ def render_mcp_profile_review_report(review: Mapping[str, Any]) -> str:
         lines.append(
             "| {mcp_tool} | {manifest_tool} | {declared_action} | {manifest_action} | "
             "**{status}** |".format(
-                mcp_tool=mapping.get("mcp_tool", "unknown"),
-                manifest_tool=mapping.get("manifest_tool", "unknown"),
-                declared_action=mapping.get("declared_action_class", "unknown"),
-                manifest_action=mapping.get("manifest_action_class", "not available"),
-                status=mapping.get("status", "unknown"),
+                mcp_tool=_cell(mapping.get("mcp_tool", "unknown")),
+                manifest_tool=_cell(mapping.get("manifest_tool", "unknown")),
+                declared_action=_cell(mapping.get("declared_action_class", "unknown")),
+                manifest_action=_cell(mapping.get("manifest_action_class", "not available")),
+                status=_cell(mapping.get("status", "unknown")),
             )
         )
 
@@ -464,9 +505,9 @@ def render_mcp_profile_review_report(review: Mapping[str, Any]) -> str:
             finding = _as_mapping(raw_finding)
             lines.append(
                 "| {severity} | `{identifier}` | {message} |".format(
-                    severity=finding.get("severity", "unknown"),
-                    identifier=finding.get("id", "unknown"),
-                    message=finding.get("message", "unknown"),
+                    severity=_cell(finding.get("severity", "unknown")),
+                    identifier=_cell(finding.get("id", "unknown")),
+                    message=_cell(finding.get("message", "unknown")),
                 )
             )
 
@@ -496,18 +537,18 @@ def render_risk_review_report(review: Mapping[str, Any]) -> str:
     lines = [
         "# TrustWeave Local Risk Review",
         "",
-        f"**Status:** **{summary.get('status', 'unknown')}**  ",
-        f"**Findings:** {summary.get('findings', 0)}",
+        f"**Status:** **{_cell(summary.get('status', 'unknown'))}**  ",
+        f"**Findings:** {_cell(summary.get('findings', 0))}",
         "",
         "## Risk-state summary",
         "",
         "| State | Count |",
         "|---|---:|",
-        f"| New | {summary.get('new', 0)} |",
-        f"| Baselined | {summary.get('baselined', 0)} |",
-        f"| Suppressed | {summary.get('suppressed', 0)} |",
-        f"| Expired baseline | {summary.get('expired_baseline', 0)} |",
-        f"| Expired suppression | {summary.get('expired_suppression', 0)} |",
+        f"| New | {_cell(summary.get('new', 0))} |",
+        f"| Baselined | {_cell(summary.get('baselined', 0))} |",
+        f"| Suppressed | {_cell(summary.get('suppressed', 0))} |",
+        f"| Expired baseline | {_cell(summary.get('expired_baseline', 0))} |",
+        f"| Expired suppression | {_cell(summary.get('expired_suppression', 0))} |",
         "",
         "## Active findings by severity",
         "",
@@ -515,7 +556,7 @@ def render_risk_review_report(review: Mapping[str, Any]) -> str:
         "|---|---:|",
     ]
     for severity in ("critical", "high", "medium", "low", "info"):
-        lines.append(f"| {severity} | {active_by_severity.get(severity, 0)} |")
+        lines.append(f"| {severity} | {_cell(active_by_severity.get(severity, 0))} |")
 
     lines.extend(["", "## Finding decisions", ""])
     if not findings:
@@ -531,11 +572,11 @@ def render_risk_review_report(review: Mapping[str, Any]) -> str:
             finding = _as_mapping(raw_finding)
             lines.append(
                 "| {state} | {severity} | `{identifier}` | {expiry} | {message} |".format(
-                    state=finding.get("risk_state", "unknown"),
-                    severity=finding.get("severity", "unknown"),
-                    identifier=finding.get("id", "unknown"),
-                    expiry=finding.get("expires_at", "—"),
-                    message=finding.get("message", "unknown"),
+                    state=_cell(finding.get("risk_state", "unknown")),
+                    severity=_cell(finding.get("severity", "unknown")),
+                    identifier=_cell(finding.get("id", "unknown")),
+                    expiry=_cell(finding.get("expires_at", "—")),
+                    message=_cell(finding.get("message", "unknown")),
                 )
             )
 
@@ -569,19 +610,19 @@ def render_code_discovery_report(review: Mapping[str, Any]) -> str:
     lines = [
         "# TrustWeave Local Code Discovery",
         "",
-        f"**Analyzed root:** `{source.get('root_name', 'unknown')}`  ",
-        f"**Files analyzed:** {source.get('files_analyzed', 0)}  ",
-        f"**Symbol catalog:** `{source.get('catalog_version', 'unknown')}`  ",
-        f"**Status:** **{summary.get('status', 'unknown')}**",
+        f"**Analyzed root:** `{_cell(source.get('root_name', 'unknown'))}`  ",
+        f"**Files analyzed:** {_cell(source.get('files_analyzed', 0))}  ",
+        f"**Symbol catalog:** `{_cell(source.get('catalog_version', 'unknown'))}`  ",
+        f"**Status:** **{_cell(summary.get('status', 'unknown'))}**",
         "",
         "## Review summary",
         "",
         "| Metric | Value |",
         "|---|---:|",
-        f"| Tools discovered | {summary.get('tools_discovered', 0)} |",
-        f"| Action class proposed | {summary.get('tools_classified', 0)} |",
-        f"| Left unknown for review | {summary.get('tools_unknown', 0)} |",
-        f"| Findings requiring review | {summary.get('review_findings', 0)} |",
+        f"| Tools discovered | {_cell(summary.get('tools_discovered', 0))} |",
+        f"| Action class proposed | {_cell(summary.get('tools_classified', 0))} |",
+        f"| Left unknown for review | {_cell(summary.get('tools_unknown', 0))} |",
+        f"| Findings requiring review | {_cell(summary.get('review_findings', 0))} |",
         "",
         "## Declaration coverage",
         "",
@@ -592,15 +633,18 @@ def render_code_discovery_report(review: Mapping[str, Any]) -> str:
             [
                 "| Metric | Value |",
                 "|---|---:|",
-                f"| Declared tools | {drift.get('tools_declared', 0)} |",
-                f"| Discovered tools | {drift.get('tools_discovered', 0)} |",
-                f"| Matched by name | {drift.get('tools_matched', 0)} |",
-                f"| Declaration coverage | {drift.get('declaration_coverage_percent', '0.00')}% |",
+                f"| Declared tools | {_cell(drift.get('tools_declared', 0))} |",
+                f"| Discovered tools | {_cell(drift.get('tools_discovered', 0))} |",
+                f"| Matched by name | {_cell(drift.get('tools_matched', 0))} |",
+                (
+                    "| Declaration coverage | "
+                    f"{_cell(drift.get('declaration_coverage_percent', '0.00'))}% |"
+                ),
                 "",
             ]
         )
-        missing = [str(name) for name in _as_sequence(drift.get("missing_from_manifest"))]
-        absent = [str(name) for name in _as_sequence(drift.get("declared_not_found_in_code"))]
+        missing = [_cell(name) for name in _as_sequence(drift.get("missing_from_manifest"))]
+        absent = [_cell(name) for name in _as_sequence(drift.get("declared_not_found_in_code"))]
         lines.append(
             "Found in code but not declared: "
             + (", ".join(f"`{name}`" for name in missing) if missing else "none")
@@ -629,29 +673,31 @@ def render_code_discovery_report(review: Mapping[str, Any]) -> str:
         tool = _as_mapping(raw_tool)
         location = _as_mapping(tool.get("location"))
         signals = [
-            _as_mapping(signal).get("symbol", "unknown")
+            _cell(_as_mapping(signal).get("symbol", "unknown"))
             for signal in _as_sequence(tool.get("signals"))
         ]
-        reasons = [str(reason) for reason in _as_sequence(tool.get("reasons"))]
+        reasons = [_cell(reason) for reason in _as_sequence(tool.get("reasons"))]
         evidence = ", ".join(f"`{symbol}`" for symbol in signals) if signals else ""
         if reasons:
             evidence = (evidence + " " if evidence else "") + "refused: " + ", ".join(reasons)
         lines.append(
             "| `{name}`{implemented} | {framework} | **{action}** | {confidence} "
             "| {evidence} | `{file}:{line}` |".format(
-                name=tool.get("name", "unknown"),
+                name=_cell(tool.get("name", "unknown")),
                 # A factory may register a tool under a name the implementing function does
                 # not share. A reviewer reading this table needs the second one to find the
                 # code the evidence came from.
                 implemented=(
-                    f"<br>via `{tool['implementation']}`" if tool.get("implementation") else ""
+                    f"<br>via `{_cell(tool['implementation'])}`"
+                    if tool.get("implementation")
+                    else ""
                 ),
-                framework=str(tool.get("framework", "unknown")).replace("_", " "),
-                action=tool.get("proposed_action_class", "unknown"),
-                confidence=tool.get("confidence", "unknown"),
+                framework=_cell(str(tool.get("framework", "unknown")).replace("_", " ")),
+                action=_cell(tool.get("proposed_action_class", "unknown")),
+                confidence=_cell(tool.get("confidence", "unknown")),
                 evidence=evidence or "no recognised effect",
-                file=location.get("file", "unknown"),
-                line=location.get("line", "0"),
+                file=_cell(location.get("file", "unknown")),
+                line=_cell(location.get("line", "0")),
             )
         )
 
@@ -664,15 +710,15 @@ def render_code_discovery_report(review: Mapping[str, Any]) -> str:
             finding = _as_mapping(raw_finding)
             lines.append(
                 "| {severity} | `{identifier}` | {message} |".format(
-                    severity=finding.get("severity", "unknown"),
-                    identifier=finding.get("id", "unknown"),
-                    message=finding.get("message", "unknown"),
+                    severity=_cell(finding.get("severity", "unknown")),
+                    identifier=_cell(finding.get("id", "unknown")),
+                    message=_cell(finding.get("message", "unknown")),
                 )
             )
 
     _append_builtin_rule_guidance(lines, findings)
     lines.extend(["", "## Evidence limits", ""])
     for limit in _as_sequence(review.get("limits")):
-        lines.append(f"- {limit}")
+        lines.append(f"- {_cell(limit)}")
     lines.append("")
     return "\n".join(lines)

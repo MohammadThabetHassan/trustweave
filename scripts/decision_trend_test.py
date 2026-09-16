@@ -58,7 +58,12 @@ def joined_rows() -> list[tuple[str, int, float, bool]]:
     rows: list[tuple[str, int, float, bool]] = []
     missing: list[str] = []
     for entry in mutation["detail"]:
-        counts = per_policy.get(entry["policy"])
+        # The exposure comes from the manifest whose mutants were scored when the artifact
+        # records it, for the reason the blind flag does: the pooled artifact's subject is
+        # a name the corpus's dialect variants share. The pooled reading is the fallback for
+        # an artifact that predates the field.
+        local = entry.get("decisions_witnessed")
+        counts = list(local.values()) if local else per_policy.get(entry["policy"])
         if not counts:
             missing.append(entry["policy"])
             continue

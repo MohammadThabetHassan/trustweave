@@ -11,6 +11,7 @@
         "artifact_schema_version": {
           "enum": [
             "trustweave.dev/policy-review/v1alpha1",
+            "trustweave.dev/policy-review/v1alpha2",
             "trustweave.dev/trace-review/v1alpha1",
             "trustweave.dev/mcp-profile-review/v1alpha1",
             "trustweave.dev/bundle-diff/v1alpha1",
@@ -31,7 +32,7 @@
           "$ref": "#/$defs/fingerprint"
         },
         "fingerprint_schema_version": {
-          "const": "trustweave/fingerprint/v3"
+          "const": "trustweave/fingerprint/v4"
         },
         "id": {
           "pattern": "^TW-[A-Z0-9-]{1,120}$",

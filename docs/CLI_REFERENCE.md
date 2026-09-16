@@ -135,7 +135,7 @@ A successful statement-only result does not establish that a reviewer’s curren
 trustweave chain-check --input PATH [--output-dir DIR] [--max-nodes N] [--max-paths N] [--max-edges N] [--max-depth N] [--max-states N] [--exit-on-review]
 ```
 
-`chain-check` reviews only an explicitly supplied trust-boundary graph. It deterministically propagates declared sensitive classifications and fail-closed approval state along supplied edges, terminates at declared external actions, and reports when any local traversal budget makes the review incomplete. It does not discover or execute runtime paths.
+`chain-check` reviews only an explicitly supplied trust-boundary graph. It deterministically propagates declared sensitive classifications and fail-closed approval state along supplied edges, records each declared external action as a reviewable path while continuing through that node's own declared successors, never follows a node already on the current path, and reports when any local traversal budget makes the review incomplete. Sensitive classifications default to `confidential` and `restricted`; a graph may declare its own `classification_taxonomy` and `sensitive_classifications` instead, and a classification that only looks like a declared one is refused rather than propagating nothing. It does not discover or execute runtime paths.
 
 | Input | Required | Description |
 |---|---:|---|
@@ -149,7 +149,7 @@ trustweave chain-check --input PATH [--output-dir DIR] [--max-nodes N] [--max-pa
 trustweave policy-check --policy PATH [--output-dir DIR] [--coverage] [--exit-on-review]
 ```
 
-`policy-check` statically reviews the ordered deterministic policy. It identifies a rule that an earlier rule shadows, an `allow` default decision, an untrusted-input rule that allows sensitive or external actions, and weak declaration of the approval boundary for sensitive/external paths that use `require_approval`. With `--coverage`, it additionally records first-match reachability, impossible declared control requirements, and contradictory decisions for provably shadowed rules; this is structural analysis of supplied policy metadata only.
+`policy-check` statically reviews the ordered deterministic policy. It identifies a rule that an earlier rule shadows, an `allow` default decision, an untrusted-input rule that allows sensitive or external actions, and weak declaration of the approval boundary for sensitive/external paths that use `require_approval`. A rule that names required controls the policy does not declare can never match, so `TW-POL-008` is reported with or without `--coverage`. With `--coverage`, the review additionally records per-rule first-match reachability, the impossible rules, and contradictory decisions for provably shadowed rules; this is structural analysis of supplied policy metadata only. A rule is shadowed when one earlier rule covers it (`shadowed_by`) or when several earlier rules together cover every combination of the trust labels, action classes, identifiers, and classifications it names (`shadowed_by_rules`). `reachable: true` means no such cover was found, not that a matching flow was constructed: a cover that only exists through classification bounds, purpose tags, or capability patterns is not looked for, and a rule naming more than 10,000 combinations is not enumerated at all, which the entry records as `cover_search: declined`, lists in `coverage.declined_rules`, and reports as `TW-POL-010` so the review does not read as clear. `TW-POL-010` is emitted with or without `--coverage`.
 
 When a policy declares a high-impact approval path, its optional `approval_control` object can record a mechanism label, `binds_to` fields, and `fail_closed`. The review requires bindings for `actor`, `tool`, `target`, `parameters`, `issued_at`, and `expires_at`. It emits `TW-POL-004` when no control is declared, `TW-POL-005` for missing required bindings, and `TW-POL-006` when the declared control is fail-open. These are documentation and review signals; they do not prove that a mechanism exists or was enforced.
 
@@ -208,7 +208,7 @@ trustweave risk-check \
   [--output PATH]
 ```
 
-`risk-check` accepts policy-review, trace-review, MCP-profile-review, supported bundle-diff, and declared-chain-review artifacts by exact schema version. It normalizes documented finding collections (`findings` or bundle-diff `signals`) into wording-independent `trustweave/fingerprint/v3` identities, preserving supplied local source paths while excluding paths, timestamps, severity, and message text from identity. It applies optional v1alpha2 baseline and suppression documents bound to the fingerprint, `TW-` rule ID, stable subject digest, accepted severity, owner, creation time, and expiry. Expired, future-created, and severity-escalated decisions remain active and reviewer-visible. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
+`risk-check` accepts policy-review, trace-review, MCP-profile-review, supported bundle-diff, and declared-chain-review artifacts by exact schema version. It normalizes documented finding collections (`findings` or bundle-diff `signals`) into wording-independent `trustweave/fingerprint/v4` identities, preserving supplied local source paths while excluding paths, timestamps, severity, and message text from identity. It applies optional v1alpha2 baseline and suppression documents bound to the fingerprint, `TW-` rule ID, stable subject digest, accepted severity, owner, creation time, and expiry. Expired, future-created, and severity-escalated decisions remain active and reviewer-visible. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
 
 | Input | Required | Description |
 |---|---:|---|
@@ -243,7 +243,7 @@ trustweave sarif \
 
 | Input | Required | Description |
 |---|---:|---|
-| `--policy-review` | One or more review inputs required | `policy-review.json` using `trustweave.dev/policy-review/v1alpha1`. |
+| `--policy-review` | One or more review inputs required | `policy-review.json` using `trustweave.dev/policy-review/v1alpha2`, or the historical `v1alpha1`. |
 | `--diff` | One or more review inputs required | Current `bundle-diff.json` uses `trustweave.dev/bundle-diff/v1alpha3`; the exporter also reads bounded historical v1alpha1 and v1alpha2 diffs. |
 | `--trace-review` | One or more review inputs required | `trace-review.json` using `trustweave.dev/trace-review/v1alpha1`. |
 | `--mcp-profile-review` | One or more review inputs required | `mcp-profile-review.json` using `trustweave.dev/mcp-profile-review/v1alpha1`. |
@@ -258,7 +258,7 @@ trustweave sarif \
 | `locations` | The supplied local artifact path is recorded as the result location. |
 | `partialFingerprints` | A deterministic SHA-256 fingerprint derived from review kind, identifier, message, and artifact path. |
 
-The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. When a `risk-review.json` is supplied, every active state is included: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Its canonical identity is retained as `trustweave/fingerprint/v3`. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
+The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. When a `risk-review.json` is supplied, every active state is included: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Its canonical identity is retained as `trustweave/fingerprint/v4`. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
 
 ## `trace-review`
 

@@ -17,6 +17,7 @@ from trustweave.models import (
     VALID_TRUST_LABELS,
     InputOutputError,
     ValidationError,
+    contains_control_characters,
     parse_policy,
 )
 from trustweave.sarif import build_sarif
@@ -106,7 +107,11 @@ def test_policy_label_evaluation_matches_first_matching_rule_or_default(
 
 @given(
     value=st.text(min_size=1).filter(
-        lambda text: bool(text.strip()) and text not in VALID_TRUST_LABELS
+        lambda text: (
+            bool(text.strip())
+            and text not in VALID_TRUST_LABELS
+            and not contains_control_characters(text)
+        )
     )
 )
 def test_policy_parser_fails_closed_for_unknown_trust_labels(value: str) -> None:
@@ -118,6 +123,25 @@ def test_policy_parser_fails_closed_for_unknown_trust_labels(value: str) -> None
     rule["source_trust"] = [value]
 
     with pytest.raises(ValidationError, match="unknown trust labels"):
+        parse_policy(document)
+
+
+def test_a_trust_label_carrying_a_control_character_is_refused_for_the_control_character() -> None:
+    """The unknown-label refusal used to be the only one, so a `\x08` label read as a typo.
+
+    A control character is refused before the vocabulary is consulted, because the harm it
+    does is to the rendered artifact rather than to the decision. This sibling pins which
+    of the two refusals a value that is both unknown and unrenderable receives.
+    """
+
+    document = _policy_document()
+    rules = document["rules"]
+    assert isinstance(rules, list)
+    rule = rules[0]
+    assert isinstance(rule, dict)
+    rule["source_trust"] = ["untrusted\x08"]
+
+    with pytest.raises(ValidationError, match="must not contain control characters"):
         parse_policy(document)
 
 

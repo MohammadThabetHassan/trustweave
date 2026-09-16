@@ -15,6 +15,8 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Final
 
+from trustweave.models import RESERVED_PLACEHOLDER
+
 CATALOG_VERSION: Final[str] = "trustweave.dev/code-catalog/v1alpha1"
 
 # --------------------------------------------------------------------------------------
@@ -131,6 +133,29 @@ WRITE_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
 )
 
 PATH_RECEIVERS: Final[frozenset[str]] = frozenset({"pathlib.Path", "pathlib.PurePath"})
+# Archive handles. Extraction is the effect that matters: an archive names its own member
+# paths, so `extractall` writes wherever the archive says -- the Zip Slip and CVE-2007-4559
+# primitive -- and `shutil.unpack_archive`, the one-line spelling of the same operation, was
+# already catalogued as a write while these produced no signal at all. They are a family of
+# their own rather than an addition to WRITE_RECEIVER_METHODS, which is consulted only for
+# PATH_RECEIVERS and whose members mean something different on a path.
+ARCHIVE_RECEIVERS: Final[frozenset[str]] = frozenset(
+    {"zipfile.ZipFile", "tarfile.open", "tarfile.TarFile"}
+)
+ARCHIVE_WRITE_METHODS: Final[frozenset[str]] = frozenset(
+    {"add", "extract", "extractall", "write", "writestr"}
+)
+ARCHIVE_READ_METHODS: Final[frozenset[str]] = frozenset(
+    {
+        "getmember",
+        "getmembers",
+        "getnames",
+        "infolist",
+        "namelist",
+        "read",
+        "testzip",
+    }
+)
 # Path methods that return another path rather than touching the filesystem. They are the
 # links in a chain like `Path(p).expanduser().resolve().stat()`, and without them the
 # receiver was lost at the first link, so the read at the end resolved to nothing and the
@@ -173,10 +198,22 @@ SQL_WRITE_TOKENS: Final[frozenset[str]] = frozenset(
 )
 
 SQL_READ_TOKENS: Final[frozenset[str]] = frozenset(
-    {"describe", "explain", "pragma", "select", "show", "with"}
+    {"describe", "explain", "pragma", "select", "show"}
 )
 
-DB_EXECUTE_METHODS: Final[frozenset[str]] = frozenset({"execute", "executemany", "exec_driver_sql"})
+# `with` is deliberately absent. A common table expression is named by its leading keyword
+# but decided by the statement that follows it, and both SQLite and PostgreSQL run
+# data-modifying CTEs, so `WITH stale AS (SELECT ...) DELETE FROM events ...` was given an
+# affirmative `read` signal -- positive wrong evidence, which no refusal can demote. The
+# analyzer reads the whole statement for one instead; see `_sql_class`.
+SQL_CTE_TOKEN: Final[str] = "with"
+
+# `executescript` runs several statements in one call and is not a drop-in for `execute`:
+# every statement it carries is judged, and any write in any of them decides the class.
+DB_EXECUTE_METHODS: Final[frozenset[str]] = frozenset(
+    {"execute", "executemany", "executescript", "exec_driver_sql"}
+)
+DB_SCRIPT_METHODS: Final[frozenset[str]] = frozenset({"executescript"})
 # Opening a database connection. The connection itself reads and writes nothing; the
 # statement passed to execute is what decides the class, and SQL_READ_TOKENS and
 # SQL_WRITE_TOKENS above already judge that wherever the cursor came from.
@@ -206,23 +243,45 @@ SENSITIVE_SYMBOLS: Final[frozenset[str]] = frozenset(
         # other two ways the same store is reached directly.
         "keyring.get_credential",
         "keyring.delete_password",
+        # The whole exec/spawn family, not half of it. Nine of the eighteen members were
+        # catalogued and nine were not, with nothing to tell `os.spawnl` from `os.spawnlp`,
+        # so the same process launch was sensitive or silent depending on which spelling
+        # the author reached for.
         "os.execl",
         "os.execle",
         "os.execlp",
+        "os.execlpe",
         "os.execv",
         "os.execve",
         "os.execvp",
+        "os.execvpe",
         "os.popen",
         "os.posix_spawn",
+        "os.posix_spawnp",
         "os.spawnl",
+        "os.spawnle",
+        "os.spawnlp",
+        "os.spawnlpe",
         "os.spawnv",
+        "os.spawnve",
+        "os.spawnvp",
+        "os.spawnvpe",
         "os.system",
         "subprocess.Popen",
         "subprocess.call",
         "subprocess.check_call",
         "subprocess.check_output",
         "subprocess.getoutput",
+        "subprocess.getstatusoutput",
         "subprocess.run",
+        # How an async agent shells out. Neither appeared anywhere in the analyzer, so the
+        # asynchronous spelling of `subprocess.run` produced no signal at all.
+        "asyncio.create_subprocess_exec",
+        "asyncio.create_subprocess_shell",
+        # Launches a browser, or whatever `xdg-open` is wired to, on a caller-supplied URL.
+        # It both starts a process and reaches the network; the higher class is recorded,
+        # because a proposal that understates is the one direction this must not fail in.
+        "webbrowser.open",
         "pty.spawn",
         "pickle.load",
         "pickle.loads",
@@ -314,6 +373,22 @@ READ_SYMBOLS: Final[frozenset[str]] = frozenset(
     }
 )
 
+# Local key-value stores opened by a flag, mapped to the flag each opener assumes when
+# none is given. `dbm.open("cache", "c")` followed by `db[key] = value` was a
+# high-confidence read: the opener was an uncatalogued standard-library call, so benign,
+# and the subscript store was not a call at all. The flag is what decides the class -- "r"
+# is a read, and "w", "c", and "n" all open the store for writing -- so it is judged like
+# the mode of `open`. shelve creates the store by default, dbm opens it read-only.
+KEYED_STORE_OPENERS: Final[MappingProxyType[str, str]] = MappingProxyType(
+    {
+        "dbm.open": "r",
+        "dbm.dumb.open": "r",
+        "dbm.gnu.open": "r",
+        "dbm.ndbm.open": "r",
+        "shelve.open": "c",
+    }
+)
+
 READ_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
     {
         "exists",
@@ -393,4 +468,6 @@ ACTION_CLASS_PRECEDENCE: Final[tuple[str, ...]] = ("sensitive", "external", "wri
 
 UNKNOWN_ACTION_CLASS: Final[str] = "unknown"
 UNKNOWN_TRUST: Final[str] = "unknown"
-REVIEW_PLACEHOLDER: Final[str] = "REVIEW_REQUIRED"
+# The manifest parser refuses any declared free-text field beginning with this, which is
+# what keeps a half-resolved draft from being scanned as though it had been reviewed.
+REVIEW_PLACEHOLDER: Final[str] = RESERVED_PLACEHOLDER

@@ -47,7 +47,7 @@ def test_policy_review_and_synthetic_results_conform_to_published_schemas() -> N
         generated_at=FIXED_TIME,
     )
 
-    _validate("policy-review-v1alpha1.schema.json", policy_review)
+    _validate("policy-review-v1alpha2.schema.json", policy_review)
     _validate("test-results-v1alpha1.schema.json", test_results)
 
 

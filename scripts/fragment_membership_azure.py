@@ -30,9 +30,16 @@ parameter without a default means a schema awaiting an assignment.
 other than the one
 under evaluation, so a guard over it has no witness the policy determines. This is the
 Azure form of what `data.inventory` is in Gatekeeper and `context.apiCall` is in Kyverno,
-and it is the same reason. `subscription()` and `resourceGroup()` are not that: they return
-ambient properties of the evaluation, handed to the evaluator rather than fetched by the
-policy, and they sit in the subject exactly as Cedar's entity store does. `utcNow()` and
+and it is the same reason. `subscription()` and `resourceGroup()` are not calls that can be
+judged whole: what matters is the property read off the object they return. `resourceGroup().id`
+and `.name`, and `subscription().id`, `.subscriptionId` and `.tenantId`, are segments of the
+resource's own id, so the subject determines them. `resourceGroup().managedBy` and
+`.location` are not: they are the resource group object's own mutable state, so two
+byte-identical resources get different decisions according to the state of a second ARM
+object, which is precisely the obstruction `reference()` names. This adapter read the bare
+call name and admitted every property, and 13 definitions deciding on `managedBy` or
+`location` were reported inside with the affirmative reason that every guard compares the
+resource against literals in the policy. `utcNow()` and
 `newGuid()` are a third thing again: they read no resource, and they are not a function of
 their arguments, which is what OPA's own capability data says of `time.now_ns`. They are
 reported under that heading here so that the same obstruction carries the same name across
@@ -224,6 +231,25 @@ DELEGATING_DETAIL_KEYS = ("templateInfo", "constraintTemplate")
 
 ARM_CALL = re.compile(r"([a-zA-Z][a-zA-Z0-9_]*)\s*\(")
 
+# A property read off the object an ambient call returns, which is the unit that decides
+# membership rather than the call name. Only the segments derivable from the resource's own
+# id are the subject's to determine; anything else is the second object's stored state.
+AMBIENT_PROPERTY = re.compile(
+    r"\b(resourcegroup|subscription)\s*\(\s*\)\s*\.\s*([a-zA-Z_][a-zA-Z0-9_]*)",
+    re.IGNORECASE,
+)
+SUBJECT_DERIVED_PROPERTIES: dict[str, frozenset[str]] = {
+    "resourcegroup": frozenset({"id", "name"}),
+    "subscription": frozenset({"id", "subscriptionid", "tenantid"}),
+}
+
+# Said once, because the delegation branch and the exclusion branch both reach it and the
+# pooled taxonomy buckets an artifact by finding "policy schema" in the reason.
+SCHEMA_REASON = (
+    "is a policy schema rather than a policy: a parameter it reads has no default, "
+    "so it determines no decision function until an assignment supplies one"
+)
+
 # ARM string literals are single-quoted, and their contents are prose. One built-in reads
 # "... for type API Management services (microsoft.apimanagement/service), resourceName ...",
 # in which `services (` looks exactly like a call and is not one -- which is why literals
@@ -316,6 +342,36 @@ def arm_functions(rule: Any) -> set[str]:
             text = node.strip()
             if text.startswith("[") and text.endswith("]"):
                 found.update(ARM_CALL.findall(_without_literals(text[1:-1])))
+
+    walk(rule)
+    return found
+
+
+def ambient_property_reads(rule: Any) -> set[str]:
+    """Reads of an ambient object's own state, which the resource under evaluation does not fix.
+
+    `resourceGroup()` and `subscription()` return objects, and the adapter used to admit the
+    call whatever was read off it. A guard on `resourcegroup().managedBy` decides by the state
+    of a resource group -- which service, if any, has taken ownership of it -- and no witness
+    for either side of that guard is constructible from the definition plus the resource.
+    """
+
+    found: set[str] = set()
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+        elif isinstance(node, str):
+            text = node.strip()
+            if not (text.startswith("[") and text.endswith("]")):
+                return
+            for call, prop in AMBIENT_PROPERTY.findall(_without_literals(text[1:-1])):
+                if prop.lower() not in SUBJECT_DERIVED_PROPERTIES[call.lower()]:
+                    found.add(f"{call.lower()}().{prop}")
 
     walk(rule)
     return found
@@ -445,6 +501,14 @@ def classify(text: str) -> Verdict:
         delegated_source = details.get(delegated[0])
         if isinstance(delegated_source, dict) and delegated_source.get("url"):
             detail["guard_source"] = delegated_source["url"]
+        if missing_defaults:
+            # Being a schema decides it, whatever else is also true: an artifact that
+            # determines no decision function is not a policy, so it is not in the
+            # denominator of "how much policy is inside the fragment". Returning
+            # UNDETERMINED first left 14 definitions that are schemas by this adapter's own
+            # test sitting in the policy count, because the pooled taxonomy buckets only
+            # `outside` verdicts.
+            return Verdict(OUTSIDE, SCHEMA_REASON, detail)
         return Verdict(
             UNDETERMINED,
             "delegates its guard to a policy program the definition does not contain",
@@ -454,6 +518,7 @@ def classify(text: str) -> Verdict:
     lowered = {name.lower() for name in functions}
     nondeterministic = sorted(lowered & {name.lower() for name in NONDETERMINISTIC_ARM_FUNCTIONS})
     external = sorted(lowered & {name.lower() for name in EXTERNAL_ARM_FUNCTIONS})
+    ambient = sorted(ambient_property_reads(rule.get("if")) | ambient_property_reads(existence))
     complete = not missing_defaults
 
     # Every obstruction this definition carries, recorded whichever one the verdict names, so
@@ -485,14 +550,14 @@ def classify(text: str) -> Verdict:
             "calls a template function whose result is not a function of its arguments: "
             + ", ".join(nondeterministic),
         )
-    if external:
-        detail["external_functions"] = external
+    if external or ambient:
+        if external:
+            detail["external_functions"] = external
+        if ambient:
+            detail["ambient_property_reads"] = ambient
         reasons.append("reads the runtime state of a resource other than the one under evaluation")
     if not complete:
-        reasons.append(
-            "is a policy schema rather than a policy: a parameter it reads has no default, "
-            "so it determines no decision function until an assignment supplies one"
-        )
+        reasons.append(SCHEMA_REASON)
     if reasons:
         if len(reasons) > 1:
             detail["reasons"] = reasons

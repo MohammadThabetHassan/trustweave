@@ -50,9 +50,16 @@ TRUST_LEVELS = ("trusted", "conditional", "untrusted")
 ACTION_CLASSES = ("read", "write", "sensitive", "external")
 DECISIONS = ("allow", "deny", "require_approval")
 
-# One witness value for anything a policy does not name. Membership predicates compare
-# exact strings, so every unnamed value behaves identically and one representative suffices.
-OUTSIDER = "trustweave-witness-outsider"
+# The stem of the witness value that stands for "anything the policy does not name".
+# Membership predicates compare exact strings, so every unnamed value behaves identically and
+# one representative suffices -- but only if the policy really does not name it. This used to
+# be a fixed constant, and the policy language accepts it as an identifier, a classification
+# and a capability namespace tail, so a policy naming it lost the class it was standing for:
+# `identifiers()` deduplicated the sentinel against the named literal, and the exact
+# capability `net.trustweave-witness-outsider` was read back as the wildcard `net.*`, placing
+# a genuinely unnamed subject onto a named cell and calling the resulting mutant equivalent.
+# `_fresh_outsider` derives one per policy instead.
+OUTSIDER_STEM = "trustweave-witness-outsider"
 UNSPECIFIED_CLASSIFICATION = "unspecified"
 DEFAULT_SOURCE_IDENTIFIER = "synthetic-source"
 DEFAULT_TOOL_IDENTIFIER = "synthetic-tool"
@@ -81,13 +88,43 @@ def _named_by_rules(rules: list[dict[str, Any]], field: str) -> tuple[str, ...]:
     return tuple(sorted(values))
 
 
-def _capability_witness(pattern: str) -> str:
+def _strings_in(value: Any) -> set[str]:
+    """Every string literal anywhere in a document, however deeply nested."""
+
+    if isinstance(value, str):
+        return {value}
+    if isinstance(value, dict):
+        return {found for item in value.values() for found in _strings_in(item)}
+    if isinstance(value, (list, tuple)):
+        return {found for item in value for found in _strings_in(item)}
+    return set()
+
+
+def _fresh_outsider(documents: tuple[dict[str, Any], ...]) -> str:
+    """A witness value none of these documents names, nor names the tail of.
+
+    The tail matters as much as the value: the witness for a wildcard pattern `net.*` is
+    `net.` followed by the outsider, so a policy naming the exact capability
+    `net.<outsider>` would collide with it just as surely as one naming `<outsider>` itself.
+    Refusing any candidate that some literal *ends with* rules out both at once.
+    """
+
+    literals = {found for document in documents for found in _strings_in(document)}
+    candidate = OUTSIDER_STEM
+    attempt = 0
+    while any(literal.endswith(candidate) for literal in literals):
+        attempt += 1
+        candidate = f"{OUTSIDER_STEM}-{attempt}"
+    return candidate
+
+
+def _capability_witness(pattern: str, outsider: str) -> str:
     """A capability that matches this pattern and nothing narrower."""
 
-    return pattern[:-1] + OUTSIDER if pattern.endswith(".*") else pattern
+    return pattern[:-1] + outsider if pattern.endswith(".*") else pattern
 
 
-def _capability_classes(patterns: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
+def _capability_classes(patterns: tuple[str, ...], outsider: str) -> tuple[tuple[str, ...], ...]:
     """One witness per *achievable, distinct* capability signature.
 
     Enumerating every subset of the named patterns over-counts, because patterns nest. Any
@@ -107,11 +144,11 @@ def _capability_classes(patterns: tuple[str, ...]) -> tuple[tuple[str, ...], ...
     that independently with an SMT solver rather than trusting this argument.
     """
 
-    return tuple(_capability_representatives(patterns).values())
+    return tuple(_capability_representatives(patterns, outsider).values())
 
 
 def _capability_representatives(
-    patterns: tuple[str, ...],
+    patterns: tuple[str, ...], outsider: str
 ) -> dict[tuple[bool, ...], tuple[str, ...]]:
     """Signature -> the one witness set that stands for it in the enumeration.
 
@@ -127,7 +164,7 @@ def _capability_representatives(
 
     seen: dict[tuple[bool, ...], tuple[str, ...]] = {}
     for subset in _subsets(patterns):
-        witness = tuple(_capability_witness(pattern) for pattern in subset)
+        witness = tuple(_capability_witness(pattern, outsider) for pattern in subset)
         signature = tuple(
             any(capability_matches(pattern, capability) for capability in witness)
             for pattern in patterns
@@ -144,7 +181,9 @@ def _subsets(values: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
     )
 
 
-def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
+def witness_space(
+    document: dict[str, Any], *pooled_with: dict[str, Any]
+) -> dict[str, tuple[Any, ...]]:
     """One representative per equivalence class of subjects, per attribute.
 
     The subject space is not finite: identifiers, purposes and capabilities are arbitrary
@@ -164,10 +203,20 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
     capabilities            one witness per achievable capability signature. Not every
                             subset of the named patterns is one: patterns nest, so
                             `net.http` implies `net.*` and the subsets collapse
+
+    `pooled_with` names further documents whose values join the space. Theorem 2 compares two
+    policies over the common refinement `~P n ~Q`, "computed from the values *either* policy
+    names", and that is what this builds: a mutant that deletes the last rule naming a purpose
+    tag still has to be decided on subjects carrying it, or the two decision maps range over
+    different domains and cannot be compared at all.
     """
 
-    rules = [rule for rule in document.get("rules") or [] if isinstance(rule, dict)]
+    sources = (document, *pooled_with)
+    rules = [
+        rule for source in sources for rule in source.get("rules") or [] if isinstance(rule, dict)
+    ]
     taxonomy = tuple(document.get("classification_taxonomy") or DEFAULT_CLASSIFICATION_TAXONOMY)
+    outsider = _fresh_outsider(sources)
 
     named_classifications = _named_by_rules(rules, "source_data_classifications")
     bounded = any(
@@ -183,14 +232,14 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
         # and a concrete value the policy does not know is placed on it, never on the first
         # taxonomy entry -- which is where the interpreter oracle found it being placed.
         classifications = tuple(
-            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION, OUTSIDER))
+            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION, outsider))
         )
     else:
         classifications = (UNSPECIFIED_CLASSIFICATION,)
 
     def identifiers(field: str, default: str) -> tuple[str, ...]:
         named = _named_by_rules(rules, field)
-        return tuple(dict.fromkeys((default, *named, OUTSIDER))) if named else (default,)
+        return tuple(dict.fromkeys((default, *named, outsider))) if named else (default,)
 
     patterns = _named_by_rules(rules, "tool_capabilities")
     return {
@@ -200,7 +249,14 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
         "source_identifier": identifiers("source_identifiers", DEFAULT_SOURCE_IDENTIFIER),
         "tool_identifier": identifiers("tool_identifiers", DEFAULT_TOOL_IDENTIFIER),
         "purpose_tags": _subsets(_named_by_rules(rules, "purpose_tags")),
-        "tool_capabilities": _capability_classes(patterns),
+        "tool_capabilities": _capability_classes(patterns, outsider),
+        # Not cells: the two values a placement needs and cannot recover from a witness
+        # string. `ATTRIBUTES` decides what `cells_of` ranges over, and neither of these is
+        # in it. The pattern tuple is carried rather than reverse-engineered because the
+        # reverse-engineering read the exact capability `net.<outsider>` as the wildcard
+        # `net.*` and put an unnamed subject on a named cell.
+        "capability_patterns": patterns,
+        "outsider": (outsider,),
     }
 
 
@@ -233,7 +289,7 @@ def predicate_signature(policy: Any, cell: Cell) -> tuple[bool, ...]:
     )
 
 
-def cells(document: dict[str, Any]) -> tuple[Cell, ...]:
+def cells(document: dict[str, Any], *pooled_with: dict[str, Any]) -> tuple[Cell, ...]:
     """Every class of the quotient, in deterministic order, one witness each.
 
     The product of the per-attribute witness spaces is a *refinement* of `~P`, not the
@@ -255,7 +311,12 @@ def cells(document: dict[str, Any]) -> tuple[Cell, ...]:
     described, and the decision-class coverage write-up states the distinction.
     """
 
-    space = witness_space(document)
+    return cells_of(witness_space(document, *pooled_with))
+
+
+def cells_of(space: dict[str, tuple[Any, ...]]) -> tuple[Cell, ...]:
+    """The classes of a witness space already built, with the only refusal this harness makes."""
+
     total = 1
     for attribute in ATTRIBUTES:
         total *= len(space[attribute])
@@ -283,31 +344,29 @@ def abstract_cell(
     itself; see `cells` for why the two differ and what that costs.
     """
 
+    outsider = space["outsider"][0]
+
     def represent(attribute: str, value: str | None, default: str) -> str:
         witnesses = space[attribute]
         if value is None:
             return default if default in witnesses else witnesses[0]
         if value in witnesses:
             return value
-        return OUTSIDER if OUTSIDER in witnesses else witnesses[0]
+        return outsider if outsider in witnesses else witnesses[0]
 
     named_purposes = {tag for subset in space["purpose_tags"] for tag in subset}
     purposes = tuple(sorted(set(purpose_tags) & named_purposes))
 
     # The capability component is placed by signature: which named patterns the subject's
     # capabilities match. The representative for that signature is whatever the enumeration
-    # used, recovered from the same construction, so a subject lands on a cell the decision
-    # map has rather than on a witness set of its own making.
-    patterns = tuple(
-        sorted(
-            {_pattern_of(witness) for subset in space["tool_capabilities"] for witness in subset}
-        )
-    )
+    # used, rebuilt from the patterns the space carries, so a subject lands on a cell the
+    # decision map has rather than on a witness set of its own making.
+    patterns = tuple(space["capability_patterns"])
     signature = tuple(
         any(capability_matches(pattern, capability) for capability in tool_capabilities)
         for pattern in patterns
     )
-    representatives = _capability_representatives(patterns)
+    representatives = _capability_representatives(patterns, outsider)
     if signature not in representatives:  # pragma: no cover - realised, hence achievable
         raise SystemExit(f"a realised capability signature {signature} was not enumerated")
     return (
@@ -323,12 +382,6 @@ def abstract_cell(
     )
 
 
-def _pattern_of(witness: str) -> str:
-    """Recover the pattern a capability witness stands for."""
-
-    return witness[: -len(OUTSIDER)] + "*" if witness.endswith(OUTSIDER) else witness
-
-
 def _decide(policy: Any, cell: Cell) -> str:
     """First-match evaluation over one class witness, using the engine's own predicates."""
 
@@ -339,16 +392,23 @@ def _decide(policy: Any, cell: Cell) -> str:
     return str(policy.default_decision)
 
 
-def decision_map(document: dict[str, Any]) -> dict[Cell, str]:
+def decision_map(
+    document: dict[str, Any], space: dict[str, tuple[Any, ...]] | None = None
+) -> dict[Cell, str]:
     """The decision this policy gives for every class of its subject space.
 
     This is the policy's complete observable behaviour: two policies with the same map
     cannot be told apart by any subject the language can express, not merely by any subject
     the scenario format happens to supply.
+
+    `space` names the space to decide over. Two maps are comparable only when they range over
+    the same cells, so a caller comparing a policy against its mutants passes the pooled space
+    rather than letting each document build its own.
     """
 
     policy = parse_policy(document)
-    return {cell: _decide(policy, cell) for cell in cells(document)}
+    partition = cells(document) if space is None else cells_of(space)
+    return {cell: _decide(policy, cell) for cell in partition}
 
 
 # ---------------------------------------------------------------------------------------
@@ -434,8 +494,8 @@ def _mutants(document: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
 # every cell with no classification, no capabilities, and the default identifiers and
 # purpose, so a scenario that sets any of them is evaluated as something other than what it
 # declares -- and two scenarios differing only there collapse onto one cell.
-def _suite_expectations(path: Path, space: dict[str, tuple[Any, ...]]) -> list[tuple[Cell, str]]:
-    """Place each case of one suite in the quotient, with the decision it expects.
+def _located_cases(path: Path, space: dict[str, tuple[Any, ...]]) -> list[tuple[str, Cell, str]]:
+    """Place each case of one suite in the quotient: its id, its class, the decision it expects.
 
     A scenario may declare a classification, capabilities, identifiers and a purpose tag.
     Each is mapped to the class its value belongs to, so a case is located in the same
@@ -454,35 +514,71 @@ def _suite_expectations(path: Path, space: dict[str, tuple[Any, ...]]) -> list[t
             (scenario.purpose_tag,) if scenario.purpose_tag else (),
             scenario.tool_capabilities,
         )
-        located.append((cell, scenario.expected_decision))
+        located.append((scenario.id, cell, scenario.expected_decision))
     return located
 
 
-def _kills(expectations: list[tuple[Cell, str]], mutant: dict[str, Any]) -> bool:
+def _suite_expectations(path: Path, space: dict[str, tuple[Any, ...]]) -> list[tuple[Cell, str]]:
+    """The located cases without their ids, which is all that scoring needs."""
+
+    return [(cell, expected) for _, cell, expected in _located_cases(path, space)]
+
+
+def check_suite_consistency(
+    suite_name: str, located: list[tuple[str, Cell, str]], reference: dict[Cell, str]
+) -> None:
+    """Refuse to score a suite that contradicts the policy it is scored against.
+
+    Every result in the write-up is stated for a *consistent* suite -- one whose every case
+    expects what the policy decides. Nothing checked it, and an inconsistent case is not a
+    harmless outlier: it fails against the original, so it fails against most mutants too,
+    and every one of those counts as a kill. A single contradicting case took the shipped
+    policy from 63.6% to 95.5%, manufacturing eight false kills and masking the one genuine
+    one. `python -m trustweave test` reports the same suite as failing, so the harness was
+    the only place the contradiction was invisible.
+    """
+
+    for scenario_id, cell, expected in located:
+        decided = reference[cell]
+        if decided != expected:
+            raise SystemExit(
+                f"suite {suite_name} contradicts the policy it is scored against: scenario "
+                f"{scenario_id} expects {expected} where the policy decides {decided}. "
+                "A mutation score over a suite the policy already fails measures nothing; "
+                "fix the suite or the policy and run again."
+            )
+
+
+def _kills(
+    expectations: list[tuple[Cell, str]],
+    mutant: dict[str, Any],
+    space: dict[str, tuple[Any, ...]] | None = None,
+) -> bool:
     """A suite kills a mutant when any of its cases would now fail."""
 
-    resolved = decision_map(mutant)
+    resolved = decision_map(mutant, space)
     return any(resolved[cell] != expected for cell, expected in expectations)
 
 
 def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
     document = dict(load_document(policy_path))
-    space = witness_space(document)
-    partition = cells(document)
-    reference = decision_map(document)
 
     generated = _mutants(document)
+    # Theorem 2 compares two policies over the common refinement of their quotients, computed
+    # from the values *either* names, so the space is pooled across the reference and every
+    # mutant. Deleting a rule can remove the last occurrence of a purpose tag or capability
+    # pattern, and this harness used to refuse the whole analysis when it did -- on a comment
+    # claiming the operator set "only edits rule order, decisions and the two closed label
+    # domains", which `delete_rule` has never obeyed. `MAX_CELLS` is the only refusal left.
+    space = witness_space(document, *(mutant for _, mutant in generated))
+    partition = cells_of(space)
+    reference = decision_map(document, space)
+
     live: list[tuple[str, dict[str, Any]]] = []
     equivalent: list[str] = []
     for name, mutant in generated:
-        # A mutant that named a value the reference does not would be observed over a
-        # different quotient, so its map would not be comparable. The operator set only
-        # edits rule order, decisions and the two closed label domains, so this holds; it
-        # is checked rather than assumed.
-        if witness_space(mutant) != space:
-            raise SystemExit(f"mutant {name} changed the subject quotient")
         try:
-            resolved = decision_map(mutant)
+            resolved = decision_map(mutant, space)
         except Exception:  # noqa: BLE001 - an unparseable mutant is not a policy
             equivalent.append(name)
             continue
@@ -494,13 +590,18 @@ def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
 
     suites: dict[str, Any] = {}
     for suite_path in suite_paths:
-        expectations = _suite_expectations(suite_path, space)
+        located = _located_cases(suite_path, space)
+        check_suite_consistency(suite_path.name, located, reference)
+        expectations = [(cell, expected) for _, cell, expected in located]
         witnessed = {cell for cell, _ in expectations}
         expected_decisions = {expected for _, expected in expectations}
-        killed = [name for name, mutant in live if _kills(expectations, mutant)]
+        killed = [name for name, mutant in live if _kills(expectations, mutant, space)]
         survivors = [name for name, _ in live if name not in set(killed)]
         suites[suite_path.name] = {
             "cases": len(expectations),
+            # Recorded rather than assumed: every theorem below is stated for a suite
+            # consistent with its policy, and until this ran nothing established that.
+            "consistent_with_policy": True,
             "distinct_engine_inputs": len(witnessed),
             "cells_covered": f"{len(witnessed)}/{len(partition)}",
             "decision_classes_expected": sorted(expected_decisions),
@@ -514,7 +615,7 @@ def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
         "schema_version": "trustweave.dev/policy-mutation/v1alpha1",
         "policy": policy_path.name,
         "partition_cells": len(partition),
-        "subject_quotient": {name: len(values) for name, values in space.items()},
+        "subject_quotient": {name: len(space[name]) for name in ATTRIBUTES},
         "mutants_generated": len(generated),
         "mutants_equivalent": len(equivalent),
         "mutants_live": len(live),

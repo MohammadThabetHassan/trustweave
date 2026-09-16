@@ -18,8 +18,9 @@ trustweave config show --config trustweave.toml
 | `baseline_bundle`, `candidate_bundle` | non-empty path string | Versioned local bundle inputs for the `diff` stage. Both v1alpha1 and v1alpha2 bundles are compared through the current diff contract. |
 | `trace`, `mcp_profile`, `chain_manifest` | non-empty path string | Pre-recorded trace metadata, supplied MCP profile metadata, and declared chain graph inputs. |
 | `risk_baseline`, `suppressions` | non-empty path string | Explicit v1alpha2 risk-decision documents. |
-| `output_dir`, `sarif_output` | non-empty path string | Local publication destinations. Relative output and SARIF paths are checked for safe containment before artifact creation. |
-| `failure_threshold` | `critical`, `high`, `medium`, `low`, `info`, `review`, or `none` | CI failure gate. `review` means any active local risk finding. |
+| `output_dir` | non-empty path string | Local artifact directory. A configured value is resolved against the configuration file's directory and must not contain a `..` component; an explicit `--output-dir` on the command line may be absolute or relative and is not restricted that way. Every command refuses an output path that traverses a symbolic link at any component. |
+| `sarif_output` | non-empty path string | SARIF destination, which must stay inside the artifact directory: absolute paths, Windows drives, `..` components and backslash separators are refused. |
+| `failure_threshold` | `critical`, `high`, `medium`, `low`, `info`, `review`, or `none` | CI failure gate. `review` means any active local risk finding. A selected analysis that stopped at a traversal budget fails the gate at every threshold, including `none`, and `ci-summary.json` records `"status": "incomplete"` rather than `clear`. |
 | `enabled_stages` | non-empty unique list | Selects bounded local CI stages. |
 | `reproducible` | boolean | Requests deterministic staged-CI provenance behavior. |
 
@@ -41,6 +42,8 @@ reproducible = true
 
 ## Validate-stage behavior
 
-The `validate` stage invokes the authoritative typed parsers before any output directory preparation or artifact publication. It semantically validates configured manifests, policies, scenarios, chain manifests, traces, MCP profiles, risk decisions, and both bundle inputs. It also validates output-directory and SARIF containment, rejecting absolute or escaping relative paths and symlink escapes. A failed semantic validation leaves pre-existing output artifacts untouched.
+The `validate` stage invokes the authoritative typed parsers before any output directory preparation or artifact publication. It semantically validates configured manifests, policies, scenarios, chain manifests, traces, MCP profiles, risk decisions, and both bundle inputs. It also checks that the output directory traverses no symbolic link and that `sarif_output` stays inside it, without creating either path. A failed semantic validation leaves pre-existing output artifacts untouched.
+
+Publication is a second boundary. `ci` stages every artifact in a temporary directory and then replaces the output directory wholesale, so it refuses to publish into a directory holding anything this run did not produce, naming the entries it found. That includes a previous run's artifact the selected stages do not write again, and a hidden *directory*; hidden files such as `.gitkeep` do not block a publish but are replaced with the directory. Point `output_dir` at a dedicated directory rather than at a source tree.
 
 > Configuration selects local evidence inputs and outputs. It does not authenticate a policy, authorize an action, execute a tool, enforce a runtime control, or establish that a declared system is secure.

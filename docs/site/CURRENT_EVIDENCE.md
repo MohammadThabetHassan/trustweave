@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | **Prepared source candidate** | `0.3.1` is prepared in source metadata and is **not published, tagged, uploaded, or released**. | The repository contains a candidate state; it is not package-index, release, or provenance evidence for `0.3.1`. |
 | **Latest published release** | `0.3.0` is the published package and GitHub Release. | Only the documented `0.3.0` exact-file release record may support claims about the public package release. |
-| **Local product boundary** | TrustWeave reviews supplied local declarations, policies, saved trace metadata, MCP metadata, and generated artifacts. | It deterministically evaluates the supplied model; it does not discover, execute, connect to, or enforce a deployed agent. |
+| **Local product boundary** | TrustWeave reviews supplied local declarations, policies, saved trace metadata, MCP metadata, generated artifacts, and local Python source it is pointed at. | It deterministically evaluates the supplied model. Local static discovery proposes tools and action classes from parsed source and records its evidence and refusals; it does not execute, connect to, or enforce a deployed agent, and it does not establish that a deployed agent reaches only what was parsed. |
 | **External validation** | Independent reviewers, pilots, benchmarks, adoption outcomes, and archival/DOI evidence are **not yet collected**. | The repository must not claim independent efficacy, adoption, certification, or production effectiveness. |
 
 The [release process](RELEASE.md) and [release evidence 0.3.0](RELEASE_EVIDENCE_0.3.0.md) define the immutable public-release record. A green pull request or a clean local build does not authorize publication.

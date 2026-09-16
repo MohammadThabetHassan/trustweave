@@ -21,14 +21,21 @@ import itertools
 import json
 import math
 import random
+import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import yaml  # type: ignore[import-untyped]
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import suite_coverage_kyverno  # noqa: E402
+from suite_coverage import provenance  # noqa: E402
 
 SCHEMA_VERSION = "trustweave.dev/kyverno-mutation/v1alpha1"
 
@@ -65,7 +72,16 @@ CEL_OPERATORS: tuple[tuple[str, str], ...] = (
 
 # `"?*"` requires a non-empty value; `"*"` accepts anything, including absence of content.
 WEAKENINGS: tuple[tuple[str, str], ...] = (('"?*"', '"*"'), ("'?*'", "'*'"))
-BOOLEANS: tuple[tuple[str, str], ...] = (("true", "false"), ("false", "true"))
+
+# A boolean flip mutates the policy only where the boolean is a value the guard reads. The
+# old rule fired on any `true` or `false` token anywhere on a line, so it edited prose inside
+# `message:` text and flipped keys that configure the run rather than the guard: 48 of the
+# 248 scored Kyverno mutants sat on `background:`, `enabled:` or `message:`. This matches a
+# key whose whole value is a boolean, and declines the three that are not guards.
+STRUCTURAL_BOOLEAN = re.compile(
+    r"""^\s*(?:-\s*)?(?P<key>\S(?:[^:]*\S)?)\s*:\s*(?P<value>true|false)\s*$"""
+)
+NON_STRUCTURAL_BOOLEAN_KEYS = frozenset({"background", "enabled", "message"})
 # Thresholds written inside quoted pattern strings, e.g. `">0"` or `"<=4"`.
 THRESHOLDS: tuple[tuple[str, str], ...] = (
     ('">="', '"<"'),
@@ -137,7 +153,6 @@ def _mutate(source: str) -> list[Mutant]:
             *THRESHOLDS,
             *WEAKENINGS,
             *ANCHORS,
-            *BOOLEANS,
         ):
             if original in seen or original not in code:
                 continue
@@ -150,6 +165,22 @@ def _mutate(source: str) -> list[Mutant]:
             mutated = list(lines)
             mutated[index] = edited
             mutants.append(Mutant(f"L{index + 1}:{original}->{replacement}", "\n".join(mutated)))
+
+        boolean = STRUCTURAL_BOOLEAN.match(code)
+        if boolean is None:
+            continue
+        # Kyverno writes anchors into pattern keys (`=(hostNetwork)`), and annotation keys
+        # carry a namespace, so the name compared against the declined set is the last
+        # segment of the key with any anchor and quoting removed.
+        key = boolean.group("key").strip("\"'").rsplit("/", 1)[-1].rsplit(".", 1)[-1]
+        key = key.strip("=X^<+()")
+        if key in NON_STRUCTURAL_BOOLEAN_KEYS:
+            continue
+        held = boolean.group("value")
+        flipped = "false" if held == "true" else "true"
+        mutated = list(lines)
+        mutated[index] = line[: boolean.start("value")] + flipped + line[boolean.end("value") :]
+        mutants.append(Mutant(f"L{index + 1}:{held}->{flipped}", "\n".join(mutated)))
     return mutants
 
 
@@ -170,10 +201,14 @@ def _policy_files(test_directory: Path) -> list[Path]:
     return found
 
 
-def measure_policy(test_directory: Path, limit: int | None) -> dict[str, Any]:
-    """Mutate one policy and run its own suite against every mutant."""
+def measure_policy(name: str, test_directory: Path, limit: int | None) -> dict[str, Any]:
+    """Mutate one policy and run its own suite against every mutant.
 
-    name = test_directory.parent.name
+    `name` is the policy's identity as the manifest states it, not the directory it happens
+    to sit in. Those are not the same: the corpus publishes `-cel` and `-vpol` variants of a
+    policy in sibling directories, all naming the same policy.
+    """
+
     policies = _policy_files(test_directory)
     if len(policies) != 1:
         return {"policy": name, "skipped": f"{len(policies)} policy files referenced"}
@@ -193,11 +228,14 @@ def measure_policy(test_directory: Path, limit: int | None) -> dict[str, Any]:
     killed = 0
     survivors: list[str] = []
     unrunnable = 0
+    # Resolved before staging: `_policy_files` resolves the manifest's references, so a
+    # corpus named by a relative path would otherwise put the policy outside its own root.
+    test_directory = test_directory.resolve()
     root = test_directory.parent
     with tempfile.TemporaryDirectory() as workspace:
         staged_root = Path(workspace) / root.name
         shutil.copytree(root, staged_root)
-        staged_policy = staged_root / policy_path.relative_to(root)
+        staged_policy = staged_root / policy_path.resolve().relative_to(root)
         staged_tests = staged_root / test_directory.relative_to(root)
         for mutant in mutants:
             staged_policy.write_text(mutant.source, encoding="utf-8")
@@ -227,7 +265,13 @@ def measure_policy(test_directory: Path, limit: int | None) -> dict[str, Any]:
 
 
 def blind_validate_rules(coverage: dict[str, Any]) -> tuple[set[str], set[str]]:
-    """Split the measured Kyverno policies into those with a blind rule and those without."""
+    """Split the measured Kyverno policies into those with a blind rule and those without.
+
+    This reads the pooled coverage artifact, which folds every variant of a policy together
+    under one name with an any-blind rollup. It decides which policies are *worth measuring*;
+    the flag each measurement is then scored against comes from the manifest that measurement
+    actually ran, through `manifest_blindness`.
+    """
 
     blind: set[str] = set()
     covered: set[str] = set()
@@ -237,6 +281,91 @@ def blind_validate_rules(coverage: dict[str, Any]) -> tuple[set[str], set[str]]:
         policy = subject["subject"].split("/")[0]
         (blind if subject["blind"] else covered).add(policy)
     return blind, covered - blind
+
+
+def manifest_cases(manifest: Path) -> dict[str, int]:
+    """Policy names the manifest's `results` block pins, and how many cases each carries.
+
+    This is the identity the coverage adapter joins on, and the only one the manifest itself
+    states. Keying on the directory instead collapsed the pinned corpus's 495 manifests into
+    235 entries, and because `Path` compares part-wise the survivor of each collision was the
+    `-cel` or `-vpol` variant: 36 of the 49 scored policies were mutated in a sibling of the
+    directory whose coverage verdict labelled them.
+    """
+
+    counts: dict[str, int] = {}
+    try:
+        documents = list(yaml.safe_load_all(manifest.read_text(encoding="utf-8")))
+    except (OSError, yaml.YAMLError, UnicodeDecodeError):
+        return counts
+    for document in documents:
+        if not isinstance(document, dict) or document.get("kind") != "Test":
+            continue
+        results = document.get("results")
+        for entry in results if isinstance(results, list) else []:
+            if isinstance(entry, dict) and isinstance(entry.get("policy"), str):
+                counts[entry["policy"]] = counts.get(entry["policy"], 0) + 1
+    return counts
+
+
+def policy_manifests(root: Path) -> dict[str, list[Path]]:
+    """Every test directory whose manifest names each policy, in a stable order.
+
+    A policy named by several manifests keeps all of them. The first in path order is measured
+    and the rest are recorded beside the result, so a variant collision is visible in the
+    artifact rather than resolved by a dict overwrite nobody chose. Path order compares
+    part-wise, so `other` sorts before `other-cel` and `other-vpol`: the base directory is
+    measured and its variants are recorded. The old dict took the *last* match of the same
+    ordering, which is why the variant was the one that survived.
+    """
+
+    found: dict[str, list[Path]] = {}
+    for manifest in sorted(root.rglob("kyverno-test.yaml")):
+        for name in sorted(manifest_cases(manifest)):
+            found.setdefault(name, []).append(manifest.parent)
+    return found
+
+
+def manifest_blindness(manifest: Path) -> dict[str, bool]:
+    """Whether each policy the manifest names has a blind validate rule *in this manifest*.
+
+    The same definition the suite-coverage instrument uses -- a subject witnessing fewer than
+    two decisions is blind, and a policy with any blind validate rule is blind -- applied to
+    one file instead of to the pooled rollup over every variant of it.
+    """
+
+    reading = suite_coverage_kyverno.read(manifest, manifest.as_posix())
+    witnessed: dict[str, set[str]] = {}
+    for observation in reading.observations:
+        if observation.domain != "kyverno_validate":
+            continue
+        witnessed.setdefault(observation.subject, set()).add(observation.decision)
+    blind: dict[str, bool] = {}
+    for subject, decisions in witnessed.items():
+        policy = subject.split("/")[0]
+        blind[policy] = blind.get(policy, False) or len(decisions) < 2
+    return blind
+
+
+def manifest_decisions(manifest: Path) -> dict[str, dict[str, int]]:
+    """{policy: {rule: decisions witnessed}} for the validate rules this manifest exercises.
+
+    The graded reading of the experiment -- does witnessing more decisions predict detecting
+    more faults -- needs the same exposure the blind flag is read from: this manifest, not
+    the pooled artifact whose subject is a name three dialect variants share.
+    """
+
+    reading = suite_coverage_kyverno.read(manifest, manifest.as_posix())
+    witnessed: dict[str, set[str]] = {}
+    for observation in reading.observations:
+        if observation.domain != "kyverno_validate":
+            continue
+        witnessed.setdefault(observation.subject, set()).add(observation.decision)
+    counts: dict[str, dict[str, int]] = {}
+    for subject, decisions in sorted(witnessed.items()):
+        policy, _, rule = subject.partition("/")
+        counts.setdefault(policy, {})[rule or "*"] = len(decisions)
+    return counts
 
 
 # Enumerating every split is exact and cheap at these sample sizes; beyond this many it is
@@ -303,11 +432,47 @@ def analyze(
     comparison: int,
     limit: int | None,
     attempts: int = 200,
+    invocation: list[str] | None = None,
 ) -> dict[str, Any]:
     blind, covered = blind_validate_rules(coverage)
-    directories = {
-        path.parent.parent.name: path.parent for path in sorted(root.rglob("kyverno-test.yaml"))
-    }
+    directories = policy_manifests(root)
+    unmatched: list[dict[str, str]] = []
+
+    def run(name: str, corpus_blind: bool) -> dict[str, Any] | None:
+        """Measure one policy in the manifest that names it, and label it from that manifest."""
+
+        candidates = directories.get(name)
+        if not candidates:
+            unmatched.append(
+                {
+                    "policy": name,
+                    "reason": "no kyverno-test.yaml names this policy in its results block",
+                }
+            )
+            return None
+        chosen = candidates[0]
+        manifest = chosen / "kyverno-test.yaml"
+        local = manifest_blindness(manifest)
+        if name not in local:
+            # The grouping variable has to come from the same file as the score, and this
+            # manifest states no validate expectation for this policy. Recording the refusal
+            # keeps it out of the contrast rather than letting the pooled label stand in.
+            unmatched.append(
+                {
+                    "policy": name,
+                    "reason": f"{manifest.as_posix()} states no validate expectation for it",
+                }
+            )
+            return None
+        result = measure_policy(name, chosen, limit)
+        result["blind_from"] = manifest.as_posix()
+        result["decision_blind"] = local[name]
+        result["corpus_blind"] = corpus_blind
+        result["test_cases"] = manifest_cases(manifest).get(name, 0)
+        result["decisions_witnessed"] = manifest_decisions(manifest).get(name, {})
+        if len(candidates) > 1:
+            result["manifest_candidates"] = [path.as_posix() for path in candidates]
+        return result
 
     # Every blind policy is measured. The comparison group is then filled by walking the
     # covered policies in name order until enough of them score, rather than by taking a
@@ -316,11 +481,9 @@ def analyze(
     # further to fill one does not select on anything the other was not also filtered by.
     measured = []
     for name in sorted(blind):
-        if name not in directories:
-            continue
-        result = measure_policy(directories[name], limit)
-        result["decision_blind"] = True
-        measured.append(result)
+        result = run(name, corpus_blind=True)
+        if result is not None:
+            measured.append(result)
 
     filled = 0
     attempted = 0
@@ -328,10 +491,17 @@ def analyze(
         if filled >= comparison or attempted >= attempts:
             break
         if name not in directories:
+            unmatched.append(
+                {
+                    "policy": name,
+                    "reason": "no kyverno-test.yaml names this policy in its results block",
+                }
+            )
             continue
         attempted += 1
-        result = measure_policy(directories[name], limit)
-        result["decision_blind"] = False
+        result = run(name, corpus_blind=False)
+        if result is None:
+            continue
         measured.append(result)
         if result.get("mutation_score") is not None:
             filled += 1
@@ -340,6 +510,12 @@ def analyze(
     groups: dict[str, list[float]] = {"blind": [], "covered": []}
     for entry in scored:
         groups["blind" if entry["decision_blind"] else "covered"].append(entry["mutation_score"])
+    # The same scores under the pooled label the coverage artifact carries, so the corrected
+    # contrast and the one it corrects can be read side by side instead of one replacing the
+    # other silently.
+    pooled: dict[str, list[float]] = {"blind": [], "covered": []}
+    for entry in scored:
+        pooled["blind" if entry["corpus_blind"] else "covered"].append(entry["mutation_score"])
 
     def summarise(scores: list[float]) -> dict[str, Any]:
         ordered = sorted(scores)
@@ -363,14 +539,25 @@ def analyze(
     return {
         "schema_version": SCHEMA_VERSION,
         "design": "case-control: every blind validate policy, plus covered ones in name order",
+        "invocation": invocation if invocation is not None else [],
+        "corpus": provenance(root),
         "comparison_group_attempts": attempted,
         "policies_scored": len(scored),
         "skipped": [
             {"policy": e["policy"], "reason": e["skipped"]} for e in measured if "skipped" in e
-        ],
+        ]
+        + unmatched,
         "blind": summarise(groups["blind"]),
         "covered": summarise(groups["covered"]),
         "permutation_test": permutation_test(groups["blind"], groups["covered"]),
+        # Labelled by the pooled coverage artifact rather than by the manifest measured. Kept
+        # because the published figure was computed this way, and a reader comparing the two
+        # is comparing labellings of one set of scores rather than two different runs.
+        "labelled_by_pooled_coverage": {
+            "blind": summarise(pooled["blind"]),
+            "covered": summarise(pooled["covered"]),
+            "permutation_test": permutation_test(pooled["blind"], pooled["covered"]),
+        },
         "detail": sorted(scored, key=lambda entry: entry["policy"]),
     }
 
@@ -387,7 +574,12 @@ def main(argv: list[str] | None = None) -> int:
 
     coverage = json.loads(arguments.coverage.read_text(encoding="utf-8"))
     report = analyze(
-        arguments.corpus, coverage, arguments.comparison, arguments.limit, arguments.attempts
+        arguments.corpus,
+        coverage,
+        arguments.comparison,
+        arguments.limit,
+        arguments.attempts,
+        invocation=[Path(sys.argv[0]).name, *(argv if argv is not None else sys.argv[1:])],
     )
     lines = [f"policies scored: {report['policies_scored']}"]
     for label in ("blind", "covered"):

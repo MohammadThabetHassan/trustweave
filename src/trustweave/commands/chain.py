@@ -8,7 +8,7 @@ from typing import Any
 
 from trustweave.chain import render_chain_review, review_declared_chains
 from trustweave.commands._shared import CHAIN_REVIEW_FILE, CHAIN_REVIEW_REPORT_FILE, EXIT_REVIEW
-from trustweave.io import load_document, write_json, write_text
+from trustweave.io import load_document, resolve_artifact_dir, write_json, write_text
 
 
 def register(subcommands: Any) -> None:
@@ -51,9 +51,8 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         max_depth=args.max_depth,
         max_states=args.max_states,
     )
-    json_path = write_json(args.output_dir / CHAIN_REVIEW_FILE, review)
-    markdown_path = write_text(
-        args.output_dir / CHAIN_REVIEW_REPORT_FILE, render_chain_review(review)
-    )
+    output_dir = resolve_artifact_dir(args.output_dir)
+    json_path = write_json(output_dir / CHAIN_REVIEW_FILE, review)
+    markdown_path = write_text(output_dir / CHAIN_REVIEW_REPORT_FILE, render_chain_review(review))
     code = EXIT_REVIEW if args.exit_on_review and review["findings"] else 0
     return f"Wrote declared chain review: {json_path} and {markdown_path}", code

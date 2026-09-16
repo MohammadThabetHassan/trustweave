@@ -160,3 +160,26 @@ def test_a_domain_other_than_violation_set_is_not_joined() -> None:
     }
 
     assert rego_mutation.predictive_validity(_report({"a": 0.0}), coverage)["policies_joined"] == 0
+
+
+def test_a_comparison_inside_a_balanced_string_literal_is_not_a_site() -> None:
+    """`_outside_quotes` asked whether the whole line had an even number of quotes.
+
+    `msg := "value == 1"` is balanced, so the `==` inside the message was edited as though
+    it were a comparison. 67 of 625 Rego mutants sat inside balanced literals that way, most
+    of them `sprintf` format text -- and 3 of them were killed, so they were not equivalent
+    by construction: they were edits to data a suite happened to assert verbatim.
+    """
+
+    assert rego_mutation._mutate('msg := "value == 1"\n') == []
+    assert rego_mutation._mutate('msg := sprintf("%v != %v", [a, b])\n') == []
+    assert rego_mutation._mutate('allowed := "true"\n') == []
+
+
+def test_a_comparison_outside_a_literal_on_the_same_line_is_still_a_site() -> None:
+    """The refusal direction: string awareness must not swallow real comparison sites."""
+
+    assert "L1:==->!=" in _names('msg := "note"; x == 1\n')
+    assert "L1:==->!=" in _names('x == 1; msg := "a != b"\n')
+    # An escaped quote does not end the literal, so what follows it is still data.
+    assert rego_mutation._mutate('msg := "a \\" == b"\n') == []

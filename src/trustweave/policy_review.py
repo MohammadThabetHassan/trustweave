@@ -2,17 +2,75 @@
 
 from __future__ import annotations
 
-from typing import Any
+from collections.abc import Sequence
+from dataclasses import replace
+from itertools import product
+from math import prod
+from typing import Any, cast
 
-from trustweave.models import Policy
+from trustweave.models import Policy, PolicyRule
 from trustweave.policy_predicates import rule_covers, rule_is_possible
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
+POLICY_REVIEW_SCHEMA_VERSION = "trustweave.dev/policy-review/v1alpha2"
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 REQUIRED_APPROVAL_BINDINGS = frozenset(
     {"actor", "tool", "target", "parameters", "issued_at", "expires_at"}
 )
+# Rule fields whose subject carries exactly one value, so a rule naming several is the
+# union of one cell per value. These are the fields a collective cover is enumerated over.
+_CELL_FIELDS = (
+    "source_trust",
+    "tool_action_classes",
+    "source_identifiers",
+    "tool_identifiers",
+    "source_data_classifications",
+)
+# The enumeration is declined above this many cells and only the single-rule check stands.
+# A declined search is the one case where "no cover found" was never looked for, so
+# `reachable: true` is not a verdict. The artifact says so twice: `cover_search` reads
+# "declined" and the rule is listed in `coverage.declined_rules` — but neither is a finding,
+# and a review nobody reads as unfinished is a review that reads as clear. TW-POL-010 is
+# what keeps `summary.status` off `clear`, and it is emitted whether or not coverage was
+# requested, because the missing answer is a fact about the policy.
+MAX_COVERAGE_CELLS = 10_000
+
+
+def _covering_rules(
+    earlier: Sequence[PolicyRule], later: PolicyRule, policy: Policy
+) -> tuple[str | None, list[str], bool]:
+    """Return (single covering rule id, every rule in the cover, whether the search ran).
+
+    A single covering rule was the only kind looked for, and absence of one was reported
+    as ``reachable: true``. Three allow rules, one per trust label, followed by a deny rule
+    naming all three, left the deny rule unreachable with no finding and a clear review.
+    The later rule is therefore split into one cell per combination of the single-valued
+    fields it names, and it is shadowed when every cell has some earlier rule covering it.
+    That is exact for those fields; the pairwise coverage test decides the rest, so a
+    cover it cannot see still reports the rule as reachable. Both ids are returned so the
+    artifact keeps naming the single shadowing rule where there is one.
+    """
+
+    possible = [rule for rule in earlier if rule_is_possible(rule, policy)]
+    single = next((rule for rule in possible if rule_covers(rule, later, policy)), None)
+    if single is not None:
+        return single.id, [single.id], True
+    if not possible:
+        return None, [], True
+    fields = [name for name in _CELL_FIELDS if getattr(later, name)]
+    domains = [getattr(later, name) for name in fields]
+    if prod(len(domain) for domain in domains) > MAX_COVERAGE_CELLS:
+        return None, [], False
+    used: set[str] = set()
+    for values in product(*domains):
+        narrowed = {name: (value,) for name, value in zip(fields, values, strict=True)}
+        cell = replace(later, **cast(dict[str, Any], narrowed))
+        cover = next((rule for rule in possible if rule_covers(rule, cell, policy)), None)
+        if cover is None:
+            return None, [], True
+        used.add(cover.id)
+    return None, sorted(used), True
 
 
 def review_policy(
@@ -34,29 +92,73 @@ def review_policy(
         )
 
     coverage_rules: dict[str, dict[str, object]] = {}
+    declined_rules: list[str] = []
+    rules_by_id = {rule.id: rule for rule in policy.rules}
     for later_index, later_rule in enumerate(policy.rules):
-        shadowing_rule = next(
-            (
-                earlier_rule
-                for earlier_rule in policy.rules[:later_index]
-                if rule_is_possible(earlier_rule, policy)
-                and rule_covers(earlier_rule, later_rule, policy)
-            ),
-            None,
+        # Identity for every finding about this rule. `risk._fingerprint` hashes
+        # (evidence_kind, id, subject) and deliberately excludes the message, so a subject
+        # naming only the policy gave every rule-level finding of one id in one policy the
+        # same risk identity and all but one were silently dropped. Rule ids are unique
+        # within a policy, so (policy, rule) separates them. Taken from the rule itself,
+        # never parsed back out of the message.
+        rule_subject = {"policy": policy.name, "rule": later_rule.id}
+        single_id, covering_ids, searched = _covering_rules(
+            policy.rules[:later_index], later_rule, policy
         )
+        shadowing_rule = rules_by_id[single_id] if single_id is not None else None
         impossible = not rule_is_possible(later_rule, policy)
         if include_coverage:
             coverage_rules[later_rule.id] = {
-                "reachable": shadowing_rule is None and not impossible,
+                "reachable": not covering_ids and not impossible,
                 "possible": not impossible,
-                "shadowed_by": shadowing_rule.id if shadowing_rule is not None else None,
+                "shadowed_by": single_id,
+                "shadowed_by_rules": covering_ids,
+                "cover_search": "complete" if searched else "declined",
                 "decision": later_rule.decision,
             }
+        if shadowing_rule is None and covering_ids:
+            named = ", ".join(covering_ids)
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-002",
+                    "subject": rule_subject,
+                    "message": (
+                        f"Rule {later_rule.id} is shadowed by earlier rules {named} together "
+                        "under first-match semantics and cannot determine a decision."
+                    ),
+                }
+            )
+            if {rules_by_id[rule_id].decision for rule_id in covering_ids} != {later_rule.decision}:
+                findings.append(
+                    {
+                        "severity": "review",
+                        "id": "TW-POL-007",
+                        "subject": rule_subject,
+                        "message": (
+                            f"Rule {later_rule.id} conflicts with shadowing rules {named}: "
+                            "their declared decisions differ."
+                        ),
+                    }
+                )
+            else:
+                findings.append(
+                    {
+                        "severity": "review",
+                        "id": "TW-POL-009",
+                        "subject": rule_subject,
+                        "message": (
+                            f"Rule {later_rule.id} is redundant because shadowing rules {named} "
+                            "all specify the same decision."
+                        ),
+                    }
+                )
         if shadowing_rule is not None:
             findings.append(
                 {
                     "severity": "review",
                     "id": "TW-POL-002",
+                    "subject": rule_subject,
                     "message": (
                         f"Rule {later_rule.id} is shadowed by earlier rule {shadowing_rule.id} "
                         "under first-match semantics and cannot determine a decision."
@@ -68,6 +170,7 @@ def review_policy(
                     {
                         "severity": "review",
                         "id": "TW-POL-007",
+                        "subject": rule_subject,
                         "message": (
                             f"Rule {later_rule.id} conflicts with shadowing rule "
                             f"{shadowing_rule.id}: their declared decisions differ."
@@ -79,20 +182,39 @@ def review_policy(
                     {
                         "severity": "review",
                         "id": "TW-POL-009",
+                        "subject": rule_subject,
                         "message": (
                             f"Rule {later_rule.id} is redundant because shadowing rule "
                             f"{shadowing_rule.id} specifies the same decision."
                         ),
                     }
                 )
-        if include_coverage and impossible:
+        if impossible:
+            # A rule that names a control the policy does not declare can never match, so the
+            # decision falls through. That is a fact about the policy, not a coverage
+            # diagnostic: gating it on --coverage meant plain `policy-check` reported nothing.
             findings.append(
                 {
                     "severity": "review",
                     "id": "TW-POL-008",
+                    "subject": rule_subject,
                     "message": (
                         f"Rule {later_rule.id} requires declared controls that this policy does "
                         "not provide and cannot determine a decision."
+                    ),
+                }
+            )
+        if not searched:
+            declined_rules.append(later_rule.id)
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-010",
+                    "subject": rule_subject,
+                    "message": (
+                        f"Rule {later_rule.id} names more declared combinations than the local "
+                        f"cover enumeration limit of {MAX_COVERAGE_CELLS}, so its first-match "
+                        "reachability was not established."
                     ),
                 }
             )
@@ -105,6 +227,7 @@ def review_policy(
                 {
                     "severity": "review",
                     "id": "TW-POL-003",
+                    "subject": rule_subject,
                     "message": (
                         f"Rule {later_rule.id} allows untrusted input to a sensitive or external "
                         "action class; review its authorization and human-control boundary."
@@ -183,7 +306,7 @@ def review_policy(
         )
 
     review: dict[str, object] = {
-        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "schema_version": POLICY_REVIEW_SCHEMA_VERSION,
         "policy": policy.name,
         "approval_control": approval_summary,
         "findings": canonical_findings,
@@ -208,12 +331,11 @@ def review_policy(
         review["coverage"] = {
             "rules": coverage_rules,
             "shadowed_rules": sorted(
-                rule_id
-                for rule_id, result in coverage_rules.items()
-                if result["shadowed_by"] is not None
+                rule_id for rule_id, result in coverage_rules.items() if result["shadowed_by_rules"]
             ),
             "impossible_rules": sorted(
                 rule_id for rule_id, result in coverage_rules.items() if result["possible"] is False
             ),
+            "declined_rules": sorted(declined_rules),
         }
     return add_generated_at(review, generated_at)

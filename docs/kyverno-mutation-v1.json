@@ -1,32 +1,61 @@
 {
   "schema_version": "trustweave.dev/kyverno-mutation/v1alpha1",
   "design": "case-control: every blind validate policy, plus covered ones in name order",
-  "comparison_group_attempts": 72,
-  "policies_scored": 49,
+  "invocation": [
+    "kyverno_mutation.py",
+    "corpora/kyverno",
+    "--coverage",
+    "docs/suite-coverage-kyverno-v1.json",
+    "--comparison",
+    "40",
+    "--json",
+    "docs/kyverno-mutation-v1.json"
+  ],
+  "corpus": [
+    {
+      "name": "kyverno",
+      "remote": "https://github.com/kyverno/policies.git",
+      "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4"
+    }
+  ],
+  "comparison_group_attempts": 86,
+  "policies_scored": 52,
   "skipped": [
     {
-      "policy": "block-tekton-task-runs",
-      "reason": "2 mutable sites in the policy"
+      "policy": "block-stale-images",
+      "reason": "1 mutable sites in the policy"
     },
     {
-      "policy": "check-deprecated-apis",
-      "reason": "2 mutable sites in the policy"
+      "policy": "block-tekton-task-runs",
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "deny-privileged-profile",
-      "reason": "2 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "disallow-default-tlsoptions",
-      "reason": "2 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "disallow-deprecated-apis",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "memory-requests-equal-limits",
       "reason": "2 mutable sites in the policy"
     },
     {
-      "policy": "limit-containers-per-pod",
-      "reason": "2 mutable sites in the policy"
+      "policy": "add-psa-namespace-reporting",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "adding-capabilities-strict",
+      "reason": "2 policy files referenced"
+    },
+    {
+      "policy": "allowed-annotations",
+      "reason": "1 mutable sites in the policy"
     },
     {
       "policy": "application-prevent-default-project",
@@ -38,6 +67,10 @@
     },
     {
       "policy": "block-ephemeral-containers",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "block-updates-deletes",
       "reason": "2 mutable sites in the policy"
     },
     {
@@ -45,68 +78,112 @@
       "reason": "2 mutable sites in the policy"
     },
     {
+      "policy": "cert-manager-limit-dnsnames",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "cert-manager-restrict-issuer",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "check-env-vars",
+      "reason": "1 mutable sites in the policy"
+    },
+    {
+      "policy": "check-fsgroup",
+      "reason": "3 policy files referenced"
+    },
+    {
       "policy": "check-hpa-exists",
       "reason": "2 mutable sites in the policy"
     },
     {
-      "policy": "check-routes",
-      "reason": "1 mutable sites in the policy"
+      "policy": "check-sa",
+      "reason": "2 mutable sites in the policy"
     },
     {
       "policy": "check-serviceaccount-secrets",
-      "reason": "1 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "check-supplementalgroups",
+      "reason": "3 policy files referenced"
     },
     {
       "policy": "deny-secret-service-account-token-type",
-      "reason": "2 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
-      "policy": "disallow-capabilities-strict",
-      "reason": "2 policy files referenced"
+      "policy": "deployment-has-multiple-replicas",
+      "reason": "1 mutable sites in the policy"
     },
     {
       "policy": "disallow-default-namespace",
-      "reason": "2 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "disallow-helm-tiller",
-      "reason": "2 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "disallow-host-path",
-      "reason": "2 mutable sites in the policy"
+      "reason": "1 mutable sites in the policy"
     },
     {
       "policy": "disallow-jenkins-pipeline-strategy",
-      "reason": "1 mutable sites in the policy"
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-latest-tag",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "disallow-privilege-escalation",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
+      "policy": "docker-socket-check",
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "enforce-etcd-encryption",
-      "reason": "1 mutable sites in the policy"
+      "reason": "2 mutable sites in the policy"
     },
     {
       "policy": "enforce-min-tls-version",
-      "reason": "2 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "enforce-sidecar-injection-namespace",
-      "reason": "2 mutable sites in the policy"
-    },
-    {
-      "policy": "enforce-strict-mtls",
-      "reason": "2 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "forbid-cpu-limits",
       "reason": "2 mutable sites in the policy"
     },
     {
+      "policy": "imagepullpolicy-always",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
       "policy": "k10-data-protection-by-label",
       "reason": "0 mutable sites in the policy"
     },
     {
+      "policy": "k10-policy-hourly-rpo",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
       "policy": "k10-validate-ns-by-preset-label",
       "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "k6t-enforce-instancetype",
+      "reason": "0 mutable sites in the policy"
+    },
+    {
+      "policy": "kasten-3-2-1-backup-policy",
+      "reason": "1 mutable sites in the policy"
     },
     {
       "policy": "kasten-data-protection-by-label",
@@ -121,161 +198,218 @@
       "reason": "0 mutable sites in the policy"
     },
     {
-      "policy": "limit-hostpath-type-pv",
-      "reason": "2 mutable sites in the policy"
+      "policy": "no-loadbalancer-service",
+      "reason": "0 mutable sites in the policy"
     },
     {
-      "policy": "metadata-match-regex",
-      "reason": "1 mutable sites in the policy"
+      "policy": "no-localhost-service",
+      "reason": "0 mutable sites in the policy"
     },
     {
       "policy": "pdb-maxunavailable",
       "reason": "2 mutable sites in the policy"
     },
     {
+      "policy": "pod-lifetime",
+      "reason": "2 mutable sites in the policy"
+    },
+    {
       "policy": "podsecurity-subrule-baseline",
-      "reason": "1 mutable sites in the policy"
+      "reason": "0 mutable sites in the policy"
     },
     {
-      "policy": "prevent-bare-pods",
-      "reason": "1 mutable sites in the policy"
+      "policy": "podsecurity-subrule-restricted",
+      "reason": "0 mutable sites in the policy"
     },
     {
-      "policy": "prevent-linkerd-pod-injection-override",
-      "reason": "2 mutable sites in the policy"
+      "policy": "podsecurity-subrule-restricted-capabilities",
+      "reason": "0 mutable sites in the policy"
     },
     {
-      "policy": "require-annotations",
-      "reason": "2 mutable sites in the policy"
-    },
-    {
-      "policy": "require-container-port-names",
-      "reason": "2 mutable sites in the policy"
-    },
-    {
-      "policy": "require-image-checksum",
-      "reason": "2 mutable sites in the policy"
+      "policy": "podsecurity-subrule-restricted-seccomp",
+      "reason": "0 mutable sites in the policy"
     }
   ],
   "blind": {
-    "policies": 9,
-    "median_mutation_score": 0.5,
-    "mean_mutation_score": 0.4534,
+    "policies": 12,
+    "median_mutation_score": 0.7084,
+    "mean_mutation_score": 0.5722,
     "min": 0.0,
-    "max": 0.8333
+    "max": 1.0
   },
   "covered": {
     "policies": 40,
-    "median_mutation_score": 0.625,
-    "mean_mutation_score": 0.6024,
-    "min": 0.25,
+    "median_mutation_score": 0.775,
+    "mean_mutation_score": 0.795,
+    "min": 0.0,
     "max": 1.0
   },
   "permutation_test": {
-    "observed_difference": 0.149,
-    "p_value": 0.0428,
+    "observed_difference": 0.2228,
+    "p_value": 0.0127,
     "method": "sampled, 100000 permutations, seed 0, one-sided"
+  },
+  "labelled_by_pooled_coverage": {
+    "blind": {
+      "policies": 12,
+      "median_mutation_score": 0.7084,
+      "mean_mutation_score": 0.5722,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "covered": {
+      "policies": 40,
+      "median_mutation_score": 0.775,
+      "mean_mutation_score": 0.795,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "permutation_test": {
+      "observed_difference": 0.2228,
+      "p_value": 0.0127,
+      "method": "sampled, 100000 permutations, seed 0, one-sided"
+    }
   },
   "detail": [
     {
-      "policy": "add-psa-namespace-reporting",
+      "policy": "advanced-restrict-image-registries",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 1,
+      "mutation_score": 0.8,
+      "survivors": [
+        "L36:||->&&"
+      ],
+      "blind_from": "corpora/kyverno/other/advanced-restrict-image-registries/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "validate-corp-registries": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/advanced-restrict-image-registries/.kyverno-test",
+        "corpora/kyverno/other-vpol/advanced-restrict-image-registries/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "allowed-base-images",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other-vpol/allowed-base-images/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "*": 2
+      }
+    },
+    {
+      "policy": "allowed-image-repos",
       "mutants_applied": 4,
       "mutants_unrunnable": 0,
       "killed": 2,
       "survived": 2,
       "mutation_score": 0.5,
       "survivors": [
-        "L26:true->false",
-        "L40:&&->||"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "advanced-restrict-image-registries",
-      "mutants_applied": 7,
-      "mutants_unrunnable": 0,
-      "killed": 6,
-      "survived": 1,
-      "mutation_score": 0.8571,
-      "survivors": [
-        "L22:false->true"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "allowed-annotations",
-      "mutants_applied": 3,
-      "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 1,
-      "mutation_score": 0.6667,
-      "survivors": [
-        "L23:true->false"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "allowed-base-images",
-      "mutants_applied": 7,
-      "mutants_unrunnable": 0,
-      "killed": 6,
-      "survived": 1,
-      "mutation_score": 0.8571,
-      "survivors": [
-        "L23:false->true"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "allowed-image-repos",
-      "mutants_applied": 5,
-      "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 3,
-      "mutation_score": 0.4,
-      "survivors": [
-        "L22:false->true",
         "L37:.exists(->.all(",
         "L37:==->!="
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other-vpol/allowed-image-repos/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "*": 2
+      }
     },
     {
       "policy": "allowed-label-changes",
-      "mutants_applied": 6,
+      "mutants_applied": 5,
       "mutants_unrunnable": 0,
       "killed": 5,
-      "survived": 1,
-      "mutation_score": 0.8333,
-      "survivors": [
-        "L22:false->true"
-      ],
-      "decision_blind": true
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/allowed-label-changes/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "safe-label": 1
+      }
+    },
+    {
+      "policy": "allowed-podpriorities",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/allowed-pod-priorities/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 3,
+      "decisions_witnessed": {
+        "validate-pod-priority": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/allowed-pod-priorities/.kyverno-test",
+        "corpora/kyverno/other-vpol/allowed-pod-priorities/.kyverno-test"
+      ]
     },
     {
       "policy": "application-field-validation",
-      "mutants_applied": 7,
+      "mutants_applied": 4,
       "mutants_unrunnable": 0,
-      "killed": 6,
-      "survived": 1,
-      "mutation_score": 0.8571,
+      "killed": 0,
+      "survived": 4,
+      "mutation_score": 0.0,
       "survivors": [
-        "L19:true->false"
+        "L33:'?*'->'*'",
+        "L38:'?*'->'*'",
+        "L51:'?*'->'*'",
+        "L56:'?*'->'*'"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/argo/application-field-validation/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 4,
+      "decisions_witnessed": {
+        "destination-server-name": 2,
+        "source-path-chart": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/argo/application-field-validation/.kyverno-test",
+        "corpora/kyverno/argo-cel/application-field-validation/.kyverno-test"
+      ]
     },
     {
       "policy": "appproject-clusterresourceblacklist",
-      "mutants_applied": 3,
+      "mutants_applied": 8,
       "mutants_unrunnable": 0,
-      "killed": 1,
-      "survived": 2,
-      "mutation_score": 0.3333,
-      "survivors": [
-        "L21:true->false",
-        "L37:.all(->.exists("
-      ],
-      "decision_blind": false
+      "killed": 8,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/argo/appproject-clusterresourceblacklist/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 4,
+      "decisions_witnessed": {
+        "has-wildcard": 2,
+        "validate-clusterresourceblacklist": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/argo/appproject-clusterresourceblacklist/.kyverno-test",
+        "corpora/kyverno/argo-cel/appproject-clusterresourceblacklist/.kyverno-test"
+      ]
     },
     {
       "policy": "block-images-with-volumes",
@@ -285,9 +419,19 @@
       "survived": 1,
       "mutation_score": 0.75,
       "survivors": [
-        "L19:true->false"
+        "L29:||->&&"
       ],
-      "decision_blind": true
+      "blind_from": "corpora/kyverno/other/block-images-with-volumes/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 1,
+      "decisions_witnessed": {
+        "block-images-with-vols": 1
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/block-images-with-volumes/.kyverno-test",
+        "corpora/kyverno/other-vpol/block-images-with-volumes/.kyverno-test"
+      ]
     },
     {
       "policy": "block-large-images",
@@ -299,50 +443,61 @@
       "survivors": [
         "L29:||->&&"
       ],
-      "decision_blind": true
+      "blind_from": "corpora/kyverno/other/block-large-images/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 1,
+      "decisions_witnessed": {
+        "block-over-twogi": 1
+      }
     },
     {
-      "policy": "block-stale-images",
+      "policy": "cert-manager-limit-duration",
       "mutants_applied": 4,
       "mutants_unrunnable": 0,
-      "killed": 1,
-      "survived": 3,
-      "mutation_score": 0.25,
+      "killed": 3,
+      "survived": 1,
+      "mutation_score": 0.75,
       "survivors": [
-        "L30:.all(->.exists(",
-        "L32:>=->>",
-        "L37:&&->||"
+        "L32: < -> <= "
       ],
-      "decision_blind": true
+      "blind_from": "corpora/kyverno/cert-manager/limit-duration/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 3,
+      "decisions_witnessed": {
+        "certificate-duration-max-100days": 3
+      }
     },
     {
-      "policy": "block-updates-deletes",
-      "mutants_applied": 5,
-      "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 3,
-      "mutation_score": 0.4,
-      "survivors": [
-        "L13:true->false",
-        "L17:false->true",
-        "L27:true->false"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "check-env-vars",
+      "policy": "check-deprecated-apis",
       "mutants_applied": 8,
       "mutants_unrunnable": 0,
-      "killed": 4,
-      "survived": 4,
-      "mutation_score": 0.5,
+      "killed": 2,
+      "survived": 6,
+      "mutation_score": 0.25,
       "survivors": [
-        "L17:true->false",
-        "L21:true->false",
-        "L32:.exists(->.all(",
-        "L34:true->false"
+        "L41:||->&&",
+        "L67:||->&&",
+        "L68:NotEquals->Equals",
+        "L71:AnyIn->AnyNotIn",
+        "L88:||->&&",
+        "L89:NotEquals->Equals"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/best-practices/check-deprecated-apis/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 4,
+      "decisions_witnessed": {
+        "validate-v1-25-removals": 2,
+        "validate-v1-29-removals": 1,
+        "validate-v1-32-removals": 1
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/best-practices/check-deprecated-apis/.kyverno-test",
+        "corpora/kyverno/best-practices-cel/check-deprecated-apis/.kyverno-test",
+        "corpora/kyverno/best-practices-vpol/check-deprecated-apis/.kyverno-test"
+      ]
     },
     {
       "policy": "check-ingress-nginx-controller-version-and-annotation-policy",
@@ -356,100 +511,271 @@
         "L59:==->!=",
         "L59:||->&&"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other-vpol/check-ingress-nginx-controller-version-and-annotation-policy/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 4,
+      "decisions_witnessed": {
+        "*": 2
+      }
     },
     {
-      "policy": "deny-commands-in-exec-probe",
+      "policy": "check-nvidia-gpus",
       "mutants_applied": 6,
       "mutants_unrunnable": 0,
       "killed": 4,
       "survived": 2,
       "mutation_score": 0.6667,
       "survivors": [
-        "L22:false->true",
-        "L35:.all(->.exists("
+        "L30:||->&&",
+        "L48:||->&&"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/check-nvidia-gpu/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "check-nvidia-gpus": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/check-nvidia-gpu/.kyverno-test",
+        "corpora/kyverno/other-vpol/check-nvidia-gpu/.kyverno-test"
+      ]
     },
     {
-      "policy": "disallow-capabilities",
-      "mutants_applied": 5,
-      "mutants_unrunnable": 0,
-      "killed": 4,
-      "survived": 1,
-      "mutation_score": 0.8,
-      "survivors": [
-        "L19:true->false"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "disallow-empty-ingress-host",
-      "mutants_applied": 3,
-      "mutants_unrunnable": 0,
-      "killed": 1,
-      "survived": 2,
-      "mutation_score": 0.3333,
-      "survivors": [
-        "L20:false->true",
-        "L29:.all(->.exists("
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "disallow-host-namespaces",
-      "mutants_applied": 7,
-      "mutants_unrunnable": 0,
-      "killed": 4,
-      "survived": 3,
-      "mutation_score": 0.5714,
-      "survivors": [
-        "L16:false->true",
-        "L22:true->false",
-        "L41:false->true"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "disallow-host-ports",
+      "policy": "check-routes",
       "mutants_applied": 4,
       "mutants_unrunnable": 0,
       "killed": 3,
       "survived": 1,
       "mutation_score": 0.75,
       "survivors": [
-        "L21:true->false"
+        "L27:||->&&"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/openshift/check-routes/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "require-tls-routes": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/openshift/check-routes/.kyverno-test",
+        "corpora/kyverno/openshift-cel/check-routes/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "deny-commands-in-exec-probe",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/deny-commands-in-exec-probe/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 3,
+      "decisions_witnessed": {
+        "check-commands": 3
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/deny-commands-in-exec-probe/.kyverno-test",
+        "corpora/kyverno/other-cel/deny-commands-in-exec-probe/.kyverno-test",
+        "corpora/kyverno/other-vpol/deny-commands-in-exec-probe/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "disallow-capabilities",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 1,
+      "mutation_score": 0.6667,
+      "survivors": [
+        "L27:||->&&"
+      ],
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-capabilities/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "adding-capabilities": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-capabilities/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-capabilities/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/baseline/disallow-capabilities/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "disallow-capabilities-strict",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 2,
+      "mutation_score": 0.75,
+      "survivors": [
+        "L28:||->&&",
+        "L50:||->&&"
+      ],
+      "blind_from": "corpora/kyverno/pod-security/restricted/disallow-capabilities-strict/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 12,
+      "decisions_witnessed": {
+        "adding-capabilities-strict": 2,
+        "require-drop-all": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/restricted/disallow-capabilities-strict/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/restricted/disallow-capabilities-strict/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/restricted/disallow-capabilities-strict/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "disallow-container-sock-mounts",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 2,
+      "survived": 6,
+      "mutation_score": 0.25,
+      "survivors": [
+        "L45:=(->(",
+        "L46:=(->(",
+        "L58:=(->(",
+        "L59:=(->(",
+        "L71:=(->(",
+        "L72:=(->("
+      ],
+      "blind_from": "corpora/kyverno/best-practices/disallow-cri-sock-mount/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 4,
+      "decisions_witnessed": {
+        "validate-containerd-sock-mount": 1,
+        "validate-crio-sock-mount": 1,
+        "validate-docker-sock-mount": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/best-practices/disallow-cri-sock-mount/.kyverno-test",
+        "corpora/kyverno/best-practices-cel/disallow-cri-sock-mount/.kyverno-test",
+        "corpora/kyverno/best-practices-vpol/disallow-cri-sock-mount/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "disallow-empty-ingress-host",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/best-practices/disallow-empty-ingress-host/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "disallow-empty-ingress-host": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/best-practices/disallow-empty-ingress-host/.kyverno-test",
+        "corpora/kyverno/best-practices-cel/disallow-empty-ingress-host/.kyverno-test",
+        "corpora/kyverno/best-practices-vpol/disallow-empty-ingress-host/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "disallow-host-namespaces",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-host-namespaces/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "host-namespaces": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-host-namespaces/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-host-namespaces/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/baseline/disallow-host-namespaces/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "disallow-host-ports",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 6,
+      "survived": 2,
+      "mutation_score": 0.75,
+      "survivors": [
+        "L34:=(->(",
+        "L35:=(->("
+      ],
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-host-ports/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "host-ports-none": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-host-ports/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-host-ports/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/baseline/disallow-host-ports/.kyverno-test"
+      ]
     },
     {
       "policy": "disallow-host-ports-range",
-      "mutants_applied": 8,
+      "mutants_applied": 3,
       "mutants_unrunnable": 0,
-      "killed": 5,
-      "survived": 3,
-      "mutation_score": 0.625,
-      "survivors": [
-        "L19:true->false",
-        "L43:<=-><",
-        "L43:>=->>"
-      ],
-      "decision_blind": false
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-host-ports-range/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "host-port-range": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-host-ports-range/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-host-ports-range/.kyverno-test"
+      ]
     },
     {
       "policy": "disallow-host-process",
-      "mutants_applied": 6,
+      "mutants_applied": 8,
       "mutants_unrunnable": 0,
       "killed": 2,
-      "survived": 4,
-      "mutation_score": 0.3333,
+      "survived": 6,
+      "mutation_score": 0.25,
       "survivors": [
-        "L16:false->true",
-        "L22:true->false",
-        "L37:.all(->.exists(",
-        "L43:false->true"
+        "L36:=(->(",
+        "L37:=(->(",
+        "L38:=(->(",
+        "L40:=(->(",
+        "L41:=(->(",
+        "L42:=(->("
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-host-process/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "host-process-containers": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-host-process/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-host-process/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/baseline/disallow-host-process/.kyverno-test"
+      ]
     },
     {
       "policy": "disallow-ingress-nginx-custom-snippets",
@@ -459,97 +785,180 @@
       "survived": 1,
       "mutation_score": 0.75,
       "survivors": [
-        "L34:false->true"
+        "L43:\"?*\"->\"*\""
       ],
-      "decision_blind": false
-    },
-    {
-      "policy": "disallow-latest-tag",
-      "mutants_applied": 3,
-      "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 1,
-      "mutation_score": 0.6667,
-      "survivors": [
-        "L21:true->false"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "disallow-privilege-escalation",
-      "mutants_applied": 6,
-      "mutants_unrunnable": 0,
-      "killed": 3,
-      "survived": 3,
-      "mutation_score": 0.5,
-      "survivors": [
-        "L15:false->true",
-        "L21:true->false",
-        "L40:false->true"
-      ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/nginx-ingress/disallow-ingress-nginx-custom-snippets/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 4,
+      "decisions_witnessed": {
+        "check-config-map": 2,
+        "check-ingress-annotations": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/nginx-ingress/disallow-ingress-nginx-custom-snippets/.kyverno-test",
+        "corpora/kyverno/nginx-ingress-cel/disallow-ingress-nginx-custom-snippets/.kyverno-test"
+      ]
     },
     {
       "policy": "disallow-privileged-containers",
-      "mutants_applied": 5,
+      "mutants_applied": 8,
       "mutants_unrunnable": 0,
-      "killed": 3,
+      "killed": 6,
       "survived": 2,
-      "mutation_score": 0.6,
+      "mutation_score": 0.75,
       "survivors": [
-        "L21:true->false",
-        "L36:false->true"
+        "L32:=(->(",
+        "L33:=(->("
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-privileged-containers/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "privileged-containers": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-privileged-containers/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-privileged-containers/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/baseline/disallow-privileged-containers/.kyverno-test"
+      ]
     },
     {
       "policy": "disallow-proc-mount",
-      "mutants_applied": 3,
+      "mutants_applied": 8,
       "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 1,
-      "mutation_score": 0.6667,
+      "killed": 6,
+      "survived": 2,
+      "mutation_score": 0.75,
       "survivors": [
-        "L23:true->false"
+        "L36:=(->(",
+        "L37:=(->("
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-proc-mount/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "check-proc-mount": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-proc-mount/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-proc-mount/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/baseline/disallow-proc-mount/.kyverno-test"
+      ]
     },
     {
       "policy": "disallow-security-context-constraint-anyuid",
+      "mutants_applied": 5,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/openshift/disallow-security-context-constraint-anyuid/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 8,
+      "decisions_witnessed": {
+        "check-security-context-constraint": 2,
+        "check-security-context-roleref": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/openshift/disallow-security-context-constraint-anyuid/.kyverno-test",
+        "corpora/kyverno/openshift-cel/disallow-security-context-constraint-anyuid/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "disallow-self-provisioner-binding",
+      "mutants_applied": 6,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 1,
+      "mutation_score": 0.8333,
+      "survivors": [
+        "L45:||->&&"
+      ],
+      "blind_from": "corpora/kyverno/openshift/disallow-self-provisioner-binding/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 3,
+      "decisions_witnessed": {
+        "check-self-provisioner-binding-no-subject": 1,
+        "check-self-provisioner-binding-with-subject": 2
+      }
+    },
+    {
+      "policy": "disallow-selinux",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 5,
+      "survived": 3,
+      "mutation_score": 0.625,
+      "survivors": [
+        "L37:=(->(",
+        "L38:=(->(",
+        "L39:=(->("
+      ],
+      "blind_from": "corpora/kyverno/pod-security/baseline/disallow-selinux/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 12,
+      "decisions_witnessed": {
+        "selinux-type": 2,
+        "selinux-user-role": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/pod-security/baseline/disallow-selinux/.kyverno-test",
+        "corpora/kyverno/pod-security-cel/baseline/disallow-selinux/.kyverno-test",
+        "corpora/kyverno/pod-security-vpol/baseline/disallow-selinux/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "drop-all-capabilities",
       "mutants_applied": 4,
       "mutants_unrunnable": 0,
       "killed": 3,
       "survived": 1,
       "mutation_score": 0.75,
       "survivors": [
-        "L17:true->false"
+        "L29:||->&&"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/best-practices/require-drop-all/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "require-drop-all": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/best-practices/require-drop-all/.kyverno-test",
+        "corpora/kyverno/best-practices-cel/require-drop-all/.kyverno-test",
+        "corpora/kyverno/best-practices-vpol/require-drop-all/.kyverno-test"
+      ]
     },
     {
-      "policy": "disallow-self-provisioner-binding",
-      "mutants_applied": 7,
+      "policy": "drop-cap-net-raw",
+      "mutants_applied": 6,
       "mutants_unrunnable": 0,
       "killed": 5,
-      "survived": 2,
-      "mutation_score": 0.7143,
-      "survivors": [
-        "L17:true->false",
-        "L45:||->&&"
-      ],
-      "decision_blind": true
-    },
-    {
-      "policy": "disallow-selinux",
-      "mutants_applied": 8,
-      "mutants_unrunnable": 0,
-      "killed": 7,
       "survived": 1,
-      "mutation_score": 0.875,
+      "mutation_score": 0.8333,
       "survivors": [
-        "L21:true->false"
+        "L30:||->&&"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/best-practices/require-drop-cap-net-raw/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "require-drop-cap-net-raw": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/best-practices/require-drop-cap-net-raw/.kyverno-test",
+        "corpora/kyverno/best-practices-cel/require-drop-cap-net-raw/.kyverno-test",
+        "corpora/kyverno/best-practices-vpol/require-drop-cap-net-raw/.kyverno-test"
+      ]
     },
     {
       "policy": "enforce-resources-as-ratio",
@@ -559,62 +968,110 @@
       "survived": 0,
       "mutation_score": 1.0,
       "survivors": [],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/enforce-resources-as-ratio/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "check-memory-requests-limits": 2
+      }
+    },
+    {
+      "policy": "enforce-strict-mtls",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/istio/enforce-strict-mtls/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "validate-mtls": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/istio/enforce-strict-mtls/.kyverno-test",
+        "corpora/kyverno/istio-cel/enforce-strict-mtls/.kyverno-test"
+      ]
     },
     {
       "policy": "enforce-tls-hosts-host-subnets",
-      "mutants_applied": 5,
+      "mutants_applied": 4,
       "mutants_unrunnable": 0,
       "killed": 4,
-      "survived": 1,
-      "mutation_score": 0.8,
-      "survivors": [
-        "L20:true->false"
-      ],
-      "decision_blind": false
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/istio/enforce-tls-hosts-host-subnets/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "destrule": 2
+      }
     },
     {
       "policy": "ensure-readonly-hostpath",
-      "mutants_applied": 7,
+      "mutants_applied": 6,
       "mutants_unrunnable": 0,
-      "killed": 3,
-      "survived": 4,
-      "mutation_score": 0.4286,
-      "survivors": [
-        "L16:true->false",
-        "L23:false->true",
-        "L39:.all(->.exists(",
-        "L40:.all(->.exists("
-      ],
-      "decision_blind": false
+      "killed": 6,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/ensure-readonly-hostpath/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "ensure-hostpaths-readonly": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/ensure-readonly-hostpath/.kyverno-test",
+        "corpora/kyverno/other-cel/ensure-readonly-hostpath/.kyverno-test",
+        "corpora/kyverno/other-vpol/ensure-readonly-hostpath/.kyverno-test"
+      ]
     },
     {
-      "policy": "imagepullpolicy-always",
-      "mutants_applied": 5,
+      "policy": "exclude-namespaces-example",
+      "mutants_applied": 3,
       "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 3,
-      "mutation_score": 0.4,
+      "killed": 1,
+      "survived": 2,
+      "mutation_score": 0.3333,
       "survivors": [
-        "L22:true->false",
-        "L31:.all(->.exists(",
-        "L33:true->false"
+        "L40:AnyNotIn->AnyIn",
+        "L92:AnyNotIn->AnyIn"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/exclude-namespaces-dynamically/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 3,
+      "decisions_witnessed": {
+        "exclude-namespaces-dynamically-pods": 3
+      }
     },
     {
       "policy": "ingress-host-match-tls",
       "mutants_applied": 5,
       "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 3,
-      "mutation_score": 0.4,
-      "survivors": [
-        "L22:false->true",
-        "L36:.all(->.exists(",
-        "L38:.exists(->.all("
-      ],
-      "decision_blind": false
+      "killed": 5,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/ingress-host-match-tls/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "host-match-tls": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/ingress-host-match-tls/.kyverno-test",
+        "corpora/kyverno/other-cel/ingress-host-match-tls/.kyverno-test",
+        "corpora/kyverno/other-vpol/ingress-host-match-tls/.kyverno-test"
+      ]
     },
     {
       "policy": "kasten-hourly-rpo",
@@ -624,57 +1081,166 @@
       "survived": 0,
       "mutation_score": 1.0,
       "survivors": [],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/kasten/kasten-hourly-rpo/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "kasten-hourly-rpo": 2
+      }
     },
     {
       "policy": "limit-configmap-for-sa",
       "mutants_applied": 4,
       "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 2,
-      "mutation_score": 0.5,
-      "survivors": [
-        "L13:false->true",
-        "L19:&&->||"
-      ],
-      "decision_blind": false
+      "killed": 4,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/limit-configmap-for-sa/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "limit-configmap-for-sa-developer": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/limit-configmap-for-sa/.kyverno-test",
+        "corpora/kyverno/other-vpol/limit-configmap-for-sa/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "limit-containers-per-pod",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/limit-containers-per-pod/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 4,
+      "decisions_witnessed": {
+        "autogen-cronjob-limit-containers-per-pod": 1,
+        "autogen-limit-containers-per-pod": 1,
+        "limit-containers-per-pod": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/limit-containers-per-pod/.kyverno-test",
+        "corpora/kyverno/other-cel/limit-containers-per-pod/.kyverno-test",
+        "corpora/kyverno/other-vpol/limit-containers-per-pod/.kyverno-test"
+      ]
+    },
+    {
+      "policy": "limit-hostpath-type-pv",
+      "mutants_applied": 3,
+      "mutants_unrunnable": 0,
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/limit-hostpath-type-pv/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "limit-hostpath-type-pv-to-slash-data": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/limit-hostpath-type-pv/.kyverno-test",
+        "corpora/kyverno/other-cel/limit-hostpath-type-pv/.kyverno-test",
+        "corpora/kyverno/other-vpol/limit-hostpath-type-pv/.kyverno-test"
+      ]
     },
     {
       "policy": "limit-hostpath-vols",
-      "mutants_applied": 5,
+      "mutants_applied": 6,
       "mutants_unrunnable": 0,
       "killed": 4,
-      "survived": 1,
-      "mutation_score": 0.8,
+      "survived": 2,
+      "mutation_score": 0.6667,
       "survivors": [
-        "L23:false->true"
+        "L33:Equals->NotEquals",
+        "L33:GreaterThan->LessThanOrEquals"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/limit-hostpath-vols/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "limit-hostpath-to-slash-data": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/limit-hostpath-vols/.kyverno-test",
+        "corpora/kyverno/other-cel/limit-hostpath-vols/.kyverno-test",
+        "corpora/kyverno/other-vpol/limit-hostpath-vols/.kyverno-test"
+      ]
     },
     {
-      "policy": "memory-requests-equal-limits",
-      "mutants_applied": 4,
+      "policy": "metadata-match-regex",
+      "mutants_applied": 3,
       "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 2,
-      "mutation_score": 0.5,
-      "survivors": [
-        "L21:false->true",
-        "L30:.all(->.exists("
-      ],
-      "decision_blind": true
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/metadata-match-regex/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 5,
+      "decisions_witnessed": {
+        "check-for-regex": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/metadata-match-regex/.kyverno-test",
+        "corpora/kyverno/other-cel/metadata-match-regex/.kyverno-test",
+        "corpora/kyverno/other-vpol/metadata-match-regex/.kyverno-test"
+      ]
     },
     {
       "policy": "nfs-subdir-external-provisioner-storage-path",
-      "mutants_applied": 6,
+      "mutants_applied": 5,
       "mutants_unrunnable": 0,
       "killed": 5,
-      "survived": 1,
-      "mutation_score": 0.8333,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/nfs-subdir-external-provisioner-storage-path/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "enforce-storage-path": 2
+      }
+    },
+    {
+      "policy": "no-secrets",
+      "mutants_applied": 8,
+      "mutants_unrunnable": 0,
+      "killed": 4,
+      "survived": 4,
+      "mutation_score": 0.5,
       "survivors": [
-        "L20:false->true"
+        "L33:=(->(",
+        "L34:=(->(",
+        "L38:=(->(",
+        "L39:=(->("
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/disallow-all-secrets/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 6,
+      "decisions_witnessed": {
+        "secrets-not-from-env": 2,
+        "secrets-not-from-envfrom": 2,
+        "secrets-not-from-volumes": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/disallow-all-secrets/.kyverno-test",
+        "corpora/kyverno/other-cel/disallow-all-secrets/.kyverno-test",
+        "corpora/kyverno/other-vpol/disallow-all-secrets/.kyverno-test"
+      ]
     },
     {
       "policy": "only-trustworthy-registries-set-root",
@@ -689,75 +1255,55 @@
         "L44:Equals->NotEquals",
         "L47:NotEquals->Equals"
       ],
-      "decision_blind": true
+      "blind_from": "corpora/kyverno/other/only-trustworthy-registries-set-root/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 1,
+      "decisions_witnessed": {
+        "only-allow-trusted-images": 1
+      }
     },
     {
-      "policy": "prevent-cr8escape",
-      "mutants_applied": 3,
+      "policy": "pdb-minavailable-check",
+      "mutants_applied": 6,
       "mutants_unrunnable": 0,
-      "killed": 1,
+      "killed": 4,
       "survived": 2,
-      "mutation_score": 0.3333,
+      "mutation_score": 0.6667,
       "survivors": [
-        "L22:true->false",
-        "L32:&&->||"
+        "L35:||->&&",
+        "L42:||->&&"
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/pdb-minavailable/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "pdb-minavailable": 2
+      }
     },
     {
-      "policy": "prevent-disabling-injection-pods",
-      "mutants_applied": 5,
-      "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 3,
-      "mutation_score": 0.4,
-      "survivors": [
-        "L17:false->true",
-        "L20:true->false",
-        "L36:false->true"
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "prevent-linkerd-port-skipping",
+      "policy": "prevent-bare-pods",
       "mutants_applied": 3,
       "mutants_unrunnable": 0,
       "killed": 2,
       "survived": 1,
       "mutation_score": 0.6667,
       "survivors": [
-        "L19:true->false"
+        "L31:||->&&"
       ],
-      "decision_blind": false
-    },
-    {
-      "policy": "require-cpu-limits",
-      "mutants_applied": 8,
-      "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 6,
-      "mutation_score": 0.25,
-      "survivors": [
-        "L15:true->false",
-        "L31:\"?*\"->\"*\"",
-        "L33:=(->(",
-        "L36:\"?*\"->\"*\"",
-        "L38:=(->(",
-        "L41:\"?*\"->\"*\""
-      ],
-      "decision_blind": false
-    },
-    {
-      "policy": "require-encryption-aws-loadbalancers",
-      "mutants_applied": 3,
-      "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 1,
-      "mutation_score": 0.6667,
-      "survivors": [
-        "L19:true->false"
-      ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/prevent-bare-pods/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": false,
+      "corpus_blind": false,
+      "test_cases": 2,
+      "decisions_witnessed": {
+        "bare-pods": 2
+      },
+      "manifest_candidates": [
+        "corpora/kyverno/other/prevent-bare-pods/.kyverno-test",
+        "corpora/kyverno/other-cel/prevent-bare-pods/.kyverno-test",
+        "corpora/kyverno/other-vpol/prevent-bare-pods/.kyverno-test"
+      ]
     },
     {
       "policy": "require-image-source",
@@ -773,51 +1319,67 @@
         "L49:||->&&",
         "L50:NotEquals->Equals"
       ],
-      "decision_blind": true
+      "blind_from": "corpora/kyverno/other/require-image-source/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 1,
+      "decisions_witnessed": {
+        "check-source": 1
+      }
     },
     {
-      "policy": "require-imagepullsecrets",
+      "policy": "require-network-policy",
       "mutants_applied": 3,
       "mutants_unrunnable": 0,
-      "killed": 1,
-      "survived": 2,
-      "mutation_score": 0.3333,
-      "survivors": [
-        "L16:true->false",
-        "L36:\"?*\"->\"*\""
-      ],
-      "decision_blind": false
+      "killed": 3,
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": [],
+      "blind_from": "corpora/kyverno/other/require-netpol/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 1,
+      "decisions_witnessed": {
+        "require-network-policy": 1
+      }
     },
     {
-      "policy": "require-ingress-https",
-      "mutants_applied": 5,
+      "policy": "restrict-pod-count",
+      "mutants_applied": 4,
       "mutants_unrunnable": 0,
-      "killed": 2,
-      "survived": 3,
-      "mutation_score": 0.4,
+      "killed": 3,
+      "survived": 1,
+      "mutation_score": 0.75,
       "survivors": [
-        "L16:false->true",
-        "L20:true->false",
-        "L32:false->true"
+        "L30:==->!="
       ],
-      "decision_blind": false
+      "blind_from": "corpora/kyverno/other/restrict-pod-count-per-node/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 1,
+      "decisions_witnessed": {
+        "restrict-pod-count": 1
+      }
     },
     {
       "policy": "team-validate-ns-name",
-      "mutants_applied": 6,
+      "mutants_applied": 3,
       "mutants_unrunnable": 0,
       "killed": 0,
-      "survived": 6,
+      "survived": 3,
       "mutation_score": 0.0,
       "survivors": [
-        "L21:false->true",
         "L35:==->!=",
-        "L35:false->true",
         "L40:AnyNotIn->AnyIn",
-        "L41:==->!=",
-        "L41:false->true"
+        "L41:==->!="
       ],
-      "decision_blind": true
+      "blind_from": "corpora/kyverno/openshift/team-validate-ns-name/.kyverno-test/kyverno-test.yaml",
+      "decision_blind": true,
+      "corpus_blind": true,
+      "test_cases": 1,
+      "decisions_witnessed": {
+        "team-validate-ns-name": 1
+      }
     }
   ]
 }

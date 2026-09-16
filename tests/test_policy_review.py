@@ -7,11 +7,13 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+import trustweave.policy_review as policy_review_module
 from trustweave.cli import main
 from trustweave.io import load_document
 from trustweave.models import ValidationError, parse_policy
 from trustweave.policy_review import review_policy
 from trustweave.report import render_policy_review_report
+from trustweave.scenarios import parse_scenarios, run_scenarios
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / "policies" / "default-policy.json"
@@ -149,10 +151,12 @@ def test_policy_coverage_reports_redundant_contradictory_and_impossible_rules() 
         "Rule TW-COVER-003 requires declared controls that this policy does not provide and cannot "
         "determine a decision."
     )
-    assert all(
-        finding["subject"] == {"policy": "support-agent-boundary-policy"}
-        for finding in findings_by_id.values()
-    )
+    assert {identifier: finding["subject"] for identifier, finding in findings_by_id.items()} == {
+        "TW-POL-002": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-003"},
+        "TW-POL-003": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-002"},
+        "TW-POL-007": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-002"},
+        "TW-POL-008": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-003"},
+    }
 
 
 def test_policy_rejects_explicit_null_approval_control() -> None:
@@ -226,7 +230,7 @@ def test_policy_review_preserves_exact_missing_and_incomplete_approval_artifacts
         parse_policy(missing_document), generated_at="2026-08-15T00:00:00+00:00"
     )
     assert missing_review == {
-        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "schema_version": "trustweave.dev/policy-review/v1alpha2",
         "generated_at": "2026-08-15T00:00:00+00:00",
         "policy": "support-agent-boundary-policy",
         "approval_control": {
@@ -341,6 +345,8 @@ def test_policy_coverage_does_not_shadow_with_an_impossible_earlier_rule() -> No
         "reachable": True,
         "possible": True,
         "shadowed_by": None,
+        "shadowed_by_rules": [],
+        "cover_search": "complete",
         "decision": "allow",
     }
     assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
@@ -552,3 +558,450 @@ def test_policy_v1alpha2_parser_accepts_values_at_exact_text_boundaries() -> Non
     control["binds_to"] = ["b" * 4_096]
 
     parse_policy(document)
+
+
+def _label_rule(identifier: str, trust: list[str], decision: str) -> dict[str, object]:
+    return {
+        "id": identifier,
+        "description": f"Read rule for {', '.join(trust)}.",
+        "source_trust": trust,
+        "tool_action_classes": ["read"],
+        "decision": decision,
+        "rationale": "Test-only collective-coverage rule.",
+    }
+
+
+def _label_policy(rules: list[dict[str, object]]) -> dict[str, object]:
+    document = _copy_policy_document()
+    document["rules"] = rules
+    return document
+
+
+def test_a_rule_covered_by_several_earlier_rules_together_is_shadowed() -> None:
+    """Three allow rules, one per trust label, then a deny naming all three: it never runs.
+
+    Only a single covering rule was looked for, so this reported reachable, no findings,
+    and a clear review.
+    """
+
+    review = review_policy(
+        parse_policy(
+            _label_policy(
+                [
+                    _label_rule("R-T", ["trusted"], "allow"),
+                    _label_rule("R-C", ["conditional"], "allow"),
+                    _label_rule("R-U", ["untrusted"], "allow"),
+                    _label_rule("R-DENY-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+                ]
+            )
+        ),
+        include_coverage=True,
+    )
+
+    assert review["summary"]["status"] == "review_required"
+    assert [(finding["id"], finding["message"]) for finding in review["findings"]] == [
+        (
+            "TW-POL-002",
+            "Rule R-DENY-ALL is shadowed by earlier rules R-C, R-T, R-U together under "
+            "first-match semantics and cannot determine a decision.",
+        ),
+        (
+            "TW-POL-007",
+            "Rule R-DENY-ALL conflicts with shadowing rules R-C, R-T, R-U: their declared "
+            "decisions differ.",
+        ),
+    ]
+    assert review["coverage"]["rules"]["R-DENY-ALL"] == {
+        "reachable": False,
+        "possible": True,
+        "shadowed_by": None,
+        "shadowed_by_rules": ["R-C", "R-T", "R-U"],
+        "cover_search": "complete",
+        "decision": "deny",
+    }
+    assert review["coverage"]["shadowed_rules"] == ["R-DENY-ALL"]
+    report = render_policy_review_report(review)
+    assert "| `R-DENY-ALL` | False | True | R-C, R-T, R-U |" in report
+
+
+def test_a_rule_collectively_covered_with_the_same_decision_is_redundant() -> None:
+    review = review_policy(
+        parse_policy(
+            _label_policy(
+                [
+                    _label_rule("R-T", ["trusted"], "deny"),
+                    _label_rule("R-CU", ["conditional", "untrusted"], "deny"),
+                    _label_rule("R-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+                ]
+            )
+        ),
+        include_coverage=True,
+    )
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-002", "TW-POL-009"]
+    assert review["findings"][1]["message"] == (
+        "Rule R-ALL is redundant because shadowing rules R-CU, R-T all specify the same decision."
+    )
+
+
+def test_a_rule_only_partly_covered_by_earlier_rules_stays_reachable() -> None:
+    """Two of three labels covered leaves a witness, so no finding and no shadow."""
+
+    review = review_policy(
+        parse_policy(
+            _label_policy(
+                [
+                    _label_rule("R-T", ["trusted"], "allow"),
+                    _label_rule("R-C", ["conditional"], "allow"),
+                    _label_rule("R-DENY-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+                ]
+            )
+        ),
+        include_coverage=True,
+    )
+
+    assert review["findings"] == []
+    assert review["coverage"]["rules"]["R-DENY-ALL"]["reachable"] is True
+    assert review["coverage"]["rules"]["R-DENY-ALL"]["shadowed_by_rules"] == []
+
+
+def test_an_impossible_earlier_rule_does_not_count_towards_a_collective_cover() -> None:
+    rules = [
+        _label_rule("R-T", ["trusted"], "allow"),
+        _label_rule("R-CU", ["conditional", "untrusted"], "allow"),
+        _label_rule("R-ALL", ["trusted", "conditional", "untrusted"], "deny"),
+    ]
+    rules[1]["required_controls"] = ["approval.fail_closed"]
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document.pop("approval_control")
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    assert {finding["id"] for finding in review["findings"]} == {"TW-POL-008"}
+    assert review["coverage"]["rules"]["R-ALL"]["reachable"] is True
+
+
+def test_a_rule_naming_too_many_cells_says_its_cover_was_not_searched() -> None:
+    """Above the enumeration limit the artifact must not read as a reachability verdict.
+
+    The declined branch returned a value byte-identical to "enumerated every cell and found
+    no cover", so a provably dead deny rule was published `reachable: true`,
+    `shadowed_by_rules: []`, `review_findings: 0`, `status: clear`, exit 0.
+    """
+
+    rules = [_label_rule("R-T", ["trusted"], "allow"), _label_rule("R-C", ["conditional"], "allow")]
+    big = _label_rule("R-BIG", ["trusted", "conditional", "untrusted"], "deny")
+    big["source_identifiers"] = [f"source-{index}" for index in range(101)]
+    big["tool_identifiers"] = [f"tool-{index}" for index in range(101)]
+    rules.append(big)
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+
+    review = review_policy(parse_policy(document), include_coverage=True)
+
+    entry = review["coverage"]["rules"]["R-BIG"]
+    assert entry["cover_search"] == "declined"
+    assert entry["reachable"] is True
+    assert entry["shadowed_by_rules"] == []
+    assert review["coverage"]["rules"]["R-C"]["cover_search"] == "complete"
+    assert review["coverage"]["declined_rules"] == ["R-BIG"]
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-010"]
+    assert review["summary"]["status"] == "review_required"
+    report = render_policy_review_report(review)
+    assert "not searched" in report
+    assert "| `R-BIG` | not established | True |" in report
+
+
+def test_a_rule_requiring_undeclared_controls_is_reported_without_the_coverage_flag() -> None:
+    """Plain `policy-check` said `clear` about a policy with a rule that can never match.
+
+    TW-POL-008 was emitted only inside the `include_coverage` guard, and `--coverage` is off
+    by default and absent from the CI default stages, so the second line of defence against
+    an unsatisfiable `required_controls` was suppressed in the common run.
+    """
+
+    rules = [_label_rule("R-IMPOSSIBLE", ["trusted"], "allow")]
+    rules[0]["required_controls"] = ["approval.fail_closed"]
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document.pop("approval_control")
+
+    review = review_policy(parse_policy(document))
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-008"]
+    assert review["findings"][0]["severity"] == "review"
+    assert review["findings"][0]["message"] == (
+        "Rule R-IMPOSSIBLE requires declared controls that this policy does not provide and "
+        "cannot determine a decision."
+    )
+    assert review["summary"]["status"] == "review_required"
+    assert "coverage" not in review
+
+
+def _shadow_demo_policy() -> dict[str, object]:
+    """The audit's reproduction: a broad first rule shadowing three later rules."""
+
+    def rule(identifier: str, trust: list[str], decision: str) -> dict[str, object]:
+        return {
+            "id": identifier,
+            "description": f"Shadow-demo rule {identifier}.",
+            "source_trust": trust,
+            "tool_action_classes": ["read", "external"],
+            "decision": decision,
+            "rationale": "Test-only shadowing fixture.",
+        }
+
+    return {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "shadow-demo",
+        "default_decision": "deny",
+        "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+        "approval_control": {
+            "mechanism": "human-review-queue",
+            "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+            "fail_closed": True,
+        },
+        "rules": [
+            rule("TW-BROAD", ["trusted", "conditional", "untrusted"], "allow"),
+            rule("TW-SHADOW-A", ["trusted"], "deny"),
+            rule("TW-SHADOW-B", ["conditional"], "allow"),
+            rule("TW-SHADOW-C", ["untrusted"], "deny"),
+        ],
+    }
+
+
+def test_every_rule_level_finding_names_the_rule_it_is_about() -> None:
+    """Every finding carried `{"policy": name}`, so one policy was one risk identity per id.
+
+    The risk fingerprint is built from (evidence kind, id, subject) and deliberately
+    excludes the message, which is the only place the rule id used to survive. Rule ids are
+    unique within a policy, so `(policy, rule)` is what tells these findings apart.
+    """
+
+    review = review_policy(
+        parse_policy(_shadow_demo_policy()),
+        generated_at="2026-09-16T00:00:00+00:00",
+        include_coverage=True,
+    )
+
+    assert [(finding["id"], finding["subject"]) for finding in review["findings"]] == [
+        ("TW-POL-003", {"policy": "shadow-demo", "rule": "TW-BROAD"}),
+        ("TW-POL-002", {"policy": "shadow-demo", "rule": "TW-SHADOW-A"}),
+        ("TW-POL-007", {"policy": "shadow-demo", "rule": "TW-SHADOW-A"}),
+        ("TW-POL-002", {"policy": "shadow-demo", "rule": "TW-SHADOW-B"}),
+        ("TW-POL-009", {"policy": "shadow-demo", "rule": "TW-SHADOW-B"}),
+        ("TW-POL-002", {"policy": "shadow-demo", "rule": "TW-SHADOW-C"}),
+        ("TW-POL-007", {"policy": "shadow-demo", "rule": "TW-SHADOW-C"}),
+    ]
+
+
+def test_a_policy_level_finding_keeps_the_policy_as_its_whole_subject() -> None:
+    """Pins the other direction: a finding about the policy itself must not name a rule.
+
+    `TW-POL-001` and `TW-POL-004` through `TW-POL-006` fire at most once per policy, so
+    adding a rule to their subject would invent a distinction that does not exist.
+    """
+
+    document = _shadow_demo_policy()
+    document["default_decision"] = "allow"
+    document.pop("approval_control")
+    rules = document["rules"]
+    assert isinstance(rules, list)
+    rules[0]["decision"] = "require_approval"
+
+    review = review_policy(parse_policy(document), generated_at="2026-09-16T00:00:00+00:00")
+
+    policy_level = {
+        finding["id"]: finding["subject"]
+        for finding in review["findings"]
+        if finding["id"] in {"TW-POL-001", "TW-POL-004"}
+    }
+    assert policy_level == {
+        "TW-POL-001": {"policy": "shadow-demo"},
+        "TW-POL-004": {"policy": "shadow-demo"},
+    }
+
+
+def _published_schema(name: str) -> dict[str, object]:
+    return json.loads((ROOT / "schemas" / name).read_text("utf-8"))
+
+
+def test_the_emitted_coverage_artifact_validates_against_its_own_published_schema() -> None:
+    """The new coverage fields were added to v1alpha1's `required` under an unchanged const.
+
+    `coverage` and `coverage_result` both set `additionalProperties: false`, so the edited
+    schema rejected every artifact 0.3.0 emitted and a consumer pinned to the released 0.3.0
+    schema rejected every new artifact. The new fields live in v1alpha2 instead.
+    """
+
+    review = review_policy(
+        parse_policy(_shadow_demo_policy()),
+        generated_at="2026-09-16T00:00:00+00:00",
+        include_coverage=True,
+    )
+
+    schema = _published_schema("policy-review-v1alpha2.schema.json")
+    assert review["schema_version"] == "trustweave.dev/policy-review/v1alpha2"
+    assert list(Draft202012Validator(schema).iter_errors(review)) == []
+
+
+def test_the_published_v1alpha1_schema_still_accepts_a_v0_3_0_coverage_artifact() -> None:
+    """Pins the other direction: the released contract must keep reading released evidence."""
+
+    released = {
+        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "generated_at": "2026-08-15T00:00:00+00:00",
+        "policy": "support-agent-boundary-policy",
+        "approval_control": {"high_impact_approval_rules": ["TW-002"], "declared": True},
+        "findings": [],
+        "summary": {"rules": 1, "review_findings": 0, "status": "clear"},
+        "limits": ["Local evidence only."],
+        "coverage": {
+            "rules": {
+                "TW-001": {
+                    "reachable": True,
+                    "possible": True,
+                    "shadowed_by": None,
+                    "decision": "allow",
+                }
+            },
+            "shadowed_rules": [],
+            "impossible_rules": [],
+        },
+    }
+
+    schema = _published_schema("policy-review-v1alpha1.schema.json")
+
+    assert list(Draft202012Validator(schema).iter_errors(released)) == []
+
+
+def test_the_cover_enumeration_limit_is_the_exact_boundary_between_searched_and_declined(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """One extra tool identifier used to turn two findings and `review_required` into `clear`.
+
+    The test is `>`, not `>=`, so a rule naming exactly the limit is still enumerated. Both
+    sides are pinned here because the silent flip is what made the cap dangerous: the rule
+    is genuinely unreachable in both runs, and only the declined run stopped saying so.
+    """
+
+    # Three trust labels times four tool identifiers is exactly twelve cells.
+    monkeypatch.setattr(policy_review_module, "MAX_COVERAGE_CELLS", 12)
+
+    def review_with(identifier_count: int) -> dict[str, object]:
+        rules = [
+            _label_rule("R-T", ["trusted"], "allow"),
+            _label_rule("R-C", ["conditional"], "allow"),
+            _label_rule("R-U", ["untrusted"], "allow"),
+        ]
+        for rule in rules:
+            rule["tool_identifiers"] = [f"tool-{index}" for index in range(identifier_count)]
+        big = _label_rule("R-BIG", ["trusted", "conditional", "untrusted"], "deny")
+        big["tool_identifiers"] = [f"tool-{index}" for index in range(identifier_count)]
+        rules.append(big)
+        document = _label_policy(rules)
+        document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+        return review_policy(parse_policy(document), include_coverage=True)
+
+    at_limit = review_with(4)
+    over_limit = review_with(5)
+
+    assert at_limit["coverage"]["rules"]["R-BIG"]["cover_search"] == "complete"
+    assert at_limit["coverage"]["rules"]["R-BIG"]["reachable"] is False
+    assert at_limit["coverage"]["declined_rules"] == []
+    assert {finding["id"] for finding in at_limit["findings"]} == {"TW-POL-002", "TW-POL-007"}
+    assert over_limit["coverage"]["rules"]["R-BIG"]["cover_search"] == "declined"
+    assert over_limit["coverage"]["rules"]["R-BIG"]["reachable"] is True
+    assert over_limit["coverage"]["declined_rules"] == ["R-BIG"]
+    assert [finding["id"] for finding in over_limit["findings"]] == ["TW-POL-010"]
+    assert over_limit["summary"]["status"] == "review_required"
+
+
+def test_a_declined_cover_search_is_reported_without_the_coverage_flag() -> None:
+    """A missing reachability answer is a fact about the policy, not a coverage diagnostic."""
+
+    rules = [_label_rule("R-T", ["trusted"], "allow")]
+    big = _label_rule("R-BIG", ["trusted", "conditional", "untrusted"], "deny")
+    big["source_identifiers"] = [f"source-{index}" for index in range(101)]
+    big["tool_identifiers"] = [f"tool-{index}" for index in range(101)]
+    rules.append(big)
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+
+    review = review_policy(parse_policy(document))
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-010"]
+    assert review["findings"][0]["subject"] == {
+        "policy": "support-agent-boundary-policy",
+        "rule": "R-BIG",
+    }
+    assert review["findings"][0]["message"] == (
+        "Rule R-BIG names more declared combinations than the local cover enumeration limit "
+        "of 10000, so its first-match reachability was not established."
+    )
+    assert "coverage" not in review
+
+
+def test_the_shipped_demo_policy_emits_schema_valid_coverage_and_synthetic_results() -> None:
+    """`policy-check --coverage` and `test` wrote schema-invalid evidence at exit 0.
+
+    The policy-review, test-results and trace-review schemas constrained *policy rule ids*
+    with the *finding* identifier pattern `^TW-[A-Z0-9-]{1,120}$`, while
+    `models.validate_rule_identifier` accepts any bounded ASCII identifier. The shipped
+    `demo/research-assistant` policy names its rules `RA-001`..`RA-004`, so every
+    `coverage.rules` key's `shadowed_by`, `coverage.shadowed_rules`,
+    `coverage.impossible_rules`, `approval_control.high_impact_approval_rules` and
+    `results[].rule_id` violated their own published contract.
+    """
+
+    demo = ROOT / "demo" / "research-assistant"
+    policy = parse_policy(load_document(demo / "policies" / "boundary-policy.json"))
+    scenarios = parse_scenarios(load_document(demo / "scenarios" / "regressions.json"))
+
+    review = review_policy(policy, generated_at="2026-09-16T00:00:00+00:00", include_coverage=True)
+    results = run_scenarios(policy, scenarios, generated_at="2026-09-16T00:00:00+00:00")
+
+    assert review["approval_control"]["high_impact_approval_rules"] == ["RA-002"]
+    assert [result["rule_id"] for result in results["results"]][:1] == ["RA-001"]
+    assert (
+        list(
+            Draft202012Validator(
+                _published_schema("policy-review-v1alpha2.schema.json")
+            ).iter_errors(review)
+        )
+        == []
+    )
+    assert (
+        list(
+            Draft202012Validator(
+                _published_schema("test-results-v1alpha1.schema.json")
+            ).iter_errors(results)
+        )
+        == []
+    )
+
+
+def test_the_finding_identifier_namespace_still_requires_the_tw_prefix() -> None:
+    """Pins the refusal direction: only *policy rule* ids were widened.
+
+    `TW-` is right for the finding namespace, so `finding-v1alpha1.schema.json` keeps it and
+    each review schema keeps the strict pattern on its own `findings[].id`.
+    """
+
+    finding_schema = _published_schema("finding-v1alpha1.schema.json")
+    declared_finding = {
+        "id": "RA-001",
+        "severity": "review",
+        "message": "A declared rule identifier is not a finding identifier.",
+        "evidence_kind": "declared_policy_structure",
+    }
+
+    assert list(Draft202012Validator(finding_schema).iter_errors(declared_finding))
+    for name in (
+        "policy-review-v1alpha2.schema.json",
+        "test-results-v1alpha1.schema.json",
+        "trace-review-v1alpha1.schema.json",
+    ):
+        rule_identifier = _published_schema(name)["$defs"]["rule_identifier"]
+        assert list(Draft202012Validator(rule_identifier).iter_errors("RA-002")) == []

@@ -7,7 +7,7 @@ import pytest
 
 from trustweave.cli import main
 from trustweave.diff import diff_bundles
-from trustweave.engine import build_bundle
+from trustweave.engine import build_bundle, decision_for_scenario
 from trustweave.io import load_document, write_json
 from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.policy_weakening import policy_review_signals
@@ -823,3 +823,355 @@ def test_policy_weakening_classifier_ignores_unchanged_order_of_overlapping_rule
     )
 
     assert signals == []
+
+
+def test_reordering_a_wildcard_deny_below_an_exact_allow_is_a_review_signal() -> None:
+    """`deny net.*` above `allow net.http` denies net.http; swapped, it allows it.
+
+    The overlap helper compared capability patterns as strings, so the two were disjoint
+    and the swap produced an empty signals list. A flow's capabilities are a set matched
+    by any pattern, so no capability constraint can prove two rules apart.
+    """
+
+    deny = _structural_rule("TW-NET-DENY", "deny")
+    deny["tool_capabilities"] = ["net.*"]
+    allow = _structural_rule("TW-NET-HTTP-ALLOW", "allow")
+    allow["tool_capabilities"] = ["net.http"]
+
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [deny, allow], "after": [allow, deny]}]
+    )
+
+    assert [signal["id"] for signal in signals] == ["TW-DIFF-011"]
+    assert signals[0]["subject"]["reordered_rule_ids"] == ["TW-NET-DENY", "TW-NET-HTTP-ALLOW"]
+
+
+def test_reordering_rules_that_differ_only_by_purpose_tag_is_a_review_signal() -> None:
+    """A flow tagged with both purposes matches both rules, so their order matters."""
+
+    first = _structural_rule("TW-PURPOSE-A", "deny")
+    first["purpose_tags"] = ["billing"]
+    second = _structural_rule("TW-PURPOSE-B", "allow")
+    second["purpose_tags"] = ["support"]
+
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [first, second], "after": [second, first]}]
+    )
+
+    assert [signal["id"] for signal in signals] == ["TW-DIFF-011"]
+    assert signals[0]["subject"]["reordered_rule_ids"] == ["TW-PURPOSE-A", "TW-PURPOSE-B"]
+
+
+def test_reordering_rules_with_disjoint_trust_labels_is_still_neutral() -> None:
+    """A single-valued subject field with disjoint values keeps proving two rules apart."""
+
+    first = _structural_rule("TW-TRUST-A", "deny")
+    first["source_trust"] = ["trusted"]
+    second = _structural_rule("TW-TRUST-B", "allow")
+    second["source_trust"] = ["untrusted"]
+
+    signals = policy_review_signals(
+        [{"path": "policy.rules", "before": [first, second], "after": [second, first]}]
+    )
+
+    assert signals == []
+
+
+# ---------------------------------------------------------------------------------------
+# Flows that differ only in their purpose tags (audit E-14a)
+# ---------------------------------------------------------------------------------------
+
+
+def _tagged_manifest(*tag_sets: list[str]) -> dict[str, object]:
+    """Return a manifest whose flows share a source, tool and purpose but not their tags."""
+
+    return {
+        "schema_version": "trustweave.dev/v1alpha1",
+        "name": "audit-tagged-flows",
+        "description": "Two declared paths that differ only in why the data is used.",
+        "sources": [
+            {
+                "name": "crm",
+                "trust": "untrusted",
+                "data_classification": "internal",
+                "description": "Customer records supplied by an untrusted integration.",
+            }
+        ],
+        "tools": [
+            {
+                "name": "reader",
+                "action_class": "read",
+                "capabilities": ["record.read"],
+                "description": "Reads customer records.",
+            }
+        ],
+        "flows": [
+            {"source": "crm", "tool": "reader", "purpose": "lookup", "purpose_tags": tags}
+            for tags in tag_sets
+        ],
+    }
+
+
+def _tagged_policy() -> dict[str, object]:
+    """Return a v1alpha2 policy that decides the two flows apart on their purpose tags."""
+
+    return {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "audit-purpose-tag-policy",
+        "default_decision": "deny",
+        "rules": [
+            {
+                "id": "TW-BILLING-READ",
+                "description": "Billing lookups of customer records are reviewed and allowed.",
+                "source_trust": ["untrusted"],
+                "tool_action_classes": ["read"],
+                "purpose_tags": ["billing"],
+                "decision": "allow",
+                "rationale": "Billing lookups are covered by the reviewed billing boundary.",
+            }
+        ],
+    }
+
+
+def _tagged_bundle(*tag_sets: list[str]) -> dict[str, object]:
+    return build_bundle(parse_manifest(_tagged_manifest(*tag_sets)), parse_policy(_tagged_policy()))
+
+
+def test_two_flows_differing_only_in_purpose_tags_can_be_diffed() -> None:
+    """The diff refused a bundle scan had just written, naming ('crm', 'reader', 'lookup').
+
+    Auditor's probe: scan a manifest with flows
+    {'source':'crm','tool':'reader','purpose':'lookup','purpose_tags':['billing']} and
+    {...'purpose_tags':['marketing']}, then diff the resulting bundle against itself.
+    validate_bundle accepted the bundle (findings are compared as a multiset) while
+    _findings_by_key keyed on (source, tool, purpose) alone and raised
+    "bundle contains duplicate finding for ('crm', 'reader', 'lookup')" at exit 2.
+    """
+
+    bundle = _tagged_bundle(["billing"], ["marketing"])
+
+    assert [
+        (finding["flow"]["purpose_tags"], finding["decision"]) for finding in bundle["findings"]
+    ] == [
+        (["billing"], "allow"),
+        (["marketing"], "deny"),
+    ]
+
+    diff = diff_bundles(bundle, bundle)
+
+    assert diff["summary"]["added_paths"] == 0
+    assert diff["summary"]["removed_paths"] == 0
+    assert diff["summary"]["decision_changes"] == 0
+    assert diff["signals"] == []
+
+
+def test_two_byte_identical_flows_are_still_refused_and_the_message_names_the_flow() -> None:
+    """Pins the refusal direction: only genuinely repeated flows remain a diff error.
+
+    The old message called two distinct findings "duplicate" and printed a bare tuple.
+    Folding purpose tags into the key leaves exactly one collision -- a flow declared
+    twice, byte for byte -- and the message now names the bundle, the finding index and
+    every field of the flow it repeats.
+    """
+
+    bundle = _tagged_bundle(["billing"], ["billing"])
+
+    with pytest.raises(ValidationError) as error:
+        diff_bundles(bundle, bundle)
+
+    assert str(error.value) == (
+        "base bundle findings[1] repeats a declared flow already indexed by this diff: "
+        "source crm, tool reader, purpose lookup, purpose_tags ['billing']"
+    )
+
+
+def test_retagging_a_flow_reads_as_one_removed_and_one_added_declared_path() -> None:
+    """Retagging is an add plus a remove, because the tags are part of the flow identity.
+
+    This is the cost of the fix and it is deliberate: a flow whose purpose tags changed
+    may match a different policy rule, so it is a different declared path, not the same
+    path with a new decision.
+    """
+
+    base = _tagged_bundle(["billing"])
+    head = _tagged_bundle(["marketing"])
+
+    diff = diff_bundles(base, head)
+
+    assert diff["summary"]["added_paths"] == 1
+    assert diff["summary"]["removed_paths"] == 1
+    assert diff["summary"]["decision_changes"] == 0
+    assert diff["changes"]["paths"]["added"][0]["flow"]["purpose_tags"] == ["marketing"]
+    assert diff["changes"]["paths"]["removed"][0]["flow"]["purpose_tags"] == ["billing"]
+
+
+def test_the_published_decision_change_key_stays_three_elements() -> None:
+    """bundle-diff v1alpha3 pins the key to source, tool and purpose; the fix must not widen it."""
+
+    base = _tagged_bundle(["billing"])
+    head_policy = _tagged_policy()
+    rules = head_policy["rules"]
+    assert isinstance(rules, list)
+    rules[0]["decision"] = "require_approval"
+    rules[0]["rationale"] = "Billing lookups now require a human approval."
+    head = build_bundle(parse_manifest(_tagged_manifest(["billing"])), parse_policy(head_policy))
+
+    diff = diff_bundles(base, head)
+
+    changed = diff["changes"]["paths"]["decision_changed"]
+    assert [entry["key"] for entry in changed] == [["crm", "reader", "lookup"]]
+    assert changed[0]["after"]["flow"]["purpose_tags"] == ["billing"]
+
+
+_REQUIRED_CONTROLS_PROBE_MANIFEST: dict[str, object] = {
+    "schema_version": "trustweave.dev/v1alpha1",
+    "name": "required-controls-probe",
+    "description": "One benign declared flow, so only policy deltas produce signals.",
+    "sources": [
+        {
+            "name": "operator",
+            "trust": "trusted",
+            "data_classification": "public",
+            "description": "The authenticated operator.",
+        }
+    ],
+    "tools": [
+        {
+            "name": "reader",
+            "action_class": "read",
+            "capabilities": ["doc.read"],
+            "description": "A read-only tool.",
+        }
+    ],
+    "flows": [{"source": "operator", "tool": "reader", "purpose": "read"}],
+}
+
+
+def _probe_policy_diff(
+    base_policy_document: dict[str, object], head_policy_document: dict[str, object]
+) -> dict[str, object]:
+    """Diff two policies over a manifest whose only flow is benign under both."""
+
+    manifest = parse_manifest(json.loads(json.dumps(_REQUIRED_CONTROLS_PROBE_MANIFEST)))
+    return diff_bundles(
+        build_bundle(manifest, parse_policy(base_policy_document)),
+        build_bundle(manifest, parse_policy(head_policy_document)),
+        generated_at="2026-08-20T00:00:00+00:00",
+    )
+
+
+def _required_controls_probe_policy() -> dict[str, object]:
+    """The auditor's probe: a deny rule in front of a broad allow, and no declared control."""
+
+    return {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "required-controls-probe",
+        "default_decision": "allow",
+        "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+        "rules": [
+            {
+                "id": "TW-DENYEXT",
+                "description": "Deny untrusted input to external actions.",
+                "source_trust": ["untrusted"],
+                "tool_action_classes": ["external"],
+                "decision": "deny",
+                "rationale": "Untrusted text must not leave the declared boundary.",
+            },
+            {
+                "id": "TW-ALLOWEXT",
+                "description": "Every other declared path may act externally.",
+                "source_trust": ["trusted", "conditional", "untrusted"],
+                "tool_action_classes": ["read", "write", "sensitive", "external"],
+                "decision": "allow",
+                "rationale": "Broad allow rule behind the deny rule.",
+            },
+        ],
+    }
+
+
+def test_a_rule_that_gains_a_required_control_the_policy_does_not_declare_is_reported() -> None:
+    """Turning a deny rule off by adding an unsatisfiable control emitted no signal at all.
+
+    `required_controls` is a policy-global satisfiability gate, so naming a control the policy
+    does not declare switches the whole rule off. The probe: `TW-DENYEXT` gains
+    `required_controls: ["approval"]` while the policy declares no approval control, so
+    `decision_for_scenario(policy, "untrusted", "external")` goes from
+    `("deny", "TW-DENYEXT")` to `("allow", "TW-ALLOWEXT")` and `trustweave diff` emitted
+    nothing: no signal, no decision change, exit 0.
+    """
+
+    base = _required_controls_probe_policy()
+    head = json.loads(json.dumps(base))
+    head_rules = head["rules"]
+    assert isinstance(head_rules, list)
+    head_rules[0]["required_controls"] = ["approval"]
+
+    assert decision_for_scenario(parse_policy(base), "untrusted", "external") == (
+        "deny",
+        "TW-DENYEXT",
+    )
+    assert decision_for_scenario(parse_policy(head), "untrusted", "external") == (
+        "allow",
+        "TW-ALLOWEXT",
+    )
+
+    diff = _probe_policy_diff(base, head)
+
+    assert _signal_ids(diff) == {"TW-DIFF-012"}
+    _policy_signal(
+        diff,
+        "TW-DIFF-012",
+        "One or more declared policy rules gained a required control this policy does not "
+        "declare; the rule can no longer match any declared flow and those paths now take a "
+        "later rule or the default decision.",
+        {"rule_ids": ["TW-DENYEXT"]},
+    )
+
+
+def test_a_rule_that_gains_a_required_control_the_policy_declares_is_not_a_weakening() -> None:
+    """Pins the refusal direction that keeps `required_controls` out of the matching fields.
+
+    Adding a control the policy does declare narrows the rule without switching it off, so it
+    must not co-fire. Treating `required_controls` as a symmetric matching predicate instead
+    would report this harmless addition.
+    """
+
+    base = _required_controls_probe_policy()
+    base["approval_control"] = {
+        "mechanism": "human-review-queue",
+        "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+        "fail_closed": True,
+    }
+    head = json.loads(json.dumps(base))
+    head_rules = head["rules"]
+    assert isinstance(head_rules, list)
+    head_rules[0]["required_controls"] = ["approval"]
+
+    diff = _probe_policy_diff(base, head)
+
+    assert _signal_ids(diff) == set()
+    assert diff["summary"]["decision_changes"] == 0
+
+
+def test_removing_the_approval_control_under_a_rule_that_requires_it_stays_one_signal() -> None:
+    """The rule is unchanged, so only the approval-control removal is reported.
+
+    The new signal is directional on the rule's own declaration; a policy-level control
+    removal is already `TW-DIFF-006` and must not be reported twice.
+    """
+
+    base = _required_controls_probe_policy()
+    base["approval_control"] = {
+        "mechanism": "human-review-queue",
+        "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+        "fail_closed": True,
+    }
+    base_rules = base["rules"]
+    assert isinstance(base_rules, list)
+    base_rules[0]["required_controls"] = ["approval"]
+    head = json.loads(json.dumps(base))
+    head.pop("approval_control")
+
+    diff = _probe_policy_diff(base, head)
+
+    assert _signal_ids(diff) == {"TW-DIFF-006"}

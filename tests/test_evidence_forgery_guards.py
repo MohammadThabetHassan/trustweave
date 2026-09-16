@@ -82,23 +82,72 @@ def test_ci_refuses_to_publish_over_a_directory_it_did_not_write(tmp_path: Path)
     staging = tmp_path / "staging"
     staging.mkdir()
 
-    with pytest.raises(InputOutputError, match="did not write"):
+    with pytest.raises(InputOutputError, match="did not produce"):
         _publish_directory(staging, output)
 
     assert (output / "a.txt").read_text(encoding="utf-8") == "important work"
 
 
-def test_ci_still_publishes_over_its_own_previous_artifacts(tmp_path: Path) -> None:
+def test_ci_still_publishes_over_the_artifacts_this_run_reproduces(tmp_path: Path) -> None:
+    """Replacing an artifact this run wrote again is the ordinary case and stays allowed."""
+
     output = tmp_path / "artifacts"
     output.mkdir()
     (output / "agent-security-bundle.json").write_text("{}", encoding="utf-8")
     staging = tmp_path / "staging"
     staging.mkdir()
-    (staging / "report.md").write_text("fresh", encoding="utf-8")
+    (staging / "agent-security-bundle.json").write_text("fresh", encoding="utf-8")
 
     _publish_directory(staging, output)
 
-    assert (output / "report.md").read_text(encoding="utf-8") == "fresh"
+    assert (output / "agent-security-bundle.json").read_text(encoding="utf-8") == "fresh"
+
+
+def test_a_previous_runs_artifact_this_run_does_not_reproduce_stops_the_publish(
+    tmp_path: Path,
+) -> None:
+    """The recognised set was every *_FILE constant, so a stage that never ran still deleted.
+
+    A hand-written report.md in the output directory was destroyed by a run whose stages
+    produced no report, because report.md was a name TrustWeave might have written. The
+    set is now exactly what this run staged, so evidence nothing is about to replace stops
+    the publish instead of disappearing.
+    """
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    (output / "report.md").write_text("MY HAND WRITTEN REPORT", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "chain-review.json").write_text("{}", encoding="utf-8")
+
+    with pytest.raises(InputOutputError, match="did not produce"):
+        _publish_directory(staging, output)
+
+    assert (output / "report.md").read_text(encoding="utf-8") == "MY HAND WRITTEN REPORT"
+
+
+def test_a_hidden_directory_beside_the_artifacts_stops_the_publish(tmp_path: Path) -> None:
+    """Dot entries were skipped wholesale, so a hidden tree was deleted unexamined.
+
+    The audit's probe left `.secrets/key.pem` holding "PRIVATE KEY MATERIAL" beside the
+    artifacts; `ci` published at exit 0 and the directory was gone afterwards, with no
+    backup left behind. Only hidden *files* are exempt now.
+    """
+
+    output = tmp_path / "artifacts"
+    output.mkdir()
+    secrets = output / ".secrets"
+    secrets.mkdir()
+    (secrets / "key.pem").write_text("PRIVATE KEY MATERIAL", encoding="utf-8")
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    (staging / "chain-review.json").write_text("{}", encoding="utf-8")
+
+    with pytest.raises(InputOutputError, match=r"\.secrets"):
+        _publish_directory(staging, output)
+
+    assert (secrets / "key.pem").read_text(encoding="utf-8") == "PRIVATE KEY MATERIAL"
 
 
 def test_the_publish_refusal_counts_and_names_the_entries_it_found(tmp_path: Path) -> None:
@@ -159,16 +208,6 @@ def test_publication_into_a_missing_directory_is_allowed(tmp_path: Path) -> None
     assert (tmp_path / "absent" / "report.md").exists()
 
 
-def test_the_artifact_allow_list_covers_both_shared_and_ci_owned_names() -> None:
-    from trustweave.commands.ci import _known_artifact_names
-
-    known = _known_artifact_names()
-
-    assert "agent-security-bundle.json" in known
-    assert "ci-summary.json" in known
-    assert "code-discovery.json" in known
-
-
 def test_exactly_five_unrelated_entries_are_listed_without_a_more_suffix(
     tmp_path: Path,
 ) -> None:
@@ -203,22 +242,10 @@ def test_the_publish_refusal_message_is_exact(tmp_path: Path) -> None:
         _publish_directory(staging, output)
 
     assert str(raised.value) == (
-        f"Refusing to publish CI artifacts into {output}: it holds 2 entries TrustWeave "
-        "did not write (alpha.txt, beta.txt). Point output_dir at a dedicated directory, "
-        "or empty this one first."
+        f"Refusing to publish CI artifacts into {output}: it holds 2 entries this run "
+        "did not produce (alpha.txt, beta.txt). Point output_dir at a dedicated "
+        "directory, or empty this one first."
     )
-
-
-def test_the_artifact_allow_list_holds_only_filenames(tmp_path: Path) -> None:
-    """Every entry is a *_FILE constant; schema versions and other strings stay out."""
-
-    from trustweave.commands.ci import CI_SUMMARY_SCHEMA_VERSION, _known_artifact_names
-
-    known = _known_artifact_names()
-
-    assert CI_SUMMARY_SCHEMA_VERSION not in known
-    assert all("/" not in name for name in known)
-    assert all(name.count(".") == 1 for name in known)
 
 
 def test_at_most_five_entries_are_listed_and_the_rest_are_counted(tmp_path: Path) -> None:
@@ -235,8 +262,8 @@ def test_at_most_five_entries_are_listed_and_the_rest_are_counted(tmp_path: Path
         _publish_directory(staging, output)
 
     assert str(raised.value) == (
-        f"Refusing to publish CI artifacts into {output}: it holds 6 entries TrustWeave "
-        "did not write (a.txt, b.txt, c.txt, d.txt, e.txt and 1 more). Point output_dir "
+        f"Refusing to publish CI artifacts into {output}: it holds 6 entries this run "
+        "did not produce (a.txt, b.txt, c.txt, d.txt, e.txt and 1 more). Point output_dir "
         "at a dedicated directory, or empty this one first."
     )
 
@@ -273,7 +300,138 @@ def test_publication_still_refuses_content_this_run_did_not_stage(tmp_path: Path
     staging.mkdir()
     (staging / "report.md").write_text("fresh", encoding="utf-8")
 
-    with pytest.raises(InputOutputError, match="did not write"):
+    with pytest.raises(InputOutputError, match="did not produce"):
         _publish_directory(staging, output)
 
     assert (output / "handover.md").read_text(encoding="utf-8") == "real work"
+
+
+def _forge_test_results(output: Path, *, flip_a_result: bool) -> str:
+    """Rewrite a genuine failing run as a passing one, the way the audit's probe did."""
+
+    path = output / "security-test-results.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    forged = ""
+    if flip_a_result:
+        for result in document["results"]:
+            if result["status"] == "failed":
+                forged = result["id"]
+                result["observed_decision"] = result["expected_decision"]
+                result["status"] = "passed"
+    total = len(document["results"])
+    document["summary"] = {"total": total, "passed": total, "failed": 0, "status": "passed"}
+    path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return forged
+
+
+def _failing_evidence(output: Path, tmp_path: Path) -> None:
+    """Produce a real failing run: one scenario asserts a decision the policy does not make."""
+
+    scenarios = json.loads(SCENARIOS.read_text(encoding="utf-8"))
+    for scenario in scenarios["scenarios"]:
+        if scenario["expected_decision"] == "deny":
+            scenario["expected_decision"] = "allow"
+            break
+    weakened = tmp_path / "weakened-scenarios.json"
+    weakened.write_text(json.dumps(scenarios), encoding="utf-8")
+    assert (
+        main(
+            [
+                "scan",
+                "--manifest",
+                str(MANIFEST),
+                "--policy",
+                str(POLICY),
+                "--output-dir",
+                str(output),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "test",
+                "--policy",
+                str(POLICY),
+                "--scenarios",
+                str(weakened),
+                "--output-dir",
+                str(output),
+            ]
+        )
+        == 1
+    )
+
+
+def test_a_failing_run_edited_to_passed_is_refused_and_the_result_is_named(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """attest used to sign this file verbatim, and verify and report then called it passed.
+
+    The audit took a genuine failing run, rewrote the summary to
+    {"failed": 0, "passed": 5, "status": "passed"} and flipped the failing result's status
+    and observed_decision, and attest exited 0. validate_bundle one line above already
+    re-derived the bundle's findings for exactly this reason; the attestation's second
+    subject was simply read and hashed.
+    """
+
+    output = tmp_path / "artifacts"
+    _failing_evidence(output, tmp_path)
+    forged = _forge_test_results(output, flip_a_result=True)
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+
+    message = capsys.readouterr().err
+    assert forged in message
+    assert "the bundle's policy decides" in message
+    assert not (output / "attestation.json").exists()
+
+
+def test_a_summary_edited_to_passed_over_honest_results_is_refused(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The cheaper half of the same forgery: leave the results alone, rewrite the arithmetic."""
+
+    output = tmp_path / "artifacts"
+    _failing_evidence(output, tmp_path)
+    _forge_test_results(output, flip_a_result=False)
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+    assert "summary.passed records" in capsys.readouterr().err
+
+
+def test_a_test_results_file_replaced_with_arbitrary_json_is_refused(tmp_path: Path) -> None:
+    """Nothing in the package read this document at all: {"hello": "world"} attested at 0."""
+
+    output = tmp_path / "artifacts"
+    _evidence(output)
+    (output / "security-test-results.json").write_text('{"hello": "world"}', encoding="utf-8")
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+
+
+def test_a_test_results_file_naming_a_different_policy_is_refused(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A results file produced against another policy is stale evidence, not this run's."""
+
+    output = tmp_path / "artifacts"
+    _evidence(output)
+    path = output / "security-test-results.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document["policy"] = "some-other-policy"
+    path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+    assert "does not name the policy the bundle carries" in capsys.readouterr().err
+
+
+def test_an_honest_passing_run_still_attests(tmp_path: Path) -> None:
+    """Pins the refusal direction: re-derivation must not refuse the evidence it describes."""
+
+    output = tmp_path / "artifacts"
+    _evidence(output)
+
+    assert main(["attest", "--output-dir", str(output)]) == 0
+    assert (output / "attestation.json").is_file()

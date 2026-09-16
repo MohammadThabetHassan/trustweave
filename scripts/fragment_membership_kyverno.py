@@ -89,6 +89,26 @@ RESOURCE_VARIABLE_FUNCTIONS = frozenset(
         "max",
         "min",
         "regex_match",
+        # String filters Kyverno adds beside the JMESPath standard set. Each is a total
+        # function of the strings it is handed; `random` is deliberately absent.
+        "regex_replace_all",
+        "regex_replace_all_literal",
+        "replace",
+        "replace_all",
+        "to_upper",
+        "to_lower",
+        "trim",
+        "trim_prefix",
+        "base64_decode",
+        "base64_encode",
+        "equal_fold",
+        "compare",
+        "lookup",
+        "path_canonicalize",
+        "to_boolean",
+        "object_from_lists",
+        "image_normalize",
+        "x509_decode",
         "pattern_match",
         "label_match",
         "items",
@@ -203,23 +223,47 @@ def discover(root: Path) -> list[tuple[str, Path]]:
 
     This corpus ships most policies three times -- a classic ClusterPolicy, a `-cel`
     variant and a `-vpol` ValidatingPolicy -- so a policy name alone does not identify a
-    file. 38 of the 49 policies the mutation experiment scored exist at more than one path.
-    Walking `*.yaml` and keying on the file stem picked whichever sorted first, which
-    joined a verdict about one file to a mutation score for another.
+    file. Walking `*.yaml` and keying on the file stem picked whichever sorted first, which
+    joined a verdict about one file to a mutation score for another; keying test directories
+    by their name and keeping the last in sorted order, as the experiment once did, joined
+    a verdict about the variant to a score for the same variant, but under a name the base
+    policy also carries.
 
-    The experiment keys test directories by the policy directory's name, keeping the last
-    in sorted order, and reads the policy paths out of the test manifest. Repeating that
-    here is what makes the join sound.
+    The experiment now keys policies by the name their test manifests state, measures the
+    first manifest in path order that names each -- the base directory, since a suffixed
+    sibling sorts after it -- and records the rest as candidates. This walks the same
+    function, so a membership verdict and a mutation score describe the same file, and the
+    wide corpus is the set of policies the corpus's own manifests name.
     """
 
-    directories = {
-        path.parent.parent.name: path.parent for path in sorted(root.rglob("kyverno-test.yaml"))
-    }
     found: list[tuple[str, Path]] = []
-    for name in sorted(directories):
-        for policy in _referenced_policies(directories[name]):
+    for name, candidates in sorted(_policy_manifests(root).items()):
+        for policy in _referenced_policies(candidates[0]):
             found.append((name, policy))
     return found
+
+
+def _policy_manifests(root: Path) -> dict[str, list[Path]]:
+    """`kyverno_mutation.policy_manifests`, loaded from beside this file.
+
+    Imported lazily so that classifying a policy text never needs the mutation harness or
+    its dependencies; only discovery over a corpus does.
+    """
+
+    import importlib.util
+    import sys
+
+    module_path = Path(__file__).resolve().parent / "kyverno_mutation.py"
+    loaded = sys.modules.get("kyverno_mutation")
+    if loaded is None:
+        specification = importlib.util.spec_from_file_location("kyverno_mutation", module_path)
+        if specification is None or specification.loader is None:  # pragma: no cover
+            raise RuntimeError(f"cannot load {module_path}")
+        loaded = importlib.util.module_from_spec(specification)
+        sys.modules["kyverno_mutation"] = loaded
+        specification.loader.exec_module(loaded)
+    manifests: dict[str, list[Path]] = loaded.policy_manifests(root)
+    return manifests
 
 
 # Kyverno numbers the foreach cursor by nesting depth, so a rule iterating a list inside a
@@ -276,7 +320,10 @@ def _context_bindings(text: str) -> tuple[set[str], set[str]]:
 def _variable_roots(text: str) -> set[str]:
     roots: set[str] = set()
     for expression in VARIABLE.findall(text):
-        token = re.split(r"[.\[(\s|]", expression.strip(), maxsplit=1)[0]
+        # A parenthesised expression -- `(request.object.spec.rules[].host || `[]`) | sort(@)`
+        # -- opens with the bracket, and splitting on it first produced an empty root that
+        # nothing recognised, which left a policy reading only the request undetermined.
+        token = re.split(r"[.\[(\s|]", expression.strip().lstrip("( "), maxsplit=1)[0]
         roots.add(token)
     return roots
 
@@ -347,6 +394,47 @@ def _namespace_selectors(text: str) -> list[str]:
     return sorted(set(found))
 
 
+def _rbac_selectors(text: str) -> list[str]:
+    """Match and exclude clauses that select on the requester's role bindings.
+
+    These fail the same test `namespaceSelector` fails, and for the same reason. The
+    AdmissionReview carries `userInfo`; it does not carry the requester's roles. Kyverno's
+    webhook fills `request.Roles` and `request.ClusterRoles` in for itself by listing
+    RoleBindings and ClusterRoleBindings from the cluster, so a guard behind one of these
+    turns on cluster state the admission request does not determine. The adapter had a branch
+    for `namespaceSelector` and none for these, and three vendor policies gating on
+    `clusterRoles` -- each shipped with `background: false`, Kyverno's own signal for a
+    userInfo-dependent policy -- carried the affirmative reason that every guard reads the
+    admission request and literals in the policy.
+
+    `subjects` is deliberately not included: it is matched against the AdmissionReview's own
+    userInfo, so it really is request-determined.
+    """
+
+    def keys_of(node: Any) -> set[str]:
+        if isinstance(node, dict):
+            return set(node) | {key for value in node.values() for key in keys_of(value)}
+        if isinstance(node, list):
+            return {key for value in node for key in keys_of(value)}
+        return set()
+
+    found: list[str] = []
+    for document in _documents(text):
+        specification = document.get("spec")
+        if not isinstance(specification, dict):
+            continue
+        for rule in (specification.get("rules") or []) + [specification]:
+            if not isinstance(rule, dict):
+                continue
+            for clause_name in ("match", "exclude", "matchConstraints"):
+                clause = rule.get(clause_name)
+                if not isinstance(clause, dict):
+                    continue
+                for selector in sorted({"roles", "clusterRoles"} & keys_of(clause)):
+                    found.append(f"{clause_name}.{selector}")
+    return sorted(set(found))
+
+
 def classify(text: str) -> Verdict:
     detail: dict[str, object] = {}
 
@@ -395,6 +483,14 @@ def classify(text: str) -> Verdict:
             OUTSIDE,
             "selects on Namespace labels, which the admission request does not carry",
             {"namespace_selectors": selectors},
+        )
+
+    rbac = _rbac_selectors(text)
+    if rbac:
+        return Verdict(
+            OUTSIDE,
+            "selects on the requester's role bindings, which the admission request does not carry",
+            {"rbac_selectors": rbac},
         )
 
     roots = _variable_roots(text)

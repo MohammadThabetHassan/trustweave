@@ -13,7 +13,7 @@ trustweave --generated-at 2026-08-13T00:00:00+00:00 risk-check \
 
 ## Stable identity and state
 
-Every supported local finding receives a `trustweave/fingerprint/v3` value. The fingerprint is a SHA-256 identity over evidence kind, review identifier, and normalized stable subject. Message wording, review severity, timestamps, artifact paths, temporary directories, and output locations do not change the fingerprint; severity remains a separate reviewer-visible property.
+Every supported local finding receives a `trustweave/fingerprint/v4` value. The fingerprint is a SHA-256 identity over evidence kind, review identifier, and normalized stable subject. Message wording, review severity, timestamps, artifact paths, temporary directories, and output locations do not change the fingerprint; severity remains a separate reviewer-visible property.
 
 | State | Meaning | Active for a severity gate |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ Every supported local finding receives a `trustweave/fingerprint/v3` value. The 
 | `expired_baseline` | A matching baseline has reached expiry | Yes |
 | `expired_suppression` | A matching suppression has reached expiry | Yes |
 
-A baseline is a temporary, reviewer-visible acceptance of a known local finding. A suppression is a temporary record that a specific finding is inapplicable to the supplied evidence. Current `v1alpha2` documents bind the `trustweave/fingerprint/v3` fingerprint to the rule identifier and a digest of the stable subject, record the maximum `accepted_severity`, non-empty reason and owner, creation provenance, and an ISO 8601 expiry with a UTC offset. A decision applies only when the observed finding is no more severe than its accepted severity; an escalation remains active. Legacy `v1alpha1` decision documents are rejected for explicit migration rather than being silently reinterpreted. Neither record proves remediation, identity, authorization, or production security.
+A baseline is a temporary, reviewer-visible acceptance of a known local finding. A suppression is a temporary record that a specific finding is inapplicable to the supplied evidence. Current `v1alpha2` documents bind the `trustweave/fingerprint/v4` fingerprint to the rule identifier and a digest of the stable subject, record the maximum `accepted_severity`, non-empty reason and owner, creation provenance, and an ISO 8601 expiry with a UTC offset. A decision applies only when the observed finding is no more severe than its accepted severity; an escalation remains active. Legacy `v1alpha1` decision documents are rejected for explicit migration rather than being silently reinterpreted. Neither record proves remediation, identity, authorization, or production security.
 
 ## Reviewer workflow
 

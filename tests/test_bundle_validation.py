@@ -487,3 +487,146 @@ def test_cli_scan_and_self_diff_accept_policy_without_approval_control(tmp_path:
     )
     emitted = json.loads((diff_dir / "bundle-diff.json").read_text(encoding="utf-8"))
     assert emitted["summary"]["policy_changes"] == 0
+
+
+# ---------------------------------------------------------------------------------------
+# Scan round-trips its own output (audit E-14b)
+# ---------------------------------------------------------------------------------------
+
+
+def _v1alpha1_policy_outside_the_taxonomy() -> dict[str, object]:
+    """Return the shipped v1alpha1 policy with a classification the taxonomy does not hold.
+
+    `policy-check` accepts this document, because v1alpha1 has no
+    `classification_taxonomy` field to check the value against. `build_bundle` then
+    renders the normalized v1alpha2 shape of the same policy, which does.
+    """
+
+    policy = json.loads(json.dumps(load_document(POLICY)))
+    rules = policy["rules"]
+    assert isinstance(rules, list)
+    rules.insert(
+        0,
+        {
+            "id": "TW-AUDIT-OUTSIDE-TAXONOMY",
+            "description": "A classification label the default taxonomy does not declare.",
+            "source_trust": ["untrusted"],
+            "tool_action_classes": ["external"],
+            "source_data_classifications": ["not-in-taxonomy"],
+            "decision": "deny",
+            "rationale": "This local test rule names a classification outside the taxonomy.",
+        },
+    )
+    return policy
+
+
+_OUTSIDE_TAXONOMY_MESSAGE = (
+    "Validation error: policy.rules[0].source_data_classifications must be in "
+    "policy.classification_taxonomy"
+)
+
+
+def test_scan_refuses_the_bundle_attest_would_refuse_with_the_same_message(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Scan wrote a bundle attest then rejected at exit 2, two commands after the mistake.
+
+    Auditor's probe: take `policies/default-policy.json` (v1alpha1) and insert one rule
+    with "source_data_classifications": ["not-in-taxonomy"]. `policy-check` exits 0,
+    `scan` exited 0 and wrote agent-security-bundle.json, and `attest` on that same
+    directory exited 2 naming policy.classification_taxonomy -- a field the v1alpha1
+    contract the user authored against does not have.
+    """
+
+    policy_path = tmp_path / "policy.json"
+    policy_path.write_text(json.dumps(_v1alpha1_policy_outside_the_taxonomy()), encoding="utf-8")
+    review_dir = tmp_path / "review"
+    scan_dir = tmp_path / "scan"
+
+    assert (
+        main(["policy-check", "--policy", str(policy_path), "--output-dir", str(review_dir)]) == 0
+    )
+    capsys.readouterr()
+
+    assert (
+        main(
+            [
+                "scan",
+                "--manifest",
+                str(MANIFEST),
+                "--policy",
+                str(policy_path),
+                "--output-dir",
+                str(scan_dir),
+            ]
+        )
+        == 2
+    )
+
+    assert capsys.readouterr().err.strip() == _OUTSIDE_TAXONOMY_MESSAGE
+    assert not (scan_dir / "agent-security-bundle.json").exists()
+
+
+def test_scan_still_accepts_an_unmodified_v1alpha1_policy(tmp_path: Path) -> None:
+    """Pins the refusal direction: the round-trip must not reject the shipped policy."""
+
+    scan_dir = tmp_path / "scan"
+
+    assert (
+        main(
+            [
+                "scan",
+                "--manifest",
+                str(MANIFEST),
+                "--policy",
+                str(POLICY),
+                "--output-dir",
+                str(scan_dir),
+            ]
+        )
+        == 0
+    )
+
+    written = json.loads((scan_dir / "agent-security-bundle.json").read_text(encoding="utf-8"))
+    assert written["policy"]["schema_version"] == "trustweave.dev/v1alpha1"
+    validate_bundle(written)
+
+
+def test_the_ci_scan_stage_refuses_the_same_bundle_and_publishes_nothing(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A staged run wrote the same unusable bundle, which its own attest stage then refused."""
+
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(MANIFEST.read_text(encoding="utf-8"), encoding="utf-8")
+    policy_path = tmp_path / "policy.json"
+    policy_path.write_text(json.dumps(_v1alpha1_policy_outside_the_taxonomy()), encoding="utf-8")
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'manifest = "{manifest_path.name}"\n'
+        f'policy = "{policy_path.name}"\n'
+        f'output_dir = "{output_dir.name}"\n'
+        'enabled_stages = ["scan", "summary"]\n'
+        'failure_threshold = "none"\n'
+        "reproducible = true\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "--generated-at",
+                "2026-08-17T00:00:00+00:00",
+                "ci",
+                "--config",
+                str(config),
+                "--quiet",
+            ]
+        )
+        == 2
+    )
+
+    assert capsys.readouterr().err.strip() == _OUTSIDE_TAXONOMY_MESSAGE
+    assert not output_dir.exists()

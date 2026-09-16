@@ -17,31 +17,40 @@
     "missing_required_bindings": []
   },
   "coverage": {
+    "declined_rules": [],
     "impossible_rules": [],
     "rules": {
       "TW-001": {
+        "cover_search": "complete",
         "decision": "allow",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       },
       "TW-002": {
+        "cover_search": "complete",
         "decision": "require_approval",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       },
       "TW-003": {
+        "cover_search": "complete",
         "decision": "deny",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       },
       "TW-004": {
+        "cover_search": "complete",
         "decision": "deny",
         "possible": true,
         "reachable": true,
-        "shadowed_by": null
+        "shadowed_by": null,
+        "shadowed_by_rules": []
       }
     },
     "shadowed_rules": []
@@ -53,7 +62,7 @@
     "Findings indicate review obligations rather than vulnerabilities, compliance conclusions, or automatic approval decisions."
   ],
   "policy": "support-agent-boundary-policy",
-  "schema_version": "trustweave.dev/policy-review/v1alpha1",
+  "schema_version": "trustweave.dev/policy-review/v1alpha2",
   "summary": {
     "review_findings": 0,
     "rules": 4,

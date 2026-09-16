@@ -1,8 +1,7 @@
 # Reproducing the study's measurements
 
 This is about the **research measurements** — how much published policy lies inside the
-decidable fragment, what exhaustive coverage costs, and the checks behind those numbers. For
-the separate question of whether the *tool* produces byte-identical output from the same
+decidable fragment and the checks behind those numbers. For the separate question of whether the *tool* produces byte-identical output from the same
 inputs, see the [reproducibility and integrity contract](REPRODUCIBILITY.md).
 
 Every measured figure in this project comes from a script in `scripts/` and is recorded in an
@@ -84,13 +83,27 @@ python scripts/fragment_membership.py azure /tmp/corpora/fragment-membership-azu
 
 # the pooled taxonomy, computed from the membership artifacts
 python scripts/exclusion_taxonomy.py --json docs/exclusion-taxonomy-v1.json
-
-# what exhaustive coverage costs on deployed cloud policy
-python scripts/coverage_cost.py \
-  --azure /tmp/corpora/fragment-membership-azure-wide-v1/azure-policy \
-  --iam /tmp/corpora/fragment-membership-iam-wide-v1 \
-  --json docs/coverage-cost-v1.json
 ```
+
+Cedar has a second artifact and it is deliberately not the Cedar row:
+
+```bash
+# the 7,497 .cedar policies sealed inside the corpus's own corpus-tests.tar.gz
+python scripts/fragment_membership.py cedar /tmp/corpora/cedar-integration-tests \
+  --archive --json docs/fragment-membership-cedar-archive-v1.json
+```
+
+That archive is the output of a coverage-guided fuzz run, so folding it into the Cedar row
+would make machine-generated input more than half of the whole cross-language corpus.
+`--wide` still walks the 22 tracked files that the published row measures; the archive is
+measured, labelled and reported separately so that the exclusion is a decision on the record
+rather than a `getattr` fallback nobody made.
+
+`docs/coverage-cost-v1.json` is deliberately absent from that list. Its distribution is
+withdrawn — the grouping rule behind it under-counted set-membership guards — and the artifact
+carries an `invalidated` block saying so. `scripts/coverage_cost.py` refuses to overwrite it
+without `--replace-invalidated`, so a re-run of this page cannot quietly turn a retraction back
+into a measurement.
 
 ### 4. Re-run the checks that hold the instruments to something other than themselves
 
@@ -102,12 +115,17 @@ python scripts/oracle_rego.py /tmp/corpora/fragment-membership-rego-gcp-v1 \
 # the decision map the theory is stated over, against the evaluator that ships
 python scripts/interpreter_oracle.py --json docs/interpreter-oracle-v1.json
 
-# the witness construction against an SMT solver
+# the Kyverno membership adapter against the engine that runs the policies: every suite as
+# shipped, under injected namespace labels, and with its external stubs removed
+python scripts/oracle_kyverno.py corpora/kyverno --json docs/oracle-kyverno-v1.json
+
+# the witness construction against an SMT solver, and against the closed-form criterion
 python scripts/verify_witness_space.py --json docs/witness-space-verification-v1.json
 ```
 
 `interpreter_oracle.py` is seeded and should reproduce its recorded counts exactly.
-`oracle_rego.py` needs `opa` on `PATH`.
+`oracle_rego.py` needs `opa` on `PATH`; `oracle_kyverno.py` needs `kyverno` on `PATH` and
+the corpus checkout `docs/fragment-membership-kyverno-wide-v1.json` records.
 
 ### 5. The whole gate
 
@@ -121,10 +139,13 @@ python scripts/mutation_gate.py --help   # the survivor gate CI gives its own jo
 ## What this repository cannot check
 
 - **The manuscript**, unless you point `TRUSTWEAVE_PAPER` at it.
-- **Five of the six membership adapters have no external oracle.** Only Rego's is checked
-  against an engine, because `opa deps` answers the question the adapter asks. Kyverno and
-  Cedar ship command-line evaluators that could support a behavioural check; that is future
-  work, not an impossibility, and the write-up says so.
+- **Four of the six membership adapters have no external oracle.** Rego's is checked
+  against the engine's own dependency analysis, because `opa deps` answers the question the
+  adapter asks; Kyverno's is checked behaviourally, by running every measured policy's suite
+  under the Kyverno CLI as shipped, under injected cluster state, and with the stubs its
+  authors supplied removed (`docs/oracle-kyverno-v1.json`). Cedar ships a command-line
+  evaluator that could support the same check; that is future work, not an impossibility,
+  and the write-up says so.
 - **The third-party Kyverno corpus decays.** Its 49 files were sha256-verified when
   collected; re-fetching them later found 18 no longer available, from repositories renamed,
   deleted, or rewritten. `docs/third-party-kyverno-revalidation-v1.json` records that, and

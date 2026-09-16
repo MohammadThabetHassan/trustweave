@@ -1,0 +1,4266 @@
+{
+  "agreements": 230,
+  "by_status_and_verdict": {
+    "inside/agree": 206,
+    "outside/agree": 24,
+    "outside/not judged": 7
+  },
+  "corpus": [
+    {
+      "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4",
+      "files_present": 6272,
+      "name": "kyverno",
+      "remote": "https://github.com/kyverno/policies.git",
+      "tracked_files": 6272
+    }
+  ],
+  "detail": [
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-ambient-mode-namespace",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-apparmor-annotations",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-capabilities",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-castai-removal-disabled",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-certificates-volume",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-default-resources",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-default-securitycontext",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-env-vars-from-cm",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-external-secret-prefix",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-image-as-env-var",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-imagepullsecrets",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-imagepullsecrets-for-containers-and-initcontainers",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-karpenter-daemonset-priority-class",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-karpenter-donot-evict",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-labels",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-ndots",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-networkpolicy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-node-affinity",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-nodeselector",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-ns-quota",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "selects on Namespace labels, which the admission request does not carry",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": true,
+      "status": "not judged",
+      "subject": "add-pod-priorityclassname",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "namespace labels (namespaceSelector)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "the suite stubs external data but never reaches the guard reading it"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-pod-proxies",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-psa-labels",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-psa-namespace-reporting",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-runtimeclassname",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-safe-to-evict",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-tolerations",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-ttl-jobs",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "add-volume",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 108
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "adding-capabilities-strict",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 108,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "advanced-restrict-image-registries",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "clusterregistries.data.registries (declared-context)",
+          "nsregistries (declared-context)"
+        ],
+        "request_fields": [
+          "request.namespace"
+        ]
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "advanced-restrict-image-registries|validate-corp-registries|v1/Pod/default/bad-pod",
+        "advanced-restrict-image-registries|validate-corp-registries|v1/Pod/default/good-pod"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "allowed-annotations",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a CEL expression reads something outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 9
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "allowed-base-images",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "context file (context.yaml)"
+        ],
+        "request_fields": []
+      },
+      "tests": 9,
+      "tests_changed_by_removal": [
+        "allowed-base-images||apps/v1/Deployment/default/baddeployment01",
+        "allowed-base-images||apps/v1/Deployment/default/gooddeployment01",
+        "allowed-base-images||batch/v1/CronJob/default/badcronjob01",
+        "allowed-base-images||batch/v1/CronJob/default/goodcronjob01",
+        "allowed-base-images||v1/Pod/default/badpod01",
+        "allowed-base-images||v1/Pod/default/badpod02",
+        "allowed-base-images||v1/Pod/default/badpod03",
+        "allowed-base-images||v1/Pod/default/goodpod01",
+        "allowed-base-images||v1/Pod/default/goodpod02"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 15
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "allowed-image-repos",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 15,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "allowed-label-changes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "not judged",
+      "subject": "allowed-podpriorities",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "the suite stubs nothing the engine could be denied"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "always-pull-images",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "application-field-validation",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "application-prevent-default-project",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "applicationset-name-matches-project",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "apply-pss-restricted-profile",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "appproject-clusterresourceblacklist",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "selects on Namespace labels, which the admission request does not carry",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": true,
+      "status": "not judged",
+      "subject": "backup-all-volumes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "namespace labels (namespaceSelector)"
+        ],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "the suite stubs external data but never reaches the guard reading it"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "block-ephemeral-containers",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "block-images-with-volumes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "imageData.configData.config.Volumes (implicit-external)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "block-images-with-volumes|block-images-with-vols|v1/Pod/default/image-vol"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "block-large-images",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "imageSize (undeclared)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "block-large-images|block-over-twogi|v1/Pod/default/large-image"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "block-stale-images",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "imageData.configData.created (implicit-external)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "block-stale-images|block-stale-images|v1/Pod/default/redis"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "block-tekton-task-runs",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "selects on the requester's role bindings, which the admission request does not carry",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "not judged",
+      "subject": "block-updates-deletes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "the suite stubs nothing the engine could be denied"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "block-velero-restore",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "cert-manager-limit-dnsnames",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "cert-manager-limit-duration",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "cert-manager-restrict-issuer",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "change-dns-config-policy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "dictionary.data.ClusterConfiguration (declared-context)"
+        ],
+        "request_fields": [
+          "request.namespace"
+        ]
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "suite did not run"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-deprecated-apis",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-env-vars",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 99
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-fsgroup",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 99,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a CEL expression reads something outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "check-hpa-exists",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "context file (context.yaml)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "check-hpa-exists||apps/v1/Deployment/default/deployment-uses-hpa",
+        "check-hpa-exists||apps/v1/Deployment/default/deployment-without-hpa"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-ingress-nginx-controller-version-and-annotation-policy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": true,
+      "status": "not judged",
+      "subject": "check-nvidia-gpus",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "imageData.configData.config.Env (implicit-external)"
+        ],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "the suite stubs external data but never reaches the guard reading it"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-routes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-sa",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-serviceaccount-secrets",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 99
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "check-supplementalgroups",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 99,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "create-default-pdb",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "deny-commands-in-exec-probe",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "selects on the requester's role bindings, which the admission request does not carry",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "not judged",
+      "subject": "deny-privileged-profile",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "the suite stubs nothing the engine could be denied"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "deny-secret-service-account-token-type",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "deployment-has-multiple-replicas",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disable-automountserviceaccounttoken",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 36
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-capabilities",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 36,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 108
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-capabilities-strict",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 108,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-container-sock-mounts",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-default-namespace",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "selects on the requester's role bindings, which the admission request does not carry",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "not judged",
+      "subject": "disallow-default-tlsoptions",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "the suite stubs nothing the engine could be denied"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-deprecated-apis",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-empty-ingress-host",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-helm-tiller",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 27
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-host-namespaces",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 27,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 12
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-host-path",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 12,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 60
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-host-ports",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 60,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 63
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-host-ports-range",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 63,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 33
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-host-process",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 33,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-ingress-nginx-custom-snippets",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-jenkins-pipeline-strategy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 10
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-latest-tag",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 10,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 33
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-privilege-escalation",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 33,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 33
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-privileged-containers",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 33,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 33
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-proc-mount",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 33,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 10
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-security-context-constraint-anyuid",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 10,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-self-provisioner-binding",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 147
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "disallow-selinux",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 147,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "docker-socket-check",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "drop-all-capabilities",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "drop-cap-net-raw",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enable-kubecost-continuous-rightsizing",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enforce-ambient-mode-namespace",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enforce-etcd-encryption",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enforce-min-tls-version",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enforce-resources-as-ratio",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enforce-sidecar-injection-namespace",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 8
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enforce-strict-mtls",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 8,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 7
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "enforce-tls-hosts-host-subnets",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 7,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "ensure-readonly-hostpath",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "exclude-namespaces-example",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "namespacefilters.data.exclude (declared-context)"
+        ],
+        "request_fields": [
+          "request.namespace"
+        ]
+      },
+      "tests": 4,
+      "tests_changed_by_removal": [
+        "exclude-namespaces-example|exclude-namespaces-dynamically-pods|v1/Pod/default/good-pod01",
+        "exclude-namespaces-example|exclude-namespaces-dynamically-pods|v1/Pod/demo/bad-pod01",
+        "exclude-namespaces-example|exclude-namespaces-dynamically-pods|v1/Pod/prod/good-pod03",
+        "exclude-namespaces-example|exclude-namespaces-dynamically-pods|v1/Pod/test/good-pod02"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "forbid-cpu-limits",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "imagepullpolicy-always",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "ingress-host-match-tls",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 10
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "inject-kata-cc-runtime",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 10,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "inject-sidecar",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "insert-pod-antiaffinity",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "k10-data-protection-by-label",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "k10-policy-hourly-rpo",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "k10-validate-ns-by-preset-label",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "k6t-add-services",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "k6t-enforce-instancetype",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "kasten-3-2-1-backup-policy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "kasten-data-protection-by-label",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "kasten-generate-example-backup-policy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "existingPolicy (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "kasten-generate-example-backup-policy|kasten-generate-example-backup-policy|/test-namespace-kasten-example-policy",
+        "kasten-generate-example-backup-policy|kasten-generate-example-backup-policy|apps/v1/Deployment/test-namespace/test-deployment"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "kasten-generate-policy-by-preset-label",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "existingPolicy (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "kasten-generate-policy-by-preset-label|kasten-generate-policy-by-preset-label|/test-namespace-gold-backup",
+        "kasten-generate-policy-by-preset-label|kasten-generate-policy-by-preset-label|v1/Namespace//test-namespace"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "kasten-hourly-rpo",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "namespacesWithPriorityLabel (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "kasten-hourly-rpo|kasten-hourly-rpo|config.kio.kasten.io/v1alpha1/Policy/kasten-io/daily-policy",
+        "kasten-hourly-rpo|kasten-hourly-rpo|config.kio.kasten.io/v1alpha1/Policy/kasten-io/hourly-policy"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "kasten-immutable-location-profile",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "kasten-minimum-retention",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "kasten-validate-ns-by-preset-label",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "limit-configmap-for-sa",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "limit-containers-per-pod",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "limit-hostpath-type-pv",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "limit-hostpath-vols",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "log4shell-mitigation",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "memory-requests-equal-limits",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 8
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "metadata-match-regex",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 8,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "mutate-termination-grace-period-seconds",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "nfs-subdir-external-provisioner-storage-path",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "no-loadbalancer-service",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "no-localhost-service",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 9
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "no-secrets",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 9,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "only-trustworthy-registries-set-root",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "imageData.configData.config.User (implicit-external)",
+          "imageData.registry (implicit-external)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "only-trustworthy-registries-set-root|only-allow-trusted-images|v1/Pod/default/pod-with-root-user",
+        "only-trustworthy-registries-set-root|only-allow-trusted-images|v1/Pod/default/pod-with-trusted-registry"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "pdb-maxunavailable",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "pdb-minavailable-check",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "minavailable (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "pdb-minavailable-check|pdb-minavailable|apps/v1/StatefulSet/nginx/bad-pdb",
+        "pdb-minavailable-check|pdb-minavailable|apps/v1/StatefulSet/nginx/good-pdb"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "pod-lifetime",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "podsecurity-subrule-baseline",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "podsecurity-subrule-restricted",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "podsecurity-subrule-restricted-capabilities",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "podsecurity-subrule-restricted-seccomp",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "prepend-registry",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "prevent-bare-pods",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "prevent-cr8escape",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 12
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "prevent-disabling-injection-pods",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 12,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 9
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "prevent-linkerd-pod-injection-override",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 9,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 15
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "prevent-linkerd-port-skipping",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 15,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "psp-check-supplemental-groups",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 20
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "psp-restrict-adding-capabilities",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 20,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "readwriteonce-pod",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "remove-hostpath-volumes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "remove-serviceaccount-token",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "replace-image-registry",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 7
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-annotations",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 7,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 9
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-container-port-names",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 9,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 34
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-cpu-limits",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 34,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-emptydir-requests-and-limits",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-encryption-aws-loadbalancers",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-image-checksum",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "require-image-source",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "imageData (implicit-external)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "require-image-source|check-source|v1/Pod/default/goodpod01"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-imagepullsecrets",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 8
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-ingress-https",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 8,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-kubecost-labels",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-labels",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-linkerd-mesh-injection",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "require-network-policy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "policies_count (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "require-network-policy|require-network-policy|apps/v1/Deployment/default/nginx-deploy"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 99
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-non-root-groups",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 99,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "require-pdb",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "pdb_count (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "require-pdb|require-pdb|apps/v1/Deployment/default/nginx-deploy-pass"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-pod-priorityclassname",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-pod-probes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-qos-burstable",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-qos-guaranteed",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 24
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-reasonable-pdbs",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 24,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-requests-limits",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-ro-rootfs",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 48
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-run-as-non-root-user",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 48,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 76
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-run-as-nonroot",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 76,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-storageclass",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-tekton-bundle",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "require-tekton-namespace-pipelinerun",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "require-unique-uid-per-workload",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "uidsAllPodsExceptSameOwnerAsRequestObject (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "require-unique-uid-per-workload|require-unique-uid|v1/Pod/default/already-taken-user",
+        "require-unique-uid-per-workload|require-unique-uid|v1/Pod/default/free-user"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "resolve-image-to-digest",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "resolvedRef (undeclared)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "suite did not run"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 7
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-annotations",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 7,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 12
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-apparmor-profiles",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 12,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-automount-sa-token",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 8
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-binding-clusteradmin",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 8,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 24
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-binding-system-groups",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 24,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-clusterrole-csr",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-clusterrole-mutating-validating-admission-webhooks",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-clusterrole-nodesproxy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-controlplane-scheduling",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-deprecated-registry",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-escalation-verbs-roles",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-external-ips",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 7
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-image-registries",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 7,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-ingress-classes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-ingress-defaultbackend",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-ingress-paths",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-ingress-wildcard",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-jobs",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-networkpolicy-empty-podselector",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-node-affinity",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-node-selection",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-nodeport",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "restrict-pod-count",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "podcounts (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 1,
+      "tests_changed_by_removal": [
+        "restrict-pod-count|restrict-pod-count|v1/Pod/default/myapp-pod"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-runtimeclass",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-sa-automount-sa-token",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 54
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-seccomp",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 54,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 51
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-seccomp-strict",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 51,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 12
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-secret-role-verbs",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 12,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 9
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "restrict-secrets-by-label",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "status (undeclared)",
+          "status (undeclared)",
+          "status (undeclared)"
+        ],
+        "request_fields": [
+          "request.operation"
+        ]
+      },
+      "tests": 9,
+      "tests_changed_by_removal": [
+        "restrict-secrets-by-label|secrets-lookup-from-envfrom|v1/Pod/default/secret-ref-pod",
+        "restrict-secrets-by-label|secrets-lookup-from-env|v1/Pod/default/secret-env-pod",
+        "restrict-secrets-by-label|secrets-lookup-from-volumes|v1/Pod/default/secret-vol-pod"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 9
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-secrets-by-name",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 9,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "restrict-service-account",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "saMap.data.busybox (declared-context)"
+        ],
+        "request_fields": [
+          "request.object.spec.serviceAccountName"
+        ]
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "restrict-service-account|validate-service-account|v1/Pod/staging/badpod01",
+        "restrict-service-account|validate-service-account|v1/Pod/staging/goodpod01"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-service-port-range",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-storageclass",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 27
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-sysctls",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 27,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-virtual-service-wildcard",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 87
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-volume-types",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 87,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 16
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-wildcard-resources",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 16,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 8
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "restrict-wildcard-verbs",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 8,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "secrets-not-from-env-vars",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 8
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "set-karpenter-non-cpu-limits",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 8,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "spread-pods",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 1
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "team-validate-ns-name",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 1,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 5
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "topologyspreadconstraints-policy",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 5,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "unique-external-dns",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "alldns (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "unique-external-dns|ensure-valid-externaldns-annotation|v1/Service/default/bad-svc",
+        "unique-external-dns|ensure-valid-externaldns-annotation|v1/Service/default/good-svc"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "unique-ingress-host",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "hosts (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 4,
+      "tests_changed_by_removal": [
+        "unique-ingress-host|check-single-host-create|networking.k8s.io/v1/Ingress/default/ingress-foo-host",
+        "unique-ingress-host|check-single-host-create|networking.k8s.io/v1/Ingress/default/ingress-kyverno-host"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "a context entry fetches data from outside the admission request",
+      "adapter_verdict": "outside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "outcomes_identical_with_external_stubs_removed": false,
+      "status": "agree",
+      "subject": "unique-routes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [
+          "hosts (declared-context)"
+        ],
+        "request_fields": []
+      },
+      "tests": 2,
+      "tests_changed_by_removal": [
+        "unique-routes|require-unique-routes|route.openshift.io/v1/Route/default/hello-openshift-bad",
+        "unique-routes|require-unique-routes|route.openshift.io/v1/Route/default/hello-openshift-good"
+      ],
+      "why": "the engine needed what the adapter says the policy reads"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "validate-cron-schedule",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 3
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "validate-initdata-configmap",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 3,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 2
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "validate-probes",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 2,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 6
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "validate-userid-groupid-fsgroup",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 6,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 9
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "verify-flux-sources",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 9,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    },
+    {
+      "adapter_reason": "every guard reads the admission request and literals in the policy",
+      "adapter_verdict": "inside",
+      "baseline": {
+        "Pass": 4
+      },
+      "outcomes_identical_under_injected_labels": true,
+      "status": "agree",
+      "subject": "verify-git-repositories",
+      "suite_stubs": {
+        "declared_variables": [],
+        "external": [],
+        "request_fields": []
+      },
+      "tests": 4,
+      "why": "invariant under injected labels; the suite stubs nothing external"
+    }
+  ],
+  "disagreeing_policies": [],
+  "disagreements": 0,
+  "dynamic": {
+    "inside_policies_checked": 206,
+    "inside_policies_invariant_under_injected_labels": 206,
+    "inside_policies_whose_outcomes_changed": 0,
+    "outside_policies_unchanged_when_stubs_were_removed": 3,
+    "outside_policies_whose_outcomes_changed_when_stubs_were_removed": 24,
+    "suites_run": 237,
+    "suites_that_did_not_run": 0,
+    "tests_compared": 2129
+  },
+  "engine": {
+    "name": "kyverno",
+    "version": "1.19.1"
+  },
+  "not_judged": 7,
+  "policies": 237,
+  "schema_version": "v1",
+  "seed": 20260916,
+  "static": {
+    "inside_policies_whose_suite_stubs_external_data": 0,
+    "outside_policies_whose_suite_stubs_external_data": 27,
+    "outside_policies_whose_suite_stubs_nothing_external": 4,
+    "suites_stubbing_external_data": 27
+  }
+}

@@ -2,12 +2,22 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from trustweave.engine import evaluate_flow
-from trustweave.models import AgentManifest, Flow, Policy, ValidationError, reject_unknown_fields
+from trustweave.engine import Finding, evaluate_flow, reject_near_miss_classifications
+from trustweave.models import (
+    AgentManifest,
+    Flow,
+    Policy,
+    Source,
+    Tool,
+    ValidationError,
+    contains_control_characters,
+    reject_unknown_fields,
+)
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
@@ -39,7 +49,10 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
 def _text(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
-    return value.strip()
+    text = value.strip()
+    if contains_control_characters(text):
+        raise ValidationError(f"{path} must not contain control characters")
+    return text
 
 
 def _tool_name(call: Mapping[str, Any], path: str) -> str:
@@ -51,6 +64,34 @@ def _tool_name(call: Mapping[str, Any], path: str) -> str:
     if len(set(values)) > 1:
         raise ValidationError(f"{path} contains conflicting tool names")
     return values[0]
+
+
+_DECISION_RESTRICTIVENESS = {"deny": 0, "require_approval": 1, "allow": 2}
+
+
+def _strictest_declared_decision(
+    flows: Sequence[Flow], source: Source, tool: Tool, policy: Policy
+) -> Finding:
+    """Return the strictest declared verdict for one observed source-to-tool pair.
+
+    A manifest may declare the same pair more than once, once per purpose: the bundle and
+    diff contracts key on (source, tool, purpose), not on the pair, so the duplication is
+    legitimate and a pair-uniqueness rule would reject manifests those contracts accept.
+    An observed call carries no purpose of its own, so every declared flow for the pair
+    applies to it. Keeping only the first made the verdict depend on the order the flows
+    happened to be written in: with the allowing flow listed first the review was clear,
+    and swapping the two entries turned the same trace into a deny.
+    """
+
+    return min(
+        (evaluate_flow(flow, source, tool, policy) for flow in flows),
+        key=lambda finding: (
+            _DECISION_RESTRICTIVENESS[finding.decision],
+            finding.rule_id is None,
+            finding.rule_id or "",
+            finding.flow.purpose,
+        ),
+    )
 
 
 def _finding(identifier: str, message: str, call: ObservedToolCall) -> dict[str, Any]:
@@ -124,11 +165,16 @@ def review_trace(
     """Review local metadata with optional application-layer provenance."""
 
     calls, message_count, event_types = parse_trace(trace)
+    # scan refuses a manifest whose classifications only look like the ones the policy
+    # binds to, because an exact-string predicate silently stops matching and the decision
+    # falls through to the default. review_trace evaluates the same manifest against the
+    # same policy, so it owes the reader the same refusal rather than a clear report.
+    reject_near_miss_classifications(manifest, policy)
     sources = {source.name: source for source in manifest.sources}
     tools = {tool.name: tool for tool in manifest.tools}
-    flows_by_pair: dict[tuple[str, str], Flow] = {}
+    flows_by_pair: dict[tuple[str, str], list[Flow]] = defaultdict(list)
     for flow in manifest.flows:
-        flows_by_pair.setdefault((flow.source, flow.tool), flow)
+        flows_by_pair[(flow.source, flow.tool)].append(flow)
 
     observations: list[dict[str, Any]] = []
     findings: list[dict[str, str | int]] = []
@@ -159,8 +205,8 @@ def review_trace(
                 )
             )
         else:
-            declared_flow = flows_by_pair.get((call.source, call.tool))
-            if declared_flow is None:
+            declared_flows = flows_by_pair.get((call.source, call.tool), [])
+            if not declared_flows:
                 observation["status"] = "review_required"
                 observation["action_class"] = tool.action_class
                 findings.append(
@@ -174,7 +220,7 @@ def review_trace(
                     )
                 )
             else:
-                decision = evaluate_flow(declared_flow, source, tool, policy)
+                decision = _strictest_declared_decision(declared_flows, source, tool, policy)
                 observation.update(
                     {
                         "status": "review_required" if decision.decision != "allow" else "clear",

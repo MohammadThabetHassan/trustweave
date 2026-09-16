@@ -52,3 +52,6 @@ SUITE_COVERAGE_STUDY.md
 JOURNAL_READINESS.md
 RESEARCH_PROSPECTUS.md
 RESEARCH_AGENT_SETUP.md
+
+# Corpus checkouts the research scripts measure; pinned by commit inside each artifact.
+corpora/

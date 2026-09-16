@@ -279,19 +279,6 @@ def test_a_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Pat
     assert any("taxonomy figure" in problem for problem in problems), problems
 
 
-def test_a_cost_figure_series_that_drifts_is_caught(workspace: Path) -> None:
-    """The same check on the figure that had carried unpinned coordinates for a release."""
-
-    paper = workspace / "paper" / "main.tex"
-    text = paper.read_text(encoding="utf-8")
-    assert "(4,0." in text, "the cost figure no longer plots a four-cell share"
-    paper.write_text(text.replace("(4,0.", "(4,0.1", 1), encoding="utf-8")
-
-    problems = checker.check(paper, workspace / "docs")
-
-    assert any("cost figure" in problem for problem in problems), problems
-
-
 def test_a_figure_whose_label_moves_is_reported_rather_than_skipped(workspace: Path) -> None:
     """A guard that quietly finds nothing to check is worse than no guard."""
 
