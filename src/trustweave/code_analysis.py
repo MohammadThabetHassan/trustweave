@@ -222,6 +222,14 @@ class DiscoveredTool:
     # exposes one name to the model and is implemented by another, and a reviewer checking
     # the effects needs the second to find the code.
     implementation: str | None = None
+    # The function whose effects are this tool's, recorded where the discovery pass already
+    # held it. `analyze_sources` used to look the body up again by name, so a module-level
+    # `def send` won over the `@tool`-decorated `Mailer.send` it shadows and the artifact
+    # reported one function's line with another function's signals. It is excluded from
+    # comparison and repr: it is the AST node, not part of the record.
+    body: ast.FunctionDef | ast.AsyncFunctionDef | None = field(
+        default=None, repr=False, compare=False
+    )
     signals: list[EffectSignal] = field(default_factory=list)
     reasons: set[str] = field(default_factory=set)
     budget_state: str = "complete"
@@ -2251,6 +2259,7 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
                     module.path,
                     function.lineno,
                     implementation=function.name if registered != function.name else None,
+                    body=function,
                 )
             )
             break
@@ -2317,6 +2326,7 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
                 module.path,
                 body.lineno if body is not None else node.lineno,
                 implementation=node.name,
+                body=body,
             )
         )
     return discovered
@@ -2401,6 +2411,7 @@ def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
             module.path,
             handler.lineno,
             implementation=handler.name,
+            body=handler,
         )
         for name in sorted(set(declared))
     ]
@@ -2425,18 +2436,25 @@ def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
             implementation = target.attr
         else:
             implementation = None
-        reachable = implementation is not None and (
-            implementation in module.functions
-            or any(method.name == implementation for method in module.methods)
-        )
+        # A factory is handed a name, not a definition, so this is the one discovery path
+        # that still has to look the body up. An ambiguous match is refused rather than
+        # decided by declaration order: when a module function and a method share the name,
+        # nothing in the source says which one was passed.
+        candidates = [
+            candidate
+            for candidate in [*module.functions.values(), *module.methods]
+            if candidate.name == implementation
+        ]
+        body = candidates[0] if len(candidates) == 1 else None
         tool = DiscoveredTool(
             _constant_str(keyword) or implementation or "unnamed_tool",
             "structured_tool_factory",
             module.path,
             node.lineno,
             implementation=implementation,
+            body=body,
         )
-        if not reachable:
+        if body is None:
             tool.reasons.add("BODY_UNAVAILABLE")
         discovered.append(tool)
     return discovered
@@ -2514,39 +2532,24 @@ def analyze_sources(
             ):
                 candidates.append(
                     DiscoveredTool(
-                        name, "bound_plain_function", module.path, module.functions[name].lineno
+                        name,
+                        "bound_plain_function",
+                        module.path,
+                        module.functions[name].lineno,
+                        body=module.functions[name],
                     )
                 )
 
         for tool in candidates:
-            function = module.functions.get(tool.implementation or tool.name) or (
-                module.functions.get(tool.name)
-            )
-            if function is None:
-                function = next(
-                    (
-                        candidate
-                        for candidate in [*module.methods, *module.nested]
-                        if candidate.lineno == tool.line
-                        or candidate.name == (tool.implementation or tool.name)
-                        or candidate.name == tool.name
-                    ),
-                    None,
-                )
-            if function is None:
-                # A renamed tool still resolves through the function it decorated.
-                function = next(
-                    (
-                        candidate
-                        for candidate in module.functions.values()
-                        if candidate.lineno == tool.line
-                    ),
-                    None,
-                )
-            if function is None:
+            # The body is the one the discovery pass matched, not whatever the name
+            # resolves to now. Re-resolving it here let a module-level `def send` win over
+            # the `@tool`-decorated `Mailer.send` it shadows, so `location.line` named one
+            # function while the signals came from another -- and the shell invocation the
+            # tool really performs was never seen.
+            if tool.body is None:
                 tool.reasons.add("BODY_UNAVAILABLE")
             else:
-                _collect_signals(tool, function, module, (tool.name,), 0, {tool.name})
+                _collect_signals(tool, tool.body, module, (tool.name,), 0, {tool.name})
             tools.append(tool)
 
     tools.sort(key=lambda tool: (tool.name, tool.file, tool.line))

@@ -127,17 +127,6 @@ def _unnameable_calls(
     return offending
 
 
-def _tool_body(tree: ast.Module, line: int) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
-    return next(
-        (
-            node
-            for node in ast.walk(tree)
-            if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and node.lineno == line
-        ),
-        None,
-    )
-
-
 def test_a_benign_verdict_is_backed_by_evidence_or_by_a_body_this_file_can_name() -> None:
     """`read` at `high` with no signal is only honest when nothing was left unresolved.
 
@@ -163,11 +152,9 @@ def test_a_benign_verdict_is_backed_by_evidence_or_by_a_body_this_file_can_name(
                 or tool.confidence() != "high"
             ):
                 continue
-            tree = trees[Path(tool.file).name]
-            body = _tool_body(tree, tool.line)
-            if body is None:
+            if tool.body is None:
                 continue
-            unnameable = _unnameable_calls(tree, body)
+            unnameable = _unnameable_calls(trees[Path(tool.file).name], tool.body)
             if unnameable:
                 violations.append(f"{case['id']}/{tool.name}: {unnameable}")
 

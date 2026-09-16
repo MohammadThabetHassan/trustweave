@@ -1640,3 +1640,132 @@ def test_the_lazy_reviewer_loop_stops_at_the_first_unresolved_placeholder() -> N
     # which the identifier grammar already refuses before any free-text check runs.
     draft_placeholders = json.dumps(_review()["manifest_draft"]).count("REVIEW_REQUIRED")
     assert len(placeholder_refusals) == draft_placeholders - 1
+
+
+# ---------------------------------------------------------------------------------------
+# The body a tool is analysed from is the one discovery matched, not the one a name finds
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_class_tool_is_analysed_from_its_own_run_body(tmp_path: Path) -> None:
+    """A module function sharing the registered name won, and the shell call was never seen.
+
+    The artifact contradicted itself: `location.line` named the `_run` body while the only
+    signal came from the unrelated helper, and it failed in the understating direction --
+    `os.system` reported as `os.listdir`, `sensitive` published as `read`.
+    """
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "def fetch(url):\n"
+        '    """A helper that merely lists a directory."""\n'
+        "    return os.listdir('/tmp')\n\n\n"
+        "class Fetcher(BaseTool):\n"
+        "    name = 'fetch'\n"
+        "    description = 'Fetch a URL.'\n\n"
+        "    def _run(self, target: str) -> str:\n"
+        '        """Fetch."""\n'
+        "        return str(os.system('curl ' + target))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.name for tool in tools] == ["fetch"]
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tools[0].signals] == ["os.system"]
+    # The location and the evidence now name the same function: the signal falls inside
+    # the `_run` body the artifact points at, not above it in the module helper.
+    assert tools[0].signals[0].line > tools[0].line
+
+
+def test_a_decorated_method_is_not_shadowed_by_a_module_function(tmp_path: Path) -> None:
+    """`def send` at module level beat the `@tool`-decorated `Mailer.send` it shadows."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "def send(payload):\n"
+        '    """A helper that merely lists a directory."""\n'
+        "    return os.listdir('/tmp')\n\n\n"
+        "class Mailer:\n"
+        "    @tool\n"
+        "    def send(self, payload: str) -> str:\n"
+        '        """Send."""\n'
+        "        return str(os.system('curl -X POST -d ' + payload))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tools[0].signals] == ["os.system"]
+
+
+def test_the_analysed_body_does_not_depend_on_declaration_order(tmp_path: Path) -> None:
+    """The `next(...)` fallback's OR predicate let the first name match beat the line match,
+    so two files with identical semantics classified differently."""
+
+    method_first = (
+        "import os\n"
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "class Fetcher(BaseTool):\n"
+        "    name = 'fetch'\n"
+        "    description = 'Fetch a URL.'\n\n"
+        "    def _run(self, target: str) -> str:\n"
+        '        """Fetch."""\n'
+        "        return str(os.system('curl ' + target))\n\n\n"
+        "def fetch(url):\n"
+        '    """A helper."""\n'
+        "    return os.listdir('/tmp')\n"
+    )
+    _write(tmp_path, "agent.py", method_first)
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tools[0].signals] == ["os.system"]
+
+
+def test_a_factory_whose_target_name_is_ambiguous_is_refused(tmp_path: Path) -> None:
+    """A factory is handed a name, not a definition, so this lookup stays -- and when a
+    module function and a method share the name, nothing says which one was passed."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "def rotate_logs():\n"
+        '    """A helper."""\n'
+        "    return os.listdir('/tmp')\n\n\n"
+        "class Rotator:\n"
+        "    def rotate_logs(self):\n"
+        '        """The method."""\n'
+        "        return str(os.system('logrotate -f /etc/logrotate.conf'))\n\n\n"
+        "rotator = StructuredTool.from_function(func=rotate_logs, name='rotate')\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].confidence() == "review"
+    assert "BODY_UNAVAILABLE" in tools[0].reasons
+
+
+def test_a_factory_whose_target_name_is_unique_is_still_analysed(tmp_path: Path) -> None:
+    """The control: an unambiguous name must still reach its body."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "def rotate_logs():\n"
+        '    """Rotate the logs."""\n'
+        "    return str(os.system('logrotate -f /etc/logrotate.conf'))\n\n\n"
+        "rotator = StructuredTool.from_function(func=rotate_logs, name='rotate')\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert tools[0].reasons == set()
