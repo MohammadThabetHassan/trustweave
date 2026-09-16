@@ -1276,3 +1276,43 @@ def test_the_same_pipeline_with_the_gap_left_open_still_names_the_sanitizer() ->
     assert [finding["severity"] for finding in incomplete] == ["medium"]
     assert incomplete[0]["properties"]["sanitizer"] == "redactor-one"
     assert incomplete[0]["properties"]["classifications"] == ["confidential"]
+
+
+def test_chain_check_refuses_an_output_directory_that_traverses_a_symbolic_link(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Only `ci` had this refusal, and it had no caller anywhere else.
+
+    The audit ran `chain-check --output-dir artifacts` with `artifacts -> ../victim` and
+    it wrote chain-review.json and chain-review.md straight through the link at exit 0,
+    over a file `ci` refuses to touch with exit 3.
+    """
+
+    victim = tmp_path / "victim"
+    victim.mkdir()
+    precious = victim / "chain-review.json"
+    precious.write_text("PRECIOUS ORIGINAL", encoding="utf-8")
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "artifacts").symlink_to(victim, target_is_directory=True)
+    input_path = repo / "chain.json"
+    input_path.write_text(json.dumps(_document(_unsafe_nodes(), [])), encoding="utf-8")
+
+    exit_code = main(
+        ["chain-check", "--input", str(input_path), "--output-dir", str(repo / "artifacts")]
+    )
+
+    assert exit_code == 3
+    assert "must not traverse a symbolic link" in capsys.readouterr().err
+    assert precious.read_text(encoding="utf-8") == "PRECIOUS ORIGINAL"
+
+
+def test_chain_check_still_writes_into_an_ordinary_output_directory(tmp_path: Path) -> None:
+    """Pins the refusal direction: the shared check must not refuse a plain directory."""
+
+    input_path = tmp_path / "chain.json"
+    input_path.write_text(json.dumps(_document(_unsafe_nodes(), [])), encoding="utf-8")
+    output_dir = tmp_path / "nested" / "artifacts"
+
+    assert main(["chain-check", "--input", str(input_path), "--output-dir", str(output_dir)]) == 0
+    assert (output_dir / "chain-review.json").is_file()

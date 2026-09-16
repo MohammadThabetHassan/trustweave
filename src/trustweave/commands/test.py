@@ -15,7 +15,7 @@ from trustweave.commands._shared import (
     configured_paths,
 )
 from trustweave.engine import explain_policy_decision
-from trustweave.io import load_document, read_json, write_json, write_text
+from trustweave.io import load_document, read_json, resolve_artifact_dir, write_json, write_text
 from trustweave.models import parse_manifest, parse_policy, validate_capability_pattern
 from trustweave.report import render_trace_review_report
 from trustweave.scenarios import explain_scenario, parse_scenarios, run_scenarios
@@ -95,7 +95,7 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         policy = parse_policy(load_document(paths["policy"]))
         scenarios = parse_scenarios(load_document(paths["scenarios"]))
         result = run_scenarios(policy, scenarios, generated_at)
-        path = write_json(paths["output_dir"] / TEST_RESULTS_FILE, result)
+        path = write_json(resolve_artifact_dir(paths["output_dir"]) / TEST_RESULTS_FILE, result)
         status = str(result["summary"]["status"])
         return f"Wrote synthetic test results ({status}): {path}", 0 if status == "passed" else 1
     if args.command == "explain":
@@ -122,9 +122,10 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         manifest = parse_manifest(load_document(args.manifest))
         policy = parse_policy(load_document(args.policy))
         review = review_trace(manifest, policy, read_json(args.trace), generated_at)
-        json_path = write_json(args.output_dir / TRACE_REVIEW_FILE, review)
+        output_dir = resolve_artifact_dir(args.output_dir)
+        json_path = write_json(output_dir / TRACE_REVIEW_FILE, review)
         markdown_path = write_text(
-            args.output_dir / TRACE_REVIEW_REPORT_FILE, render_trace_review_report(review)
+            output_dir / TRACE_REVIEW_REPORT_FILE, render_trace_review_report(review)
         )
         has_findings = int(review["summary"]["review_findings"]) > 0
         code = EXIT_REVIEW if args.exit_on_review and has_findings else 0

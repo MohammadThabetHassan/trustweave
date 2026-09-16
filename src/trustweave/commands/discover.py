@@ -12,7 +12,7 @@ from trustweave.commands._shared import (
     CODE_DISCOVERY_REPORT_FILE,
     EXIT_REVIEW,
 )
-from trustweave.io import load_document, write_json, write_text
+from trustweave.io import load_document, resolve_artifact_dir, write_json, write_text
 from trustweave.models import parse_manifest
 from trustweave.report import render_code_discovery_report
 
@@ -52,9 +52,10 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     manifest = parse_manifest(load_document(args.manifest)) if args.manifest else None
     collection = collect_python_sources(args.source)
     review = review_code_discovery(collection, manifest, generated_at)
-    json_path = write_json(args.output_dir / CODE_DISCOVERY_FILE, review)
+    output_dir = resolve_artifact_dir(args.output_dir)
+    json_path = write_json(output_dir / CODE_DISCOVERY_FILE, review)
     markdown_path = write_text(
-        args.output_dir / CODE_DISCOVERY_REPORT_FILE, render_code_discovery_report(review)
+        output_dir / CODE_DISCOVERY_REPORT_FILE, render_code_discovery_report(review)
     )
     has_findings = int(review["summary"]["review_findings"]) > 0
     code = EXIT_REVIEW if args.exit_on_review and has_findings else 0

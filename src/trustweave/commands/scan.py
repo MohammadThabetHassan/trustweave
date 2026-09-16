@@ -9,7 +9,7 @@ from typing import Any
 from trustweave.bundles import validate_bundle
 from trustweave.commands._shared import BUNDLE_FILE, configured_paths
 from trustweave.engine import build_bundle
-from trustweave.io import load_document, write_json
+from trustweave.io import load_document, resolve_artifact_dir, write_json
 from trustweave.models import parse_manifest, parse_policy
 
 
@@ -44,5 +44,5 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     # copy the user never wrote. Round-tripping here costs roughly 6x the build and
     # refuses with the identical message.
     validate_bundle(bundle, "bundle")
-    path = write_json(paths["output_dir"] / BUNDLE_FILE, bundle)
+    path = write_json(resolve_artifact_dir(paths["output_dir"]) / BUNDLE_FILE, bundle)
     return f"Wrote Agent Security Bundle: {path}", 0
