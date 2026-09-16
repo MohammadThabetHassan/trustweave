@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import ast
 import sys
-from collections import deque
 from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 from typing import Final
@@ -92,6 +91,10 @@ _INSTANCE_RECEIVERS: Final[frozenset[str]] = frozenset({"self", "cls"})
 _ENVIRON_ORIGIN: Final[str] = "os.environ"
 # Sentinel: a resolved call the catalog has no entry for.
 _UNRECOGNIZED: Final[str] = "\x00unrecognized"
+# Sentinel origin: a receiver name bound twice in one scope to different receivers. Which
+# object a later call reaches depends on the path taken, so it is refused rather than
+# dropped -- dropping it made the call silent, and silence is published as a benign read.
+_AMBIGUOUS_ORIGIN: Final[str] = "\x00ambiguous"
 _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
     {"eval", "exec", "getattr", "globals", "importlib.import_module", "vars"}
 )
@@ -320,21 +323,26 @@ def _dotted(node: ast.AST) -> str | None:
 
 
 def _scope_nodes(body: list[ast.stmt]) -> Iterator[ast.AST]:
-    """Every node that belongs to this scope, in the same breadth-first order as `ast.walk`.
+    """Every node that belongs to this scope, in source order.
 
     Blocks -- `if`, `try`, `with`, loops -- are entered, because a name they bind is bound
     in the enclosing scope. Function, class, and lambda bodies are not, because a name
     bound inside them is not visible here. This is the distinction `ast.walk` erases.
+
+    The order is source order rather than `ast.walk`'s breadth-first order, because a
+    binding can be read by a later statement of the same scope. Breadth-first yielded every
+    top-level statement before any nested one, so `try: base = Path(root)` followed by
+    `target = base / name` saw `target` before `base` existed and gave it no origin.
     """
 
-    queue: deque[ast.AST] = deque(body)
-    while queue:
-        node = queue.popleft()
+    stack: list[ast.AST] = list(reversed(body))
+    while stack:
+        node = stack.pop()
         yield node
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | ast.Lambda):
             # The definition is a statement of this scope; its body is not.
             continue
-        queue.extend(ast.iter_child_nodes(node))
+        stack.extend(reversed(list(ast.iter_child_nodes(node))))
 
 
 def _import_bindings(body: list[ast.stmt]) -> tuple[dict[str, str], bool]:
@@ -845,22 +853,36 @@ def _scope_origins(
     scope_body: list[ast.stmt],
     module: _Module,
     self_attributes: dict[str, str] | None = None,
+    seed: dict[str, tuple[str, ast.Call]] | None = None,
 ) -> dict[str, tuple[str, ast.Call]]:
-    """Track receiver constructors bound directly in one statement list.
+    """Track receiver constructors bound anywhere in one scope.
 
-    Only assignments at this level count. Walking the whole tree would let a binding
-    inside an unrelated function decide what a name means here, which silently changes
-    another tool's classification.
+    Blocks belong to this scope: a name bound inside `try`, `if`, `for` or `with` is bound
+    here, so `_scope_nodes` is what decides what counts, exactly as it does for imports.
+    Reading only the flat statement list lost the receiver for the near-universal
+    optional-dependency idiom -- `try: client = httpx.Client()` -- and every later call on
+    that name fell through to silence, which is published as a benign read. Nested function
+    and class bodies are still not this scope, so a binding in an unrelated function cannot
+    decide what a name means here.
+
+    *seed* carries the origins this scope inherits: the module's, the enclosing functions',
+    and any receiver the caller handed over. Starting empty discarded them the moment the
+    body derived a new name from one, so a module-level `CACHE_DIR` reached through
+    `target = CACHE_DIR / name` produced neither a signal nor a refusal.
     """
 
     self_attributes = self_attributes or {}
-    origins: dict[str, tuple[str, ast.Call]] = {}
+    origins: dict[str, tuple[str, ast.Call]] = dict(seed or {})
+    bound_here: set[str] = set()
     ambiguous: set[str] = set()
 
     def _bind(name: str, qualified: str, call: ast.Call) -> None:
-        if name in origins and origins[name][0] != qualified:
-            # Rebound to a different receiver: neither reading is safe to assume.
+        if name in bound_here and origins[name][0] != qualified:
+            # Rebound to a different receiver: neither reading is safe to assume. Only a
+            # rebinding *in this body* is a conflict; a binding that shadows an inherited
+            # one is ordinary scoping and simply replaces it.
             ambiguous.add(name)
+        bound_here.add(name)
         origins[name] = (qualified, call)
 
     def _receiver_of(value: ast.expr) -> str | None:
@@ -912,22 +934,33 @@ def _scope_origins(
             return origins[root][0]
         return _receiver_of(value.func) if isinstance(value.func, ast.Attribute) else None
 
-    for statement in scope_body:
+    for statement in _scope_nodes(scope_body):
         if isinstance(statement, ast.Assign):
             origin = _receiver_of(statement.value)
-            if origin is not None:
-                call = (
-                    statement.value
-                    if isinstance(statement.value, ast.Call)
-                    else ast.Call(
-                        func=ast.Name(id=origin),
-                        args=_path_segments(statement.value),
-                        keywords=[],
-                    )
+            if origin is None:
+                # Bound here to something with no traceable receiver. If the name carried
+                # one, it no longer describes what a call on it reaches, and answering from
+                # the stale origin would be a guess in either direction. A constant is the
+                # exception: `except ImportError: CLIENT = None` is the optional-dependency
+                # guard, not a second receiver, and refusing on it would cost the class for
+                # the idiom this scope walk exists to resolve.
+                if not isinstance(statement.value, ast.Constant):
+                    for target in statement.targets:
+                        if isinstance(target, ast.Name) and target.id in origins:
+                            ambiguous.add(target.id)
+                continue
+            call = (
+                statement.value
+                if isinstance(statement.value, ast.Call)
+                else ast.Call(
+                    func=ast.Name(id=origin),
+                    args=_path_segments(statement.value),
+                    keywords=[],
                 )
-                for target in statement.targets:
-                    if isinstance(target, ast.Name):
-                        _bind(target.id, origin, call)
+            )
+            for target in statement.targets:
+                if isinstance(target, ast.Name):
+                    _bind(target.id, origin, call)
             continue
         if isinstance(statement, ast.With | ast.AsyncWith):
             # A context manager keeps the receiver's identity; losing it here made an
@@ -943,7 +976,9 @@ def _scope_origins(
                 )
                 _bind(item.optional_vars.id, origin, call)
     for name in ambiguous:
-        origins.pop(name, None)
+        # Deleting the name made a call on it silent, and silence is published as a benign
+        # read. The ambiguity is recorded instead, so the call refuses and says why.
+        origins[name] = (_AMBIGUOUS_ORIGIN, origins[name][1])
     return origins
 
 
@@ -1313,6 +1348,11 @@ def _classify_call(
     if root is not None and root in dynamic:
         # The callee was bound from a subscript, so its behaviour is chosen at runtime.
         return None, None, "DYNAMIC_DISPATCH"
+
+    if root is not None and (origins.get(root) or ("", None))[0] == _AMBIGUOUS_ORIGIN:
+        # The receiver was bound twice to different objects, so what this call reaches
+        # depends on the path taken through the body.
+        return None, None, "UNRESOLVED_CALLEE"
 
     if isinstance(call.func, ast.Subscript):
         # `DISPATCH["run"](cmd)`: the table decides which symbol runs, and the docs use
@@ -1707,11 +1747,15 @@ def _collect_signals(
     # Names in this frame resolve through this function's own imports first. `module`
     # itself is what a helper is handed, since the helper has its own scope.
     scope = _scoped(module, function)
-    # Module-level bindings are the fallback; the function's own bindings win over them.
-    origins = dict(module.module_origins)
-    # Receivers the caller handed over, before the callee's own bindings, which win.
-    origins.update(inherited or {})
-    origins.update(_scope_origins(function.body, scope, self_attributes))
+    # Module-level bindings are the fallback, then each enclosing function's from the
+    # outermost in -- a handler registered inside a factory sees the client the factory
+    # built, exactly as it sees the factory's imports -- then the receivers the caller
+    # handed over. The function's own bindings are layered on top of all of them.
+    seed: dict[str, tuple[str, ast.Call]] = dict(module.module_origins)
+    for frame in module.enclosing.get(id(function), ()):
+        seed.update(_scope_origins(frame.body, _scoped(module, frame), self_attributes))
+    seed.update(inherited or {})
+    origins = _scope_origins(function.body, scope, self_attributes, seed)
     dynamic = _dynamic_locals(function, scope)
     aliases = _symbol_aliases(function, scope)
     # Constants the caller supplied, plus constants bound in this function's own body.

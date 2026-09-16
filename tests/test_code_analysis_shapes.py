@@ -297,6 +297,34 @@ def test_a_name_rebound_to_a_different_receiver_yields_no_receiver_effect(
     assert not [signal for signal in tool.signals if signal.symbol.startswith("requests.")]
 
 
+def test_a_name_rebound_to_a_different_receiver_is_refused_not_silent(tmp_path: Path) -> None:
+    """The ambiguous name was deleted, and a call on a name with no origin is silent.
+
+    Silence is published as `read` at high confidence, so the case the code itself flags as
+    "neither reading is safe to assume" produced the most benign answer available. The
+    ambiguity is now recorded, so the call refuses and the artifact says why.
+    """
+
+    tool = _single_tool(
+        tmp_path,
+        f"{TOOL_IMPORT}\n"
+        "import requests\n"
+        "import sqlite3\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a call on a rebound name."""\n'
+        "    handle = requests.Session()\n"
+        "    handle = sqlite3.connect(value)\n"
+        "    return str(handle.get(value))\n",
+    )
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert tool.confidence() == "review"
+    assert "UNRESOLVED_CALLEE" in tool.reasons
+    assert tool.signals == []
+
+
 def test_a_name_bound_twice_to_the_same_receiver_still_resolves(tmp_path: Path) -> None:
     """The conflict rule must key on the receiver, not on merely being assigned twice."""
 
