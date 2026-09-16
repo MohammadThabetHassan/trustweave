@@ -151,6 +151,13 @@ MAX_MANIFEST_FLOWS = 10_000
 MAX_TOOL_CAPABILITIES = 128
 MAX_FLOW_PURPOSE_TAGS = 128
 
+# `discover` and `mcp-scaffold` write this into every field a reviewer still has to
+# decide. The drafts are meant not to validate, but the parser never looked at free text,
+# so a reviewer who fixed only what the parser complained about reached a passing scan
+# with the placeholder still in the bundle. It lives here rather than in code_catalog
+# because this module is the one every parser path already goes through.
+RESERVED_PLACEHOLDER = "REVIEW_REQUIRED"
+
 
 def _string(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
@@ -164,6 +171,17 @@ def _bounded_text(value: Any, path: str, maximum: int) -> str:
     text = _string(value, path)
     if len(text) > maximum:
         raise ValidationError(f"{path} must be at most {maximum} characters")
+    return text
+
+
+def _declared_text(value: Any, path: str) -> str:
+    """Return declared free text, refusing a placeholder a reviewer has not resolved."""
+
+    text = _string(value, path)
+    if text.startswith(RESERVED_PLACEHOLDER):
+        raise ValidationError(
+            f"{path} still holds an unresolved {RESERVED_PLACEHOLDER} placeholder"
+        )
     return text
 
 
@@ -291,11 +309,11 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             Source(
                 name=validate_identifier(source.get("name"), f"manifest.sources[{index}].name"),
                 trust=trust,
-                data_classification=_string(
+                data_classification=_declared_text(
                     source.get("data_classification"),
                     f"manifest.sources[{index}].data_classification",
                 ),
-                description=_string(
+                description=_declared_text(
                     source.get("description"), f"manifest.sources[{index}].description"
                 ),
             )
@@ -338,7 +356,7 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
                 name=validate_identifier(tool.get("name"), f"manifest.tools[{index}].name"),
                 action_class=action_class,
                 capabilities=capabilities,
-                description=_string(
+                description=_declared_text(
                     tool.get("description"), f"manifest.tools[{index}].description"
                 ),
             )
@@ -382,7 +400,7 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             Flow(
                 source=source_name,
                 tool=tool_name,
-                purpose=_string(flow.get("purpose"), f"manifest.flows[{index}].purpose"),
+                purpose=_declared_text(flow.get("purpose"), f"manifest.flows[{index}].purpose"),
                 purpose_tags=purpose_tags,
             )
         )
@@ -391,8 +409,8 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
 
     return AgentManifest(
         schema_version=schema_version,
-        name=_string(root.get("name"), "manifest.name"),
-        description=_string(root.get("description"), "manifest.description"),
+        name=_declared_text(root.get("name"), "manifest.name"),
+        description=_declared_text(root.get("description"), "manifest.description"),
         sources=tuple(sources),
         tools=tuple(tools),
         flows=tuple(flows),

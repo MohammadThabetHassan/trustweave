@@ -85,10 +85,19 @@ affecting coverage.
 
 ## The draft is not a manifest
 
-`manifest_draft` deliberately fails validation. `unknown` and `REVIEW_REQUIRED` are
-outside the accepted vocabularies, so `parse_manifest` rejects it until a reviewer
-resolves every placeholder. A draft that validated would eventually be passed to `scan`
-as though it had been reviewed, which is the specific failure this design refuses.
+`manifest_draft` deliberately fails validation, and it keeps failing until a reviewer
+has resolved every placeholder. Two separate checks do that work. `unknown` sits outside
+the accepted trust and action-class vocabularies. And `parse_manifest` refuses any
+declared free-text field that begins with `REVIEW_REQUIRED` -- `manifest.name`,
+`manifest.description`, a source's `data_classification` and `description`, a tool's
+`description` and a flow's `purpose` -- naming the field it refused.
+
+The second check is what makes the first sentence true. Closed vocabularies alone were
+satisfied after six edits while eight placeholders remained in the document, so a
+reviewer who fixed exactly what the parser complained about, and stopped when it stopped
+complaining, reached a passing `scan` over a draft nobody had read. A draft that
+validated would eventually be passed to `scan` as though it had been reviewed, which is
+the specific failure this design refuses.
 
 ## Findings
 
