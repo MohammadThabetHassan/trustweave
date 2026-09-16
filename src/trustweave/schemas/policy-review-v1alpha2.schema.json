@@ -253,6 +253,14 @@
     "coverage": {
       "additionalProperties": false,
       "properties": {
+        "declined_rules": {
+          "description": "Every rule whose collective cover was not searched because it names more label combinations than the local enumeration limit. Its `reachable` value is not a verdict; TW-POL-010 reports each entry.",
+          "items": {
+            "$ref": "#/$defs/rule_identifier"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
         "impossible_rules": {
           "items": {
             "$ref": "#/$defs/rule_identifier"
@@ -278,7 +286,8 @@
       "required": [
         "rules",
         "shadowed_rules",
-        "impossible_rules"
+        "impossible_rules",
+        "declined_rules"
       ],
       "type": "object"
     },

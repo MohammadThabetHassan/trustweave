@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+import trustweave.policy_review as policy_review_module
 from trustweave.cli import main
 from trustweave.io import load_document
 from trustweave.models import ValidationError, parse_policy
@@ -681,7 +682,12 @@ def test_an_impossible_earlier_rule_does_not_count_towards_a_collective_cover() 
 
 
 def test_a_rule_naming_too_many_cells_says_its_cover_was_not_searched() -> None:
-    """Above the enumeration limit the artifact must not read as a reachability verdict."""
+    """Above the enumeration limit the artifact must not read as a reachability verdict.
+
+    The declined branch returned a value byte-identical to "enumerated every cell and found
+    no cover", so a provably dead deny rule was published `reachable: true`,
+    `shadowed_by_rules: []`, `review_findings: 0`, `status: clear`, exit 0.
+    """
 
     rules = [_label_rule("R-T", ["trusted"], "allow"), _label_rule("R-C", ["conditional"], "allow")]
     big = _label_rule("R-BIG", ["trusted", "conditional", "untrusted"], "deny")
@@ -698,6 +704,9 @@ def test_a_rule_naming_too_many_cells_says_its_cover_was_not_searched() -> None:
     assert entry["reachable"] is True
     assert entry["shadowed_by_rules"] == []
     assert review["coverage"]["rules"]["R-C"]["cover_search"] == "complete"
+    assert review["coverage"]["declined_rules"] == ["R-BIG"]
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-010"]
+    assert review["summary"]["status"] == "review_required"
     assert "not searched" in render_policy_review_report(review)
 
 
@@ -862,3 +871,70 @@ def test_the_published_v1alpha1_schema_still_accepts_a_v0_3_0_coverage_artifact(
     schema = _published_schema("policy-review-v1alpha1.schema.json")
 
     assert list(Draft202012Validator(schema).iter_errors(released)) == []
+
+
+def test_the_cover_enumeration_limit_is_the_exact_boundary_between_searched_and_declined(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """One extra tool identifier used to turn two findings and `review_required` into `clear`.
+
+    The test is `>`, not `>=`, so a rule naming exactly the limit is still enumerated. Both
+    sides are pinned here because the silent flip is what made the cap dangerous: the rule
+    is genuinely unreachable in both runs, and only the declined run stopped saying so.
+    """
+
+    # Three trust labels times four tool identifiers is exactly twelve cells.
+    monkeypatch.setattr(policy_review_module, "MAX_COVERAGE_CELLS", 12)
+
+    def review_with(identifier_count: int) -> dict[str, object]:
+        rules = [
+            _label_rule("R-T", ["trusted"], "allow"),
+            _label_rule("R-C", ["conditional"], "allow"),
+            _label_rule("R-U", ["untrusted"], "allow"),
+        ]
+        for rule in rules:
+            rule["tool_identifiers"] = [f"tool-{index}" for index in range(identifier_count)]
+        big = _label_rule("R-BIG", ["trusted", "conditional", "untrusted"], "deny")
+        big["tool_identifiers"] = [f"tool-{index}" for index in range(identifier_count)]
+        rules.append(big)
+        document = _label_policy(rules)
+        document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+        return review_policy(parse_policy(document), include_coverage=True)
+
+    at_limit = review_with(4)
+    over_limit = review_with(5)
+
+    assert at_limit["coverage"]["rules"]["R-BIG"]["cover_search"] == "complete"
+    assert at_limit["coverage"]["rules"]["R-BIG"]["reachable"] is False
+    assert at_limit["coverage"]["declined_rules"] == []
+    assert {finding["id"] for finding in at_limit["findings"]} == {"TW-POL-002", "TW-POL-007"}
+    assert over_limit["coverage"]["rules"]["R-BIG"]["cover_search"] == "declined"
+    assert over_limit["coverage"]["rules"]["R-BIG"]["reachable"] is True
+    assert over_limit["coverage"]["declined_rules"] == ["R-BIG"]
+    assert [finding["id"] for finding in over_limit["findings"]] == ["TW-POL-010"]
+    assert over_limit["summary"]["status"] == "review_required"
+
+
+def test_a_declined_cover_search_is_reported_without_the_coverage_flag() -> None:
+    """A missing reachability answer is a fact about the policy, not a coverage diagnostic."""
+
+    rules = [_label_rule("R-T", ["trusted"], "allow")]
+    big = _label_rule("R-BIG", ["trusted", "conditional", "untrusted"], "deny")
+    big["source_identifiers"] = [f"source-{index}" for index in range(101)]
+    big["tool_identifiers"] = [f"tool-{index}" for index in range(101)]
+    rules.append(big)
+    document = _label_policy(rules)
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+
+    review = review_policy(parse_policy(document))
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-POL-010"]
+    assert review["findings"][0]["subject"] == {
+        "policy": "support-agent-boundary-policy",
+        "rule": "R-BIG",
+    }
+    assert review["findings"][0]["message"] == (
+        "Rule R-BIG names more declared combinations than the local cover enumeration limit "
+        "of 10000, so its first-match reachability was not established."
+    )
+    assert "coverage" not in review

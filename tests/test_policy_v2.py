@@ -392,6 +392,7 @@ def test_policy_coverage_detects_shadowing_when_declared_controls_are_static() -
         },
         "shadowed_rules": ["TW-V2-STATIC-CONTROL-LATER"],
         "impossible_rules": [],
+        "declined_rules": [],
     }
 
 

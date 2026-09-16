@@ -27,10 +27,13 @@ _CELL_FIELDS = (
     "tool_identifiers",
     "source_data_classifications",
 )
-# The enumeration is declined above this many cells and the pairwise answer stands. The
-# artifact says which happened: `cover_search` is "declined" rather than "complete", since
-# a declined enumeration is the one case where "no cover found" was not actually looked
-# for, and `reachable: true` on its own would read as a verdict.
+# The enumeration is declined above this many cells and only the single-rule check stands.
+# A declined search is the one case where "no cover found" was never looked for, so
+# `reachable: true` is not a verdict. The artifact says so twice: `cover_search` reads
+# "declined" and the rule is listed in `coverage.declined_rules` — but neither is a finding,
+# and a review nobody reads as unfinished is a review that reads as clear. TW-POL-010 is
+# what keeps `summary.status` off `clear`, and it is emitted whether or not coverage was
+# requested, because the missing answer is a fact about the policy.
 MAX_COVERAGE_CELLS = 10_000
 
 
@@ -89,6 +92,7 @@ def review_policy(
         )
 
     coverage_rules: dict[str, dict[str, object]] = {}
+    declined_rules: list[str] = []
     rules_by_id = {rule.id: rule for rule in policy.rules}
     for later_index, later_rule in enumerate(policy.rules):
         # Identity for every finding about this rule. `risk._fingerprint` hashes
@@ -197,6 +201,20 @@ def review_policy(
                     "message": (
                         f"Rule {later_rule.id} requires declared controls that this policy does "
                         "not provide and cannot determine a decision."
+                    ),
+                }
+            )
+        if not searched:
+            declined_rules.append(later_rule.id)
+            findings.append(
+                {
+                    "severity": "review",
+                    "id": "TW-POL-010",
+                    "subject": rule_subject,
+                    "message": (
+                        f"Rule {later_rule.id} names more declared combinations than the local "
+                        f"cover enumeration limit of {MAX_COVERAGE_CELLS}, so its first-match "
+                        "reachability was not established."
                     ),
                 }
             )
@@ -318,5 +336,6 @@ def review_policy(
             "impossible_rules": sorted(
                 rule_id for rule_id, result in coverage_rules.items() if result["possible"] is False
             ),
+            "declined_rules": sorted(declined_rules),
         }
     return add_generated_at(review, generated_at)
