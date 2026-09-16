@@ -85,6 +85,20 @@ python scripts/fragment_membership.py azure /tmp/corpora/fragment-membership-azu
 python scripts/exclusion_taxonomy.py --json docs/exclusion-taxonomy-v1.json
 ```
 
+Cedar has a second artifact and it is deliberately not the Cedar row:
+
+```bash
+# the 7,497 .cedar policies sealed inside the corpus's own corpus-tests.tar.gz
+python scripts/fragment_membership.py cedar /tmp/corpora/cedar-integration-tests \
+  --archive --json docs/fragment-membership-cedar-archive-v1.json
+```
+
+That archive is the output of a coverage-guided fuzz run, so folding it into the Cedar row
+would make machine-generated input more than half of the whole cross-language corpus.
+`--wide` still walks the 22 tracked files that the published row measures; the archive is
+measured, labelled and reported separately so that the exclusion is a decision on the record
+rather than a `getattr` fallback nobody made.
+
 `docs/coverage-cost-v1.json` is deliberately absent from that list. Its distribution is
 withdrawn — the grouping rule behind it under-counted set-membership guards — and the artifact
 carries an `invalidated` block saying so. `scripts/coverage_cost.py` refuses to overwrite it

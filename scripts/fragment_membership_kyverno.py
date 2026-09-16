@@ -347,6 +347,47 @@ def _namespace_selectors(text: str) -> list[str]:
     return sorted(set(found))
 
 
+def _rbac_selectors(text: str) -> list[str]:
+    """Match and exclude clauses that select on the requester's role bindings.
+
+    These fail the same test `namespaceSelector` fails, and for the same reason. The
+    AdmissionReview carries `userInfo`; it does not carry the requester's roles. Kyverno's
+    webhook fills `request.Roles` and `request.ClusterRoles` in for itself by listing
+    RoleBindings and ClusterRoleBindings from the cluster, so a guard behind one of these
+    turns on cluster state the admission request does not determine. The adapter had a branch
+    for `namespaceSelector` and none for these, and three vendor policies gating on
+    `clusterRoles` -- each shipped with `background: false`, Kyverno's own signal for a
+    userInfo-dependent policy -- carried the affirmative reason that every guard reads the
+    admission request and literals in the policy.
+
+    `subjects` is deliberately not included: it is matched against the AdmissionReview's own
+    userInfo, so it really is request-determined.
+    """
+
+    def keys_of(node: Any) -> set[str]:
+        if isinstance(node, dict):
+            return set(node) | {key for value in node.values() for key in keys_of(value)}
+        if isinstance(node, list):
+            return {key for value in node for key in keys_of(value)}
+        return set()
+
+    found: list[str] = []
+    for document in _documents(text):
+        specification = document.get("spec")
+        if not isinstance(specification, dict):
+            continue
+        for rule in (specification.get("rules") or []) + [specification]:
+            if not isinstance(rule, dict):
+                continue
+            for clause_name in ("match", "exclude", "matchConstraints"):
+                clause = rule.get(clause_name)
+                if not isinstance(clause, dict):
+                    continue
+                for selector in sorted({"roles", "clusterRoles"} & keys_of(clause)):
+                    found.append(f"{clause_name}.{selector}")
+    return sorted(set(found))
+
+
 def classify(text: str) -> Verdict:
     detail: dict[str, object] = {}
 
@@ -395,6 +436,14 @@ def classify(text: str) -> Verdict:
             OUTSIDE,
             "selects on Namespace labels, which the admission request does not carry",
             {"namespace_selectors": selectors},
+        )
+
+    rbac = _rbac_selectors(text)
+    if rbac:
+        return Verdict(
+            OUTSIDE,
+            "selects on the requester's role bindings, which the admission request does not carry",
+            {"rbac_selectors": rbac},
         )
 
     roots = _variable_roots(text)

@@ -23,30 +23,30 @@
       "blind_mean": 0.5119,
       "blind_median": 0.6072,
       "blind_policies": 4,
-      "covered_mean": 0.5779,
-      "covered_median": 0.6,
-      "covered_policies": 37,
-      "policies": 41,
+      "covered_mean": 0.5828,
+      "covered_median": 0.6125,
+      "covered_policies": 36,
+      "policies": 40,
       "stratum": "inside",
       "test": {
-        "method": "exact over 101270 splits, one-sided",
-        "observed_difference": 0.066,
-        "p_value": 0.2721
+        "method": "exact over 91390 splits, one-sided",
+        "observed_difference": 0.0709,
+        "p_value": 0.2585
       }
     },
     {
       "blind_mean": 0.4067,
       "blind_median": 0.25,
       "blind_policies": 5,
-      "covered_mean": 0.9047,
+      "covered_mean": 0.7785,
       "covered_median": 0.8571,
-      "covered_policies": 3,
-      "policies": 8,
+      "covered_policies": 4,
+      "policies": 9,
       "stratum": "outside",
       "test": {
-        "method": "exact over 56 splits, one-sided",
-        "observed_difference": 0.4981,
-        "p_value": 0.0179
+        "method": "exact over 126 splits, one-sided",
+        "observed_difference": 0.3719,
+        "p_value": 0.0476
       }
     }
   ]

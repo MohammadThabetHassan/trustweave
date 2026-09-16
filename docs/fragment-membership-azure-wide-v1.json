@@ -10,9 +10,9 @@
   ],
   "corpus_scope": "wide",
   "counts": {
-    "inside": 2150,
-    "outside": 1562,
-    "undetermined": 57
+    "inside": 2137,
+    "outside": 1589,
+    "undetermined": 43
   },
   "ecosystem": "azure",
   "measured_subjects_not_found": [],
@@ -1428,6 +1428,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -1438,9 +1441,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "05f95bb8-8ef8-4cef-8cad-5d30f9912850",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -2487,6 +2490,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -2497,9 +2503,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "0a370ff3-6cab-4e85-8995-295fd854c5b8",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -2560,6 +2566,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().location"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -2567,9 +2576,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "0a914e76-4921-4c19-b460-a2d36003525a",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -5413,6 +5422,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -5422,6 +5434,10 @@
       ],
       "parameters_declared": 1,
       "reason": "the decision turns on whether a related resource exists, which the resource under evaluation does not determine",
+      "reasons": [
+        "the decision turns on whether a related resource exists, which the resource under evaluation does not determine",
+        "reads the runtime state of a resource other than the one under evaluation"
+      ],
       "related_resource": {
         "has_existence_condition": true,
         "scope": "resource",
@@ -5965,6 +5981,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -5974,6 +5993,10 @@
       ],
       "parameters_declared": 1,
       "reason": "the decision turns on whether a related resource exists, which the resource under evaluation does not determine",
+      "reasons": [
+        "the decision turns on whether a related resource exists, which the resource under evaluation does not determine",
+        "reads the runtime state of a resource other than the one under evaluation"
+      ],
       "related_resource": {
         "has_existence_condition": true,
         "scope": "resource",
@@ -8242,9 +8265,9 @@
       "parameters_without_defaults": [
         "allowedServicePortsList"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "233a2a17-77ca-4fb1-9b6b-69223d272a44",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -14776,6 +14799,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "subscription().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -14789,7 +14815,11 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "40df99da-1232-49b1-a39a-6da8d878f469",
       "verdict": "outside"
     },
@@ -15572,9 +15602,9 @@
       "parameters_without_defaults": [
         "allowedContainerPortsList"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "440b515e-a580-421e-abeb-b159a61ddcbc",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -16067,9 +16097,9 @@
       "parameters_without_defaults": [
         "labelsList"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "46592696-4c7b-4bf3-9e45-6c2763bdc0a6",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -16545,9 +16575,9 @@
       "parameters_without_defaults": [
         "reservedTaints"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "48940d92-ff05-449e-9111-e742d9280451",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -18479,6 +18509,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -18489,9 +18522,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "5105a3c5-4ad7-44fd-be94-149ca62920b7",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -19494,9 +19527,9 @@
       "parameters_without_defaults": [
         "forbiddenSysctls"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "56d0a13f-712f-466b-8416-56fb354fb823",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -19749,9 +19782,9 @@
       "parameters_without_defaults": [
         "allowedUserNames"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "57dde185-5c62-4063-b965-afbb201e9c1c",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -21252,9 +21285,9 @@
       "parameters_without_defaults": [
         "allowedSysctls"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "5e5a0673-649e-4d50-bf9d-5a387a4e2081",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -24685,6 +24718,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "base64",
         "concat",
@@ -24701,6 +24737,10 @@
       ],
       "parameters_declared": 3,
       "reason": "the decision turns on whether a related resource exists, which the resource under evaluation does not determine",
+      "reasons": [
+        "the decision turns on whether a related resource exists, which the resource under evaluation does not determine",
+        "reads the runtime state of a resource other than the one under evaluation"
+      ],
       "related_resource": {
         "has_existence_condition": true,
         "scope": "resource",
@@ -29173,9 +29213,9 @@
         "allowedUsers",
         "labelsV2"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "83a0809a-a4e3-4ef2-8a24-2afc156607af",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -34137,9 +34177,9 @@
       "parameters_without_defaults": [
         "kind"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "9a5f4e39-e427-4d5d-ae73-93db00328bec",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -35066,6 +35106,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -35079,7 +35122,11 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "9ea02ca2-71db-412d-8b00-7c7ca9fcd32d",
       "verdict": "outside"
     },
@@ -35942,9 +35989,9 @@
         "allowedUsers",
         "labels"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "a22123bd-b9da-4c86-9424-24903e91fd55",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -38161,6 +38208,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -38171,9 +38221,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "abda6d70-9778-44e7-84a8-06713e6db027",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -39787,6 +39837,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "subscription().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -39799,7 +39852,11 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "b27a0cbd-a167-4dfa-ae64-4337be671140",
       "verdict": "outside"
     },
@@ -40055,6 +40112,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -40064,9 +40124,9 @@
         "notcontains"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "b3a22bc9-66de-45fb-98fa-00f5df42f41a",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -41049,9 +41109,9 @@
         "kind",
         "namespaces"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "b81f454c-eebb-4e4f-9dfe-dca060e8a8fd",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -45820,6 +45880,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -45832,7 +45895,11 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "cd3aa116-8754-49c9-a813-ad46512ece54",
       "verdict": "outside"
     },
@@ -48768,6 +48835,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -48778,9 +48848,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "db4f9b05-5ffd-4b34-b714-3c710dbb3fd6",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -50148,9 +50218,9 @@
       "parameters_without_defaults": [
         "messages"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "e24df237-32cb-4a6c-a2f6-85b499cda9f2",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -50370,9 +50440,9 @@
         "cpuLimit",
         "memoryLimit"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "e345eecc-fa47-480f-9e88-67dcc122b164",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -51949,6 +52019,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -51962,7 +52035,11 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "ea3f2387-9b95-492a-a190-fcdc54f7b070",
       "verdict": "outside"
     },
@@ -52184,6 +52261,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourceGroup"
       ],
@@ -52193,9 +52273,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "eae5dab1-5078-4686-a091-fce0e1e13d3b",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -52820,6 +52900,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -52830,9 +52913,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "ed9bd083-7bfb-4fec-bbb4-12635e096a09",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -53453,6 +53536,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -53462,9 +53548,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "f0308946-498a-43fd-8d44-a75b47cd2aef",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -54771,6 +54857,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -54779,9 +54868,9 @@
         "notcontains"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "f5c8be13-ecfa-4ed7-beee-fcd8a6d9519d",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [
@@ -55468,6 +55557,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -55477,9 +55569,9 @@
         "notequals"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "f87b2739-92be-4121-af7f-39c0a5a24f20",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -56622,6 +56714,9 @@
       "verdict": "inside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().managedBy"
+      ],
       "arm_functions": [
         "resourcegroup"
       ],
@@ -56631,9 +56726,9 @@
         "notcontains"
       ],
       "parameters_declared": 1,
-      "reason": "every guard compares the resource under evaluation against literals in the policy",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
       "subject": "fd9903f1-38c2-4d36-8e44-5c1c20c561e8",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -56867,9 +56962,9 @@
       "parameters_without_defaults": [
         "allowedContainerImagesRegex"
       ],
-      "reason": "delegates its guard to a policy program the definition does not contain",
+      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
       "subject": "febd0533-8e55-448f-b837-bd0e06f16469",
-      "verdict": "undetermined"
+      "verdict": "outside"
     },
     {
       "arm_functions": [],
@@ -57250,6 +57345,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -57262,11 +57360,18 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "patterns/pattern-tags-2.json",
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -57279,7 +57384,11 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "patterns/pattern-value-operator.json",
       "verdict": "outside"
     },
@@ -58235,6 +58344,9 @@
       "verdict": "outside"
     },
     {
+      "ambient_property_reads": [
+        "resourcegroup().tags"
+      ],
       "arm_functions": [
         "concat",
         "parameters",
@@ -58248,7 +58360,11 @@
       "parameters_without_defaults": [
         "tagName"
       ],
-      "reason": "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one",
+      "reason": "reads the runtime state of a resource other than the one under evaluation",
+      "reasons": [
+        "reads the runtime state of a resource other than the one under evaluation",
+        "is a policy schema rather than a policy: a parameter it reads has no default, so it determines no decision function until an assignment supplies one"
+      ],
       "subject": "samples/ResourceGroup/copy-resourcegroup-tag/azurepolicy.json",
       "verdict": "outside"
     },
@@ -58633,6 +58749,6 @@
   ],
   "policies_considered": 3769,
   "schema_version": "v1",
-  "share_inside": 0.5704,
-  "share_inside_of_judged": 0.5792
+  "share_inside": 0.567,
+  "share_inside_of_judged": 0.5735
 }

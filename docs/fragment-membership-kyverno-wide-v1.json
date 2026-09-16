@@ -10,8 +10,8 @@
   ],
   "corpus_scope": "wide",
   "counts": {
-    "inside": 206,
-    "outside": 29,
+    "inside": 203,
+    "outside": 32,
     "undetermined": 0
   },
   "ecosystem": "kyverno",
@@ -427,12 +427,12 @@
       "verdict": "inside"
     },
     {
-      "reason": "every guard reads the admission request and literals in the policy",
-      "subject": "block-updates-deletes",
-      "variable_roots": [
-        "request"
+      "rbac_selectors": [
+        "exclude.clusterRoles"
       ],
-      "verdict": "inside"
+      "reason": "selects on the requester's role bindings, which the admission request does not carry",
+      "subject": "block-updates-deletes",
+      "verdict": "outside"
     },
     {
       "cel_calls": [
@@ -545,10 +545,12 @@
       "verdict": "inside"
     },
     {
-      "reason": "every guard reads the admission request and literals in the policy",
+      "rbac_selectors": [
+        "exclude.clusterRoles"
+      ],
+      "reason": "selects on the requester's role bindings, which the admission request does not carry",
       "subject": "deny-privileged-profile",
-      "variable_roots": [],
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "reason": "every guard reads the admission request and literals in the policy",
@@ -613,10 +615,12 @@
       "verdict": "inside"
     },
     {
-      "reason": "every guard reads the admission request and literals in the policy",
+      "rbac_selectors": [
+        "exclude.clusterRoles"
+      ],
+      "reason": "selects on the requester's role bindings, which the admission request does not carry",
       "subject": "disallow-default-tlsoptions",
-      "variable_roots": [],
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "cel_calls": [],
@@ -1869,6 +1873,6 @@
   ],
   "policies_considered": 235,
   "schema_version": "v1",
-  "share_inside": 0.8766,
-  "share_inside_of_judged": 0.8766
+  "share_inside": 0.8638,
+  "share_inside_of_judged": 0.8638
 }

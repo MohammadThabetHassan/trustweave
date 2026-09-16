@@ -171,9 +171,20 @@ def _git_lines(repository: Path, *arguments: str) -> list[str] | None:
     return [line for line in completed.stdout.splitlines() if line]
 
 
-def discovery_for(adapter: Adapter, wide: bool) -> Any:
-    """The narrow corpus that joins to a study, or the widest the adapter can enumerate."""
+def discovery_for(adapter: Adapter, wide: bool, archive: bool = False) -> Any:
+    """The narrow corpus that joins to a study, the whole tracked corpus, or a sealed archive.
 
+    The archive walk is asked for by name and never substituted for `--wide`. A corpus may
+    ship machine-generated policies inside a tarball -- Cedar's does, 7,497 of them against 22
+    tracked files -- and folding those into the corpus row on the strength of a `getattr`
+    would change what a published number means without anyone deciding to.
+    """
+
+    if archive:
+        walk = getattr(adapter, "discover_archive", None)
+        if walk is None:
+            raise SystemExit(f"the {adapter.ECOSYSTEM} adapter has no archive to walk")
+        return walk
     if wide:
         return getattr(adapter, "discover_wide", adapter.discover)
     return adapter.discover
@@ -184,12 +195,13 @@ def measure(
     root: Path,
     restrict_to: set[str] | None = None,
     wide: bool = False,
+    archive: bool = False,
 ) -> dict[str, Any]:
     """Classify every discovered policy, optionally restricted to measured subjects."""
 
     policies: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for subject, path in discovery_for(adapter, wide)(root):
+    for subject, path in discovery_for(adapter, wide, archive)(root):
         if restrict_to is not None and subject not in restrict_to:
             continue
         if subject in seen:
@@ -280,6 +292,11 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         help="a suite-coverage or mutation artifact whose subjects bound this measurement",
     )
+    parser.add_argument(
+        "--archive",
+        action="store_true",
+        help="policies sealed inside an archive the corpus tracks, reported on their own",
+    )
     args = parser.parse_args(argv)
 
     adapter = load_adapter(args.ecosystem)
@@ -289,9 +306,18 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.wide and restrict_to is not None:
         raise SystemExit("--wide and --only-measured ask for opposite corpora")
-    findings = measure(adapter, args.root, restrict_to, wide=args.wide)
-    findings["corpus_scope"] = "wide" if args.wide else "joined-to-study"
+    if args.archive and (args.wide or restrict_to is not None):
+        raise SystemExit("--archive names its own corpus and cannot be combined")
+    findings = measure(adapter, args.root, restrict_to, wide=args.wide, archive=args.archive)
+    if args.archive:
+        findings["corpus_scope"] = "archive"
+    else:
+        findings["corpus_scope"] = "wide" if args.wide else "joined-to-study"
     findings["corpus"] = provenance(args.root)
+    if args.archive:
+        describe = getattr(adapter, "archive_provenance", None)
+        if describe is not None:
+            findings["archives"] = describe(args.root)
     absent = missing_subjects(findings, restrict_to)
     findings["measured_subjects_not_found"] = absent
     print(render(findings, absent))
