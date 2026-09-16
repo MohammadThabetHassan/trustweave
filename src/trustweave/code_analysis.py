@@ -1790,7 +1790,10 @@ def _classify_call(
 
 
 def _lexical_pii_tokens(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
-    names: list[str] = [argument.arg for argument in function.args.args]
+    # The whole signature, not `args.args`: a positional-only parameter is still a name,
+    # and reading half the parameter list made `def probe(ssn, dob, /)` invisible to the
+    # lexical screen that the same signature without the marker triggers.
+    names: list[str] = [parameter.arg for parameter in _parameters(function)]
     for node in ast.walk(function):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             names.append(node.value)
@@ -1831,10 +1834,53 @@ def _raises_not_implemented(statement: ast.stmt) -> bool:
     return _dotted(raised) in {"NotImplementedError", "NotImplemented"}
 
 
+def _bind_frame(
+    helper: ast.FunctionDef | ast.AsyncFunctionDef, call: ast.Call
+) -> dict[str, ast.expr]:
+    """Bind a call's arguments to the helper's parameters, the way Python binds them.
+
+    Three places used to do this with `zip(helper.args.args, call.args)`, and
+    `ast.arguments.args` excludes `posonlyargs`, so a `/` in the signature shifted every
+    positional binding left: for `def access(path, /, mode)`, the call `access("doc.pdf",
+    "w")` bound `mode` to the *filename*, and the open-mode rule then tested that filename
+    for `w`, `a`, `x` and `+`. The same shift made two calls that decide differently key
+    identically, so the second was skipped as already visited -- which defeated the
+    repeated-helper fix for exactly the `access("r")`/`access("w")` example the
+    documentation advertises.
+
+    Defaults are bound for parameters the call leaves unset, so a decision a helper makes
+    from its own default is still readable. A default that is not a literal binds a
+    non-literal, which is what keeps `mode=DEFAULT_MODE` a NONLITERAL_ARGUMENT refusal
+    rather than a second way to answer without evidence.
+    """
+
+    arguments = helper.args
+    positional = [*arguments.posonlyargs, *arguments.args]
+    frame: dict[str, ast.expr] = {
+        parameter.arg: argument for parameter, argument in zip(positional, call.args, strict=False)
+    }
+    nameable = {parameter.arg for parameter in (*arguments.args, *arguments.kwonlyargs)}
+    for keyword in call.keywords:
+        if keyword.arg in nameable:
+            frame[keyword.arg] = keyword.value
+    if arguments.defaults:
+        for parameter, default in zip(
+            positional[len(positional) - len(arguments.defaults) :],
+            arguments.defaults,
+            strict=False,
+        ):
+            frame.setdefault(parameter.arg, default)
+    for parameter, keyword_default in zip(
+        arguments.kwonlyargs, arguments.kw_defaults, strict=False
+    ):
+        if keyword_default is not None:
+            frame.setdefault(parameter.arg, keyword_default)
+    return frame
+
+
 def _helper_visit_key(
     spelled: str,
-    helper: ast.FunctionDef | ast.AsyncFunctionDef,
-    node: ast.Call,
+    frame: dict[str, ast.expr],
     origins: dict[str, tuple[str, ast.Call]],
 ) -> str:
     """One visit per helper *and* per set of arguments that can change what it does.
@@ -1848,11 +1894,11 @@ def _helper_visit_key(
     """
 
     decisive: list[str] = []
-    for parameter, argument in zip(helper.args.args, node.args, strict=False):
+    for name, argument in sorted(frame.items()):
         if isinstance(argument, ast.Constant):
-            decisive.append(f"{parameter.arg}={argument.value!r}")
+            decisive.append(f"{name}={argument.value!r}")
         elif isinstance(argument, ast.Name) and argument.id in origins:
-            decisive.append(f"{parameter.arg}~{origins[argument.id][0]}")
+            decisive.append(f"{name}~{origins[argument.id][0]}")
     return f"{spelled}({', '.join(decisive)})" if decisive else spelled
 
 
@@ -1927,7 +1973,7 @@ def _would_descend(
     helper = module.functions.get(spelled)
     if helper is None:
         return False
-    return _helper_visit_key(spelled, helper, node, origins) not in visited
+    return _helper_visit_key(spelled, _bind_frame(helper, node), origins) not in visited
 
 
 def _collect_signals(
@@ -1962,8 +2008,8 @@ def _collect_signals(
     # built, exactly as it sees the factory's imports -- then the receivers the caller
     # handed over. The function's own bindings are layered on top of all of them.
     seed: dict[str, tuple[str, ast.Call]] = dict(module.module_origins)
-    for frame in module.enclosing.get(id(function), ()):
-        seed.update(_scope_origins(frame.body, _scoped(module, frame), self_attributes))
+    for enclosing in module.enclosing.get(id(function), ()):
+        seed.update(_scope_origins(enclosing.body, _scoped(module, enclosing), self_attributes))
     seed.update(inherited or {})
     origins = _scope_origins(function.body, scope, self_attributes, seed)
     dynamic = _dynamic_locals(function, scope)
@@ -2106,15 +2152,16 @@ def _collect_signals(
                     tool.reasons.add("UNRESOLVED_CALLEE")
                 continue
             helper = module.functions[spelled]
-            key = _helper_visit_key(spelled, helper, node, origins)
+            frame = _bind_frame(helper, node)
+            key = _helper_visit_key(spelled, frame, origins)
             if key in visited:
                 continue
             visited.add(key)
             # Constants the caller supplies are bound to the helper's parameters, so a
             # decision that depends on a literal is still decidable one frame down.
             passed: dict[str, ast.expr] = {
-                parameter.arg: argument
-                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                name: argument
+                for name, argument in frame.items()
                 if isinstance(argument, ast.Constant)
             }
             # A receiver created in one function and handed to another keeps its identity.
@@ -2122,8 +2169,8 @@ def _collect_signals(
             # `session.get(url)` is how async clients are written, and losing the receiver
             # at the call boundary reported the egress as an unresolvable callee.
             handed: dict[str, tuple[str, ast.Call]] = {
-                parameter.arg: origins[argument.id]
-                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                name: origins[argument.id]
+                for name, argument in frame.items()
                 if isinstance(argument, ast.Name) and argument.id in origins
             }
             _collect_signals(

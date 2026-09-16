@@ -820,6 +820,122 @@ def test_a_helper_called_with_an_unreadable_argument_is_refused_not_benign(tmp_p
     assert "NONLITERAL_ARGUMENT" in tool.reasons
 
 
+def test_a_positional_only_parameter_does_not_shift_the_binding(tmp_path: Path) -> None:
+    """`def access(path, /, mode)` bound `mode` to the filename, so the write read as read.
+
+    `ast.arguments.args` excludes `posonlyargs`, so every positional argument was bound one
+    parameter to the left, and the open-mode rule then tested `"report.pdf"` for the flags
+    `w`, `a`, `x` and `+` -- answering from the filename at high confidence.
+    """
+
+    tool = _one(
+        tmp_path,
+        "def access(path, /, mode):\n"
+        "    return open(path, mode)\n\n\n"
+        "@tool\ndef store(body: str) -> str:\n"
+        '    """Store a report."""\n'
+        "    handle = access('report.pdf', 'w')\n"
+        "    handle.write(body)\n"
+        "    return 'ok'\n",
+    )
+
+    assert tool.proposed_action_class() == "write"
+    assert tool.confidence() == "high"
+    assert [(signal.action_class, signal.symbol) for signal in tool.signals] == [("write", "open")]
+
+
+def test_a_positional_only_helper_called_twice_is_read_once_per_mode(tmp_path: Path) -> None:
+    """The same shift made both calls key identically, so the second was skipped.
+
+    That defeated the repeated-helper fix for exactly the `access("r")`/`access("w")`
+    example the documentation advertises as fixed.
+    """
+
+    tool = _one(
+        tmp_path,
+        "def access(path, /, mode):\n"
+        "    return open(path, mode)\n\n\n"
+        "@tool\ndef update() -> str:\n"
+        '    """Read, then write."""\n'
+        "    access('notes.txt', 'r')\n"
+        "    access('notes.txt', 'w')\n"
+        "    return 'done'\n",
+    )
+
+    assert tool.proposed_action_class() == "write"
+    assert sorted(signal.action_class for signal in tool.signals) == ["read", "write"]
+
+
+def test_a_literal_default_is_bound_when_the_call_omits_it(tmp_path: Path) -> None:
+    """A helper that decides from its own default is still decidable one frame down."""
+
+    tool = _one(
+        tmp_path,
+        "def access(path, mode='w'):\n"
+        "    return open(path, mode)\n\n\n"
+        "@tool\ndef store(body: str) -> str:\n"
+        '    """Store a report."""\n'
+        "    handle = access('report.pdf')\n"
+        "    handle.write(body)\n"
+        "    return 'ok'\n",
+    )
+
+    assert tool.proposed_action_class() == "write"
+    assert [signal.action_class for signal in tool.signals] == ["write"]
+
+
+def test_a_default_that_is_not_a_literal_is_still_refused(tmp_path: Path) -> None:
+    """Binding defaults must not become a second way to answer without evidence."""
+
+    tool = _one(
+        tmp_path,
+        "import os\n\nDEFAULT_MODE = os.environ.get('MODE', 'r')\n\n\n"
+        "def access(path, mode=DEFAULT_MODE):\n"
+        "    return open(path, mode)\n\n\n"
+        "@tool\ndef store(body: str) -> str:\n"
+        '    """Store a report."""\n'
+        "    handle = access('report.pdf')\n"
+        "    handle.write(body)\n"
+        "    return 'ok'\n",
+    )
+
+    assert tool.proposed_action_class() == "unknown"
+    assert "NONLITERAL_ARGUMENT" in tool.reasons
+
+
+def test_a_keyword_argument_binds_the_parameter_it_names(tmp_path: Path) -> None:
+    """`access(mode="w")` binds `mode`, not the first parameter."""
+
+    tool = _one(
+        tmp_path,
+        "def access(path='notes.txt', mode='r'):\n"
+        "    return open(path, mode)\n\n\n"
+        "@tool\ndef store(body: str) -> str:\n"
+        '    """Store a report."""\n'
+        "    handle = access(mode='w')\n"
+        "    handle.write(body)\n"
+        "    return 'ok'\n",
+    )
+
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_positional_only_parameter_is_still_read_by_the_lexical_screen(
+    tmp_path: Path,
+) -> None:
+    """`def probe(ssn, dob, /)` was invisible to a screen the same signature triggers."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef lookup(ssn, passport, /) -> str:\n"
+        '    """Look someone up."""\n'
+        "    return f'{ssn}{passport}'\n",
+    )
+
+    assert tool.proposed_action_class() == "unknown"
+    assert "LEXICAL_ONLY" in tool.reasons
+
+
 def test_a_local_import_in_another_function_does_not_rebind_the_module_import(
     tmp_path: Path,
 ) -> None:
