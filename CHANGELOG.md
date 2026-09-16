@@ -6,6 +6,25 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/oracle_kyverno.py` and `docs/oracle-kyverno-v1.json` check the Kyverno membership
+  adapter against the engine that runs the policies, the behavioural check the write-up had
+  listed as unbuilt. Every one of the 237 measured policies has its own suite run under the
+  Kyverno CLI as shipped, under injected namespace labels and a global value the policy did
+  not write, and -- where the suite stubs context variables, namespace labels or a context
+  file -- with those stubs removed and the request-field stubs kept. All 206 policies the
+  adapter calls inside are invariant under injection over 2,129 tests and none of their
+  suites stubs anything external; 24 of the 27 outside policies whose suites stub external
+  data change outcome when it is removed, 3 never reach the guard and are reported rather
+  than judged, and 4 stub nothing a suite could supply. The engine disagrees with the
+  adapter on none. `tests/test_oracle_kyverno.py` holds the artifact to those counts and
+  exercises the stub classification and the perturbations on small suites.
+- The witness construction has a closed-form criterion, stated as a lemma in the manuscript
+  and computed by `scripts/verify_witness_space.py` beside the solver's answer and the
+  harness's enumeration: a signature over existential set guards is achievable exactly when
+  no guard marked false dominates one marked true. The certificate records all three and
+  they agree on every one of the 14 cases; `tests/test_witness_criterion.py` holds the
+  criterion to the construction without a solver, so the lemma is load-bearing in CI where
+  z3 is not installed.
 - `scripts/clone_pinned_corpora.py` puts every corpus on disk at the commit its artifact
   records, deriving the list from the artifacts so it cannot drift from the measurement, and
   refuses a checkout that did not finish. A blobless clone fetches file contents lazily and a
@@ -84,6 +103,25 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Changed
 
+- The Kyverno mutation experiment was rerun under the corrected keying, and the result
+  moved. `docs/kyverno-mutation-v1.json` now records 52 scored policies, 12 blind against
+  40 covered, a difference in mean mutation score of 0.223 at p = 0.013 one-sided
+  (`--comparison 40`, invocation recorded), where the previous artifact recorded 49, 9
+  against 40 and p = 0.043 on a join that measured one sibling dialect and labelled another.
+  Each detail row now records `decisions_witnessed` per rule from the scored manifest, and
+  `scripts/decision_trend_test.py` reads that field in preference to the pooled coverage
+  artifact. The stratified test reverses: the association reproduces inside the fragment
+  (39 policies, p = 0.039) and not outside it (13 policies, p = 0.129 exact over 1,716
+  splits), where the earlier artifact had it confined to the outside stratum. Both readings
+  rest on small blind arms of six, and the manuscript now says the split should be expected
+  to move under a different but defensible choice of sibling.
+- `fragment_membership_kyverno.discover` keys policies exactly as the mutation experiment
+  does -- by the name each test manifest states, measuring the first manifest in path order
+  -- rather than by directory name keeping the last, so a membership verdict and a mutation
+  score describe one file. The wide Kyverno row is now 237 policies, 206 inside and 31
+  outside (86.9%), from 235, 203 and 32; pooled figures move to 7,008 artifacts, 6,092
+  policies and 5,175 inside (85.0%), and the exclusion taxonomy to 1,790. The provenance
+  check re-measures the new row and reproduces it.
 - The research write-ups moved out of the repository. A journal, and the similarity check
   it runs, reads a publicly posted full text as prior dissemination, and that applies to
   the long-form development as much as to the manuscript — including a prospectus that was
@@ -144,6 +182,14 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
+- The Kyverno adapter left two base-directory policies undetermined that read only the
+  request: a parenthesised JMESPath expression opened with the bracket and produced an
+  empty variable root, and `regex_replace_all` -- a string filter total on its arguments --
+  was not in the list of pure functions. Both are inside now, with Kyverno's other pure
+  string filters added beside `regex_match`; `random` is deliberately absent.
+- `scripts/kyverno_mutation.py` staged a policy outside its own root when the corpus was
+  named by a relative path, because the manifest's policy references were resolved and the
+  root was not; the test directory is resolved before staging.
 - Four defects a contributor review of 0.3.1 confirmed (written by a project contributor and manuscript coauthor; see `docs/evaluation/CONFLICTS_AND_LIMITATIONS.md`), each reproduced from the
   review's own snippet before it was fixed and each kept as a behavioural regression case.
   All four had the same shape: a confident, clear answer where the evidence supported none.
