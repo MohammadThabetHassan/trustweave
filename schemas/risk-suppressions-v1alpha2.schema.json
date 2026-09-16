@@ -22,7 +22,7 @@
       "required": ["fingerprint", "fingerprint_schema_version", "rule_id", "subject_digest", "accepted_severity", "reason", "owner", "created_at", "expires_at"],
       "properties": {
         "fingerprint": {"$ref": "#/$defs/fingerprint"},
-        "fingerprint_schema_version": {"const": "trustweave/fingerprint/v3"},
+        "fingerprint_schema_version": {"const": "trustweave/fingerprint/v4"},
         "rule_id": {"$ref": "#/$defs/rule_id"},
         "subject_digest": {"$ref": "#/$defs/fingerprint"},
         "accepted_severity": {"$ref": "#/$defs/severity"},

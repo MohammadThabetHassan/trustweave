@@ -149,10 +149,12 @@ def test_policy_coverage_reports_redundant_contradictory_and_impossible_rules() 
         "Rule TW-COVER-003 requires declared controls that this policy does not provide and cannot "
         "determine a decision."
     )
-    assert all(
-        finding["subject"] == {"policy": "support-agent-boundary-policy"}
-        for finding in findings_by_id.values()
-    )
+    assert {identifier: finding["subject"] for identifier, finding in findings_by_id.items()} == {
+        "TW-POL-002": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-003"},
+        "TW-POL-003": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-002"},
+        "TW-POL-007": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-002"},
+        "TW-POL-008": {"policy": "support-agent-boundary-policy", "rule": "TW-COVER-003"},
+    }
 
 
 def test_policy_rejects_explicit_null_approval_control() -> None:
@@ -723,3 +725,87 @@ def test_a_rule_requiring_undeclared_controls_is_reported_without_the_coverage_f
     )
     assert review["summary"]["status"] == "review_required"
     assert "coverage" not in review
+
+
+def _shadow_demo_policy() -> dict[str, object]:
+    """The audit's reproduction: a broad first rule shadowing three later rules."""
+
+    def rule(identifier: str, trust: list[str], decision: str) -> dict[str, object]:
+        return {
+            "id": identifier,
+            "description": f"Shadow-demo rule {identifier}.",
+            "source_trust": trust,
+            "tool_action_classes": ["read", "external"],
+            "decision": decision,
+            "rationale": "Test-only shadowing fixture.",
+        }
+
+    return {
+        "schema_version": "trustweave.dev/policy/v1alpha2",
+        "name": "shadow-demo",
+        "default_decision": "deny",
+        "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+        "approval_control": {
+            "mechanism": "human-review-queue",
+            "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+            "fail_closed": True,
+        },
+        "rules": [
+            rule("TW-BROAD", ["trusted", "conditional", "untrusted"], "allow"),
+            rule("TW-SHADOW-A", ["trusted"], "deny"),
+            rule("TW-SHADOW-B", ["conditional"], "allow"),
+            rule("TW-SHADOW-C", ["untrusted"], "deny"),
+        ],
+    }
+
+
+def test_every_rule_level_finding_names_the_rule_it_is_about() -> None:
+    """Every finding carried `{"policy": name}`, so one policy was one risk identity per id.
+
+    The risk fingerprint is built from (evidence kind, id, subject) and deliberately
+    excludes the message, which is the only place the rule id used to survive. Rule ids are
+    unique within a policy, so `(policy, rule)` is what tells these findings apart.
+    """
+
+    review = review_policy(
+        parse_policy(_shadow_demo_policy()),
+        generated_at="2026-09-16T00:00:00+00:00",
+        include_coverage=True,
+    )
+
+    assert [(finding["id"], finding["subject"]) for finding in review["findings"]] == [
+        ("TW-POL-003", {"policy": "shadow-demo", "rule": "TW-BROAD"}),
+        ("TW-POL-002", {"policy": "shadow-demo", "rule": "TW-SHADOW-A"}),
+        ("TW-POL-007", {"policy": "shadow-demo", "rule": "TW-SHADOW-A"}),
+        ("TW-POL-002", {"policy": "shadow-demo", "rule": "TW-SHADOW-B"}),
+        ("TW-POL-009", {"policy": "shadow-demo", "rule": "TW-SHADOW-B"}),
+        ("TW-POL-002", {"policy": "shadow-demo", "rule": "TW-SHADOW-C"}),
+        ("TW-POL-007", {"policy": "shadow-demo", "rule": "TW-SHADOW-C"}),
+    ]
+
+
+def test_a_policy_level_finding_keeps_the_policy_as_its_whole_subject() -> None:
+    """Pins the other direction: a finding about the policy itself must not name a rule.
+
+    `TW-POL-001` and `TW-POL-004` through `TW-POL-006` fire at most once per policy, so
+    adding a rule to their subject would invent a distinction that does not exist.
+    """
+
+    document = _shadow_demo_policy()
+    document["default_decision"] = "allow"
+    document.pop("approval_control")
+    rules = document["rules"]
+    assert isinstance(rules, list)
+    rules[0]["decision"] = "require_approval"
+
+    review = review_policy(parse_policy(document), generated_at="2026-09-16T00:00:00+00:00")
+
+    policy_level = {
+        finding["id"]: finding["subject"]
+        for finding in review["findings"]
+        if finding["id"] in {"TW-POL-001", "TW-POL-004"}
+    }
+    assert policy_level == {
+        "TW-POL-001": {"policy": "shadow-demo"},
+        "TW-POL-004": {"policy": "shadow-demo"},
+    }
