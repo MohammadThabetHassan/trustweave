@@ -201,6 +201,54 @@ def test_a_path_read_method_is_recorded_as_a_read(tmp_path: Path, method: str) -
     assert tool.proposed_action_class() == "read"
 
 
+def _archive_source(receiver: str, method: str) -> str:
+    """A tool holding one catalogued archive handle and calling one method on it."""
+
+    return (
+        f"{TOOL_IMPORT}\n"
+        f"import {receiver.split('.')[0]}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe one catalogued archive method."""\n'
+        f"    bundle = {receiver}(value)\n"
+        f"    bundle.{method}(value)\n"
+        "    return value\n"
+    )
+
+
+@pytest.mark.parametrize("receiver", sorted(catalog.ARCHIVE_RECEIVERS))
+@pytest.mark.parametrize("method", sorted(catalog.ARCHIVE_WRITE_METHODS))
+def test_an_archive_write_method_is_recorded_as_a_write(
+    tmp_path: Path, receiver: str, method: str
+) -> None:
+    """Extraction and addition both write files the caller did not name."""
+
+    tool = _single_tool(tmp_path, _archive_source(receiver, method))
+    signal = _signal_for(tool, f"{receiver}.{method}")
+
+    assert signal.action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+@pytest.mark.parametrize("receiver", sorted(catalog.ARCHIVE_RECEIVERS))
+@pytest.mark.parametrize("method", sorted(catalog.ARCHIVE_READ_METHODS))
+def test_an_archive_read_method_is_recorded_as_a_read(
+    tmp_path: Path, receiver: str, method: str
+) -> None:
+    tool = _single_tool(tmp_path, _archive_source(receiver, method))
+    signal = _signal_for(tool, f"{receiver}.{method}")
+
+    assert signal.action_class == "read"
+    assert tool.proposed_action_class() == "read"
+
+
+def test_the_archive_method_tables_do_not_overlap() -> None:
+    """A method must yield one class, so a member of both would decide by branch order."""
+
+    assert not (catalog.ARCHIVE_WRITE_METHODS & catalog.ARCHIVE_READ_METHODS)
+
+
 # ---------------------------------------------------------------------------------------
 # Token tables: the argument decides the class, not the callee alone
 # ---------------------------------------------------------------------------------------

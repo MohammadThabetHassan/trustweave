@@ -27,6 +27,9 @@ from typing import Final
 
 from trustweave.code_catalog import (
     ACTION_CLASS_PRECEDENCE,
+    ARCHIVE_READ_METHODS,
+    ARCHIVE_RECEIVERS,
+    ARCHIVE_WRITE_METHODS,
     CREDENTIAL_PATH_SUFFIXES,
     CREDENTIAL_PATH_TOKENS,
     DB_CONNECTION_SYMBOLS,
@@ -87,6 +90,12 @@ _KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(
     {"bool", "bytes", "dict", "float", "frozenset", "int", "list", "open", "set", "str", "tuple"}
 )
 _INSTANCE_RECEIVERS: Final[frozenset[str]] = frozenset({"self", "cls"})
+# Every spelling of the builtin `open`. `io.open is open` is literally true and
+# `codecs.open` is the same call with an encoding, so all three are judged by their mode.
+# The rule used to dispatch on the bare `open` token and skip when the module bound that
+# name, so one `from io import open` disabled mode analysis for every open in the file and
+# published a write -- and a credential read -- as a benign read.
+BUILTIN_OPEN_SYMBOLS: Final[frozenset[str]] = frozenset({"open", "io.open", "codecs.open"})
 # Pseudo-origin for a local bound directly to os.environ.
 _ENVIRON_ORIGIN: Final[str] = "os.environ"
 # Sentinel: a resolved call the catalog has no entry for.
@@ -919,6 +928,7 @@ def _scope_origins(
             qualified in EXTERNAL_RECEIVERS
             or qualified in PATH_RECEIVERS
             or qualified in SENSITIVE_RECEIVERS
+            or qualified in ARCHIVE_RECEIVERS
         ):
             return qualified
         # `Path.home()` and `Path.cwd()` return the receiver they are called on.
@@ -1064,9 +1074,12 @@ def _local_literals(scope: ast.AST, module: _Module | None = None) -> dict[str, 
 
 
 def _open_class(
-    call: ast.Call, literals: dict[str, ast.expr] | None = None
+    call: ast.Call,
+    literals: dict[str, ast.expr] | None = None,
+    mode_index: int = 1,
+    credential: bool | None = None,
 ) -> tuple[str | None, str | None]:
-    """Return (action_class, refusal_reason) for a builtin ``open`` call.
+    """Return (action_class, refusal_reason) for one ``open`` call.
 
     A read of a credential path is sensitive rather than a plain read, which is the rule
     every other read in this module already applies. Without it the two spellings of the
@@ -1074,11 +1087,20 @@ def _open_class(
     ``open("~/.ssh/id_rsa")`` was a benign read at high confidence, and the second is the
     more common idiom. Writes keep the write class whatever the path, matching the
     treatment of the pathlib write methods.
+
+    *mode_index* is which positional argument carries the mode: the builtin takes the path
+    first and the mode second, while `Path.open` takes the mode first because the path is
+    the receiver. Reading `args[1]` for both would have tested `Path(p).open("w")`'s
+    encoding, or nothing at all, and published the write as a read.
+
+    *credential* is supplied when the path is not in this call -- `Path(p).open("r")` keeps
+    it in the constructor -- and judged from the call itself otherwise.
     """
 
-    mode_node = call.args[1] if len(call.args) > 1 else _keyword(call, "mode")
+    mode_node = call.args[mode_index] if len(call.args) > mode_index else _keyword(call, "mode")
+    is_credential = _is_credential_path(call, "file") if credential is None else credential
     if mode_node is None:
-        return ("sensitive" if _is_credential_path(call, "file") else "read"), None
+        return ("sensitive" if is_credential else "read"), None
     modes = _literal_strings(mode_node, literals)
     if not modes:
         return None, "NONLITERAL_ARGUMENT"
@@ -1089,7 +1111,7 @@ def _open_class(
         return None, "NONLITERAL_ARGUMENT"
     if classes == {"write"}:
         return "write", None
-    return ("sensitive" if _is_credential_path(call, "file") else "read"), None
+    return ("sensitive" if is_credential else "read"), None
 
 
 def _keyed_store_class(
@@ -1253,6 +1275,63 @@ def _unwound_receiver(call: ast.Call, module: _Module) -> tuple[str | None, ast.
         return None, None
 
 
+def _receiver_effect(
+    origin: str | None,
+    method: str,
+    call: ast.Call,
+    constructor: ast.Call | None,
+    literals: dict[str, ast.expr] | None = None,
+    credential: bool | None = None,
+) -> tuple[str | None, str | None, str | None] | None:
+    """Classify one method call on a resolved receiver, or None when it is not one.
+
+    Every branch that resolves a receiver -- constructed in place, bound to a name, composed
+    with `/`, or stored on `self` -- asked the same four questions in four slightly different
+    ways, and a family added to one of them was missing from the others. Returning None
+    rather than a refusal keeps the caller's remaining rules reachable.
+    """
+
+    if origin in PATH_RECEIVERS:
+        if method == "open":
+            # `Path(p).open("w")` is the same write as `open(p, "w")`. It was in none of the
+            # path method tables, so the whole spelling produced no signal, and the handle it
+            # returns inherits the path origin, so the `handle.write(...)` that follows was
+            # silent too.
+            is_credential = (
+                credential
+                if credential is not None
+                else (constructor is not None and _is_credential_path(constructor))
+            )
+            action, reason = _open_class(call, literals, mode_index=0, credential=is_credential)
+            return action, f"{origin}.open", reason
+        if method in PATH_PRESERVING_METHODS:
+            # A link in the chain, not an effect: it returns another path and touches
+            # nothing. Refusing on it made the whole tool unknown even once the read at the
+            # end of the chain had been resolved.
+            return None, None, None
+        if method in WRITE_RECEIVER_METHODS:
+            return "write", f"{origin}.{method}", None
+        if method in READ_RECEIVER_METHODS:
+            is_credential = (
+                credential
+                if credential is not None
+                else (constructor is not None and _is_credential_path(constructor))
+            )
+            return ("sensitive" if is_credential else "read"), f"{origin}.{method}", None
+        return None
+    if origin in ARCHIVE_RECEIVERS:
+        if method in ARCHIVE_WRITE_METHODS:
+            return "write", f"{origin}.{method}", None
+        if method in ARCHIVE_READ_METHODS:
+            return "read", f"{origin}.{method}", None
+        return None
+    if origin in EXTERNAL_RECEIVERS:
+        return "external", f"{origin}.{method}", None
+    if origin in SENSITIVE_RECEIVERS:
+        return "sensitive", f"{origin}.{method}", None
+    return None
+
+
 def _composed_receiver(
     value: ast.BinOp,
     module: _Module,
@@ -1394,21 +1473,9 @@ def _classify_call(
             method = call.func.attr
             if inner is None:
                 inner = call.func.value
-            if origin in PATH_RECEIVERS:
-                if method in PATH_PRESERVING_METHODS:
-                    # A link in the chain, not an effect: it returns another path and
-                    # touches nothing. Refusing on it made the whole tool unknown even
-                    # once the read at the end of the chain had been resolved.
-                    return None, None, None
-                if method in WRITE_RECEIVER_METHODS:
-                    return "write", f"{origin}.{method}", None
-                if method in READ_RECEIVER_METHODS:
-                    action = "sensitive" if _is_credential_path(inner) else "read"
-                    return action, f"{origin}.{method}", None
-            if origin in EXTERNAL_RECEIVERS:
-                return "external", f"{origin}.{method}", None
-            if origin in SENSITIVE_RECEIVERS:
-                return "sensitive", f"{origin}.{method}", None
+            effect = _receiver_effect(origin, method, call, inner, literals)
+            if effect is not None:
+                return effect
             if origin in PURE_RESULT_SYMBOLS:
                 # A method on a computed value. It cannot have an effect, so refusing on
                 # it reported the tool as unknown over a call that says nothing.
@@ -1426,26 +1493,19 @@ def _classify_call(
         # bound to a name first.
         if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.BinOp):
             origin, inner = _composed_receiver(call.func.value, module, origins, self_attributes)
-            method = call.func.attr
-            if origin in PATH_RECEIVERS:
-                if method in PATH_PRESERVING_METHODS:
-                    return None, None, None
-                if method in WRITE_RECEIVER_METHODS:
-                    return "write", f"{origin}.{method}", None
-                if method in READ_RECEIVER_METHODS:
-                    # The composition carries the segments that decide whether this is an
-                    # ordinary read or a credential read, so they are judged joined.
-                    credential = _is_credential_text(
-                        [
-                            _joined_path(call.func.value),
-                            *([_joined_path(argument) for argument in inner.args] if inner else []),
-                        ]
-                    )
-                    return ("sensitive" if credential else "read"), f"{origin}.{method}", None
-            if origin in EXTERNAL_RECEIVERS:
-                return "external", f"{origin}.{method}", None
-            if origin in SENSITIVE_RECEIVERS:
-                return "sensitive", f"{origin}.{method}", None
+            # The composition carries the segments that decide whether this is an ordinary
+            # read or a credential read, so they are judged joined with the constructor's.
+            composed_credential = _is_credential_text(
+                [
+                    _joined_path(call.func.value),
+                    *([_joined_path(argument) for argument in inner.args] if inner else []),
+                ]
+            )
+            effect = _receiver_effect(
+                origin, call.func.attr, call, inner, literals, composed_credential
+            )
+            if effect is not None:
+                return effect
         # Otherwise a method on an expression result. Only evidence if the chain roots at
         # a name this module resolves; a call on a parameter or literal is not.
         if root is not None and (root in module.bindings or root in origins):
@@ -1458,17 +1518,11 @@ def _classify_call(
     # LLM and cloud SDK is shaped this way, so egress published as silence.
     if root is not None and root in origins and isinstance(call.func, ast.Attribute):
         receiver, constructor = origins[root]
-        method = call.func.attr
-        if receiver in EXTERNAL_RECEIVERS:
-            return "external", f"{receiver}.{method}", None
-        if receiver in SENSITIVE_RECEIVERS:
-            return "sensitive", f"{receiver}.{method}", None
-        if receiver in PATH_RECEIVERS:
-            if method in WRITE_RECEIVER_METHODS:
-                return "write", f"{receiver}.{method}", None
-            if method in READ_RECEIVER_METHODS:
-                action = "sensitive" if _is_credential_path(constructor) else "read"
-                return action, f"{receiver}.{method}", None
+        effect = _receiver_effect(receiver, call.func.attr, call, constructor, literals)
+        if effect is not None and effect != (None, None, None):
+            # A path-preserving link returns nothing here rather than ending the search,
+            # because the rules below still describe some of those spellings.
+            return effect
 
     if _is_instance_state_call(call):
         # self.client.post(...). Resolve it when the class stored a known receiver on that
@@ -1477,20 +1531,14 @@ def _classify_call(
         attribute = _instance_attribute(call)
         origin = self_attributes.get(attribute or "")
         method = call.func.attr if isinstance(call.func, ast.Attribute) else ""
-        if origin in EXTERNAL_RECEIVERS:
-            return "external", f"{origin}.{method}", None
-        if origin in SENSITIVE_RECEIVERS:
-            return "sensitive", f"{origin}.{method}", None
-        if origin in PATH_RECEIVERS:
-            if method in WRITE_RECEIVER_METHODS:
-                return "write", f"{origin}.{method}", None
-            if method in READ_RECEIVER_METHODS:
-                # The constructor ran in __init__, so its literal is not in this call.
-                # Whether it named a credential path was recorded when the class was
-                # indexed; without it `self.key = Path("~/.ssh/id_rsa")` read as benign
-                # while the same two lines inside the tool read as sensitive.
-                credential = attribute is not None and attribute in (self_credentials or set())
-                return ("sensitive" if credential else "read"), f"{origin}.{method}", None
+        # The constructor ran in __init__, so its literal is not in this call. Whether it
+        # named a credential path was recorded when the class was indexed; without it
+        # `self.key = Path("~/.ssh/id_rsa")` read as benign while the same two lines inside
+        # the tool read as sensitive.
+        stored_credential = attribute is not None and attribute in (self_credentials or set())
+        effect = _receiver_effect(origin, method, call, None, literals, stored_credential)
+        if effect is not None:
+            return effect
         return None, None, "UNRESOLVED_CALLEE"
 
     # A method on a parameter the signature declares as third-party state. What it does is
@@ -1516,9 +1564,9 @@ def _classify_call(
                 return "sensitive", spelled, None
         return None, None, "DYNAMIC_DISPATCH"
 
-    if spelled == "open" and "open" not in module.bindings:
+    if qualified in BUILTIN_OPEN_SYMBOLS:
         open_action, open_reason = _open_class(call, literals)
-        return open_action, "open", open_reason
+        return open_action, qualified, open_reason
 
     if qualified in KEYED_STORE_OPENERS:
         store_action, store_reason = _keyed_store_class(call, qualified, literals)
@@ -1565,18 +1613,16 @@ def _classify_call(
         tracked = origins.get(call.func.value.id)
         if tracked is not None:
             origin, constructor = tracked
-            if origin in EXTERNAL_RECEIVERS:
-                return "external", f"{origin}.{call.func.attr}", None
-            if origin in PATH_RECEIVERS:
-                if call.func.attr in WRITE_RECEIVER_METHODS:
-                    return "write", f"{origin}.{call.func.attr}", None
-                if call.func.attr in READ_RECEIVER_METHODS:
-                    credential = _is_credential_path(call) or _is_credential_path(constructor)
-                    return (
-                        "sensitive" if credential else "read",
-                        f"{origin}.{call.func.attr}",
-                        None,
-                    )
+            effect = _receiver_effect(
+                origin,
+                call.func.attr,
+                call,
+                constructor,
+                literals,
+                _is_credential_path(call) or _is_credential_path(constructor),
+            )
+            if effect is not None and effect != (None, None, None):
+                return effect
 
     if isinstance(call.func, ast.Attribute) and call.func.attr in DB_EXECUTE_METHODS:
         # A recognised execute whose query is not a literal cannot be classified.
@@ -1586,6 +1632,7 @@ def _classify_call(
         qualified in EXTERNAL_RECEIVERS
         or qualified in PATH_RECEIVERS
         or qualified in SENSITIVE_RECEIVERS
+        or qualified in ARCHIVE_RECEIVERS
     ):
         # Constructing a recognised receiver is not itself an effect; its methods are.
         return None, None, None

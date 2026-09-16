@@ -885,3 +885,160 @@ def test_a_receiver_built_by_the_factory_is_visible_to_the_tool_it_registers(
 
     assert _signal_for(tool, "httpx.Client.get").action_class == "external"
     assert tool.proposed_action_class() == "external"
+
+
+# ---------------------------------------------------------------------------------------
+# Shape 8: the file handle and the archive handle
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("mode", ["w", "wb", "a", "x"], ids=["w", "wb", "a", "x"])
+def test_a_path_opened_for_writing_is_a_write(tmp_path: Path, mode: str) -> None:
+    """`Path(p).open("w")` was read/high with no signal: `open` was in no method table."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str, body: str) -> str:\n"
+        '    """Probe a path opened for writing."""\n'
+        f"    with Path('/var/notes').joinpath(name).open({mode!r}) as handle:\n"
+        "        handle.write(body)\n"
+        "    return name\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.open").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_path_opened_for_reading_stays_a_read(tmp_path: Path) -> None:
+    """The control: the mode is at args[0] here, not args[1] as for the builtin."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str) -> str:\n"
+        '    """Probe a path opened for reading."""\n'
+        f"    with Path({ORDINARY_PATH!r}).open('r', encoding='utf-8') as handle:\n"
+        "        return handle.read()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.open").action_class == "read"
+    assert tool.proposed_action_class() == "read"
+
+
+def test_a_credential_path_opened_for_reading_is_sensitive(tmp_path: Path) -> None:
+    """The path is in the constructor, so the credential decision travels with it."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe() -> str:\n"
+        '    """Probe a credential path opened for reading."""\n'
+        f"    handle = Path({CREDENTIAL_PATH!r}).open('r')\n"
+        "    return str(handle)\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.open").action_class == "sensitive"
+
+
+@pytest.mark.parametrize("spelling", ["io.open", "codecs.open"], ids=["io", "codecs"])
+def test_every_spelling_of_the_builtin_open_is_judged_by_its_mode(
+    tmp_path: Path, spelling: str
+) -> None:
+    """`io.open` and `codecs.open` are the builtin, and both published a write as read."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        f"import {spelling.split('.')[0]}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str, body: str) -> str:\n"
+        '    """Probe an aliased open."""\n'
+        f"    with {spelling}(name, 'w') as handle:\n"
+        "        handle.write(body)\n"
+        "    return name\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, spelling).action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+def test_importing_open_from_io_does_not_disable_mode_analysis(tmp_path: Path) -> None:
+    """One `from io import open` made every open in the file a benign read.
+
+    The rule dispatched on the bare token and skipped when the module bound that name, so
+    the import that makes no difference at runtime disabled the analysis entirely.
+    """
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from io import open\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str, body: str) -> str:\n"
+        '    """Probe a shadowed open."""\n'
+        "    with open(name, 'w') as handle:\n"
+        "        handle.write(body)\n"
+        "    return name\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "io.open").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+@pytest.mark.parametrize(
+    ("receiver", "constructor"),
+    [("zipfile.ZipFile", "zipfile.ZipFile(name)"), ("tarfile.open", "tarfile.open(name)")],
+    ids=["zipfile", "tarfile"],
+)
+def test_extracting_an_archive_is_a_write(tmp_path: Path, receiver: str, constructor: str) -> None:
+    """`z.extractall(dest)` was read/high with no signal, while `shutil.unpack_archive` was
+    already catalogued as a write. An archive names its own member paths, so extraction
+    writes wherever the archive says."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        f"import {receiver.split('.')[0]}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str, destination: str) -> str:\n"
+        '    """Probe an archive extraction."""\n'
+        f"    with {constructor} as bundle:\n"
+        "        bundle.extractall(destination)\n"
+        "    return destination\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, f"{receiver}.extractall").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+    assert tool.confidence() == "high"
+
+
+def test_reading_an_archives_member_list_is_a_read(tmp_path: Path) -> None:
+    """The control: the family must not make every archive handle a write."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import zipfile\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str) -> str:\n"
+        '    """Probe an archive listing."""\n'
+        "    bundle = zipfile.ZipFile(name)\n"
+        "    return str(bundle.namelist())\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "zipfile.ZipFile.namelist").action_class == "read"
+    assert tool.proposed_action_class() == "read"

@@ -133,6 +133,29 @@ WRITE_RECEIVER_METHODS: Final[frozenset[str]] = frozenset(
 )
 
 PATH_RECEIVERS: Final[frozenset[str]] = frozenset({"pathlib.Path", "pathlib.PurePath"})
+# Archive handles. Extraction is the effect that matters: an archive names its own member
+# paths, so `extractall` writes wherever the archive says -- the Zip Slip and CVE-2007-4559
+# primitive -- and `shutil.unpack_archive`, the one-line spelling of the same operation, was
+# already catalogued as a write while these produced no signal at all. They are a family of
+# their own rather than an addition to WRITE_RECEIVER_METHODS, which is consulted only for
+# PATH_RECEIVERS and whose members mean something different on a path.
+ARCHIVE_RECEIVERS: Final[frozenset[str]] = frozenset(
+    {"zipfile.ZipFile", "tarfile.open", "tarfile.TarFile"}
+)
+ARCHIVE_WRITE_METHODS: Final[frozenset[str]] = frozenset(
+    {"add", "extract", "extractall", "write", "writestr"}
+)
+ARCHIVE_READ_METHODS: Final[frozenset[str]] = frozenset(
+    {
+        "getmember",
+        "getmembers",
+        "getnames",
+        "infolist",
+        "namelist",
+        "read",
+        "testzip",
+    }
+)
 # Path methods that return another path rather than touching the filesystem. They are the
 # links in a chain like `Path(p).expanduser().resolve().stat()`, and without them the
 # receiver was lost at the first link, so the read at the end resolved to nothing and the
