@@ -195,6 +195,10 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
         "trustweave.dev/policy-review/v1alpha1",
         "src/trustweave/policy_review.py",
     ),
+    "policy-review-v1alpha2.schema.json": (
+        "trustweave.dev/policy-review/v1alpha2",
+        "src/trustweave/policy_review.py",
+    ),
     "risk-baseline-v1alpha2.schema.json": (
         "trustweave.dev/risk-baseline/v1alpha2",
         "src/trustweave/risk.py",
@@ -219,13 +223,13 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
 CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
     "README.md": (
         "trustweave.dev/bundle/v1alpha2",
-        "trustweave/fingerprint/v3",
+        "trustweave/fingerprint/v4",
         "95% branch coverage",
         "--bundle artifacts/agent-security-bundle.json",
         "checks only the statement’s internal consistency",
     ),
     "docs/CLI_REFERENCE.md": (
-        "trustweave/fingerprint/v3",
+        "trustweave/fingerprint/v4",
         "trustweave.dev/risk-review/v1alpha2",
         "risk-baseline/v1alpha2",
         "Recommended exact-file verification",
@@ -251,7 +255,7 @@ CURRENT_CONTRACT_DOCUMENTATION: dict[str, tuple[str, ...]] = {
         "risk-review-v1alpha2.schema.json",
     ),
     "docs/RISK_MANAGEMENT.md": (
-        "trustweave/fingerprint/v3",
+        "trustweave/fingerprint/v4",
         "not_yet_applicable_baseline",
         "risk-review/v1alpha2",
     ),

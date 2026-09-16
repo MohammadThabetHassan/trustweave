@@ -17,6 +17,7 @@ The command writes local JSON and Markdown review evidence. `--coverage` adds pe
 | Default decision is `allow` | `TW-POL-001` asks a reviewer to inspect unmatched declared paths |
 | Earlier rule covers a later rule | `TW-POL-002` reports a first-match shadow; a differing decision also produces `TW-POL-007` |
 | Rule requires controls absent from policy declarations | `TW-POL-008` marks it impossible to decide a flow |
+| Rule names more combinations than the collective-cover search enumerates | `TW-POL-010` says the cover was not searched, so `reachable: true` is not a verdict |
 | Untrusted flow is allowed to external or sensitive action | `TW-POL-003` requires review of authorization and human-control boundaries |
 | High-impact approval lacks required declared bindings or fail-closed intent | `TW-POL-004`, `TW-POL-005`, or `TW-POL-006` prompts review |
 
