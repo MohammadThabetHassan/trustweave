@@ -91,8 +91,18 @@ def _read_source(path: Path, root: Path) -> SourceFile | SkippedFile:
     return SourceFile(relative, text)
 
 
-def _walk_python_files(root: Path) -> list[Path]:
+def _walk_python_files(root: Path) -> tuple[list[Path], list[Path]]:
+    """Return the regular ``.py`` files under *root*, and the symlinked ones left out.
+
+    Not following a link out of the analyzed tree is deliberate and documented. Dropping
+    the file on a bare ``continue`` was not: this module's own docstring says limits are
+    explicit and refuse loudly, and an oversized file is already recorded as skipped. A
+    monorepo whose ``agent/tools/ops.py`` is a link into a shared directory lost a
+    sensitive tool and still reported ``files_skipped: 0``.
+    """
+
     discovered: list[Path] = []
+    linked: list[Path] = []
     for directory, subdirectories, filenames in os.walk(root, followlinks=False):
         current = Path(directory)
         subdirectories[:] = sorted(
@@ -105,9 +115,10 @@ def _walk_python_files(root: Path) -> list[Path]:
                 continue
             candidate = current / filename
             if candidate.is_symlink():
+                linked.append(candidate)
                 continue
             discovered.append(candidate)
-    return discovered
+    return discovered, linked
 
 
 def collect_python_sources(root: Path) -> SourceCollection:
@@ -135,7 +146,7 @@ def collect_python_sources(root: Path) -> SourceCollection:
     if not resolved_root.is_dir():
         raise ValidationError(f"source path is neither a file nor a directory: {root}")
 
-    candidates = _walk_python_files(resolved_root)
+    candidates, linked = _walk_python_files(resolved_root)
     if len(candidates) > MAX_SOURCE_FILES:
         raise ValidationError(
             f"source tree holds {len(candidates)} Python files, above the "
@@ -143,7 +154,10 @@ def collect_python_sources(root: Path) -> SourceCollection:
         )
 
     files: list[SourceFile] = []
-    skipped: list[SkippedFile] = []
+    skipped: list[SkippedFile] = [
+        SkippedFile(_relative_posix(candidate, resolved_root), "path_is_symlink")
+        for candidate in linked
+    ]
     total_bytes = 0
     for candidate in candidates:
         # Defence in depth: a resolved child must still live under the resolved root.

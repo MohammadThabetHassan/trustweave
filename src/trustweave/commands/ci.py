@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
-import sys
 import tempfile
 from collections.abc import Mapping, Sequence
 from pathlib import Path, PureWindowsPath
@@ -233,46 +232,40 @@ def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
     return staging / _safe_sarif_path(config)
 
 
-def _known_artifact_names() -> frozenset[str]:
-    """Every filename TrustWeave itself publishes into an output directory."""
-
-    from trustweave.commands import _shared
-
-    modules = (_shared, sys.modules[__name__])
-    return frozenset(
-        value
-        for module in modules
-        for name, value in vars(module).items()
-        if name.endswith("_FILE") and isinstance(value, str)
-    )
-
-
 def _refuse_to_replace_unrelated_content(staging: Path, output: Path) -> None:
-    """Refuse to publish over a directory holding anything TrustWeave did not write.
+    """Refuse to publish over a directory holding anything this run did not produce.
 
     Publishing moves the existing directory aside and then deletes it. A one-word config
     typo naming a source directory would therefore destroy real work with no prompt and
     no warning, so an unrecognised entry stops the publish instead.
+
+    Two exemptions used to make that promise partial. The scan skipped every dot entry,
+    including whole hidden directory trees, so a `.secrets/` beside the artifacts was
+    deleted without ever being looked at; only hidden *files* are skipped now, which keeps
+    a `.gitkeep` from blocking a publish. And the recognised set was seeded from every
+    `*_FILE` constant in the package rather than from this run's own output, so a
+    hand-written `report.md` was destroyed by a run whose stages never produced one. The
+    set is now exactly what this run staged, which is also what made the earlier fix work:
+    a SARIF file the configuration renamed or nested is staged here and therefore ours. A
+    previous run's artifact that this run does not reproduce is no longer replaceable in
+    silence; it stops the publish and says so, which is the answer that does not throw
+    away evidence nothing is about to replace.
     """
 
     if not output.is_dir():
         return
-    # Whatever this run just staged is by definition ours, including a SARIF file the
-    # configuration renamed or nested. Deriving the list from _FILE constants alone made
-    # TrustWeave refuse to overwrite its own output whenever sarif_output was not the
-    # default, so a documented configuration was green once and exit 3 for ever after.
-    known = _known_artifact_names() | {entry.name for entry in staging.iterdir()}
+    known = {entry.name for entry in staging.iterdir()}
     unrelated = sorted(
         entry.name
         for entry in output.iterdir()
-        if entry.name not in known and not entry.name.startswith(".")
+        if entry.name not in known and not (entry.name.startswith(".") and entry.is_file())
     )
     if unrelated:
         listed = ", ".join(unrelated[:5])
         more = f" and {len(unrelated) - 5} more" if len(unrelated) > 5 else ""
         raise InputOutputError(
             f"Refusing to publish CI artifacts into {output}: it holds "
-            f"{len(unrelated)} entries TrustWeave did not write ({listed}{more}). "
+            f"{len(unrelated)} entries this run did not produce ({listed}{more}). "
             "Point output_dir at a dedicated directory, or empty this one first."
         )
 
