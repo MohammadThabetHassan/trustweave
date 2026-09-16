@@ -1426,6 +1426,57 @@ def test_a_method_on_a_third_party_annotated_parameter_is_refused(tmp_path: Path
     assert "UNRESOLVED_CALLEE" in tools[0].reasons
 
 
+@pytest.mark.parametrize(
+    "annotation",
+    ["git.Repo | None", "Optional[git.Repo]", "list[git.Repo]", '"git.Repo"'],
+    ids=["union", "optional", "container", "quoted"],
+)
+def test_a_wrapped_third_party_annotation_is_still_third_party(
+    tmp_path: Path, annotation: str
+) -> None:
+    """One ` | None` turned the refusal above into a benign high-confidence read.
+
+    The opacity rule read the annotation with `_dotted`, which returns nothing for anything
+    that is not a plain dotted name, so every wrapped spelling of the same type skipped the
+    marking and the git write was published as `read`.
+    """
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import git\n"
+        "from typing import Optional\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        f"def commit(repo: {annotation}, message: str) -> str:\n"
+        '    """Commit."""\n'
+        "    return str(repo.index.commit(message))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].confidence() == "review"
+    assert "UNRESOLVED_CALLEE" in tools[0].reasons
+
+
+def test_a_wrapped_builtin_annotation_stays_benign(tmp_path: Path) -> None:
+    """The control: unwrapping must not make every container parameter opaque."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def widen(rows: list[str] | None) -> str:\n"
+        '    """Widen rows."""\n'
+        "    return str(rows).strip().ljust(24)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "read"
+    assert tools[0].reasons == set()
+
+
 def test_a_builtin_annotated_parameter_stays_benign(tmp_path: Path) -> None:
     """Otherwise every pure function that formats a string would be refused."""
 
