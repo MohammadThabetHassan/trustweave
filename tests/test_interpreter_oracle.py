@@ -122,8 +122,11 @@ def test_a_classification_the_policy_does_not_know_is_its_own_class() -> None:
 
     witness = harness.abstract_cell(space, *subject)
 
-    assert harness.OUTSIDER in space["source_data_classification"]
-    assert witness[2] == harness.OUTSIDER
+    # The outsider is derived per policy rather than being a fixed constant, so the value is
+    # read off the space the policy induced.
+    outsider = space["outsider"][0]
+    assert outsider in space["source_data_classification"]
+    assert witness[2] == outsider
     assert oracle.engine_decision(parse_policy(document), subject) == reference[witness]
     assert reference[witness] == "require_approval", "an unknown classification fails the bound"
 

@@ -259,8 +259,11 @@ def measure(policies: int, subjects: int, seed: int, max_cells: int = MAX_CELLS)
             continue
         space = harness.witness_space(document)
         total = 1
-        for values in space.values():
-            total *= len(values)
+        # The attributes a cell ranges over, not every key of the space: the space also
+        # carries the outsider value and the capability patterns, which are inputs to the
+        # placement rather than components of a subject.
+        for attribute in harness.ATTRIBUTES:
+            total *= len(space[attribute])
         if total > max_cells:
             skipped += 1
             skipped_sizes.append(total)

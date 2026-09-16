@@ -50,9 +50,16 @@ TRUST_LEVELS = ("trusted", "conditional", "untrusted")
 ACTION_CLASSES = ("read", "write", "sensitive", "external")
 DECISIONS = ("allow", "deny", "require_approval")
 
-# One witness value for anything a policy does not name. Membership predicates compare
-# exact strings, so every unnamed value behaves identically and one representative suffices.
-OUTSIDER = "trustweave-witness-outsider"
+# The stem of the witness value that stands for "anything the policy does not name".
+# Membership predicates compare exact strings, so every unnamed value behaves identically and
+# one representative suffices -- but only if the policy really does not name it. This used to
+# be a fixed constant, and the policy language accepts it as an identifier, a classification
+# and a capability namespace tail, so a policy naming it lost the class it was standing for:
+# `identifiers()` deduplicated the sentinel against the named literal, and the exact
+# capability `net.trustweave-witness-outsider` was read back as the wildcard `net.*`, placing
+# a genuinely unnamed subject onto a named cell and calling the resulting mutant equivalent.
+# `_fresh_outsider` derives one per policy instead.
+OUTSIDER_STEM = "trustweave-witness-outsider"
 UNSPECIFIED_CLASSIFICATION = "unspecified"
 DEFAULT_SOURCE_IDENTIFIER = "synthetic-source"
 DEFAULT_TOOL_IDENTIFIER = "synthetic-tool"
@@ -81,13 +88,43 @@ def _named_by_rules(rules: list[dict[str, Any]], field: str) -> tuple[str, ...]:
     return tuple(sorted(values))
 
 
-def _capability_witness(pattern: str) -> str:
+def _strings_in(value: Any) -> set[str]:
+    """Every string literal anywhere in a document, however deeply nested."""
+
+    if isinstance(value, str):
+        return {value}
+    if isinstance(value, dict):
+        return {found for item in value.values() for found in _strings_in(item)}
+    if isinstance(value, (list, tuple)):
+        return {found for item in value for found in _strings_in(item)}
+    return set()
+
+
+def _fresh_outsider(documents: tuple[dict[str, Any], ...]) -> str:
+    """A witness value none of these documents names, nor names the tail of.
+
+    The tail matters as much as the value: the witness for a wildcard pattern `net.*` is
+    `net.` followed by the outsider, so a policy naming the exact capability
+    `net.<outsider>` would collide with it just as surely as one naming `<outsider>` itself.
+    Refusing any candidate that some literal *ends with* rules out both at once.
+    """
+
+    literals = {found for document in documents for found in _strings_in(document)}
+    candidate = OUTSIDER_STEM
+    attempt = 0
+    while any(literal.endswith(candidate) for literal in literals):
+        attempt += 1
+        candidate = f"{OUTSIDER_STEM}-{attempt}"
+    return candidate
+
+
+def _capability_witness(pattern: str, outsider: str) -> str:
     """A capability that matches this pattern and nothing narrower."""
 
-    return pattern[:-1] + OUTSIDER if pattern.endswith(".*") else pattern
+    return pattern[:-1] + outsider if pattern.endswith(".*") else pattern
 
 
-def _capability_classes(patterns: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
+def _capability_classes(patterns: tuple[str, ...], outsider: str) -> tuple[tuple[str, ...], ...]:
     """One witness per *achievable, distinct* capability signature.
 
     Enumerating every subset of the named patterns over-counts, because patterns nest. Any
@@ -107,11 +144,11 @@ def _capability_classes(patterns: tuple[str, ...]) -> tuple[tuple[str, ...], ...
     that independently with an SMT solver rather than trusting this argument.
     """
 
-    return tuple(_capability_representatives(patterns).values())
+    return tuple(_capability_representatives(patterns, outsider).values())
 
 
 def _capability_representatives(
-    patterns: tuple[str, ...],
+    patterns: tuple[str, ...], outsider: str
 ) -> dict[tuple[bool, ...], tuple[str, ...]]:
     """Signature -> the one witness set that stands for it in the enumeration.
 
@@ -127,7 +164,7 @@ def _capability_representatives(
 
     seen: dict[tuple[bool, ...], tuple[str, ...]] = {}
     for subset in _subsets(patterns):
-        witness = tuple(_capability_witness(pattern) for pattern in subset)
+        witness = tuple(_capability_witness(pattern, outsider) for pattern in subset)
         signature = tuple(
             any(capability_matches(pattern, capability) for capability in witness)
             for pattern in patterns
@@ -174,13 +211,12 @@ def witness_space(
     different domains and cannot be compared at all.
     """
 
+    sources = (document, *pooled_with)
     rules = [
-        rule
-        for source in (document, *pooled_with)
-        for rule in source.get("rules") or []
-        if isinstance(rule, dict)
+        rule for source in sources for rule in source.get("rules") or [] if isinstance(rule, dict)
     ]
     taxonomy = tuple(document.get("classification_taxonomy") or DEFAULT_CLASSIFICATION_TAXONOMY)
+    outsider = _fresh_outsider(sources)
 
     named_classifications = _named_by_rules(rules, "source_data_classifications")
     bounded = any(
@@ -196,14 +232,14 @@ def witness_space(
         # and a concrete value the policy does not know is placed on it, never on the first
         # taxonomy entry -- which is where the interpreter oracle found it being placed.
         classifications = tuple(
-            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION, OUTSIDER))
+            dict.fromkeys((*taxonomy, *named_classifications, UNSPECIFIED_CLASSIFICATION, outsider))
         )
     else:
         classifications = (UNSPECIFIED_CLASSIFICATION,)
 
     def identifiers(field: str, default: str) -> tuple[str, ...]:
         named = _named_by_rules(rules, field)
-        return tuple(dict.fromkeys((default, *named, OUTSIDER))) if named else (default,)
+        return tuple(dict.fromkeys((default, *named, outsider))) if named else (default,)
 
     patterns = _named_by_rules(rules, "tool_capabilities")
     return {
@@ -213,7 +249,14 @@ def witness_space(
         "source_identifier": identifiers("source_identifiers", DEFAULT_SOURCE_IDENTIFIER),
         "tool_identifier": identifiers("tool_identifiers", DEFAULT_TOOL_IDENTIFIER),
         "purpose_tags": _subsets(_named_by_rules(rules, "purpose_tags")),
-        "tool_capabilities": _capability_classes(patterns),
+        "tool_capabilities": _capability_classes(patterns, outsider),
+        # Not cells: the two values a placement needs and cannot recover from a witness
+        # string. `ATTRIBUTES` decides what `cells_of` ranges over, and neither of these is
+        # in it. The pattern tuple is carried rather than reverse-engineered because the
+        # reverse-engineering read the exact capability `net.<outsider>` as the wildcard
+        # `net.*` and put an unnamed subject on a named cell.
+        "capability_patterns": patterns,
+        "outsider": (outsider,),
     }
 
 
@@ -301,31 +344,29 @@ def abstract_cell(
     itself; see `cells` for why the two differ and what that costs.
     """
 
+    outsider = space["outsider"][0]
+
     def represent(attribute: str, value: str | None, default: str) -> str:
         witnesses = space[attribute]
         if value is None:
             return default if default in witnesses else witnesses[0]
         if value in witnesses:
             return value
-        return OUTSIDER if OUTSIDER in witnesses else witnesses[0]
+        return outsider if outsider in witnesses else witnesses[0]
 
     named_purposes = {tag for subset in space["purpose_tags"] for tag in subset}
     purposes = tuple(sorted(set(purpose_tags) & named_purposes))
 
     # The capability component is placed by signature: which named patterns the subject's
     # capabilities match. The representative for that signature is whatever the enumeration
-    # used, recovered from the same construction, so a subject lands on a cell the decision
-    # map has rather than on a witness set of its own making.
-    patterns = tuple(
-        sorted(
-            {_pattern_of(witness) for subset in space["tool_capabilities"] for witness in subset}
-        )
-    )
+    # used, rebuilt from the patterns the space carries, so a subject lands on a cell the
+    # decision map has rather than on a witness set of its own making.
+    patterns = tuple(space["capability_patterns"])
     signature = tuple(
         any(capability_matches(pattern, capability) for capability in tool_capabilities)
         for pattern in patterns
     )
-    representatives = _capability_representatives(patterns)
+    representatives = _capability_representatives(patterns, outsider)
     if signature not in representatives:  # pragma: no cover - realised, hence achievable
         raise SystemExit(f"a realised capability signature {signature} was not enumerated")
     return (
@@ -339,12 +380,6 @@ def abstract_cell(
         purposes,
         representatives[signature],
     )
-
-
-def _pattern_of(witness: str) -> str:
-    """Recover the pattern a capability witness stands for."""
-
-    return witness[: -len(OUTSIDER)] + "*" if witness.endswith(OUTSIDER) else witness
 
 
 def _decide(policy: Any, cell: Cell) -> str:
@@ -544,7 +579,7 @@ def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
         "schema_version": "trustweave.dev/policy-mutation/v1alpha1",
         "policy": policy_path.name,
         "partition_cells": len(partition),
-        "subject_quotient": {name: len(values) for name, values in space.items()},
+        "subject_quotient": {name: len(space[name]) for name in ATTRIBUTES},
         "mutants_generated": len(generated),
         "mutants_equivalent": len(equivalent),
         "mutants_live": len(live),
