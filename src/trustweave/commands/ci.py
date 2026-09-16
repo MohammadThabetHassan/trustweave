@@ -42,7 +42,15 @@ from trustweave.config import (
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
-from trustweave.io import canonical_json, load_document, read_json, write_json, write_text
+from trustweave.io import (
+    canonical_json,
+    load_document,
+    read_json,
+    resolve_artifact_dir,
+    validate_artifact_dir,
+    write_json,
+    write_text,
+)
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import InputOutputError, ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
@@ -225,26 +233,6 @@ def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
     return staging / _safe_sarif_path(config)
 
 
-def _validate_output_path(output: Path) -> None:
-    """Reject symbolic-link output boundaries without creating any path on disk."""
-
-    for candidate in (output, *output.parents):
-        if candidate.is_symlink():
-            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
-
-
-def _prepare_output_parent(output: Path) -> None:
-    """Create a local output parent without accepting symbolic-link directory boundaries."""
-
-    _validate_output_path(output)
-    try:
-        output.parent.mkdir(parents=True, exist_ok=True)
-    except OSError as error:
-        raise InputOutputError(
-            f"Could not create CI output parent {output.parent}: {error.strerror or error}"
-        ) from error
-
-
 def _known_artifact_names() -> frozenset[str]:
     """Every filename TrustWeave itself publishes into an output directory."""
 
@@ -297,7 +285,7 @@ def _publish_directory(staging: Path, output: Path) -> None:
     if output.exists() and not output.is_dir():
         raise InputOutputError(f"CI output path must be a directory: {output}")
     _refuse_to_replace_unrelated_content(staging, output)
-    _prepare_output_parent(output)
+    resolve_artifact_dir(output)
     backup = output.parent / f".{output.name}.previous"
     if backup.exists():
         shutil.rmtree(backup)
@@ -450,13 +438,13 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         for bundle_name in ("baseline_bundle", "candidate_bundle"):
             if bundle_name in validated_documents:
                 validate_bundle(validated_documents[bundle_name], bundle_name)
-        _validate_output_path(output_dir)
+        validate_artifact_dir(output_dir)
         _safe_sarif_path(config)
     configured_threshold = config.get("failure_threshold", "none")
     if not isinstance(configured_threshold, str):
         raise ValidationError("tool.trustweave.failure_threshold must be a severity string")
     threshold = args.fail_on or configured_threshold
-    _prepare_output_parent(output_dir)
+    resolve_artifact_dir(output_dir)
 
     with tempfile.TemporaryDirectory(prefix=".trustweave-ci-", dir=output_dir.parent) as temporary:
         staging = Path(temporary) / "artifacts"

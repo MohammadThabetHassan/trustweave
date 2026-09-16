@@ -20,7 +20,7 @@ from trustweave.commands._shared import (
 )
 from trustweave.diff import diff_bundles
 from trustweave.evidence import build_attestation, verify_attestation
-from trustweave.io import read_json, write_json, write_text
+from trustweave.io import read_json, resolve_artifact_dir, write_json, write_text
 from trustweave.report import render_diff_report, render_report
 from trustweave.sarif import build_sarif
 from trustweave.statement import build_unsigned_statement
@@ -102,6 +102,8 @@ def register(subcommands: Any) -> None:
 def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     """Execute one local evidence command with no runtime execution or network activity."""
 
+    if args.command in {"attest", "report", "diff", "statement"}:
+        resolve_artifact_dir(args.output_dir)
     if args.command == "attest":
         # Hashing binds bytes to bytes. It cannot tell that a finding was edited from
         # deny to allow, so re-derive the bundle's findings from the manifest and policy

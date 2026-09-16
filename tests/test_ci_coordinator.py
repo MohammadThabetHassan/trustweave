@@ -18,7 +18,6 @@ from trustweave.commands.ci import (
     CI_SUMMARY_SCHEMA_VERSION,
     _config_path,
     _fail_on_findings,
-    _prepare_output_parent,
     _publish_directory,
     _render_summary,
     _required_paths,
@@ -27,11 +26,16 @@ from trustweave.commands.ci import (
     _selected_stages,
     _severity_counts,
     _staged_sarif_path,
-    _validate_output_path,
     _validate_stage_dependencies,
 )
 from trustweave.config import CONFIG_FILE_NAME, find_project_config, load_project_config
-from trustweave.io import canonical_json, load_document, write_json
+from trustweave.io import (
+    canonical_json,
+    load_document,
+    resolve_artifact_dir,
+    validate_artifact_dir,
+    write_json,
+)
 from trustweave.models import InputOutputError, ValidationError
 from trustweave.risk import create_baseline, review_risks
 
@@ -2211,8 +2215,13 @@ def test_safe_sarif_path_rejects_native_or_windows_rooted_absolute_paths(
     )
 
 
-def test_ci_output_path_rejects_symbolic_links_with_exact_diagnostic(tmp_path: Path) -> None:
-    """CI outputs must not traverse symbolic links at any path component."""
+def test_artifact_output_path_rejects_symbolic_links_with_exact_diagnostic(tmp_path: Path) -> None:
+    """Artifact outputs must not traverse symbolic links at any path component.
+
+    This check lived in `ci` and had no caller outside it, so every other command wrote
+    straight through an output directory `ci` refused at exit 3. It now lives in `io` and
+    names artifacts rather than CI, because eight other commands run it.
+    """
 
     target = tmp_path / "target"
     target.mkdir()
@@ -2221,8 +2230,10 @@ def test_ci_output_path_rejects_symbolic_links_with_exact_diagnostic(tmp_path: P
     output = linked_parent / "artifacts"
 
     with pytest.raises(InputOutputError) as error:
-        _validate_output_path(output)
-    assert str(error.value) == f"CI output path must not traverse a symbolic link: {linked_parent}"
+        validate_artifact_dir(output)
+    assert str(error.value) == (
+        f"Artifact output path must not traverse a symbolic link: {linked_parent}"
+    )
 
 
 def test_ci_output_parent_creation_preserves_exact_oserror_diagnostic(
@@ -2236,9 +2247,9 @@ def test_ci_output_parent_creation_preserves_exact_oserror_diagnostic(
     monkeypatch.setattr(Path, "mkdir", fail_mkdir)
     output = tmp_path / "nested" / "artifacts"
     with pytest.raises(InputOutputError) as error:
-        _prepare_output_parent(output)
-    assert (
-        str(error.value) == f"Could not create CI output parent {output.parent}: permission denied"
+        resolve_artifact_dir(output)
+    assert str(error.value) == (
+        f"Could not create artifact output parent {output.parent}: permission denied"
     )
 
 
@@ -2260,3 +2271,77 @@ def test_ci_directory_publication_rejects_a_symbolic_link_output_with_exact_diag
     with pytest.raises(InputOutputError) as error:
         _publish_directory(staging, output)
     assert str(error.value) == f"CI output path must not be a symbolic link: {output}"
+
+
+def test_a_configured_output_dir_that_escapes_the_project_is_refused(tmp_path: Path) -> None:
+    """docs/CONFIGURATION.md promised containment twice and only sarif_output had it.
+
+    _validate_output_path tested nothing but is_symlink(), so a discovered trustweave.toml
+    could set output_dir = "../outside/escaped" and `ci` wrote there at exit 0 with the
+    validate stage enabled, while the byte-equivalent sarif_output escape was refused at
+    exit 2.
+    """
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (tmp_path / "outside").mkdir()
+    chain_manifest = repo / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "escape",
+                "nodes": [{"id": "inbox", "kind": "source", "trust": "untrusted"}],
+                "edges": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config = repo / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        'chain_manifest = "chain.json"\n'
+        'output_dir = "../outside/escaped"\n'
+        'enabled_stages = ["validate", "chain_review"]\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 2
+    assert not (tmp_path / "outside" / "escaped").exists()
+
+
+def test_an_absolute_output_dir_on_the_command_line_is_still_accepted(tmp_path: Path) -> None:
+    """Pins the refusal direction: --output-dir DIR is a documented, tested feature.
+
+    The filed recommendation was to apply _safe_sarif_path's absolute-path rejection to
+    output_dir, which would have broken this.
+    """
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    chain_manifest = repo / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "absolute",
+                "nodes": [{"id": "inbox", "kind": "source", "trust": "untrusted"}],
+                "edges": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config = repo / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        'chain_manifest = "chain.json"\n'
+        'output_dir = "artifacts"\n'
+        'enabled_stages = ["chain_review"]\n',
+        encoding="utf-8",
+    )
+    elsewhere = tmp_path / "elsewhere"
+
+    exit_code = main(["ci", "--config", str(config), "--output-dir", str(elsewhere), "--quiet"])
+
+    assert exit_code == 0
+    assert (elsewhere / "chain-review.json").is_file()

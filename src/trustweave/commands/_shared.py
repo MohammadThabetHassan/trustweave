@@ -71,6 +71,15 @@ def configured_paths(
             if not isinstance(configured, str):
                 raise ValidationError(f"tool.trustweave.{name} must be a local path string")
             selected = Path(configured)
+            if name == "output_dir" and ".." in selected.parts:
+                # An explicit --output-dir is a deliberate act by whoever ran the command,
+                # and an absolute one is a documented, tested feature. A configured value
+                # is resolved against the configuration file's directory instead, so a
+                # `..` there quietly walks artifacts out of the project the file describes.
+                raise ValidationError(
+                    "tool.trustweave.output_dir must not contain a '..' path component; "
+                    "name a directory inside the project, or pass an explicit --output-dir"
+                )
             if not selected.is_absolute():
                 selected = path.parent / selected
         resolved[name] = selected

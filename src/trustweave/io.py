@@ -103,6 +103,40 @@ def load_document(path: Path) -> Mapping[str, Any]:
     return _bounded_mapping(document, path)
 
 
+def validate_artifact_dir(path: Path) -> Path:
+    """Reject a symbolic-link artifact boundary without creating any path on disk.
+
+    This check lived in the `ci` coordinator and had no caller outside it, so `scan`,
+    `chain-check`, `discover`, `attest`, `sarif`, `risk-check`, `policy-check`,
+    `trace-review` and the importers all wrote straight through an output directory that
+    `ci` refused with exit 3, overwriting whatever the link pointed at.
+    """
+
+    for candidate in (path, *path.parents):
+        if candidate.is_symlink():
+            raise InputOutputError(
+                f"Artifact output path must not traverse a symbolic link: {candidate}"
+            )
+    return path
+
+
+def resolve_artifact_dir(path: Path) -> Path:
+    """Validate one artifact output directory and create its parent.
+
+    Separate from ``validate_artifact_dir`` because the `ci` `validate` stage promises to
+    change nothing on disk before publication, so it needs the check without the mkdir.
+    """
+
+    validate_artifact_dir(path)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        raise InputOutputError(
+            f"Could not create artifact output parent {path.parent}: {error.strerror or error}"
+        ) from error
+    return path
+
+
 def canonical_json(data: Mapping[str, Any]) -> str:
     """Return a stable JSON representation for hashing and reproducible artifacts."""
 
