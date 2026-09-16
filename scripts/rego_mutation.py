@@ -112,8 +112,55 @@ def _dialect_for(directory: Path, libraries: list[Path] | None = None) -> list[s
     return None
 
 
-def _outside_quotes(line: str) -> bool:
-    return line.count('"') % 2 == 0
+def _string_spans(line: str) -> list[tuple[int, int]]:
+    """Where each double-quoted literal starts and ends, backslash escapes respected.
+
+    An unterminated quote runs to the end of the line, which is the conservative reading:
+    everything after it is treated as data rather than as a site.
+    """
+
+    spans: list[tuple[int, int]] = []
+    index = 0
+    while True:
+        start = line.find('"', index)
+        if start < 0:
+            return spans
+        cursor = start + 1
+        while cursor < len(line):
+            if line[cursor] == "\\":
+                cursor += 2
+                continue
+            if line[cursor] == '"':
+                break
+            cursor += 1
+        if cursor >= len(line):
+            spans.append((start, len(line)))
+            return spans
+        spans.append((start, cursor + 1))
+        index = cursor + 1
+
+
+def _outside_quotes(line: str, position: int) -> bool:
+    """Whether the character at `position` is code rather than the contents of a literal.
+
+    This used to ask whether the whole line had an even number of quotes, which is a
+    different question: `msg := "value == 1"` is balanced, so `==` inside the message was
+    edited as though it were a comparison. 67 of 625 Rego mutants sat inside balanced string
+    literals that way, most of them `sprintf` format text. Three of them were killed, so they
+    were not equivalent by construction -- they were edits to data that a suite asserting a
+    message verbatim then noticed, which is not what a mutation score is measuring.
+    """
+
+    return not any(start <= position < end for start, end in _string_spans(line))
+
+
+def _site(code: str, needle: str) -> int:
+    """The first occurrence of `needle` that is not inside a string literal, or -1."""
+
+    position = code.find(needle)
+    while position >= 0 and not _outside_quotes(code, position):
+        position = code.find(needle, position + 1)
+    return position
 
 
 def _mutate(source: str) -> list[Mutant]:
@@ -123,12 +170,12 @@ def _mutate(source: str) -> list[Mutant]:
     lines = source.splitlines()
     for index, line in enumerate(lines):
         stripped = line.strip()
-        if stripped.startswith("#") or not stripped or not _outside_quotes(line):
+        if stripped.startswith("#") or not stripped:
             continue
         # Only the code before an inline comment is a candidate.
         code = line.split("#", 1)[0]
         for original, replacement in OPERATORS:
-            position = code.find(original)
+            position = _site(code, original)
             if position < 0:
                 continue
             edited = list(lines)
@@ -136,7 +183,7 @@ def _mutate(source: str) -> list[Mutant]:
             mutants.append(
                 Mutant(f"L{index + 1}:{original.strip()}->{replacement.strip()}", "\n".join(edited))
             )
-        position = code.find(NEGATION)
+        position = _site(code, NEGATION)
         if position >= 0:
             edited = list(lines)
             edited[index] = line[:position] + line[position + len(NEGATION) :]
