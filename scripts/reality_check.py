@@ -191,10 +191,8 @@ GENERATED_ARTIFACT_SCHEMA_CONTRACTS: dict[str, tuple[str, str]] = {
         "trustweave.dev/policy-explanation/v1alpha1",
         "src/trustweave/engine.py",
     ),
-    "policy-review-v1alpha1.schema.json": (
-        "trustweave.dev/policy-review/v1alpha1",
-        "src/trustweave/policy_review.py",
-    ),
+    # policy-review v1alpha1 is a bounded legacy reader contract now; the emitted version is
+    # v1alpha2, so only that one is required to be linked to its producer.
     "policy-review-v1alpha2.schema.json": (
         "trustweave.dev/policy-review/v1alpha2",
         "src/trustweave/policy_review.py",
