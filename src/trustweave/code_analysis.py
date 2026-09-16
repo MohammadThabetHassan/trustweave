@@ -22,7 +22,7 @@ from __future__ import annotations
 import ast
 import builtins
 import sys
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field, replace
 from typing import Final
 
@@ -76,7 +76,7 @@ PATH_CONSTRUCTORS: Final[frozenset[str]] = frozenset({"home", "cwd", "resolve", 
 PATH_KEYWORD_BY_SYMBOL: Final[dict[str, str]] = {
     "open": "file",
     "io.open": "file",
-    "codecs.open": "file",
+    "codecs.open": "filename",
     "os.listdir": "path",
     "os.scandir": "path",
     "os.stat": "path",
@@ -777,9 +777,10 @@ def _third_party_parameters(
     call on an object the caller supplied, whose methods the catalog says nothing about.
     Producing neither an effect nor a refusal there classified a tool that writes to a git
     repository as a benign read, with high confidence -- the one direction this must not
-    fail in. The annotation is the evidence that the receiver is third-party state; an
-    unannotated parameter, or one annotated as a builtin, stays benign so an ordinary pure
-    function is still positively classified.
+    fail in. The annotation is the evidence that the receiver is third-party state. A
+    parameter annotated as a builtin stays benign here, so an ordinary pure function is
+    still positively classified; an unannotated one is decided later, by
+    `_unresolved_parameters`, which refuses it for want of any evidence at all.
 
     An annotation is read through its wrappers. `git.Repo | None`, `Optional[git.Repo]`,
     `list[git.Repo]` and the quoted `"git.Repo"` all name the same third-party type, and
@@ -934,6 +935,36 @@ def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
     return names | _assigned_names(function.body)
 
 
+def _bind_unpacked(
+    statement: ast.Assign,
+    receiver_of: Callable[[ast.expr], str | None],
+    bind: Callable[[str, str, ast.Call], None],
+) -> bool:
+    """Bind the receivers of a tuple assignment element by element.
+
+    True when this statement was an unpacking, whether or not any element carried a
+    receiver, so the caller knows not to read the whole tuple as one value.
+    """
+
+    targets = [target for target in statement.targets if isinstance(target, ast.Tuple | ast.List)]
+    if not targets or not isinstance(statement.value, ast.Tuple | ast.List):
+        return False
+    for target in targets:
+        if len(target.elts) != len(statement.value.elts):
+            continue
+        for element, value in zip(target.elts, statement.value.elts, strict=True):
+            origin = receiver_of(value)
+            if origin is None or not isinstance(element, ast.Name):
+                continue
+            call = (
+                value
+                if isinstance(value, ast.Call)
+                else ast.Call(func=ast.Name(id=origin), args=_path_segments(value), keywords=[])
+            )
+            bind(element.id, origin, call)
+    return True
+
+
 def _scope_origins(
     scope_body: list[ast.stmt],
     module: _Module,
@@ -976,6 +1007,12 @@ def _scope_origins(
         # `root = Path.home() / ".notes"`: path composition keeps the receiver.
         if isinstance(value, ast.BinOp) and isinstance(value.op, ast.Div):
             return _receiver_of(value.left) or _receiver_of(value.right)
+        # `client = httpx.Client() if secure else httpx.Client(verify=False)`: both arms
+        # build the same kind of receiver, so the name means the same thing either way.
+        # Arms that disagree are not answered, which is what `_bind` records as ambiguous.
+        if isinstance(value, ast.IfExp):
+            taken = _receiver_of(value.body)
+            return taken if taken == _receiver_of(value.orelse) else None
         # `chat = self._client.chat.completions`: an attribute reached through a stored
         # receiver still belongs to that receiver.
         if isinstance(value, ast.Attribute):
@@ -1022,6 +1059,10 @@ def _scope_origins(
 
     for statement in _scope_nodes(scope_body):
         if isinstance(statement, ast.Assign):
+            if _bind_unpacked(statement, _receiver_of, _bind):
+                # `client, tries = httpx.Client(), 0`: an element-wise binding, which the
+                # single-target path below cannot see, so the receiver was lost entirely.
+                continue
             origin = _receiver_of(statement.value)
             if origin is None:
                 # Bound here to something with no traceable receiver. If the name carried
@@ -1030,9 +1071,17 @@ def _scope_origins(
                 # exception: `except ImportError: CLIENT = None` is the optional-dependency
                 # guard, not a second receiver, and refusing on it would cost the class for
                 # the idiom this scope walk exists to resolve.
+                disagreeing_arms = isinstance(statement.value, ast.IfExp) and bool(
+                    _receiver_of(statement.value.body) or _receiver_of(statement.value.orelse)
+                )
                 if not isinstance(statement.value, ast.Constant):
                     for target in statement.targets:
-                        if isinstance(target, ast.Name) and target.id in origins:
+                        if isinstance(target, ast.Name) and (
+                            target.id in origins or disagreeing_arms
+                        ):
+                            # One arm builds a receiver and the other builds something else,
+                            # so which object the later call reaches depends on the branch
+                            # taken. That is the same ambiguity as a rebinding.
                             ambiguous.add(target.id)
                 continue
             call = (
@@ -1047,6 +1096,13 @@ def _scope_origins(
             for target in statement.targets:
                 if isinstance(target, ast.Name):
                     _bind(target.id, origin, call)
+            continue
+        if isinstance(statement, ast.NamedExpr) and isinstance(statement.target, ast.Name):
+            # `return (client := httpx.Client()).get(url)`: the walrus binds a name here
+            # exactly as an assignment does, and losing it made the egress silent.
+            walrus_origin = _receiver_of(statement.value)
+            if walrus_origin is not None and isinstance(statement.value, ast.Call):
+                _bind(statement.target.id, walrus_origin, statement.value)
             continue
         if isinstance(statement, ast.With | ast.AsyncWith):
             # A context manager keeps the receiver's identity; losing it here made an
@@ -1064,7 +1120,12 @@ def _scope_origins(
     for name in ambiguous:
         # Deleting the name made a call on it silent, and silence is published as a benign
         # read. The ambiguity is recorded instead, so the call refuses and says why.
-        origins[name] = (_AMBIGUOUS_ORIGIN, origins[name][1])
+        recorded = (
+            origins[name][1]
+            if name in origins
+            else ast.Call(func=ast.Name(id=name), args=[], keywords=[])
+        )
+        origins[name] = (_AMBIGUOUS_ORIGIN, recorded)
     return origins
 
 
@@ -1199,6 +1260,7 @@ def _open_class(
     literals: dict[str, ast.expr] | None = None,
     mode_index: int = 1,
     credential: bool | None = None,
+    path_keyword: str = "file",
 ) -> tuple[str | None, str | None]:
     """Return (action_class, refusal_reason) for one ``open`` call.
 
@@ -1219,7 +1281,7 @@ def _open_class(
     """
 
     mode_node = call.args[mode_index] if len(call.args) > mode_index else _keyword(call, "mode")
-    is_credential = _is_credential_path(call, "file") if credential is None else credential
+    is_credential = _is_credential_path(call, path_keyword) if credential is None else credential
     if mode_node is None:
         return ("sensitive" if is_credential else "read"), None
     modes = _literal_strings(mode_node, literals)
@@ -1588,6 +1650,32 @@ def _classify_call(
             )
 
     if spelled is None:
+        if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.NamedExpr):
+            # `(client := httpx.Client()).get(url)`: the name and the receiver are bound in
+            # the same expression. Classifying the value the walrus binds is the same
+            # question as classifying the constructor it wraps.
+            return _classify_call(
+                ast.copy_location(
+                    ast.Call(
+                        func=ast.Attribute(
+                            value=call.func.value.value, attr=call.func.attr, ctx=ast.Load()
+                        ),
+                        args=call.args,
+                        keywords=call.keywords,
+                    ),
+                    call,
+                ),
+                module,
+                origins,
+                dynamic,
+                self_attributes,
+                aliases,
+                self_aliases,
+                literals,
+                opaque,
+                self_credentials,
+                unresolved,
+            )
         # A method called directly on a constructor, as in Path("...").read_text(). The
         # constructor is the receiver, and its arguments carry the literal that decides
         # whether this is an ordinary read or a credential read.
@@ -1690,7 +1778,9 @@ def _classify_call(
         return None, None, "DYNAMIC_DISPATCH"
 
     if qualified in BUILTIN_OPEN_SYMBOLS:
-        open_action, open_reason = _open_class(call, literals)
+        open_action, open_reason = _open_class(
+            call, literals, path_keyword=PATH_KEYWORD_BY_SYMBOL[qualified]
+        )
         return open_action, qualified, open_reason
 
     if qualified in KEYED_STORE_OPENERS:

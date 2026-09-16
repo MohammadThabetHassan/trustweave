@@ -1042,3 +1042,72 @@ def test_reading_an_archives_member_list_is_a_read(tmp_path: Path) -> None:
 
     assert _signal_for(tool, "zipfile.ZipFile.namelist").action_class == "read"
     assert tool.proposed_action_class() == "read"
+
+
+@pytest.mark.parametrize(
+    "binding",
+    [
+        "    client, tries = httpx.Client(), 0\n    return client.get(value).text\n",
+        "    return (client := httpx.Client()).get(value).text\n",
+        "    client = httpx.Client() if value else httpx.Client(verify=False)\n"
+        "    return client.get(value).text\n",
+    ],
+    ids=["tuple", "walrus", "conditional"],
+)
+def test_a_receiver_bound_by_an_unusual_shape_keeps_its_origin(
+    tmp_path: Path, binding: str
+) -> None:
+    """Tuple unpacking, the walrus and a conditional all produced `read`/high, no signal.
+
+    `_scope_origins` read a single `ast.Name` target and nothing else, so three ordinary
+    ways of binding a client lost the receiver and every call on it fell to the floor class.
+    """
+
+    source = (
+        f"{TOOL_IMPORT}\nimport httpx\n\n\n@tool\ndef probe(value: str) -> str:\n"
+        '    """Probe an unusual binding."""\n' + binding
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "httpx.Client.get").action_class == "external"
+    assert tool.proposed_action_class() == "external"
+    assert tool.confidence() == "high"
+
+
+def test_a_conditional_whose_arms_build_different_receivers_is_refused(tmp_path: Path) -> None:
+    """One arm builds a client and the other a path, so neither reading is safe to assume."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import httpx\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe disagreeing arms."""\n'
+        "    handle = httpx.Client() if value else Path(value)\n"
+        "    return str(handle.get(value))\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert tool.proposed_action_class() == catalog.UNKNOWN_ACTION_CLASS
+    assert tool.confidence() == "review"
+    assert "UNRESOLVED_CALLEE" in tool.reasons
+
+
+def test_a_credential_path_named_by_the_codecs_keyword_is_sensitive(tmp_path: Path) -> None:
+    """`codecs.open` names its path `filename`, not `file`."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import codecs\n"
+        "\n\n"
+        "@tool\n"
+        "def probe() -> str:\n"
+        '    """Probe a keyword-spelled credential read."""\n'
+        f"    with codecs.open(filename={CREDENTIAL_PATH!r}, mode='r') as handle:\n"
+        "        return handle.read()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "codecs.open").action_class == "sensitive"
