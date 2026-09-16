@@ -9,7 +9,7 @@ import pytest
 import trustweave.risk as risk_module
 from trustweave.cli import EXIT_REVIEW, EXIT_SUCCESS, main
 from trustweave.io import canonical_json
-from trustweave.models import ValidationError, parse_policy
+from trustweave.models import ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
 from trustweave.risk import (
     RISK_BASELINE_SCHEMA_VERSION,
@@ -22,6 +22,7 @@ from trustweave.risk import (
     validate_decision_document,
 )
 from trustweave.sarif import build_sarif
+from trustweave.trace_review import review_trace
 
 
 def _decision_entry(
@@ -2390,3 +2391,71 @@ def test_a_decision_document_from_the_previous_fingerprint_namespace_is_refused(
     assert str(error.value) == (
         "baseline[0].fingerprint_schema_version must be trustweave/fingerprint/v4"
     )
+
+
+def test_the_identity_guard_accepts_the_artifacts_every_shipped_producer_writes() -> None:
+    """A reader-side refusal must not reject evidence the tool itself emits.
+
+    The guard rejects two findings that share an identifier and subject but differ in
+    wording. Trace review scopes each finding to `(source, tool)` and its message is a
+    function of exactly those, so two undeclared sources are two identities rather than one
+    refusal — the case that would otherwise have broken `risk-check` on a real trace.
+    """
+
+    manifest = parse_manifest(
+        {
+            "schema_version": "trustweave.dev/v1alpha1",
+            "name": "guard-probe",
+            "description": "Guard probe manifest.",
+            "sources": [
+                {
+                    "name": "web",
+                    "trust": "untrusted",
+                    "data_classification": "public",
+                    "description": "Declared source.",
+                }
+            ],
+            "tools": [
+                {
+                    "name": "reader",
+                    "action_class": "read",
+                    "capabilities": ["doc.read"],
+                    "description": "Declared tool.",
+                }
+            ],
+            "flows": [{"source": "web", "tool": "reader", "purpose": "read"}],
+        }
+    )
+    policy = parse_policy(
+        {
+            "schema_version": "trustweave.dev/policy/v1alpha2",
+            "name": "guard-policy",
+            "default_decision": "deny",
+            "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+            "rules": [
+                {
+                    "id": "TW-DENY",
+                    "description": "Deny untrusted external actions.",
+                    "source_trust": ["untrusted"],
+                    "tool_action_classes": ["external"],
+                    "decision": "deny",
+                    "rationale": "Test-only rule.",
+                }
+            ],
+        }
+    )
+    trace = {
+        "schema_version": "trustweave.dev/trace/v1alpha1",
+        "messages": [],
+        "events": [],
+        "tool_calls": [
+            {"source": "ghost-a", "tool": "reader"},
+            {"source": "ghost-b", "tool": "reader"},
+        ],
+    }
+
+    review = review_trace(manifest, policy, trace, generated_at="2026-09-16T00:00:00+00:00")
+    canonical = normalize_findings(review)
+
+    assert [finding["id"] for finding in review["findings"]] == ["TW-TRACE-001", "TW-TRACE-001"]
+    assert len({finding.fingerprint for finding in canonical}) == 2
