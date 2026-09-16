@@ -291,6 +291,72 @@ def test_a_richer_guard_enlarges_the_quotient_rather_than_being_refused() -> Non
     assert len(policy_mutation.cells(_richer_policy())) == 1152
 
 
+def test_a_richer_guard_runs_through_analyze_rather_than_aborting_it(tmp_path: Path) -> None:
+    """`analyze()` refused this exact fixture: "mutant delete_rule[TW-001] changed the quotient".
+
+    Deleting a rule removes the last occurrence of the classification bound, the capability
+    patterns or the purpose tags, so the mutant's own quotient is smaller than the reference's.
+    The harness read that as a mutant it could not compare and aborted the whole run, on a
+    comment claiming the operator set "only edits rule order, decisions and the two closed
+    label domains". `delete_rule` is emitted for every rule, so that was never true. Every
+    mutant is now decided over the pooled common refinement instead.
+    """
+
+    import json
+
+    path = tmp_path / "richer-policy.json"
+    path.write_text(json.dumps(_richer_policy()), encoding="utf-8")
+
+    report = policy_mutation.analyze(path, [SUITES[0]])
+
+    assert report["partition_cells"] == 1152
+    assert report["mutants_generated"] == 38
+    assert report["mutants_equivalent"] + report["mutants_live"] == 38
+    # The deletions are what used to abort the run, and they are scored like anything else.
+    scored = set(report["equivalent_mutants"]) | {
+        name for suite in report["suites"].values() for name in suite["survivors"]
+    }
+    assert any(name.startswith("delete_rule[") for name in scored)
+
+
+def test_the_pooled_space_is_the_values_either_policy_names() -> None:
+    """Theorem 2's common refinement, which is what makes two decision maps comparable.
+
+    A mutant that drops the last rule naming `billing` has no `billing` cell of its own. The
+    pooled space keeps it, so the reference and the mutant are decided over the same domain.
+    """
+
+    document = _richer_policy()
+    shrunk = copy.deepcopy(document)
+    del shrunk["rules"][2]
+
+    alone = policy_mutation.witness_space(shrunk)
+    pooled = policy_mutation.witness_space(shrunk, document)
+
+    assert len(alone["purpose_tags"]) == 1
+    assert len(pooled["purpose_tags"]) == 4
+    assert policy_mutation.witness_space(document) == pooled
+
+
+def test_max_cells_is_still_the_only_refusal_analyze_makes(tmp_path: Path) -> None:
+    """The refusal direction, pinned beside the fix that removed the other one.
+
+    Dropping the quotient check must not drop the honest refusal: a space too large to
+    enumerate still gets `SystemExit` rather than a score over a sample of it.
+    """
+
+    import json
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["purpose_tags"] = [f"tag{index}" for index in range(20)]
+    path = tmp_path / "enormous-policy.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="above the"):
+        policy_mutation.analyze(path, [SUITES[0]])
+
+
 def test_a_wildcard_capability_pattern_gets_a_witness_that_matches_it() -> None:
     from trustweave.policy_predicates import capability_matches
 
