@@ -19,7 +19,7 @@ trustweave config show --config trustweave.toml
 | `trace`, `mcp_profile`, `chain_manifest` | non-empty path string | Pre-recorded trace metadata, supplied MCP profile metadata, and declared chain graph inputs. |
 | `risk_baseline`, `suppressions` | non-empty path string | Explicit v1alpha2 risk-decision documents. |
 | `output_dir`, `sarif_output` | non-empty path string | Local publication destinations. Relative output and SARIF paths are checked for safe containment before artifact creation. |
-| `failure_threshold` | `critical`, `high`, `medium`, `low`, `info`, `review`, or `none` | CI failure gate. `review` means any active local risk finding. |
+| `failure_threshold` | `critical`, `high`, `medium`, `low`, `info`, `review`, or `none` | CI failure gate. `review` means any active local risk finding. A selected analysis that stopped at a traversal budget fails the gate at every threshold, including `none`, and `ci-summary.json` records `"status": "incomplete"` rather than `clear`. |
 | `enabled_stages` | non-empty unique list | Selects bounded local CI stages. |
 | `reproducible` | boolean | Requests deterministic staged-CI provenance behavior. |
 
