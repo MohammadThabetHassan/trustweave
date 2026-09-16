@@ -115,12 +115,17 @@ python scripts/oracle_rego.py /tmp/corpora/fragment-membership-rego-gcp-v1 \
 # the decision map the theory is stated over, against the evaluator that ships
 python scripts/interpreter_oracle.py --json docs/interpreter-oracle-v1.json
 
-# the witness construction against an SMT solver
+# the Kyverno membership adapter against the engine that runs the policies: every suite as
+# shipped, under injected namespace labels, and with its external stubs removed
+python scripts/oracle_kyverno.py corpora/kyverno --json docs/oracle-kyverno-v1.json
+
+# the witness construction against an SMT solver, and against the closed-form criterion
 python scripts/verify_witness_space.py --json docs/witness-space-verification-v1.json
 ```
 
 `interpreter_oracle.py` is seeded and should reproduce its recorded counts exactly.
-`oracle_rego.py` needs `opa` on `PATH`.
+`oracle_rego.py` needs `opa` on `PATH`; `oracle_kyverno.py` needs `kyverno` on `PATH` and
+the corpus checkout `docs/fragment-membership-kyverno-wide-v1.json` records.
 
 ### 5. The whole gate
 
@@ -134,10 +139,13 @@ python scripts/mutation_gate.py --help   # the survivor gate CI gives its own jo
 ## What this repository cannot check
 
 - **The manuscript**, unless you point `TRUSTWEAVE_PAPER` at it.
-- **Five of the six membership adapters have no external oracle.** Only Rego's is checked
-  against an engine, because `opa deps` answers the question the adapter asks. Kyverno and
-  Cedar ship command-line evaluators that could support a behavioural check; that is future
-  work, not an impossibility, and the write-up says so.
+- **Four of the six membership adapters have no external oracle.** Rego's is checked
+  against the engine's own dependency analysis, because `opa deps` answers the question the
+  adapter asks; Kyverno's is checked behaviourally, by running every measured policy's suite
+  under the Kyverno CLI as shipped, under injected cluster state, and with the stubs its
+  authors supplied removed (`docs/oracle-kyverno-v1.json`). Cedar ships a command-line
+  evaluator that could support the same check; that is future work, not an impossibility,
+  and the write-up says so.
 - **The third-party Kyverno corpus decays.** Its 49 files were sha256-verified when
   collected; re-fetching them later found 18 no longer available, from repositories renamed,
   deleted, or rewritten. `docs/third-party-kyverno-revalidation-v1.json` records that, and
