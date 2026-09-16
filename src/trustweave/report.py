@@ -323,6 +323,8 @@ def render_policy_review_report(review: Mapping[str, Any]) -> str:
                 if isinstance(covering, list) and covering
                 else result.get("shadowed_by") or "—"
             )
+            if result.get("cover_search") == "declined":
+                shadowed_by = "not searched (rule names more cells than the enumeration limit)"
             lines.append(
                 "| `{rule_id}` | {reachable} | {possible} | {shadowed_by} |".format(
                     rule_id=rule_id,

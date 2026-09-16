@@ -285,6 +285,12 @@ class _Module:
     # They are deliberately kept out of `functions`, which is the bare-name resolution
     # map: a nested helper must not satisfy a call to an imported name.
     nested: list[ast.FunctionDef | ast.AsyncFunctionDef] = field(default_factory=list)
+    # For every function defined inside another, the functions that enclose it, outermost
+    # first, keyed by id(). Python resolves a free name through each enclosing function
+    # before the module, so a tool registered inside a factory sees the factory's imports.
+    enclosing: dict[int, tuple[ast.FunctionDef | ast.AsyncFunctionDef, ...]] = field(
+        default_factory=dict
+    )
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -348,12 +354,26 @@ def _import_bindings(body: list[ast.stmt]) -> tuple[dict[str, str], bool]:
 
 
 def _scoped(module: _Module, function: ast.FunctionDef | ast.AsyncFunctionDef) -> _Module:
-    """The module as seen from inside *function*: its own imports win over the module's."""
+    """The module as seen from inside *function*.
 
-    local_bindings, _ = _import_bindings(function.body)
-    if not local_bindings:
+    Names resolve through the function's own imports, then each enclosing function's from
+    the innermost out, then the module's -- the lexical chain Python itself uses. Layering
+    only the function's own imports over the module's read a tool registered inside a
+    factory as if the factory's imports did not exist, and a shell invocation reached that
+    way published as `read`; the module-wide collection this replaced had at least seen
+    it. A wildcard import anywhere in the chain leaves every free name unresolvable, so
+    the flag travels with the bindings.
+    """
+
+    bindings = dict(module.bindings)
+    wildcard = module.wildcard_import
+    for frame in (*module.enclosing.get(id(function), ()), function):
+        frame_bindings, frame_wildcard = _import_bindings(frame.body)
+        bindings.update(frame_bindings)
+        wildcard = wildcard or frame_wildcard
+    if bindings == module.bindings and wildcard == module.wildcard_import:
         return module
-    return replace(module, bindings={**module.bindings, **local_bindings})
+    return replace(module, bindings=bindings, wildcard_import=wildcard)
 
 
 def _index_module(path: str, tree: ast.Module) -> _Module:
@@ -428,12 +448,16 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     # and module-level functions are in `functions`, so this is exactly the remainder.
     top_level = {id(node) for node in tree.body}
     owned = {id(method) for method in methods}
+    enclosing: dict[int, tuple[ast.FunctionDef | ast.AsyncFunctionDef, ...]] = {}
     for outer in ast.walk(tree):
         if not isinstance(outer, ast.FunctionDef | ast.AsyncFunctionDef):
             continue
         for inner in ast.walk(outer):
             if inner is outer or not isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
                 continue
+            # `ast.walk` visits outer functions before the functions they contain, so the
+            # chain recorded for `outer` is complete by the time `inner` extends it.
+            enclosing[id(inner)] = (*enclosing.get(id(outer), ()), outer)
             if id(inner) in top_level or id(inner) in owned:
                 continue
             if not any(existing is inner for existing in nested):
@@ -447,6 +471,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
         wildcard,
         methods=methods,
         nested=nested,
+        enclosing=enclosing,
         self_symbols=self_symbols,
         self_origins={
             owner: {attr: _resolve_raw(spelled, bindings) for attr, spelled in stored.items()}
@@ -1478,9 +1503,22 @@ def _collect_signals(
     decorator_nodes = {
         id(inner) for decorator in function.decorator_list for inner in ast.walk(decorator)
     }
+    # The walk below enters nested function bodies. A name there resolves through the
+    # nested function's own imports first, so each node is judged in the scope of the
+    # innermost function that contains it; `ast.walk` yields outer functions first, so the
+    # innermost assignment wins.
+    scopes: dict[int, _Module] = {id(function): scope}
+    scope_of_node: dict[int, int] = {}
+    for inner in ast.walk(function):
+        if inner is function or not isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
+            continue
+        scopes[id(inner)] = _scoped(module, inner)
+        for descendant in ast.walk(inner):
+            scope_of_node[id(descendant)] = id(inner)
     for node in ast.walk(function):
+        node_scope = scopes[scope_of_node.get(id(node), id(function))]
         if isinstance(node, ast.Subscript):
-            action, symbol, reason = _classify_subscript(node, scope, origins, literals)
+            action, symbol, reason = _classify_subscript(node, node_scope, origins, literals)
             if reason:
                 tool.reasons.add(reason)
             elif action and symbol:
@@ -1493,7 +1531,7 @@ def _collect_signals(
             continue
         action, symbol, reason = _classify_call(
             node,
-            scope,
+            node_scope,
             origins,
             dynamic,
             self_attributes,
@@ -1519,7 +1557,7 @@ def _collect_signals(
             # limit above has always reported itself; this is the same admission for depth,
             # and it reports it under the same published reason, since a reviewer acts on
             # "the body was not fully covered" the same way whichever limit stopped it.
-            if _would_descend(node, scope, instances, owner, visited, origins):
+            if _would_descend(node, node_scope, instances, owner, visited, origins):
                 tool.reasons.add("BUDGET_EXHAUSTED")
                 tool.budget_state = "exhausted"
             continue
@@ -1569,7 +1607,7 @@ def _collect_signals(
             continue
         # Follow a call into a module-local helper so effects one hop away still count.
         spelled = _dotted(node.func)
-        if spelled and "." not in spelled and spelled not in scope.bindings:
+        if spelled and "." not in spelled and spelled not in node_scope.bindings:
             if spelled in shadowed:
                 # The caller binds this name itself -- a parameter or a local. Whatever
                 # runs is supplied from outside, so following a module function of the
@@ -1603,7 +1641,7 @@ def _collect_signals(
                 tool, helper, module, (*via, spelled), depth + 1, visited, passed, handed
             )
 
-    if module.wildcard_import:
+    if any(candidate.wildcard_import for candidate in scopes.values()):
         tool.reasons.add("UNRESOLVED_CALLEE")
 
     pii = _lexical_pii_tokens(function)

@@ -27,15 +27,16 @@ _CELL_FIELDS = (
     "source_data_classifications",
 )
 # The enumeration is declined above this many cells and the pairwise answer stands. The
-# artifact says which happened: `shadowed_by_rules` is empty either way, but a declined
-# enumeration is the one case where "no cover found" was not actually looked for.
+# artifact says which happened: `cover_search` is "declined" rather than "complete", since
+# a declined enumeration is the one case where "no cover found" was not actually looked
+# for, and `reachable: true` on its own would read as a verdict.
 MAX_COVERAGE_CELLS = 10_000
 
 
 def _covering_rules(
     earlier: Sequence[PolicyRule], later: PolicyRule, policy: Policy
-) -> tuple[str | None, list[str]]:
-    """Return (the one earlier rule that covers *later* on its own, every rule in the cover).
+) -> tuple[str | None, list[str], bool]:
+    """Return (single covering rule id, every rule in the cover, whether the search ran).
 
     A single covering rule was the only kind looked for, and absence of one was reported
     as ``reachable: true``. Three allow rules, one per trust label, followed by a deny rule
@@ -50,22 +51,22 @@ def _covering_rules(
     possible = [rule for rule in earlier if rule_is_possible(rule, policy)]
     single = next((rule for rule in possible if rule_covers(rule, later, policy)), None)
     if single is not None:
-        return single.id, [single.id]
+        return single.id, [single.id], True
     if not possible:
-        return None, []
+        return None, [], True
     fields = [name for name in _CELL_FIELDS if getattr(later, name)]
     domains = [getattr(later, name) for name in fields]
     if prod(len(domain) for domain in domains) > MAX_COVERAGE_CELLS:
-        return None, []
+        return None, [], False
     used: set[str] = set()
     for values in product(*domains):
         narrowed = {name: (value,) for name, value in zip(fields, values, strict=True)}
         cell = replace(later, **cast(dict[str, Any], narrowed))
         cover = next((rule for rule in possible if rule_covers(rule, cell, policy)), None)
         if cover is None:
-            return None, []
+            return None, [], True
         used.add(cover.id)
-    return None, sorted(used)
+    return None, sorted(used), True
 
 
 def review_policy(
@@ -89,7 +90,9 @@ def review_policy(
     coverage_rules: dict[str, dict[str, object]] = {}
     rules_by_id = {rule.id: rule for rule in policy.rules}
     for later_index, later_rule in enumerate(policy.rules):
-        single_id, covering_ids = _covering_rules(policy.rules[:later_index], later_rule, policy)
+        single_id, covering_ids, searched = _covering_rules(
+            policy.rules[:later_index], later_rule, policy
+        )
         shadowing_rule = rules_by_id[single_id] if single_id is not None else None
         impossible = not rule_is_possible(later_rule, policy)
         if include_coverage:
@@ -98,6 +101,7 @@ def review_policy(
                 "possible": not impossible,
                 "shadowed_by": single_id,
                 "shadowed_by_rules": covering_ids,
+                "cover_search": "complete" if searched else "declined",
                 "decision": later_rule.decision,
             }
         if shadowing_rule is None and covering_ids:
