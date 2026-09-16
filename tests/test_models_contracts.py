@@ -1186,3 +1186,94 @@ def test_both_published_manifest_schema_copies_carry_the_enforced_bounds() -> No
     assert defs["flow"]["properties"]["purpose_tags"]["maxItems"] == (
         models_module.MAX_FLOW_PURPOSE_TAGS
     )
+
+
+# ---------------------------------------------------------------------------------------
+# The reviewer-required placeholder (audit E-30)
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (
+            lambda document: document.__setitem__("name", "REVIEW_REQUIRED_DISCOVERED_AGENT"),
+            "manifest.name still holds an unresolved REVIEW_REQUIRED placeholder",
+        ),
+        (
+            lambda document: document.__setitem__(
+                "description", "REVIEW_REQUIRED: describe this agent before using this draft."
+            ),
+            "manifest.description still holds an unresolved REVIEW_REQUIRED placeholder",
+        ),
+        (
+            lambda document: document["sources"][0].__setitem__(
+                "data_classification", "REVIEW_REQUIRED"
+            ),
+            "manifest.sources[0].data_classification still holds an unresolved "
+            "REVIEW_REQUIRED placeholder",
+        ),
+        (
+            lambda document: document["sources"][0].__setitem__(
+                "description", "REVIEW_REQUIRED: describe this ingress."
+            ),
+            "manifest.sources[0].description still holds an unresolved REVIEW_REQUIRED placeholder",
+        ),
+        (
+            lambda document: document["tools"][0].__setitem__(
+                "description", "REVIEW_REQUIRED: describe this tool."
+            ),
+            "manifest.tools[0].description still holds an unresolved REVIEW_REQUIRED placeholder",
+        ),
+        (
+            lambda document: document["flows"][0].__setitem__("purpose", "REVIEW_REQUIRED"),
+            "manifest.flows[0].purpose still holds an unresolved REVIEW_REQUIRED placeholder",
+        ),
+    ],
+)
+def test_an_unresolved_placeholder_is_refused_and_the_message_names_the_field(
+    mutate: Any, message: str
+) -> None:
+    """Every free-text manifest field accepted REVIEW_REQUIRED verbatim and scanned at exit 0.
+
+    `docs/CODE_DISCOVERY.md` and ADR-0006 both stated that `parse_manifest` rejects the
+    discovery draft because REVIEW_REQUIRED is outside the accepted vocabularies. The
+    parser enforced closed vocabularies and structure only and never looked at free text,
+    so `manifest.name`, `manifest.description`, `source.data_classification`,
+    `source.description`, `tool.description` and `flow.purpose` all passed unread.
+    """
+
+    document = _manifest()
+    mutate(document)
+
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(document)
+    assert str(error.value) == message
+
+
+def test_a_manifest_with_every_placeholder_resolved_still_parses() -> None:
+    """Pins the refusal direction: only the reserved prefix is refused, not ordinary text."""
+
+    manifest = parse_manifest(_manifest())
+
+    assert manifest.name == "contract-manifest"
+    assert manifest.sources[0].data_classification == "public"
+
+
+def test_the_reserved_prefix_is_only_refused_at_the_start_of_a_declared_field() -> None:
+    """A reviewer describing the placeholder is not the same as leaving one unresolved."""
+
+    document = _manifest()
+    document["description"] = "Resolved on 2026-01-01; no REVIEW_REQUIRED fields remain."
+
+    manifest = parse_manifest(document)
+
+    assert manifest.description == "Resolved on 2026-01-01; no REVIEW_REQUIRED fields remain."
+
+
+def test_the_discovery_catalog_and_the_parser_name_the_same_placeholder() -> None:
+    """Two constants for one reserved word could drift and silently reopen the hole."""
+
+    from trustweave.code_catalog import REVIEW_PLACEHOLDER
+
+    assert REVIEW_PLACEHOLDER == models_module.RESERVED_PLACEHOLDER

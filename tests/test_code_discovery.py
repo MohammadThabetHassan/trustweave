@@ -1459,3 +1459,125 @@ def test_an_unannotated_parameter_stays_benign(tmp_path: Path) -> None:
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
     assert tools[0].proposed_action_class() == "read"
+
+
+# ---------------------------------------------------------------------------------------
+# The lazy-reviewer loop (audit E-30)
+# ---------------------------------------------------------------------------------------
+
+
+def _set_by_path(document: dict, path: str, value: object) -> None:
+    """Assign one field named by a `manifest.sources[0].description`-style validator path."""
+
+    target: object = document
+    steps = path.removeprefix("manifest.").split(".")
+    for step in steps[:-1]:
+        name, _, index = step.partition("[")
+        assert isinstance(target, dict)
+        target = target[name]
+        if index:
+            assert isinstance(target, list)
+            target = target[int(index.rstrip("]"))]
+    assert isinstance(target, dict)
+    target[steps[-1]] = value
+
+
+def _one_minimal_fix(document: dict, message: str) -> bool:
+    """Apply the single smallest edit that answers exactly the error the parser raised."""
+
+    path = message.split(" ", 1)[0]
+    if "unknown field 'review_required'" in message:
+        document.pop("review_required")
+    elif message == "manifest.flows must contain at least one flow":
+        document["flows"] = [
+            {
+                "source": document["sources"][0]["name"],
+                "tool": document["tools"][0]["name"],
+                "purpose": "Reviewed during the discovery follow-up.",
+            }
+        ]
+    elif "contains duplicate values:" in message:
+        seen: set[str] = set()
+        for index, tool in enumerate(document["tools"]):
+            if tool["name"] in seen:
+                tool["name"] = f"{tool['name']}_{index}"
+            seen.add(tool["name"])
+    elif ".trust must be one of" in message:
+        _set_by_path(document, path, "untrusted")
+    elif ".name must be a lowercase ASCII identifier" in message:
+        _set_by_path(document, path, "reviewed_ingress")
+    elif ".action_class must be one of" in message:
+        _set_by_path(document, path, "read")
+    elif ".capabilities must not be empty" in message:
+        _set_by_path(document, path, ["record.read"])
+    elif "still holds an unresolved REVIEW_REQUIRED placeholder" in message:
+        _set_by_path(document, path, "Resolved by the reviewer during discovery follow-up.")
+    else:
+        return False
+    return True
+
+
+def test_a_lazy_reviewer_loop_cannot_reach_a_passing_scan_with_a_placeholder_left() -> None:
+    """The loop used to park at a passing parse with eight placeholders still in the draft.
+
+    Auditor's probe (agents/repro-placeholder/walk.py), which applied one minimal fix per
+    raised error and printed the validator's own words::
+
+        fixes = [
+            lambda m: m.pop('review_required'),
+            lambda m: m['sources'][0].__setitem__('trust','untrusted'),
+            lambda m: m['sources'][0].__setitem__('name','ingress'),
+            lambda m: m['tools'][0].__setitem__('action_class','write'),
+            lambda m: [t.__setitem__('capabilities',['cap.'+t['name']]) for t in m['tools']],
+            lambda m: m.__setitem__('flows',[{...} for t in m['tools']]),
+        ]
+
+    It reported "PARSED OK after 6 fixes / placeholders remaining: 8", and building a
+    bundle from that manifest left ten REVIEW_REQUIRED strings in the evidence. Every
+    placeholder the loop skipped is a field the parser never read.
+    """
+
+    draft = json.loads(json.dumps(_review()["manifest_draft"]))
+    assert "REVIEW_REQUIRED" in json.dumps(draft), "the draft must still carry placeholders"
+
+    parsed = None
+    for _ in range(500):
+        try:
+            parsed = parse_manifest(draft)
+            break
+        except ValidationError as error:
+            assert _one_minimal_fix(draft, str(error)), f"unhandled refusal: {error}"
+
+    assert parsed is not None, "the loop must still be able to finish once every field is resolved"
+    assert "REVIEW_REQUIRED" not in json.dumps(draft)
+
+
+def test_the_lazy_reviewer_loop_stops_at_the_first_unresolved_placeholder() -> None:
+    """Pins the refusal direction: the parser names the field instead of reading past it."""
+
+    draft = json.loads(json.dumps(_review()["manifest_draft"]))
+    refusals: list[str] = []
+
+    for _ in range(500):
+        try:
+            parse_manifest(draft)
+            break
+        except ValidationError as error:
+            refusals.append(str(error))
+            assert _one_minimal_fix(draft, str(error))
+
+    placeholder_refusals = [
+        message for message in refusals if "unresolved REVIEW_REQUIRED placeholder" in message
+    ]
+    assert placeholder_refusals[0] == (
+        "manifest.sources[0].data_classification still holds an unresolved "
+        "REVIEW_REQUIRED placeholder"
+    )
+    assert placeholder_refusals[-2:] == [
+        "manifest.name still holds an unresolved REVIEW_REQUIRED placeholder",
+        "manifest.description still holds an unresolved REVIEW_REQUIRED placeholder",
+    ]
+    # Every placeholder in the draft is refused by name except the source's own name,
+    # which the identifier grammar already refuses before any free-text check runs.
+    draft_placeholders = json.dumps(_review()["manifest_draft"]).count("REVIEW_REQUIRED")
+    assert len(placeholder_refusals) == draft_placeholders - 1

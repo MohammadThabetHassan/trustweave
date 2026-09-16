@@ -15,6 +15,8 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Final
 
+from trustweave.models import RESERVED_PLACEHOLDER
+
 CATALOG_VERSION: Final[str] = "trustweave.dev/code-catalog/v1alpha1"
 
 # --------------------------------------------------------------------------------------
@@ -409,4 +411,6 @@ ACTION_CLASS_PRECEDENCE: Final[tuple[str, ...]] = ("sensitive", "external", "wri
 
 UNKNOWN_ACTION_CLASS: Final[str] = "unknown"
 UNKNOWN_TRUST: Final[str] = "unknown"
-REVIEW_PLACEHOLDER: Final[str] = "REVIEW_REQUIRED"
+# The manifest parser refuses any declared free-text field beginning with this, which is
+# what keeps a half-resolved draft from being scanned as though it had been reviewed.
+REVIEW_PLACEHOLDER: Final[str] = RESERVED_PLACEHOLDER
