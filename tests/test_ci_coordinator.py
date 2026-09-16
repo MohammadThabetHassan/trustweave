@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import pytest
@@ -212,6 +213,7 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
         "status": "clear",
         "generated_at": "2026-08-14T00:00:00+00:00",
         "artifacts": ["ci-summary.json", "report.md"],
+        "incomplete_analyses": [],
     }
     assert _render_summary(summary, "text") == (
         "Wrote staged local CI evidence: ci-summary.json, report.md"
@@ -221,6 +223,24 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
         "# TrustWeave Local CI Summary\n\n"
         "**Status:** **clear**  \n"
         "**Generated at:** `2026-08-14T00:00:00+00:00`\n\n"
+        "## Published artifacts\n\n"
+        "- `ci-summary.json`\n- `report.md`"
+    )
+    truncated = {
+        **summary,
+        "status": "incomplete",
+        "incomplete_analyses": ["Declared chain analysis reached a configured traversal budget."],
+    }
+    assert _render_summary(truncated, "text") == (
+        "Wrote staged local CI evidence: ci-summary.json, report.md\n"
+        "Incomplete analyses: Declared chain analysis reached a configured traversal budget."
+    )
+    assert _render_summary(truncated, "markdown") == (
+        "# TrustWeave Local CI Summary\n\n"
+        "**Status:** **incomplete**  \n"
+        "**Generated at:** `2026-08-14T00:00:00+00:00`\n\n"
+        "## Incomplete analyses\n\n"
+        "- Declared chain analysis reached a configured traversal budget.\n\n"
         "## Published artifacts\n\n"
         "- `ci-summary.json`\n- `report.md`"
     )
@@ -1971,7 +1991,12 @@ def test_ci_handle_tolerates_missing_or_malformed_optional_risk_collections(
 def test_ci_handle_records_chain_budget_limit_in_the_public_summary(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Chain traversal limits are retained in the published CI decision context."""
+    """A budget stop now decides the exit code, so even failure_threshold "none" returns 1.
+
+    This test used to assert exit 0 under `failure_threshold = "none"`, which is exactly
+    the shape the audit reproduced: `incomplete_analyses` recorded that the analysis had
+    not finished while the same document said `"status": "clear"` and the run passed.
+    """
 
     chain_manifest = tmp_path / "chain.json"
     chain_manifest.write_text("{}", encoding="utf-8")
@@ -2011,12 +2036,120 @@ def test_ci_handle_records_chain_budget_limit_in_the_public_summary(
                 "--quiet",
             ]
         )
-        == 0
+        == 1
     )
     summary = load_document(output_dir / "ci-summary.json")
     assert summary["incomplete_analyses"] == [
         "Declared chain analysis reached a configured traversal budget."
     ]
+    assert summary["status"] == "incomplete"
+
+
+def test_a_chain_budget_stop_fails_a_high_gate_it_says_nothing_about(tmp_path: Path) -> None:
+    """The audit's schema-valid 603-node / 6,002-edge manifest used to exit 0 as "clear".
+
+    600 of its nodes are an unreachable-from-the-violation fan-out that exhausts
+    max_states before the traversal reaches `web -> secret -> sendmail`, so the only
+    finding left was TW-CHAIN-004 at medium, which a `failure_threshold = "high"` gate
+    ignores. The manifest is inside the published maxItems of 1000 nodes / 10000 edges,
+    so nothing about it is malformed; it is simply a declared graph that outgrew the
+    default budgets.
+    """
+
+    nodes: list[dict[str, object]] = [
+        {"id": "web", "kind": "source", "trust": "untrusted"},
+        {"id": "secret", "kind": "data", "classification": "confidential"},
+        {"id": "sendmail", "kind": "tool", "action_class": "external"},
+    ]
+    edges: list[dict[str, str]] = [
+        {"from": "web", "to": "secret"},
+        {"from": "secret", "to": "sendmail"},
+    ]
+    for index in range(300):
+        nodes.append({"id": f"u{index}", "kind": "source", "trust": "untrusted"})
+        nodes.append({"id": f"d{index}", "kind": "data", "classification": "public"})
+    for index in range(300):
+        for offset in range(20):
+            edges.append({"from": f"u{index}", "to": f"d{(index + offset) % 300}"})
+    assert (len(nodes), len(edges)) == (603, 6002)
+
+    chain_manifest = tmp_path / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "schemavalid",
+                "nodes": nodes,
+                "edges": edges,
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "summary"]\n'
+        'failure_threshold = "high"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        ["--generated-at", "2026-08-18T00:00:00+00:00", "ci", "--config", str(config), "--quiet"]
+    )
+
+    summary = load_document(output_dir / "ci-summary.json")
+    review = load_document(output_dir / "chain-review.json")
+    assert exit_code == 1
+    assert summary["status"] == "incomplete"
+    assert summary["incomplete_analyses"] == [
+        "Declared chain analysis reached a configured traversal budget."
+    ]
+    assert summary["finding_counts"]["high"] == 0
+    budget_findings = [finding for finding in review["findings"] if finding["id"] == "TW-CHAIN-004"]
+    assert [finding["severity"] for finding in budget_findings] == ["medium"]
+    assert budget_findings[0]["properties"]["budget"] == "max_states"
+
+
+def test_a_completed_chain_review_with_no_findings_still_reports_clear(tmp_path: Path) -> None:
+    """Pins the refusal direction: only an unfinished analysis is refused, not a quiet one."""
+
+    chain_manifest = tmp_path / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "complete",
+                "nodes": [
+                    {"id": "inbox", "kind": "source", "trust": "untrusted"},
+                    {"id": "email", "kind": "sink", "action_class": "external"},
+                ],
+                "edges": [{"from": "inbox", "to": "email"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "summary"]\n'
+        'failure_threshold = "high"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        ["--generated-at", "2026-08-18T00:00:00+00:00", "ci", "--config", str(config), "--quiet"]
+    )
+
+    summary = load_document(output_dir / "ci-summary.json")
+    assert exit_code == 0
+    assert summary["status"] == "clear"
+    assert summary["incomplete_analyses"] == []
 
 
 def test_ci_summary_stage_serializes_a_non_null_pre_artifact_mapping(
