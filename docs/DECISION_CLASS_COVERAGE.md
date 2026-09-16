@@ -7,7 +7,9 @@ states the restriction, proves what follows from it, and marks where it stops ho
 
 Every claim here is checked by `tests/test_decision_class_theory.py`, which verifies the
 theorems by exhaustive enumeration against the shipped policy and the real mutant set rather
-than restating them.
+than restating them, and by `tests/test_combining_function_independence.py`, which verifies
+the abstract form of section 4b over an infinite subject space under four different
+evaluation rules.
 
 ## 1. The language and its subject space
 
@@ -57,11 +59,63 @@ A membership predicate over a named set `N` distinguishes only which element of 
 is, or that it is in none, so `|N| + 1` classes suffice; classification adds the taxonomy
 because the bound predicates compare ranks within it. Purpose matching is non-empty
 intersection with a named set, so only the *subset of named tags* a subject carries matters:
-`2^|G_P|` classes. Capability matching is existential over (named pattern, subject
-capability), so only the *subset of named patterns some capability matches* matters:
-`2^|K_P|` classes, and each is witnessed, since a pattern `n.*` is matched by `n.w` for any
-`w` and an exact pattern by itself. Subjects agreeing on every component agree on every
-predicate, hence match the same rules, hence receive the same decision. []
+at most `2^|G_P|` classes. Capability matching is existential over (named pattern, subject
+capability), so only the *subset of named patterns some capability matches* matters: at most
+`2^|K_P|` classes. Subjects agreeing on every component agree on every predicate, hence
+match the same rules, hence receive the same decision. []
+
+**The two set-valued terms are bounds and not counts, and an earlier version of this proof
+claimed otherwise.** It asserted that each of the `2^|K_P|` subsets "is witnessed, since a
+pattern `n.*` is matched by `n.w` for any `w`". That is false when patterns nest. Every
+capability matching `net.http` also matches `net.*`, so on a policy naming both there is no
+subject at all whose capabilities match `net.http` and not `net.*`: one of the four subsets
+is occupied by nothing, and the subset `{net.http}` induces the same predicate answers as
+`{net.*, net.http}`. Three classes exist where the proof claimed four.
+
+The same holds for purpose tags for a different reason. A policy whose only purpose
+predicate is "intersects `{a, b}`" cannot tell `{a}` from `{b}` from `{a, b}`: one class,
+not three. There the collapse comes from the *predicate* being coarser than the subsets, not
+from the values subsuming one another.
+
+`witness_space()` now keeps one witness per achievable capability signature rather than one
+per subset, which is what makes the capability term a count of realisable classes.
+`tests/test_decision_class_theory.py` pins both counterexamples, including that disjoint
+patterns still give a class each, so the correction cannot be mistaken for deduplicating
+indiscriminately.
+
+**And the corrected construction is certified by a solver rather than by this paragraph.**
+`scripts/verify_witness_space.py` encodes the matching rule in SMT -- a final-wildcard
+pattern as a string prefix, an exact pattern as equality -- and asks Z3, for every candidate
+signature over a set of named patterns, whether any capability set realises it. The
+construction must produce exactly the achievable ones: no unachievable signature, or it
+invents a class no subject occupies, and none missing, or the quotient is incomplete and
+Corollary 4's premise is unreachable. It agrees on all ten pattern sets checked, recorded
+in [`witness-space-verification-v1.json`](witness-space-verification-v1.json):
+
+| Named patterns | Candidate signatures | Achievable |
+|---|---:|---:|
+| `net.*` | 2 | 2 |
+| `net.*`, `net.http` | 4 | **3** |
+| `net.*`, `fs.*` | 4 | 4 |
+| `net.http`, `net.https` | 4 | 4 |
+| `net.*`, `net.http`, `net.http.get` | 8 | **5** |
+| `net.*`, `fs.*`, `net.http` | 8 | **6** |
+| `a`, `b`, `c` | 8 | 8 |
+| `net.*`, `net.trustweave-witness-outsider` | 4 | **3** |
+| `trustweave-witness-outsider` | 2 | 2 |
+
+The last two rows were added after an audit found that the harness used
+`trustweave-witness-outsider` as a fixed stand-in for "a value the policy does not name",
+and that a policy may legally name that string itself. When it does, the stand-in
+deduplicates against the named literal and a genuinely unnamed subject is placed on the
+named cell. The outsider is derived per policy now, and the solver check covers the
+collision.
+
+The same tool quantifies the purpose collapse. Over named tags `{a, b}` with a single rule
+naming both, four subsets yield two achievable signatures; with two rules naming one tag
+each, four subsets yield four. The predicate, not the value set, decides how much of the
+product is real. This is the step the proof got wrong, so it is the step that is machine
+checked.
 
 `witness_space()` computes one representative per class and `cells()` enumerates the
 product; `abstract_cell()` maps a concrete subject to its representative. For the shipped
@@ -74,6 +128,46 @@ Theorem 1 is the load-bearing claim and it is checked, not merely argued:
 identifiers, unnamed purposes, capabilities inside and outside a wildcard namespace -- and
 asserts each decides exactly as its class witness does. Breaking the abstraction makes that
 test fail.
+
+### What the harness enumerates is a refinement of the quotient
+
+`cells()` returns the product of the per-attribute witness spaces. That is a *refinement* of
+`S/~P`, not the quotient itself: distinct cells can answer every predicate of every rule
+identically, and when they do they are one class. The purpose example above is exactly that,
+and it is not a corner case -- on a policy whose rules constrain only `trusted` and `read`,
+the product enumerates all three trust levels and all four action classes where the policy
+distinguishes two of each, so 48 cells stand for 16 classes.
+
+The distinction matters, and it cuts differently for different results.
+
+**Soundness carries over.** `[[P]]` is constant on each class of `~P` by Theorem 1, so it is
+constant on each cell of any refinement of it. Theorem 3 and Corollary 4 below quantify over
+cells and are therefore true as stated: a suite witnessing every cell witnesses every class,
+and the kill criterion is a set intersection either way. Nothing in the reported scores
+depends on the difference.
+
+**Necessity carries over as stated, but not as it is easy to read.** The converse in
+Corollary 4 is about *semantic* mutants -- arbitrary functions from cells to decisions -- and
+a function may differ at one cell whatever the cells are, so the argument and the test that
+checks it are sound on a refinement. Read instead as a claim about policies, it is not. If
+two cells belong to one class of `~P`, then **no policy the language can express differs at
+one of them and not the other**, so an unwitnessed cell whose twin is witnessed admits no
+expressible surviving mutant. The distinction is between what the operator set could in
+principle realise and what the language can say, and only the second needs the quotient.
+
+That distinction was nearly lost twice: once by a proof step claiming each capability subset
+is occupied, and once by an earlier draft of this very paragraph, which said flatly that
+tightness fails on a refinement. It does not. What fails is the policy-level reading, and the
+test in `tests/test_decision_class_theory.py` checks the semantic one, which is the weaker
+claim and the true one.
+
+Why the harness keeps the refinement rather than quotienting: a mutant is a different
+policy, so its predicate signatures are different objects, and quotienting each side
+separately would compare two policies over two different domains. Theorem 2's own
+requirement is the *common* refinement of `~P` and `~Q`, and the product of the witness
+spaces is one -- computed identically for reference and mutant, since the harness refuses a
+mutant that names a value the reference does not. Quotienting is available where a single
+policy is being described, and `predicate_signature()` is what computes the class of a cell.
 
 **Theorem 2 (decidable equivalence).** For policies `P` and `Q`, semantic equivalence is
 decidable: quotient by `~P n ~Q` -- computed from the values *either* policy names -- and
@@ -92,8 +186,22 @@ rather than compared across incompatible partitions.
 
 ## 3. Cells, and what a cell is
 
-Throughout the rest of this document a **cell** means a class of the quotient of Theorem 1,
-and `S` means `S/~P`. Nothing below depends on which components a policy happens to use:
+Throughout the rest of this document a **cell** means a class of the partition `cells()`
+enumerates -- the product of the per-attribute witness spaces built in Theorem 1 -- and `S`
+means that product. It is a *refinement* of the policy's own quotient `S/~P`, not the
+quotient itself, and the subsection above says where the two come apart.
+
+Writing `S` for `S/~P`, as an earlier version of this document did, is the wrong binding and
+it makes Corollary 4 false as stated. `[[P]]` is constant on each `~P`-class and therefore on
+each cell of any refinement, so everything below is *sound* under either reading. The
+difference bites on the other side: `Delta(P, M)` is a union of classes of the common
+refinement of `~P` with `~M`, not of `~P`, so a mutant drawing a distinction `P` does not
+state can hide its whole deviation set inside one `~P`-class and survive a suite that
+witnesses every `~P`-class. The product is what the harness actually enumerates, and
+`policy_mutation.py` pools the guard syntax of the reference and every valid mutant before
+building it, precisely so that the refinement the proofs need is the one that gets covered.
+
+Nothing below depends on which components a policy happens to use:
 a policy naming only trust and action has twelve cells, one that also bounds classification,
 names two purpose tags and two capability patterns has 960, and the statements are the same.
 
@@ -131,10 +239,27 @@ Detection depends only on *which cells the suite witnesses*, never on how many c
 holds. A suite of a thousand cases concentrated on four cells detects exactly what a
 four-case suite on those cells detects.
 
-**Corollary 4 (cell coverage decides the score).** If `W(Sigma) = S` then `Sigma` kills every
-non-equivalent mutant, for any mutation operator set whatsoever: a non-equivalent mutant has
-`Delta(P, M)` non-empty by Theorem 2, and it meets `W(Sigma) = S`. The mutation score is
-100% by construction rather than by measurement.
+**Corollary 4 (cell coverage decides the score).** Let `M` be a finite set of mutants whose
+guards are drawn from the same finite vocabulary of literals as `P`'s -- which is what
+pooling the syntax of `P` and every mutant before building `S` guarantees. If
+`W(Sigma) = S` then `Sigma` kills every non-equivalent `M` in `M`, whatever operators
+produced them. The hypothesis is not decoration: over an operator set free to invent
+literals `P` does not name, `S` need not refine `~P n ~M` and the conclusion fails. The
+argument has one step that is easy to skip and is the step doing the work. A non-equivalent mutant `M` has
+`Delta(P, M)` non-empty by the definition of non-equivalence, so `[[P]]` and `[[M]]` differ
+at some subject `s`. Every guard `M` can state is a guard over the same finite vocabulary as
+`P`'s, so the cell set `S` -- the product of the per-attribute witness spaces -- separates
+whatever `M` can separate, and `[[M]]` is constant on each cell. `Sigma` therefore has a case
+at some `s'` in the same cell as `s`, where the two still differ, and Theorem 3 kills `M`.
+The mutation score is 100% by construction rather than by measurement.
+
+That step is why the harness enumerates the refinement rather than the quotient, and why
+section 3 binds `S` to the product. Coverage of
+`~P` alone would *not* suffice: `Delta(P, M)` is a union of classes of `~P` intersect `~M`,
+not of `~P`, so a mutant drawing a distinction `P` does not can differ inside a class the
+suite witnessed elsewhere. Corollary 5's converse below is stated over whatever partition
+`P` is constant on, so it applies to the product as well, at the cost the subsection above
+records: a syntactic operator set may be unable to isolate a single cell.
 
 The converse needs care, and the care is the point. If `W(Sigma) != S`, pick `s` outside it
 and `d != [[P]](s)`. The *semantic* mutant that agrees with `P` everywhere except at `s`,
@@ -168,6 +293,471 @@ complete suite for a policy that simply never approves anything.
 coverage, expecting decisions in every class, that cannot detect its policy's default
 changing.
 
+## 4b. What the proofs actually use, and which languages have it
+
+Everything above is stated for first-match evaluation over the label language of section 1,
+and that is narrower than the proofs require. The arguments use exactly two properties, and
+neither mentions first-match or any particular component:
+
+**(i) The guards refine the subject space finitely, with computable witnesses.** For any
+finite tuple of guards `g_1..g_n` drawn from the language, the map
+`s |-> (g_1(s),...,g_n(s))` has finite image, and for each truth vector actually achieved a
+subject realising it is constructible *from the guards' own syntax*. Call such a family
+**finitely refining**.
+
+**(ii) The decision is a function of the guard outcome vector.** Each guard reports one of
+a finite outcome set `V`, and there is some `c : V^n -> D` with
+`[[P]](s) = c(g_1(s),...,g_n(s))`.
+
+`V = {true, false}` for a first-match policy. It is not always two-valued: an XACML guard
+also reports *indeterminate* when a required attribute is absent, and that outcome is what
+produces the `Indeterminate` decision, so for XACML `V` has three values. Nothing in the
+argument depends on `|V|`, only on its being finite.
+
+**Theorem 1b (the results are combining-function independent).** Let `P = (<g_i>, c)` be any
+policy whose guards come from a finitely refining family and whose decision satisfies (ii),
+over any subject space, finite or infinite. Then `S/~P` is finite with at most `|V|^n`
+classes, `[[P]]` is constant on each class, a witness for each is computable, and Theorems 2
+and 3 and Corollaries 4 and 5 hold verbatim with "cell" read as "achieved outcome vector".
+
+*Proof.* `~P` is the kernel of `s |-> (g_i(s))_i`, which is finite by (i); `[[P]] = c` composed
+with that map, so it is constant on each class by (ii). Every later argument consults only
+the finite class set, the decision on each class, and a witness per class, all of which (i)
+and (ii) supply. No step uses the shape of `c`. []
+
+This matters because `c` is where the real languages differ, and they differ only in `c`:
+
+| Language | `c` on the guard outcome vector | `D` |
+|---|---|---|
+| TrustWeave | decision of the first true guard, else the default | 3 |
+| Cedar | `Deny` if any `forbid` guard holds; else `Allow` if any `permit` does; else `Deny` | 2 |
+| Kyverno | `fail` if a rule's pattern is violated; `pass` if all match; `skip` if preconditions exclude | 3 |
+| XACML | the chosen combining algorithm -- deny-overrides, permit-overrides, first-applicable | 4 |
+| Rego (`violation`) | non-empty iff any `violation` guard holds | 2 |
+
+Every one of these is a function of the outcome vector, so **(ii) is satisfied by all
+five**.
+`tests/test_combining_function_independence.py` checks this by construction rather than by
+assertion: it builds one guard family over an infinite subject space -- arbitrary strings,
+with set membership and a final-wildcard namespace pattern -- and verifies Theorem 1b,
+Theorem 2, Theorem 3, Corollary 4 and the tightness result under first-match, Cedar's
+forbid-overrides, Kyverno's any-rule-fails, and a four-valued XACML deny-overrides.
+Hypothesis samples the infinite space, so the finite witness set is shown to account for
+subjects the construction never named.
+
+### So the boundary is (i), not the evaluation rule
+
+What separates the languages is whether their *guards* are finitely refining. The dividing
+line is whether a guard's induced partition is determined by the policy text:
+
+**Inside.** Equality or set membership against literals in the policy; a final-wildcard
+namespace pattern; a comparison against a literal threshold, which splits the space in two
+however large the ordered domain is; bounds over a declared taxonomy. Each names a finite
+number of sets, and a witness for each is readable off the syntax.
+
+**Outside.** A guard whose partition depends on data absent from the policy text. A pattern
+or threshold taken from the input rather than written in the policy. A lookup of state the
+host injects at evaluation time. An arbitrary builtin over a whole document. A reading of the
+clock.
+
+One case belongs on the *inside* list and was on this one until the Cedar measurement
+contradicted it. Cedar's `in` tests membership in an entity hierarchy the request supplies,
+of a depth the policy does not bound, and an earlier version of this list called that outside
+"because the answer is a property of the store rather than of the subject". That is the wrong
+way round: the store *is* an input to authorization, so it is part of the subject, and the
+predicate has two outcomes with an entity store realising either one constructible from the
+policy text. Unbounded depth does not matter because the outcome is all the policy can
+observe. `scripts/fragment_membership_cedar.py` has said so in its own header throughout,
+which is why Cedar measures 22 of 22 inside; the list here disagreed with the instrument and
+the list was wrong. The distinction to keep is between *traversing a large structure* and
+*reading data the policy does not contain*. Rego can express all of these -- its guards may
+call any builtin over `data` and `input`, and Theorem 6 below is the limit case -- which is
+why an earlier version of this section asserted that Rego "generally falls outside". That
+assertion has since been measured and it was wrong: **115 of 186 published Rego policies are
+inside**. What excludes the other 71 is two idioms rather than the language's reach, and the
+paragraphs below give them.
+
+### How much of a real ecosystem is inside
+
+A characterisation with no measurement beside it invites the reader to assume the answer is
+"almost none". `scripts/fragment_membership.py` measures it, one adapter per ecosystem,
+reading *policies* rather than the test suites that
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) reads, at the commits that study pins.
+
+Two scopes are measured, because they answer different questions. The **joined** scope is
+the policies a suite study could also score, and it is what the stratified test in
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md) needs; it is small because measuring
+decision coverage takes a suite with more than one case. The **whole-corpus** scope is every
+policy the corpus holds, which is the honest scope for asking how much of an ecosystem the
+fragment covers, since membership is decided from policy text and needs no suite at all.
+
+| Corpus | Author | Artifacts | Inside | Outside | Undet. | Share |
+|---|---|---:|---:|---:|---:|---:|
+| Azure Policy repository | Microsoft | 3,769 | **2,137** | 1,589 | 43 | 56.7% |
+| AWS IAM managed | AWS | 1,651 | **1,651** | 0 | 0 | 100.0% |
+| XACML conformance | OASIS impls. | 1,007 | **953** | 54 | 0 | 94.6% |
+| Kyverno library | Kyverno | 235 | **203** | 32 | 0 | 86.4% |
+| Rego, four corpora | mixed | 186 | **115** | 71 | 0 | 61.8% |
+| Rego, GCP library | Google | 87 | **54** | 33 | 0 | 62.1% |
+| Kyverno, third-party | 28 owners | 49 | **37** | 12 | 0 | 75.5% |
+| Cedar integration | Cedar | 22 | **22** | 0 | 0 | 100.0% |
+| **Total** | | **7,006** | **5,172** | **1,791** | **43** | **73.8%** |
+| *of which policy schemas* | | **916** | | | | |
+| *artifacts that are policies* | | **6,090** | **5,172** | **875** | **43** | **84.9%** |
+
+Read the Azure row alone and it misleads: two of its reasons overlap. 1,444 of its 1,589
+exclusions test whether a *related* resource exists, 855 are parameterised definitions that
+are policy schemas rather than policies, and 729 are both -- which is what the last two rows
+separate out, counting an artifact that is a schema as not a policy whatever else is true of
+it. The 43 undetermined are definitions that name a Gatekeeper program at an HTTPS URL
+instead of stating a condition, so their guard is not in the artifact. Two of the three major
+clouds appear through their native policy language and the third through the library it
+publishes.
+
+These numbers moved twice, and both moves are recorded rather than smoothed over. The first
+was the guard regions: an earlier Azure adapter read leaf operators from `policyRule.if` and
+scanned the whole rule for template functions, missing the existence condition entirely,
+which is why the Azure row once read 77.5% over a corpus of 3,659 that a blobless clone had
+truncated. The second was six adapter defects found in audit, every one of which had been
+pulling artifacts *into* the fragment: cluster RBAC selectors in Kyverno, commented-out
+`Condition` blocks in XACML, property reads off `resourceGroup()` in Azure, and Azure
+definitions that are policy schemas sitting in the policy denominator.
+
+### Why an artifact is outside: three reasons, and only three
+
+[`exclusion_taxonomy.py`](../scripts/exclusion_taxonomy.py) reads every membership artifact
+and sorts the exclusions. Across six languages and eight corpora:
+
+| Why an artifact is outside | Count | Share |
+|---|---:|---:|
+| It is not a policy: a schema awaiting parameters | 916 | 51.1% |
+| The subject does not determine the guard | 855 | 47.7% |
+| A guard reads state that exists only at evaluation time | 20 | 1.1% |
+| **Total** | **1,791** | **100.0%** |
+
+Artifact: [exclusion-taxonomy-v1.json](exclusion-taxonomy-v1.json). The instrument reports a
+reason matching none of the three rather than bucketing it, so `taxonomy_is_exhaustive` in
+that artifact is a checked claim and not a stylistic one.
+
+**The middle category needed its name fixed, and the fix is the useful part.** It was first
+called "the policy reads state the evaluator was not handed", which is false of its largest
+member: Gatekeeper *does* hand OPA its cached cluster inventory, injecting it as
+`data.inventory` before evaluation. What the fragment requires is narrower -- that the
+guard's value be determined by *the subject the decision is about*, together with literals
+in the policy -- and that criterion sorts the cases the other one gets wrong:
+
+| Guard | Handed to the evaluator? | Determined by the subject? | Verdict |
+|---|---|---|---|
+| Cedar entity hierarchy | yes | yes, it is the request | inside |
+| Azure `subscription()`, `resourceGroup()` | yes | yes, derivable from the resource | inside |
+| Gatekeeper `data.inventory` | **yes** | no, ambient cluster state | **outside** |
+| Azure `reference()` | on demand | no, another resource | outside |
+| Kyverno `context.apiCall` | on demand | no, the API server | outside |
+| `verifyImages` attestation | on demand | no, a registry | outside |
+
+The second column does not decide anything; the third does. That is worth writing down
+because the wrong criterion was in this document for two rounds and agreed with the verdicts
+by luck.
+
+Two more things follow that the per-language shares hide. **The largest category is not about
+expressiveness**: 77% of exclusions are artifacts that are not yet policies, so reading the
+table as "15% of policy is too expressive for the fragment" is wrong by a factor of four.
+And **the schema category appears independently in Azure Policy and in Gatekeeper**, two
+ecosystems with no shared design lineage -- which is the evidence that it is a fact about how
+policy languages are built rather than a quirk of either. Azure sharpens it further: a
+definition whose every parameter carries a `defaultValue` *does* determine a decision
+function, because evaluating with defaults is what the platform does when an assignment
+supplies nothing. So the line falls between a parameterised artifact that carries its own
+instantiation and one that does not -- 2,721 of these definitions are parameterised and
+1,924 are complete in that sense. The Gatekeeper case could not have shown this, because a
+constraint template never has defaults.
+
+**Nothing is undetermined in any corpus**, so each figure is a verdict on the whole of it
+rather than on the part an instrument happened to understand. The joined
+scope is a subset of the wide one and every verdict agrees between them, which is what makes
+the stratified test's arms readable against this table. Artifacts, all now carrying the
+pinned commit of the corpus they read --- which the first three did not, leaving the corpus
+of the fragment measurement named only in prose:
+[xacml](fragment-membership-xacml-v1.json), [kyverno](fragment-membership-kyverno-v1.json),
+[cedar](fragment-membership-cedar-v1.json),
+[xacml wide](fragment-membership-xacml-wide-v1.json),
+[kyverno wide](fragment-membership-kyverno-wide-v1.json),
+[cedar wide](fragment-membership-cedar-wide-v1.json),
+[rego wide](fragment-membership-rego-wide-v1.json),
+[iam wide](fragment-membership-iam-wide-v1.json). Rego and IAM have no joined row: the suite study
+names Rego subjects by individual rule, and membership is a property of a policy module's
+guards.
+
+Widening the corpus took two corrections to the instruments, and both were the same mistake
+in different languages: an allowlist of *names* where the criterion is about *kinds*.
+
+- **XACML** names a function `<type>-<family>`, and it is the family that decides
+  membership -- `integer-greater-than` and `time-greater-than` both compare a designator
+  against a literal and both split the subject space at that literal. The conformance corpus
+  exercises **182 function names** the name-enumerated allowlist did not carry, and all but
+  one belong to a family it already accepted for some other datatype. The exception is
+  `xpath-node-count`, which reads the request's `Content` and is outside for the same reason
+  an `AttributeSelector` is. Deciding by family moved the wide count from 131 inside with
+  396 undetermined to 526 inside with none.
+- **13 XACML policies state no predicate at all** -- no `Match`, `Condition`, `Apply` or
+  `VariableDefinition` element anywhere. Those are not unjudged: a policy stating no
+  predicate induces a quotient with a single class, which is the fragment's strongest case
+  rather than a gap in it. The instrument now decides that by the presence of guard-bearing
+  elements rather than by whether its function scan came back empty, because the two causes
+  of an empty scan -- a policy with no guards, and a guard the scan could not read -- must
+  not be conflated.
+- **Kyverno** needed `resource.List` and `resource.Post` added to the external calls, since
+  both reach the API server exactly as `resource.Get` does; `jsonpatch.escapeKey` and
+  `image(...).registry()` recognised as total functions of the request, the latter parsing an
+  image reference already in the admission review rather than querying a registry;
+  `generator.Apply` recognised as an *effect* rather than a guard; and the names a policy's
+  own `context` entries bind treated as request-derived -- sound because an external context
+  source returns `outside` before that point is reached, so any surviving binding is a
+  JMESPath over the request, whose own roots are screened the same way.
+
+Every verdict in the joined scope is unchanged by all of this, which is the check that
+matters: the widening added decisions where the instruments had refused, and moved none that
+they had already made.
+
+### Policy written by people who do not ship the engine
+
+Every corpus in the table is published by the vendor whose engine reads it, IAM included --
+AWS's managed library is deployed, but AWS wrote it. The objection that follows is that the
+fragment might cover only what vendors write, so the instrument was pointed at Kyverno
+policy in the repositories of unaffiliated organisations, with Kyverno's own organisations
+excluded: **49 policies from 31 repositories and 28 distinct owners, 37 inside, 12 outside,
+none undetermined**. Artifact:
+[kyverno third-party](fragment-membership-kyverno-thirdparty-v1.json); the corpus is pinned
+file by file in [third-party-kyverno-corpus-v1.json](third-party-kyverno-corpus-v1.json).
+
+Two things there are worth more than the 75.5%.
+
+**All 12 exclusions are `verifyImages`, and finding it needed somebody else's policy.** That
+block checks a signature or attestation against a registry and a transparency log, and binds
+the fetched attestation for its conditions to read -- data the admission request does not
+carry. The adapter did not recognise it, and the reason is the point: `verifyImages` appears
+in **none** of the 235 vendor policies measured here, and in 11 of the 5,099 policy files the
+vendor's repository holds. An instrument validated only against the vendor corpus would never
+have been asked the question. Three third-party policies came back undetermined on attestation fields and
+one on `time_since`, and chasing those four produced two genuine additions: image
+verification as an external read, and the clock-reading `time_*` functions separated from the
+ones that are total on their arguments. Neither changed any vendor verdict, which is how it
+is known they were gaps rather than reinterpretations.
+
+**The third-party share is lower than the vendor's 86.4%.** That is the direction that makes
+the comparison worth having: policy written outside the vendor reaches for supply-chain
+verification that the vendor's own tested examples do not.
+
+It is a convenience sample and the artifact says so in a `how_collected` field. Code search
+surfaced it, code search is not stable, and 49 policies answer "does the fragment cover only
+what vendors write?" rather than "what share of deployed Kyverno policy is inside?".
+Reproducibility does not rest on the search: every file carries its repository, path, commit
+and a SHA-256 of the content measured, and
+[`measure_third_party_policies.py`](../scripts/measure_third_party_policies.py) refetches
+from those commits and refuses anything whose hash has moved.
+
+### AWS IAM, which is the only vendor-deployed corpus here
+
+The other vendor corpora in the table are test or conformance directories. AWS managed
+policies are neither: AWS
+publishes them, they are attached in accounts worldwide, and IAM is the most widely used
+access-control policy language there is. `scripts/fragment_membership_iam.py` measures
+**1,651 of 1,651 inside**.
+
+An IAM statement's guards are its `Action` and `Resource` patterns, whose only
+metacharacter is `*`, and its `Condition` operators. Operator names decompose into a
+family, an optional `ForAllValues:`/`ForAnyValue:` quantifier over a multi-valued key, and
+an optional `IfExists` suffix that admits one further outcome for an absent key. All **27**
+operators the corpus uses land in a family comparing a context key against literals the
+policy contains, so membership follows the family and not the datatype -- the same lesson
+XACML taught.
+
+**Some of these policies interpolate a policy variable** -- `${aws:username}`,
+`${aws:PrincipalTag/Project}` -- into a resource ARN or a condition value, and this is the
+case that made us re-examine the Rego verdict above. It looks like "a pattern taken from the
+input", and that phrase was doing work it could not support. It fails here for a reason that
+also explains why it failed there: the interpolated value is an attribute of *the request
+being authorized*, so the guard relates two components of the subject to each other, its
+outcome is binary, and a witness for each side is constructible. No count is given: the
+artifact records each policy's operator families and a statement count, not the text its
+patterns interpolate, so a figure here would not be re-derivable from what is published.
+
+**Two caveats, and the second matters more than the first.** IAM is 23.6% of the pooled
+artifacts and 27.1% of the artifacts that are policies, and it drags the total upward;
+excluding it the pooled share is 65.8% of artifacts and 79.3% of policies, and the per-ecosystem
+figures are what should be read. More seriously, **the IAM adapter has no path to a verdict
+of `outside`**, so 100% is not the result of looking for excluded policies and finding none.
+That is principled -- IAM offers no construct by which a policy reads state the evaluator was
+not handed: no lookup, no clock call, no external fetch, and every condition key travels with
+the request -- but it is weaker evidence than Kyverno's 86.4%, where the instrument had an
+outside branch and used it 32 times. A test asserts the absence of that branch, so if anyone
+adds one, the caveat gets revisited rather than quietly outliving its reason.
+
+### What exhaustive coverage costs: withdrawn
+
+Corollary 4 says a suite covering the refinement decides the score exactly. That is worth
+having only if the refinement is small, and this section used to answer that by applying
+Theorem 1's per-component bound to the two deployed cloud corpora with
+[`coverage_cost.py`](../scripts/coverage_cost.py), reporting a median of four cells for Azure
+Policy and sixty for IAM, a distribution table, and the claim that the median deployed Azure
+definition needs four test cases for provably complete adequacy.
+
+**That table and that claim are withdrawn.** The instrument charged a component `n+1` classes
+for `n` guards drawn from an operator list it called exclusive, and that list included set
+membership and object-key presence, neither of which holds of at most one value. Membership
+in `{a,b}` and membership in `{b,c}` realise four signatures over one component and the
+instrument counted three; two `containsKey` guards over keys `a` and `b` do the same. An AWS
+condition value is an array, so `StringEquals` on the IAM side has the identical hole. The
+count is therefore an *under*-estimate, which is the one direction a "needs at most this many
+cases" claim cannot survive, and the docstring promising a safe over-estimate was exactly
+backwards. Two further faults belong with it: the 10^9 enumeration cap was published verbatim
+as IAM's 99th percentile, and a bound on the original policy's refinement is not a bound on
+the common refinement with its mutants, which is what Corollary 4 asks for.
+[coverage-cost-v1.json](coverage-cost-v1.json) now carries a dated invalidation notice with
+both counterexamples, and no replacement figure is offered here. A defensible replacement has
+to define the observable it counts, validate the translation into guard signatures, include
+the mutant vocabulary rather than the original's alone, construct witnesses that are legal
+tests, and report what it could not enumerate as an exact integer beside a flag.
+
+The lemma below is untouched by the withdrawal. It is a theorem about final-wildcard patterns
+and it is true; what is withdrawn is the corpus measurement that leaned on it. Reaching it
+needed a correction that Theorem 1's own remark predicts. The first attempt
+counted every action and ARN entry as an overlapping pattern, which gave IAM a median of
+16,384 cells and called 461 policies intractable. Two things were wrong with that. **78.9% of
+those entries are literals**, which are mutually exclusive -- a string equals at most one of
+them -- so `n` literals give `n+1` classes and not `2^n`. And among the wildcards, the
+final-wildcard ones obey a small lemma worth stating:
+
+> **Lemma (prefix chains).** For final-wildcard patterns `q_1*, ..., q_n*`, the map sending a
+> string to which patterns match it has image of size at most `n+1`.
+>
+> *Proof.* A string `s` matches `q*` exactly when `q` prefixes `s`. Any two prefixes of one
+> string are comparable, so the set of patterns matching `s` is a chain, and a chain is
+> determined by its longest member: `n` candidates, plus the empty case. []
+
+Only an interior wildcard needs the exponential. That much stands; what does not is the
+conclusion once drawn from it, that the bound is an over-estimate everywhere. It over-counts
+where it does not discard unachievable signatures -- that is what the solver certification is
+for -- and it under-counts wherever two set-membership guards share a component, which is the
+defect that withdrew the figures above.
+
+### Rego, which was asserted rather than measured
+
+Rego was left out of the membership measurement on the grounds that it is the case Theorem 6
+describes. That reasoning is sound about the *language* and was wrong about the *policies*.
+`scripts/fragment_membership_rego.py` reads the AST `opa parse` produces -- the other three
+adapters read a declarative document; Rego is a language, so this one needs a parser -- and
+finds **115 of 186 inside, none undetermined**.
+
+The 71 divide into two kinds, and pooling them without saying so would mislead.
+
+**45 are policies with a guard that reads state the subject does not carry.**
+
+- **35 reach `data.inventory`**, the cluster state Gatekeeper caches and injects -- 11
+  directly and 24 by importing a library that does. The corpus ships a fixture whose own
+  comment reads "Test data to mock out data.inventory cache provided by Gatekeeper", which
+  is the clearest evidence available that the real thing is not in the policy.
+- 9 read some other `data` document the bundle does not define, 8 in their own body and 1
+  through a rule of a sibling package.
+- 1 calls `http.send`, which reads the network rather than any document, and is counted
+  under evaluation-time state rather than here.
+
+**28 are not policies at all, and the first explanation of why was wrong.** A Gatekeeper
+constraint template states its guard against values a *Constraint* supplies later, and this
+section first called that "the pattern taken from the input case". That does not survive
+Definition 5: if the parameters arrive in the input document, the guard's outcome map over
+that document still has finite image with witnesses computable from the guard's syntax,
+which is all finite refinement asks. Mechanically, a parameterised guard is *inside*.
+
+The real reason is that such a template is a policy **schema** -- a function from parameter
+bindings to policies -- so it determines no decision function, and membership is a property
+of a policy. The question cannot be put to it until a Constraint is applied. That claim is
+only worth making if the instantiation exists, and `tests/test_fragment_membership.py`
+checks that it does: the corpus ships a Constraint supplying parameters for **all 28**.
+
+Over the 158 artifacts that are policies, 115 are inside, or **72.8%**. The distinction is
+the useful part, because unlike "outside the fragment" it says what to do: instantiate the
+template and ask again.
+
+Three things about the instrument are worth recording, because each was a defect first.
+
+1. **The import graph is load-bearing.** 24 of the 45 are outside *only* because a library
+   they call reaches outside. Classifying modules independently reported all 24 inside, so
+   the adapter propagates verdicts along imports to a fixpoint.
+2. **Rego packages span files.** A rule defined in one file is visible unqualified to every
+   other file declaring the same package, so resolving a call against its own file left four
+   modules undetermined on helpers that were defined next door.
+3. **A test module is identified by its rules, not its filename.** The corpora use
+   `*_test.rego` and `test_*.rego` interchangeably; requiring *every* rule to be `test_`
+   prefixed let 51 test files into the policy corpus, because a test file also defines its
+   fixtures. `opa test` discovers cases by prefix, so one such rule makes a test module.
+
+The share being lowest here is the result worth keeping. An instrument that returns 95% on a
+conformance suite and 62% on a general-purpose language is discriminating rather than
+agreeing, which is the best evidence available that the other figures are measurements and
+not the instrument's disposition -- and it is the reason the IAM caveat above is stated
+rather than glossed.
+
+What is outside is outside for one kind of reason in each ecosystem, and it is always the
+same kind: a guard that reads something the policy does not contain.
+
+- **XACML**: 24 select over request content with XPath -- an `AttributeSelector` or an XPath
+  function, either of which puts an arbitrary XML document in the subject, so no witness for
+  the predicate is constructible from the policy text -- 15 name a function that reads
+  outside the policy and the request attributes, and 15 read the clock through the standard
+  environment time designators, which XACML 3.0 requires the decision point to supply from
+  its own clock when the request omits them.
+- **Kyverno**: a `context` entry that queries the cluster or a registry, or a CEL call that
+  does; a `roles`/`clusterRoles` clause, which selects on the requester's role bindings, or a
+  `namespaceSelector`, which selects on the namespace's labels -- Kyverno resolves both
+  itself and the admission request carries neither -- and `now()`, which makes the guard
+  depend on when it ran rather than on the
+  request. Kyverno's built-in `images` variable is *not* one of these: it is parsed from the
+  container references already in the request, and the adapter distinguishes it from the
+  `imageRegistry` context that does query a registry.
+- **Cedar**: nothing is outside, and that is not a fact about this corpus. Cedar has no
+  construct for reading data the request does not carry -- no HTTP, no cluster, no clock --
+  and it ships an SMT-based analysis tool because it was designed to admit exactly this kind
+  of reasoning. The fragment is one statement of what that design buys. Nothing *outside* is
+  not the same as everything inside: the adapter has no outside branch, and over the 7,497
+  policies the integration repository seals in `corpus-tests.tar.gz`
+  ([fragment-membership-cedar-archive-v1.json](fragment-membership-cedar-archive-v1.json))
+  it returns 6,541 inside, 956 undetermined and 0 outside.
+
+The debatable judgement is Cedar's `principal in Group::"admins"`, whose truth depends on
+the entity store rather than on the policy. It is admitted: the predicate has two outcomes,
+the policy names the parent entity, so a store realising either outcome is constructible,
+and the store is an input to authorization rather than something fetched during it. A
+hierarchy of unbounded depth does not change that, because the outcome is all the policy
+observes. The adapter records that reasoning next to the rule.
+
+Each adapter refuses rather than guesses, and that discipline earned its keep three times
+while these were written, each time by reversing a number that had looked settled.
+
+1. The XACML adapter first read only `FunctionId`, missing every `Target` match, which XACML
+   names with `MatchId`. It reported a policy whose only guard is a `string-equal` target as
+   naming no function at all, and the corrected scan moved the count from 14 inside to 6.
+2. That left nine policies undetermined on one function, `string-regexp-match`, which had to
+   be judged rather than assumed. It qualifies: XACML's regexp is the XML Schema one, with
+   no backreferences, so the pattern denotes a regular language and a witness for either
+   side of the split is constructible. The figure became 15.
+3. The Kyverno corpus ships most policies three times -- a classic `ClusterPolicy`, a `-cel`
+   variant, and a `-vpol` `ValidatingPolicy` -- and **38 of the 49 policies the mutation
+   experiment scored exist at more than one path**. Keying on the file name picked whichever
+   sorted first, which joined a verdict about one file to a mutation score for another. The
+   adapter now resolves policies through each `kyverno-test.yaml` exactly as
+   `scripts/kyverno_mutation.py` does, which is what makes the join sound.
+
+Three limits belong with the figures. These are curated upstream test corpora, not deployed
+policy. Membership is a property of the guards, so a policy inside the fragment gets the
+exactness results for *its own* decision structure; it does not make its language decidable,
+which Theorem 6 rules out. Rego **is** now measured, which it was not when this section was
+written, and the measurement is the one that most changes the picture: see below.
+
+The measurement also makes a stratified reading of the study's one predictive result
+possible, and that reading is not favourable. It is in
+[SUITE_COVERAGE_STUDY.md](SUITE_COVERAGE_STUDY.md).
+
 ## 5. Why this is not just mutation testing with extra steps
 
 Structural coverage asks whether a line ran. Mutation testing asks whether a change would be
@@ -180,6 +770,47 @@ The practical consequence is Corollary 4. A team does not need to run mutation t
 such a policy at all -- they need to witness every cell, which is checkable directly and
 costs one pass over the suite. Mutation testing here is a way to *validate* that claim, not
 the cheapest way to satisfy it.
+
+### What the approximation costs, measured
+
+"Normally answers approximately" is the load-bearing comparison in this section and it was
+never quantified, which left the value of exactness to the reader's imagination.
+`scripts/estimator_comparison.py` measures it on the shipped policy, where the exact answer
+is available to compare against, and writes
+[`estimator-comparison-v1.json`](estimator-comparison-v1.json).
+
+Of 38 generated mutants, **16 are provably equivalent -- 42.1%**. A tool that cannot decide
+equivalence has two options: ask a human to triage every survivor, or leave the equivalent
+mutants in the denominator. The second is what an automated pipeline does, and it costs:
+
+| Suite | Exact score | Without equivalence detection | Understated by |
+|---|---:|---:|---:|
+| `default-scenarios` | 63.6% | 36.8% | 26.8 pt |
+| `adversarial-scenarios` | 36.4% | 21.1% | 15.3 pt |
+| `coverage-matrix-scenarios` | **100.0%** | **57.9%** | **42.1 pt** |
+
+The last row is the one to keep. That suite witnesses every cell, so by Corollary 4 it kills
+every non-equivalent mutant and its adequacy is complete by construction. A pipeline without
+the fragment reports it as 57.9%, and a team reading that number would go looking for the
+42% of mutants that "survived" -- all sixteen of which are provably indistinguishable from
+the original for every subject the language can express. The error has one sign: undetected
+equivalents inflate the denominator, so the score is always understated, never flattered.
+
+Sampling costs separately. Where the mutant set is too large to run whole, a tool scores a
+random sample; here the true kill set is known, so the error can be measured rather than
+guessed at. It is measured two ways and the artifact says which is which:
+`estimator_comparison.py` enumerates the sample space exhaustively only up to 200,000 draws,
+so `k = 4`, `16` and `20` are exact while `k = 8` and `k = 12` are 20,000-draw Monte Carlo at
+seed 0. The `worst_absolute_error` those two rows record is therefore the worst of the draws
+taken, not the worst possible: at `k = 8` the artifact says 0.5114 where the exact maximum
+over all C(22,8) = 319,770 samples is 0.6364, the all-survivor draw, whose probability is
+1/319,770. Against the 63.6% suite, a sample of 4 of the 22 live mutants is off by 0.19 on
+average and by more than ten points in **every** sample; at 12 it is off by more than ten
+points in 38% of samples; only at 20 of 22 does it reliably come within ten points.
+
+Neither cost is exotic and neither is a criticism of any tool. They are the price of the
+question being undecidable, which is exactly what the fragment removes -- and the size of
+that price is what makes the removal worth stating.
 
 ## 6. The theorems on the shipped policy
 
@@ -212,20 +843,113 @@ between the two is the nine cells it never witnesses.
 
 ## 7. Where this ends
 
-**Theorem 6.** If rule guards may contain arbitrary computable predicates, policy
-equivalence is undecidable.
+**Theorem 6.** If a guard may be an arbitrary *total* computable predicate, presented as a
+program, policy equivalence is undecidable.
 
-*Proof sketch.* Semantic equivalence to a fixed policy is a non-trivial property of the
-extensions of the guard programs, so Rice's theorem applies: no total procedure decides,
-for arbitrary guard programs, whether two policies agree on every subject. []
+*Proof.* Reduce from the halting problem. Given a machine index `e`, let
 
-So the results above are a property of *this* language, and specifically of the fact that
-every predicate it offers -- set membership, rank bounds over a declared taxonomy, set
-intersection, final-namespace wildcards -- induces finitely many classes computable from the
-policy text. Add a predicate that does not, a regular expression over identifiers say, or a
-numeric comparison against a value the policy does not name, and Theorem 1's bound stops
-holding. That is the boundary to watch when the language grows, and it is a design
-constraint on the language rather than a limitation of the tool.
+    g_e(s) = 1 if e halts on input 0 within |s| steps, else 0
+
+where `|s|` is the length of a fixed encoding of the subject. `g_e` is total -- the
+simulation is cut off after `|s|` steps -- and computable, and a program for it is computable
+from `e`. Let `P_e` have the single rule "if `g_e(s)` then allow" with default deny, and let
+`Q` have no rules and default deny. Subjects of every length exist, so some subject satisfies
+`g_e` exactly when `e` halts on `0`; hence `[[P_e]] = [[Q]]` exactly when `e` does not halt
+on `0`. []
+
+Insisting on *total* guards is what makes this say something. With partial guards the
+conclusion also follows from Rice's theorem, the indices of empty domain being a non-trivial
+index set, but then the guards are not predicates at all and the theorem is about a language
+nobody would ship.
+
+**Which clause fails is the interesting part.** Each `g_e` induces exactly two classes, so
+finiteness is not what the fragment buys. What fails is witness computability: no witness for
+the class `g_e(s) = 1` can be computed from the guard's syntax, because whether that class is
+occupied is the halting question. The results above rest on witness construction, which is
+why [`verify_witness_space.py`](../scripts/verify_witness_space.py) certifies the
+construction and not the bound.
+
+### The condition is tight, and that took saying out loud
+
+Theorem 1 gives a sufficient condition and Theorem 6 gives an undecidable case, which left
+the boundary between them unmapped -- and "sufficient condition, plus one case that fails"
+is a weaker thing than it reads as, because it does not rule out a weaker condition doing the
+same work. It turns out no weaker condition does.
+
+Fix two hypotheses that hold of every language in the table above. A guard family is
+*finite-outcome* when its guards report values in a finite set, and *effective* when each is
+a total computable function; the subject space is enumerable. A policy language is
+*cell-expressive* when it can state a policy deciding one way on exactly the subjects with a
+given guard-outcome vector and the default elsewhere -- which needs negative literals, and
+which XACML, Rego, Cedar and IAM all have.
+
+**Lemma A.** For a finite-outcome family, Theorem 1's finiteness clause holds automatically:
+the outcome map lands in `V^n`. So that clause does no work in any real language, and the
+content of the condition is entirely its second half, about witnesses.
+
+**One word in that second half is load-bearing: the witness procedure must be *total*.**
+Theorem 1's clause reads "for every value in the image a witness is computable", which
+leaves open whether the procedure is defined off the image -- whether it also tells you
+which values are achieved. A total procedure does: run it, and check whether what comes back
+realises the candidate, which settles it because an achieved value would have produced a
+realising subject. The partial reading says strictly less and breaks the equivalence in
+Theorem 7 below in one direction. Totality is also the only reading an implementation can
+use, since it is handed a candidate and has to answer -- which is what `cells()` and
+`verify_witness_space.py` both do -- so nothing changes in practice and the statement is
+now honest about what it needs.
+
+**Occupancy.** Given guards `g_1..g_n` and a vector `v`, is there a subject whose outcome
+vector is `v`?
+
+**Lemma B.** For an effective finite-outcome family over an enumerable subject space,
+occupancy is decidable exactly when witnesses are constructible. Left to right: decide
+occupancy, then enumerate subjects and evaluate the guards -- each evaluation terminates
+because the guards are total -- returning the first match, a search that terminates because
+something realises `v`. Right to left: discard the witness.
+
+**Theorem 7 (tightness).** Under those hypotheses, policy equivalence is decidable **if and
+only if** occupancy is decidable -- equivalently, by Lemmas A and B, if and only if the guard
+family is finitely refining.
+
+*Proof.* (<=) List the guards of both policies. Both semantics factor through the outcome
+vector, so each is a function of it computable from the syntax. Enumerate the finitely many
+vectors, decide occupancy for each, and compare the two decisions where a subject exists;
+the unoccupied vectors are realised by nobody. Note what is absent: no witness is built.
+(=>) Given `g_1..g_n` and `v`, cell-expressiveness builds a policy deciding `d` on exactly
+the `v`-cell and the default elsewhere; compare it against the policy with no rules. They
+differ exactly when the cell is occupied, so an equivalence decider decides occupancy. []
+
+**Theorem 6 is now a corollary**: occupancy for `{g_e}` asks whether some subject satisfies
+`g_e`, which is whether `e` halts.
+
+Two consequences worth keeping.
+
+- **Deciding equivalence needs no witnesses; suites do.** The forward direction uses only
+  occupancy. Theorem 3 and Corollary 4 speak about a *suite*, which is a set of subjects
+  rather than of cells, so those need a witness one can put in a test case. Lemma B says
+  nothing is lost here, but the two are different requirements and the paper had bundled
+  them into one definition.
+- **The solver was already checking the right predicate.** What
+  [`verify_witness_space.py`](../scripts/verify_witness_space.py) certifies is which
+  candidate signatures are *achievable*, and achievability is occupancy -- the predicate
+  Theorem 7 identifies as the tight one. That was not the reason it was written, and it is
+  the strongest evidence available that the definition was pointing at the right thing
+  before anyone proved it was.
+
+`tests/test_decision_class_theory.py` runs the forward direction as an algorithm: deciding
+equivalence by comparing decisions on occupied cells, never reading a witness, agrees with
+the harness on all 38 mutants.
+
+So the boundary is not expressiveness in the loose sense, and it is easy to misplace it. A
+regular expression against a pattern the policy *writes down* stays inside: the pattern
+denotes a regular language, so it splits subjects two ways and a witness for either side is
+constructible -- which is exactly why the XACML measurement in section 4b judges
+`string-regexp-match` admissible rather than refusing it. What leaves the fragment is a guard
+whose partition is not fixed by the policy text: a pattern or threshold taken from the
+*input* rather than written in the policy, a lookup of state the request does not carry, an
+arbitrary builtin over a whole document, or a reading of the clock. That is the boundary to
+watch as the language grows, and it is a design constraint on the language rather than a
+limitation of the tool.
 
 Two practical limits remain. The quotient is a *product*, so it grows multiplicatively in
 the number of purpose tags and capability patterns a policy names: twenty named purpose tags
@@ -281,6 +1005,16 @@ policy language admits it, not the difficulty of the argument.
 What survives those three concessions is: a stated fragment, an exactness result that makes
 a reported mutation score meaningful rather than approximate, a witness showing the criterion
 is independent of the structural coverage tooling already in use, an instrument that measures
-the output criterion across three real policy ecosystems, and the empirical finding that the
-criterion is nearly always already satisfied where decision domains are binary. The last of
-those is a negative result, and it is reported as one.
+the output criterion across four real policy ecosystems, and two negative results reported as
+such -- that the criterion is nearly always already satisfied where decision domains are
+binary, and that what it detects is blindness rather than a gradient.
+
+Two things were added after those concessions were written, and both narrow the gap between
+what is proved and what was measured. Section 4b locates the obstacle: the proofs never use
+first-match, so an ecosystem is excluded only by its guards, not by its evaluation rule or
+the size of its decision domain -- which is checked under Cedar's, Kyverno's and XACML's
+combining rules rather than argued. And the threshold analysis in the study shows that the
+bar this document hands a practitioner, full cell coverage, is on four of five real corpora
+close to the least informative available, carrying literally zero bits on one of them. That
+is a criticism of the criterion's practical form, it is arithmetic rather than inference, and
+it belongs here rather than in a reviewer's report.
