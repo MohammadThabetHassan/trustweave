@@ -63,6 +63,21 @@ MAX_CALL_DEPTH: Final[int] = 3
 # Path classmethods that return a Path, so the receiver survives the call.
 PATH_CONSTRUCTORS: Final[frozenset[str]] = frozenset({"home", "cwd", "resolve", "absolute"})
 
+# The parameter each path-taking symbol names its path with. `open(file="~/.ssh/id_rsa")`
+# and `os.stat(path=...)` are the same reads as their positional spellings, and judging
+# only `call.args` published them as ordinary file reads. The parameter is named per
+# symbol rather than every keyword being scanned, because a blanket scan would test
+# `mode=` and `encoding=` against the credential vocabulary too.
+PATH_KEYWORD_BY_SYMBOL: Final[dict[str, str]] = {
+    "open": "file",
+    "io.open": "file",
+    "codecs.open": "file",
+    "os.listdir": "path",
+    "os.scandir": "path",
+    "os.stat": "path",
+    "os.walk": "top",
+}
+
 _ENVIRON_READERS: Final[frozenset[str]] = frozenset(
     {"os.environ.get", "os.getenv", "os.environ.setdefault"}
 )
@@ -577,10 +592,17 @@ def _root_name(node: ast.AST) -> str | None:
 
 
 def _dynamic_locals(scope: ast.AST, module: _Module) -> set[str]:
-    """Names bound from a subscript or an unresolved call: calling them is dispatch."""
+    """Names bound from a subscript or an unresolved call: calling them is dispatch.
+
+    Module-level bindings count too. A dispatch table or a `getattr` handle is usually
+    built once at the top of the file and called from the tool, and reading only the tool's
+    own body meant the module-level spelling of the very shape the docs use as the
+    `DYNAMIC_DISPATCH` example was published as a benign read while the function-local
+    spelling refused.
+    """
 
     dynamic: set[str] = set()
-    for node in ast.walk(scope):
+    for node in (*_scope_nodes(module.tree.body), *ast.walk(scope)):
         if not isinstance(node, ast.Assign):
             continue
         opaque = isinstance(node.value, ast.Subscript)
@@ -628,7 +650,27 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
     Only a direct name or attribute binding counts. Anything computed stays with
     `_dynamic_locals`, and a name bound twice to different symbols is dropped rather than
     resolved to whichever assignment came last.
+
+    Module-level bindings are seeded first, the way `_local_literals` and `_local_instances`
+    already seed theirs. `_run = subprocess.run` at the top of a file is the same call as
+    the identical line inside the tool, and reading only the function body published the
+    module-level spelling as a benign read while the function-local one was sensitive. A
+    binding made in the function wins over the seed without being treated as a conflict,
+    because a local name shadows a module one rather than contradicting it.
     """
+
+    seeded: dict[str, str] = {}
+    for statement in _scope_nodes(module.tree.body):
+        if not isinstance(statement, ast.Assign) or len(statement.targets) != 1:
+            continue
+        bound = statement.targets[0]
+        if not isinstance(bound, ast.Name) or not isinstance(
+            statement.value, ast.Name | ast.Attribute
+        ):
+            continue
+        qualified = _resolve(_dotted(statement.value), module)
+        if qualified is not None and "." in qualified:
+            seeded[bound.id] = qualified
 
     aliases: dict[str, str] = {}
     rebound: set[str] = set()
@@ -636,33 +678,63 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
         if not isinstance(node, ast.Assign) or len(node.targets) != 1:
             continue
         target = node.targets[0]
-        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Name | ast.Attribute):
+        if not isinstance(target, ast.Name):
+            continue
+        if not isinstance(node.value, ast.Name | ast.Attribute):
+            # The name is bound here to something that is not a symbol, so whatever the
+            # module bound it to no longer describes it.
+            seeded.pop(target.id, None)
             continue
         qualified = _resolve(_dotted(node.value), module)
         if qualified is None or "." not in qualified:
+            seeded.pop(target.id, None)
             continue
         if target.id in aliases and aliases[target.id] != qualified:
             rebound.add(target.id)
         aliases[target.id] = qualified
     for name in rebound:
         aliases.pop(name, None)
-    return aliases
+        seeded.pop(name, None)
+    return {**seeded, **aliases}
 
 
 def _path_segments(value: ast.expr) -> list[ast.expr]:
-    """Constant string parts of a path expression, including `/` composition.
+    """Constant string parts of a path expression, in source order, including `/` composition.
 
     `home = Path.home()` then `home / ".ssh" / "id_rsa"` puts the part that decides whether
     this is an ordinary read or a credential read in the composition rather than in the
     constructor. Recording only the constructor's arguments read the private key as an
     ordinary file.
+
+    The order is load-bearing, because the segments are joined back into one path below and
+    half the credential tokens span a separator. `ast.walk` is breadth-first, so it read
+    `Path.home() / ".aws" / "credentials"` as `["credentials", ".aws"]`, and joining that
+    gives `credentials/.aws`, which matches nothing. Walking the child fields depth-first
+    yields the segments in the order they were written.
     """
 
-    return [
-        node
-        for node in ast.walk(value)
-        if isinstance(node, ast.Constant) and isinstance(node.value, str)
-    ]
+    found: list[ast.expr] = []
+
+    def visit(node: ast.AST) -> None:
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, str):
+                found.append(node)
+            return
+        for child in ast.iter_child_nodes(node):
+            visit(child)
+
+    visit(value)
+    return found
+
+
+def _joined_path(node: ast.expr) -> str:
+    """The path one expression spells out, its constant segments joined by a separator."""
+
+    return "/".join(
+        segment.value
+        for segment in _path_segments(node)
+        if isinstance(segment, ast.Constant) and isinstance(segment.value, str)
+    )
 
 
 def _third_party_parameters(
@@ -971,7 +1043,7 @@ def _open_class(
 
     mode_node = call.args[1] if len(call.args) > 1 else _keyword(call, "mode")
     if mode_node is None:
-        return ("sensitive" if _is_credential_path(call) else "read"), None
+        return ("sensitive" if _is_credential_path(call, "file") else "read"), None
     modes = _literal_strings(mode_node, literals)
     if not modes:
         return None, "NONLITERAL_ARGUMENT"
@@ -982,7 +1054,7 @@ def _open_class(
         return None, "NONLITERAL_ARGUMENT"
     if classes == {"write"}:
         return "write", None
-    return ("sensitive" if _is_credential_path(call) else "read"), None
+    return ("sensitive" if _is_credential_path(call, "file") else "read"), None
 
 
 def _keyed_store_class(
@@ -1085,17 +1157,41 @@ def qualified_is_bulk(symbol: str) -> bool:
     return symbol in _ENVIRON_BULK
 
 
-def _is_credential_path(call: ast.Call) -> bool:
-    for argument in call.args:
-        literal = _constant_str(argument)
-        if literal is None:
-            continue
-        lowered = literal.casefold()
+def _is_credential_path(call: ast.Call, keyword: str | None = None) -> bool:
+    """Whether any path this call names is a credential path.
+
+    Each argument is judged on its own composed spelling, so `Path.home() / ".ssh" /
+    "id_rsa"` reads as one path rather than as two unrelated literals, and the arguments are
+    then judged joined as well, so a token spanning a separator (`.aws/credentials`) fires
+    for `Path(".aws", "credentials")` too. The suffix test stays per-argument: a suffix
+    describes the end of one path, and testing it against the join would let `open(path,
+    "r")` hide `.pem` behind the mode.
+
+    The keyword spelling counts. `open(file="~/.ssh/id_rsa")` is the same read as the
+    positional form, and reading only `call.args` published it as an ordinary file read at
+    high confidence while its positional twin was sensitive. The parameter is named per
+    symbol rather than every keyword being scanned, so `mode=` and `encoding=` cannot
+    match a path token by accident.
+    """
+
+    candidates = list(call.args)
+    named = _keyword(call, keyword) if keyword else None
+    if isinstance(named, ast.expr):
+        candidates.append(named)
+    return _is_credential_text([_joined_path(candidate) for candidate in candidates])
+
+
+def _is_credential_text(texts: list[str]) -> bool:
+    """Whether any of these path spellings, alone or joined, names a credential."""
+
+    for text in texts:
+        lowered = text.casefold()
         if any(token in lowered for token in CREDENTIAL_PATH_TOKENS):
             return True
         if any(lowered.endswith(suffix) for suffix in CREDENTIAL_PATH_SUFFIXES):
             return True
-    return False
+    combined = "/".join(text for text in texts if text).casefold()
+    return any(token in combined for token in CREDENTIAL_PATH_TOKENS)
 
 
 def _unwound_receiver(call: ast.Call, module: _Module) -> tuple[str | None, ast.Call | None]:
@@ -1120,6 +1216,67 @@ def _unwound_receiver(call: ast.Call, module: _Module) -> tuple[str | None, ast.
             current = func.value
             continue
         return None, None
+
+
+def _composed_receiver(
+    value: ast.BinOp,
+    module: _Module,
+    origins: dict[str, tuple[str, ast.Call]],
+    self_attributes: dict[str, str],
+) -> tuple[str | None, ast.Call | None]:
+    """The receiver a `/`-composed path expression is built on, and its constructor.
+
+    The base may be constructed in place (`Path("/srv") / name`), bound earlier
+    (`BASE / name`), or held on the instance (`self.root / name`); all three are the same
+    path, so all three resolve to the same receiver.
+    """
+
+    current: ast.expr = value
+    while isinstance(current, ast.BinOp):
+        current = current.left
+    if isinstance(current, ast.Call):
+        if isinstance(current.func, ast.Attribute):
+            # `Path.home() / ".ssh"`: the classmethod hands back the receiver it was
+            # called on, which is what `_scope_origins` already reads when the same
+            # expression is bound to a name first.
+            base = _resolve(_dotted(current.func.value), module)
+            if base in PATH_RECEIVERS and current.func.attr in PATH_CONSTRUCTORS:
+                return base, current
+        return _unwound_receiver(current, module)
+    if isinstance(current, ast.Name):
+        tracked = origins.get(current.id)
+        return (tracked[0], tracked[1]) if tracked else (None, None)
+    if isinstance(current, ast.Attribute):
+        chain: ast.AST = current
+        while isinstance(chain, ast.Attribute):
+            if (
+                isinstance(chain.value, ast.Name)
+                and chain.value.id in _INSTANCE_RECEIVERS
+                and chain.attr in self_attributes
+            ):
+                return self_attributes[chain.attr], None
+            chain = chain.value
+    return None, None
+
+
+def _getattr_attribute(call: ast.Call, module: _Module) -> ast.Attribute | None:
+    """The attribute access a ``getattr(receiver, "name")`` call is equivalent to.
+
+    Only a constant attribute name qualifies. A name chosen at runtime is dispatch, and the
+    caller still refuses it.
+    """
+
+    spelled = _dotted(call.func)
+    if spelled != "getattr" and _resolve(spelled, module) != "getattr":
+        return None
+    if len(call.args) < 2:
+        return None
+    attribute = _constant_str(call.args[1])
+    if attribute is None:
+        return None
+    return ast.copy_location(
+        ast.Attribute(value=call.args[0], attr=attribute, ctx=ast.Load()), call
+    )
 
 
 def _classify_call(
@@ -1157,6 +1314,37 @@ def _classify_call(
         # The callee was bound from a subscript, so its behaviour is chosen at runtime.
         return None, None, "DYNAMIC_DISPATCH"
 
+    if isinstance(call.func, ast.Subscript):
+        # `DISPATCH["run"](cmd)`: the table decides which symbol runs, and the docs use
+        # exactly this shape as the DYNAMIC_DISPATCH example. Only the spelling that binds
+        # the entry to a name first was refused, so the direct one published as no effect.
+        return None, None, "DYNAMIC_DISPATCH"
+
+    if isinstance(call.func, ast.Call):
+        # `getattr(os, "system")(cmd)`. A constant attribute name is a name, so the
+        # equivalent attribute access is classified instead of the call being exempted and
+        # then never resolved -- which is how the most compact spelling of shell execution
+        # published as a benign read. Synthesizing the callee rather than rewriting the
+        # spelling keeps `getattr(value, "upper")()` on an ordinary parameter benign,
+        # because the same receiver rules then decide it.
+        resolved_attribute = _getattr_attribute(call.func, module)
+        if resolved_attribute is not None:
+            return _classify_call(
+                ast.copy_location(
+                    ast.Call(func=resolved_attribute, args=call.args, keywords=call.keywords),
+                    call,
+                ),
+                module,
+                origins,
+                dynamic,
+                self_attributes,
+                aliases,
+                self_aliases,
+                literals,
+                opaque,
+                self_credentials,
+            )
+
     if spelled is None:
         # A method called directly on a constructor, as in Path("...").read_text(). The
         # constructor is the receiver, and its arguments carry the literal that decides
@@ -1190,6 +1378,34 @@ def _classify_call(
                 # execute is what decides the class, and it is judged wherever it appears,
                 # so refusing here made every database tool written this way unknown.
                 return None, None, None
+        # A method on a path composed with `/`, as in `(BASE / name).write_text(body)`.
+        # `_dotted` and `_root_name` both stop at a BinOp, so every composed spelling
+        # reached the silence below: the write, the unlink and the credential read were all
+        # published as a benign read at high confidence. The leftmost operand is the
+        # receiver, exactly as `_scope_origins` already reads it when the same expression is
+        # bound to a name first.
+        if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.BinOp):
+            origin, inner = _composed_receiver(call.func.value, module, origins, self_attributes)
+            method = call.func.attr
+            if origin in PATH_RECEIVERS:
+                if method in PATH_PRESERVING_METHODS:
+                    return None, None, None
+                if method in WRITE_RECEIVER_METHODS:
+                    return "write", f"{origin}.{method}", None
+                if method in READ_RECEIVER_METHODS:
+                    # The composition carries the segments that decide whether this is an
+                    # ordinary read or a credential read, so they are judged joined.
+                    credential = _is_credential_text(
+                        [
+                            _joined_path(call.func.value),
+                            *([_joined_path(argument) for argument in inner.args] if inner else []),
+                        ]
+                    )
+                    return ("sensitive" if credential else "read"), f"{origin}.{method}", None
+            if origin in EXTERNAL_RECEIVERS:
+                return "external", f"{origin}.{method}", None
+            if origin in SENSITIVE_RECEIVERS:
+                return "sensitive", f"{origin}.{method}", None
         # Otherwise a method on an expression result. Only evidence if the chain roots at
         # a name this module resolves; a call on a parameter or literal is not.
         if root is not None and (root in module.bindings or root in origins):
@@ -1285,7 +1501,11 @@ def _classify_call(
     if qualified in WRITE_SYMBOLS:
         return "write", qualified, None
     if qualified in READ_SYMBOLS:
-        action = "sensitive" if _is_credential_path(call) else "read"
+        action = (
+            "sensitive"
+            if _is_credential_path(call, PATH_KEYWORD_BY_SYMBOL.get(qualified))
+            else "read"
+        )
         return action, qualified, None
 
     sql = _sql_class(call, literals)
