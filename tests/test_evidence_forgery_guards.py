@@ -277,3 +277,134 @@ def test_publication_still_refuses_content_this_run_did_not_stage(tmp_path: Path
         _publish_directory(staging, output)
 
     assert (output / "handover.md").read_text(encoding="utf-8") == "real work"
+
+
+def _forge_test_results(output: Path, *, flip_a_result: bool) -> str:
+    """Rewrite a genuine failing run as a passing one, the way the audit's probe did."""
+
+    path = output / "security-test-results.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    forged = ""
+    if flip_a_result:
+        for result in document["results"]:
+            if result["status"] == "failed":
+                forged = result["id"]
+                result["observed_decision"] = result["expected_decision"]
+                result["status"] = "passed"
+    total = len(document["results"])
+    document["summary"] = {"total": total, "passed": total, "failed": 0, "status": "passed"}
+    path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return forged
+
+
+def _failing_evidence(output: Path, tmp_path: Path) -> None:
+    """Produce a real failing run: one scenario asserts a decision the policy does not make."""
+
+    scenarios = json.loads(SCENARIOS.read_text(encoding="utf-8"))
+    for scenario in scenarios["scenarios"]:
+        if scenario["expected_decision"] == "deny":
+            scenario["expected_decision"] = "allow"
+            break
+    weakened = tmp_path / "weakened-scenarios.json"
+    weakened.write_text(json.dumps(scenarios), encoding="utf-8")
+    assert (
+        main(
+            [
+                "scan",
+                "--manifest",
+                str(MANIFEST),
+                "--policy",
+                str(POLICY),
+                "--output-dir",
+                str(output),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "test",
+                "--policy",
+                str(POLICY),
+                "--scenarios",
+                str(weakened),
+                "--output-dir",
+                str(output),
+            ]
+        )
+        == 1
+    )
+
+
+def test_a_failing_run_edited_to_passed_is_refused_and_the_result_is_named(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """attest used to sign this file verbatim, and verify and report then called it passed.
+
+    The audit took a genuine failing run, rewrote the summary to
+    {"failed": 0, "passed": 5, "status": "passed"} and flipped the failing result's status
+    and observed_decision, and attest exited 0. validate_bundle one line above already
+    re-derived the bundle's findings for exactly this reason; the attestation's second
+    subject was simply read and hashed.
+    """
+
+    output = tmp_path / "artifacts"
+    _failing_evidence(output, tmp_path)
+    forged = _forge_test_results(output, flip_a_result=True)
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+
+    message = capsys.readouterr().err
+    assert forged in message
+    assert "the bundle's policy decides" in message
+    assert not (output / "attestation.json").exists()
+
+
+def test_a_summary_edited_to_passed_over_honest_results_is_refused(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The cheaper half of the same forgery: leave the results alone, rewrite the arithmetic."""
+
+    output = tmp_path / "artifacts"
+    _failing_evidence(output, tmp_path)
+    _forge_test_results(output, flip_a_result=False)
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+    assert "summary.passed records" in capsys.readouterr().err
+
+
+def test_a_test_results_file_replaced_with_arbitrary_json_is_refused(tmp_path: Path) -> None:
+    """Nothing in the package read this document at all: {"hello": "world"} attested at 0."""
+
+    output = tmp_path / "artifacts"
+    _evidence(output)
+    (output / "security-test-results.json").write_text('{"hello": "world"}', encoding="utf-8")
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+
+
+def test_a_test_results_file_naming_a_different_policy_is_refused(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A results file produced against another policy is stale evidence, not this run's."""
+
+    output = tmp_path / "artifacts"
+    _evidence(output)
+    path = output / "security-test-results.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document["policy"] = "some-other-policy"
+    path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    assert main(["attest", "--output-dir", str(output)]) == 2
+    assert "does not name the policy the bundle carries" in capsys.readouterr().err
+
+
+def test_an_honest_passing_run_still_attests(tmp_path: Path) -> None:
+    """Pins the refusal direction: re-derivation must not refuse the evidence it describes."""
+
+    output = tmp_path / "artifacts"
+    _evidence(output)
+
+    assert main(["attest", "--output-dir", str(output)]) == 0
+    assert (output / "attestation.json").is_file()
