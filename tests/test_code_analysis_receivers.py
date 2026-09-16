@@ -741,3 +741,147 @@ def test_an_ordinary_path_spelled_as_a_keyword_stays_a_read(tmp_path: Path) -> N
     tool = _single_tool(tmp_path, source)
 
     assert _signal_for(tool, "open").action_class == "read"
+
+
+# ---------------------------------------------------------------------------------------
+# Shape 7: the receiver is bound one block deeper, or inherited from an outer scope
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("opener", "closer"),
+    [
+        ("    try:", "    except ImportError:\n        return ''"),
+        ("    if value:", "    else:\n        return ''"),
+        ("    for _ in range(1):", "    else:\n        return ''"),
+    ],
+    ids=["try", "if", "for"],
+)
+def test_a_receiver_bound_inside_a_block_keeps_its_origin(
+    tmp_path: Path, opener: str, closer: str
+) -> None:
+    """A client built inside `try`/`if`/`for` was read/high with no signal at all.
+
+    `_scope_origins` read only the flat statement list, so a receiver bound one block
+    deeper never entered `origins` and every later call on it fell through to silence --
+    which is published as the benign floor class.
+    """
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import httpx\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a nested receiver."""\n'
+        f"{opener}\n"
+        "        client = httpx.Client()\n"
+        f"{closer}\n"
+        "    return client.get(value).text\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "httpx.Client.get").action_class == "external"
+    assert tool.proposed_action_class() == "external"
+    assert tool.confidence() == "high"
+
+
+def test_a_module_level_receiver_bound_inside_a_block_keeps_its_origin(
+    tmp_path: Path,
+) -> None:
+    """The optional-dependency idiom: `try: CLIENT = httpx.Client()` at module scope."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "import httpx\n"
+        "\n"
+        "try:\n"
+        "    CLIENT = httpx.Client()\n"
+        "except ImportError:\n"
+        "    CLIENT = None\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a module-level nested receiver."""\n'
+        "    return CLIENT.get(value).text\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "httpx.Client.get").action_class == "external"
+    assert tool.proposed_action_class() == "external"
+
+
+def test_a_module_level_path_survives_being_derived_into_a_local(tmp_path: Path) -> None:
+    """`target = CACHE_DIR / name` then `target.write_text(body)` was read/high, no signal.
+
+    The inherited origin was discarded the moment the body derived a name from it, so a
+    tool that writes a file argued a correct `write` declaration was too strict.
+    """
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n"
+        "CACHE_DIR = Path('/var/lib/agent/cache')\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str, body: str) -> str:\n"
+        '    """Probe an inherited path."""\n'
+        "    target = CACHE_DIR / (name + '.md')\n"
+        "    target.write_text(body)\n"
+        "    return name\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.write_text").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_credential_read_inside_a_block_is_still_sensitive(tmp_path: Path) -> None:
+    """The worst direction: nesting downgraded a private-key read to storage.read."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe a nested credential read."""\n'
+        "    if value:\n"
+        f"        key = Path({CREDENTIAL_PATH!r})\n"
+        "        return key.read_text()\n"
+        "    return ''\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.read_text").action_class == "sensitive"
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_receiver_built_by_the_factory_is_visible_to_the_tool_it_registers(
+    tmp_path: Path,
+) -> None:
+    """A handler registered inside a factory sees the client the factory built.
+
+    Origins were computed from the tool's own body only, so the shape every MCP reference
+    server is written in published its egress as a benign read.
+    """
+
+    source = (
+        "import httpx\n"
+        "from mcp.server import Server\n"
+        "\n"
+        "server = Server('probe')\n"
+        "\n\n"
+        "async def serve() -> None:\n"
+        "    client = httpx.Client()\n"
+        "\n"
+        "    @server.call_tool()\n"
+        "    async def probe(value: str) -> str:\n"
+        '        """Probe a receiver built by the factory."""\n'
+        "        return client.get(value).text\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "httpx.Client.get").action_class == "external"
+    assert tool.proposed_action_class() == "external"
