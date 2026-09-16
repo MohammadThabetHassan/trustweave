@@ -104,3 +104,28 @@ class TestRecordedComparison:
             entry["exact_score"] for entry in findings["suites"]
         ]
         assert fresh["equivalent_share"] == findings["equivalent_share"]
+
+
+def test_an_inconsistent_suite_is_refused_by_the_estimator_too(tmp_path: Path) -> None:
+    """`kill_vector()` had the same hole as `analyze()`, and the same consequence.
+
+    Its kill set is "the suite's cases that now fail", so a case that already failed against
+    the original counts as a kill against every mutant that does not happen to fix it, and
+    the exact score it reports as the baseline for every sampling error below is wrong.
+    """
+
+    suite = dict(json.loads((ROOT / "scenarios" / "default-scenarios.json").read_text("utf-8")))
+    suite["scenarios"] = [
+        {
+            "id": "TW-SC-BAD",
+            "description": "An untrusted write the policy denies, asserted to be allowed.",
+            "source_trust": "untrusted",
+            "tool_action_class": "write",
+            "expected_decision": "allow",
+        }
+    ]
+    path = tmp_path / "inconsistent-scenarios.json"
+    path.write_text(json.dumps(suite), encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="TW-SC-BAD"):
+        comparison.analyse(ROOT / "policies" / "default-policy.json", [path])

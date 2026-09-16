@@ -72,13 +72,19 @@ def kill_vector(harness: Any, policy_path: Path, suite_path: Path) -> dict[str, 
             continue
         (equivalent.append(name) if resolved == reference else live.append((name, mutant)))
 
-    expectations = harness._suite_expectations(suite_path, space)
+    located = harness._located_cases(suite_path, space)
+    # The same refusal `policy_mutation.analyze` makes, for the same reason: a suite that
+    # contradicts its policy fails against most mutants too, and every one of those failures
+    # is counted here as a kill.
+    harness.check_suite_consistency(suite_path.name, located, reference)
+    expectations = [(cell, expected) for _, cell, expected in located]
     killed = {name for name, mutant in live if harness._kills(expectations, mutant, space)}
     return {
         "generated": len(equivalent) + len(live),
         "equivalent": len(equivalent),
         "live": [name for name, _ in live],
         "killed": sorted(killed),
+        "consistent_with_policy": True,
     }
 
 
@@ -133,6 +139,7 @@ def analyse(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
         suites.append(
             {
                 "suite": suite_path.name,
+                "consistent_with_policy": vector["consistent_with_policy"],
                 "mutants_generated": vector["generated"],
                 "mutants_equivalent": vector["equivalent"],
                 "mutants_live": len(live),

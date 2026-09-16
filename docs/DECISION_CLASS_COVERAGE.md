@@ -101,8 +101,14 @@ names two purpose tags and two capability patterns has 960, and the statements a
 
 A **suite** `Sigma` is a finite set of cases `(s, d)` with `s in S` and `d in D`. Write
 `W(Sigma) = {s : (s, d) in Sigma for some d}` for the **witnessed cells**. `Sigma` is
-**consistent** with `P` when `d = [[P]](s)` for every case -- a suite that contradicts its own
-policy fails before any mutant is considered, so consistency is assumed throughout.
+**consistent** with `P` when `d = [[P]](s)` for every case. Everything below is stated for a
+consistent suite, so `scripts/policy_mutation.py` and `scripts/estimator_comparison.py` check
+it: each case is placed in its cell, compared against the reference decision map, and a
+mismatch refuses the run naming the scenario and both decisions. The sentence that stood here
+said consistency "is assumed throughout", and it was -- nothing established it. One
+contradicting case against the shipped policy read as 95.5% rather than 63.6%, because a case
+that fails against the original fails against most mutants too and every one of those counted
+as a kill.
 
 `Sigma` **kills** a mutant `M` when some case fails against it: `[[M]](s) != d`.
 
