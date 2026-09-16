@@ -208,7 +208,7 @@ trustweave risk-check \
   [--output PATH]
 ```
 
-`risk-check` accepts policy-review, trace-review, MCP-profile-review, supported bundle-diff, and declared-chain-review artifacts by exact schema version. It normalizes documented finding collections (`findings` or bundle-diff `signals`) into wording-independent `trustweave/fingerprint/v3` identities, preserving supplied local source paths while excluding paths, timestamps, severity, and message text from identity. It applies optional v1alpha2 baseline and suppression documents bound to the fingerprint, `TW-` rule ID, stable subject digest, accepted severity, owner, creation time, and expiry. Expired, future-created, and severity-escalated decisions remain active and reviewer-visible. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
+`risk-check` accepts policy-review, trace-review, MCP-profile-review, supported bundle-diff, and declared-chain-review artifacts by exact schema version. It normalizes documented finding collections (`findings` or bundle-diff `signals`) into wording-independent `trustweave/fingerprint/v4` identities, preserving supplied local source paths while excluding paths, timestamps, severity, and message text from identity. It applies optional v1alpha2 baseline and suppression documents bound to the fingerprint, `TW-` rule ID, stable subject digest, accepted severity, owner, creation time, and expiry. Expired, future-created, and severity-escalated decisions remain active and reviewer-visible. The default `--fail-on high` returns `1` for active `critical` or `high` findings; `none` preserves an evidence-only workflow.
 
 | Input | Required | Description |
 |---|---:|---|
@@ -258,7 +258,7 @@ trustweave sarif \
 | `locations` | The supplied local artifact path is recorded as the result location. |
 | `partialFingerprints` | A deterministic SHA-256 fingerprint derived from review kind, identifier, message, and artifact path. |
 
-The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. When a `risk-review.json` is supplied, every active state is included: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Its canonical identity is retained as `trustweave/fingerprint/v3`. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
+The exporter emits no timestamp, sorts rules and results, and does not perform a network upload. When a `risk-review.json` is supplied, every active state is included: `new`, expired, `not_yet_applicable_*`, and `severity_escalated_*`. Its canonical identity is retained as `trustweave/fingerprint/v4`. A SARIF file preserves the meaning and limits of the input finding; it is **not** proof that a live agent is secure or that GitHub Code Security is enabled.
 
 ## `trace-review`
 

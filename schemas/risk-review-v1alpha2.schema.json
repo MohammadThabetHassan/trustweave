@@ -31,7 +31,7 @@
           "$ref": "#/$defs/fingerprint"
         },
         "fingerprint_schema_version": {
-          "const": "trustweave/fingerprint/v3"
+          "const": "trustweave/fingerprint/v4"
         },
         "id": {
           "pattern": "^TW-[A-Z0-9-]{1,120}$",

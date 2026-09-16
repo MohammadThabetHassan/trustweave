@@ -90,6 +90,13 @@ def review_policy(
     coverage_rules: dict[str, dict[str, object]] = {}
     rules_by_id = {rule.id: rule for rule in policy.rules}
     for later_index, later_rule in enumerate(policy.rules):
+        # Identity for every finding about this rule. `risk._fingerprint` hashes
+        # (evidence_kind, id, subject) and deliberately excludes the message, so a subject
+        # naming only the policy gave every rule-level finding of one id in one policy the
+        # same risk identity and all but one were silently dropped. Rule ids are unique
+        # within a policy, so (policy, rule) separates them. Taken from the rule itself,
+        # never parsed back out of the message.
+        rule_subject = {"policy": policy.name, "rule": later_rule.id}
         single_id, covering_ids, searched = _covering_rules(
             policy.rules[:later_index], later_rule, policy
         )
@@ -110,6 +117,7 @@ def review_policy(
                 {
                     "severity": "review",
                     "id": "TW-POL-002",
+                    "subject": rule_subject,
                     "message": (
                         f"Rule {later_rule.id} is shadowed by earlier rules {named} together "
                         "under first-match semantics and cannot determine a decision."
@@ -121,6 +129,7 @@ def review_policy(
                     {
                         "severity": "review",
                         "id": "TW-POL-007",
+                        "subject": rule_subject,
                         "message": (
                             f"Rule {later_rule.id} conflicts with shadowing rules {named}: "
                             "their declared decisions differ."
@@ -132,6 +141,7 @@ def review_policy(
                     {
                         "severity": "review",
                         "id": "TW-POL-009",
+                        "subject": rule_subject,
                         "message": (
                             f"Rule {later_rule.id} is redundant because shadowing rules {named} "
                             "all specify the same decision."
@@ -143,6 +153,7 @@ def review_policy(
                 {
                     "severity": "review",
                     "id": "TW-POL-002",
+                    "subject": rule_subject,
                     "message": (
                         f"Rule {later_rule.id} is shadowed by earlier rule {shadowing_rule.id} "
                         "under first-match semantics and cannot determine a decision."
@@ -154,6 +165,7 @@ def review_policy(
                     {
                         "severity": "review",
                         "id": "TW-POL-007",
+                        "subject": rule_subject,
                         "message": (
                             f"Rule {later_rule.id} conflicts with shadowing rule "
                             f"{shadowing_rule.id}: their declared decisions differ."
@@ -165,6 +177,7 @@ def review_policy(
                     {
                         "severity": "review",
                         "id": "TW-POL-009",
+                        "subject": rule_subject,
                         "message": (
                             f"Rule {later_rule.id} is redundant because shadowing rule "
                             f"{shadowing_rule.id} specifies the same decision."
@@ -179,6 +192,7 @@ def review_policy(
                 {
                     "severity": "review",
                     "id": "TW-POL-008",
+                    "subject": rule_subject,
                     "message": (
                         f"Rule {later_rule.id} requires declared controls that this policy does "
                         "not provide and cannot determine a decision."
@@ -194,6 +208,7 @@ def review_policy(
                 {
                     "severity": "review",
                     "id": "TW-POL-003",
+                    "subject": rule_subject,
                     "message": (
                         f"Rule {later_rule.id} allows untrusted input to a sensitive or external "
                         "action class; review its authorization and human-control boundary."

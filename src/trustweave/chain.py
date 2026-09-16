@@ -162,15 +162,28 @@ def _parse_chain_manifest(
 
 
 def _finding(
-    identifier: str, severity: str, message: str, path: tuple[str, ...], **properties: Any
+    identifier: str,
+    severity: str,
+    message: str,
+    path: tuple[str, ...],
+    *,
+    subject_extras: Mapping[str, Any] | None = None,
+    **properties: Any,
 ) -> dict[str, Any]:
-    """Build a bounded canonical finding for a supplied declared chain path."""
+    """Build a bounded canonical finding for a supplied declared chain path.
+
+    Whatever tells two findings on one path apart belongs in the subject, not only in
+    `properties`. The risk fingerprint is built from (evidence kind, id, subject) and
+    `risk.normalize_findings` drops `properties` entirely, so two incomplete sanitizers on
+    one path were one risk identity: baselining either baselined both, with nothing recorded
+    as dropped.
+    """
 
     return finding_for_rule(
         identifier,
         severity,
         message,
-        subject={"path": path},
+        subject={"path": path, **(subject_extras or {})},
         location={"path_identity": " -> ".join(path) or "analysis_budget"},
         properties=properties,
     )
@@ -214,7 +227,7 @@ def review_declared_chains(
 ) -> dict[str, Any]:
     """Review declared paths with deterministic, bounded propagation of local static metadata."""
 
-    budgets = {
+    budgets: dict[str, Any] = {
         "max_nodes": max_nodes,
         "max_paths": max_paths,
         "max_edges": max_edges,
@@ -299,6 +312,7 @@ def review_declared_chains(
                     "external action."
                 ),
                 path,
+                subject_extras={"classifications": classifications},
                 classifications=classifications,
             )
         )
@@ -313,6 +327,7 @@ def review_declared_chains(
                         "declared fail-closed approval boundary."
                     ),
                     path,
+                    subject_extras={"classifications": unapproved},
                     classifications=unapproved,
                 )
             )
@@ -326,6 +341,7 @@ def review_declared_chains(
                         "sensitive classification."
                     ),
                     path,
+                    subject_extras={"sanitizer": sanitizer},
                     classifications=list(missing),
                     sanitizer=sanitizer,
                 )

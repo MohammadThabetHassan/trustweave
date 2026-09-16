@@ -8,6 +8,7 @@ import pytest
 from trustweave.chain import render_chain_review, review_declared_chains
 from trustweave.cli import main
 from trustweave.models import ValidationError
+from trustweave.risk import normalize_findings
 
 
 def _document(nodes: list[dict[str, object]], edges: list[dict[str, str]]) -> dict[str, object]:
@@ -123,7 +124,10 @@ def test_chain_review_reports_only_explicitly_declared_unsafe_path() -> None:
         generated_at="2026-08-13T00:00:00+00:00",
     )
     assert [item["id"] for item in review["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-002"]
-    assert review["findings"][0]["subject"] == {"path": ["inbox", "records", "email"]}
+    assert review["findings"][0]["subject"] == {
+        "path": ["inbox", "records", "email"],
+        "classifications": ["confidential"],
+    }
 
 
 def test_chain_review_respects_declared_fail_closed_approval_and_reports_incomplete_sanitizer() -> (
@@ -155,7 +159,10 @@ def test_chain_review_respects_declared_fail_closed_approval_and_reports_incompl
             "A declared sanitizer does not list coverage for every propagated sensitive "
             "classification."
         ),
-        "subject": {"path": ["inbox", "records", "approval", "redactor", "email"]},
+        "subject": {
+            "path": ["inbox", "records", "approval", "redactor", "email"],
+            "sanitizer": "redactor",
+        },
         "properties": {"classifications": ["confidential"], "sanitizer": "redactor"},
         "location": {"path_identity": "inbox -> records -> approval -> redactor -> email"},
     }
@@ -326,7 +333,10 @@ def test_chain_review_preserves_unsafe_metadata_and_reviewer_facing_report() -> 
     assert first["message"] == (
         "An explicitly declared untrusted path reaches sensitive data and an external action."
     )
-    assert first["subject"] == {"path": ["inbox", "records", "email"]}
+    assert first["subject"] == {
+        "path": ["inbox", "records", "email"],
+        "classifications": ["confidential"],
+    }
     assert first["properties"]["classifications"] == ["confidential"]
     assert second["id"] == "TW-CHAIN-002"
     assert second["severity"] == "high"
@@ -334,7 +344,10 @@ def test_chain_review_preserves_unsafe_metadata_and_reviewer_facing_report() -> 
         "The declared sensitive-data path reaches an external action without a declared "
         "fail-closed approval boundary."
     )
-    assert second["subject"] == {"path": ["inbox", "records", "email"]}
+    assert second["subject"] == {
+        "path": ["inbox", "records", "email"],
+        "classifications": ["confidential"],
+    }
     assert second["properties"]["classifications"] == ["confidential"]
     report = render_chain_review(review)
     assert "# Declared Chain Review" in report
@@ -741,7 +754,10 @@ def test_chain_review_processes_sensitive_terminals_after_a_clear_terminal_path(
         "TW-CHAIN-001",
         "TW-CHAIN-002",
     ]
-    assert review["findings"][0]["subject"] == {"path": ["b-sensitive", "records", "external"]}
+    assert review["findings"][0]["subject"] == {
+        "path": ["b-sensitive", "records", "external"],
+        "classifications": ["confidential"],
+    }
 
 
 def test_chain_renderer_uses_the_literal_finding_path_for_malformed_finding_entries() -> None:
@@ -821,3 +837,44 @@ def test_a_complete_analysis_still_reports_a_clear_result() -> None:
 
     assert "No path from an explicitly declared untrusted source" in rendered
     assert "Analysis incomplete" not in rendered
+
+
+def test_two_incomplete_sanitizers_on_one_path_are_two_risk_identities() -> None:
+    """Both sanitizers were one risk, so baselining either quietly baselined the other.
+
+    `TW-CHAIN-003` carried the whole path as its subject and a constant message, and the
+    discriminator lived in `properties`, which `risk.normalize_findings` drops before it
+    builds the fingerprint. The probe: one restricted path through two sanitizers, neither
+    of which covers `restricted`.
+    """
+
+    nodes = [
+        {"id": "inbox", "kind": "source", "trust": "untrusted"},
+        {"id": "records", "kind": "data", "classification": "restricted"},
+        {"id": "scrub_a", "kind": "sanitizer", "covers_classifications": ["confidential"]},
+        {"id": "scrub_b", "kind": "sanitizer", "covers_classifications": ["public"]},
+        {"id": "email", "kind": "tool", "action_class": "external"},
+    ]
+    review = review_declared_chains(
+        _document(
+            nodes,
+            [
+                {"from": "inbox", "to": "records"},
+                {"from": "records", "to": "scrub_a"},
+                {"from": "scrub_a", "to": "scrub_b"},
+                {"from": "scrub_b", "to": "email"},
+            ],
+        ),
+        generated_at="2026-09-16T00:00:00+00:00",
+    )
+
+    sanitizer_findings = [
+        finding for finding in review["findings"] if finding["id"] == "TW-CHAIN-003"
+    ]
+    canonical = normalize_findings(review)
+
+    assert [finding["subject"]["sanitizer"] for finding in sanitizer_findings] == [
+        "scrub_a",
+        "scrub_b",
+    ]
+    assert len({finding.fingerprint for finding in canonical}) == len(review["findings"])
