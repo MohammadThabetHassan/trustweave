@@ -17,6 +17,7 @@
     "missing_required_bindings": []
   },
   "coverage": {
+    "declined_rules": [],
     "impossible_rules": [],
     "rules": {
       "TW-001": {
@@ -61,7 +62,7 @@
     "Findings indicate review obligations rather than vulnerabilities, compliance conclusions, or automatic approval decisions."
   ],
   "policy": "support-agent-boundary-policy",
-  "schema_version": "trustweave.dev/policy-review/v1alpha1",
+  "schema_version": "trustweave.dev/policy-review/v1alpha2",
   "summary": {
     "review_findings": 0,
     "rules": 4,

@@ -30,9 +30,9 @@ All notable changes to TrustWeave are documented in this file. The project follo
   label moves is reported rather than silently skipped.
 - `scripts/azure_initiative_bindings.py` and
   `docs/azure-initiative-bindings-v1.json` answer, from the corpus, whether the
-  instantiation a schema verdict presumes actually exists: 538 of the 769 Azure schemas are
+  instantiation a schema verdict presumes actually exists: 555 of the 855 Azure schemas are
   included in a built-in initiative that binds every parameter they left without a default,
-  and 231 are in no initiative that binds anything. The 538 had been a hand count quoted
+  and 300 are in no initiative that binds anything. The earlier 538 had been a hand count quoted
   beside a denominator a re-measurement moved, and the completeness half of the claim --
   that the initiative binds the parameters that had no default, rather than some other
   parameter -- had never been checked at all.
@@ -198,7 +198,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
   `ExternalEvaluationPolicies/` were absent from it while the newer commit hash was
   recorded beside the result. Every Azure figure is re-measured at the pin, and the other
   seven corpora were re-cloned and re-measured to check the same way: all seven reproduce
-  their committed artifacts exactly. Azure is now 2,884 of 3,769 inside, and the two
+  their committed artifacts exactly. Azure is 2,150 of 3,769 inside at that re-measurement
+  (2,137 after the adapter corrections below), and the two
   definitions that had been undetermined are judged — `true()` and `false()` are
   constants, and `claims()` reads a value projected from a Resource Graph query the
   definition declares and the platform runs across the tenant, which is the same

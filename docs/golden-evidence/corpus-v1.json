@@ -28,7 +28,7 @@
           "path": "ci-summary.json"
         },
         {
-          "digest": "a2f1930004f82701b017b8edb7089a14bfe66de994f2ae8f216949e39e2b726f",
+          "digest": "ded03a353c6b335fc8b9801495583eece13951365c6b92b4eeb50cdf309b14c4",
           "digest_kind": "canonical-json-sha256",
           "path": "policy-review.json"
         },
@@ -241,7 +241,7 @@
           "path": "review-required/trace-review.md"
         },
         {
-          "digest": "76bb03466c953b845b043c8ef01c0e6a33f57f275370e5476f727225379900fe",
+          "digest": "8486be5edfa679be229f63f9a973342a2c8a0a9073a86bfb833a4ed5fdeff717",
           "digest_kind": "canonical-json-sha256",
           "path": "risk-review.json"
         },
@@ -336,7 +336,7 @@
           "path": "growth/agent-security-bundle.json"
         },
         {
-          "digest": "0ce07fe2b2a6f11e5340afaa57b0fee3022512dcee771f8e4aaecee049c73083",
+          "digest": "a7c737c9afd5932e95a17da3edb577376d26e91c84aaeae5ce45df982e40c3a6",
           "digest_kind": "canonical-json-sha256",
           "path": "policy-review/policy-review.json"
         },

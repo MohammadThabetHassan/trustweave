@@ -14,6 +14,9 @@
       },
       "severity": "high",
       "subject": {
+        "classifications": [
+          "confidential"
+        ],
         "path": [
           "inbox",
           "records",
@@ -35,6 +38,9 @@
       },
       "severity": "high",
       "subject": {
+        "classifications": [
+          "confidential"
+        ],
         "path": [
           "inbox",
           "records",
@@ -63,6 +69,7 @@
     "paths": 1,
     "review_findings": 2,
     "states_explored": 3
-  }
+  },
+  "warnings": []
 }
 
