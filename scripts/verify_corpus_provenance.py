@@ -115,12 +115,18 @@ def verify(corpora: Path, docs: Path = DOCS) -> dict[str, Any]:
         if not isinstance(recorded, list) or not recorded:
             rows.append({**row, "verdict": "skipped", "why": "the artifact records no corpus"})
             continue
-        if artifact.get("corpus_scope") != "wide":
+        scope = artifact.get("corpus_scope")
+        if scope != "wide":
             rows.append(
                 {
                     **row,
                     "verdict": "skipped",
-                    "why": "measured over the subjects of a study, not the whole corpus",
+                    "why": (
+                        "measured over policies sealed inside an archive the corpus tracks, "
+                        "which this check does not unpack"
+                        if scope == "archive"
+                        else "measured over the subjects of a study, not the whole corpus"
+                    ),
                 }
             )
             continue

@@ -138,12 +138,51 @@ DECLARED_CONTROL_CATALOG = frozenset({"approval", "approval.fail_closed"})
 DEFAULT_CLASSIFICATION_TAXONOMY = ("public", "internal", "confidential", "restricted")
 CAPABILITY_PATTERN_MAX_LENGTH = 128
 IDENTIFIER_MAX_LENGTH = 64
+_UNICODE_LINE_SEPARATORS = frozenset({"\u2028", "\u2029"})
+
+
+def contains_control_characters(value: str) -> bool:
+    """True when text carries a character that would break a line-oriented artifact.
+
+    Declared text is interpolated into Markdown tables and list items. A newline, a
+    tab, a NUL, or a Unicode line separator lets one declared field close the row it
+    was written into and open structure of its own, so the rendered document stops
+    describing the artifact it was generated from.
+    """
+
+    return any(
+        character < " " or character == "\x7f" or character in _UNICODE_LINE_SEPARATORS
+        for character in value
+    )
+
+
+# The published bundle schema bounds every declared manifest collection, but nothing
+# enforced those bounds at authoring time, so `scan` wrote bundles that `attest` and
+# `diff` then refused and that failed their own JSON Schema. They are declared here
+# rather than imported from bundles.py, which imports this module and not the reverse.
+# MAX_MANIFEST_FLOWS equals bundles.MAX_BUNDLE_FINDINGS on purpose: the evaluator emits
+# exactly one finding per declared flow, so one bound is the other.
+MAX_MANIFEST_SOURCES = 1_000
+MAX_MANIFEST_TOOLS = 1_000
+MAX_MANIFEST_FLOWS = 10_000
+MAX_TOOL_CAPABILITIES = 128
+MAX_FLOW_PURPOSE_TAGS = 128
+
+# `discover` and `mcp-scaffold` write this into every field a reviewer still has to
+# decide. The drafts are meant not to validate, but the parser never looked at free text,
+# so a reviewer who fixed only what the parser complained about reached a passing scan
+# with the placeholder still in the bundle. It lives here rather than in code_catalog
+# because this module is the one every parser path already goes through.
+RESERVED_PLACEHOLDER = "REVIEW_REQUIRED"
 
 
 def _string(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
-    return value.strip()
+    text = value.strip()
+    if contains_control_characters(text):
+        raise ValidationError(f"{path} must not contain control characters")
+    return text
 
 
 def _bounded_text(value: Any, path: str, maximum: int) -> str:
@@ -152,6 +191,17 @@ def _bounded_text(value: Any, path: str, maximum: int) -> str:
     text = _string(value, path)
     if len(text) > maximum:
         raise ValidationError(f"{path} must be at most {maximum} characters")
+    return text
+
+
+def _declared_text(value: Any, path: str) -> str:
+    """Return declared free text, refusing a placeholder a reviewer has not resolved."""
+
+    text = _string(value, path)
+    if text.startswith(RESERVED_PLACEHOLDER):
+        raise ValidationError(
+            f"{path} still holds an unresolved {RESERVED_PLACEHOLDER} placeholder"
+        )
     return text
 
 
@@ -261,7 +311,9 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
         raise ValidationError("manifest.schema_version must be trustweave.dev/v1alpha1")
 
     sources: list[Source] = []
-    for index, raw_source in enumerate(_sequence(root.get("sources"), "manifest.sources")):
+    raw_sources = _sequence(root.get("sources"), "manifest.sources")
+    _at_most(raw_sources, "manifest.sources", MAX_MANIFEST_SOURCES)
+    for index, raw_source in enumerate(raw_sources):
         source = _mapping(raw_source, f"manifest.sources[{index}]")
         reject_unknown_fields(
             source,
@@ -277,11 +329,11 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             Source(
                 name=validate_identifier(source.get("name"), f"manifest.sources[{index}].name"),
                 trust=trust,
-                data_classification=_string(
+                data_classification=_declared_text(
                     source.get("data_classification"),
                     f"manifest.sources[{index}].data_classification",
                 ),
-                description=_string(
+                description=_declared_text(
                     source.get("description"), f"manifest.sources[{index}].description"
                 ),
             )
@@ -291,7 +343,9 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     _unique_names([source.name for source in sources], "manifest.sources.name")
 
     tools: list[Tool] = []
-    for index, raw_tool in enumerate(_sequence(root.get("tools"), "manifest.tools")):
+    raw_tools = _sequence(root.get("tools"), "manifest.tools")
+    _at_most(raw_tools, "manifest.tools", MAX_MANIFEST_TOOLS)
+    for index, raw_tool in enumerate(raw_tools):
         tool = _mapping(raw_tool, f"manifest.tools[{index}]")
         reject_unknown_fields(
             tool,
@@ -304,13 +358,15 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             raise ValidationError(
                 f"manifest.tools[{index}].action_class must be one of {allowed_actions}"
             )
+        raw_capabilities = _sequence(
+            tool.get("capabilities"), f"manifest.tools[{index}].capabilities"
+        )
+        _at_most(raw_capabilities, f"manifest.tools[{index}].capabilities", MAX_TOOL_CAPABILITIES)
         capabilities = tuple(
             validate_capability_pattern(
                 capability, f"manifest.tools[{index}].capabilities", allow_namespace=False
             )
-            for capability in _sequence(
-                tool.get("capabilities"), f"manifest.tools[{index}].capabilities"
-            )
+            for capability in raw_capabilities
         )
         if not capabilities:
             raise ValidationError(f"manifest.tools[{index}].capabilities must not be empty")
@@ -320,7 +376,7 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
                 name=validate_identifier(tool.get("name"), f"manifest.tools[{index}].name"),
                 action_class=action_class,
                 capabilities=capabilities,
-                description=_string(
+                description=_declared_text(
                     tool.get("description"), f"manifest.tools[{index}].description"
                 ),
             )
@@ -332,7 +388,9 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
     source_names = {source.name for source in sources}
     tool_names = {tool.name for tool in tools}
     flows: list[Flow] = []
-    for index, raw_flow in enumerate(_sequence(root.get("flows"), "manifest.flows")):
+    raw_flows = _sequence(root.get("flows"), "manifest.flows")
+    _at_most(raw_flows, "manifest.flows", MAX_MANIFEST_FLOWS)
+    for index, raw_flow in enumerate(raw_flows):
         flow = _mapping(raw_flow, f"manifest.flows[{index}]")
         reject_unknown_fields(
             flow,
@@ -349,18 +407,20 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
             raise ValidationError(
                 f"manifest.flows[{index}].tool references unknown tool {tool_name}"
             )
+        raw_purpose_tags = _sequence(
+            flow.get("purpose_tags", []), f"manifest.flows[{index}].purpose_tags"
+        )
+        _at_most(raw_purpose_tags, f"manifest.flows[{index}].purpose_tags", MAX_FLOW_PURPOSE_TAGS)
         purpose_tags = tuple(
             validate_identifier(value, f"manifest.flows[{index}].purpose_tags")
-            for value in _sequence(
-                flow.get("purpose_tags", []), f"manifest.flows[{index}].purpose_tags"
-            )
+            for value in raw_purpose_tags
         )
         _unique_names(list(purpose_tags), f"manifest.flows[{index}].purpose_tags")
         flows.append(
             Flow(
                 source=source_name,
                 tool=tool_name,
-                purpose=_string(flow.get("purpose"), f"manifest.flows[{index}].purpose"),
+                purpose=_declared_text(flow.get("purpose"), f"manifest.flows[{index}].purpose"),
                 purpose_tags=purpose_tags,
             )
         )
@@ -369,8 +429,8 @@ def parse_manifest(document: Mapping[str, Any]) -> AgentManifest:
 
     return AgentManifest(
         schema_version=schema_version,
-        name=_string(root.get("name"), "manifest.name"),
-        description=_string(root.get("description"), "manifest.description"),
+        name=_declared_text(root.get("name"), "manifest.name"),
+        description=_declared_text(root.get("description"), "manifest.description"),
         sources=tuple(sources),
         tools=tuple(tools),
         flows=tuple(flows),

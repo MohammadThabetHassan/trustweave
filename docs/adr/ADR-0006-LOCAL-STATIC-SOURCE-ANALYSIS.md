@@ -39,7 +39,7 @@ boundary is restated rather than removed.
 | Action class | Inferred as a **proposal**, from a bounded, versioned symbol catalog, recorded with the evidence that produced it. A proposal is never an authorization and never a security verdict. |
 | Refusal | Ambiguity produces `unknown` with a reason code, not a best guess. Dynamic dispatch, unresolved callees, non-literal arguments, missing bodies, and exhausted budgets all refuse. |
 | Severity | Every `TW-CODE-*` finding is `review`. A static inference must not present itself as a graded verdict, and must not gate a pipeline as though it were one. |
-| Draft validity | The emitted manifest draft deliberately does not validate. `unknown` and `REVIEW_REQUIRED` sit outside the accepted vocabularies, so `parse_manifest` rejects the draft until a reviewer resolves it. A draft that parsed would eventually be fed to `scan` as though it had been reviewed. |
+| Draft validity | The emitted manifest draft deliberately does not validate, and it does not begin validating part-way through a review. `unknown` sits outside the accepted trust and action-class vocabularies, and `parse_manifest` separately refuses any declared free-text field beginning with `REVIEW_REQUIRED`, naming the field it refused. The closed vocabularies alone were satisfied after six edits with eight placeholders still in the document. A draft that parsed would eventually be fed to `scan` as though it had been reviewed. |
 | Determinism | Output is ordered and integer-valued. Coverage is reported in basis points by floor division, so no floating-point value reaches an artifact. |
 
 The `analyze untrusted repositories` commitment in `docs/PRODUCT_CONTRACT.md` is replaced by

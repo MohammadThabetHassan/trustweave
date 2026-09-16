@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import pytest
@@ -17,7 +18,6 @@ from trustweave.commands.ci import (
     CI_SUMMARY_SCHEMA_VERSION,
     _config_path,
     _fail_on_findings,
-    _prepare_output_parent,
     _publish_directory,
     _render_summary,
     _required_paths,
@@ -26,11 +26,16 @@ from trustweave.commands.ci import (
     _selected_stages,
     _severity_counts,
     _staged_sarif_path,
-    _validate_output_path,
     _validate_stage_dependencies,
 )
 from trustweave.config import CONFIG_FILE_NAME, find_project_config, load_project_config
-from trustweave.io import canonical_json, load_document, write_json
+from trustweave.io import (
+    canonical_json,
+    load_document,
+    resolve_artifact_dir,
+    validate_artifact_dir,
+    write_json,
+)
 from trustweave.models import InputOutputError, ValidationError
 from trustweave.risk import create_baseline, review_risks
 
@@ -212,6 +217,7 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
         "status": "clear",
         "generated_at": "2026-08-14T00:00:00+00:00",
         "artifacts": ["ci-summary.json", "report.md"],
+        "incomplete_analyses": [],
     }
     assert _render_summary(summary, "text") == (
         "Wrote staged local CI evidence: ci-summary.json, report.md"
@@ -221,6 +227,24 @@ def test_ci_helper_contracts_are_deterministic_and_bounded(
         "# TrustWeave Local CI Summary\n\n"
         "**Status:** **clear**  \n"
         "**Generated at:** `2026-08-14T00:00:00+00:00`\n\n"
+        "## Published artifacts\n\n"
+        "- `ci-summary.json`\n- `report.md`"
+    )
+    truncated = {
+        **summary,
+        "status": "incomplete",
+        "incomplete_analyses": ["Declared chain analysis reached a configured traversal budget."],
+    }
+    assert _render_summary(truncated, "text") == (
+        "Wrote staged local CI evidence: ci-summary.json, report.md\n"
+        "Incomplete analyses: Declared chain analysis reached a configured traversal budget."
+    )
+    assert _render_summary(truncated, "markdown") == (
+        "# TrustWeave Local CI Summary\n\n"
+        "**Status:** **incomplete**  \n"
+        "**Generated at:** `2026-08-14T00:00:00+00:00`\n\n"
+        "## Incomplete analyses\n\n"
+        "- Declared chain analysis reached a configured traversal budget.\n\n"
         "## Published artifacts\n\n"
         "- `ci-summary.json`\n- `report.md`"
     )
@@ -280,7 +304,9 @@ def test_ci_directory_publication_replaces_only_complete_staged_artifacts(tmp_pa
 
     output = tmp_path / "artifacts"
     output.mkdir()
-    (output / "report.md").write_text("old", encoding="utf-8")
+    # A previous run's artifact that this run does not reproduce now stops the publish, so
+    # the replaced entry here is one this run stages.
+    (output / "bundle-diff.md").write_text("old", encoding="utf-8")
     stale_backup = tmp_path / ".artifacts.previous"
     stale_backup.mkdir()
     (stale_backup / "stale.txt").write_text("stale", encoding="utf-8")
@@ -291,7 +317,6 @@ def test_ci_directory_publication_replaces_only_complete_staged_artifacts(tmp_pa
     _publish_directory(staging, output)
 
     assert (output / "bundle-diff.md").read_text(encoding="utf-8") == "new"
-    assert not (output / "report.md").exists()
     assert not stale_backup.exists()
     file_destination = tmp_path / "not-a-directory"
     file_destination.write_text("file", encoding="utf-8")
@@ -1807,7 +1832,7 @@ def test_ci_directory_publication_restores_only_replaced_output_after_staging_fa
 
     output = tmp_path / "artifacts"
     output.mkdir()
-    (output / "report.md").write_text("old", encoding="utf-8")
+    (output / "bundle-diff.md").write_text("old", encoding="utf-8")
     staging = tmp_path / "staging"
     staging.mkdir()
     (staging / "bundle-diff.md").write_text("new", encoding="utf-8")
@@ -1817,8 +1842,7 @@ def test_ci_directory_publication_restores_only_replaced_output_after_staging_fa
     assert str(error.value) == (
         f"Could not publish CI artifacts to {output}: simulated staged publish failure"
     )
-    assert (output / "report.md").read_text(encoding="utf-8") == "old"
-    assert not (output / "bundle-diff.md").exists()
+    assert (output / "bundle-diff.md").read_text(encoding="utf-8") == "old"
     assert not (tmp_path / ".artifacts.previous").exists()
 
     empty_output = tmp_path / "empty-artifacts"
@@ -1873,6 +1897,9 @@ def test_ci_handle_rejects_partial_artifact_prerequisites(
     monkeypatch.setattr(ci_command, "parse_policy", lambda _document: object())
     monkeypatch.setattr(ci_command, "parse_scenarios", lambda _document: object())
     monkeypatch.setattr(ci_command, "build_bundle", lambda *_args: {})
+    # The scan stage now round-trips its own bundle through validate_bundle, which the
+    # stub above cannot satisfy. This test is about stage prerequisites, not bundle content.
+    monkeypatch.setattr(ci_command, "validate_bundle", lambda *_args: None)
     monkeypatch.setattr(ci_command, "run_scenarios", lambda *_args: {})
 
     attestation_outputs: list[Path | None] = [None, tmp_path / "test-results.json"]
@@ -1968,7 +1995,12 @@ def test_ci_handle_tolerates_missing_or_malformed_optional_risk_collections(
 def test_ci_handle_records_chain_budget_limit_in_the_public_summary(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Chain traversal limits are retained in the published CI decision context."""
+    """A budget stop now decides the exit code, so even failure_threshold "none" returns 1.
+
+    This test used to assert exit 0 under `failure_threshold = "none"`, which is exactly
+    the shape the audit reproduced: `incomplete_analyses` recorded that the analysis had
+    not finished while the same document said `"status": "clear"` and the run passed.
+    """
 
     chain_manifest = tmp_path / "chain.json"
     chain_manifest.write_text("{}", encoding="utf-8")
@@ -2008,12 +2040,120 @@ def test_ci_handle_records_chain_budget_limit_in_the_public_summary(
                 "--quiet",
             ]
         )
-        == 0
+        == 1
     )
     summary = load_document(output_dir / "ci-summary.json")
     assert summary["incomplete_analyses"] == [
         "Declared chain analysis reached a configured traversal budget."
     ]
+    assert summary["status"] == "incomplete"
+
+
+def test_a_chain_budget_stop_fails_a_high_gate_it_says_nothing_about(tmp_path: Path) -> None:
+    """The audit's schema-valid 603-node / 6,002-edge manifest used to exit 0 as "clear".
+
+    600 of its nodes are an unreachable-from-the-violation fan-out that exhausts
+    max_states before the traversal reaches `web -> secret -> sendmail`, so the only
+    finding left was TW-CHAIN-004 at medium, which a `failure_threshold = "high"` gate
+    ignores. The manifest is inside the published maxItems of 1000 nodes / 10000 edges,
+    so nothing about it is malformed; it is simply a declared graph that outgrew the
+    default budgets.
+    """
+
+    nodes: list[dict[str, object]] = [
+        {"id": "web", "kind": "source", "trust": "untrusted"},
+        {"id": "secret", "kind": "data", "classification": "confidential"},
+        {"id": "sendmail", "kind": "tool", "action_class": "external"},
+    ]
+    edges: list[dict[str, str]] = [
+        {"from": "web", "to": "secret"},
+        {"from": "secret", "to": "sendmail"},
+    ]
+    for index in range(300):
+        nodes.append({"id": f"u{index}", "kind": "source", "trust": "untrusted"})
+        nodes.append({"id": f"d{index}", "kind": "data", "classification": "public"})
+    for index in range(300):
+        for offset in range(20):
+            edges.append({"from": f"u{index}", "to": f"d{(index + offset) % 300}"})
+    assert (len(nodes), len(edges)) == (603, 6002)
+
+    chain_manifest = tmp_path / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "schemavalid",
+                "nodes": nodes,
+                "edges": edges,
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "summary"]\n'
+        'failure_threshold = "high"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        ["--generated-at", "2026-08-18T00:00:00+00:00", "ci", "--config", str(config), "--quiet"]
+    )
+
+    summary = load_document(output_dir / "ci-summary.json")
+    review = load_document(output_dir / "chain-review.json")
+    assert exit_code == 1
+    assert summary["status"] == "incomplete"
+    assert summary["incomplete_analyses"] == [
+        "Declared chain analysis reached a configured traversal budget."
+    ]
+    assert summary["finding_counts"]["high"] == 0
+    budget_findings = [finding for finding in review["findings"] if finding["id"] == "TW-CHAIN-004"]
+    assert [finding["severity"] for finding in budget_findings] == ["medium"]
+    assert budget_findings[0]["properties"]["budget"] == "max_states"
+
+
+def test_a_completed_chain_review_with_no_findings_still_reports_clear(tmp_path: Path) -> None:
+    """Pins the refusal direction: only an unfinished analysis is refused, not a quiet one."""
+
+    chain_manifest = tmp_path / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "complete",
+                "nodes": [
+                    {"id": "inbox", "kind": "source", "trust": "untrusted"},
+                    {"id": "email", "kind": "sink", "action_class": "external"},
+                ],
+                "edges": [{"from": "inbox", "to": "email"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "artifacts"
+    config = tmp_path / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        f'chain_manifest = "{chain_manifest.as_posix()}"\n'
+        f'output_dir = "{output_dir.as_posix()}"\n'
+        'enabled_stages = ["chain_review", "summary"]\n'
+        'failure_threshold = "high"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        ["--generated-at", "2026-08-18T00:00:00+00:00", "ci", "--config", str(config), "--quiet"]
+    )
+
+    summary = load_document(output_dir / "ci-summary.json")
+    assert exit_code == 0
+    assert summary["status"] == "clear"
+    assert summary["incomplete_analyses"] == []
 
 
 def test_ci_summary_stage_serializes_a_non_null_pre_artifact_mapping(
@@ -2075,8 +2215,13 @@ def test_safe_sarif_path_rejects_native_or_windows_rooted_absolute_paths(
     )
 
 
-def test_ci_output_path_rejects_symbolic_links_with_exact_diagnostic(tmp_path: Path) -> None:
-    """CI outputs must not traverse symbolic links at any path component."""
+def test_artifact_output_path_rejects_symbolic_links_with_exact_diagnostic(tmp_path: Path) -> None:
+    """Artifact outputs must not traverse symbolic links at any path component.
+
+    This check lived in `ci` and had no caller outside it, so every other command wrote
+    straight through an output directory `ci` refused at exit 3. It now lives in `io` and
+    names artifacts rather than CI, because eight other commands run it.
+    """
 
     target = tmp_path / "target"
     target.mkdir()
@@ -2085,8 +2230,10 @@ def test_ci_output_path_rejects_symbolic_links_with_exact_diagnostic(tmp_path: P
     output = linked_parent / "artifacts"
 
     with pytest.raises(InputOutputError) as error:
-        _validate_output_path(output)
-    assert str(error.value) == f"CI output path must not traverse a symbolic link: {linked_parent}"
+        validate_artifact_dir(output)
+    assert str(error.value) == (
+        f"Artifact output path must not traverse a symbolic link: {linked_parent}"
+    )
 
 
 def test_ci_output_parent_creation_preserves_exact_oserror_diagnostic(
@@ -2100,9 +2247,9 @@ def test_ci_output_parent_creation_preserves_exact_oserror_diagnostic(
     monkeypatch.setattr(Path, "mkdir", fail_mkdir)
     output = tmp_path / "nested" / "artifacts"
     with pytest.raises(InputOutputError) as error:
-        _prepare_output_parent(output)
-    assert (
-        str(error.value) == f"Could not create CI output parent {output.parent}: permission denied"
+        resolve_artifact_dir(output)
+    assert str(error.value) == (
+        f"Could not create artifact output parent {output.parent}: permission denied"
     )
 
 
@@ -2124,3 +2271,77 @@ def test_ci_directory_publication_rejects_a_symbolic_link_output_with_exact_diag
     with pytest.raises(InputOutputError) as error:
         _publish_directory(staging, output)
     assert str(error.value) == f"CI output path must not be a symbolic link: {output}"
+
+
+def test_a_configured_output_dir_that_escapes_the_project_is_refused(tmp_path: Path) -> None:
+    """docs/CONFIGURATION.md promised containment twice and only sarif_output had it.
+
+    _validate_output_path tested nothing but is_symlink(), so a discovered trustweave.toml
+    could set output_dir = "../outside/escaped" and `ci` wrote there at exit 0 with the
+    validate stage enabled, while the byte-equivalent sarif_output escape was refused at
+    exit 2.
+    """
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (tmp_path / "outside").mkdir()
+    chain_manifest = repo / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "escape",
+                "nodes": [{"id": "inbox", "kind": "source", "trust": "untrusted"}],
+                "edges": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config = repo / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        'chain_manifest = "chain.json"\n'
+        'output_dir = "../outside/escaped"\n'
+        'enabled_stages = ["validate", "chain_review"]\n',
+        encoding="utf-8",
+    )
+
+    assert main(["ci", "--config", str(config), "--quiet"]) == 2
+    assert not (tmp_path / "outside" / "escaped").exists()
+
+
+def test_an_absolute_output_dir_on_the_command_line_is_still_accepted(tmp_path: Path) -> None:
+    """Pins the refusal direction: --output-dir DIR is a documented, tested feature.
+
+    The filed recommendation was to apply _safe_sarif_path's absolute-path rejection to
+    output_dir, which would have broken this.
+    """
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    chain_manifest = repo / "chain.json"
+    chain_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "trustweave.dev/chain-manifest/v1alpha1",
+                "name": "absolute",
+                "nodes": [{"id": "inbox", "kind": "source", "trust": "untrusted"}],
+                "edges": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config = repo / "trustweave.toml"
+    config.write_text(
+        "[tool.trustweave]\n"
+        'chain_manifest = "chain.json"\n'
+        'output_dir = "artifacts"\n'
+        'enabled_stages = ["chain_review"]\n',
+        encoding="utf-8",
+    )
+    elsewhere = tmp_path / "elsewhere"
+
+    exit_code = main(["ci", "--config", str(config), "--output-dir", str(elsewhere), "--quiet"])
+
+    assert exit_code == 0
+    assert (elsewhere / "chain-review.json").is_file()

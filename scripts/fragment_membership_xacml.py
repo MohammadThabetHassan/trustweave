@@ -74,6 +74,21 @@ CONTENT_SELECTION = "AttributeSelector"
 PREDICATE_ID = re.compile(r'(?:FunctionId|MatchId)="([^"]+)"')
 POLICY_FILE = re.compile(r"^TestPolicy_(\d+)\.xml$")
 
+# XML comments, removed before any scan of the raw text. The scans below read attributes out
+# of the document as a string, and a commented-out element is not part of the document: two
+# conformance policies had their entire `<Condition>` commented out under the note "XPath
+# support is optional in XACML 3.0 therefore removed here", and both were published OUTSIDE
+# for naming `xpath-node-count`, which neither states in any live element. A comment cannot
+# nest and cannot contain `--`, so one non-greedy substitution is exact.
+XML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+
+# The namespace the standard functions live in. A vendor PDP extension may end in a segment
+# that looks like a standard family -- `urn:acme:pdp:function:consult-oracle:equal` reduces to
+# `equal` -- and the family rule below would then admit it on a spelling coincidence, which is
+# exactly the guess this adapter exists to refuse. An identifier with no namespace at all is
+# a bare local name and keeps the family rule.
+OASIS_FUNCTION_NAMESPACE = "urn:oasis:names:tc:xacml:"
+
 
 # XACML names a function `<type>-<family>`, and membership is a property of the family, not
 # of the datatype: `integer-greater-than` and `time-greater-than` both compare a designator
@@ -177,13 +192,22 @@ EXTERNAL_FUNCTIONS = frozenset(
 
 
 def is_finitely_refining(function: str) -> bool:
-    """Whether this function's induced partition is fixed by the policy's own literals."""
+    """Whether this function's induced partition is fixed by the policy's own literals.
 
-    if function in FINITELY_REFINING_NAMES or function in FINITELY_REFINING_FUNCTIONS:
+    `function` may be a full URN or a bare local name. The explicit lists are matched on the
+    local name; the family suffix rule additionally requires the OASIS namespace, because a
+    family name is evidence about a standard function and says nothing about a vendor
+    extension that happens to end in the same segment.
+    """
+
+    name = function.rsplit(":", 1)[-1]
+    if name in FINITELY_REFINING_NAMES or name in FINITELY_REFINING_FUNCTIONS:
         return True
+    namespaced = ":" in function
+    if namespaced and not function.startswith(OASIS_FUNCTION_NAMESPACE):
+        return False
     return any(
-        function == family or function.endswith(f"-{family}")
-        for family in FINITELY_REFINING_FAMILIES
+        name == family or name.endswith(f"-{family}") for family in FINITELY_REFINING_FAMILIES
     )
 
 
@@ -318,11 +342,20 @@ def classify(text: str) -> Verdict:
     except ElementTree.ParseError as error:
         return Verdict(UNDETERMINED, f"not well-formed XML: {error}")
 
-    functions = sorted({found.rsplit(":", 1)[-1] for found in PREDICATE_ID.findall(text)})
+    # Every scan below reads the live document, never a commented-out one.
+    body = XML_COMMENT.sub("", text)
+    identifiers = PREDICATE_ID.findall(body)
+    functions = sorted({found.rsplit(":", 1)[-1] for found in identifiers})
     external = sorted(set(functions) & EXTERNAL_FUNCTIONS)
-    unrecognised = sorted(function for function in functions if not is_finitely_refining(function))
+    unrecognised = sorted(
+        {
+            identifier.rsplit(":", 1)[-1]
+            for identifier in identifiers
+            if not is_finitely_refining(identifier)
+        }
+    )
 
-    clock = clock_designators(text)
+    clock = clock_designators(body)
     if clock:
         return Verdict(
             OUTSIDE,
@@ -330,7 +363,7 @@ def classify(text: str) -> Verdict:
             "attributes from its own clock when the request omits them",
             {"clock_designators": clock, "functions": functions},
         )
-    if CONTENT_SELECTION in text:
+    if CONTENT_SELECTION in body:
         return Verdict(OUTSIDE, "selects over request content with XPath", {"functions": functions})
     if external:
         return Verdict(
@@ -351,7 +384,7 @@ def classify(text: str) -> Verdict:
         # the policy is inside the fragment in the strongest way available. If it does
         # contain such an element, the scan missed something and the honest answer is that
         # this test did not judge it.
-        guards = _guard_elements(text)
+        guards = _guard_elements(body)
         if guards:
             return Verdict(
                 UNDETERMINED,

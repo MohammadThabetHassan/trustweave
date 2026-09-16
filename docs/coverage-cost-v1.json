@@ -38,5 +38,27 @@
     }
   },
   "intractable_at": 1000000000,
+  "invalidated": {
+    "counterexamples": [
+      {
+        "instrument_input": "cells_from_groups({'field.x': ['in', 'in']}, AZURE_EXCLUSIVE)",
+        "realisable_signatures": 4,
+        "reported": 3,
+        "why": "Two `in` guards over different value lists are independently true or false of one component, so all four combinations are realisable; `n + 1` counts three."
+      },
+      {
+        "instrument_input": "cells_from_groups({'obj': ['containsKey', 'containsKey']}, AZURE_EXCLUSIVE)",
+        "realisable_signatures": 4,
+        "reported": 3,
+        "why": "An object can carry both named keys, either one, or neither, so a pair of `containsKey` guards realises four signatures rather than three."
+      }
+    ],
+    "instrument_repaired_at": "scripts/coverage_cost.py",
+    "large_values_were_clamped": "`p99_cells` for IAM is the 10^9 cap published verbatim, not a measurement; the instrument now keeps the exact integer and reports `exceeds_enumeration_limit` separately.",
+    "reinstating_requires": "Re-running with --replace-invalidated, and restoring the claims struck from docs/REPRODUCING_THE_STUDY.md and scripts/check_manuscript.py in the same change.",
+    "same_defect_in_iam": "`iam_guards` recorded one guard per (operator, condition key) while an AWS condition value is an array, so `StringEquals` against a multi-entry array was counted as a single-value guard for the same invalid reason.",
+    "summary": "The distribution below is withdrawn. It was computed with a guard grouping that counted set-membership operators as holding of at most one value each, so on any component carrying two of them the count is an under-estimate -- the one direction a 'this many policies need at most this many cases' claim cannot survive.",
+    "withdrawn": "2026-09-16"
+  },
   "schema_version": "v1"
 }

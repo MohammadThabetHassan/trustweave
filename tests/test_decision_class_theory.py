@@ -291,6 +291,102 @@ def test_a_richer_guard_enlarges_the_quotient_rather_than_being_refused() -> Non
     assert len(policy_mutation.cells(_richer_policy())) == 1152
 
 
+def _suite_agreeing_with(document: dict, tmp_path: Path) -> Path:
+    """A one-case suite expecting what this policy actually decides.
+
+    The shipped suites are written against the shipped policy, and a variant with richer
+    guards decides some of their cases differently -- which the consistency check now
+    refuses, correctly. So the case is built from the policy's own decision map.
+    """
+
+    import json
+
+    space = policy_mutation.witness_space(document)
+    reference = policy_mutation.decision_map(document)
+    cell = policy_mutation.abstract_cell(space, "untrusted", "write")
+    suite = dict(policy_mutation.load_document(SUITES[0]))
+    suite["scenarios"] = [
+        {
+            "id": "TW-SC-AGREES",
+            "description": "A case expecting what the policy under test decides.",
+            "source_trust": "untrusted",
+            "tool_action_class": "write",
+            "expected_decision": reference[cell],
+        }
+    ]
+    path = tmp_path / "agreeing-scenarios.json"
+    path.write_text(json.dumps(suite), encoding="utf-8")
+    return path
+
+
+def test_a_richer_guard_runs_through_analyze_rather_than_aborting_it(tmp_path: Path) -> None:
+    """`analyze()` refused this exact fixture: "mutant delete_rule[TW-001] changed the quotient".
+
+    Deleting a rule removes the last occurrence of the classification bound, the capability
+    patterns or the purpose tags, so the mutant's own quotient is smaller than the reference's.
+    The harness read that as a mutant it could not compare and aborted the whole run, on a
+    comment claiming the operator set "only edits rule order, decisions and the two closed
+    label domains". `delete_rule` is emitted for every rule, so that was never true. Every
+    mutant is now decided over the pooled common refinement instead.
+    """
+
+    import json
+
+    document = _richer_policy()
+    path = tmp_path / "richer-policy.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    suite = _suite_agreeing_with(document, tmp_path)
+
+    report = policy_mutation.analyze(path, [suite])
+
+    assert report["partition_cells"] == 1152
+    assert report["mutants_generated"] == 38
+    assert report["mutants_equivalent"] + report["mutants_live"] == 38
+    # The deletions are what used to abort the run, and they are scored like anything else.
+    scored = set(report["equivalent_mutants"]) | {
+        name for suite in report["suites"].values() for name in suite["survivors"]
+    }
+    assert any(name.startswith("delete_rule[") for name in scored)
+
+
+def test_the_pooled_space_is_the_values_either_policy_names() -> None:
+    """Theorem 2's common refinement, which is what makes two decision maps comparable.
+
+    A mutant that drops the last rule naming `billing` has no `billing` cell of its own. The
+    pooled space keeps it, so the reference and the mutant are decided over the same domain.
+    """
+
+    document = _richer_policy()
+    shrunk = copy.deepcopy(document)
+    del shrunk["rules"][2]
+
+    alone = policy_mutation.witness_space(shrunk)
+    pooled = policy_mutation.witness_space(shrunk, document)
+
+    assert len(alone["purpose_tags"]) == 1
+    assert len(pooled["purpose_tags"]) == 4
+    assert policy_mutation.witness_space(document) == pooled
+
+
+def test_max_cells_is_still_the_only_refusal_analyze_makes(tmp_path: Path) -> None:
+    """The refusal direction, pinned beside the fix that removed the other one.
+
+    Dropping the quotient check must not drop the honest refusal: a space too large to
+    enumerate still gets `SystemExit` rather than a score over a sample of it.
+    """
+
+    import json
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["purpose_tags"] = [f"tag{index}" for index in range(20)]
+    path = tmp_path / "enormous-policy.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="above the"):
+        policy_mutation.analyze(path, SUITES)
+
+
 def test_a_wildcard_capability_pattern_gets_a_witness_that_matches_it() -> None:
     from trustweave.policy_predicates import capability_matches
 
@@ -935,3 +1031,117 @@ def test_the_finite_image_clause_is_free_for_finitely_many_outcomes() -> None:
     assert realised == {0, 1}, "one that halts occupies both"
     # Which class a subject falls in is computable; *whether the true class is occupied at
     # all* is the halting question, and that is what the second clause asks for.
+
+
+def test_a_policy_naming_the_outsider_sentinel_keeps_the_unnamed_class() -> None:
+    """The sentinel was a constant, and the policy language accepts it as a literal.
+
+    With `OUTSIDER = "trustweave-witness-outsider"` fixed, a policy naming it lost the class
+    the sentinel stood for: `identifiers()` deduplicated the outsider against the named
+    literal, so "a source the policy does not name" and "the source it names" became one cell.
+    """
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["source_identifiers"] = ["trustweave-witness-outsider"]
+
+    space = policy_mutation.witness_space(document)
+
+    outsider = space["outsider"][0]
+    assert outsider != "trustweave-witness-outsider"
+    assert len(space["source_identifier"]) == 3
+    assert "trustweave-witness-outsider" in space["source_identifier"]
+    assert outsider in space["source_identifier"]
+
+
+def test_an_unnamed_capability_is_not_placed_on_a_named_one() -> None:
+    """The witness `net.<sentinel>` was read back as the wildcard `net.*`.
+
+    `_pattern_of` recovered a pattern by stripping the sentinel off the end of a witness
+    string, so on a policy naming the exact capability `net.trustweave-witness-outsider` the
+    placement believed the policy named `net.*` twice. A subject holding a capability the
+    policy does not name landed on the cell of the one it does, and a mutant differing only
+    there was reported equivalent. The patterns are carried beside the witnesses now.
+    """
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["tool_capabilities"] = ["net.*", "net.trustweave-witness-outsider"]
+
+    space = policy_mutation.witness_space(document)
+
+    assert space["capability_patterns"] == ("net.*", "net.trustweave-witness-outsider")
+    # Three achievable signatures: neither, `net.*` alone, and both.
+    assert len(space["tool_capabilities"]) == 3
+
+    unnamed = policy_mutation.abstract_cell(
+        space, "untrusted", "write", tool_capabilities=("net.ftp",)
+    )
+    named = policy_mutation.abstract_cell(
+        space, "untrusted", "write", tool_capabilities=("net.trustweave-witness-outsider",)
+    )
+    assert unnamed != named
+    assert unnamed in policy_mutation.cells(document)
+    assert named in policy_mutation.cells(document)
+
+
+def test_the_outsider_is_derived_over_the_pool_not_one_document() -> None:
+    """A mutant may name what the reference does not, and the pooled space must clear both."""
+
+    reference = _document()
+    reference["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    naming = copy.deepcopy(reference)
+    naming["rules"][0]["source_identifiers"] = ["trustweave-witness-outsider"]
+
+    pooled = policy_mutation.witness_space(reference, naming)
+
+    assert pooled["outsider"][0] != "trustweave-witness-outsider"
+    assert "trustweave-witness-outsider" in pooled["source_identifier"]
+
+
+def _inconsistent_suite(tmp_path: Path) -> Path:
+    """The auditor's probe: one case asserting `allow` where the shipped policy denies."""
+
+    import json
+
+    suite = dict(policy_mutation.load_document(SUITES[0]))
+    suite["scenarios"] = [
+        {
+            "id": "TW-SC-BAD",
+            "description": "An untrusted write the policy denies, asserted to be allowed.",
+            "source_trust": "untrusted",
+            "tool_action_class": "write",
+            "expected_decision": "allow",
+        }
+    ]
+    path = tmp_path / "inconsistent-scenarios.json"
+    path.write_text(json.dumps(suite), encoding="utf-8")
+    return path
+
+
+def test_a_suite_that_contradicts_its_policy_is_refused_not_scored(tmp_path: Path) -> None:
+    """`analyze()` scored it silently at 95.5% where the consistent answer is 63.6%.
+
+    Every result in the write-up is stated for a suite consistent with its policy, and
+    nothing compared the suite's expectations against the reference map. The single
+    contradicting case below failed against the original, so it failed against most mutants
+    too, manufacturing eight false kills and masking the one genuine one -- while
+    `python -m trustweave test` reported the same suite as failing.
+    """
+
+    with pytest.raises(SystemExit) as refusal:
+        policy_mutation.analyze(POLICY, [_inconsistent_suite(tmp_path)])
+
+    message = str(refusal.value)
+    assert "TW-SC-BAD" in message, "the refusal must name the scenario"
+    assert "allow" in message and "deny" in message, "and both decisions"
+
+
+def test_a_consistent_suite_records_that_the_check_ran() -> None:
+    """The outcome is in the artifact, so a reader need not take the assumption on trust."""
+
+    report = policy_mutation.analyze(POLICY, SUITES)
+
+    for name, scores in report["suites"].items():
+        assert scores["consistent_with_policy"] is True, name
+    assert report["suites"]["default-scenarios.json"]["mutation_score"] == "63.6%"

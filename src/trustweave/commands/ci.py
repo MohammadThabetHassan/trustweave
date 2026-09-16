@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
-import sys
 import tempfile
 from collections.abc import Mapping, Sequence
 from pathlib import Path, PureWindowsPath
@@ -42,11 +41,20 @@ from trustweave.config import (
 from trustweave.diff import diff_bundles
 from trustweave.engine import build_bundle
 from trustweave.evidence import build_attestation
-from trustweave.io import canonical_json, load_document, read_json, write_json, write_text
+from trustweave.io import (
+    canonical_json,
+    load_document,
+    read_json,
+    resolve_artifact_dir,
+    validate_artifact_dir,
+    write_json,
+    write_text,
+)
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import InputOutputError, ValidationError, parse_manifest, parse_policy
 from trustweave.policy_review import review_policy
 from trustweave.report import (
+    _cell,
     render_diff_report,
     render_mcp_profile_review_report,
     render_policy_review_report,
@@ -224,66 +232,40 @@ def _staged_sarif_path(config: Mapping[str, object], staging: Path) -> Path:
     return staging / _safe_sarif_path(config)
 
 
-def _validate_output_path(output: Path) -> None:
-    """Reject symbolic-link output boundaries without creating any path on disk."""
-
-    for candidate in (output, *output.parents):
-        if candidate.is_symlink():
-            raise InputOutputError(f"CI output path must not traverse a symbolic link: {candidate}")
-
-
-def _prepare_output_parent(output: Path) -> None:
-    """Create a local output parent without accepting symbolic-link directory boundaries."""
-
-    _validate_output_path(output)
-    try:
-        output.parent.mkdir(parents=True, exist_ok=True)
-    except OSError as error:
-        raise InputOutputError(
-            f"Could not create CI output parent {output.parent}: {error.strerror or error}"
-        ) from error
-
-
-def _known_artifact_names() -> frozenset[str]:
-    """Every filename TrustWeave itself publishes into an output directory."""
-
-    from trustweave.commands import _shared
-
-    modules = (_shared, sys.modules[__name__])
-    return frozenset(
-        value
-        for module in modules
-        for name, value in vars(module).items()
-        if name.endswith("_FILE") and isinstance(value, str)
-    )
-
-
 def _refuse_to_replace_unrelated_content(staging: Path, output: Path) -> None:
-    """Refuse to publish over a directory holding anything TrustWeave did not write.
+    """Refuse to publish over a directory holding anything this run did not produce.
 
     Publishing moves the existing directory aside and then deletes it. A one-word config
     typo naming a source directory would therefore destroy real work with no prompt and
     no warning, so an unrecognised entry stops the publish instead.
+
+    Two exemptions used to make that promise partial. The scan skipped every dot entry,
+    including whole hidden directory trees, so a `.secrets/` beside the artifacts was
+    deleted without ever being looked at; only hidden *files* are skipped now, which keeps
+    a `.gitkeep` from blocking a publish. And the recognised set was seeded from every
+    `*_FILE` constant in the package rather than from this run's own output, so a
+    hand-written `report.md` was destroyed by a run whose stages never produced one. The
+    set is now exactly what this run staged, which is also what made the earlier fix work:
+    a SARIF file the configuration renamed or nested is staged here and therefore ours. A
+    previous run's artifact that this run does not reproduce is no longer replaceable in
+    silence; it stops the publish and says so, which is the answer that does not throw
+    away evidence nothing is about to replace.
     """
 
     if not output.is_dir():
         return
-    # Whatever this run just staged is by definition ours, including a SARIF file the
-    # configuration renamed or nested. Deriving the list from _FILE constants alone made
-    # TrustWeave refuse to overwrite its own output whenever sarif_output was not the
-    # default, so a documented configuration was green once and exit 3 for ever after.
-    known = _known_artifact_names() | {entry.name for entry in staging.iterdir()}
+    known = {entry.name for entry in staging.iterdir()}
     unrelated = sorted(
         entry.name
         for entry in output.iterdir()
-        if entry.name not in known and not entry.name.startswith(".")
+        if entry.name not in known and not (entry.name.startswith(".") and entry.is_file())
     )
     if unrelated:
         listed = ", ".join(unrelated[:5])
         more = f" and {len(unrelated) - 5} more" if len(unrelated) > 5 else ""
         raise InputOutputError(
             f"Refusing to publish CI artifacts into {output}: it holds "
-            f"{len(unrelated)} entries TrustWeave did not write ({listed}{more}). "
+            f"{len(unrelated)} entries this run did not produce ({listed}{more}). "
             "Point output_dir at a dedicated directory, or empty this one first."
         )
 
@@ -296,7 +278,7 @@ def _publish_directory(staging: Path, output: Path) -> None:
     if output.exists() and not output.is_dir():
         raise InputOutputError(f"CI output path must be a directory: {output}")
     _refuse_to_replace_unrelated_content(staging, output)
-    _prepare_output_parent(output)
+    resolve_artifact_dir(output)
     backup = output.parent / f".{output.name}.previous"
     if backup.exists():
         shutil.rmtree(backup)
@@ -369,16 +351,30 @@ def _render_summary(summary: Mapping[str, Any], output_format: str) -> str:
 
     if output_format == "json":
         return canonical_json(summary).rstrip()
+    incomplete = summary["incomplete_analyses"]
     if output_format == "markdown":
         artifacts = "\n".join(f"- `{name}`" for name in summary["artifacts"])
+        # A reader of the rendered summary has no other way to learn that a selected
+        # analysis stopped early; the status word alone does not say which one.
+        incomplete_section = (
+            "## Incomplete analyses\n\n"
+            + "\n".join(f"- {_cell(reason)}" for reason in incomplete)
+            + "\n\n"
+            if incomplete
+            else ""
+        )
         return (
             "# TrustWeave Local CI Summary\n\n"
-            f"**Status:** **{summary['status']}**  \n"
-            f"**Generated at:** `{summary['generated_at']}`\n\n"
+            f"**Status:** **{_cell(summary['status'])}**  \n"
+            f"**Generated at:** `{_cell(summary['generated_at'])}`\n\n"
+            f"{incomplete_section}"
             "## Published artifacts\n\n"
             f"{artifacts}"
         )
-    return "Wrote staged local CI evidence: " + ", ".join(summary["artifacts"])
+    message = "Wrote staged local CI evidence: " + ", ".join(summary["artifacts"])
+    if incomplete:
+        message += "\nIncomplete analyses: " + "; ".join(incomplete)
+    return message
 
 
 def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
@@ -435,13 +431,13 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         for bundle_name in ("baseline_bundle", "candidate_bundle"):
             if bundle_name in validated_documents:
                 validate_bundle(validated_documents[bundle_name], bundle_name)
-        _validate_output_path(output_dir)
+        validate_artifact_dir(output_dir)
         _safe_sarif_path(config)
     configured_threshold = config.get("failure_threshold", "none")
     if not isinstance(configured_threshold, str):
         raise ValidationError("tool.trustweave.failure_threshold must be a severity string")
     threshold = args.fail_on or configured_threshold
-    _prepare_output_parent(output_dir)
+    resolve_artifact_dir(output_dir)
 
     with tempfile.TemporaryDirectory(prefix=".trustweave-ci-", dir=output_dir.parent) as temporary:
         staging = Path(temporary) / "artifacts"
@@ -463,9 +459,11 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
         if "scan" in stages:
             manifest = parse_manifest(read_json(paths["manifest"]))
             policy = parse_policy(read_json(paths["policy"]))
-            bundle_path = write_json(
-                staging / BUNDLE_FILE, build_bundle(manifest, policy, generated_at)
-            )
+            bundle = build_bundle(manifest, policy, generated_at)
+            # The same round-trip `scan` performs. Without it the staged run could write a
+            # bundle its own attest and diff stages refuse, which is where this bites.
+            validate_bundle(bundle, "bundle")
+            bundle_path = write_json(staging / BUNDLE_FILE, bundle)
             artifacts.append(BUNDLE_FILE)
         if "scenarios" in stages:
             policy = policy or parse_policy(read_json(paths["policy"]))
@@ -593,10 +591,21 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
                 [review for _, review in raw_reviews.values()], threshold, args.exit_on_review
             )
         )
-        code = EXIT_REVIEW if test_failed or review_failed else 0
         raw_findings = [
             finding for _, review in raw_reviews.values() for finding in _review_findings(review)
         ]
+        incomplete_analyses = sorted(
+            {
+                "Declared chain analysis reached a configured traversal budget."
+                for finding in raw_findings
+                if finding.get("id") == "TW-CHAIN-004"
+            }
+        )
+        # An analysis that stopped at a budget established nothing about what it did not
+        # reach. TW-CHAIN-004 is medium, so a critical or high gate let it through and the
+        # summary said "clear" in the same document whose incomplete_analyses field said the
+        # review had not finished. Incompleteness now decides the exit code on its own.
+        code = EXIT_REVIEW if test_failed or review_failed or incomplete_analyses else 0
         risk_findings = _review_findings(risk_review) if risk_review is not None else raw_findings
         active_findings = (
             [
@@ -608,13 +617,6 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
             else raw_findings
         )
         risk_summary = risk_review.get("summary", {}) if risk_review is not None else {}
-        incomplete_analyses = sorted(
-            {
-                "Declared chain analysis reached a configured traversal budget."
-                for finding in raw_findings
-                if finding.get("id") == "TW-CHAIN-004"
-            }
-        )
         summary: dict[str, Any] = {
             "schema_version": CI_SUMMARY_SCHEMA_VERSION,
             "generated_at": generated_at,
@@ -622,7 +624,13 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
                 "generated_at_source": getattr(args, "generated_at_source", "clock"),
                 "source_revision": args.source_revision,
             },
-            "status": "review_required" if code == EXIT_REVIEW else "clear",
+            "status": (
+                "incomplete"
+                if incomplete_analyses
+                else "review_required"
+                if code == EXIT_REVIEW
+                else "clear"
+            ),
             "stages": list(stages),
             "artifacts": sorted(artifacts),
             "finding_counts": _severity_counts(risk_findings),

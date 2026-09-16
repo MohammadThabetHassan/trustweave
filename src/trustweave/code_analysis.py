@@ -20,21 +20,28 @@ otherwise would put a guess behind an attestation.
 from __future__ import annotations
 
 import ast
+import builtins
 import sys
-from dataclasses import dataclass, field
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass, field, replace
 from typing import Final
 
 from trustweave.code_catalog import (
     ACTION_CLASS_PRECEDENCE,
+    ARCHIVE_READ_METHODS,
+    ARCHIVE_RECEIVERS,
+    ARCHIVE_WRITE_METHODS,
     CREDENTIAL_PATH_SUFFIXES,
     CREDENTIAL_PATH_TOKENS,
     DB_CONNECTION_SYMBOLS,
     DB_EXECUTE_METHODS,
     DB_PLUMBING_METHODS,
+    DB_SCRIPT_METHODS,
     EGRESS_COMMANDS,
     EXTERNAL_RECEIVERS,
     EXTERNAL_SYMBOLS,
     HIGH_SPECIFICITY_PII_TOKENS,
+    KEYED_STORE_OPENERS,
     PATH_PRESERVING_METHODS,
     PATH_RECEIVERS,
     PII_TOKENS,
@@ -45,6 +52,7 @@ from trustweave.code_catalog import (
     SECRET_ENV_TOKENS,
     SENSITIVE_RECEIVERS,
     SENSITIVE_SYMBOLS,
+    SQL_CTE_TOKEN,
     SQL_READ_TOKENS,
     SQL_WRITE_TOKENS,
     UNKNOWN_ACTION_CLASS,
@@ -60,20 +68,48 @@ MAX_CALL_DEPTH: Final[int] = 3
 # Path classmethods that return a Path, so the receiver survives the call.
 PATH_CONSTRUCTORS: Final[frozenset[str]] = frozenset({"home", "cwd", "resolve", "absolute"})
 
+# The parameter each path-taking symbol names its path with. `open(file="~/.ssh/id_rsa")`
+# and `os.stat(path=...)` are the same reads as their positional spellings, and judging
+# only `call.args` published them as ordinary file reads. The parameter is named per
+# symbol rather than every keyword being scanned, because a blanket scan would test
+# `mode=` and `encoding=` against the credential vocabulary too.
+PATH_KEYWORD_BY_SYMBOL: Final[dict[str, str]] = {
+    "open": "file",
+    "io.open": "file",
+    "codecs.open": "filename",
+    "os.listdir": "path",
+    "os.scandir": "path",
+    "os.stat": "path",
+    "os.walk": "top",
+}
+
 _ENVIRON_READERS: Final[frozenset[str]] = frozenset(
     {"os.environ.get", "os.getenv", "os.environ.setdefault"}
 )
 _ENVIRON_BULK: Final[frozenset[str]] = frozenset(
     {"os.environ.items", "os.environ.copy", "os.environ.values"}
 )
-_KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(
-    {"bool", "bytes", "dict", "float", "frozenset", "int", "list", "open", "set", "str", "tuple"}
-)
+# The builtin namespace, read from the interpreter rather than written down, the way
+# `sys.stdlib_module_names` already is. A bare call that resolves to no binding, no
+# module-level definition and no builtin reaches a name this file does not contain, and is
+# refused; a hand-written list of eleven names would have refused `len`, `sorted` and every
+# exception constructor instead.
+_KNOWN_BUILTINS: Final[frozenset[str]] = frozenset(dir(builtins))
 _INSTANCE_RECEIVERS: Final[frozenset[str]] = frozenset({"self", "cls"})
+# Every spelling of the builtin `open`. `io.open is open` is literally true and
+# `codecs.open` is the same call with an encoding, so all three are judged by their mode.
+# The rule used to dispatch on the bare `open` token and skip when the module bound that
+# name, so one `from io import open` disabled mode analysis for every open in the file and
+# published a write -- and a credential read -- as a benign read.
+BUILTIN_OPEN_SYMBOLS: Final[frozenset[str]] = frozenset({"open", "io.open", "codecs.open"})
 # Pseudo-origin for a local bound directly to os.environ.
 _ENVIRON_ORIGIN: Final[str] = "os.environ"
 # Sentinel: a resolved call the catalog has no entry for.
 _UNRECOGNIZED: Final[str] = "\x00unrecognized"
+# Sentinel origin: a receiver name bound twice in one scope to different receivers. Which
+# object a later call reaches depends on the path taken, so it is refused rather than
+# dropped -- dropping it made the call silent, and silence is published as a benign read.
+_AMBIGUOUS_ORIGIN: Final[str] = "\x00ambiguous"
 _DYNAMIC_SYMBOLS: Final[frozenset[str]] = frozenset(
     {"eval", "exec", "getattr", "globals", "importlib.import_module", "vars"}
 )
@@ -186,6 +222,14 @@ class DiscoveredTool:
     # exposes one name to the model and is implemented by another, and a reviewer checking
     # the effects needs the second to find the code.
     implementation: str | None = None
+    # The function whose effects are this tool's, recorded where the discovery pass already
+    # held it. `analyze_sources` used to look the body up again by name, so a module-level
+    # `def send` won over the `@tool`-decorated `Mailer.send` it shadows and the artifact
+    # reported one function's line with another function's signals. It is excluded from
+    # comparison and repr: it is the AST node, not part of the record.
+    body: ast.FunctionDef | ast.AsyncFunctionDef | None = field(
+        default=None, repr=False, compare=False
+    )
     signals: list[EffectSignal] = field(default_factory=list)
     reasons: set[str] = field(default_factory=set)
     budget_state: str = "complete"
@@ -282,6 +326,12 @@ class _Module:
     # They are deliberately kept out of `functions`, which is the bare-name resolution
     # map: a nested helper must not satisfy a call to an imported name.
     nested: list[ast.FunctionDef | ast.AsyncFunctionDef] = field(default_factory=list)
+    # For every function defined inside another, the functions that enclose it, outermost
+    # first, keyed by id(). Python resolves a free name through each enclosing function
+    # before the module, so a tool registered inside a factory sees the factory's imports.
+    enclosing: dict[int, tuple[ast.FunctionDef | ast.AsyncFunctionDef, ...]] = field(
+        default_factory=dict
+    )
 
 
 def _dotted(node: ast.AST) -> str | None:
@@ -295,13 +345,43 @@ def _dotted(node: ast.AST) -> str | None:
     return None
 
 
-def _index_module(path: str, tree: ast.Module) -> _Module:
-    bindings: dict[str, str] = {}
-    functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
-    wildcard = False
+def _scope_nodes(body: list[ast.stmt]) -> Iterator[ast.AST]:
+    """Every node that belongs to this scope, in source order.
 
-    # Imports may appear at any depth, so bindings are collected across the whole tree.
-    for node in ast.walk(tree):
+    Blocks -- `if`, `try`, `with`, loops -- are entered, because a name they bind is bound
+    in the enclosing scope. Function, class, and lambda bodies are not, because a name
+    bound inside them is not visible here. This is the distinction `ast.walk` erases.
+
+    The order is source order rather than `ast.walk`'s breadth-first order, because a
+    binding can be read by a later statement of the same scope. Breadth-first yielded every
+    top-level statement before any nested one, so `try: base = Path(root)` followed by
+    `target = base / name` saw `target` before `base` existed and gave it no origin.
+    """
+
+    stack: list[ast.AST] = list(reversed(body))
+    while stack:
+        node = stack.pop()
+        yield node
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | ast.Lambda):
+            # The definition is a statement of this scope; its body is not.
+            continue
+        stack.extend(reversed(list(ast.iter_child_nodes(node))))
+
+
+def _import_bindings(body: list[ast.stmt]) -> tuple[dict[str, str], bool]:
+    """Import bindings made by this statement list, and whether one of them is a wildcard.
+
+    Bindings are lexical. The module's used to be collected with `ast.walk` over the whole
+    tree, so `from builtins import print as action` inside one function overwrote the
+    module-level `from os import system as action` that a tool two functions away was
+    calling, and a shell invocation was published as no effect at high confidence. Each
+    scope now contributes only the imports it makes; a function's own imports are layered
+    over the module's when that function is walked.
+    """
+
+    bindings: dict[str, str] = {}
+    wildcard = False
+    for node in _scope_nodes(body):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 bindings[alias.asname or alias.name.split(".")[0]] = (
@@ -316,6 +396,35 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
                 bindings[alias.asname or alias.name] = (
                     f"{source_module}.{alias.name}" if source_module else alias.name
                 )
+    return bindings, wildcard
+
+
+def _scoped(module: _Module, function: ast.FunctionDef | ast.AsyncFunctionDef) -> _Module:
+    """The module as seen from inside *function*.
+
+    Names resolve through the function's own imports, then each enclosing function's from
+    the innermost out, then the module's -- the lexical chain Python itself uses. Layering
+    only the function's own imports over the module's read a tool registered inside a
+    factory as if the factory's imports did not exist, and a shell invocation reached that
+    way published as `read`; the module-wide collection this replaced had at least seen
+    it. A wildcard import anywhere in the chain leaves every free name unresolvable, so
+    the flag travels with the bindings.
+    """
+
+    bindings = dict(module.bindings)
+    wildcard = module.wildcard_import
+    for frame in (*module.enclosing.get(id(function), ()), function):
+        frame_bindings, frame_wildcard = _import_bindings(frame.body)
+        bindings.update(frame_bindings)
+        wildcard = wildcard or frame_wildcard
+    if bindings == module.bindings and wildcard == module.wildcard_import:
+        return module
+    return replace(module, bindings=bindings, wildcard_import=wildcard)
+
+
+def _index_module(path: str, tree: ast.Module) -> _Module:
+    functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
+    bindings, wildcard = _import_bindings(tree.body)
 
     # Only module-level functions may be reached by a bare name. Indexing class methods
     # and nested functions here would let `Class.send` satisfy a call to an imported
@@ -385,12 +494,16 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
     # and module-level functions are in `functions`, so this is exactly the remainder.
     top_level = {id(node) for node in tree.body}
     owned = {id(method) for method in methods}
+    enclosing: dict[int, tuple[ast.FunctionDef | ast.AsyncFunctionDef, ...]] = {}
     for outer in ast.walk(tree):
         if not isinstance(outer, ast.FunctionDef | ast.AsyncFunctionDef):
             continue
         for inner in ast.walk(outer):
             if inner is outer or not isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
                 continue
+            # `ast.walk` visits outer functions before the functions they contain, so the
+            # chain recorded for `outer` is complete by the time `inner` extends it.
+            enclosing[id(inner)] = (*enclosing.get(id(outer), ()), outer)
             if id(inner) in top_level or id(inner) in owned:
                 continue
             if not any(existing is inner for existing in nested):
@@ -404,6 +517,7 @@ def _index_module(path: str, tree: ast.Module) -> _Module:
         wildcard,
         methods=methods,
         nested=nested,
+        enclosing=enclosing,
         self_symbols=self_symbols,
         self_origins={
             owner: {attr: _resolve_raw(spelled, bindings) for attr, spelled in stored.items()}
@@ -509,10 +623,17 @@ def _root_name(node: ast.AST) -> str | None:
 
 
 def _dynamic_locals(scope: ast.AST, module: _Module) -> set[str]:
-    """Names bound from a subscript or an unresolved call: calling them is dispatch."""
+    """Names bound from a subscript or an unresolved call: calling them is dispatch.
+
+    Module-level bindings count too. A dispatch table or a `getattr` handle is usually
+    built once at the top of the file and called from the tool, and reading only the tool's
+    own body meant the module-level spelling of the very shape the docs use as the
+    `DYNAMIC_DISPATCH` example was published as a benign read while the function-local
+    spelling refused.
+    """
 
     dynamic: set[str] = set()
-    for node in ast.walk(scope):
+    for node in (*_scope_nodes(module.tree.body), *ast.walk(scope)):
         if not isinstance(node, ast.Assign):
             continue
         opaque = isinstance(node.value, ast.Subscript)
@@ -560,7 +681,27 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
     Only a direct name or attribute binding counts. Anything computed stays with
     `_dynamic_locals`, and a name bound twice to different symbols is dropped rather than
     resolved to whichever assignment came last.
+
+    Module-level bindings are seeded first, the way `_local_literals` and `_local_instances`
+    already seed theirs. `_run = subprocess.run` at the top of a file is the same call as
+    the identical line inside the tool, and reading only the function body published the
+    module-level spelling as a benign read while the function-local one was sensitive. A
+    binding made in the function wins over the seed without being treated as a conflict,
+    because a local name shadows a module one rather than contradicting it.
     """
+
+    seeded: dict[str, str] = {}
+    for statement in _scope_nodes(module.tree.body):
+        if not isinstance(statement, ast.Assign) or len(statement.targets) != 1:
+            continue
+        bound = statement.targets[0]
+        if not isinstance(bound, ast.Name) or not isinstance(
+            statement.value, ast.Name | ast.Attribute
+        ):
+            continue
+        qualified = _resolve(_dotted(statement.value), module)
+        if qualified is not None and "." in qualified:
+            seeded[bound.id] = qualified
 
     aliases: dict[str, str] = {}
     rebound: set[str] = set()
@@ -568,33 +709,63 @@ def _symbol_aliases(scope: ast.AST, module: _Module) -> dict[str, str]:
         if not isinstance(node, ast.Assign) or len(node.targets) != 1:
             continue
         target = node.targets[0]
-        if not isinstance(target, ast.Name) or not isinstance(node.value, ast.Name | ast.Attribute):
+        if not isinstance(target, ast.Name):
+            continue
+        if not isinstance(node.value, ast.Name | ast.Attribute):
+            # The name is bound here to something that is not a symbol, so whatever the
+            # module bound it to no longer describes it.
+            seeded.pop(target.id, None)
             continue
         qualified = _resolve(_dotted(node.value), module)
         if qualified is None or "." not in qualified:
+            seeded.pop(target.id, None)
             continue
         if target.id in aliases and aliases[target.id] != qualified:
             rebound.add(target.id)
         aliases[target.id] = qualified
     for name in rebound:
         aliases.pop(name, None)
-    return aliases
+        seeded.pop(name, None)
+    return {**seeded, **aliases}
 
 
 def _path_segments(value: ast.expr) -> list[ast.expr]:
-    """Constant string parts of a path expression, including `/` composition.
+    """Constant string parts of a path expression, in source order, including `/` composition.
 
     `home = Path.home()` then `home / ".ssh" / "id_rsa"` puts the part that decides whether
     this is an ordinary read or a credential read in the composition rather than in the
     constructor. Recording only the constructor's arguments read the private key as an
     ordinary file.
+
+    The order is load-bearing, because the segments are joined back into one path below and
+    half the credential tokens span a separator. `ast.walk` is breadth-first, so it read
+    `Path.home() / ".aws" / "credentials"` as `["credentials", ".aws"]`, and joining that
+    gives `credentials/.aws`, which matches nothing. Walking the child fields depth-first
+    yields the segments in the order they were written.
     """
 
-    return [
-        node
-        for node in ast.walk(value)
-        if isinstance(node, ast.Constant) and isinstance(node.value, str)
-    ]
+    found: list[ast.expr] = []
+
+    def visit(node: ast.AST) -> None:
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, str):
+                found.append(node)
+            return
+        for child in ast.iter_child_nodes(node):
+            visit(child)
+
+    visit(value)
+    return found
+
+
+def _joined_path(node: ast.expr) -> str:
+    """The path one expression spells out, its constant segments joined by a separator."""
+
+    return "/".join(
+        segment.value
+        for segment in _path_segments(node)
+        if isinstance(segment, ast.Constant) and isinstance(segment.value, str)
+    )
 
 
 def _third_party_parameters(
@@ -606,30 +777,101 @@ def _third_party_parameters(
     call on an object the caller supplied, whose methods the catalog says nothing about.
     Producing neither an effect nor a refusal there classified a tool that writes to a git
     repository as a benign read, with high confidence -- the one direction this must not
-    fail in. The annotation is the evidence that the receiver is third-party state; an
-    unannotated parameter, or one annotated as a builtin, stays benign so an ordinary pure
-    function is still positively classified.
+    fail in. The annotation is the evidence that the receiver is third-party state. A
+    parameter annotated as a builtin stays benign here, so an ordinary pure function is
+    still positively classified; an unannotated one is decided later, by
+    `_unresolved_parameters`, which refuses it for want of any evidence at all.
+
+    An annotation is read through its wrappers. `git.Repo | None`, `Optional[git.Repo]`,
+    `list[git.Repo]` and the quoted `"git.Repo"` all name the same third-party type, and
+    reading only a bare dotted spelling meant one ` | None` turned a refusal into a benign
+    high-confidence read of a tool that commits to a repository.
     """
 
+    found: set[str] = set()
+    imported_roots = {binding.split(".", 1)[0] for binding in module.bindings.values()}
+    for parameter in _parameters(function):
+        if parameter.annotation is None:
+            continue
+        for named in _annotation_types(parameter.annotation):
+            qualified = _resolve(_dotted(named), module)
+            if not qualified or "." not in qualified:
+                continue
+            root = qualified.split(".", 1)[0]
+            if root in sys.stdlib_module_names:
+                continue
+            if root in imported_roots:
+                found.add(parameter.arg)
+    return found
+
+
+def _parameters(function: ast.FunctionDef | ast.AsyncFunctionDef) -> list[ast.arg]:
+    """Every parameter the signature declares, in the order Python binds them."""
+
     arguments = function.args
-    parameters = [
+    return [
         *arguments.posonlyargs,
         *arguments.args,
         *arguments.kwonlyargs,
         *([arguments.vararg] if arguments.vararg else []),
         *([arguments.kwarg] if arguments.kwarg else []),
     ]
+
+
+def _annotation_types(annotation: ast.expr) -> list[ast.expr]:
+    """Every type an annotation names, unwrapping unions, containers and quotes."""
+
+    if isinstance(annotation, ast.Constant) and isinstance(annotation.value, str):
+        # An explicitly quoted annotation. PEP 563 does not stringify annotations in the
+        # AST, so this arises only where the author wrote the quotes.
+        try:
+            parsed = ast.parse(annotation.value, mode="eval")
+        except SyntaxError:
+            return []
+        return _annotation_types(parsed.body)
+    if isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BitOr):
+        return [*_annotation_types(annotation.left), *_annotation_types(annotation.right)]
+    if isinstance(annotation, ast.Subscript):
+        inner = annotation.slice
+        elements = inner.elts if isinstance(inner, ast.Tuple) else [inner]
+        return [
+            annotation.value,
+            *[named for element in elements for named in _annotation_types(element)],
+        ]
+    return [annotation]
+
+
+# Annotations that name no particular type, so a parameter carrying one says as little as
+# an unannotated parameter does.
+_OPEN_ENDED_ANNOTATIONS: Final[frozenset[str]] = frozenset({"typing.Any", "Any", "object"})
+
+
+def _unresolved_parameters(
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    literals: dict[str, ast.expr] | None = None,
+) -> set[str]:
+    """Parameters this module can say nothing at all about.
+
+    A method called on one of these is decided entirely by the caller. Reporting no effect
+    there is what let `def relay(client, target): return client.send(target)` publish as
+    `read` at high confidence with an empty signal list -- the same body with the parameter
+    annotated as an unresolvable SDK type was already refused, so deleting information
+    widened the answer and cleared the review gate.
+
+    A parameter annotated as a type the module can see is not included: a builtin or a
+    standard-library annotation is what keeps an ordinary pure function positively
+    classified. Nor is one the caller bound to a literal, since that value is known.
+    `self` and `cls` are the instance, which the class index resolves, and `*args` and
+    `**kwargs` are a tuple and a dict by construction.
+    """
+
+    arguments = function.args
     found: set[str] = set()
-    for parameter in parameters:
-        if parameter.annotation is None:
+    for parameter in (*arguments.posonlyargs, *arguments.args, *arguments.kwonlyargs):
+        if parameter.arg in _INSTANCE_RECEIVERS or parameter.arg in (literals or {}):
             continue
-        qualified = _resolve(_dotted(parameter.annotation), module)
-        if not qualified or "." not in qualified:
-            continue
-        root = qualified.split(".", 1)[0]
-        if root in sys.stdlib_module_names:
-            continue
-        if root in {binding.split(".", 1)[0] for binding in module.bindings.values()}:
+        annotation = parameter.annotation
+        if annotation is None or _dotted(annotation) in _OPEN_ENDED_ANNOTATIONS:
             found.add(parameter.arg)
     return found
 
@@ -689,38 +931,74 @@ def _local_instances(scope: ast.AST, module: _Module) -> dict[str, str]:
 def _local_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
     """Every name the function itself binds: parameters first, then local assignments."""
 
-    arguments = function.args
-    parameters = [
-        *arguments.posonlyargs,
-        *arguments.args,
-        *arguments.kwonlyargs,
-        *([arguments.vararg] if arguments.vararg else []),
-        *([arguments.kwarg] if arguments.kwarg else []),
-    ]
-    names = {parameter.arg for parameter in parameters}
+    names = {parameter.arg for parameter in _parameters(function)}
     return names | _assigned_names(function.body)
+
+
+def _bind_unpacked(
+    statement: ast.Assign,
+    receiver_of: Callable[[ast.expr], str | None],
+    bind: Callable[[str, str, ast.Call], None],
+) -> bool:
+    """Bind the receivers of a tuple assignment element by element.
+
+    True when this statement was an unpacking, whether or not any element carried a
+    receiver, so the caller knows not to read the whole tuple as one value.
+    """
+
+    targets = [target for target in statement.targets if isinstance(target, ast.Tuple | ast.List)]
+    if not targets or not isinstance(statement.value, ast.Tuple | ast.List):
+        return False
+    for target in targets:
+        if len(target.elts) != len(statement.value.elts):
+            continue
+        for element, value in zip(target.elts, statement.value.elts, strict=True):
+            origin = receiver_of(value)
+            if origin is None or not isinstance(element, ast.Name):
+                continue
+            call = (
+                value
+                if isinstance(value, ast.Call)
+                else ast.Call(func=ast.Name(id=origin), args=_path_segments(value), keywords=[])
+            )
+            bind(element.id, origin, call)
+    return True
 
 
 def _scope_origins(
     scope_body: list[ast.stmt],
     module: _Module,
     self_attributes: dict[str, str] | None = None,
+    seed: dict[str, tuple[str, ast.Call]] | None = None,
 ) -> dict[str, tuple[str, ast.Call]]:
-    """Track receiver constructors bound directly in one statement list.
+    """Track receiver constructors bound anywhere in one scope.
 
-    Only assignments at this level count. Walking the whole tree would let a binding
-    inside an unrelated function decide what a name means here, which silently changes
-    another tool's classification.
+    Blocks belong to this scope: a name bound inside `try`, `if`, `for` or `with` is bound
+    here, so `_scope_nodes` is what decides what counts, exactly as it does for imports.
+    Reading only the flat statement list lost the receiver for the near-universal
+    optional-dependency idiom -- `try: client = httpx.Client()` -- and every later call on
+    that name fell through to silence, which is published as a benign read. Nested function
+    and class bodies are still not this scope, so a binding in an unrelated function cannot
+    decide what a name means here.
+
+    *seed* carries the origins this scope inherits: the module's, the enclosing functions',
+    and any receiver the caller handed over. Starting empty discarded them the moment the
+    body derived a new name from one, so a module-level `CACHE_DIR` reached through
+    `target = CACHE_DIR / name` produced neither a signal nor a refusal.
     """
 
     self_attributes = self_attributes or {}
-    origins: dict[str, tuple[str, ast.Call]] = {}
+    origins: dict[str, tuple[str, ast.Call]] = dict(seed or {})
+    bound_here: set[str] = set()
     ambiguous: set[str] = set()
 
     def _bind(name: str, qualified: str, call: ast.Call) -> None:
-        if name in origins and origins[name][0] != qualified:
-            # Rebound to a different receiver: neither reading is safe to assume.
+        if name in bound_here and origins[name][0] != qualified:
+            # Rebound to a different receiver: neither reading is safe to assume. Only a
+            # rebinding *in this body* is a conflict; a binding that shadows an inherited
+            # one is ordinary scoping and simply replaces it.
             ambiguous.add(name)
+        bound_here.add(name)
         origins[name] = (qualified, call)
 
     def _receiver_of(value: ast.expr) -> str | None:
@@ -729,6 +1007,12 @@ def _scope_origins(
         # `root = Path.home() / ".notes"`: path composition keeps the receiver.
         if isinstance(value, ast.BinOp) and isinstance(value.op, ast.Div):
             return _receiver_of(value.left) or _receiver_of(value.right)
+        # `client = httpx.Client() if secure else httpx.Client(verify=False)`: both arms
+        # build the same kind of receiver, so the name means the same thing either way.
+        # Arms that disagree are not answered, which is what `_bind` records as ambiguous.
+        if isinstance(value, ast.IfExp):
+            taken = _receiver_of(value.body)
+            return taken if taken == _receiver_of(value.orelse) else None
         # `chat = self._client.chat.completions`: an attribute reached through a stored
         # receiver still belongs to that receiver.
         if isinstance(value, ast.Attribute):
@@ -757,6 +1041,7 @@ def _scope_origins(
             qualified in EXTERNAL_RECEIVERS
             or qualified in PATH_RECEIVERS
             or qualified in SENSITIVE_RECEIVERS
+            or qualified in ARCHIVE_RECEIVERS
         ):
             return qualified
         # `Path.home()` and `Path.cwd()` return the receiver they are called on.
@@ -772,22 +1057,52 @@ def _scope_origins(
             return origins[root][0]
         return _receiver_of(value.func) if isinstance(value.func, ast.Attribute) else None
 
-    for statement in scope_body:
+    for statement in _scope_nodes(scope_body):
         if isinstance(statement, ast.Assign):
+            if _bind_unpacked(statement, _receiver_of, _bind):
+                # `client, tries = httpx.Client(), 0`: an element-wise binding, which the
+                # single-target path below cannot see, so the receiver was lost entirely.
+                continue
             origin = _receiver_of(statement.value)
-            if origin is not None:
-                call = (
-                    statement.value
-                    if isinstance(statement.value, ast.Call)
-                    else ast.Call(
-                        func=ast.Name(id=origin),
-                        args=_path_segments(statement.value),
-                        keywords=[],
-                    )
+            if origin is None:
+                # Bound here to something with no traceable receiver. If the name carried
+                # one, it no longer describes what a call on it reaches, and answering from
+                # the stale origin would be a guess in either direction. A constant is the
+                # exception: `except ImportError: CLIENT = None` is the optional-dependency
+                # guard, not a second receiver, and refusing on it would cost the class for
+                # the idiom this scope walk exists to resolve.
+                disagreeing_arms = isinstance(statement.value, ast.IfExp) and bool(
+                    _receiver_of(statement.value.body) or _receiver_of(statement.value.orelse)
                 )
-                for target in statement.targets:
-                    if isinstance(target, ast.Name):
-                        _bind(target.id, origin, call)
+                if not isinstance(statement.value, ast.Constant):
+                    for target in statement.targets:
+                        if isinstance(target, ast.Name) and (
+                            target.id in origins or disagreeing_arms
+                        ):
+                            # One arm builds a receiver and the other builds something else,
+                            # so which object the later call reaches depends on the branch
+                            # taken. That is the same ambiguity as a rebinding.
+                            ambiguous.add(target.id)
+                continue
+            call = (
+                statement.value
+                if isinstance(statement.value, ast.Call)
+                else ast.Call(
+                    func=ast.Name(id=origin),
+                    args=_path_segments(statement.value),
+                    keywords=[],
+                )
+            )
+            for target in statement.targets:
+                if isinstance(target, ast.Name):
+                    _bind(target.id, origin, call)
+            continue
+        if isinstance(statement, ast.NamedExpr) and isinstance(statement.target, ast.Name):
+            # `return (client := httpx.Client()).get(url)`: the walrus binds a name here
+            # exactly as an assignment does, and losing it made the egress silent.
+            walrus_origin = _receiver_of(statement.value)
+            if walrus_origin is not None and isinstance(statement.value, ast.Call):
+                _bind(statement.target.id, walrus_origin, statement.value)
             continue
         if isinstance(statement, ast.With | ast.AsyncWith):
             # A context manager keeps the receiver's identity; losing it here made an
@@ -803,12 +1118,19 @@ def _scope_origins(
                 )
                 _bind(item.optional_vars.id, origin, call)
     for name in ambiguous:
-        origins.pop(name, None)
+        # Deleting the name made a call on it silent, and silence is published as a benign
+        # read. The ambiguity is recorded instead, so the call refuses and says why.
+        recorded = (
+            origins[name][1]
+            if name in origins
+            else ast.Call(func=ast.Name(id=name), args=[], keywords=[])
+        )
+        origins[name] = (_AMBIGUOUS_ORIGIN, recorded)
     return origins
 
 
 def _sql_class(call: ast.Call, literals: dict[str, ast.expr] | None = None) -> str | None:
-    """Classify a database execute call by the leading keyword of its literal query.
+    """Classify a database execute call from its literal query.
 
     The statement is very often a module-level constant rather than an inline string, so
     resolving only inline literals refused an ordinary reporting query as though it were
@@ -821,15 +1143,60 @@ def _sql_class(call: ast.Call, literals: dict[str, ast.expr] | None = None) -> s
     if not candidates or len(candidates) != 1:
         return None
     query = next(iter(candidates))
+    if call.func.attr in DB_SCRIPT_METHODS:
+        # One call, several statements. Any write in any of them decides the class, and a
+        # statement that is neither is not answered at all.
+        statements = [statement for statement in query.split(";") if statement.strip()]
+        classes = [_statement_class(statement) for statement in statements]
+        if not classes or None in classes:
+            return None
+        return "write" if "write" in classes else "read"
+    return _statement_class(query)
+
+
+def _statement_class(query: str) -> str | None:
+    """The class of one SQL statement, or None when its leading keyword is not catalogued."""
+
     head = query.strip().split(None, 1)
     if not head:
         return None
     token = head[0].casefold()
     if token in SQL_WRITE_TOKENS:
         return "write"
+    if token == SQL_CTE_TOKEN:
+        # A common table expression is named by `WITH` and decided by what follows it.
+        # Reading the leading keyword alone gave `WITH stale AS (SELECT ...) DELETE FROM
+        # events ...` an affirmative read signal: positive wrong evidence, which no refusal
+        # can demote. Both SQLite and PostgreSQL run data-modifying CTEs, and PostgreSQL
+        # puts the DELETE inside the parentheses, so the whole statement is read rather than
+        # the part after the CTE list.
+        return "write" if _has_write_verb(query) else "read"
     if token in SQL_READ_TOKENS:
         return "read"
     return None
+
+
+def _has_write_verb(query: str) -> bool:
+    """Whether a data-modifying keyword appears as a verb anywhere in the statement."""
+
+    words = _sql_words(query)
+    for index, word in enumerate(words):
+        if word.casefold() not in SQL_WRITE_TOKENS:
+            continue
+        if words[index + 1 : index + 2] == ["("]:
+            # `REPLACE(col, ...)` and `TRUNCATE(value)` are functions, not statements.
+            continue
+        return True
+    return False
+
+
+def _sql_words(query: str) -> list[str]:
+    """The statement split into words, with its punctuation separated out."""
+
+    spaced = query
+    for punctuation in "(),;":
+        spaced = spaced.replace(punctuation, f" {punctuation} ")
+    return spaced.split()
 
 
 def _literal_strings(node: ast.AST | None, literals: dict[str, ast.expr] | None) -> set[str] | None:
@@ -889,9 +1256,13 @@ def _local_literals(scope: ast.AST, module: _Module | None = None) -> dict[str, 
 
 
 def _open_class(
-    call: ast.Call, literals: dict[str, ast.expr] | None = None
+    call: ast.Call,
+    literals: dict[str, ast.expr] | None = None,
+    mode_index: int = 1,
+    credential: bool | None = None,
+    path_keyword: str = "file",
 ) -> tuple[str | None, str | None]:
-    """Return (action_class, refusal_reason) for a builtin ``open`` call.
+    """Return (action_class, refusal_reason) for one ``open`` call.
 
     A read of a credential path is sensitive rather than a plain read, which is the rule
     every other read in this module already applies. Without it the two spellings of the
@@ -899,11 +1270,20 @@ def _open_class(
     ``open("~/.ssh/id_rsa")`` was a benign read at high confidence, and the second is the
     more common idiom. Writes keep the write class whatever the path, matching the
     treatment of the pathlib write methods.
+
+    *mode_index* is which positional argument carries the mode: the builtin takes the path
+    first and the mode second, while `Path.open` takes the mode first because the path is
+    the receiver. Reading `args[1]` for both would have tested `Path(p).open("w")`'s
+    encoding, or nothing at all, and published the write as a read.
+
+    *credential* is supplied when the path is not in this call -- `Path(p).open("r")` keeps
+    it in the constructor -- and judged from the call itself otherwise.
     """
 
-    mode_node = call.args[1] if len(call.args) > 1 else _keyword(call, "mode")
+    mode_node = call.args[mode_index] if len(call.args) > mode_index else _keyword(call, "mode")
+    is_credential = _is_credential_path(call, path_keyword) if credential is None else credential
     if mode_node is None:
-        return ("sensitive" if _is_credential_path(call) else "read"), None
+        return ("sensitive" if is_credential else "read"), None
     modes = _literal_strings(mode_node, literals)
     if not modes:
         return None, "NONLITERAL_ARGUMENT"
@@ -914,7 +1294,31 @@ def _open_class(
         return None, "NONLITERAL_ARGUMENT"
     if classes == {"write"}:
         return "write", None
-    return ("sensitive" if _is_credential_path(call) else "read"), None
+    return ("sensitive" if is_credential else "read"), None
+
+
+def _keyed_store_class(
+    call: ast.Call, qualified: str, literals: dict[str, ast.expr] | None = None
+) -> tuple[str | None, str | None]:
+    """Return (action_class, refusal_reason) for a `dbm.open`-style store opener.
+
+    The flag is the second positional argument or the `flag` keyword, and defaults per
+    opener. Only "r" opens the store read-only; every other flag opens it for writing,
+    which is the effect the subscript store that follows will have. A flag that cannot be
+    read from the source is refused, exactly as an unreadable `open` mode is.
+    """
+
+    flag_node = call.args[1] if len(call.args) > 1 else _keyword(call, "flag")
+    if flag_node is None:
+        flags: set[str] | None = {KEYED_STORE_OPENERS[qualified]}
+    else:
+        flags = _literal_strings(flag_node, literals)
+    if not flags:
+        return None, "NONLITERAL_ARGUMENT"
+    classes = {"read" if flag.startswith("r") else "write" for flag in flags}
+    if len(classes) != 1:
+        return None, "NONLITERAL_ARGUMENT"
+    return classes.pop(), None
 
 
 def _subprocess_class(call: ast.Call) -> str:
@@ -993,17 +1397,41 @@ def qualified_is_bulk(symbol: str) -> bool:
     return symbol in _ENVIRON_BULK
 
 
-def _is_credential_path(call: ast.Call) -> bool:
-    for argument in call.args:
-        literal = _constant_str(argument)
-        if literal is None:
-            continue
-        lowered = literal.casefold()
+def _is_credential_path(call: ast.Call, keyword: str | None = None) -> bool:
+    """Whether any path this call names is a credential path.
+
+    Each argument is judged on its own composed spelling, so `Path.home() / ".ssh" /
+    "id_rsa"` reads as one path rather than as two unrelated literals, and the arguments are
+    then judged joined as well, so a token spanning a separator (`.aws/credentials`) fires
+    for `Path(".aws", "credentials")` too. The suffix test stays per-argument: a suffix
+    describes the end of one path, and testing it against the join would let `open(path,
+    "r")` hide `.pem` behind the mode.
+
+    The keyword spelling counts. `open(file="~/.ssh/id_rsa")` is the same read as the
+    positional form, and reading only `call.args` published it as an ordinary file read at
+    high confidence while its positional twin was sensitive. The parameter is named per
+    symbol rather than every keyword being scanned, so `mode=` and `encoding=` cannot
+    match a path token by accident.
+    """
+
+    candidates = list(call.args)
+    named = _keyword(call, keyword) if keyword else None
+    if isinstance(named, ast.expr):
+        candidates.append(named)
+    return _is_credential_text([_joined_path(candidate) for candidate in candidates])
+
+
+def _is_credential_text(texts: list[str]) -> bool:
+    """Whether any of these path spellings, alone or joined, names a credential."""
+
+    for text in texts:
+        lowered = text.casefold()
         if any(token in lowered for token in CREDENTIAL_PATH_TOKENS):
             return True
         if any(lowered.endswith(suffix) for suffix in CREDENTIAL_PATH_SUFFIXES):
             return True
-    return False
+    combined = "/".join(text for text in texts if text).casefold()
+    return any(token in combined for token in CREDENTIAL_PATH_TOKENS)
 
 
 def _unwound_receiver(call: ast.Call, module: _Module) -> tuple[str | None, ast.Call | None]:
@@ -1030,6 +1458,124 @@ def _unwound_receiver(call: ast.Call, module: _Module) -> tuple[str | None, ast.
         return None, None
 
 
+def _receiver_effect(
+    origin: str | None,
+    method: str,
+    call: ast.Call,
+    constructor: ast.Call | None,
+    literals: dict[str, ast.expr] | None = None,
+    credential: bool | None = None,
+) -> tuple[str | None, str | None, str | None] | None:
+    """Classify one method call on a resolved receiver, or None when it is not one.
+
+    Every branch that resolves a receiver -- constructed in place, bound to a name, composed
+    with `/`, or stored on `self` -- asked the same four questions in four slightly different
+    ways, and a family added to one of them was missing from the others. Returning None
+    rather than a refusal keeps the caller's remaining rules reachable.
+    """
+
+    if origin in PATH_RECEIVERS:
+        if method == "open":
+            # `Path(p).open("w")` is the same write as `open(p, "w")`. It was in none of the
+            # path method tables, so the whole spelling produced no signal, and the handle it
+            # returns inherits the path origin, so the `handle.write(...)` that follows was
+            # silent too.
+            is_credential = (
+                credential
+                if credential is not None
+                else (constructor is not None and _is_credential_path(constructor))
+            )
+            action, reason = _open_class(call, literals, mode_index=0, credential=is_credential)
+            return action, f"{origin}.open", reason
+        if method in PATH_PRESERVING_METHODS:
+            # A link in the chain, not an effect: it returns another path and touches
+            # nothing. Refusing on it made the whole tool unknown even once the read at the
+            # end of the chain had been resolved.
+            return None, None, None
+        if method in WRITE_RECEIVER_METHODS:
+            return "write", f"{origin}.{method}", None
+        if method in READ_RECEIVER_METHODS:
+            is_credential = (
+                credential
+                if credential is not None
+                else (constructor is not None and _is_credential_path(constructor))
+            )
+            return ("sensitive" if is_credential else "read"), f"{origin}.{method}", None
+        return None
+    if origin in ARCHIVE_RECEIVERS:
+        if method in ARCHIVE_WRITE_METHODS:
+            return "write", f"{origin}.{method}", None
+        if method in ARCHIVE_READ_METHODS:
+            return "read", f"{origin}.{method}", None
+        return None
+    if origin in EXTERNAL_RECEIVERS:
+        return "external", f"{origin}.{method}", None
+    if origin in SENSITIVE_RECEIVERS:
+        return "sensitive", f"{origin}.{method}", None
+    return None
+
+
+def _composed_receiver(
+    value: ast.BinOp,
+    module: _Module,
+    origins: dict[str, tuple[str, ast.Call]],
+    self_attributes: dict[str, str],
+) -> tuple[str | None, ast.Call | None]:
+    """The receiver a `/`-composed path expression is built on, and its constructor.
+
+    The base may be constructed in place (`Path("/srv") / name`), bound earlier
+    (`BASE / name`), or held on the instance (`self.root / name`); all three are the same
+    path, so all three resolve to the same receiver.
+    """
+
+    current: ast.expr = value
+    while isinstance(current, ast.BinOp):
+        current = current.left
+    if isinstance(current, ast.Call):
+        if isinstance(current.func, ast.Attribute):
+            # `Path.home() / ".ssh"`: the classmethod hands back the receiver it was
+            # called on, which is what `_scope_origins` already reads when the same
+            # expression is bound to a name first.
+            base = _resolve(_dotted(current.func.value), module)
+            if base in PATH_RECEIVERS and current.func.attr in PATH_CONSTRUCTORS:
+                return base, current
+        return _unwound_receiver(current, module)
+    if isinstance(current, ast.Name):
+        tracked = origins.get(current.id)
+        return (tracked[0], tracked[1]) if tracked else (None, None)
+    if isinstance(current, ast.Attribute):
+        chain: ast.AST = current
+        while isinstance(chain, ast.Attribute):
+            if (
+                isinstance(chain.value, ast.Name)
+                and chain.value.id in _INSTANCE_RECEIVERS
+                and chain.attr in self_attributes
+            ):
+                return self_attributes[chain.attr], None
+            chain = chain.value
+    return None, None
+
+
+def _getattr_attribute(call: ast.Call, module: _Module) -> ast.Attribute | None:
+    """The attribute access a ``getattr(receiver, "name")`` call is equivalent to.
+
+    Only a constant attribute name qualifies. A name chosen at runtime is dispatch, and the
+    caller still refuses it.
+    """
+
+    spelled = _dotted(call.func)
+    if spelled != "getattr" and _resolve(spelled, module) != "getattr":
+        return None
+    if len(call.args) < 2:
+        return None
+    attribute = _constant_str(call.args[1])
+    if attribute is None:
+        return None
+    return ast.copy_location(
+        ast.Attribute(value=call.args[0], attr=attribute, ctx=ast.Load()), call
+    )
+
+
 def _classify_call(
     call: ast.Call,
     module: _Module,
@@ -1041,6 +1587,7 @@ def _classify_call(
     literals: dict[str, ast.expr] | None = None,
     opaque: set[str] | None = None,
     self_credentials: set[str] | None = None,
+    unresolved: set[str] | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """Return (action_class, symbol, refusal_reason) for one call site."""
 
@@ -1065,7 +1612,70 @@ def _classify_call(
         # The callee was bound from a subscript, so its behaviour is chosen at runtime.
         return None, None, "DYNAMIC_DISPATCH"
 
+    if root is not None and (origins.get(root) or ("", None))[0] == _AMBIGUOUS_ORIGIN:
+        # The receiver was bound twice to different objects, so what this call reaches
+        # depends on the path taken through the body.
+        return None, None, "UNRESOLVED_CALLEE"
+
+    if isinstance(call.func, ast.Subscript):
+        # `DISPATCH["run"](cmd)`: the table decides which symbol runs, and the docs use
+        # exactly this shape as the DYNAMIC_DISPATCH example. Only the spelling that binds
+        # the entry to a name first was refused, so the direct one published as no effect.
+        return None, None, "DYNAMIC_DISPATCH"
+
+    if isinstance(call.func, ast.Call):
+        # `getattr(os, "system")(cmd)`. A constant attribute name is a name, so the
+        # equivalent attribute access is classified instead of the call being exempted and
+        # then never resolved -- which is how the most compact spelling of shell execution
+        # published as a benign read. Synthesizing the callee rather than rewriting the
+        # spelling keeps `getattr(value, "upper")()` on an ordinary parameter benign,
+        # because the same receiver rules then decide it.
+        resolved_attribute = _getattr_attribute(call.func, module)
+        if resolved_attribute is not None:
+            return _classify_call(
+                ast.copy_location(
+                    ast.Call(func=resolved_attribute, args=call.args, keywords=call.keywords),
+                    call,
+                ),
+                module,
+                origins,
+                dynamic,
+                self_attributes,
+                aliases,
+                self_aliases,
+                literals,
+                opaque,
+                self_credentials,
+                unresolved,
+            )
+
     if spelled is None:
+        if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.NamedExpr):
+            # `(client := httpx.Client()).get(url)`: the name and the receiver are bound in
+            # the same expression. Classifying the value the walrus binds is the same
+            # question as classifying the constructor it wraps.
+            return _classify_call(
+                ast.copy_location(
+                    ast.Call(
+                        func=ast.Attribute(
+                            value=call.func.value.value, attr=call.func.attr, ctx=ast.Load()
+                        ),
+                        args=call.args,
+                        keywords=call.keywords,
+                    ),
+                    call,
+                ),
+                module,
+                origins,
+                dynamic,
+                self_attributes,
+                aliases,
+                self_aliases,
+                literals,
+                opaque,
+                self_credentials,
+                unresolved,
+            )
         # A method called directly on a constructor, as in Path("...").read_text(). The
         # constructor is the receiver, and its arguments carry the literal that decides
         # whether this is an ordinary read or a credential read.
@@ -1074,21 +1684,9 @@ def _classify_call(
             method = call.func.attr
             if inner is None:
                 inner = call.func.value
-            if origin in PATH_RECEIVERS:
-                if method in PATH_PRESERVING_METHODS:
-                    # A link in the chain, not an effect: it returns another path and
-                    # touches nothing. Refusing on it made the whole tool unknown even
-                    # once the read at the end of the chain had been resolved.
-                    return None, None, None
-                if method in WRITE_RECEIVER_METHODS:
-                    return "write", f"{origin}.{method}", None
-                if method in READ_RECEIVER_METHODS:
-                    action = "sensitive" if _is_credential_path(inner) else "read"
-                    return action, f"{origin}.{method}", None
-            if origin in EXTERNAL_RECEIVERS:
-                return "external", f"{origin}.{method}", None
-            if origin in SENSITIVE_RECEIVERS:
-                return "sensitive", f"{origin}.{method}", None
+            effect = _receiver_effect(origin, method, call, inner, literals)
+            if effect is not None:
+                return effect
             if origin in PURE_RESULT_SYMBOLS:
                 # A method on a computed value. It cannot have an effect, so refusing on
                 # it reported the tool as unknown over a call that says nothing.
@@ -1098,9 +1696,32 @@ def _classify_call(
                 # execute is what decides the class, and it is judged wherever it appears,
                 # so refusing here made every database tool written this way unknown.
                 return None, None, None
+        # A method on a path composed with `/`, as in `(BASE / name).write_text(body)`.
+        # `_dotted` and `_root_name` both stop at a BinOp, so every composed spelling
+        # reached the silence below: the write, the unlink and the credential read were all
+        # published as a benign read at high confidence. The leftmost operand is the
+        # receiver, exactly as `_scope_origins` already reads it when the same expression is
+        # bound to a name first.
+        if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.BinOp):
+            origin, inner = _composed_receiver(call.func.value, module, origins, self_attributes)
+            # The composition carries the segments that decide whether this is an ordinary
+            # read or a credential read, so they are judged joined with the constructor's.
+            composed_credential = _is_credential_text(
+                [
+                    _joined_path(call.func.value),
+                    *([_joined_path(argument) for argument in inner.args] if inner else []),
+                ]
+            )
+            effect = _receiver_effect(
+                origin, call.func.attr, call, inner, literals, composed_credential
+            )
+            if effect is not None:
+                return effect
         # Otherwise a method on an expression result. Only evidence if the chain roots at
-        # a name this module resolves; a call on a parameter or literal is not.
+        # a name this module resolves; a call on a literal is not.
         if root is not None and (root in module.bindings or root in origins):
+            return None, None, "UNRESOLVED_CALLEE"
+        if root is not None and root in (unresolved or set()):
             return None, None, "UNRESOLVED_CALLEE"
         return None, None, None
 
@@ -1110,17 +1731,11 @@ def _classify_call(
     # LLM and cloud SDK is shaped this way, so egress published as silence.
     if root is not None and root in origins and isinstance(call.func, ast.Attribute):
         receiver, constructor = origins[root]
-        method = call.func.attr
-        if receiver in EXTERNAL_RECEIVERS:
-            return "external", f"{receiver}.{method}", None
-        if receiver in SENSITIVE_RECEIVERS:
-            return "sensitive", f"{receiver}.{method}", None
-        if receiver in PATH_RECEIVERS:
-            if method in WRITE_RECEIVER_METHODS:
-                return "write", f"{receiver}.{method}", None
-            if method in READ_RECEIVER_METHODS:
-                action = "sensitive" if _is_credential_path(constructor) else "read"
-                return action, f"{receiver}.{method}", None
+        effect = _receiver_effect(receiver, call.func.attr, call, constructor, literals)
+        if effect is not None and effect != (None, None, None):
+            # A path-preserving link returns nothing here rather than ending the search,
+            # because the rules below still describe some of those spellings.
+            return effect
 
     if _is_instance_state_call(call):
         # self.client.post(...). Resolve it when the class stored a known receiver on that
@@ -1129,20 +1744,14 @@ def _classify_call(
         attribute = _instance_attribute(call)
         origin = self_attributes.get(attribute or "")
         method = call.func.attr if isinstance(call.func, ast.Attribute) else ""
-        if origin in EXTERNAL_RECEIVERS:
-            return "external", f"{origin}.{method}", None
-        if origin in SENSITIVE_RECEIVERS:
-            return "sensitive", f"{origin}.{method}", None
-        if origin in PATH_RECEIVERS:
-            if method in WRITE_RECEIVER_METHODS:
-                return "write", f"{origin}.{method}", None
-            if method in READ_RECEIVER_METHODS:
-                # The constructor ran in __init__, so its literal is not in this call.
-                # Whether it named a credential path was recorded when the class was
-                # indexed; without it `self.key = Path("~/.ssh/id_rsa")` read as benign
-                # while the same two lines inside the tool read as sensitive.
-                credential = attribute is not None and attribute in (self_credentials or set())
-                return ("sensitive" if credential else "read"), f"{origin}.{method}", None
+        # The constructor ran in __init__, so its literal is not in this call. Whether it
+        # named a credential path was recorded when the class was indexed; without it
+        # `self.key = Path("~/.ssh/id_rsa")` read as benign while the same two lines inside
+        # the tool read as sensitive.
+        stored_credential = attribute is not None and attribute in (self_credentials or set())
+        effect = _receiver_effect(origin, method, call, None, literals, stored_credential)
+        if effect is not None:
+            return effect
         return None, None, "UNRESOLVED_CALLEE"
 
     # A method on a parameter the signature declares as third-party state. What it does is
@@ -1168,9 +1777,15 @@ def _classify_call(
                 return "sensitive", spelled, None
         return None, None, "DYNAMIC_DISPATCH"
 
-    if spelled == "open" and "open" not in module.bindings:
-        open_action, open_reason = _open_class(call, literals)
-        return open_action, "open", open_reason
+    if qualified in BUILTIN_OPEN_SYMBOLS:
+        open_action, open_reason = _open_class(
+            call, literals, path_keyword=PATH_KEYWORD_BY_SYMBOL[qualified]
+        )
+        return open_action, qualified, open_reason
+
+    if qualified in KEYED_STORE_OPENERS:
+        store_action, store_reason = _keyed_store_class(call, qualified, literals)
+        return store_action, qualified, store_reason
 
     is_process_launch = qualified.startswith("subprocess.") or qualified in {
         "os.system",
@@ -1189,7 +1804,11 @@ def _classify_call(
     if qualified in WRITE_SYMBOLS:
         return "write", qualified, None
     if qualified in READ_SYMBOLS:
-        action = "sensitive" if _is_credential_path(call) else "read"
+        action = (
+            "sensitive"
+            if _is_credential_path(call, PATH_KEYWORD_BY_SYMBOL.get(qualified))
+            else "read"
+        )
         return action, qualified, None
 
     sql = _sql_class(call, literals)
@@ -1209,18 +1828,16 @@ def _classify_call(
         tracked = origins.get(call.func.value.id)
         if tracked is not None:
             origin, constructor = tracked
-            if origin in EXTERNAL_RECEIVERS:
-                return "external", f"{origin}.{call.func.attr}", None
-            if origin in PATH_RECEIVERS:
-                if call.func.attr in WRITE_RECEIVER_METHODS:
-                    return "write", f"{origin}.{call.func.attr}", None
-                if call.func.attr in READ_RECEIVER_METHODS:
-                    credential = _is_credential_path(call) or _is_credential_path(constructor)
-                    return (
-                        "sensitive" if credential else "read",
-                        f"{origin}.{call.func.attr}",
-                        None,
-                    )
+            effect = _receiver_effect(
+                origin,
+                call.func.attr,
+                call,
+                constructor,
+                literals,
+                _is_credential_path(call) or _is_credential_path(constructor),
+            )
+            if effect is not None and effect != (None, None, None):
+                return effect
 
     if isinstance(call.func, ast.Attribute) and call.func.attr in DB_EXECUTE_METHODS:
         # A recognised execute whose query is not a literal cannot be classified.
@@ -1230,6 +1847,7 @@ def _classify_call(
         qualified in EXTERNAL_RECEIVERS
         or qualified in PATH_RECEIVERS
         or qualified in SENSITIVE_RECEIVERS
+        or qualified in ARCHIVE_RECEIVERS
     ):
         # Constructing a recognised receiver is not itself an effect; its methods are.
         return None, None, None
@@ -1246,11 +1864,34 @@ def _classify_call(
             return None, None, None
         return _UNRECOGNIZED, None, None
 
+    # A method on a value the module can say nothing about -- an unannotated parameter that
+    # carries no receiver and no caller literal. What it does is decided entirely by the
+    # caller, so reporting no effect published `client.send(target)` as a benign read at
+    # high confidence, while the same body with an unresolvable annotation was refused.
+    # This is the last question asked, so every catalogued symbol, every tracked receiver
+    # and the SQL rules are all decided first.
+    if (
+        isinstance(call.func, ast.Attribute)
+        and root is not None
+        and root in (unresolved or set())
+        and root not in origins
+        and call.func.attr not in DB_PLUMBING_METHODS
+    ):
+        # A database handle is the exception, for the reason the chained form already
+        # states: `conn.cursor()` and `conn.commit()` move a handle around, and the
+        # statement given to execute is what decides the class wherever the handle came
+        # from. Refusing on the plumbing would make every database tool written this way
+        # unknown even though its one decisive statement was read.
+        return None, None, "UNRESOLVED_CALLEE"
+
     return None, None, None
 
 
 def _lexical_pii_tokens(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
-    names: list[str] = [argument.arg for argument in function.args.args]
+    # The whole signature, not `args.args`: a positional-only parameter is still a name,
+    # and reading half the parameter list made `def probe(ssn, dob, /)` invisible to the
+    # lexical screen that the same signature without the marker triggers.
+    names: list[str] = [parameter.arg for parameter in _parameters(function)]
     for node in ast.walk(function):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             names.append(node.value)
@@ -1291,12 +1932,107 @@ def _raises_not_implemented(statement: ast.stmt) -> bool:
     return _dotted(raised) in {"NotImplementedError", "NotImplemented"}
 
 
+def _bind_frame(
+    helper: ast.FunctionDef | ast.AsyncFunctionDef, call: ast.Call
+) -> dict[str, ast.expr]:
+    """Bind a call's arguments to the helper's parameters, the way Python binds them.
+
+    Three places used to do this with `zip(helper.args.args, call.args)`, and
+    `ast.arguments.args` excludes `posonlyargs`, so a `/` in the signature shifted every
+    positional binding left: for `def access(path, /, mode)`, the call `access("doc.pdf",
+    "w")` bound `mode` to the *filename*, and the open-mode rule then tested that filename
+    for `w`, `a`, `x` and `+`. The same shift made two calls that decide differently key
+    identically, so the second was skipped as already visited -- which defeated the
+    repeated-helper fix for exactly the `access("r")`/`access("w")` example the
+    documentation advertises.
+
+    Defaults are bound for parameters the call leaves unset, so a decision a helper makes
+    from its own default is still readable. A default that is not a literal binds a
+    non-literal, which is what keeps `mode=DEFAULT_MODE` a NONLITERAL_ARGUMENT refusal
+    rather than a second way to answer without evidence.
+    """
+
+    arguments = helper.args
+    positional = [*arguments.posonlyargs, *arguments.args]
+    frame: dict[str, ast.expr] = {
+        parameter.arg: argument for parameter, argument in zip(positional, call.args, strict=False)
+    }
+    nameable = {parameter.arg for parameter in (*arguments.args, *arguments.kwonlyargs)}
+    for keyword in call.keywords:
+        if keyword.arg in nameable:
+            frame[keyword.arg] = keyword.value
+    if arguments.defaults:
+        for parameter, default in zip(
+            positional[len(positional) - len(arguments.defaults) :],
+            arguments.defaults,
+            strict=False,
+        ):
+            frame.setdefault(parameter.arg, default)
+    for parameter, keyword_default in zip(
+        arguments.kwonlyargs, arguments.kw_defaults, strict=False
+    ):
+        if keyword_default is not None:
+            frame.setdefault(parameter.arg, keyword_default)
+    return frame
+
+
+def _helper_visit_key(
+    spelled: str,
+    frame: dict[str, ast.expr],
+    origins: dict[str, tuple[str, ast.Call]],
+) -> str:
+    """One visit per helper *and* per set of arguments that can change what it does.
+
+    Visits used to be keyed by helper name alone, so `access("r")` followed by
+    `access("w")` walked the helper once, with mode bound to "r", and the write on the
+    second call was never seen: the tool published as read at high confidence with no
+    finding. A constant argument and a handed-over receiver are exactly the two things the
+    walk binds into the helper's frame, so they are exactly what distinguishes one visit
+    from another. A call whose arguments decide nothing keeps the bare name as its key.
+    """
+
+    decisive: list[str] = []
+    for name, argument in sorted(frame.items()):
+        if isinstance(argument, ast.Constant):
+            decisive.append(f"{name}={argument.value!r}")
+        elif isinstance(argument, ast.Name) and argument.id in origins:
+            decisive.append(f"{name}~{origins[argument.id][0]}")
+    return f"{spelled}({', '.join(decisive)})" if decisive else spelled
+
+
+def _defined_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    """Functions and classes defined inside this body, at any block depth.
+
+    Their bodies are inside the walked subtree, so their effects are already counted and a
+    call to one is not an unresolved callee.
+    """
+
+    return {
+        node.name
+        for node in ast.walk(function)
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef)
+    }
+
+
+def _module_definitions(module: _Module) -> set[str]:
+    """Every name a bare call can reach at module level: a `def` or a `class`.
+
+    Classes are included because constructing one is an ordinary call, and the effects of
+    its methods are followed through `_local_instances` rather than at the constructor.
+    """
+
+    return {node.name for node in module.tree.body if isinstance(node, ast.ClassDef)} | set(
+        module.functions
+    )
+
+
 def _would_descend(
     node: ast.Call,
     module: _Module,
     instances: dict[str, str],
     owner: str | None,
     visited: set[str],
+    origins: dict[str, tuple[str, ast.Call]],
 ) -> bool:
     """Whether the traversal would follow this call if the depth budget allowed.
 
@@ -1330,13 +2066,12 @@ def _would_descend(
             for candidate in module.methods
         )
     spelled = _dotted(node.func)
-    return bool(
-        spelled
-        and "." not in spelled
-        and spelled not in module.bindings
-        and spelled in module.functions
-        and spelled not in visited
-    )
+    if not spelled or "." in spelled or spelled in module.bindings:
+        return False
+    helper = module.functions.get(spelled)
+    if helper is None:
+        return False
+    return _helper_visit_key(spelled, _bind_frame(helper, node), origins) not in visited
 
 
 def _collect_signals(
@@ -1363,25 +2098,50 @@ def _collect_signals(
     self_attributes = module.self_origins.get(owner or "", {})
     self_aliases = module.self_symbols.get(owner or "", {})
     self_credentials = module.self_credentials.get(owner or "", set())
-    # Module-level bindings are the fallback; the function's own bindings win over them.
-    origins = dict(module.module_origins)
-    # Receivers the caller handed over, before the callee's own bindings, which win.
-    origins.update(inherited or {})
-    origins.update(_scope_origins(function.body, module, self_attributes))
-    dynamic = _dynamic_locals(function, module)
-    aliases = _symbol_aliases(function, module)
+    # Names in this frame resolve through this function's own imports first. `module`
+    # itself is what a helper is handed, since the helper has its own scope.
+    scope = _scoped(module, function)
+    # Module-level bindings are the fallback, then each enclosing function's from the
+    # outermost in -- a handler registered inside a factory sees the client the factory
+    # built, exactly as it sees the factory's imports -- then the receivers the caller
+    # handed over. The function's own bindings are layered on top of all of them.
+    seed: dict[str, tuple[str, ast.Call]] = dict(module.module_origins)
+    for enclosing in module.enclosing.get(id(function), ()):
+        seed.update(_scope_origins(enclosing.body, _scoped(module, enclosing), self_attributes))
+    seed.update(inherited or {})
+    origins = _scope_origins(function.body, scope, self_attributes, seed)
+    dynamic = _dynamic_locals(function, scope)
+    aliases = _symbol_aliases(function, scope)
     # Constants the caller supplied, plus constants bound in this function's own body.
-    literals = {**_local_literals(function, module), **(literals or {})}
-    opaque = _third_party_parameters(function, module)
-    instances = _local_instances(function, module)
+    literals = {**_local_literals(function, scope), **(literals or {})}
+    opaque = _third_party_parameters(function, scope)
+    instances = _local_instances(function, scope)
     shadowed = _local_names(function)
+    unresolved = _unresolved_parameters(function, literals) - set(origins)
+    # Names a bare call may reach without leaving this file: what the module defines at its
+    # top level, what this body defines inside itself -- those bodies are walked, so their
+    # effects are already counted -- and the builtins.
+    definitions = _defined_names(function) | _module_definitions(module) | _KNOWN_BUILTINS
 
     decorator_nodes = {
         id(inner) for decorator in function.decorator_list for inner in ast.walk(decorator)
     }
+    # The walk below enters nested function bodies. A name there resolves through the
+    # nested function's own imports first, so each node is judged in the scope of the
+    # innermost function that contains it; `ast.walk` yields outer functions first, so the
+    # innermost assignment wins.
+    scopes: dict[int, _Module] = {id(function): scope}
+    scope_of_node: dict[int, int] = {}
+    for inner in ast.walk(function):
+        if inner is function or not isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
+            continue
+        scopes[id(inner)] = _scoped(module, inner)
+        for descendant in ast.walk(inner):
+            scope_of_node[id(descendant)] = id(inner)
     for node in ast.walk(function):
+        node_scope = scopes[scope_of_node.get(id(node), id(function))]
         if isinstance(node, ast.Subscript):
-            action, symbol, reason = _classify_subscript(node, module, origins, literals)
+            action, symbol, reason = _classify_subscript(node, node_scope, origins, literals)
             if reason:
                 tool.reasons.add(reason)
             elif action and symbol:
@@ -1394,7 +2154,7 @@ def _collect_signals(
             continue
         action, symbol, reason = _classify_call(
             node,
-            module,
+            node_scope,
             origins,
             dynamic,
             self_attributes,
@@ -1403,6 +2163,7 @@ def _collect_signals(
             literals,
             opaque,
             self_credentials,
+            unresolved,
         )
         if reason:
             tool.reasons.add(reason)
@@ -1420,7 +2181,7 @@ def _collect_signals(
             # limit above has always reported itself; this is the same admission for depth,
             # and it reports it under the same published reason, since a reviewer acts on
             # "the body was not fully covered" the same way whichever limit stopped it.
-            if _would_descend(node, module, instances, owner, visited):
+            if _would_descend(node, node_scope, instances, owner, visited, origins):
                 tool.reasons.add("BUDGET_EXHAUSTED")
                 tool.budget_state = "exhausted"
             continue
@@ -1470,7 +2231,7 @@ def _collect_signals(
             continue
         # Follow a call into a module-local helper so effects one hop away still count.
         spelled = _dotted(node.func)
-        if spelled and "." not in spelled and spelled not in module.bindings:
+        if spelled and "." not in spelled and spelled not in node_scope.bindings:
             if spelled in shadowed:
                 # The caller binds this name itself -- a parameter or a local. Whatever
                 # runs is supplied from outside, so following a module function of the
@@ -1478,16 +2239,27 @@ def _collect_signals(
                 tool.reasons.add("UNRESOLVED_CALLEE")
                 continue
             if spelled not in module.functions:
+                if spelled not in definitions:
+                    # The call reaches a name this module does not define, import, or get
+                    # from the builtins: a function defined only inside a conditional
+                    # block, a closure variable from a factory, or a name that is simply
+                    # not there. Falling off the end here was the last fail-open path --
+                    # the tool published `read` at high confidence with no signal and no
+                    # reason, which is the same record a tool that genuinely does nothing
+                    # produces, and `docs/CODE_DISCOVERY.md` promises the two are distinct.
+                    tool.reasons.add("UNRESOLVED_CALLEE")
                 continue
-            if spelled in visited:
-                continue
-            visited.add(spelled)
             helper = module.functions[spelled]
+            frame = _bind_frame(helper, node)
+            key = _helper_visit_key(spelled, frame, origins)
+            if key in visited:
+                continue
+            visited.add(key)
             # Constants the caller supplies are bound to the helper's parameters, so a
             # decision that depends on a literal is still decidable one frame down.
             passed: dict[str, ast.expr] = {
-                parameter.arg: argument
-                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                name: argument
+                for name, argument in frame.items()
                 if isinstance(argument, ast.Constant)
             }
             # A receiver created in one function and handed to another keeps its identity.
@@ -1495,15 +2267,15 @@ def _collect_signals(
             # `session.get(url)` is how async clients are written, and losing the receiver
             # at the call boundary reported the egress as an unresolvable callee.
             handed: dict[str, tuple[str, ast.Call]] = {
-                parameter.arg: origins[argument.id]
-                for parameter, argument in zip(helper.args.args, node.args, strict=False)
+                name: origins[argument.id]
+                for name, argument in frame.items()
                 if isinstance(argument, ast.Name) and argument.id in origins
             }
             _collect_signals(
                 tool, helper, module, (*via, spelled), depth + 1, visited, passed, handed
             )
 
-    if module.wildcard_import:
+    if any(candidate.wildcard_import for candidate in scopes.values()):
         tool.reasons.add("UNRESOLVED_CALLEE")
 
     pii = _lexical_pii_tokens(function)
@@ -1577,6 +2349,7 @@ def _discover_decorated_tools(module: _Module) -> list[DiscoveredTool]:
                     module.path,
                     function.lineno,
                     implementation=function.name if registered != function.name else None,
+                    body=function,
                 )
             )
             break
@@ -1643,6 +2416,7 @@ def _discover_class_tools(module: _Module) -> list[DiscoveredTool]:
                 module.path,
                 body.lineno if body is not None else node.lineno,
                 implementation=node.name,
+                body=body,
             )
         )
     return discovered
@@ -1727,6 +2501,7 @@ def _discover_declared_mcp_tools(module: _Module) -> list[DiscoveredTool]:
             module.path,
             handler.lineno,
             implementation=handler.name,
+            body=handler,
         )
         for name in sorted(set(declared))
     ]
@@ -1751,18 +2526,25 @@ def _discover_factory_tools(module: _Module) -> list[DiscoveredTool]:
             implementation = target.attr
         else:
             implementation = None
-        reachable = implementation is not None and (
-            implementation in module.functions
-            or any(method.name == implementation for method in module.methods)
-        )
+        # A factory is handed a name, not a definition, so this is the one discovery path
+        # that still has to look the body up. An ambiguous match is refused rather than
+        # decided by declaration order: when a module function and a method share the name,
+        # nothing in the source says which one was passed.
+        candidates = [
+            candidate
+            for candidate in [*module.functions.values(), *module.methods]
+            if candidate.name == implementation
+        ]
+        body = candidates[0] if len(candidates) == 1 else None
         tool = DiscoveredTool(
             _constant_str(keyword) or implementation or "unnamed_tool",
             "structured_tool_factory",
             module.path,
             node.lineno,
             implementation=implementation,
+            body=body,
         )
-        if not reachable:
+        if body is None:
             tool.reasons.add("BODY_UNAVAILABLE")
         discovered.append(tool)
     return discovered
@@ -1840,39 +2622,24 @@ def analyze_sources(
             ):
                 candidates.append(
                     DiscoveredTool(
-                        name, "bound_plain_function", module.path, module.functions[name].lineno
+                        name,
+                        "bound_plain_function",
+                        module.path,
+                        module.functions[name].lineno,
+                        body=module.functions[name],
                     )
                 )
 
         for tool in candidates:
-            function = module.functions.get(tool.implementation or tool.name) or (
-                module.functions.get(tool.name)
-            )
-            if function is None:
-                function = next(
-                    (
-                        candidate
-                        for candidate in [*module.methods, *module.nested]
-                        if candidate.lineno == tool.line
-                        or candidate.name == (tool.implementation or tool.name)
-                        or candidate.name == tool.name
-                    ),
-                    None,
-                )
-            if function is None:
-                # A renamed tool still resolves through the function it decorated.
-                function = next(
-                    (
-                        candidate
-                        for candidate in module.functions.values()
-                        if candidate.lineno == tool.line
-                    ),
-                    None,
-                )
-            if function is None:
+            # The body is the one the discovery pass matched, not whatever the name
+            # resolves to now. Re-resolving it here let a module-level `def send` win over
+            # the `@tool`-decorated `Mailer.send` it shadows, so `location.line` named one
+            # function while the signals came from another -- and the shell invocation the
+            # tool really performs was never seen.
+            if tool.body is None:
                 tool.reasons.add("BODY_UNAVAILABLE")
             else:
-                _collect_signals(tool, function, module, (tool.name,), 0, {tool.name})
+                _collect_signals(tool, tool.body, module, (tool.name,), 0, {tool.name})
             tools.append(tool)
 
     tools.sort(key=lambda tool: (tool.name, tool.file, tool.line))

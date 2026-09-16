@@ -169,7 +169,7 @@
         "rule_id": {
           "oneOf": [
             {
-              "$ref": "#/$defs/rule_id"
+              "$ref": "#/$defs/rule_identifier"
             },
             {
               "type": "null"
@@ -201,8 +201,8 @@
       ],
       "type": "object"
     },
-    "rule_id": {
-      "pattern": "^TW-[A-Z0-9-]{1,120}$",
+    "rule_identifier": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
       "type": "string"
     },
     "scenario_input": {

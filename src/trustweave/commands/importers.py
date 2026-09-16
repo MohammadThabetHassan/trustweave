@@ -15,7 +15,7 @@ from trustweave.commands._shared import (
     MCP_TOOL_INVENTORY_FILE,
 )
 from trustweave.framework_import import SUPPORTED_FRAMEWORKS, normalize_framework_declaration
-from trustweave.io import load_document, read_json, write_json, write_text
+from trustweave.io import load_document, read_json, resolve_artifact_dir, write_json, write_text
 from trustweave.mcp_import import build_manifest_scaffold, normalize_mcp_tools_list
 from trustweave.mcp_profile import parse_mcp_profile, review_mcp_profile
 from trustweave.models import parse_manifest
@@ -85,27 +85,28 @@ def register(subcommands: Any) -> None:
 def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     """Execute one local framework or MCP declaration operation."""
 
+    output_dir = resolve_artifact_dir(args.output_dir)
     if args.command == "framework-import":
         inventory = normalize_framework_declaration(args.framework, load_document(args.input))
-        path = write_json(args.output_dir / FRAMEWORK_INVENTORY_FILE, inventory)
+        path = write_json(output_dir / FRAMEWORK_INVENTORY_FILE, inventory)
         return f"Wrote local framework inventory: {path}", 0
     if args.command == "mcp-scaffold":
         path = write_json(
-            args.output_dir / MCP_MANIFEST_SCAFFOLD_FILE,
+            output_dir / MCP_MANIFEST_SCAFFOLD_FILE,
             build_manifest_scaffold(read_json(args.inventory)),
         )
         return f"Wrote reviewer-required MCP manifest scaffold: {path}", 0
     if args.command == "mcp-import":
         inventory = normalize_mcp_tools_list(load_document(args.tool_list))
-        path = write_json(args.output_dir / MCP_TOOL_INVENTORY_FILE, inventory)
+        path = write_json(output_dir / MCP_TOOL_INVENTORY_FILE, inventory)
         return f"Wrote local MCP tool inventory: {path}", 0
     if args.command == "mcp-profile-check":
         manifest = parse_manifest(load_document(args.manifest))
         profile = parse_mcp_profile(load_document(args.profile))
         review = review_mcp_profile(profile, manifest, generated_at)
-        json_path = write_json(args.output_dir / MCP_PROFILE_REVIEW_FILE, review)
+        json_path = write_json(output_dir / MCP_PROFILE_REVIEW_FILE, review)
         markdown_path = write_text(
-            args.output_dir / MCP_PROFILE_REVIEW_REPORT_FILE,
+            output_dir / MCP_PROFILE_REVIEW_REPORT_FILE,
             render_mcp_profile_review_report(review),
         )
         has_findings = int(review["summary"]["review_findings"]) > 0

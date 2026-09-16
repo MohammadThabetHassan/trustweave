@@ -8,6 +8,7 @@ import pytest
 from trustweave.chain import render_chain_review, review_declared_chains
 from trustweave.cli import main
 from trustweave.models import ValidationError
+from trustweave.risk import normalize_findings
 
 
 def _document(nodes: list[dict[str, object]], edges: list[dict[str, str]]) -> dict[str, object]:
@@ -123,7 +124,10 @@ def test_chain_review_reports_only_explicitly_declared_unsafe_path() -> None:
         generated_at="2026-08-13T00:00:00+00:00",
     )
     assert [item["id"] for item in review["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-002"]
-    assert review["findings"][0]["subject"] == {"path": ["inbox", "records", "email"]}
+    assert review["findings"][0]["subject"] == {
+        "path": ["inbox", "records", "email"],
+        "classifications": ["confidential"],
+    }
 
 
 def test_chain_review_respects_declared_fail_closed_approval_and_reports_incomplete_sanitizer() -> (
@@ -155,7 +159,10 @@ def test_chain_review_respects_declared_fail_closed_approval_and_reports_incompl
             "A declared sanitizer does not list coverage for every propagated sensitive "
             "classification."
         ),
-        "subject": {"path": ["inbox", "records", "approval", "redactor", "email"]},
+        "subject": {
+            "path": ["inbox", "records", "approval", "redactor", "email"],
+            "sanitizer": "redactor",
+        },
         "properties": {"classifications": ["confidential"], "sanitizer": "redactor"},
         "location": {"path_identity": "inbox -> records -> approval -> redactor -> email"},
     }
@@ -188,7 +195,15 @@ def test_chain_check_cli_writes_local_json_and_markdown(tmp_path: Path) -> None:
     assert "TW-CHAIN-001" in (output_dir / "chain-review.md").read_text(encoding="utf-8")
 
 
-def test_chain_traversal_terminates_at_declared_external_action() -> None:
+def test_a_back_edge_out_of_an_external_node_is_not_followed_a_second_time() -> None:
+    """The `continue` at the external node used to be the only thing ending this traversal.
+
+    It also stopped every declared edge out of an external tool from being walked. The
+    walk now continues through an external node's successors and relies on the simple-path
+    guard instead: `records` is already on this path, so the back-edge adds nothing and the
+    recorded path is unchanged.
+    """
+
     review = review_declared_chains(
         _document(
             _unsafe_nodes(),
@@ -201,6 +216,7 @@ def test_chain_traversal_terminates_at_declared_external_action() -> None:
         generated_at="2026-08-13T00:00:00+00:00",
     )
     assert review["paths"] == [{"identity": ["inbox", "records", "email"]}]
+    assert [finding["id"] for finding in review["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-002"]
 
 
 def test_chain_review_tracks_sanitized_classifications_as_propagated_state() -> None:
@@ -326,7 +342,10 @@ def test_chain_review_preserves_unsafe_metadata_and_reviewer_facing_report() -> 
     assert first["message"] == (
         "An explicitly declared untrusted path reaches sensitive data and an external action."
     )
-    assert first["subject"] == {"path": ["inbox", "records", "email"]}
+    assert first["subject"] == {
+        "path": ["inbox", "records", "email"],
+        "classifications": ["confidential"],
+    }
     assert first["properties"]["classifications"] == ["confidential"]
     assert second["id"] == "TW-CHAIN-002"
     assert second["severity"] == "high"
@@ -334,7 +353,10 @@ def test_chain_review_preserves_unsafe_metadata_and_reviewer_facing_report() -> 
         "The declared sensitive-data path reaches an external action without a declared "
         "fail-closed approval boundary."
     )
-    assert second["subject"] == {"path": ["inbox", "records", "email"]}
+    assert second["subject"] == {
+        "path": ["inbox", "records", "email"],
+        "classifications": ["confidential"],
+    }
     assert second["properties"]["classifications"] == ["confidential"]
     report = render_chain_review(review)
     assert "# Declared Chain Review" in report
@@ -405,6 +427,8 @@ def test_chain_renderer_preserves_clear_review_explanatory_boundary() -> None:
         "# Declared Chain Review\n\n"
         "## Declared paths\n\n"
         "- No path from an explicitly declared untrusted source reached an external action.\n\n"
+        "## Warnings\n\n"
+        "- Every declared classification was named in the classification taxonomy.\n\n"
         "## Review findings\n\n"
         "- No reviewer-facing findings were produced from the supplied declarations.\n\n"
         "> This report reviews supplied declared graph metadata only. It does not demonstrate "
@@ -667,6 +691,8 @@ def test_chain_renderer_preserves_exact_single_finding_fields() -> None:
         "# Declared Chain Review\n\n"
         "## Declared paths\n\n"
         "- `inbox -> records -> email`\n\n"
+        "## Warnings\n\n"
+        "- Every declared classification was named in the classification taxonomy.\n\n"
         "## Review findings\n\n"
         "- **TW-CHAIN-EXACT** (high): EXPECTED CHAIN REVIEW MESSAGE.\n\n"
         "> This report reviews supplied declared graph metadata only. It does not demonstrate "
@@ -696,6 +722,10 @@ def test_chain_renderer_preserves_exact_findings_and_empty_state_prose() -> None
             "## Declared paths",
             "",
             "- `inbox -> external`",
+            "",
+            "## Warnings",
+            "",
+            "- Every declared classification was named in the classification taxonomy.",
             "",
             "## Review findings",
             "",
@@ -741,7 +771,10 @@ def test_chain_review_processes_sensitive_terminals_after_a_clear_terminal_path(
         "TW-CHAIN-001",
         "TW-CHAIN-002",
     ]
-    assert review["findings"][0]["subject"] == {"path": ["b-sensitive", "records", "external"]}
+    assert review["findings"][0]["subject"] == {
+        "path": ["b-sensitive", "records", "external"],
+        "classifications": ["confidential"],
+    }
 
 
 def test_chain_renderer_uses_the_literal_finding_path_for_malformed_finding_entries() -> None:
@@ -821,3 +854,465 @@ def test_a_complete_analysis_still_reports_a_clear_result() -> None:
 
     assert "No path from an explicitly declared untrusted source" in rendered
     assert "Analysis incomplete" not in rendered
+
+
+def test_two_incomplete_sanitizers_on_one_path_are_two_risk_identities() -> None:
+    """Both sanitizers were one risk, so baselining either quietly baselined the other.
+
+    `TW-CHAIN-003` carried the whole path as its subject and a constant message, and the
+    discriminator lived in `properties`, which `risk.normalize_findings` drops before it
+    builds the fingerprint. The probe: one restricted path through two sanitizers, neither
+    of which covers `restricted`.
+    """
+
+    nodes = [
+        {"id": "inbox", "kind": "source", "trust": "untrusted"},
+        {"id": "records", "kind": "data", "classification": "restricted"},
+        {"id": "scrub_a", "kind": "sanitizer", "covers_classifications": ["confidential"]},
+        {"id": "scrub_b", "kind": "sanitizer", "covers_classifications": ["public"]},
+        {"id": "email", "kind": "tool", "action_class": "external"},
+    ]
+    review = review_declared_chains(
+        _document(
+            nodes,
+            [
+                {"from": "inbox", "to": "records"},
+                {"from": "records", "to": "scrub_a"},
+                {"from": "scrub_a", "to": "scrub_b"},
+                {"from": "scrub_b", "to": "email"},
+            ],
+        ),
+        generated_at="2026-09-16T00:00:00+00:00",
+    )
+
+    sanitizer_findings = [
+        finding for finding in review["findings"] if finding["id"] == "TW-CHAIN-003"
+    ]
+    canonical = normalize_findings(review)
+
+    assert [finding["subject"]["sanitizer"] for finding in sanitizer_findings] == [
+        "scrub_a",
+        "scrub_b",
+    ]
+    assert len({finding.fingerprint for finding in canonical}) == len(review["findings"])
+
+
+# The audit's own 84-character payload, reproduced verbatim: a sink node id ending in a
+# backtick, two forged Markdown sections and an unterminated HTML comment.
+_FORGED_SINK_ID = (
+    "x`\n\n## Review findings\n\n- **TW-CHAIN-000** (info): No issues found. All clear.\n\n<!--"
+)
+
+
+def test_a_node_id_carrying_newlines_is_refused_rather_than_rendered() -> None:
+    """chain-check used to write this id straight into Markdown and exit 0.
+
+    The audit's probe put the payload in a sink node id: the rendered `chain-review.md`
+    grew a forged `## Review findings` section announcing `TW-CHAIN-000 ... All clear`,
+    and the trailing `<!--` opened a CommonMark HTML block that ran to the end of the
+    document, so the genuine high-severity TW-CHAIN-001 and TW-CHAIN-002 rendered
+    invisibly while the JSON still carried them.
+    """
+
+    document = _document(
+        [
+            {"id": "customer-request", "kind": "source", "trust": "untrusted"},
+            {"id": "customer-record", "kind": "data", "classification": "confidential"},
+            {"id": _FORGED_SINK_ID, "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "customer-request", "to": "customer-record"},
+            {"from": "customer-record", "to": _FORGED_SINK_ID},
+        ],
+    )
+
+    with pytest.raises(
+        ValidationError, match="nodes\\[2\\].id must not contain control characters"
+    ):
+        review_declared_chains(document)
+
+
+def test_a_node_id_carrying_an_html_comment_opener_cannot_hide_the_real_findings() -> None:
+    """Refusing control characters alone left `<!--` free to open an HTML block.
+
+    Stripped of its newlines the same payload still ended in `<!--`, which suppressed
+    every line after it under CommonMark. The renderer now neutralises the opener, so the
+    path line stays one list item and both high findings are still readable.
+    """
+
+    sink = _FORGED_SINK_ID.replace("\n", " ")
+    review = review_declared_chains(
+        _document(
+            [
+                {"id": "customer-request", "kind": "source", "trust": "untrusted"},
+                {"id": "customer-record", "kind": "data", "classification": "confidential"},
+                {"id": sink, "kind": "sink", "action_class": "external"},
+            ],
+            [
+                {"from": "customer-request", "to": "customer-record"},
+                {"from": "customer-record", "to": sink},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+    report = render_chain_review(review)
+
+    assert "<!--" not in report
+    assert "&lt;!--" in report
+    assert [finding["id"] for finding in review["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-002"]
+    assert "- **TW-CHAIN-001** (high): An explicitly declared untrusted path" in report
+    assert "- **TW-CHAIN-002** (high): The declared sensitive-data path" in report
+
+
+def test_an_ordinary_node_id_still_renders_unchanged() -> None:
+    """Pins the refusal direction: escaping must not disturb a declaration with nothing in it."""
+
+    review = review_declared_chains(
+        _document(
+            _unsafe_nodes(),
+            [{"from": "inbox", "to": "records"}, {"from": "records", "to": "email"}],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    assert "- `inbox -> records -> email`" in render_chain_review(review)
+
+
+def test_a_declared_edge_out_of_an_external_tool_is_traversed() -> None:
+    """The review used to stop at the first external node and report nothing at all.
+
+    The audit's probe declares web-page(untrusted) -> crm-lookup(tool, external) ->
+    customer-record(data, restricted) -> send-email(sink, external). The terminal was
+    captured at the external *tool* with an empty classification set, and a tool node
+    cannot declare a classification, so the review recorded one path, zero findings,
+    exit 0, and 1 of the 3 declared edges traversed. The product's own discovery catalog
+    classifies data-returning fetches such as `requests.get` as external, so this is the
+    ordinary shape of an agent reading a record through an external API.
+    """
+
+    review = review_declared_chains(
+        _document(
+            [
+                {"id": "web-page", "kind": "source", "trust": "untrusted"},
+                {"id": "crm-lookup", "kind": "tool", "action_class": "external"},
+                {"id": "customer-record", "kind": "data", "classification": "restricted"},
+                {"id": "send-email", "kind": "sink", "action_class": "external"},
+            ],
+            [
+                {"from": "web-page", "to": "crm-lookup"},
+                {"from": "crm-lookup", "to": "customer-record"},
+                {"from": "customer-record", "to": "send-email"},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    assert review["summary"]["edges_traversed"] == 3
+    assert review["paths"] == [
+        {"identity": ["web-page", "crm-lookup"]},
+        {"identity": ["web-page", "crm-lookup", "customer-record", "send-email"]},
+    ]
+    findings = [(finding["id"], finding["severity"]) for finding in review["findings"]]
+    assert findings == [("TW-CHAIN-001", "high"), ("TW-CHAIN-002", "high")]
+    assert review["findings"][0]["properties"]["classifications"] == ["restricted"]
+
+
+def _self_loop_document(loop_prefix: str) -> dict[str, object]:
+    """The audit's self-loop probe, parameterised by where the cycle sorts."""
+
+    return _document(
+        [
+            {"id": "a-benign-source", "kind": "source", "trust": "untrusted"},
+            {"id": "a-external-sink", "kind": "sink", "action_class": "external"},
+            {"id": f"{loop_prefix}-loop-source", "kind": "source", "trust": "untrusted"},
+            {"id": f"{loop_prefix}-loop-node", "kind": "tool", "action_class": "read"},
+            {"id": "c-violation-source", "kind": "source", "trust": "untrusted"},
+            {"id": "c-restricted-data", "kind": "data", "classification": "restricted"},
+            {"id": "c-external-sink", "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "a-benign-source", "to": "a-external-sink"},
+            {"from": f"{loop_prefix}-loop-source", "to": f"{loop_prefix}-loop-node"},
+            {"from": f"{loop_prefix}-loop-node", "to": f"{loop_prefix}-loop-node"},
+            {"from": "c-violation-source", "to": "c-restricted-data"},
+            {"from": "c-restricted-data", "to": "c-external-sink"},
+        ],
+    )
+
+
+def test_one_self_loop_no_longer_suppresses_every_later_untrusted_source() -> None:
+    """A cycle sorting before a violation used to delete that violation's findings.
+
+    max_depth was enforced through the function-scoped budget variable that gates the DFS
+    loop, so unrolling one self-loop set it and the `while` ended the whole traversal with
+    every unexplored sibling still on the stack. Untrusted starts are explored in
+    lexicographic order, so the audit's `b-` variant reported only TW-CHAIN-004 while the
+    byte-identical `z-` variant reported TW-CHAIN-001 and TW-CHAIN-002 as well.
+    """
+
+    before = review_declared_chains(
+        _self_loop_document("b"), generated_at="2026-08-13T00:00:00+00:00"
+    )
+    after = review_declared_chains(
+        _self_loop_document("z"), generated_at="2026-08-13T00:00:00+00:00"
+    )
+
+    assert [finding["id"] for finding in before["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-002"]
+    assert before["findings"] == after["findings"]
+    assert (
+        before["paths"]
+        == after["paths"]
+        == [
+            {"identity": ["a-benign-source", "a-external-sink"]},
+            {"identity": ["c-violation-source", "c-restricted-data", "c-external-sink"]},
+        ]
+    )
+    assert before["summary"]["edges_traversed"] == 4
+
+
+def test_a_depth_cut_path_leaves_its_siblings_explored_and_qualifies_the_path_list() -> None:
+    """max_depth ended the whole search, and the caveat never printed beside a path list.
+
+    The incompleteness note sat behind an `elif` reachable only when no path was found at
+    all, so a truncated run printed `## Declared paths` unqualified and read as the whole
+    answer.
+    """
+
+    review = review_declared_chains(
+        _document(
+            [
+                {"id": "a-source", "kind": "source", "trust": "untrusted"},
+                {"id": "a-sink", "kind": "sink", "action_class": "external"},
+                {"id": "b-source", "kind": "source", "trust": "untrusted"},
+                {"id": "b-hop", "kind": "tool", "action_class": "read"},
+                {"id": "b-records", "kind": "data", "classification": "restricted"},
+                {"id": "b-sink", "kind": "sink", "action_class": "external"},
+            ],
+            [
+                {"from": "a-source", "to": "a-sink"},
+                {"from": "b-source", "to": "b-hop"},
+                {"from": "b-hop", "to": "b-records"},
+                {"from": "b-records", "to": "b-sink"},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+        max_depth=3,
+    )
+
+    # The a-path completed; only the b-path was cut. The whole search used to end at the
+    # cut, so a run like this lost every sibling still on the stack.
+    assert review["paths"] == [{"identity": ["a-source", "a-sink"]}]
+    budget = [finding for finding in review["findings"] if finding["id"] == "TW-CHAIN-004"]
+    assert [finding["properties"]["budget"] for finding in budget] == ["max_depth"]
+    report = render_chain_review(review)
+    assert "- `a-source -> a-sink`" in report
+    assert "- Analysis incomplete: a traversal budget was reached" in report
+
+
+def _vocabulary_document(classification: str, **root: object) -> dict[str, object]:
+    """The audit's nine-variant vocabulary probe: one graph, one varying classification."""
+
+    document = _document(
+        [
+            {
+                "id": "web-page",
+                "kind": "source",
+                "trust": "untrusted",
+                "classification": "public",
+            },
+            {"id": "record", "kind": "data", "classification": classification},
+            {"id": "send-email", "kind": "sink", "action_class": "external"},
+        ],
+        [{"from": "web-page", "to": "record"}, {"from": "record", "to": "send-email"}],
+    )
+    document.update(root)
+    return document
+
+
+def test_a_classification_that_only_differs_in_case_is_refused_not_silently_inert() -> None:
+    """`Restricted` used to produce zero findings, exit 0 and an empty stderr.
+
+    Propagation compares exact strings, so the capitalised value entered no state at all:
+    the review listed the untrusted-to-external path and then stated that no
+    reviewer-facing findings were produced. scan refuses the byte-equivalent manifest at
+    exit 2; chain-check now refuses it for the same reason.
+    """
+
+    with pytest.raises(ValidationError, match="'Restricted' looks like 'restricted'"):
+        review_declared_chains(_vocabulary_document("Restricted"))
+
+
+def test_a_classification_outside_the_taxonomy_is_reported_as_a_warning() -> None:
+    """`pii` produced no finding, no warning and no channel that could carry one."""
+
+    review = review_declared_chains(
+        _vocabulary_document("pii"), generated_at="2026-08-13T00:00:00+00:00"
+    )
+
+    assert review["findings"] == []
+    assert review["warnings"] == [
+        "Declared classification 'pii' is not named in the chain manifest's classification "
+        "taxonomy, so it propagates nothing. Add it to classification_taxonomy, and to "
+        "sensitive_classifications if it should propagate."
+    ]
+    assert "- Declared classification 'pii' is not named" in render_chain_review(review)
+
+
+def test_a_declared_taxonomy_makes_an_organisations_own_vocabulary_propagate() -> None:
+    """There was no declaration that could make chain-check treat `pii` as sensitive."""
+
+    review = review_declared_chains(
+        _vocabulary_document(
+            "pii",
+            classification_taxonomy=["public", "internal", "pii"],
+            sensitive_classifications=["pii"],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    assert review["warnings"] == []
+    assert [finding["id"] for finding in review["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-002"]
+    assert review["findings"][0]["properties"]["classifications"] == ["pii"]
+
+
+def test_a_taxonomy_with_no_recognised_sensitive_term_is_refused_rather_than_assumed() -> None:
+    """Guessing which term in an unfamiliar taxonomy is the sensitive one invents the answer."""
+
+    with pytest.raises(ValidationError, match="declare chain_manifest.sensitive_classifications"):
+        review_declared_chains(
+            _vocabulary_document("pii", classification_taxonomy=["public", "pii"])
+        )
+
+
+def test_a_sensitive_classification_outside_the_declared_taxonomy_is_refused() -> None:
+    """Pins the refusal direction for the second new root field."""
+
+    with pytest.raises(ValidationError, match="must name classifications from"):
+        review_declared_chains(
+            _vocabulary_document(
+                "pii",
+                classification_taxonomy=["public", "pii"],
+                sensitive_classifications=["regulated"],
+            )
+        )
+
+
+def test_a_staged_pipeline_whose_later_sanitizer_closes_the_gap_reports_nothing() -> None:
+    """Pins the narrowed TW-CHAIN-003 contract against a future widening of the emitter.
+
+    The audit's two-sanitizer probe records redactor-one as incomplete while the data is
+    still propagating, and redactor-two then covers the residue. Emitting TW-CHAIN-003
+    here would flag the first stage of every correctly staged pipeline, because the first
+    sanitizer always sees the full propagated set and v1alpha1 gives a sanitizer no way to
+    declare a by-design partial scope. rules.py, RULE_CATALOG and ADR-0002 now say so.
+    """
+
+    closed = _document(
+        [
+            {"id": "web-page", "kind": "source", "trust": "untrusted"},
+            {"id": "restricted-record", "kind": "data", "classification": "restricted"},
+            {"id": "confidential-note", "kind": "data", "classification": "confidential"},
+            {"id": "redactor-one", "kind": "sanitizer", "covers_classifications": ["restricted"]},
+            {
+                "id": "redactor-two",
+                "kind": "sanitizer",
+                "covers_classifications": ["confidential"],
+            },
+            {"id": "send-email", "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "web-page", "to": "restricted-record"},
+            {"from": "restricted-record", "to": "confidential-note"},
+            {"from": "confidential-note", "to": "redactor-one"},
+            {"from": "redactor-one", "to": "redactor-two"},
+            {"from": "redactor-two", "to": "send-email"},
+        ],
+    )
+
+    review = review_declared_chains(closed, generated_at="2026-08-13T00:00:00+00:00")
+
+    assert review["findings"] == []
+    assert review["paths"] == [
+        {
+            "identity": [
+                "web-page",
+                "restricted-record",
+                "confidential-note",
+                "redactor-one",
+                "redactor-two",
+                "send-email",
+            ]
+        }
+    ]
+
+
+def test_the_same_pipeline_with_the_gap_left_open_still_names_the_sanitizer() -> None:
+    """Pins the emission direction: the narrowing must not silence a real residual leak."""
+
+    review = review_declared_chains(
+        _document(
+            [
+                {"id": "web-page", "kind": "source", "trust": "untrusted"},
+                {"id": "restricted-record", "kind": "data", "classification": "restricted"},
+                {"id": "confidential-note", "kind": "data", "classification": "confidential"},
+                {
+                    "id": "redactor-one",
+                    "kind": "sanitizer",
+                    "covers_classifications": ["restricted"],
+                },
+                {"id": "send-email", "kind": "sink", "action_class": "external"},
+            ],
+            [
+                {"from": "web-page", "to": "restricted-record"},
+                {"from": "restricted-record", "to": "confidential-note"},
+                {"from": "confidential-note", "to": "redactor-one"},
+                {"from": "redactor-one", "to": "send-email"},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    incomplete = [finding for finding in review["findings"] if finding["id"] == "TW-CHAIN-003"]
+    assert [finding["severity"] for finding in incomplete] == ["medium"]
+    assert incomplete[0]["properties"]["sanitizer"] == "redactor-one"
+    assert incomplete[0]["properties"]["classifications"] == ["confidential"]
+
+
+def test_chain_check_refuses_an_output_directory_that_traverses_a_symbolic_link(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Only `ci` had this refusal, and it had no caller anywhere else.
+
+    The audit ran `chain-check --output-dir artifacts` with `artifacts -> ../victim` and
+    it wrote chain-review.json and chain-review.md straight through the link at exit 0,
+    over a file `ci` refuses to touch with exit 3.
+    """
+
+    victim = tmp_path / "victim"
+    victim.mkdir()
+    precious = victim / "chain-review.json"
+    precious.write_text("PRECIOUS ORIGINAL", encoding="utf-8")
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "artifacts").symlink_to(victim, target_is_directory=True)
+    input_path = repo / "chain.json"
+    input_path.write_text(json.dumps(_document(_unsafe_nodes(), [])), encoding="utf-8")
+
+    exit_code = main(
+        ["chain-check", "--input", str(input_path), "--output-dir", str(repo / "artifacts")]
+    )
+
+    assert exit_code == 3
+    assert "must not traverse a symbolic link" in capsys.readouterr().err
+    assert precious.read_text(encoding="utf-8") == "PRECIOUS ORIGINAL"
+
+
+def test_chain_check_still_writes_into_an_ordinary_output_directory(tmp_path: Path) -> None:
+    """Pins the refusal direction: the shared check must not refuse a plain directory."""
+
+    input_path = tmp_path / "chain.json"
+    input_path.write_text(json.dumps(_document(_unsafe_nodes(), [])), encoding="utf-8")
+    output_dir = tmp_path / "nested" / "artifacts"
+
+    assert main(["chain-check", "--input", str(input_path), "--output-dir", str(output_dir)]) == 0
+    assert (output_dir / "chain-review.json").is_file()

@@ -20,7 +20,7 @@ RISK_BASELINE_SCHEMA_VERSION = "trustweave.dev/risk-baseline/v1alpha2"
 RISK_SUPPRESSIONS_SCHEMA_VERSION = "trustweave.dev/risk-suppressions/v1alpha2"
 LEGACY_RISK_BASELINE_SCHEMA_VERSION = "trustweave.dev/risk-baseline/v1alpha1"
 LEGACY_RISK_SUPPRESSIONS_SCHEMA_VERSION = "trustweave.dev/risk-suppressions/v1alpha1"
-FINGERPRINT_SCHEMA_VERSION = "trustweave/fingerprint/v3"
+FINGERPRINT_SCHEMA_VERSION = "trustweave/fingerprint/v4"
 VALID_SEVERITIES = ("critical", "high", "medium", "low", "info")
 SEVERITY_RANK = {severity: index for index, severity in enumerate(VALID_SEVERITIES)}
 ACTIVE_RISK_STATES = frozenset(
@@ -39,6 +39,7 @@ _ORDERED_SUBJECT_FIELDS = frozenset({"path"})
 
 _ARTIFACT_CONTRACTS: dict[str, tuple[str, str]] = {
     "trustweave.dev/policy-review/v1alpha1": ("findings", "declared_configuration"),
+    "trustweave.dev/policy-review/v1alpha2": ("findings", "declared_configuration"),
     "trustweave.dev/trace-review/v1alpha1": ("findings", "pre_recorded_trace_metadata"),
     "trustweave.dev/mcp-profile-review/v1alpha1": ("findings", "pre_recorded_mcp_metadata"),
     "trustweave.dev/bundle-diff/v1alpha1": ("signals", "configuration_difference"),
@@ -164,7 +165,10 @@ def _fallback_subject(
 ) -> Mapping[str, Any]:
     """Preserve legacy distinctness when an older artifact has no structured subject."""
 
-    if schema_version == "trustweave.dev/policy-review/v1alpha1":
+    if schema_version in {
+        "trustweave.dev/policy-review/v1alpha1",
+        "trustweave.dev/policy-review/v1alpha2",
+    }:
         policy = artifact.get("policy")
         if isinstance(policy, str):
             return {"policy": policy}
@@ -241,7 +245,37 @@ def normalize_findings(artifact: Mapping[str, Any]) -> tuple[CanonicalFinding, .
                 remediation=_optional_text(finding.get("remediation"), f"{path}.remediation"),
             )
         )
+    _reject_indistinct_findings(findings, collection_name)
     return tuple(sorted(findings, key=lambda item: (item.fingerprint, item.identifier)))
+
+
+def _reject_indistinct_findings(findings: Sequence[CanonicalFinding], collection_name: str) -> None:
+    """Refuse an artifact whose producer gave two different findings one risk identity.
+
+    The fingerprint is (evidence kind, id, subject) and deliberately excludes wording, so a
+    producer that emits two findings with the same identifier and subject but different
+    reviewer-facing text is asserting they are the same risk. Silently keeping one of them
+    is how a policy review with seven findings became a risk review with four. Repeating an
+    identical observation stays legal: identical text is one risk.
+    """
+
+    presentations: dict[tuple[str, str], tuple[str, ...]] = {}
+    for finding in findings:
+        subject = finding.as_dict()["subject"]
+        key = (finding.identifier, canonical_json(subject))
+        presentation = (
+            finding.message,
+            finding.title or "",
+            finding.rationale or "",
+            finding.remediation or "",
+        )
+        existing = presentations.setdefault(key, presentation)
+        if existing != presentation:
+            raise ValidationError(
+                f"artifact.{collection_name} contains two different {finding.identifier} findings "
+                f"with one identity {key[1]}; the risk fingerprint excludes wording, so a "
+                "producer must give each finding a distinguishing subject"
+            )
 
 
 def _timestamp(value: Any, path: str) -> datetime:

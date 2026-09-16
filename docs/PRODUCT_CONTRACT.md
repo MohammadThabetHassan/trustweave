@@ -66,7 +66,7 @@ TrustWeave [`0.3.0`](https://pypi.org/project/trustweave/0.3.0/) is the publishe
 
 ## Future scope, deliberately excluded from the current local evidence contract
 
-The following items are valid roadmap candidates but not part of the first vertical slice: MCP proxying, OPA integration, OpenFGA integration, external signature services, automatic source discovery, framework SDKs, dashboards, hosted registries, production telemetry ingestion, and enterprise multitenancy.
+The following items are valid roadmap candidates but not part of the first vertical slice: MCP proxying, OPA integration, OpenFGA integration, external signature services, complete deployed-agent discovery, framework SDKs, dashboards, hosted registries, production telemetry ingestion, and enterprise multitenancy. Local static source discovery is shipped and described above; what remains excluded is discovery of what a deployed agent can actually reach, which no offline parse of one repository can establish.
 
 ## Extension admission rule
 

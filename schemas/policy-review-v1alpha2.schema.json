@@ -1,0 +1,356 @@
+{
+  "$defs": {
+    "count": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "coverage_result": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "enum": [
+            "allow",
+            "deny",
+            "require_approval"
+          ]
+        },
+        "possible": {
+          "type": "boolean"
+        },
+        "reachable": {
+          "type": "boolean"
+        },
+        "shadowed_by": {
+          "description": "The one earlier rule that covers this rule on its own, or null when no single rule does.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/rule_identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shadowed_by_rules": {
+          "description": "Every earlier rule in the cover that makes this rule unreachable: the single shadowing rule, or several rules that together cover every cell of this rule. Empty when no cover was found.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule_identifier"
+          },
+          "maxItems": 1000000
+        },
+        "cover_search": {
+          "description": "Whether the collective cover was searched: 'complete' when every cell of the rule was checked (or a single covering rule was found); 'declined' when the rule names more than the enumeration limit of cells and only the single-rule check ran, so reachable: true is not a verdict.",
+          "enum": [
+            "complete",
+            "declined"
+          ]
+        }
+      },
+      "required": [
+        "reachable",
+        "possible",
+        "shadowed_by",
+        "shadowed_by_rules",
+        "cover_search",
+        "decision"
+      ],
+      "type": "object"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "pattern": "^[a-z][a-z0-9_]{0,127}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^TW-[A-Z0-9-]{1,120}$",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/string_map"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/property_map"
+        },
+        "rationale": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/string_map"
+          },
+          "maxItems": 64,
+          "type": "array"
+        },
+        "remediation": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info",
+            "review"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/subject"
+        },
+        "title": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "message",
+        "evidence_kind"
+      ],
+      "type": "object"
+    },
+    "identifier": {
+      "pattern": "^[a-z][a-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "property_map": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "rule_identifier": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "type": "string"
+    },
+    "string_list": {
+      "items": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "type": "array"
+    },
+    "string_map": {
+      "additionalProperties": {
+        "maxLength": 1024,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "subject": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/string_list"
+          }
+        ]
+      },
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "type": "string"
+      },
+      "type": "object",
+      "description": "The stable identity of what a finding is about. A finding about one policy rule carries both `policy` and `rule`; a finding about the policy itself carries `policy` alone."
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "https://trustweave.dev/schemas/policy-review/v1alpha2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "approval_control": {
+      "additionalProperties": false,
+      "properties": {
+        "binds_to": {
+          "$ref": "#/$defs/string_list"
+        },
+        "declared": {
+          "type": "boolean"
+        },
+        "fail_closed": {
+          "type": "boolean"
+        },
+        "high_impact_approval_rules": {
+          "items": {
+            "$ref": "#/$defs/rule_identifier"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "mechanism": {
+          "$ref": "#/$defs/text"
+        },
+        "missing_required_bindings": {
+          "$ref": "#/$defs/string_list"
+        }
+      },
+      "required": [
+        "high_impact_approval_rules",
+        "declared"
+      ],
+      "type": "object"
+    },
+    "coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "declined_rules": {
+          "description": "Every rule whose collective cover was not searched because it names more label combinations than the local enumeration limit. Its `reachable` value is not a verdict; TW-POL-010 reports each entry.",
+          "items": {
+            "$ref": "#/$defs/rule_identifier"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "impossible_rules": {
+          "items": {
+            "$ref": "#/$defs/rule_identifier"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        },
+        "rules": {
+          "additionalProperties": {
+            "$ref": "#/$defs/coverage_result"
+          },
+          "maxProperties": 1000000,
+          "type": "object"
+        },
+        "shadowed_rules": {
+          "items": {
+            "$ref": "#/$defs/rule_identifier"
+          },
+          "maxItems": 1000000,
+          "type": "array"
+        }
+      },
+      "required": [
+        "rules",
+        "shadowed_rules",
+        "impossible_rules",
+        "declined_rules"
+      ],
+      "type": "object"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "maxItems": 1000000,
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "limits": {
+      "items": {
+        "maxLength": 4096,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "policy": {
+      "$ref": "#/$defs/name"
+    },
+    "schema_version": {
+      "const": "trustweave.dev/policy-review/v1alpha2"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "review_findings": {
+          "$ref": "#/$defs/count"
+        },
+        "rules": {
+          "$ref": "#/$defs/count"
+        },
+        "status": {
+          "enum": [
+            "clear",
+            "review_required"
+          ]
+        }
+      },
+      "required": [
+        "rules",
+        "review_findings",
+        "status"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy",
+    "approval_control",
+    "findings",
+    "summary",
+    "limits",
+    "generated_at"
+  ],
+  "title": "TrustWeave Local Policy Review v1alpha2",
+  "type": "object"
+}

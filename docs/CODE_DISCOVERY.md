@@ -30,7 +30,7 @@ behind an attestation.
 
 | Reason | What it means |
 |---|---|
-| `UNRESOLVED_CALLEE` | The call target could not be tied back to an imported symbol. |
+| `UNRESOLVED_CALLEE` | The call target could not be tied back to anything the module names: a bare name with no import, definition or builtin behind it, a method on a parameter the module can say nothing about, or a receiver rebound to two different things. |
 | `DYNAMIC_DISPATCH` | Behaviour is selected at runtime, through a lookup table, `getattr`, or `eval`. |
 | `NONLITERAL_ARGUMENT` | An argument that decides the effect is a variable, so both readings stay open. |
 | `BODY_UNAVAILABLE` | The tool was declared somewhere the implementation could not be located. |
@@ -50,6 +50,13 @@ binding or a tracked constructor.
 Signals are gathered over the tool body and module-local helpers it calls, to a bounded
 depth, with each hop recorded. Precedence is `sensitive` > `external` > `write` > `read`.
 
+Two rules about scope keep that walk honest. Import bindings are lexical: a name means
+what the enclosing function imported, then what the module imported, and an import inside
+some other function is invisible. And a helper is walked once per set of arguments that
+can change what it does -- a constant, or a receiver handed over -- so `access("r")`
+followed by `access("w")` is read as a read and then a write, not as a read twice. A
+helper called with an argument the source does not decide is refused, not assumed benign.
+
 | Class | Recognised by |
 |---|---|
 | `external` | HTTP and mail clients, sockets, cloud and model SDK clients, and shelling out to a transfer tool such as `curl` or `scp`. |
@@ -59,7 +66,15 @@ depth, with each hop recorded. Precedence is `sensitive` > `external` > `write` 
 
 `read` is a positive classification, not a fallback. A tool with no recognised effect at
 all is `read`; a tool whose effects could not be resolved is `unknown`. Collapsing those
-two would teach reviewers to bulk-accept `unknown`.
+two would teach reviewers to bulk-accept `unknown`. For that sentence to be true, every
+call in a `read` tool's body has to be nameable: a bare name the module neither imports
+nor defines, and a method on an unannotated parameter, are refused as `UNRESOLVED_CALLEE`
+rather than read as benign, and a test re-derives that property from the labelled benchmark
+without asking the analyzer. One asymmetry is deliberate and worth knowing: a resolved call
+into a standard-library symbol the catalog does not describe stays benign, because nearly
+every tool formats a string or logs a line, while a resolved call into an uncatalogued
+third-party package refuses (`UNCATALOGUED_SYMBOL`), because such a package could do
+anything.
 
 ## Declaration coverage
 
@@ -78,10 +93,19 @@ affecting coverage.
 
 ## The draft is not a manifest
 
-`manifest_draft` deliberately fails validation. `unknown` and `REVIEW_REQUIRED` are
-outside the accepted vocabularies, so `parse_manifest` rejects it until a reviewer
-resolves every placeholder. A draft that validated would eventually be passed to `scan`
-as though it had been reviewed, which is the specific failure this design refuses.
+`manifest_draft` deliberately fails validation, and it keeps failing until a reviewer
+has resolved every placeholder. Two separate checks do that work. `unknown` sits outside
+the accepted trust and action-class vocabularies. And `parse_manifest` refuses any
+declared free-text field that begins with `REVIEW_REQUIRED` -- `manifest.name`,
+`manifest.description`, a source's `data_classification` and `description`, a tool's
+`description` and a flow's `purpose` -- naming the field it refused.
+
+The second check is what makes the first sentence true. Closed vocabularies alone were
+satisfied after six edits while eight placeholders remained in the document, so a
+reviewer who fixed exactly what the parser complained about, and stopped when it stopped
+complaining, reached a passing `scan` over a draft nobody had read. A draft that
+validated would eventually be passed to `scan` as though it had been reviewed, which is
+the specific failure this design refuses.
 
 ## Findings
 
@@ -181,7 +205,7 @@ established, so a reviewer knows what to check rather than being told to check e
 
 | Reason | What it means |
 |---|---|
-| `UNRESOLVED_CALLEE` | the call reaches a name this module does not define or import |
+| `UNRESOLVED_CALLEE` | the call reaches a name this module does not define, import or know as a builtin, a method on a parameter it can say nothing about, or a receiver bound to two different things |
 | `DYNAMIC_DISPATCH` | the callee is chosen at runtime, from a subscript or an unresolved call |
 | `NONLITERAL_ARGUMENT` | the argument decides the class and is not a literal here |
 | `BODY_UNAVAILABLE` | the registered target names no body the analyzer can read |

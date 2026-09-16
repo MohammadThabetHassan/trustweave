@@ -17,7 +17,16 @@ TOOL_INFORMATION_URI = "https://github.com/MohammadThabetHassan/trustweave"
 MAX_SARIF_RESULTS = 50_000
 
 REVIEW_INPUTS: tuple[tuple[str, frozenset[str], str], ...] = (
-    ("policy", frozenset({"trustweave.dev/policy-review/v1alpha1"}), "findings"),
+    (
+        "policy",
+        frozenset(
+            {
+                "trustweave.dev/policy-review/v1alpha1",
+                "trustweave.dev/policy-review/v1alpha2",
+            }
+        ),
+        "findings",
+    ),
     (
         "diff",
         frozenset(

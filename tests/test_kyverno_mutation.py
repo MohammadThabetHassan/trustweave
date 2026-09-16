@@ -199,3 +199,188 @@ def test_a_pascal_case_condition_operator_is_untouched_by_the_cel_table() -> Non
     """`Equals` is a Kyverno condition operator, not a CEL one; it must edit once."""
 
     assert _names("      operator: Equals\n") == ["L1:Equals->NotEquals"]
+
+
+# ---------------------------------------------------------------------------------------
+# Provenance of the join. The score and the decision-blindness flag used to come from two
+# different files: the score from whichever sibling directory a last-wins dict left behind,
+# and the flag from a coverage artifact pooled over every variant of the policy.
+# ---------------------------------------------------------------------------------------
+
+
+def _suite(
+    directory: Path,
+    policy: str,
+    *,
+    rule: str = "r",
+    results: tuple[str, ...] = ("pass", "fail"),
+) -> Path:
+    """A Kyverno policy and the CLI test manifest that exercises it, on disk."""
+
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / f"{policy}.yaml").write_text(
+        "apiVersion: kyverno.io/v1\n"
+        "kind: ClusterPolicy\n"
+        f"metadata:\n  name: {policy}\n"
+        "spec:\n"
+        "  background: false\n"
+        "  rules:\n"
+        f"  - name: {rule}\n"
+        "    match:\n      any:\n      - resources:\n          kinds:\n          - Pod\n"
+        "    validate:\n      pattern:\n        spec:\n"
+        "          hostNetwork: false\n",
+        encoding="utf-8",
+    )
+    tests = directory / ".kyverno-test"
+    tests.mkdir(exist_ok=True)
+    entries = "".join(
+        f"- kind: Pod\n  policy: {policy}\n  rule: {rule}\n  resources:\n  - r{index}\n"
+        f"  result: {decision}\n"
+        for index, decision in enumerate(results)
+    )
+    (tests / "kyverno-test.yaml").write_text(
+        "apiVersion: cli.kyverno.io/v1alpha1\n"
+        "kind: Test\n"
+        f"metadata:\n  name: {policy}\n"
+        f"policies:\n- ../{policy}.yaml\n"
+        "resources:\n- resource.yaml\n"
+        f"results:\n{entries}",
+        encoding="utf-8",
+    )
+    return tests
+
+
+def test_a_policy_is_keyed_by_the_name_its_manifest_states(tmp_path: Path) -> None:
+    """The key was `path.parent.parent.name`, which is a directory rather than an identity.
+
+    The pinned corpus publishes `-cel` and `-vpol` variants of a policy as sibling top-level
+    directories, all naming the same policy. A last-wins dict over the sorted manifests
+    collapsed 495 of them into 235 entries and kept the variant, so 36 of the 49 scored
+    policies were mutated in a sibling of the directory whose coverage verdict labelled them.
+    """
+
+    _suite(tmp_path / "other" / "block-updates-deletes", "block-updates-deletes")
+    _suite(tmp_path / "other-vpol" / "block-updates-deletes", "block-updates-deletes")
+
+    manifests = kyverno_mutation.policy_manifests(tmp_path)
+
+    assert list(manifests) == ["block-updates-deletes"]
+    chosen, *rest = manifests["block-updates-deletes"]
+    # Path order compares part-wise, so the base directory sorts before its suffixed
+    # variants and is the one measured; the variants stay visible.
+    assert chosen.parts[-3] == "other"
+    assert [path.parts[-3] for path in rest] == ["other-vpol"]
+
+
+def test_a_manifest_naming_a_policy_from_another_directory_is_still_keyed_by_the_name(
+    tmp_path: Path,
+) -> None:
+    """The identity is what the `results[].policy` block says, not where the file lives."""
+
+    _suite(tmp_path / "library" / "some-directory", "disallow-host-network")
+
+    manifests = kyverno_mutation.policy_manifests(tmp_path)
+
+    assert list(manifests) == ["disallow-host-network"]
+    assert kyverno_mutation.manifest_cases(
+        manifests["disallow-host-network"][0] / "kyverno-test.yaml"
+    ) == {"disallow-host-network": 2}
+
+
+def test_blindness_is_read_from_the_manifest_that_would_be_measured(tmp_path: Path) -> None:
+    """One decision witnessed is blind; the pooled artifact rolled variants together.
+
+    A policy whose base suite witnesses only `fail` is blind in that suite even when a
+    variant's suite witnesses both, and it is the base suite that gets mutated.
+    """
+
+    blind = _suite(tmp_path / "other" / "p", "p", results=("fail",))
+    covered = _suite(tmp_path / "other-vpol" / "p", "p", results=("fail", "pass"))
+
+    assert kyverno_mutation.manifest_blindness(blind / "kyverno-test.yaml") == {"p": True}
+    assert kyverno_mutation.manifest_blindness(covered / "kyverno-test.yaml") == {"p": False}
+
+
+def _pooled_coverage(*blind_policies: str, covered: tuple[str, ...] = ()) -> dict:
+    subjects = [
+        {"domain": "kyverno_validate", "subject": f"{name}/r", "blind": True}
+        for name in blind_policies
+    ] + [{"domain": "kyverno_validate", "subject": f"{name}/r", "blind": False} for name in covered]
+    return {"subjects": subjects}
+
+
+def test_a_policy_no_manifest_names_is_recorded_as_skipped(tmp_path: Path) -> None:
+    """The join dropped 3 of 18 blind and 29 of 101 covered policies with no trace at all."""
+
+    report = kyverno_mutation.analyze(
+        tmp_path, _pooled_coverage("ghost-policy", covered=("also-absent",)), 25, 8
+    )
+
+    assert report["policies_scored"] == 0
+    reasons = {entry["policy"]: entry["reason"] for entry in report["skipped"]}
+    assert set(reasons) == {"ghost-policy", "also-absent"}
+    assert all("no kyverno-test.yaml names this policy" in reason for reason in reasons.values())
+
+
+def test_a_manifest_stating_no_validate_expectation_is_recorded_not_labelled(
+    tmp_path: Path,
+) -> None:
+    """The grouping variable has to come from the same file as the score, or it is guesswork."""
+
+    directory = tmp_path / "other" / "p"
+    directory.mkdir(parents=True)
+    tests = directory / ".kyverno-test"
+    tests.mkdir()
+    (tests / "kyverno-test.yaml").write_text(
+        "apiVersion: cli.kyverno.io/v1alpha1\nkind: Test\nmetadata:\n  name: p\n"
+        "policies:\n- ../absent.yaml\nresults:\n"
+        "- kind: Pod\n  policy: p\n  rule: r\n  resources:\n  - r0\n  result: pass\n",
+        encoding="utf-8",
+    )
+
+    report = kyverno_mutation.analyze(tmp_path, _pooled_coverage("p"), 25, 8)
+
+    assert report["policies_scored"] == 0
+    ((skipped,),) = (report["skipped"],)
+    assert skipped["policy"] == "p"
+    assert "states no validate expectation" in skipped["reason"]
+
+
+def test_the_report_records_what_was_run_and_over_what(tmp_path: Path) -> None:
+    """Neither mutation artifact recorded its invocation or its corpus, so neither could be
+    re-derived from itself."""
+
+    report = kyverno_mutation.analyze(
+        tmp_path,
+        _pooled_coverage("ghost"),
+        25,
+        8,
+        invocation=["kyverno_mutation.py", "--limit", "8"],
+    )
+
+    assert report["invocation"] == ["kyverno_mutation.py", "--limit", "8"]
+    assert report["corpus"] == []
+    assert "labelled_by_pooled_coverage" in report
+
+
+def test_a_boolean_that_configures_the_run_is_not_a_mutable_guard() -> None:
+    """`BOOLEANS` fired on any `true`/`false` token anywhere on a line.
+
+    48 of the 248 scored Kyverno mutants sat on `background:`, `enabled:` or `message:`,
+    which configure the run or the text it prints rather than what the policy matches.
+    """
+
+    assert _names("  background: false\n") == []
+    assert _names("  enabled: true\n") == []
+    assert _names('    message: "the value must be true"\n') == []
+    assert _names("  policies.kyverno.io/description: this is true anyway\n") == []
+
+
+def test_a_boolean_the_guard_reads_is_still_flipped() -> None:
+    """The refusal direction: tightening must not stop mutating the pattern itself."""
+
+    assert "L1:true->false" in _names("          readOnlyRootFilesystem: true\n")
+    assert "L1:false->true" in _names("        - allowPrivilegeEscalation: false\n")
+    # A Kyverno anchor is part of the pattern key, not a reason to decline it.
+    assert "L1:false->true" in _names("        =(hostNetwork): false\n")
+    assert "L1:true->false" in _names("    X(privileged): true\n")

@@ -17,11 +17,26 @@ predicate's outcome is all the policy can observe.
 That Cedar comes out entirely inside is not a surprise about this corpus. Cedar is designed
 to admit automated reasoning -- it ships an SMT-based analysis tool -- and the fragment is
 one statement of what that design buys.
+
+**What the published row measures, and what it does not.** `discover` walks the 22
+hand-written `.cedar` files the corpus tracks. The same commit also ships
+`corpus-tests.tar.gz`, holding a further 7,497 `.cedar` policies, and until now nothing in
+this adapter, its artifact or the study said so. `discover_archive` reads them, and
+`fragment_membership.py --archive` writes the result to its own artifact. It is deliberately
+*not* what `--wide` walks: the archive is the afl-cmin'd output of a coverage-guided fuzz run
+(`cit/README.md`), so folding it into the Cedar row would make machine-generated input more
+than half of the whole cross-language corpus. Measuring it and labelling it is the honest
+middle; merging it silently is not, and neither was leaving it unmentioned.
 """
 
 from __future__ import annotations
 
+import atexit
+import hashlib
 import re
+import shutil
+import tarfile
+import tempfile
 from pathlib import Path
 
 from fragment_membership import INSIDE, UNDETERMINED, Verdict
@@ -55,7 +70,11 @@ FINITELY_REFINING_CALLS = frozenset(
 FINITELY_REFINING_CONSTRUCTORS = frozenset({"decimal", "ip", "datetime", "duration"})
 
 POLICY_KEYWORD = re.compile(r"\b(?:permit|forbid)\s*\(")
-COMMENT = re.compile(r"//.*")
+# A double-quoted string literal, or a comment. The alternation order matters: a literal is
+# consumed before `//` inside it can start a comment. A bare `//.*` had no string state, so a
+# URL in a string deleted the rest of the physical line -- taking any unrecognised call after
+# it with it, and turning a policy that should be refused into a confident `inside`.
+COMMENT = re.compile(r'("(?:[^"\\]|\\.)*")|//[^\n]*')
 METHOD_CALL = re.compile(r"\.(\w+)\s*\(")
 FREE_CALL = re.compile(r"(?<![.\w])(\w+)\s*\(")
 # `permit`, `forbid`, `if`, `when` and `unless` are syntax rather than calls.
@@ -75,8 +94,68 @@ def discover(root: Path) -> list[tuple[str, Path]]:
     return found
 
 
+def _without_comments(text: str) -> str:
+    return COMMENT.sub(lambda found: found.group(1) or "", text)
+
+
+def discover_archive(root: Path) -> list[tuple[str, Path]]:
+    """The `.cedar` policies sealed inside `corpus-tests.tar.gz`, extracted to a scratch tree.
+
+    The archive is a tracked file of the corpus, so its contents are as pinned as the 22
+    files beside it; they are simply not on disk as files. Members are extracted once per
+    process and removed when it exits.
+    """
+
+    archives = sorted(root.rglob("corpus-tests.tar.gz"))
+    found: list[tuple[str, Path]] = []
+    for archive in archives:
+        workspace = _extracted(archive)
+        for path in sorted(workspace.rglob("*.cedar")):
+            found.append((path.relative_to(workspace).as_posix(), path))
+    return found
+
+
+_EXTRACTED: dict[Path, Path] = {}
+
+
+def _extracted(archive: Path) -> Path:
+    """Where this archive's members were unpacked, unpacking them the first time."""
+
+    if archive in _EXTRACTED:
+        return _EXTRACTED[archive]
+    workspace = Path(tempfile.mkdtemp(prefix="cedar-archive-"))
+    atexit.register(shutil.rmtree, workspace, True)
+    with tarfile.open(archive, "r:gz") as tar:
+        members = [
+            member
+            for member in tar.getmembers()
+            if member.isfile() and member.name.endswith(".cedar")
+        ]
+        tar.extractall(workspace, members=members, filter="data")
+    _EXTRACTED[archive] = workspace
+    return workspace
+
+
+def archive_provenance(root: Path) -> list[dict[str, object]]:
+    """What was read out of each archive, so the artifact names its own source."""
+
+    entries: list[dict[str, object]] = []
+    for archive in sorted(root.rglob("corpus-tests.tar.gz")):
+        digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+        workspace = _extracted(archive)
+        entries.append(
+            {
+                "archive": archive.relative_to(root).as_posix(),
+                "sha256": digest,
+                "bytes": archive.stat().st_size,
+                "cedar_members": sum(1 for _ in workspace.rglob("*.cedar")),
+            }
+        )
+    return entries
+
+
 def classify(text: str) -> Verdict:
-    body = COMMENT.sub("", text)
+    body = _without_comments(text)
     if not POLICY_KEYWORD.search(body):
         return Verdict(UNDETERMINED, "contains no permit or forbid statement")
 

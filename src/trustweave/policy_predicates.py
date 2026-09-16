@@ -175,30 +175,65 @@ def _capabilities_cover(first: tuple[str, ...], later: tuple[str, ...]) -> bool:
 
 
 def _bounds_cover(first: PolicyRule, later: PolicyRule, policy: Policy) -> bool:
-    """Return whether first's declared classification interval contains later's interval."""
+    """Return whether first's classification bound admits everything later's bound admits.
 
-    if not policy.classification_taxonomy:
-        return (
-            first.source_data_classification_at_least is None
-            and first.source_data_classification_at_most is None
-            and later.source_data_classification_at_least is None
-            and later.source_data_classification_at_most is None
-        )
+    Comparing the two intervals was not enough, because the two rules do not range over the
+    same set of values. A rule that states no bound matches *any* classification string:
+    :func:`classification_matches` returns True before it consults the taxonomy at all, and
+    the engine deliberately admits a plainly different vocabulary — ``engine`` refuses only a
+    near miss of a declared taxonomy value, so ``customer-provided`` reaches evaluation. A
+    rule that states a bound, even the full interval, matches only values *inside* the
+    taxonomy. Treating an unbounded rule as the full interval therefore made a bounded rule
+    cover a live ``require_approval`` catch-all, which the review published as unreachable
+    and told the reviewer to delete — turning that path into the default decision.
+
+    So a bounded earlier rule covers a later rule only when the later rule is itself
+    confined to taxonomy values that the earlier interval admits, either by naming an exact
+    set or by stating its own bound.
+    """
+
+    if (
+        first.source_data_classification_at_least is None
+        and first.source_data_classification_at_most is None
+    ):
+        return True
     ranks = {value: index for index, value in enumerate(policy.classification_taxonomy)}
+    if (
+        not ranks
+        or first.source_data_classification_at_least not in {None, *ranks}
+        or first.source_data_classification_at_most not in {None, *ranks}
+    ):
+        # A bound naming a value outside the taxonomy matches nothing, so it proves no
+        # coverage. The parser rejects such a policy; this predicate does not rely on that.
+        return False
     first_lower = (
         ranks[first.source_data_classification_at_least]
         if first.source_data_classification_at_least is not None
-        else 0
-    )
-    later_lower = (
-        ranks[later.source_data_classification_at_least]
-        if later.source_data_classification_at_least is not None
         else 0
     )
     first_upper = (
         ranks[first.source_data_classification_at_most]
         if first.source_data_classification_at_most is not None
         else len(ranks) - 1
+    )
+    if later.source_data_classifications:
+        # The later rule pins its classification to an exact set; any bound it also states
+        # only narrows that set, so admitting every named value admits everything it matches.
+        return all(
+            value in ranks and first_lower <= ranks[value] <= first_upper
+            for value in later.source_data_classifications
+        )
+    if (
+        later.source_data_classification_at_least is None
+        and later.source_data_classification_at_most is None
+    ):
+        # The later rule states no bound and names no set, so it matches classifications the
+        # taxonomy does not contain and the bounded earlier rule matches none of those.
+        return False
+    later_lower = (
+        ranks[later.source_data_classification_at_least]
+        if later.source_data_classification_at_least is not None
+        else 0
     )
     later_upper = (
         ranks[later.source_data_classification_at_most]

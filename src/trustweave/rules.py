@@ -46,7 +46,8 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         "Declared sanitizer coverage is incomplete",
         (
             "A supplied sanitizer does not list coverage for every propagated sensitive "
-            "classification."
+            "classification, on a declared path where a sensitive classification still "
+            "reaches the external action."
         ),
         "Review the sanitizer’s stated coverage and any residual classification.",
     ),
@@ -162,6 +163,20 @@ _RULES: Final[dict[str, RuleDefinition]] = {
             "accepting the change."
         ),
     ),
+    "TW-DIFF-012": RuleDefinition(
+        "TW-DIFF-012",
+        "declared_bundle_difference",
+        "Policy rule gained a required control the policy does not declare",
+        (
+            "A supplied policy-only delta adds a required control that the supplied policy does "
+            "not declare, so the rule can no longer match any declared flow and the decision "
+            "falls through to a later rule or the default decision."
+        ),
+        (
+            "Declare the required control or restore the rule's boundary; review the decision "
+            "the affected paths now receive."
+        ),
+    ),
     "TW-MCP-001": RuleDefinition(
         "TW-MCP-001",
         "pre_recorded_mcp_metadata",
@@ -249,6 +264,20 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         "An earlier supplied rule covers a later rule and specifies the same deterministic "
         "decision.",
         "Remove the later rule or narrow it to express a distinct reviewable policy condition.",
+    ),
+    "TW-POL-010": RuleDefinition(
+        "TW-POL-010",
+        "declared_policy_structure",
+        "Policy rule reachability was not established",
+        (
+            "A supplied rule names more label combinations than the local cover enumeration "
+            "limit, so no collective cover was searched for and its reported reachability is "
+            "not a verdict."
+        ),
+        (
+            "Narrow the rule so its declared combinations can be enumerated, or review its "
+            "first-match reachability by hand; do not treat the unenumerated rule as clear."
+        ),
     ),
     "TW-TRACE-001": RuleDefinition(
         "TW-TRACE-001",

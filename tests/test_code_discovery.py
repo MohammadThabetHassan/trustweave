@@ -1426,6 +1426,57 @@ def test_a_method_on_a_third_party_annotated_parameter_is_refused(tmp_path: Path
     assert "UNRESOLVED_CALLEE" in tools[0].reasons
 
 
+@pytest.mark.parametrize(
+    "annotation",
+    ["git.Repo | None", "Optional[git.Repo]", "list[git.Repo]", '"git.Repo"'],
+    ids=["union", "optional", "container", "quoted"],
+)
+def test_a_wrapped_third_party_annotation_is_still_third_party(
+    tmp_path: Path, annotation: str
+) -> None:
+    """One ` | None` turned the refusal above into a benign high-confidence read.
+
+    The opacity rule read the annotation with `_dotted`, which returns nothing for anything
+    that is not a plain dotted name, so every wrapped spelling of the same type skipped the
+    marking and the git write was published as `read`.
+    """
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import git\n"
+        "from typing import Optional\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        f"def commit(repo: {annotation}, message: str) -> str:\n"
+        '    """Commit."""\n'
+        "    return str(repo.index.commit(message))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].confidence() == "review"
+    assert "UNRESOLVED_CALLEE" in tools[0].reasons
+
+
+def test_a_wrapped_builtin_annotation_stays_benign(tmp_path: Path) -> None:
+    """The control: unwrapping must not make every container parameter opaque."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "from langchain_core.tools import tool\n\n\n"
+        "@tool\n"
+        "def widen(rows: list[str] | None) -> str:\n"
+        '    """Widen rows."""\n'
+        "    return str(rows).strip().ljust(24)\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "read"
+    assert tools[0].reasons == set()
+
+
 def test_a_builtin_annotated_parameter_stays_benign(tmp_path: Path) -> None:
     """Otherwise every pure function that formats a string would be refused."""
 
@@ -1443,8 +1494,14 @@ def test_a_builtin_annotated_parameter_stays_benign(tmp_path: Path) -> None:
     assert tools[0].proposed_action_class() == "read"
 
 
-def test_an_unannotated_parameter_stays_benign(tmp_path: Path) -> None:
-    """Nothing declares it third-party state, so nothing is claimed about it."""
+def test_a_method_on_an_unannotated_parameter_is_refused(tmp_path: Path) -> None:
+    """This was `read` at high confidence with no signal and no reason.
+
+    Nothing declares the parameter third-party state, and nothing declares it benign either:
+    what `mailbox.post(payload)` does is decided entirely by the caller. Answering `read`
+    there made deleting the annotation widen the answer -- the same body with `mailbox:
+    sdk.Mailbox` was already refused -- and cleared the review gate.
+    """
 
     _write(
         tmp_path,
@@ -1458,4 +1515,257 @@ def test_an_unannotated_parameter_stays_benign(tmp_path: Path) -> None:
     )
     tools, _ = analyze_sources(collect_python_sources(tmp_path))
 
-    assert tools[0].proposed_action_class() == "read"
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].confidence() == "review"
+    assert tools[0].reasons == {"UNRESOLVED_CALLEE"}
+
+
+# ---------------------------------------------------------------------------------------
+# The lazy-reviewer loop (audit E-30)
+# ---------------------------------------------------------------------------------------
+
+
+def _set_by_path(document: dict, path: str, value: object) -> None:
+    """Assign one field named by a `manifest.sources[0].description`-style validator path."""
+
+    target: object = document
+    steps = path.removeprefix("manifest.").split(".")
+    for step in steps[:-1]:
+        name, _, index = step.partition("[")
+        assert isinstance(target, dict)
+        target = target[name]
+        if index:
+            assert isinstance(target, list)
+            target = target[int(index.rstrip("]"))]
+    assert isinstance(target, dict)
+    target[steps[-1]] = value
+
+
+def _one_minimal_fix(document: dict, message: str) -> bool:
+    """Apply the single smallest edit that answers exactly the error the parser raised."""
+
+    path = message.split(" ", 1)[0]
+    if "unknown field 'review_required'" in message:
+        document.pop("review_required")
+    elif message == "manifest.flows must contain at least one flow":
+        document["flows"] = [
+            {
+                "source": document["sources"][0]["name"],
+                "tool": document["tools"][0]["name"],
+                "purpose": "Reviewed during the discovery follow-up.",
+            }
+        ]
+    elif "contains duplicate values:" in message:
+        seen: set[str] = set()
+        for index, tool in enumerate(document["tools"]):
+            if tool["name"] in seen:
+                tool["name"] = f"{tool['name']}_{index}"
+            seen.add(tool["name"])
+    elif ".trust must be one of" in message:
+        _set_by_path(document, path, "untrusted")
+    elif ".name must be a lowercase ASCII identifier" in message:
+        _set_by_path(document, path, "reviewed_ingress")
+    elif ".action_class must be one of" in message:
+        _set_by_path(document, path, "read")
+    elif ".capabilities must not be empty" in message:
+        _set_by_path(document, path, ["record.read"])
+    elif "still holds an unresolved REVIEW_REQUIRED placeholder" in message:
+        _set_by_path(document, path, "Resolved by the reviewer during discovery follow-up.")
+    else:
+        return False
+    return True
+
+
+def test_a_lazy_reviewer_loop_cannot_reach_a_passing_scan_with_a_placeholder_left() -> None:
+    """The loop used to park at a passing parse with eight placeholders still in the draft.
+
+    Auditor's probe (agents/repro-placeholder/walk.py), which applied one minimal fix per
+    raised error and printed the validator's own words::
+
+        fixes = [
+            lambda m: m.pop('review_required'),
+            lambda m: m['sources'][0].__setitem__('trust','untrusted'),
+            lambda m: m['sources'][0].__setitem__('name','ingress'),
+            lambda m: m['tools'][0].__setitem__('action_class','write'),
+            lambda m: [t.__setitem__('capabilities',['cap.'+t['name']]) for t in m['tools']],
+            lambda m: m.__setitem__('flows',[{...} for t in m['tools']]),
+        ]
+
+    It reported "PARSED OK after 6 fixes / placeholders remaining: 8", and building a
+    bundle from that manifest left ten REVIEW_REQUIRED strings in the evidence. Every
+    placeholder the loop skipped is a field the parser never read.
+    """
+
+    draft = json.loads(json.dumps(_review()["manifest_draft"]))
+    assert "REVIEW_REQUIRED" in json.dumps(draft), "the draft must still carry placeholders"
+
+    parsed = None
+    for _ in range(500):
+        try:
+            parsed = parse_manifest(draft)
+            break
+        except ValidationError as error:
+            assert _one_minimal_fix(draft, str(error)), f"unhandled refusal: {error}"
+
+    assert parsed is not None, "the loop must still be able to finish once every field is resolved"
+    assert "REVIEW_REQUIRED" not in json.dumps(draft)
+
+
+def test_the_lazy_reviewer_loop_stops_at_the_first_unresolved_placeholder() -> None:
+    """Pins the refusal direction: the parser names the field instead of reading past it."""
+
+    draft = json.loads(json.dumps(_review()["manifest_draft"]))
+    refusals: list[str] = []
+
+    for _ in range(500):
+        try:
+            parse_manifest(draft)
+            break
+        except ValidationError as error:
+            refusals.append(str(error))
+            assert _one_minimal_fix(draft, str(error))
+
+    placeholder_refusals = [
+        message for message in refusals if "unresolved REVIEW_REQUIRED placeholder" in message
+    ]
+    assert placeholder_refusals[0] == (
+        "manifest.sources[0].data_classification still holds an unresolved "
+        "REVIEW_REQUIRED placeholder"
+    )
+    assert placeholder_refusals[-2:] == [
+        "manifest.name still holds an unresolved REVIEW_REQUIRED placeholder",
+        "manifest.description still holds an unresolved REVIEW_REQUIRED placeholder",
+    ]
+    # Every placeholder in the draft is refused by name except the source's own name,
+    # which the identifier grammar already refuses before any free-text check runs.
+    draft_placeholders = json.dumps(_review()["manifest_draft"]).count("REVIEW_REQUIRED")
+    assert len(placeholder_refusals) == draft_placeholders - 1
+
+
+# ---------------------------------------------------------------------------------------
+# The body a tool is analysed from is the one discovery matched, not the one a name finds
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_class_tool_is_analysed_from_its_own_run_body(tmp_path: Path) -> None:
+    """A module function sharing the registered name won, and the shell call was never seen.
+
+    The artifact contradicted itself: `location.line` named the `_run` body while the only
+    signal came from the unrelated helper, and it failed in the understating direction --
+    `os.system` reported as `os.listdir`, `sensitive` published as `read`.
+    """
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "def fetch(url):\n"
+        '    """A helper that merely lists a directory."""\n'
+        "    return os.listdir('/tmp')\n\n\n"
+        "class Fetcher(BaseTool):\n"
+        "    name = 'fetch'\n"
+        "    description = 'Fetch a URL.'\n\n"
+        "    def _run(self, target: str) -> str:\n"
+        '        """Fetch."""\n'
+        "        return str(os.system('curl ' + target))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert [tool.name for tool in tools] == ["fetch"]
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tools[0].signals] == ["os.system"]
+    # The location and the evidence now name the same function: the signal falls inside
+    # the `_run` body the artifact points at, not above it in the module helper.
+    assert tools[0].signals[0].line > tools[0].line
+
+
+def test_a_decorated_method_is_not_shadowed_by_a_module_function(tmp_path: Path) -> None:
+    """`def send` at module level beat the `@tool`-decorated `Mailer.send` it shadows."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import tool\n\n\n"
+        "def send(payload):\n"
+        '    """A helper that merely lists a directory."""\n'
+        "    return os.listdir('/tmp')\n\n\n"
+        "class Mailer:\n"
+        "    @tool\n"
+        "    def send(self, payload: str) -> str:\n"
+        '        """Send."""\n'
+        "        return str(os.system('curl -X POST -d ' + payload))\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tools[0].signals] == ["os.system"]
+
+
+def test_the_analysed_body_does_not_depend_on_declaration_order(tmp_path: Path) -> None:
+    """The `next(...)` fallback's OR predicate let the first name match beat the line match,
+    so two files with identical semantics classified differently."""
+
+    method_first = (
+        "import os\n"
+        "from langchain_core.tools import BaseTool\n\n\n"
+        "class Fetcher(BaseTool):\n"
+        "    name = 'fetch'\n"
+        "    description = 'Fetch a URL.'\n\n"
+        "    def _run(self, target: str) -> str:\n"
+        '        """Fetch."""\n'
+        "        return str(os.system('curl ' + target))\n\n\n"
+        "def fetch(url):\n"
+        '    """A helper."""\n'
+        "    return os.listdir('/tmp')\n"
+    )
+    _write(tmp_path, "agent.py", method_first)
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tools[0].signals] == ["os.system"]
+
+
+def test_a_factory_whose_target_name_is_ambiguous_is_refused(tmp_path: Path) -> None:
+    """A factory is handed a name, not a definition, so this lookup stays -- and when a
+    module function and a method share the name, nothing says which one was passed."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "def rotate_logs():\n"
+        '    """A helper."""\n'
+        "    return os.listdir('/tmp')\n\n\n"
+        "class Rotator:\n"
+        "    def rotate_logs(self):\n"
+        '        """The method."""\n'
+        "        return str(os.system('logrotate -f /etc/logrotate.conf'))\n\n\n"
+        "rotator = StructuredTool.from_function(func=rotate_logs, name='rotate')\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "unknown"
+    assert tools[0].confidence() == "review"
+    assert "BODY_UNAVAILABLE" in tools[0].reasons
+
+
+def test_a_factory_whose_target_name_is_unique_is_still_analysed(tmp_path: Path) -> None:
+    """The control: an unambiguous name must still reach its body."""
+
+    _write(
+        tmp_path,
+        "agent.py",
+        "import os\n"
+        "from langchain_core.tools import StructuredTool\n\n\n"
+        "def rotate_logs():\n"
+        '    """Rotate the logs."""\n'
+        "    return str(os.system('logrotate -f /etc/logrotate.conf'))\n\n\n"
+        "rotator = StructuredTool.from_function(func=rotate_logs, name='rotate')\n",
+    )
+    tools, _ = analyze_sources(collect_python_sources(tmp_path))
+
+    assert tools[0].proposed_action_class() == "sensitive"
+    assert tools[0].reasons == set()

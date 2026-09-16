@@ -8,7 +8,7 @@ The regression suite exercises representative declaration sizes and graph shapes
 
 | Workload | Deterministic assertion | CI budget |
 | --- | --- | --- |
-| Declared flows | Evaluate 10, 1,000, and 50,000 flows using one declared rule | 50,000 flows complete in less than 15 seconds |
+| Declared flows | Evaluate 10, 1,000, and 10,000 flows (the manifest bound) using one declared rule | 10,000 flows complete in less than 15 seconds; a 10,001-flow manifest is refused at the input file |
 | Policy rules | Evaluate first-match decisions across 10 and 1,000 ordered rules | Each decision completes in less than 5 seconds |
 | Chain graphs | Traverse dense diamond and cyclic declarations with explicit path, state, and edge budgets | Review completes in less than 10 seconds and never exceeds `max_paths` |
 | SARIF conversion | Convert 5,000 locally supplied risk findings | Conversion completes in less than 15 seconds; serialized SARIF remains below 10 MiB |

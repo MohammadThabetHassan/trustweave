@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -15,7 +16,9 @@ from trustweave.policy_predicates import (
     capability_pattern_covers,
     classification_matches,
     rule_covers,
+    rule_matches,
 )
+from trustweave.policy_review import review_policy
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "examples" / "support-agent.manifest.json"
@@ -367,3 +370,175 @@ def test_policy_rule_coverage_rejects_missing_later_tool_and_purpose_constraints
         rule("TW-PURPOSE-LATER"),
         policy,
     )
+
+
+_BOUNDS_COVER_PROBE_POLICY: dict[str, object] = {
+    "schema_version": "trustweave.dev/policy/v1alpha2",
+    "name": "bounds-cover-probe",
+    "default_decision": "allow",
+    "classification_taxonomy": ["public", "internal", "confidential", "restricted"],
+    "approval_control": {
+        "mechanism": "human-review-queue",
+        "binds_to": ["actor", "tool", "target", "parameters", "issued_at", "expires_at"],
+        "fail_closed": True,
+    },
+    "rules": [
+        {
+            "id": "TW-BOUNDED-ALLOW",
+            "description": "Allow reads of anything in the declared taxonomy.",
+            "source_trust": ["trusted", "conditional", "untrusted"],
+            "tool_action_classes": ["read", "write", "sensitive", "external"],
+            "source_data_classification_at_least": "public",
+            "source_data_classification_at_most": "restricted",
+            "decision": "allow",
+            "rationale": "Full explicit interval over the declared taxonomy.",
+        },
+        {
+            "id": "TW-APPROVE-REST",
+            "description": "Anything else needs approval.",
+            "source_trust": ["trusted", "conditional", "untrusted"],
+            "tool_action_classes": ["read", "write", "sensitive", "external"],
+            "decision": "require_approval",
+            "rationale": "Catch-all approval rule with no classification bound.",
+        },
+    ],
+}
+
+_BOUNDS_COVER_PROBE_MANIFEST: dict[str, object] = {
+    "schema_version": "trustweave.dev/v1alpha1",
+    "name": "probe-manifest",
+    "description": "Probe manifest for an out-of-taxonomy classification.",
+    "sources": [
+        {
+            "name": "partner-feed",
+            "trust": "conditional",
+            "data_classification": "customer-provided",
+            "description": "Vocabulary the policy does not know.",
+        }
+    ],
+    "tools": [
+        {
+            "name": "payments",
+            "action_class": "sensitive",
+            "capabilities": ["pay.charge"],
+            "description": "Sensitive tool.",
+        }
+    ],
+    "flows": [{"source": "partner-feed", "tool": "payments", "purpose": "charge"}],
+}
+
+
+def test_a_fully_bounded_rule_does_not_shadow_a_live_unbounded_catch_all() -> None:
+    """The review called a firing require_approval catch-all unreachable and told you to delete it.
+
+    The auditor's probe: an earlier allow rule bounded to the whole taxonomy
+    (``public``..``restricted``) followed by an unbounded ``require_approval`` catch-all.
+    ``_bounds_cover`` modelled the unbounded later rule as the same full interval, so the
+    earlier rule "covered" it and the review reported ``reachable: false``,
+    ``shadowed_by: TW-BOUNDED-ALLOW``, ``TW-POL-002`` and ``TW-POL-007`` — while
+    ``evaluate_manifest`` on the same policy decides ``require_approval`` by that very rule,
+    because an unbounded rule admits classifications the taxonomy does not contain.
+    """
+
+    policy = parse_policy(dict(_BOUNDS_COVER_PROBE_POLICY))
+
+    review = review_policy(policy, generated_at="2026-09-15T00:00:00+00:00", include_coverage=True)
+    findings = evaluate_manifest(parse_manifest(dict(_BOUNDS_COVER_PROBE_MANIFEST)), policy)
+
+    assert review["coverage"]["rules"]["TW-APPROVE-REST"] == {
+        "reachable": True,
+        "possible": True,
+        "shadowed_by": None,
+        "shadowed_by_rules": [],
+        "cover_search": "complete",
+        "decision": "require_approval",
+    }
+    assert review["coverage"]["shadowed_rules"] == []
+    assert {finding["id"] for finding in review["findings"]} == {"TW-POL-001", "TW-POL-003"}
+    assert [(finding.decision, finding.rule_id) for finding in findings] == [
+        ("require_approval", "TW-APPROVE-REST")
+    ]
+
+
+def test_a_bounded_rule_still_covers_a_later_rule_pinned_to_classifications_it_admits() -> None:
+    """Pins the refusal direction: the fix must not simply stop reporting bounded coverage.
+
+    A later rule that names an exact classification set inside the earlier interval only ever
+    matches taxonomy values the earlier rule admits, so it is still covered.
+    """
+
+    document = dict(_BOUNDS_COVER_PROBE_POLICY)
+    document["rules"] = [
+        _BOUNDS_COVER_PROBE_POLICY["rules"][0],  # type: ignore[index]
+        {
+            **_BOUNDS_COVER_PROBE_POLICY["rules"][1],  # type: ignore[index]
+            "source_data_classifications": ["internal", "confidential"],
+        },
+    ]
+
+    review = review_policy(
+        parse_policy(document), generated_at="2026-09-15T00:00:00+00:00", include_coverage=True
+    )
+
+    assert review["coverage"]["rules"]["TW-APPROVE-REST"]["reachable"] is False
+    assert review["coverage"]["rules"]["TW-APPROVE-REST"]["shadowed_by"] == "TW-BOUNDED-ALLOW"
+    assert {"TW-POL-002", "TW-POL-007"}.issubset({finding["id"] for finding in review["findings"]})
+
+
+def test_a_bounded_rule_still_covers_a_later_rule_whose_own_interval_it_contains() -> None:
+    """The second in-taxonomy branch: a later rule that states its own bound stays covered.
+
+    ``classification_matches`` refuses every value outside the taxonomy as soon as a rule
+    states any bound, so a later interval inside the earlier one admits nothing new.
+    """
+
+    document = dict(_BOUNDS_COVER_PROBE_POLICY)
+    document["rules"] = [
+        _BOUNDS_COVER_PROBE_POLICY["rules"][0],  # type: ignore[index]
+        {
+            **_BOUNDS_COVER_PROBE_POLICY["rules"][1],  # type: ignore[index]
+            "source_data_classification_at_least": "internal",
+            "source_data_classification_at_most": "confidential",
+        },
+    ]
+
+    review = review_policy(
+        parse_policy(document), generated_at="2026-09-15T00:00:00+00:00", include_coverage=True
+    )
+
+    assert review["coverage"]["rules"]["TW-APPROVE-REST"]["reachable"] is False
+    assert review["coverage"]["rules"]["TW-APPROVE-REST"]["shadowed_by"] == "TW-BOUNDED-ALLOW"
+
+
+def test_the_witness_space_oracle_agrees_with_reported_reachability_on_the_probe() -> None:
+    """Ground truth for the probe, from the independent oracle rather than the same predicates.
+
+    ``scripts/policy_mutation.py`` enumerates one subject witness per equivalence class the
+    policy can distinguish, which is a complete description of its observable behaviour. The
+    old ``_bounds_cover`` said ``TW-APPROVE-REST`` was unreachable while the oracle finds
+    witnesses that reach it, and that disagreement is the defect.
+    """
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import policy_mutation
+
+    document = dict(_BOUNDS_COVER_PROBE_POLICY)
+    policy = parse_policy(document)
+    winners = {
+        next(
+            (rule.id for rule in policy.rules if rule_matches(rule, subject, policy)),
+            None,
+        )
+        for subject in (
+            policy_mutation._subject_of(policy, cell) for cell in policy_mutation.cells(document)
+        )
+    }
+
+    review = review_policy(policy, generated_at="2026-09-15T00:00:00+00:00", include_coverage=True)
+
+    assert "TW-APPROVE-REST" in winners
+    assert {
+        rule_id
+        for rule_id, result in review["coverage"]["rules"].items()
+        if result["reachable"] is True
+    } == {rule_id for rule_id in winners if rule_id is not None}

@@ -29,7 +29,7 @@
       },
       "additionalProperties": false
     },
-    "status": {"enum": ["clear", "review_required"]},
+    "status": {"enum": ["clear", "review_required", "incomplete"]},
     "stages": {
       "type": "array",
       "minItems": 1,

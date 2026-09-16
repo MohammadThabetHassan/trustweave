@@ -201,6 +201,54 @@ def test_a_path_read_method_is_recorded_as_a_read(tmp_path: Path, method: str) -
     assert tool.proposed_action_class() == "read"
 
 
+def _archive_source(receiver: str, method: str) -> str:
+    """A tool holding one catalogued archive handle and calling one method on it."""
+
+    return (
+        f"{TOOL_IMPORT}\n"
+        f"import {receiver.split('.')[0]}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(value: str) -> str:\n"
+        '    """Probe one catalogued archive method."""\n'
+        f"    bundle = {receiver}(value)\n"
+        f"    bundle.{method}(value)\n"
+        "    return value\n"
+    )
+
+
+@pytest.mark.parametrize("receiver", sorted(catalog.ARCHIVE_RECEIVERS))
+@pytest.mark.parametrize("method", sorted(catalog.ARCHIVE_WRITE_METHODS))
+def test_an_archive_write_method_is_recorded_as_a_write(
+    tmp_path: Path, receiver: str, method: str
+) -> None:
+    """Extraction and addition both write files the caller did not name."""
+
+    tool = _single_tool(tmp_path, _archive_source(receiver, method))
+    signal = _signal_for(tool, f"{receiver}.{method}")
+
+    assert signal.action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+@pytest.mark.parametrize("receiver", sorted(catalog.ARCHIVE_RECEIVERS))
+@pytest.mark.parametrize("method", sorted(catalog.ARCHIVE_READ_METHODS))
+def test_an_archive_read_method_is_recorded_as_a_read(
+    tmp_path: Path, receiver: str, method: str
+) -> None:
+    tool = _single_tool(tmp_path, _archive_source(receiver, method))
+    signal = _signal_for(tool, f"{receiver}.{method}")
+
+    assert signal.action_class == "read"
+    assert tool.proposed_action_class() == "read"
+
+
+def test_the_archive_method_tables_do_not_overlap() -> None:
+    """A method must yield one class, so a member of both would decide by branch order."""
+
+    assert not (catalog.ARCHIVE_WRITE_METHODS & catalog.ARCHIVE_READ_METHODS)
+
+
 # ---------------------------------------------------------------------------------------
 # Token tables: the argument decides the class, not the callee alone
 # ---------------------------------------------------------------------------------------
@@ -495,3 +543,117 @@ def test_every_refusal_carries_a_reason_across_the_whole_benchmark() -> None:
                 assert reason in _REASON_MESSAGES, f"{case['id']}: {reason} has no message"
 
     assert unexplained == [], f"unknown with no reason: {unexplained}"
+
+
+def test_a_data_modifying_cte_is_recorded_as_a_write(tmp_path: Path) -> None:
+    """`WITH ... DELETE` was an affirmative read signal, which no refusal can demote.
+
+    Positive wrong evidence is worse than silence here: the reviewer is shown a `read`
+    proposal backed by a symbol, and a correct `write` declaration is argued down.
+    """
+
+    statement = "WITH stale AS (SELECT id FROM events) DELETE FROM events WHERE id IN stale"
+    tool = _single_tool(tmp_path, _sql_source(statement))
+    signal = _signal_for(tool, "write_sql_statement")
+
+    assert signal.action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_cte_whose_write_is_inside_the_parentheses_is_still_a_write(tmp_path: Path) -> None:
+    """PostgreSQL puts the DELETE in the CTE list, so reading past it is not enough."""
+
+    statement = "WITH gone AS (DELETE FROM events RETURNING id) SELECT count(*) FROM gone"
+    tool = _single_tool(tmp_path, _sql_source(statement))
+
+    assert _signal_for(tool, "write_sql_statement").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_read_only_cte_is_still_a_read(tmp_path: Path) -> None:
+    """The control: a CTE that only selects must keep its positive read classification."""
+
+    statement = "WITH recent AS (SELECT id FROM events) SELECT * FROM recent"
+    tool = _single_tool(tmp_path, _sql_source(statement))
+
+    assert _signal_for(tool, "read_sql_statement").action_class == "read"
+    assert tool.proposed_action_class() == "read"
+
+
+def test_a_write_verb_used_as_a_function_does_not_make_a_cte_a_write(tmp_path: Path) -> None:
+    """`REPLACE(col, ...)` is a string function, not a statement."""
+
+    statement = "WITH clean AS (SELECT REPLACE(name, 'a', 'b') FROM events) SELECT * FROM clean"
+    tool = _single_tool(tmp_path, _sql_source(statement))
+
+    assert _signal_for(tool, "read_sql_statement").action_class == "read"
+
+
+def test_executescript_is_a_recognised_execute_method(tmp_path: Path) -> None:
+    """`conn.executescript("DROP TABLE events;")` matched nothing and fell to the read floor."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(cursor) -> str:\n"
+        '    """Probe a script."""\n'
+        '    cursor.executescript("DROP TABLE events;")\n'
+        "    return 'ok'\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "write_sql_statement").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_script_of_reads_stays_a_read(tmp_path: Path) -> None:
+    """Every statement is judged, so a script that only selects is not promoted."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(cursor) -> str:\n"
+        '    """Probe a read-only script."""\n'
+        '    cursor.executescript("SELECT 1; SELECT 2;")\n'
+        "    return 'ok'\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "read_sql_statement").action_class == "read"
+
+
+def test_a_script_whose_last_statement_writes_is_a_write(tmp_path: Path) -> None:
+    """Any write in any statement of the script decides the class."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(cursor) -> str:\n"
+        '    """Probe a mixed script."""\n'
+        '    cursor.executescript("SELECT 1; DELETE FROM events;")\n'
+        "    return 'ok'\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "write_sql_statement").action_class == "write"
+
+
+def test_the_whole_os_process_launch_family_is_catalogued() -> None:
+    """Nine of eighteen members were catalogued, with nothing to tell them apart.
+
+    The family is enumerated from the running interpreter rather than written down here,
+    because its membership is platform-dependent: `posix_spawnp` exists only on POSIX.
+    """
+
+    import os
+
+    family = {
+        f"os.{name}"
+        for name in dir(os)
+        if name.startswith(("exec", "spawn", "posix_spawn")) and callable(getattr(os, name))
+    }
+
+    assert family <= catalog.SENSITIVE_SYMBOLS, sorted(family - catalog.SENSITIVE_SYMBOLS)

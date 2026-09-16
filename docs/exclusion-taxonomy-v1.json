@@ -1,16 +1,16 @@
 {
-  "artifacts_considered": 7006,
-  "artifacts_inside": 5186,
+  "artifacts_considered": 7008,
+  "artifacts_inside": 5175,
   "corpora": 8,
-  "exclusions": 1763,
+  "exclusions": 1790,
   "exclusions_by_kind": {
-    "not a policy": 902,
+    "not a policy": 916,
     "reads evaluation-time state": 20,
-    "the subject does not determine the guard": 841
+    "the subject does not determine the guard": 854
   },
   "exclusions_unclassified": {},
-  "policies_considered": 6104,
-  "policy_schemas": 902,
+  "policies_considered": 6092,
+  "policy_schemas": 916,
   "rows": [
     {
       "artifact": "fragment-membership-iam-wide-v1",
@@ -26,39 +26,39 @@
       "artifact": "fragment-membership-azure-wide-v1",
       "corpus": "Azure Policy",
       "exclusions_by_kind": {
-        "not a policy": 841,
+        "not a policy": 855,
         "reads evaluation-time state": 4,
-        "the subject does not determine the guard": 717
+        "the subject does not determine the guard": 730
       },
-      "inside": 2150,
-      "outside": 1562,
+      "inside": 2137,
+      "outside": 1589,
       "policies_considered": 3769,
-      "share_inside": 0.5704,
-      "undetermined": 57
+      "share_inside": 0.567,
+      "undetermined": 43
     },
     {
       "artifact": "fragment-membership-xacml-wide-v1",
       "corpus": "XACML",
       "exclusions_by_kind": {
         "reads evaluation-time state": 15,
-        "the subject does not determine the guard": 41
+        "the subject does not determine the guard": 39
       },
-      "inside": 951,
-      "outside": 56,
+      "inside": 953,
+      "outside": 54,
       "policies_considered": 1007,
-      "share_inside": 0.9444,
+      "share_inside": 0.9464,
       "undetermined": 0
     },
     {
       "artifact": "fragment-membership-kyverno-wide-v1",
       "corpus": "Kyverno (vendor)",
       "exclusions_by_kind": {
-        "the subject does not determine the guard": 29
+        "the subject does not determine the guard": 31
       },
       "inside": 206,
-      "outside": 29,
-      "policies_considered": 235,
-      "share_inside": 0.8766,
+      "outside": 31,
+      "policies_considered": 237,
+      "share_inside": 0.8692,
       "undetermined": 0
     },
     {
@@ -111,6 +111,6 @@
     }
   ],
   "schema_version": "v1",
-  "share_inside_of_policies": 0.8496,
+  "share_inside_of_policies": 0.8495,
   "taxonomy_is_exhaustive": true
 }

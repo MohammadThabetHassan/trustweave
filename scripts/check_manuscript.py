@@ -402,7 +402,19 @@ def numeric_claims(docs: Path) -> list[Claim]:
 
     # Google's library, under the same criterion as Gatekeeper's.
     gcp = _load(docs, "fragment-membership-rego-gcp-v1")
-    gcp_schemas = sum("policy schema" in entry["reason"] for entry in gcp["policies"])
+    # The taxonomy counts a schema as not a policy whatever else is true of it, so this has to
+    # read every reason and not just the reported one. Reading `reason` alone counted 31 where
+    # `exclusion_taxonomy.kind_of()` counts 33 -- the two templates that are schemas and also
+    # read the clock -- so the guard pinned the paragraph to one convention and the taxonomy
+    # total in the same run to the other.
+    gcp_schemas = sum(
+        any("policy schema" in reason for reason in (entry.get("reasons") or [entry["reason"]]))
+        for entry in gcp["policies"]
+    )
+    # The instantiation claim is narrower than the schema count and has to stay pinned to its
+    # own set: it was checked against the templates whose only obstruction is the missing
+    # binding, and a sample Constraint would not rescue the two that also read the clock.
+    gcp_schemas_reported = sum("policy schema" in entry["reason"] for entry in gcp["policies"])
     gcp_clock = sum("time.now_ns" in entry["reason"] for entry in gcp["policies"])
     gcp_inside = [entry for entry in gcp["policies"] if entry["verdict"] == "inside"]
     gcp_complete = sum(
@@ -441,12 +453,12 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
         (
             r"instantiating every one of the (\d+)",
-            (str(gcp_schemas),),
+            (str(gcp_schemas_reported),),
             "gcp: schemas with a sample constraint",
         ),
         (
             r"all (\d+) Config Validator templates a sample Constraint",
-            (str(gcp_schemas),),
+            (str(gcp_schemas_reported),),
             "gcp: schemas restated in the taxonomy discussion",
         ),
     ]
@@ -800,42 +812,10 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
     ]
 
-    cost = _load(docs, "coverage-cost-v1")
-    azure_cost, iam_cost = cost["azure"], cost["iam"]
-    claims += [
-        (
-            rf"two guards and at most ({_GROUPED}) cells",
-            (_grouped(azure_cost["median_cells"]),),
-            "coverage cost: azure median cells",
-        ),
-        (
-            rf"the median is ({_GROUPED}) cells",
-            (_grouped(iam_cost["median_cells"]),),
-            "coverage cost: iam median cells",
-        ),
-        (
-            r"(\d+\.\d)\\% of them need at most eight",
-            (f"{100 * azure_cost['share_at_most']['8']:.1f}",),
-            "coverage cost: azure share at most eight",
-        ),
-        (
-            rf"and (\d+) of ({_GROUPED}) have a quotient too large",
-            (
-                str(azure_cost["at_or_above_intractable"]),
-                _grouped(azure_cost["policies"]),
-            ),
-            "coverage cost: azure intractable",
-        ),
-        (
-            rf"(\d+\.\d)\\% need at most 64, with (\d+) of ({_GROUPED}) out of reach",
-            (
-                f"{100 * iam_cost['share_at_most']['64']:.1f}",
-                str(iam_cost["at_or_above_intractable"]),
-                _grouped(iam_cost["policies"]),
-            ),
-            "coverage cost: iam share and intractable",
-        ),
-    ]
+    # No coverage-cost claims are pinned. `docs/coverage-cost-v1.json` carries an
+    # `invalidated` block: its distribution rested on a guard grouping that under-counted
+    # set-membership operators, so a guard that held the manuscript to those numbers would be
+    # certifying a withdrawn measurement rather than checking one.
 
     witness = _load(docs, "witness-space-verification-v1")
     claims.append(
@@ -861,6 +841,52 @@ def numeric_claims(docs: Path) -> list[Claim]:
             r"a chain of three gives (\d+) and (\d+)",
             (str(chain["candidate_signatures"]), str(chain["achievable_by_solver"])),
             "chained patterns: candidates and achievable",
+        ),
+        (
+            r"the criterion agrees with the solver on all (\d+) cases",
+            (str(witness["cases_where_the_criterion_agrees_with_the_solver"]),),
+            "witness criterion: cases agreeing with the solver",
+        ),
+    ]
+
+    kyverno_oracle = _load(docs, "oracle-kyverno-v1")
+    assert kyverno_oracle["disagreements"] == 0
+    kyverno_dynamic = kyverno_oracle["dynamic"]
+    claims += [
+        (
+            r"every one of the (\d+)\s*policies in Table~\\ref\{tab:membership\}'s Kyverno row",
+            (str(kyverno_oracle["policies"]),),
+            "kyverno oracle: policies judged",
+        ),
+        (
+            rf"identical\s*outcomes: all (\d+) do, over ({_GROUPED}) tests",
+            (
+                str(kyverno_dynamic["inside_policies_invariant_under_injected_labels"]),
+                _grouped(kyverno_dynamic["tests_compared"]),
+            ),
+            "kyverno oracle: inside policies invariant and tests compared",
+        ),
+        (
+            r"for the (\d+) outside policies whose suites stub\s*external data",
+            (str(kyverno_oracle["static"]["outside_policies_whose_suite_stubs_external_data"]),),
+            "kyverno oracle: outside policies with stubs",
+        ),
+        (
+            r"stubs kept: (\d+) change outcome, .*? and (\d+) do not",
+            (
+                str(
+                    kyverno_dynamic[
+                        "outside_policies_whose_outcomes_changed_when_stubs_were_removed"
+                    ]
+                ),
+                str(kyverno_dynamic["outside_policies_unchanged_when_stubs_were_removed"]),
+            ),
+            "kyverno oracle: outside policies changed and unchanged under stub removal",
+        ),
+        (
+            r"disagrees with the adapter on none of the (\d+)\.",
+            (str(kyverno_oracle["policies"]),),
+            "kyverno oracle: no disagreement",
         ),
     ]
 
@@ -1178,20 +1204,7 @@ def figure_findings(tex: str, docs: Path) -> list[str]:
                 f"{len(expected)}"
             )
 
-    cost = _load(docs, "coverage-cost-v1")
-    cost_plotted = _plots(tex, "fig:cost")
-    if not cost_plotted:
-        problems.append("the cost figure states no data, or its label has moved")
-    else:
-        for ecosystem, got in zip(("azure", "iam"), cost_plotted, strict=False):
-            shares = cost[ecosystem]["share_at_most"]
-            want = [(str(cells), f"{shares[cells]:g}") for cells in sorted(shares, key=int)]
-            have = [(cells, share) for cells, share in got]
-            if have != want:
-                problems.append(
-                    f"cost figure, {ecosystem} series: the manuscript plots {have} where "
-                    f"docs/coverage-cost-v1.json gives {want}"
-                )
+    # `fig:cost` is not checked, for the reason recorded beside the withdrawn cost claims.
     return problems
 
 
