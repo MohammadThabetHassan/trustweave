@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from trustweave.bundles import validate_bundle
+from trustweave.bundles import validate_bundle, validate_test_results
 from trustweave.commands._shared import (
     ATTESTATION_FILE,
     BUNDLE_FILE,
@@ -105,8 +105,12 @@ def handle(args: argparse.Namespace, generated_at: str) -> tuple[str, int]:
     if args.command == "attest":
         # Hashing binds bytes to bytes. It cannot tell that a finding was edited from
         # deny to allow, so re-derive the bundle's findings from the manifest and policy
-        # it carries before signing anything over it.
-        validate_bundle(read_json(args.output_dir / BUNDLE_FILE), "bundle")
+        # it carries before signing anything over it. The attestation covers a second
+        # subject, and the same reasoning applies to it: re-derive the recorded scenario
+        # decisions from the policy the bundle already embeds.
+        bundle = read_json(args.output_dir / BUNDLE_FILE)
+        validate_bundle(bundle, "bundle")
+        validate_test_results(bundle, read_json(args.output_dir / TEST_RESULTS_FILE))
         attestation = build_attestation(
             args.output_dir / BUNDLE_FILE,
             args.output_dir / TEST_RESULTS_FILE,

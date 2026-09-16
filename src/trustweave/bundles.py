@@ -24,6 +24,7 @@ from trustweave.models import (
 BUNDLE_SCHEMA_V1ALPHA1 = "trustweave.dev/bundle/v1alpha1"
 BUNDLE_SCHEMA_V1ALPHA2 = "trustweave.dev/bundle/v1alpha2"
 SUPPORTED_BUNDLE_SCHEMA_VERSIONS = frozenset({BUNDLE_SCHEMA_V1ALPHA1, BUNDLE_SCHEMA_V1ALPHA2})
+TEST_RESULTS_SCHEMA_VERSION = "trustweave.dev/test-results/v1alpha1"
 MAX_BUNDLE_FINDINGS = 10_000
 MAX_BUNDLE_LIMITS = 32
 
@@ -400,3 +401,136 @@ def validate_bundle(document: Mapping[str, Any], label: str = "bundle") -> None:
         return
     supported = ", ".join(sorted(SUPPORTED_BUNDLE_SCHEMA_VERSIONS))
     raise ValidationError(f"{label}.schema_version must be one of: {supported}")
+
+
+def _embedded_policy(bundle: Mapping[str, Any], label: str) -> Policy:
+    """Return the policy a supported local bundle carries, at either published version."""
+
+    if _text(bundle.get("schema_version"), f"{label}.schema_version") == BUNDLE_SCHEMA_V1ALPHA1:
+        return _parse_legacy_policy(bundle.get("policy"), f"{label}.policy")
+    return _parse_bundle_policy(bundle.get("policy"), f"{label}.policy")
+
+
+def _recorded_scenario_decision(recorded: Mapping[str, Any], policy: Policy, path: str) -> str:
+    """Re-run one recorded scenario input through the bundle's own policy."""
+
+    # Imported lazily for the same reason _validate_current_bundle does it: engine reads
+    # this module's schema-version constant while initializing.
+    from trustweave.engine import decision_for_scenario
+
+    reject_unknown_fields(
+        recorded,
+        {
+            "source_trust",
+            "tool_action_class",
+            "source_data_classification",
+            "tool_capabilities",
+            "source_identifier",
+            "tool_identifier",
+            "purpose_tag",
+        },
+        path,
+    )
+    capabilities = tuple(
+        _text(value, f"{path}.tool_capabilities")
+        for value in _sequence(recorded.get("tool_capabilities", []), f"{path}.tool_capabilities")
+    )
+    classification = recorded.get("source_data_classification")
+    decision, _rule_id = decision_for_scenario(
+        policy,
+        _text(recorded.get("source_trust"), f"{path}.source_trust"),
+        _text(recorded.get("tool_action_class"), f"{path}.tool_action_class"),
+        _text(classification, f"{path}.source_data_classification")
+        if classification is not None
+        else None,
+        capabilities,
+        _text(recorded.get("source_identifier"), f"{path}.source_identifier")
+        if "source_identifier" in recorded
+        else "synthetic-source",
+        _text(recorded.get("tool_identifier"), f"{path}.tool_identifier")
+        if "tool_identifier" in recorded
+        else "synthetic-tool",
+        _text(recorded.get("purpose_tag"), f"{path}.purpose_tag")
+        if "purpose_tag" in recorded
+        else "synthetic",
+    )
+    return decision
+
+
+def validate_test_results(
+    bundle: Mapping[str, Any], document: Mapping[str, Any], label: str = "test_results"
+) -> None:
+    """Re-derive a supplied test-results file from the policy its bundle already carries.
+
+    attest applies exactly this reasoning to the bundle and stopped there: hashing binds
+    bytes to bytes, so it cannot tell that a result was edited from failed to passed. A
+    genuine failing run hand-edited to {"failed": 0, "passed": 5, "status": "passed"}
+    attested, verified and rendered as passed. Nothing else in the package read this
+    document at all, so a file replaced with {"hello": "world"} attested at exit 0.
+
+    Three checks, in increasing strength. Each result's status must follow from its own
+    expected and observed decision; the summary must be the arithmetic of the results;
+    and every recorded input, re-run against the bundle's embedded policy, must produce
+    the decision the file records. The third also catches the non-adversarial case the
+    audit called the likelier one: a stale test-results file beside a policy that has
+    since changed under the same name.
+    """
+
+    results_document = _mapping(document, label)
+    schema_version = _text(results_document.get("schema_version"), f"{label}.schema_version")
+    if schema_version != TEST_RESULTS_SCHEMA_VERSION:
+        raise ValidationError(f"{label}.schema_version must be {TEST_RESULTS_SCHEMA_VERSION}")
+    policy = _embedded_policy(bundle, "bundle")
+    recorded_policy = _text(results_document.get("policy"), f"{label}.policy")
+    if recorded_policy != policy.name:
+        raise ValidationError(
+            f"{label}.policy {recorded_policy!r} does not name the policy the bundle "
+            f"carries ({policy.name!r})"
+        )
+
+    results = _sequence(results_document.get("results"), f"{label}.results")
+    if not results or len(results) > MAX_BUNDLE_FINDINGS:
+        raise ValidationError(
+            f"{label}.results must contain between 1 and {MAX_BUNDLE_FINDINGS} entries"
+        )
+    passed = 0
+    for index, raw_result in enumerate(results):
+        path = f"{label}.results[{index}]"
+        result = _mapping(raw_result, path)
+        identifier = _text(result.get("id"), f"{path}.id")
+        expected = _text(result.get("expected_decision"), f"{path}.expected_decision")
+        observed = _text(result.get("observed_decision"), f"{path}.observed_decision")
+        for decision, field in ((expected, "expected_decision"), (observed, "observed_decision")):
+            if decision not in VALID_DECISIONS:
+                raise ValidationError(f"{path}.{field} must be one of {sorted(VALID_DECISIONS)}")
+        status = _text(result.get("status"), f"{path}.status")
+        derived_status = "passed" if observed == expected else "failed"
+        if status != derived_status:
+            raise ValidationError(
+                f"{path}.status records {status!r} for scenario {identifier}, but expected "
+                f"{expected!r} against observed {observed!r} is {derived_status!r}"
+            )
+        fresh = _recorded_scenario_decision(
+            _mapping(result.get("input"), f"{path}.input"), policy, f"{path}.input"
+        )
+        if fresh != observed:
+            raise ValidationError(
+                f"{path}.observed_decision records {observed!r} for scenario {identifier}, "
+                f"but the bundle's policy decides {fresh!r} on the recorded input"
+            )
+        passed += status == "passed"
+
+    summary = _mapping(results_document.get("summary"), f"{label}.summary")
+    reject_unknown_fields(summary, {"total", "passed", "failed", "status"}, f"{label}.summary")
+    expected_summary = {
+        "total": len(results),
+        "passed": passed,
+        "failed": len(results) - passed,
+        "status": "passed" if passed == len(results) else "failed",
+    }
+    for field, value in expected_summary.items():
+        if summary.get(field) != value:
+            raise ValidationError(
+                f"{label}.summary.{field} records {summary.get(field)!r}, but the recorded "
+                f"results give {value!r}"
+            )
