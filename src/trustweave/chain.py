@@ -5,9 +5,11 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from difflib import get_close_matches
 from typing import Any
 
 from trustweave.models import (
+    DEFAULT_CLASSIFICATION_TAXONOMY,
     ValidationError,
     contains_control_characters,
     reject_unknown_fields,
@@ -24,6 +26,7 @@ CHAIN_REVIEW_SCHEMA_VERSION = "trustweave.dev/chain-review/v1alpha1"
 VALID_NODE_KINDS = frozenset({"source", "data", "tool", "sink", "sanitizer", "approval"})
 VALID_ACTION_CLASSES = frozenset({"read", "write", "sensitive", "external"})
 SENSITIVE_CLASSIFICATIONS = frozenset({"confidential", "restricted"})
+MAX_CLASSIFICATION_TAXONOMY = 32
 
 
 @dataclass(frozen=True)
@@ -71,16 +74,120 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
     return value
 
 
+@dataclass(frozen=True)
+class ChainVocabulary:
+    """The classification vocabulary one declared graph is reviewed against."""
+
+    taxonomy: tuple[str, ...]
+    sensitive: frozenset[str]
+
+
+def _declared_list(root: Mapping[str, Any], field: str) -> tuple[str, ...] | None:
+    """Read one optional bounded classification list from a chain manifest root."""
+
+    if field not in root:
+        return None
+    path = f"chain_manifest.{field}"
+    values = _sequence(root[field], path)
+    if not values:
+        raise ValidationError(f"{path} must not be empty")
+    if len(values) > MAX_CLASSIFICATION_TAXONOMY:
+        raise ValidationError(f"{path} must contain at most {MAX_CLASSIFICATION_TAXONOMY} entries")
+    declared = tuple(_text(value, path) for value in values)
+    if len(set(declared)) != len(declared):
+        raise ValidationError(f"{path} must not contain duplicate classifications")
+    return declared
+
+
+def _parse_vocabulary(root: Mapping[str, Any]) -> ChainVocabulary:
+    """Resolve which declared classifications this graph treats as sensitive.
+
+    The analyzer used to carry the pair {"confidential", "restricted"} as a module
+    constant, so a site whose own vocabulary says "pii" or "regulated" could not make
+    chain-check see its data as sensitive by any configuration at all: the review found
+    nothing, exited 0 and said so in plain language. A graph may now declare the taxonomy
+    it is written in, and which of those terms propagate. Both fields are optional, so
+    every chain manifest written against v1alpha1 keeps its meaning.
+    """
+
+    taxonomy = _declared_list(root, "classification_taxonomy") or DEFAULT_CLASSIFICATION_TAXONOMY
+    declared_sensitive = _declared_list(root, "sensitive_classifications")
+    if declared_sensitive is None:
+        sensitive = tuple(value for value in taxonomy if value in SENSITIVE_CLASSIFICATIONS)
+        if not sensitive:
+            # Guessing which term in an unfamiliar taxonomy is the sensitive one would be
+            # inventing the finding or inventing the silence. Ask instead.
+            raise ValidationError(
+                "chain_manifest.classification_taxonomy declares no classification this "
+                "review treats as sensitive; declare chain_manifest.sensitive_classifications"
+            )
+        return ChainVocabulary(taxonomy, frozenset(sensitive))
+    unknown = sorted(set(declared_sensitive) - set(taxonomy))
+    if unknown:
+        raise ValidationError(
+            "chain_manifest.sensitive_classifications must name classifications from "
+            f"chain_manifest.classification_taxonomy: {', '.join(unknown)}"
+        )
+    return ChainVocabulary(taxonomy, frozenset(declared_sensitive))
+
+
+def _check_declared_classification(
+    value: str, path: str, vocabulary: ChainVocabulary, warnings: list[str]
+) -> None:
+    """Refuse a near miss of a declared classification and report an unrecognised one.
+
+    Propagation compares exact strings, so "Restricted" against a taxonomy holding
+    "restricted" propagates nothing: no finding, exit 0, and a report stating that no
+    reviewer-facing findings were produced. This is the failure engine's near-miss guard
+    was written to refuse on the policy path, and it is refused here for the same reason.
+    A plainly different term is descriptive metadata the graph may simply not treat as
+    sensitive, so it is reported as a warning rather than refused.
+    """
+
+    if value in vocabulary.taxonomy:
+        return
+    folded = {entry.casefold(): entry for entry in vocabulary.taxonomy}
+    match = folded.get(value.casefold())
+    if match is None:
+        close = get_close_matches(value.casefold(), list(folded), n=1, cutoff=0.85)
+        match = folded[close[0]] if close else None
+    if match is not None:
+        raise ValidationError(
+            f"{path} declares a classification the review will not match: {value!r} looks "
+            f"like {match!r}. Classification propagation compares exact strings, so this "
+            "would silently propagate nothing. Correct the declaration, or name the value "
+            "in chain_manifest.classification_taxonomy."
+        )
+    warnings.append(
+        f"Declared classification {value!r} is not named in the chain manifest's "
+        "classification taxonomy, so it propagates nothing. Add it to "
+        "classification_taxonomy, and to sensitive_classifications if it should propagate."
+    )
+
+
 def _parse_chain_manifest(
     document: Mapping[str, Any],
-) -> tuple[dict[str, ChainNode], dict[str, tuple[str, ...]]]:
+) -> tuple[dict[str, ChainNode], dict[str, tuple[str, ...]], ChainVocabulary, tuple[str, ...]]:
     root = _mapping(document, "chain_manifest")
-    reject_unknown_fields(root, {"schema_version", "name", "nodes", "edges"}, "chain_manifest")
+    reject_unknown_fields(
+        root,
+        {
+            "schema_version",
+            "name",
+            "nodes",
+            "edges",
+            "classification_taxonomy",
+            "sensitive_classifications",
+        },
+        "chain_manifest",
+    )
     if root.get("schema_version") != CHAIN_MANIFEST_SCHEMA_VERSION:
         raise ValidationError(
             f"chain_manifest.schema_version must be {CHAIN_MANIFEST_SCHEMA_VERSION}"
         )
     _text(root.get("name"), "chain_manifest.name")
+    vocabulary = _parse_vocabulary(root)
+    warnings: list[str] = []
     nodes: dict[str, ChainNode] = {}
     for index, raw_node in enumerate(_sequence(root.get("nodes"), "chain_manifest.nodes")):
         path = f"chain_manifest.nodes[{index}]"
@@ -120,6 +227,9 @@ def _parse_chain_manifest(
         classification = node.get("classification")
         if classification is not None:
             classification = _text(classification, f"{path}.classification")
+            _check_declared_classification(
+                classification, f"{path}.classification", vocabulary, warnings
+            )
         action_class = node.get("action_class")
         if action_class is not None and action_class not in VALID_ACTION_CLASSES:
             raise ValidationError(
@@ -134,6 +244,10 @@ def _parse_chain_manifest(
                 node.get("covers_classifications", []), f"{path}.covers_classifications"
             )
         )
+        for value in covers:
+            _check_declared_classification(
+                value, f"{path}.covers_classifications", vocabulary, warnings
+            )
         if kind == "source" and trust is None:
             raise ValidationError(f"{path}.trust is required for source nodes")
         if kind == "data" and classification is None:
@@ -169,7 +283,12 @@ def _parse_chain_manifest(
         if origin not in nodes or target not in nodes:
             raise ValidationError(f"{path} references an unknown declared node")
         edges[origin].add(target)
-    return nodes, {node: tuple(sorted(targets)) for node, targets in edges.items()}
+    return (
+        nodes,
+        {node: tuple(sorted(targets)) for node, targets in edges.items()},
+        vocabulary,
+        tuple(sorted(set(warnings))),
+    )
 
 
 def _finding(
@@ -200,13 +319,15 @@ def _finding(
     )
 
 
-def _advance_state(state: _TraversalState, node: ChainNode) -> _TraversalState:
+def _advance_state(
+    state: _TraversalState, node: ChainNode, sensitive: frozenset[str]
+) -> _TraversalState:
     """Apply the next declared node's static contract to a local traversal state."""
 
     classifications = state.classifications
     approved_classifications = state.approved_classifications
     incomplete_sanitizers = state.incomplete_sanitizers
-    if node.classification in SENSITIVE_CLASSIFICATIONS:
+    if node.classification in sensitive:
         classifications = classifications | {node.classification}
     if node.kind == "approval" and node.fail_closed is True and classifications:
         approved_classifications = classifications
@@ -247,10 +368,11 @@ def review_declared_chains(
     }
     if any(value < 1 for value in budgets.values()):
         raise ValidationError("chain analysis budgets must be positive")
-    nodes, edges = _parse_chain_manifest(document)
+    nodes, edges, vocabulary, warnings = _parse_chain_manifest(document)
     findings: list[dict[str, Any]] = []
     terminals: dict[tuple[str, ...], _TraversalState] = {}
     budget_name: str | None = "max_nodes" if len(nodes) > max_nodes else None
+    depth_truncated = False
     edges_traversed = 0
     states_explored = 0
     if budget_name is None:
@@ -271,7 +393,7 @@ def review_declared_chains(
         while stack and budget_name is None:
             state = stack.pop()
             node = nodes[state.node]
-            state = _advance_state(state, node)
+            state = _advance_state(state, node, vocabulary.sensitive)
             identity = (
                 state.node,
                 state.path,
@@ -291,11 +413,26 @@ def review_declared_chains(
                     budget_name = "max_paths"
                     break
                 terminals[state.path] = state
+            # An external node is an output boundary, not the end of the declared graph:
+            # the product's own discovery catalog classifies data-returning fetches as
+            # external, so refusing to walk out of one hid every classification the call
+            # brings back. The path is recorded as a terminal here and the walk continues.
+            # A successor already on this path would only re-enumerate a cycle, so the
+            # simple-path guard below is what keeps the traversal finite now that the
+            # external stop no longer does it.
+            successors = tuple(
+                target for target in edges.get(state.node, ()) if target not in state.path
+            )
+            if not successors:
                 continue
-            for target in reversed(edges.get(state.node, ())):
-                if len(state.path) >= max_depth:
-                    budget_name = "max_depth"
-                    break
+            if len(state.path) >= max_depth:
+                # max_depth bounds one declared path, not the search. Assigning the
+                # function-scoped budget here ended the whole traversal, so a single
+                # reachable cycle discarded every unexplored sibling and suppressed the
+                # findings of every untrusted source sorting after the cyclic one.
+                depth_truncated = True
+                continue
+            for target in reversed(successors):
                 if edges_traversed >= max_edges:
                     budget_name = "max_edges"
                     break
@@ -357,14 +494,14 @@ def review_declared_chains(
                     sanitizer=sanitizer,
                 )
             )
-    if budget_name is not None:
+    if budget_name is not None or depth_truncated:
         findings.append(
             _finding(
                 "TW-CHAIN-004",
                 "medium",
                 "The declared graph analysis budget was exceeded; the local review is incomplete.",
                 (),
-                budget=budget_name,
+                budget=budget_name or "max_depth",
                 **budgets,
             )
         )
@@ -372,6 +509,7 @@ def review_declared_chains(
     review: dict[str, Any] = {
         "schema_version": CHAIN_REVIEW_SCHEMA_VERSION,
         "findings": findings,
+        "warnings": list(warnings),
         "paths": [{"identity": list(path)} for path in paths],
         "summary": {
             "declared_nodes": len(nodes),
@@ -402,6 +540,8 @@ def render_chain_review(review: Mapping[str, Any]) -> str:
 
     paths = _sequence(review.get("paths"), "chain_review.paths")
     findings = _sequence(review.get("findings"), "chain_review.findings")
+    warnings = _sequence(review.get("warnings", []), "chain_review.warnings")
+    truncated = _analysis_was_truncated(findings)
     lines = ["# Declared Chain Review", "", "## Declared paths", ""]
     if paths:
         lines.extend(
@@ -413,18 +553,23 @@ def render_chain_review(review: Mapping[str, Any]) -> str:
             + "`"
             for path in paths
         )
-    elif _analysis_was_truncated(findings):
-        # The traversal stopped at a budget, so the remaining stack was discarded. Saying
-        # no path reached an external action would assert a negative this run never
-        # established, and a reader has no way to tell the two cases apart.
+    if truncated:
+        # The traversal stopped at a budget, so part of the graph was never walked. The
+        # caveat used to sit behind an else reachable only when no path was found at all,
+        # which left a truncated run printing a path list that read as the whole answer.
         lines.append(
             "- Analysis incomplete: a traversal budget was reached before the declared graph "
             "was fully explored, so paths may exist that were not examined."
         )
-    else:
+    elif not paths:
         lines.append(
             "- No path from an explicitly declared untrusted source reached an external action."
         )
+    lines.extend(["", "## Warnings", ""])
+    if warnings:
+        lines.extend(f"- {_cell(warning)}" for warning in warnings)
+    else:
+        lines.append("- Every declared classification was named in the classification taxonomy.")
     lines.extend(["", "## Review findings", ""])
     if findings:
         lines.extend(
