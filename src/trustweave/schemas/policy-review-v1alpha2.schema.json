@@ -22,13 +22,29 @@
           "type": "boolean"
         },
         "shadowed_by": {
+          "description": "The one earlier rule that covers this rule on its own, or null when no single rule does.",
           "oneOf": [
             {
-              "$ref": "#/$defs/rule_id"
+              "$ref": "#/$defs/rule_identifier"
             },
             {
               "type": "null"
             }
+          ]
+        },
+        "shadowed_by_rules": {
+          "description": "Every earlier rule in the cover that makes this rule unreachable: the single shadowing rule, or several rules that together cover every cell of this rule. Empty when no cover was found.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule_identifier"
+          },
+          "maxItems": 1000000
+        },
+        "cover_search": {
+          "description": "Whether the collective cover was searched: 'complete' when every cell of the rule was checked (or a single covering rule was found); 'declined' when the rule names more than the enumeration limit of cells and only the single-rule check ran, so reachable: true is not a verdict.",
+          "enum": [
+            "complete",
+            "declined"
           ]
         }
       },
@@ -36,6 +52,8 @@
         "reachable",
         "possible",
         "shadowed_by",
+        "shadowed_by_rules",
+        "cover_search",
         "decision"
       ],
       "type": "object"
@@ -143,8 +161,8 @@
       },
       "type": "object"
     },
-    "rule_id": {
-      "pattern": "^TW-[A-Z0-9-]{1,120}$",
+    "rule_identifier": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
       "type": "string"
     },
     "string_list": {
@@ -187,7 +205,8 @@
         "pattern": "^[a-z][a-z0-9_]{0,63}$",
         "type": "string"
       },
-      "type": "object"
+      "type": "object",
+      "description": "The stable identity of what a finding is about. A finding about one policy rule carries both `policy` and `rule`; a finding about the policy itself carries `policy` alone."
     },
     "text": {
       "maxLength": 4096,
@@ -195,7 +214,7 @@
       "type": "string"
     }
   },
-  "$id": "https://trustweave.dev/schemas/policy-review/v1alpha1",
+  "$id": "https://trustweave.dev/schemas/policy-review/v1alpha2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "properties": {
@@ -213,7 +232,7 @@
         },
         "high_impact_approval_rules": {
           "items": {
-            "$ref": "#/$defs/rule_id"
+            "$ref": "#/$defs/rule_identifier"
           },
           "maxItems": 1000000,
           "type": "array"
@@ -236,7 +255,7 @@
       "properties": {
         "impossible_rules": {
           "items": {
-            "$ref": "#/$defs/rule_id"
+            "$ref": "#/$defs/rule_identifier"
           },
           "maxItems": 1000000,
           "type": "array"
@@ -250,7 +269,7 @@
         },
         "shadowed_rules": {
           "items": {
-            "$ref": "#/$defs/rule_id"
+            "$ref": "#/$defs/rule_identifier"
           },
           "maxItems": 1000000,
           "type": "array"
@@ -288,7 +307,7 @@
       "$ref": "#/$defs/name"
     },
     "schema_version": {
-      "const": "trustweave.dev/policy-review/v1alpha1"
+      "const": "trustweave.dev/policy-review/v1alpha2"
     },
     "summary": {
       "additionalProperties": false,
@@ -323,6 +342,6 @@
     "limits",
     "generated_at"
   ],
-  "title": "TrustWeave Local Policy Review v1alpha1",
+  "title": "TrustWeave Local Policy Review v1alpha2",
   "type": "object"
 }

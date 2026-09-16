@@ -13,6 +13,7 @@ from trustweave.policy_predicates import rule_covers, rule_is_possible
 from trustweave.provenance import add_generated_at
 from trustweave.rules import finding_for_rule
 
+POLICY_REVIEW_SCHEMA_VERSION = "trustweave.dev/policy-review/v1alpha2"
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 REQUIRED_APPROVAL_BINDINGS = frozenset(
     {"actor", "tool", "target", "parameters", "issued_at", "expires_at"}
@@ -287,7 +288,7 @@ def review_policy(
         )
 
     review: dict[str, object] = {
-        "schema_version": "trustweave.dev/policy-review/v1alpha1",
+        "schema_version": POLICY_REVIEW_SCHEMA_VERSION,
         "policy": policy.name,
         "approval_control": approval_summary,
         "findings": canonical_findings,

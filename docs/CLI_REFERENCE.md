@@ -243,7 +243,7 @@ trustweave sarif \
 
 | Input | Required | Description |
 |---|---:|---|
-| `--policy-review` | One or more review inputs required | `policy-review.json` using `trustweave.dev/policy-review/v1alpha1`. |
+| `--policy-review` | One or more review inputs required | `policy-review.json` using `trustweave.dev/policy-review/v1alpha2`, or the historical `v1alpha1`. |
 | `--diff` | One or more review inputs required | Current `bundle-diff.json` uses `trustweave.dev/bundle-diff/v1alpha3`; the exporter also reads bounded historical v1alpha1 and v1alpha2 diffs. |
 | `--trace-review` | One or more review inputs required | `trace-review.json` using `trustweave.dev/trace-review/v1alpha1`. |
 | `--mcp-profile-review` | One or more review inputs required | `mcp-profile-review.json` using `trustweave.dev/mcp-profile-review/v1alpha1`. |
