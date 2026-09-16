@@ -708,7 +708,9 @@ def test_a_rule_naming_too_many_cells_says_its_cover_was_not_searched() -> None:
     assert review["coverage"]["declined_rules"] == ["R-BIG"]
     assert [finding["id"] for finding in review["findings"]] == ["TW-POL-010"]
     assert review["summary"]["status"] == "review_required"
-    assert "not searched" in render_policy_review_report(review)
+    report = render_policy_review_report(review)
+    assert "not searched" in report
+    assert "| `R-BIG` | not established | True |" in report
 
 
 def test_a_rule_requiring_undeclared_controls_is_reported_without_the_coverage_flag() -> None:

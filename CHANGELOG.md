@@ -144,7 +144,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
-- Four defects an external review confirmed against 0.3.1, each reproduced from the
+- Four defects a contributor review of 0.3.1 confirmed (written by a project contributor and manuscript coauthor; see `docs/evaluation/CONFLICTS_AND_LIMITATIONS.md`), each reproduced from the
   review's own snippet before it was fixed and each kept as a behavioural regression case.
   All four had the same shape: a confident, clear answer where the evidence supported none.
   - Import bindings are lexical. They were collected with `ast.walk` over the whole

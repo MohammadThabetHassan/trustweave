@@ -30,6 +30,12 @@ No evaluation result may be described as proof that TrustWeave is secure, that a
 
 Maintainers must preserve material negative feedback, corpus mismatches, failed setup attempts, and reviewer disagreements. Each must be triaged as fixed, accepted limitation, disputed with rationale, deferred, or withdrawn. A project improvement may be released in response to feedback, but the original feedback must not be rewritten as if the later version had been evaluated.
 
+## Recorded relationships
+
+| Date | Material | Relationship | Consequence |
+|---|---|---|---|
+| 2026-09-11 | Critical project assessment of 0.3.1 (7/10) that confirmed four defects | Written by a project contributor and manuscript coauthor who created `src/trustweave/policy_review.py` (commit `3b17258`) and edited `src/trustweave/code_analysis.py`; the review names the reviewer's own working copy as its source | Counted as a contributor review, not independent-review evidence. Its factual claims were separately verified against the tree it reviewed and every checkable one held. |
+
 ## Current status
 
 The documents and corpus framework are prepared by TrustWeave contributors. Independent reviewers, pilot participants, outcome data, comparative benchmarks, and external adoption evidence are **not yet collected**.
