@@ -15,6 +15,10 @@ BUNDLE_SCHEMA_VERSION = BUNDLE_SCHEMA_V1ALPHA1
 BUNDLE_DIFF_SCHEMA_VERSION = "trustweave.dev/bundle-diff/v1alpha3"
 REVIEW_ACTION_CLASSES = frozenset({"sensitive", "external"})
 
+# A declared flow is identified by its source, tool, prose purpose and its sorted
+# purpose tags. The published bundle-diff key stays the first three; see _flow_key.
+FlowKey = tuple[str, str, str, tuple[str, ...]]
+
 
 def _mapping(value: Any) -> Mapping[str, Any]:
     return value if isinstance(value, Mapping) else {}
@@ -37,7 +41,7 @@ def _items_by_name(items: Sequence[Any], label: str) -> dict[str, Mapping[str, A
     return indexed
 
 
-def _flow_key(flow: Mapping[str, Any]) -> tuple[str, str, str]:
+def _flow_key(flow: Mapping[str, Any]) -> FlowKey:
     source = flow.get("source")
     tool = flow.get("tool")
     purpose = flow.get("purpose")
@@ -47,17 +51,30 @@ def _flow_key(flow: Mapping[str, Any]) -> tuple[str, str, str]:
         raise ValidationError("bundle findings must contain a named tool")
     if not isinstance(purpose, str) or not purpose:
         raise ValidationError("bundle findings must contain a flow purpose")
-    return source, tool, purpose
+    # Purpose tags, not the prose purpose, are what a v1alpha2 policy rule matches on, so
+    # two flows sharing a source, tool and purpose but carrying different tags are two
+    # different declared paths that can receive two different decisions. Keying without
+    # them made the diff refuse a bundle scan had just accepted. Tags are order-independent
+    # and a legacy v1alpha1 finding declares none, which keys as the empty tuple.
+    tags = _sequence(flow.get("purpose_tags", ()))
+    if not all(isinstance(tag, str) and tag for tag in tags):
+        raise ValidationError("bundle findings must contain non-empty flow purpose tags")
+    return source, tool, purpose, tuple(sorted(tags))
 
 
-def _findings_by_key(bundle: Mapping[str, Any]) -> dict[tuple[str, str, str], Mapping[str, Any]]:
-    indexed: dict[tuple[str, str, str], Mapping[str, Any]] = {}
-    for item in _sequence(bundle.get("findings")):
+def _findings_by_key(bundle: Mapping[str, Any], label: str) -> dict[FlowKey, Mapping[str, Any]]:
+    indexed: dict[FlowKey, Mapping[str, Any]] = {}
+    for index, item in enumerate(_sequence(bundle.get("findings"))):
         finding = _mapping(item)
         flow = _mapping(finding.get("flow"))
         key = _flow_key(flow)
         if key in indexed:
-            raise ValidationError(f"bundle contains duplicate finding for {key}")
+            source, tool, purpose, tags = key
+            raise ValidationError(
+                f"{label} findings[{index}] repeats a declared flow already indexed by this "
+                f"diff: source {source}, tool {tool}, purpose {purpose}, "
+                f"purpose_tags {list(tags)}"
+            )
         indexed[key] = finding
     return indexed
 
@@ -264,8 +281,8 @@ def diff_bundles(
         _items_by_name(_sequence(head_manifest.get("tools")), "head tools"),
     )
 
-    base_findings = _findings_by_key(base_bundle)
-    head_findings = _findings_by_key(head_bundle)
+    base_findings = _findings_by_key(base_bundle, "base bundle")
+    head_findings = _findings_by_key(head_bundle, "head bundle")
     added_paths = sorted(set(head_findings) - set(base_findings))
     removed_paths = sorted(set(base_findings) - set(head_findings))
     changed_paths = sorted(
@@ -278,7 +295,14 @@ def diff_bundles(
         "added": [head_findings[key] for key in added_paths],
         "removed": [base_findings[key] for key in removed_paths],
         "decision_changed": [
-            {"key": list(key), "before": base_findings[key], "after": head_findings[key]}
+            # bundle-diff v1alpha3 pins this key to exactly three elements, so the tags
+            # that disambiguate two same-purpose flows stay where they already are: in the
+            # before and after findings' own flow objects.
+            {
+                "key": [key[0], key[1], key[2]],
+                "before": base_findings[key],
+                "after": head_findings[key],
+            }
             for key in changed_paths
         ],
     }
