@@ -55,21 +55,25 @@ def kill_vector(harness: Any, policy_path: Path, suite_path: Path) -> dict[str, 
     """Which mutants are equivalent, and which of the rest this suite kills."""
 
     document = dict(harness.load_document(policy_path))
-    space = harness.witness_space(document)
-    reference = harness.decision_map(document)
+    generated = harness._mutants(document)
+    # The pooled common refinement, for the reason `policy_mutation.analyze` states: a mutant
+    # whose quotient differs from the reference's is otherwise either refused outright or --
+    # here, where nothing refused -- scored over a domain the reference was never decided on.
+    space = harness.witness_space(document, *(mutant for _, mutant in generated))
+    reference = harness.decision_map(document, space)
 
     equivalent: list[str] = []
     live: list[tuple[str, dict[str, Any]]] = []
-    for name, mutant in harness._mutants(document):
+    for name, mutant in generated:
         try:
-            resolved = harness.decision_map(mutant)
+            resolved = harness.decision_map(mutant, space)
         except Exception:  # noqa: BLE001 - an unparseable mutant is not a policy
             equivalent.append(name)
             continue
         (equivalent.append(name) if resolved == reference else live.append((name, mutant)))
 
     expectations = harness._suite_expectations(suite_path, space)
-    killed = {name for name, mutant in live if harness._kills(expectations, mutant)}
+    killed = {name for name, mutant in live if harness._kills(expectations, mutant, space)}
     return {
         "generated": len(equivalent) + len(live),
         "equivalent": len(equivalent),

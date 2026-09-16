@@ -144,7 +144,9 @@ def _subsets(values: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
     )
 
 
-def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
+def witness_space(
+    document: dict[str, Any], *pooled_with: dict[str, Any]
+) -> dict[str, tuple[Any, ...]]:
     """One representative per equivalence class of subjects, per attribute.
 
     The subject space is not finite: identifiers, purposes and capabilities are arbitrary
@@ -164,9 +166,20 @@ def witness_space(document: dict[str, Any]) -> dict[str, tuple[Any, ...]]:
     capabilities            one witness per achievable capability signature. Not every
                             subset of the named patterns is one: patterns nest, so
                             `net.http` implies `net.*` and the subsets collapse
+
+    `pooled_with` names further documents whose values join the space. Theorem 2 compares two
+    policies over the common refinement `~P n ~Q`, "computed from the values *either* policy
+    names", and that is what this builds: a mutant that deletes the last rule naming a purpose
+    tag still has to be decided on subjects carrying it, or the two decision maps range over
+    different domains and cannot be compared at all.
     """
 
-    rules = [rule for rule in document.get("rules") or [] if isinstance(rule, dict)]
+    rules = [
+        rule
+        for source in (document, *pooled_with)
+        for rule in source.get("rules") or []
+        if isinstance(rule, dict)
+    ]
     taxonomy = tuple(document.get("classification_taxonomy") or DEFAULT_CLASSIFICATION_TAXONOMY)
 
     named_classifications = _named_by_rules(rules, "source_data_classifications")
@@ -233,7 +246,7 @@ def predicate_signature(policy: Any, cell: Cell) -> tuple[bool, ...]:
     )
 
 
-def cells(document: dict[str, Any]) -> tuple[Cell, ...]:
+def cells(document: dict[str, Any], *pooled_with: dict[str, Any]) -> tuple[Cell, ...]:
     """Every class of the quotient, in deterministic order, one witness each.
 
     The product of the per-attribute witness spaces is a *refinement* of `~P`, not the
@@ -255,7 +268,12 @@ def cells(document: dict[str, Any]) -> tuple[Cell, ...]:
     described, and the decision-class coverage write-up states the distinction.
     """
 
-    space = witness_space(document)
+    return cells_of(witness_space(document, *pooled_with))
+
+
+def cells_of(space: dict[str, tuple[Any, ...]]) -> tuple[Cell, ...]:
+    """The classes of a witness space already built, with the only refusal this harness makes."""
+
     total = 1
     for attribute in ATTRIBUTES:
         total *= len(space[attribute])
@@ -339,16 +357,23 @@ def _decide(policy: Any, cell: Cell) -> str:
     return str(policy.default_decision)
 
 
-def decision_map(document: dict[str, Any]) -> dict[Cell, str]:
+def decision_map(
+    document: dict[str, Any], space: dict[str, tuple[Any, ...]] | None = None
+) -> dict[Cell, str]:
     """The decision this policy gives for every class of its subject space.
 
     This is the policy's complete observable behaviour: two policies with the same map
     cannot be told apart by any subject the language can express, not merely by any subject
     the scenario format happens to supply.
+
+    `space` names the space to decide over. Two maps are comparable only when they range over
+    the same cells, so a caller comparing a policy against its mutants passes the pooled space
+    rather than letting each document build its own.
     """
 
     policy = parse_policy(document)
-    return {cell: _decide(policy, cell) for cell in cells(document)}
+    partition = cells(document) if space is None else cells_of(space)
+    return {cell: _decide(policy, cell) for cell in partition}
 
 
 # ---------------------------------------------------------------------------------------
@@ -458,31 +483,36 @@ def _suite_expectations(path: Path, space: dict[str, tuple[Any, ...]]) -> list[t
     return located
 
 
-def _kills(expectations: list[tuple[Cell, str]], mutant: dict[str, Any]) -> bool:
+def _kills(
+    expectations: list[tuple[Cell, str]],
+    mutant: dict[str, Any],
+    space: dict[str, tuple[Any, ...]] | None = None,
+) -> bool:
     """A suite kills a mutant when any of its cases would now fail."""
 
-    resolved = decision_map(mutant)
+    resolved = decision_map(mutant, space)
     return any(resolved[cell] != expected for cell, expected in expectations)
 
 
 def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
     document = dict(load_document(policy_path))
-    space = witness_space(document)
-    partition = cells(document)
-    reference = decision_map(document)
 
     generated = _mutants(document)
+    # Theorem 2 compares two policies over the common refinement of their quotients, computed
+    # from the values *either* names, so the space is pooled across the reference and every
+    # mutant. Deleting a rule can remove the last occurrence of a purpose tag or capability
+    # pattern, and this harness used to refuse the whole analysis when it did -- on a comment
+    # claiming the operator set "only edits rule order, decisions and the two closed label
+    # domains", which `delete_rule` has never obeyed. `MAX_CELLS` is the only refusal left.
+    space = witness_space(document, *(mutant for _, mutant in generated))
+    partition = cells_of(space)
+    reference = decision_map(document, space)
+
     live: list[tuple[str, dict[str, Any]]] = []
     equivalent: list[str] = []
     for name, mutant in generated:
-        # A mutant that named a value the reference does not would be observed over a
-        # different quotient, so its map would not be comparable. The operator set only
-        # edits rule order, decisions and the two closed label domains, so this holds; it
-        # is checked rather than assumed.
-        if witness_space(mutant) != space:
-            raise SystemExit(f"mutant {name} changed the subject quotient")
         try:
-            resolved = decision_map(mutant)
+            resolved = decision_map(mutant, space)
         except Exception:  # noqa: BLE001 - an unparseable mutant is not a policy
             equivalent.append(name)
             continue
@@ -497,7 +527,7 @@ def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
         expectations = _suite_expectations(suite_path, space)
         witnessed = {cell for cell, _ in expectations}
         expected_decisions = {expected for _, expected in expectations}
-        killed = [name for name, mutant in live if _kills(expectations, mutant)]
+        killed = [name for name, mutant in live if _kills(expectations, mutant, space)]
         survivors = [name for name, _ in live if name not in set(killed)]
         suites[suite_path.name] = {
             "cases": len(expectations),
