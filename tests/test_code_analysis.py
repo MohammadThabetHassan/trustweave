@@ -1231,3 +1231,27 @@ def test_getattr_with_a_constant_attribute_on_an_ordinary_value_stays_benign(
 
     assert tool.proposed_action_class() == "read"
     assert tool.reasons == set()
+
+
+# ---------------------------------------------------------------------------------------
+# Reading the whole environment
+#
+# A bulk read takes every variable, so the secret-name vocabulary has nothing to judge and
+# the read is sensitive on its shape alone. Only single-key reads were exercised, so the
+# set of bulk accessors was unasserted and a mutation dropping one of them passed.
+# ---------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("accessor", ["items", "copy", "values"])
+def test_reading_the_whole_environment_is_sensitive(tmp_path: Path, accessor: str) -> None:
+    tool = _one(
+        tmp_path,
+        f"@tool\ndef dump() -> str:\n"
+        f'    """Read the environment."""\n'
+        f"    return str(os.environ.{accessor}())\n",
+        preamble="import os\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "sensitive", (
+        f"os.environ.{accessor}() returns every variable, including the secret ones"
+    )
