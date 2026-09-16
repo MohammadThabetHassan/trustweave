@@ -998,3 +998,120 @@ def test_a_wildcard_import_inside_the_tool_refuses(tmp_path: Path) -> None:
 
     assert tool.proposed_action_class() == "unknown"
     assert "UNRESOLVED_CALLEE" in tool.reasons
+
+
+# ---------------------------------------------------------------------------------------
+# Names bound at module scope, and the spellings that hide the callee
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_module_level_alias_of_a_dangerous_symbol_resolves_like_the_local_one(
+    tmp_path: Path,
+) -> None:
+    """`_run = subprocess.run` at module scope was read/high with no signal at all.
+
+    The alias table was collected from the tool's own body only, so the module-level
+    spelling of a shell invocation published as a benign read while the identical
+    function-local binding published as sensitive.
+    """
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef build(target: str) -> str:\n"
+        '    """Build it."""\n'
+        "    return str(_run([target]))\n",
+        preamble="import subprocess\n\n_run = subprocess.run\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+    assert tool.confidence() == "high"
+    assert [(signal.action_class, signal.symbol) for signal in tool.signals] == [
+        ("sensitive", "subprocess.run")
+    ]
+
+
+def test_a_function_local_alias_of_the_same_symbol_still_resolves(tmp_path: Path) -> None:
+    """The control the module-level case is measured against."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef build(target: str) -> str:\n"
+        '    """Build it."""\n'
+        "    runner = subprocess.run\n"
+        "    return str(runner([target]))\n",
+        preamble="import subprocess\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+    assert [signal.symbol for signal in tool.signals] == ["subprocess.run"]
+
+
+def test_a_local_binding_overrides_a_module_alias_of_the_same_name(tmp_path: Path) -> None:
+    """A local name shadows the module's, so the module's binding must not win."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef build(target: str) -> str:\n"
+        '    """Build it."""\n'
+        "    _run = os.listdir\n"
+        "    return str(_run(target))\n",
+        preamble="import os\nimport subprocess\n\n_run = subprocess.run\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "read"
+    assert [signal.symbol for signal in tool.signals] == ["os.listdir"]
+
+
+def test_a_module_level_dispatch_table_is_refused_like_the_local_one(tmp_path: Path) -> None:
+    """`DISPATCH["run"](cmd)` was read/high: the callee is chosen by the table at runtime."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef dispatch(command: str) -> str:\n"
+        '    """Dispatch it."""\n'
+        "    return str(HANDLERS['run']([command]))\n",
+        preamble='import subprocess\n\nHANDLERS = {"run": subprocess.run}\n' + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "unknown"
+    assert tool.confidence() == "review"
+    assert "DYNAMIC_DISPATCH" in tool.reasons
+
+
+def test_getattr_with_a_constant_attribute_is_resolved_not_exempted(tmp_path: Path) -> None:
+    """`getattr(os, "system")(cmd)` was read/high with no reason recorded.
+
+    The refusal was lifted on the ground that `getattr` resolves a name, and then nothing
+    performed that resolution, so the most compact spelling of shell execution published as
+    silence while the name-bound spelling was still refused.
+    """
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef shell(command: str) -> str:\n"
+        '    """Run it."""\n'
+        '    return str(getattr(os, "system")(command))\n',
+        preamble="import os\n" + TOOL_PREAMBLE,
+    )
+
+    assert tool.proposed_action_class() == "sensitive"
+    assert tool.confidence() == "high"
+    assert [(signal.action_class, signal.symbol) for signal in tool.signals] == [
+        ("sensitive", "os.system")
+    ]
+
+
+def test_getattr_with_a_constant_attribute_on_an_ordinary_value_stays_benign(
+    tmp_path: Path,
+) -> None:
+    """Resolving the lookup must not refuse a method on a plain string."""
+
+    tool = _one(
+        tmp_path,
+        "@tool\ndef shout(text: str) -> str:\n"
+        '    """Upper-case it."""\n'
+        '    return str(getattr(text, "upper")())\n',
+    )
+
+    assert tool.proposed_action_class() == "read"
+    assert tool.reasons == set()

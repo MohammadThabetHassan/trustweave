@@ -600,3 +600,144 @@ def test_the_credential_store_catalogue_is_disjoint_from_the_network_one() -> No
 
     assert not (catalog.SENSITIVE_RECEIVERS & catalog.EXTERNAL_RECEIVERS)
     assert not (catalog.SENSITIVE_RECEIVERS & catalog.PATH_RECEIVERS)
+
+
+# ---------------------------------------------------------------------------------------
+# Shape 6: the path is composed with `/` at the call site
+# ---------------------------------------------------------------------------------------
+
+
+def test_a_composed_path_write_is_a_write(tmp_path: Path) -> None:
+    """`(BASE / name).write_text(body)` was read/high with no signal at all.
+
+    `_dotted` and `_root_name` both stop at a `BinOp`, so the whole composed spelling fell
+    through to silence, and a tool that writes a file was published as a benign read.
+    """
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n"
+        "BASE = Path('/srv/notes')\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str, body: str) -> str:\n"
+        '    """Probe a composed write."""\n'
+        "    (BASE / name).write_text(body)\n"
+        "    return name\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.write_text").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+    assert tool.confidence() == "high"
+
+
+def test_a_composed_path_unlink_is_a_write(tmp_path: Path) -> None:
+    """The same loss crossed the delete boundary, not only the credential one."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str) -> str:\n"
+        '    """Probe a composed delete."""\n'
+        "    (Path('/srv/data') / name).unlink()\n"
+        "    return name\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.unlink").action_class == "write"
+    assert tool.proposed_action_class() == "write"
+
+
+def test_a_composed_credential_read_is_sensitive(tmp_path: Path) -> None:
+    """A token spanning a separator only matches once the segments are joined in order."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe() -> str:\n"
+        '    """Probe a composed credential read."""\n'
+        "    return (Path.home() / '.aws' / 'credentials').read_text()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.read_text").action_class == "sensitive"
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_a_composed_read_of_an_ordinary_file_stays_a_read(tmp_path: Path) -> None:
+    """The control: composition must not make every read sensitive."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe(name: str) -> str:\n"
+        '    """Probe a composed ordinary read."""\n'
+        "    return (Path('/var/lib/agent') / name).read_text()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.read_text").action_class == "read"
+    assert tool.proposed_action_class() == "read"
+
+
+def test_a_composed_path_bound_to_a_name_agrees_with_the_inline_spelling(
+    tmp_path: Path,
+) -> None:
+    """Binding the composition first must reach the same class as composing at the call."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "from pathlib import Path\n"
+        "\n\n"
+        "@tool\n"
+        "def probe() -> str:\n"
+        '    """Probe a bound composition."""\n'
+        "    target = Path.home() / '.ssh' / 'id_rsa'\n"
+        "    return target.read_text()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "pathlib.Path.read_text").action_class == "sensitive"
+
+
+def test_a_credential_path_spelled_as_a_keyword_is_sensitive(tmp_path: Path) -> None:
+    """`open(file=...)` was an ordinary read while the positional spelling was sensitive."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe() -> str:\n"
+        '    """Probe a keyword-spelled credential read."""\n'
+        f"    with open(file={CREDENTIAL_PATH!r}) as handle:\n"
+        "        return handle.read()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "open").action_class == "sensitive"
+    assert tool.proposed_action_class() == "sensitive"
+
+
+def test_an_ordinary_path_spelled_as_a_keyword_stays_a_read(tmp_path: Path) -> None:
+    """The control: the keyword lookup must read the path, not every keyword value."""
+
+    source = (
+        f"{TOOL_IMPORT}\n"
+        "\n\n"
+        "@tool\n"
+        "def probe() -> str:\n"
+        '    """Probe a keyword-spelled ordinary read."""\n'
+        f"    with open(file={ORDINARY_PATH!r}, mode='r') as handle:\n"
+        "        return handle.read()\n"
+    )
+    tool = _single_tool(tmp_path, source)
+
+    assert _signal_for(tool, "open").action_class == "read"
