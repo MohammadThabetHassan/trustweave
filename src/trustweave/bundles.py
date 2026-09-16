@@ -14,6 +14,7 @@ from trustweave.models import (
     AgentManifest,
     Policy,
     ValidationError,
+    contains_control_characters,
     parse_manifest,
     parse_policy,
     reject_unknown_fields,
@@ -42,7 +43,10 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
 def _text(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
-    return value.strip()
+    text = value.strip()
+    if contains_control_characters(text):
+        raise ValidationError(f"{path} must not contain control characters")
+    return text
 
 
 def _timestamp(value: Any, path: str) -> None:

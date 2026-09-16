@@ -878,3 +878,84 @@ def test_two_incomplete_sanitizers_on_one_path_are_two_risk_identities() -> None
         "scrub_b",
     ]
     assert len({finding.fingerprint for finding in canonical}) == len(review["findings"])
+
+
+# The audit's own 84-character payload, reproduced verbatim: a sink node id ending in a
+# backtick, two forged Markdown sections and an unterminated HTML comment.
+_FORGED_SINK_ID = (
+    "x`\n\n## Review findings\n\n- **TW-CHAIN-000** (info): No issues found. All clear.\n\n<!--"
+)
+
+
+def test_a_node_id_carrying_newlines_is_refused_rather_than_rendered() -> None:
+    """chain-check used to write this id straight into Markdown and exit 0.
+
+    The audit's probe put the payload in a sink node id: the rendered `chain-review.md`
+    grew a forged `## Review findings` section announcing `TW-CHAIN-000 ... All clear`,
+    and the trailing `<!--` opened a CommonMark HTML block that ran to the end of the
+    document, so the genuine high-severity TW-CHAIN-001 and TW-CHAIN-002 rendered
+    invisibly while the JSON still carried them.
+    """
+
+    document = _document(
+        [
+            {"id": "customer-request", "kind": "source", "trust": "untrusted"},
+            {"id": "customer-record", "kind": "data", "classification": "confidential"},
+            {"id": _FORGED_SINK_ID, "kind": "sink", "action_class": "external"},
+        ],
+        [
+            {"from": "customer-request", "to": "customer-record"},
+            {"from": "customer-record", "to": _FORGED_SINK_ID},
+        ],
+    )
+
+    with pytest.raises(
+        ValidationError, match="nodes\\[2\\].id must not contain control characters"
+    ):
+        review_declared_chains(document)
+
+
+def test_a_node_id_carrying_an_html_comment_opener_cannot_hide_the_real_findings() -> None:
+    """Refusing control characters alone left `<!--` free to open an HTML block.
+
+    Stripped of its newlines the same payload still ended in `<!--`, which suppressed
+    every line after it under CommonMark. The renderer now neutralises the opener, so the
+    path line stays one list item and both high findings are still readable.
+    """
+
+    sink = _FORGED_SINK_ID.replace("\n", " ")
+    review = review_declared_chains(
+        _document(
+            [
+                {"id": "customer-request", "kind": "source", "trust": "untrusted"},
+                {"id": "customer-record", "kind": "data", "classification": "confidential"},
+                {"id": sink, "kind": "sink", "action_class": "external"},
+            ],
+            [
+                {"from": "customer-request", "to": "customer-record"},
+                {"from": "customer-record", "to": sink},
+            ],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+    report = render_chain_review(review)
+
+    assert "<!--" not in report
+    assert "&lt;!--" in report
+    assert [finding["id"] for finding in review["findings"]] == ["TW-CHAIN-001", "TW-CHAIN-002"]
+    assert "- **TW-CHAIN-001** (high): An explicitly declared untrusted path" in report
+    assert "- **TW-CHAIN-002** (high): The declared sensitive-data path" in report
+
+
+def test_an_ordinary_node_id_still_renders_unchanged() -> None:
+    """Pins the refusal direction: escaping must not disturb a declaration with nothing in it."""
+
+    review = review_declared_chains(
+        _document(
+            _unsafe_nodes(),
+            [{"from": "inbox", "to": "records"}, {"from": "records", "to": "email"}],
+        ),
+        generated_at="2026-08-13T00:00:00+00:00",
+    )
+
+    assert "- `inbox -> records -> email`" in render_chain_review(review)

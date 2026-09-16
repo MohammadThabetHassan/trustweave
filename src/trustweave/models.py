@@ -138,6 +138,22 @@ DECLARED_CONTROL_CATALOG = frozenset({"approval", "approval.fail_closed"})
 DEFAULT_CLASSIFICATION_TAXONOMY = ("public", "internal", "confidential", "restricted")
 CAPABILITY_PATTERN_MAX_LENGTH = 128
 IDENTIFIER_MAX_LENGTH = 64
+_UNICODE_LINE_SEPARATORS = frozenset({"\u2028", "\u2029"})
+
+
+def contains_control_characters(value: str) -> bool:
+    """True when text carries a character that would break a line-oriented artifact.
+
+    Declared text is interpolated into Markdown tables and list items. A newline, a
+    tab, a NUL, or a Unicode line separator lets one declared field close the row it
+    was written into and open structure of its own, so the rendered document stops
+    describing the artifact it was generated from.
+    """
+
+    return any(
+        character < " " or character == "\x7f" or character in _UNICODE_LINE_SEPARATORS
+        for character in value
+    )
 
 # The published bundle schema bounds every declared manifest collection, but nothing
 # enforced those bounds at authoring time, so `scan` wrote bundles that `attest` and
@@ -162,7 +178,10 @@ RESERVED_PLACEHOLDER = "REVIEW_REQUIRED"
 def _string(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
-    return value.strip()
+    text = value.strip()
+    if contains_control_characters(text):
+        raise ValidationError(f"{path} must not contain control characters")
+    return text
 
 
 def _bounded_text(value: Any, path: str, maximum: int) -> str:

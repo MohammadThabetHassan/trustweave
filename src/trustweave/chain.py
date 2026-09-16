@@ -7,8 +7,16 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from trustweave.models import ValidationError, reject_unknown_fields
+from trustweave.models import (
+    ValidationError,
+    contains_control_characters,
+    reject_unknown_fields,
+)
 from trustweave.provenance import add_generated_at
+
+# The chain renderer writes the same kind of Markdown the report renderers do, so it
+# neutralises interpolated values with the same helper rather than a second copy of it.
+from trustweave.report import _cell
 from trustweave.rules import finding_for_rule
 
 CHAIN_MANIFEST_SCHEMA_VERSION = "trustweave.dev/chain-manifest/v1alpha1"
@@ -45,7 +53,10 @@ class _TraversalState:
 def _text(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
-    return value.strip()
+    text = value.strip()
+    if contains_control_characters(text):
+        raise ValidationError(f"{path} must not contain control characters")
+    return text
 
 
 def _mapping(value: Any, path: str) -> Mapping[str, Any]:
@@ -394,7 +405,12 @@ def render_chain_review(review: Mapping[str, Any]) -> str:
     lines = ["# Declared Chain Review", "", "## Declared paths", ""]
     if paths:
         lines.extend(
-            f"- `{' -> '.join(_sequence(_mapping(path, 'path').get('identity'), 'path.identity'))}`"
+            "- `"
+            + " -> ".join(
+                _cell(node)
+                for node in _sequence(_mapping(path, "path").get("identity"), "path.identity")
+            )
+            + "`"
             for path in paths
         )
     elif _analysis_was_truncated(findings):
@@ -412,9 +428,9 @@ def render_chain_review(review: Mapping[str, Any]) -> str:
     lines.extend(["", "## Review findings", ""])
     if findings:
         lines.extend(
-            f"- **{_mapping(finding, 'finding').get('id')}** "
-            f"({_mapping(finding, 'finding').get('severity')}): "
-            f"{_mapping(finding, 'finding').get('message')}"
+            f"- **{_cell(_mapping(finding, 'finding').get('id'))}** "
+            f"({_cell(_mapping(finding, 'finding').get('severity'))}): "
+            f"{_cell(_mapping(finding, 'finding').get('message'))}"
             for finding in findings
         )
     else:

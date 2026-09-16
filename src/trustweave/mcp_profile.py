@@ -12,6 +12,7 @@ from trustweave.models import (
     VALID_ACTION_CLASSES,
     AgentManifest,
     ValidationError,
+    contains_control_characters,
     reject_unknown_fields,
 )
 from trustweave.provenance import add_generated_at
@@ -59,7 +60,10 @@ def _sequence(value: Any, path: str) -> Sequence[Any]:
 def _text(value: Any, path: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{path} must be a non-empty string")
-    return value.strip()
+    text = value.strip()
+    if contains_control_characters(text):
+        raise ValidationError(f"{path} must not contain control characters")
+    return text
 
 
 def _unique(values: Sequence[str], path: str) -> None:
