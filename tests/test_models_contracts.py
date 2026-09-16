@@ -1032,3 +1032,157 @@ def test_manifest_tool_capabilities_reject_namespace_separators() -> None:
         "manifest.tools[0].capabilities must use lowercase ASCII letters, numbers, '.', '_', "
         "or '-' only"
     )
+
+
+# ---------------------------------------------------------------------------------------
+# Declared-collection bounds (audit E-14c)
+# ---------------------------------------------------------------------------------------
+
+
+def _manifest_with_flows(count: int) -> dict[str, Any]:
+    document = _manifest()
+    document["flows"] = [
+        {"source": "source", "tool": "tool", "purpose": f"purpose-{index}"}
+        for index in range(count)
+    ]
+    return document
+
+
+def _manifest_with_sources(count: int) -> dict[str, Any]:
+    document = _manifest()
+    document["sources"] = [
+        {
+            "name": f"source{index}",
+            "trust": "trusted",
+            "data_classification": "public",
+            "description": "Declared source.",
+        }
+        for index in range(count)
+    ]
+    document["flows"] = [{"source": "source0", "tool": "tool", "purpose": "declared"}]
+    return document
+
+
+def _manifest_with_tools(count: int) -> dict[str, Any]:
+    document = _manifest()
+    document["tools"] = [
+        {
+            "name": f"tool{index}",
+            "action_class": "read",
+            "capabilities": ["record.read"],
+            "description": "Declared tool.",
+        }
+        for index in range(count)
+    ]
+    document["flows"] = [{"source": "source", "tool": "tool0", "purpose": "declared"}]
+    return document
+
+
+def test_a_manifest_above_the_published_flow_bound_is_refused_at_authoring_time() -> None:
+    """A 10,001-flow manifest scanned at exit 0 and wrote a bundle attest then refused.
+
+    Auditor's probe: a manifest with 10,001 flows gave `scan` exit 0 and an 8,063,128-byte
+    agent-security-bundle.json, and `attest --output-dir` on it exited 2 with
+    "bundle.findings must contain at most 10000 entries" -- the evaluator emits one
+    finding per declared flow, so the bundle bound was always a flow bound too.
+    """
+
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(_manifest_with_flows(models_module.MAX_MANIFEST_FLOWS + 1))
+    assert str(error.value) == "manifest.flows must contain at most 10000 entries"
+
+
+def test_a_manifest_exactly_at_the_published_flow_bound_is_still_accepted() -> None:
+    """Pins the refusal direction: the bound refuses one flow past it, not the bound itself."""
+
+    manifest = parse_manifest(_manifest_with_flows(models_module.MAX_MANIFEST_FLOWS))
+
+    assert len(manifest.flows) == 10000
+
+
+@pytest.mark.parametrize(
+    ("document", "message"),
+    [
+        (
+            _manifest_with_sources(models_module.MAX_MANIFEST_SOURCES + 1),
+            "manifest.sources must contain at most 1000 entries",
+        ),
+        (
+            _manifest_with_tools(models_module.MAX_MANIFEST_TOOLS + 1),
+            "manifest.tools must contain at most 1000 entries",
+        ),
+    ],
+)
+def test_manifest_collections_above_the_published_bundle_bounds_are_refused(
+    document: dict[str, Any], message: str
+) -> None:
+    """A 1,500-source manifest passed scan and attest while failing the bundle's own schema.
+
+    Auditor's probe: 1,500 sources with one 500-capability tool scanned at exit 0, passed
+    `attest`'s bundle validation, and produced three jsonschema errors against
+    agent-security-bundle-v1alpha2.schema.json -- no runtime failure of any kind.
+    """
+
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(document)
+    assert str(error.value) == message
+
+
+def test_a_tool_above_the_published_capability_bound_is_refused() -> None:
+    """500 capabilities on one tool parsed cleanly and produced a schema-invalid bundle."""
+
+    document = _manifest()
+    document["tools"][0]["capabilities"] = [
+        f"record.read{index}" for index in range(models_module.MAX_TOOL_CAPABILITIES + 1)
+    ]
+
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(document)
+    assert str(error.value) == "manifest.tools[0].capabilities must contain at most 128 entries"
+
+
+def test_a_flow_above_the_published_purpose_tag_bound_is_refused() -> None:
+    """purpose_tags carries the same published bound as a rule's and a tool's collections."""
+
+    document = _manifest()
+    document["flows"][0]["purpose_tags"] = [
+        f"tag{index}" for index in range(models_module.MAX_FLOW_PURPOSE_TAGS + 1)
+    ]
+
+    with pytest.raises(ValidationError) as error:
+        parse_manifest(document)
+    assert str(error.value) == ("manifest.flows[0].purpose_tags must contain at most 128 entries")
+
+
+def test_the_manifest_flow_bound_is_the_bundle_finding_bound() -> None:
+    """One declared flow yields exactly one finding, so the two bounds cannot drift apart."""
+
+    from trustweave.bundles import MAX_BUNDLE_FINDINGS
+
+    assert models_module.MAX_MANIFEST_FLOWS == MAX_BUNDLE_FINDINGS
+
+
+def test_both_published_manifest_schema_copies_carry_the_enforced_bounds() -> None:
+    """The shipped manifest schema declared no maxItems at all, so code and schema disagreed."""
+
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    published = root / "schemas" / "agent-manifest.schema.json"
+    packaged = root / "src" / "trustweave" / "schemas" / "agent-manifest.schema.json"
+
+    assert published.read_bytes() == packaged.read_bytes()
+
+    schema = json.loads(published.read_text(encoding="utf-8"))
+    properties = schema["properties"]
+    defs = schema["$defs"]
+    assert properties["sources"]["maxItems"] == models_module.MAX_MANIFEST_SOURCES
+    assert properties["tools"]["maxItems"] == models_module.MAX_MANIFEST_TOOLS
+    assert properties["flows"]["maxItems"] == models_module.MAX_MANIFEST_FLOWS
+    assert defs["tool"]["properties"]["capabilities"]["maxItems"] == (
+        models_module.MAX_TOOL_CAPABILITIES
+    )
+    assert defs["flow"]["properties"]["purpose_tags"]["maxItems"] == (
+        models_module.MAX_FLOW_PURPOSE_TAGS
+    )
