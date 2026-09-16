@@ -494,8 +494,8 @@ def _mutants(document: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
 # every cell with no classification, no capabilities, and the default identifiers and
 # purpose, so a scenario that sets any of them is evaluated as something other than what it
 # declares -- and two scenarios differing only there collapse onto one cell.
-def _suite_expectations(path: Path, space: dict[str, tuple[Any, ...]]) -> list[tuple[Cell, str]]:
-    """Place each case of one suite in the quotient, with the decision it expects.
+def _located_cases(path: Path, space: dict[str, tuple[Any, ...]]) -> list[tuple[str, Cell, str]]:
+    """Place each case of one suite in the quotient: its id, its class, the decision it expects.
 
     A scenario may declare a classification, capabilities, identifiers and a purpose tag.
     Each is mapped to the class its value belongs to, so a case is located in the same
@@ -514,8 +514,39 @@ def _suite_expectations(path: Path, space: dict[str, tuple[Any, ...]]) -> list[t
             (scenario.purpose_tag,) if scenario.purpose_tag else (),
             scenario.tool_capabilities,
         )
-        located.append((cell, scenario.expected_decision))
+        located.append((scenario.id, cell, scenario.expected_decision))
     return located
+
+
+def _suite_expectations(path: Path, space: dict[str, tuple[Any, ...]]) -> list[tuple[Cell, str]]:
+    """The located cases without their ids, which is all that scoring needs."""
+
+    return [(cell, expected) for _, cell, expected in _located_cases(path, space)]
+
+
+def check_suite_consistency(
+    suite_name: str, located: list[tuple[str, Cell, str]], reference: dict[Cell, str]
+) -> None:
+    """Refuse to score a suite that contradicts the policy it is scored against.
+
+    Every result in the write-up is stated for a *consistent* suite -- one whose every case
+    expects what the policy decides. Nothing checked it, and an inconsistent case is not a
+    harmless outlier: it fails against the original, so it fails against most mutants too,
+    and every one of those counts as a kill. A single contradicting case took the shipped
+    policy from 63.6% to 95.5%, manufacturing eight false kills and masking the one genuine
+    one. `python -m trustweave test` reports the same suite as failing, so the harness was
+    the only place the contradiction was invisible.
+    """
+
+    for scenario_id, cell, expected in located:
+        decided = reference[cell]
+        if decided != expected:
+            raise SystemExit(
+                f"suite {suite_name} contradicts the policy it is scored against: scenario "
+                f"{scenario_id} expects {expected} where the policy decides {decided}. "
+                "A mutation score over a suite the policy already fails measures nothing; "
+                "fix the suite or the policy and run again."
+            )
 
 
 def _kills(
@@ -559,13 +590,18 @@ def analyze(policy_path: Path, suite_paths: list[Path]) -> dict[str, Any]:
 
     suites: dict[str, Any] = {}
     for suite_path in suite_paths:
-        expectations = _suite_expectations(suite_path, space)
+        located = _located_cases(suite_path, space)
+        check_suite_consistency(suite_path.name, located, reference)
+        expectations = [(cell, expected) for _, cell, expected in located]
         witnessed = {cell for cell, _ in expectations}
         expected_decisions = {expected for _, expected in expectations}
         killed = [name for name, mutant in live if _kills(expectations, mutant, space)]
         survivors = [name for name, _ in live if name not in set(killed)]
         suites[suite_path.name] = {
             "cases": len(expectations),
+            # Recorded rather than assumed: every theorem below is stated for a suite
+            # consistent with its policy, and until this ran nothing established that.
+            "consistent_with_policy": True,
             "distinct_engine_inputs": len(witnessed),
             "cells_covered": f"{len(witnessed)}/{len(partition)}",
             "decision_classes_expected": sorted(expected_decisions),

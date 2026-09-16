@@ -291,6 +291,34 @@ def test_a_richer_guard_enlarges_the_quotient_rather_than_being_refused() -> Non
     assert len(policy_mutation.cells(_richer_policy())) == 1152
 
 
+def _suite_agreeing_with(document: dict, tmp_path: Path) -> Path:
+    """A one-case suite expecting what this policy actually decides.
+
+    The shipped suites are written against the shipped policy, and a variant with richer
+    guards decides some of their cases differently -- which the consistency check now
+    refuses, correctly. So the case is built from the policy's own decision map.
+    """
+
+    import json
+
+    space = policy_mutation.witness_space(document)
+    reference = policy_mutation.decision_map(document)
+    cell = policy_mutation.abstract_cell(space, "untrusted", "write")
+    suite = dict(policy_mutation.load_document(SUITES[0]))
+    suite["scenarios"] = [
+        {
+            "id": "TW-SC-AGREES",
+            "description": "A case expecting what the policy under test decides.",
+            "source_trust": "untrusted",
+            "tool_action_class": "write",
+            "expected_decision": reference[cell],
+        }
+    ]
+    path = tmp_path / "agreeing-scenarios.json"
+    path.write_text(json.dumps(suite), encoding="utf-8")
+    return path
+
+
 def test_a_richer_guard_runs_through_analyze_rather_than_aborting_it(tmp_path: Path) -> None:
     """`analyze()` refused this exact fixture: "mutant delete_rule[TW-001] changed the quotient".
 
@@ -304,10 +332,12 @@ def test_a_richer_guard_runs_through_analyze_rather_than_aborting_it(tmp_path: P
 
     import json
 
+    document = _richer_policy()
     path = tmp_path / "richer-policy.json"
-    path.write_text(json.dumps(_richer_policy()), encoding="utf-8")
+    path.write_text(json.dumps(document), encoding="utf-8")
+    suite = _suite_agreeing_with(document, tmp_path)
 
-    report = policy_mutation.analyze(path, [SUITES[0]])
+    report = policy_mutation.analyze(path, [suite])
 
     assert report["partition_cells"] == 1152
     assert report["mutants_generated"] == 38
@@ -354,7 +384,7 @@ def test_max_cells_is_still_the_only_refusal_analyze_makes(tmp_path: Path) -> No
     path.write_text(json.dumps(document), encoding="utf-8")
 
     with pytest.raises(SystemExit, match="above the"):
-        policy_mutation.analyze(path, [SUITES[0]])
+        policy_mutation.analyze(path, SUITES)
 
 
 def test_a_wildcard_capability_pattern_gets_a_witness_that_matches_it() -> None:
@@ -1067,3 +1097,51 @@ def test_the_outsider_is_derived_over_the_pool_not_one_document() -> None:
 
     assert pooled["outsider"][0] != "trustweave-witness-outsider"
     assert "trustweave-witness-outsider" in pooled["source_identifier"]
+
+
+def _inconsistent_suite(tmp_path: Path) -> Path:
+    """The auditor's probe: one case asserting `allow` where the shipped policy denies."""
+
+    import json
+
+    suite = dict(policy_mutation.load_document(SUITES[0]))
+    suite["scenarios"] = [
+        {
+            "id": "TW-SC-BAD",
+            "description": "An untrusted write the policy denies, asserted to be allowed.",
+            "source_trust": "untrusted",
+            "tool_action_class": "write",
+            "expected_decision": "allow",
+        }
+    ]
+    path = tmp_path / "inconsistent-scenarios.json"
+    path.write_text(json.dumps(suite), encoding="utf-8")
+    return path
+
+
+def test_a_suite_that_contradicts_its_policy_is_refused_not_scored(tmp_path: Path) -> None:
+    """`analyze()` scored it silently at 95.5% where the consistent answer is 63.6%.
+
+    Every result in the write-up is stated for a suite consistent with its policy, and
+    nothing compared the suite's expectations against the reference map. The single
+    contradicting case below failed against the original, so it failed against most mutants
+    too, manufacturing eight false kills and masking the one genuine one -- while
+    `python -m trustweave test` reported the same suite as failing.
+    """
+
+    with pytest.raises(SystemExit) as refusal:
+        policy_mutation.analyze(POLICY, [_inconsistent_suite(tmp_path)])
+
+    message = str(refusal.value)
+    assert "TW-SC-BAD" in message, "the refusal must name the scenario"
+    assert "allow" in message and "deny" in message, "and both decisions"
+
+
+def test_a_consistent_suite_records_that_the_check_ran() -> None:
+    """The outcome is in the artifact, so a reader need not take the assumption on trust."""
+
+    report = policy_mutation.analyze(POLICY, SUITES)
+
+    for name, scores in report["suites"].items():
+        assert scores["consistent_with_policy"] is True, name
+    assert report["suites"]["default-scenarios.json"]["mutation_score"] == "63.6%"

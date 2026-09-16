@@ -4,6 +4,7 @@
   "schema_version": "v1",
   "suites": [
     {
+      "consistent_with_policy": true,
       "exact_score": 0.6364,
       "mutants_equivalent": 16,
       "mutants_generated": 38,
@@ -50,6 +51,7 @@
       "understatement_points": 26.79
     },
     {
+      "consistent_with_policy": true,
       "exact_score": 0.3636,
       "mutants_equivalent": 16,
       "mutants_generated": 38,
@@ -96,6 +98,7 @@
       "understatement_points": 15.31
     },
     {
+      "consistent_with_policy": true,
       "exact_score": 1.0,
       "mutants_equivalent": 16,
       "mutants_generated": 38,
