@@ -14,6 +14,7 @@ incomplete and Corollary 4's premise is unreachable.
 from __future__ import annotations
 
 import importlib.util
+import itertools
 import json
 import sys
 from pathlib import Path
@@ -147,3 +148,67 @@ def test_the_certificate_records_the_nested_case_that_was_wrong() -> None:
     assert nested["candidate_signatures"] == 4
     assert nested["achievable_by_solver"] == 3
     assert nested["agree"] is True
+
+
+def test_the_certificate_records_the_sentinel_collision_cases() -> None:
+    """The two cases that fail on the fixed sentinel, so the correction stays checked.
+
+    The harness named its outsider `trustweave-witness-outsider`, a string the policy
+    language accepts as a capability and as a namespace tail, so on a policy naming
+    `net.trustweave-witness-outsider` beside `net.*` the construction produced two classes
+    where the solver finds three. Eight fixture cases agreed with the solver and none of them
+    named the sentinel.
+    """
+
+    committed = json.loads(ARTIFACT.read_text(encoding="utf-8"))
+    by_patterns = {tuple(entry["patterns"]): entry for entry in committed["capabilities"]}
+
+    collision = by_patterns[("net.*", f"net.{checker.FORMER_SENTINEL}")]
+    assert collision["achievable_by_solver"] == 3
+    assert collision["produced_by_construction"] == 3
+    assert collision["agree"] is True
+
+    bare = by_patterns[(checker.FORMER_SENTINEL,)]
+    assert bare["achievable_by_solver"] == 2
+    assert bare["agree"] is True
+
+
+def test_the_solver_refutes_the_fixed_sentinel_construction() -> None:
+    """The auditor's probe, kept as the thing that would have caught it.
+
+    Rebuilding the old construction -- one constant outsider, the witness for `net.*` being
+    `net.` followed by it -- and asking the solver for the same pattern set gives
+    `[(F,F),(T,F),(T,T)]` achievable against `[(F,F),(T,T)]` constructed: the missing class is
+    "matches `net.*` but is not the exact literal", which is where a genuinely unnamed
+    capability belongs. The subject was placed on the named cell instead, and the mutant that
+    differed only there was reported equivalent.
+    """
+
+    from trustweave.policy_predicates import capability_matches
+
+    patterns = ("net.*", f"net.{checker.FORMER_SENTINEL}")
+
+    def fixed_sentinel_classes() -> set[tuple[bool, ...]]:
+        seen: dict[tuple[bool, ...], tuple[str, ...]] = {}
+        for size in range(len(patterns) + 1):
+            for subset in itertools.combinations(patterns, size):
+                witness = tuple(
+                    pattern[:-1] + checker.FORMER_SENTINEL if pattern.endswith(".*") else pattern
+                    for pattern in subset
+                )
+                signature = tuple(
+                    any(capability_matches(pattern, held) for held in witness)
+                    for pattern in patterns
+                )
+                seen.setdefault(signature, witness)
+        return set(seen)
+
+    achievable = {
+        signature
+        for signature in itertools.product((False, True), repeat=len(patterns))
+        if checker.capability_signature_achievable(patterns, signature)
+    }
+
+    assert achievable - fixed_sentinel_classes() == {(True, False)}
+    # And the shipped construction, which derives a fresh outsider, has it.
+    assert achievable == checker._constructed_capability_signatures(patterns)

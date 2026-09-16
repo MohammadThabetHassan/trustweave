@@ -41,8 +41,16 @@ except ImportError:  # pragma: no cover - the checker is optional tooling
 
 from trustweave.policy_predicates import capability_matches  # noqa: E402
 
+# The literal the harness used as its fixed outsider sentinel. The two cases below name it on
+# purpose: it is a legal capability and a legal namespace tail, so a policy is free to use it,
+# and while the sentinel was a constant the construction lost a class when one did. The string
+# is spelled out here rather than imported so that the cross-check keeps testing the case even
+# if the harness renames its stem.
+FORMER_SENTINEL = "trustweave-witness-outsider"
+
 # Pattern sets chosen to cover the shapes that decide the question: nested, disjoint, exact,
-# a chain of three, and a mix. Every one is a policy a reviewer could write.
+# a chain of three, a mix, and the two that collide with the outsider witness. Every one is a
+# policy a reviewer could write.
 CAPABILITY_CASES: tuple[tuple[str, ...], ...] = (
     (),
     ("net.*",),
@@ -52,6 +60,13 @@ CAPABILITY_CASES: tuple[tuple[str, ...], ...] = (
     ("net.*", "net.http", "net.http.get"),
     ("net.*", "fs.*", "net.http"),
     ("a", "b", "c"),
+    # The witness for `net.*` was `net.` followed by the sentinel, so this pair produced two
+    # classes where three are achievable, and the missing one -- matches `net.*`, not the
+    # exact literal -- is where an unnamed capability belongs.
+    ("net.*", f"net.{FORMER_SENTINEL}"),
+    # The bare sentinel as a capability of its own, the shape that collides in every
+    # component the outsider stands in for.
+    (FORMER_SENTINEL,),
 )
 # (named tags, the tag sets successive rules name)
 PURPOSE_CASES: tuple[tuple[tuple[str, ...], tuple[tuple[str, ...], ...]], ...] = (
@@ -109,7 +124,13 @@ def purpose_signature_achievable(
 
 
 def _constructed_capability_signatures(patterns: tuple[str, ...]) -> set[tuple[bool, ...]]:
-    """What `witness_space()` produces, expressed as signatures."""
+    """What `witness_space()` produces for a policy naming exactly these patterns.
+
+    The classes are read off a real policy document rather than off the class-building helper,
+    so the outsider the harness derives for that policy is part of what is checked. That is
+    the step the cross-check used to skip, and skipping it is why a fixed sentinel colliding
+    with a named capability went unnoticed through eight agreeing cases.
+    """
 
     import importlib.util
 
@@ -120,12 +141,13 @@ def _constructed_capability_signatures(patterns: tuple[str, ...]) -> set[tuple[b
     module = importlib.util.module_from_spec(specification)
     sys.modules["policy_mutation"] = module
     specification.loader.exec_module(module)
+    document = {"rules": [{"tool_capabilities": list(patterns)}]}
     return {
         tuple(
             any(capability_matches(pattern, capability) for capability in witness)
             for pattern in patterns
         )
-        for witness in module._capability_classes(patterns)
+        for witness in module.witness_space(document)["tool_capabilities"]
     }
 
 

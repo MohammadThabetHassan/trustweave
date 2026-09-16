@@ -1001,3 +1001,69 @@ def test_the_finite_image_clause_is_free_for_finitely_many_outcomes() -> None:
     assert realised == {0, 1}, "one that halts occupies both"
     # Which class a subject falls in is computable; *whether the true class is occupied at
     # all* is the halting question, and that is what the second clause asks for.
+
+
+def test_a_policy_naming_the_outsider_sentinel_keeps_the_unnamed_class() -> None:
+    """The sentinel was a constant, and the policy language accepts it as a literal.
+
+    With `OUTSIDER = "trustweave-witness-outsider"` fixed, a policy naming it lost the class
+    the sentinel stood for: `identifiers()` deduplicated the outsider against the named
+    literal, so "a source the policy does not name" and "the source it names" became one cell.
+    """
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["source_identifiers"] = ["trustweave-witness-outsider"]
+
+    space = policy_mutation.witness_space(document)
+
+    outsider = space["outsider"][0]
+    assert outsider != "trustweave-witness-outsider"
+    assert len(space["source_identifier"]) == 3
+    assert "trustweave-witness-outsider" in space["source_identifier"]
+    assert outsider in space["source_identifier"]
+
+
+def test_an_unnamed_capability_is_not_placed_on_a_named_one() -> None:
+    """The witness `net.<sentinel>` was read back as the wildcard `net.*`.
+
+    `_pattern_of` recovered a pattern by stripping the sentinel off the end of a witness
+    string, so on a policy naming the exact capability `net.trustweave-witness-outsider` the
+    placement believed the policy named `net.*` twice. A subject holding a capability the
+    policy does not name landed on the cell of the one it does, and a mutant differing only
+    there was reported equivalent. The patterns are carried beside the witnesses now.
+    """
+
+    document = _document()
+    document["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    document["rules"][0]["tool_capabilities"] = ["net.*", "net.trustweave-witness-outsider"]
+
+    space = policy_mutation.witness_space(document)
+
+    assert space["capability_patterns"] == ("net.*", "net.trustweave-witness-outsider")
+    # Three achievable signatures: neither, `net.*` alone, and both.
+    assert len(space["tool_capabilities"]) == 3
+
+    unnamed = policy_mutation.abstract_cell(
+        space, "untrusted", "write", tool_capabilities=("net.ftp",)
+    )
+    named = policy_mutation.abstract_cell(
+        space, "untrusted", "write", tool_capabilities=("net.trustweave-witness-outsider",)
+    )
+    assert unnamed != named
+    assert unnamed in policy_mutation.cells(document)
+    assert named in policy_mutation.cells(document)
+
+
+def test_the_outsider_is_derived_over_the_pool_not_one_document() -> None:
+    """A mutant may name what the reference does not, and the pooled space must clear both."""
+
+    reference = _document()
+    reference["schema_version"] = "trustweave.dev/policy/v1alpha2"
+    naming = copy.deepcopy(reference)
+    naming["rules"][0]["source_identifiers"] = ["trustweave-witness-outsider"]
+
+    pooled = policy_mutation.witness_space(reference, naming)
+
+    assert pooled["outsider"][0] != "trustweave-witness-outsider"
+    assert "trustweave-witness-outsider" in pooled["source_identifier"]

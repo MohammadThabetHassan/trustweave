@@ -94,10 +94,33 @@
       ],
       "produced_by_construction": 8,
       "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 3,
+      "agree": true,
+      "candidate_signatures": 4,
+      "patterns": [
+        "net.*",
+        "net.trustweave-witness-outsider"
+      ],
+      "produced_by_construction": 3,
+      "unachievable_but_produced": []
+    },
+    {
+      "achievable_but_missing": [],
+      "achievable_by_solver": 2,
+      "agree": true,
+      "candidate_signatures": 2,
+      "patterns": [
+        "trustweave-witness-outsider"
+      ],
+      "produced_by_construction": 2,
+      "unachievable_but_produced": []
     }
   ],
-  "capability_cases": 8,
-  "capability_cases_agreeing": 8,
+  "capability_cases": 10,
+  "capability_cases_agreeing": 10,
   "purposes": [
     {
       "achievable_by_solver": 2,
@@ -166,5 +189,5 @@
     }
   ],
   "schema_version": "v1",
-  "solver": "4.13.0"
+  "solver": "5.1.0"
 }
