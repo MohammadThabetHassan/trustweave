@@ -264,6 +264,20 @@ _RULES: Final[dict[str, RuleDefinition]] = {
         "decision.",
         "Remove the later rule or narrow it to express a distinct reviewable policy condition.",
     ),
+    "TW-POL-010": RuleDefinition(
+        "TW-POL-010",
+        "declared_policy_structure",
+        "Policy rule reachability was not established",
+        (
+            "A supplied rule names more label combinations than the local cover enumeration "
+            "limit, so no collective cover was searched for and its reported reachability is "
+            "not a verdict."
+        ),
+        (
+            "Narrow the rule so its declared combinations can be enumerated, or review its "
+            "first-match reachability by hand; do not treat the unenumerated rule as clear."
+        ),
+    ),
     "TW-TRACE-001": RuleDefinition(
         "TW-TRACE-001",
         "pre_recorded_trace_metadata",

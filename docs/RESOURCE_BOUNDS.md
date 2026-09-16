@@ -30,6 +30,21 @@ Declared-chain analysis uses the following deterministic default budgets.
 
 These values constrain declared static metadata propagation. They do not inspect a real agent execution, establish live graph completeness, or guarantee that a separately deployed runtime will obey a declared path.
 
+## Declared-policy review bounds
+
+Static policy review enumerates a later rule into one cell per combination of the
+single-valued fields it names, and looks for an earlier rule covering each cell.
+
+| Boundary | Implemented limit | Behavior when reached |
+| --- | ---: | --- |
+| Cover-enumeration cells per rule | **10,000** (`policy_review.MAX_COVERAGE_CELLS`) | Decline the collective-cover search for that rule, keep only the single-rule answer, record `cover_search: "declined"` and list the rule in `coverage.declined_rules`, and emit `TW-POL-010` so `summary.status` is `review_required` rather than `clear`. |
+
+A declined search is the one case where "no earlier rule covers this one" was never looked
+for, so the entry's `reachable: true` is not a reachability verdict. `TW-POL-010` is emitted
+with or without `--coverage`, because the missing answer is a fact about the policy rather
+than a coverage diagnostic. The limit bounds local enumeration work; it is not a wall-clock
+guarantee, and a rule below it can still require meaningful local computation.
+
 ## Output-evidence bounds
 
 | Boundary | Implemented limit | Failure behavior |
