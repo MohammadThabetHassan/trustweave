@@ -4,7 +4,7 @@
 
 Mutation testing is an additional diagnostic for TrustWeave's deterministic, high-risk core. It does **not** prove that TrustWeave is secure, does not cover every module, and is not a substitute for the ordinary test suite, policy fixtures, cross-platform compatibility jobs, static analysis, or human review.
 
-The configured scope covers sixteen high-risk modules: deterministic engine and public models; predicates and policy review; chain construction and canonical findings; risk lifecycle, evidence attestations, configuration, schema catalog access, SARIF rendering, and CI coordination; plus the dedicated `bundle_policy.py` generated-null normalization and `policy_weakening.py` classifier that supply the corrective bundle/diff behavior, and the `code_sources.py` intake and `code_discovery.py` artifact production behind `trustweave discover`. The scope remains narrower than the complete package; CLI parsing, report rendering, importers, and other adapters are not mutated by this diagnostic.
+The gated scope covers sixteen high-risk modules: deterministic engine and public models; predicates and policy review; chain construction and canonical findings; risk lifecycle, evidence attestations, configuration, schema catalog access, SARIF rendering, and CI coordination; plus the dedicated `bundle_policy.py` generated-null normalization and `policy_weakening.py` classifier that supply the corrective bundle/diff behavior, and the `code_sources.py` intake and `code_discovery.py` artifact production behind `trustweave discover`. A seventeenth module, the discovery analyser `code_analysis.py`, is mutated on every run but ratcheted rather than gated (see below). The scope remains narrower than the complete package; CLI parsing, report rendering, importers, and other adapters are not mutated by this diagnostic.
 
 ## The discovery layer in the gate
 
@@ -123,7 +123,7 @@ the model but not the artifact.
 | Date | 2026-09-07 |
 | Tool | `mutmut 3.7.0` |
 | Platform | Linux with fork support |
-| Mutated source | `src/trustweave/engine.py`, `models.py`, `policy_predicates.py`, `policy_review.py`, `chain.py`, `findings.py`, `risk.py`, `evidence.py`, `config.py`, `schema_catalog.py`, `sarif.py`, `commands/ci.py`, `bundle_policy.py`, `policy_weakening.py`, `code_sources.py`, and `code_discovery.py` |
+| Mutated source | `src/trustweave/engine.py`, `models.py`, `policy_predicates.py`, `policy_review.py`, `chain.py`, `findings.py`, `risk.py`, `evidence.py`, `config.py`, `schema_catalog.py`, `sarif.py`, `commands/ci.py`, `bundle_policy.py`, `policy_weakening.py`, `code_sources.py`, and `code_discovery.py` (the sixteen gated modules), plus `code_analysis.py` (mutated and ratcheted, not gated) |
 | Fixture copy | Repository workflows, Docker assets, executable scripts, contract fixtures, schemas, examples, policies, scenarios, documentation, and public README assets are copied into the mutation workspace. |
 | Test selection | `tests -k 'not repository_reality_check and not reality_check_contracts'`. The repository-reality subprocess test and its isolated-wheel contract test are excluded because instrumented source imports the mutation runtime, while those tests deliberately build a dependency-free isolated wheel. The ordinary release verification continues to execute both tests. |
 | Result | 10,324 generated mutants; 9,692 killed; 632 survived; 0 without a selected test; 0 timed out; 0 suspicious. |
@@ -163,7 +163,7 @@ duplicate or stale records, zero untriaged survivors, a non-empty rationale on e
 record, and zero `needs_regression` classifications. A new survivor therefore fails the
 gate until it is either killed or classified with a recorded proof.
 
-The project configuration in `pyproject.toml` defines the sixteen-module source scope, workspace fixture copies, and selected tests. The `mutants/` directory and `.mutmut-cache/` directory are generated output and must not be committed. The hosted Linux gate records `mutation-run.log`, `mutation-results.txt`, and `mutation-quality.json` as workflow evidence.
+The project configuration in `pyproject.toml` defines the seventeen mutated modules (sixteen gated, one ratcheted), workspace fixture copies, and selected tests. The `mutants/` directory and `.mutmut-cache/` directory are generated output and must not be committed. The hosted Linux gate records `mutation-run.log`, `mutation-results.txt`, and `mutation-quality.json` as workflow evidence.
 
 ## Why this is Linux-only
 

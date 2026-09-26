@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "This citation record describes the published TrustWeave 0.3.0 release. Source metadata may contain an unreleased 0.3.1 candidate; do not cite it as published until an owner-authorized release record exists. v0.2.0 remains an immutable unpublished audit tag."
+message: "The latest published TrustWeave release is 0.3.0. The version field below mirrors the pyproject.toml source metadata, which is the unreleased 0.3.1 candidate; do not cite 0.3.1 as published until an owner-authorized release record exists. v0.2.0 remains an immutable unpublished audit tag."
 title: "TrustWeave"
 type: software
 authors:
