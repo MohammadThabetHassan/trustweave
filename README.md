@@ -85,7 +85,7 @@ A config change can open a new sensitive path — an untrusted source reaching a
 
 - **`scan`** maps every declared flow (source → tool → action) and applies your policy deterministically.
 - **`diff`** shows exactly what a candidate config changes versus your baseline.
-- **`discover`** parses local Python source to list the tools an agent can reach, proposes an action class for each with the evidence behind it, and reports what the manifest does not declare.
+- **`discover`** (on `main`, not yet released: it is in the unpublished `0.3.1` source candidate, not in the published `0.3.0` package, so install from source as shown above to use it) parses local Python source to list the tools an agent can reach, proposes an action class for each with the evidence behind it, and reports what the manifest does not declare.
 - **`test`** replays safe synthetic scenarios so policy regressions fail in CI, not in production.
 - **`trace-review`** and **`mcp-profile-check`** flag where recorded metadata drifts from the declaration.
 
@@ -169,14 +169,14 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 - [Golden deterministic evidence](docs/GOLDEN_EVIDENCE.md)
 - [Resource bounds](docs/RESOURCE_BOUNDS.md)
 - [Release guide](docs/RELEASE.md) and [release history](https://github.com/MohammadThabetHassan/trustweave/releases)
-- Historical release checklists, migration guides, and audit records live under `docs/archive/` (added in this overhaul)
+- Historical release checklists, migration guides, and audit records live under `docs/archive/`
 - [Where the research write-ups are](docs/site/RESEARCH_NOTE.md) — the measurement artifacts under `docs/` are here; the papers written from them are not, until they are published
 
 </details>
 
 ## Quality, briefly
 
-95% branch coverage enforced in CI · 98.01% mutation score across sixteen high-risk modules, all survivors triaged · reproducible wheels with fixed epoch · SBOM + PyPI provenance attestations · zero runtime dependencies. The mutation measurement is scoped, recorded on 2026-09-07, and does not establish package-wide security; see the [mutation testing record](docs/MUTATION_TESTING.md). Source metadata is prepared as the unpublished `0.3.1` candidate; [`0.3.0` remains the latest published release](docs/RELEASE.md). Details in [QUALITY.md](docs/QUALITY.md).
+95% branch coverage enforced in CI · 97.93% mutation score across the sixteen gated high-risk modules (7,722 of 7,885 mutants), all survivors triaged · reproducible wheels with fixed epoch · SBOM + PyPI provenance attestations · zero runtime dependencies. The mutation measurement is scoped, recorded on 2026-09-07, and does not establish package-wide security; see the [mutation testing record](docs/MUTATION_TESTING.md). Source metadata is prepared as the unpublished `0.3.1` candidate; [`0.3.0` remains the latest published release](docs/RELEASE.md). Details in [QUALITY.md](docs/QUALITY.md).
 
 Optional: YAML manifest support via `pip install "trustweave[yaml]"`.
 
@@ -185,6 +185,10 @@ Optional: YAML manifest support via `pip install "trustweave[yaml]"`.
 Bug reports and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Questions start at [SUPPORT.md](SUPPORT.md). Please don't report vulnerabilities in public issues; follow [SECURITY.md](SECURITY.md). Community norms: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md); project decisions: [GOVERNANCE.md](GOVERNANCE.md).
 
 Used TrustWeave on a real agent? A short write-up helps the next team decide — [here's the template](docs/CASE_STUDIES.md).
+
+## Team
+
+Ahmed Sami Alameri, Fahad Sadek, Omar Alraas, Abdulrahman Rezki and Mohammad Thabet Hassan, supervised by Dr. Lobna AbuSerrieh, Canadian University Dubai. Citation metadata: [CITATION.cff](CITATION.cff).
 
 ## License
 
