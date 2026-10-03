@@ -263,3 +263,49 @@ def test_the_recorded_summary_is_what_the_samples_say() -> None:
     # The taxonomy was derived from vendor corpora; it is held to policy written outside them.
     assert recorded["taxonomy_holds"] is True
     assert recorded["exclusions_unclassified"] == 0
+
+
+def test_the_cedar_replication_adds_up_and_records_its_protocol() -> None:
+    """Checked without the engine's bindings: the study script imports them only to run."""
+
+    cedar_study = _load("cedar_exact_study")
+    cedar_study.require_protocol()
+    recorded = json.loads((DOCS / "cedar-suite-strategy-study-v1.json").read_text("utf-8"))
+    population = recorded["population"]
+
+    assert recorded["protocol_sha256"] == cedar_study.PROTOCOL_SHA256
+    assert population["judged inside"] == (
+        population["Cedar does not parse it"]
+        + population["exact-eligible"]
+        + population["not exact-eligible"]
+    )
+    assert sum(recorded["file_statuses"].values()) == population["exact-eligible"]
+    # Deviations from the protocol are on the record, not in a footnote.
+    assert len(recorded["deviations"]) == 3
+    for entry in recorded["files"].values():
+        if entry["status"] == "scored" and entry["expected_score"]:
+            assert entry["expected_score"]["refinement"] == 1.0
+            assert entry["decision_range"] <= 2
+
+
+def test_the_cedar_real_edits_are_pinned_and_consistent() -> None:
+    recorded = json.loads((DOCS / "cedar-real-edits-v1.json").read_text("utf-8"))
+    measured = [pair for pair in recorded["pairs"] if pair["status"] == "measured"]
+
+    assert len(measured) == recorded["pairs_measured"]
+    assert recorded["change_a_decision"] == sum(1 for p in measured if p["changes_a_decision"])
+    for pair in measured:
+        assert len(pair["before"]["sha256"]) == len(pair["after"]["sha256"]) == 64
+        if pair["weakens_a_decision"]:
+            assert pair["changes_a_decision"]
+
+
+def test_the_rego_engine_check_accounts_for_every_sampled_module() -> None:
+    recorded = json.loads((DOCS / "third-party-sample-rego-oracle-v1.json").read_text("utf-8"))
+
+    assert recorded["modules"] == 300
+    assert (
+        recorded["agreements"] + recorded["disagreements"] + recorded["engine_could_not_load"]
+        == recorded["modules"]
+    )
+    assert len(recorded["disagreeing_modules"]) == recorded["disagreements"]

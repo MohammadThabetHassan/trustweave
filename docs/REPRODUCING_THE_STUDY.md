@@ -169,7 +169,29 @@ python scripts/third_party_sample.py summarise --json docs/third-party-sample-su
 # re-fetch the original 49 and say how any failure failed
 python scripts/measure_third_party_policies.py --revalidate \
   --json docs/third-party-kyverno-revalidation-v1.json
+# the sampled Rego modules against the engine's own dependency analysis
+python scripts/third_party_sample.py oracle-rego \
+  --corpus docs/third-party-sample-rego-corpus-v1.json --work /tmp/rego-bundles \
+  --json docs/third-party-sample-rego-oracle-v1.json
 ```
+
+### 4c. The suite-strategy study on real Cedar policy
+
+Runs under [`EXACT_EVALUATION_PROTOCOL_CEDAR.md`](EXACT_EVALUATION_PROTOCOL_CEDAR.md). Every
+decision is the Cedar engine's, through its Python bindings, which are not a dependency of the
+package: `pip install cedarpy==4.12.1` first. The files are re-fetched by the pins of the
+Cedar sample manifest, so this needs the network once.
+
+```bash
+python scripts/cedar_exact_study.py study --cache /tmp/cedar-cache \
+  --json docs/cedar-suite-strategy-study-v1.json
+python scripts/cedar_exact_study.py edits --cache /tmp/cedar-cache \
+  --history HISTORY.json --json docs/cedar-real-edits-v1.json
+```
+
+`HISTORY.json` lists, per sampled file, the commits that touched it, as GitHub's
+`repos/{owner}/{repo}/commits?path=` returns them; `docs/cedar-real-edits-v1.json` pins every
+pair it measured by commit and SHA-256, so re-deriving the pairs does not depend on it.
 
 ### 5. The whole gate
 
