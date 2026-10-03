@@ -719,10 +719,13 @@ same kind: a guard that reads something the policy does not contain.
   construct for reading data the request does not carry -- no HTTP, no cluster, no clock --
   and it ships an SMT-based analysis tool because it was designed to admit exactly this kind
   of reasoning. The fragment is one statement of what that design buys. Nothing *outside* is
-  not the same as everything inside: the adapter has no outside branch, and over the 7,497
-  policies the integration repository seals in `corpus-tests.tar.gz`
+  not the same as everything inside: the adapter's only outside branch is for templates
+  (`?principal`, `?resource`), which are policy schemas, and over the 7,497 policies the
+  integration repository seals in `corpus-tests.tar.gz`
   ([fragment-membership-cedar-archive-v1.json](fragment-membership-cedar-archive-v1.json))
-  it returns 6,541 inside, 956 undetermined and 0 outside.
+  it returns 7,192 inside, 305 undetermined and 0 outside -- every refusal an operator it
+  does not judge (`isEmpty`, the datetime and duration methods). It used to return 956
+  undetermined: it read calls from annotation keys, keywords and string literals too.
 
 The debatable judgement is Cedar's `principal in Group::"admins"`, whose truth depends on
 the entity store rather than on the policy. It is admitted: the predicate has two outcomes,
@@ -800,16 +803,22 @@ the original for every subject the language can express. The error has one sign:
 equivalents inflate the denominator, so the score is always understated, never flattered.
 
 Sampling costs separately. Where the mutant set is too large to run whole, a tool scores a
-random sample; here the true kill set is known, so the error can be measured rather than
-guessed at. It is measured two ways and the artifact says which is which:
-`estimator_comparison.py` enumerates the sample space exhaustively only up to 200,000 draws,
-so `k = 4`, `16` and `20` are exact while `k = 8` and `k = 12` are 20,000-draw Monte Carlo at
-seed 0. The `worst_absolute_error` those two rows record is therefore the worst of the draws
-taken, not the worst possible: at `k = 8` the artifact says 0.5114 where the exact maximum
-over all C(22,8) = 319,770 samples is 0.6364, the all-survivor draw, whose probability is
-1/319,770. Against the 63.6% suite, a sample of 4 of the 22 live mutants is off by 0.19 on
-average and by more than ten points in **every** sample; at 12 it is off by more than ten
-points in 38% of samples; only at 20 of 22 does it reliably come within ten points.
+random sample; here the true kill set is known, so the error can be computed rather than
+estimated. The number of killed mutants in a uniform sample drawn without replacement is
+hypergeometric, so `estimator_comparison.py` sums its probability mass and every row is exact
+over all C(22,k) samples of its size. Against the 63.6% suite, a sample of 4 of the 22 live
+mutants is off by 0.19 on average and by more than ten points in **every** sample; at 12 it is
+off by more than ten points in 37.8% of the 646,646 samples; only at 20 of 22 does it reliably
+come within ten points. The worst sample of 8 is off by 0.6364: the all-survivor draw, whose
+probability is 1/319,770.
+
+An earlier version measured these rows two ways: it enumerated samples only up to 200,000
+combinations, so `k = 8` and `k = 12` were 20,000-draw Monte Carlo at seed 0, and the
+`worst_absolute_error` they recorded was the worst draw taken rather than the worst possible
+-- 0.5114 at `k = 8` against the exact 0.6364. The hypergeometric rows agree with exhaustive
+enumeration of all 319,770 and 646,646 samples, the three rows that were exact before are
+unchanged, and the 63.6% suite and its 36.4% mirror image now report identical rows at every
+size, as they must; `tests/test_estimator_comparison.py` holds all three to that.
 
 Neither cost is exotic and neither is a criticism of any tool. They are the price of the
 question being undecidable, which is exactly what the fragment removes -- and the size of

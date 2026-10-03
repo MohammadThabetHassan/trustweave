@@ -251,6 +251,66 @@ def numeric_claims(docs: Path) -> list[Claim]:
             )
         )
 
+    # The sampling paragraph quotes the default suite's rows. Every row is exact now, and the
+    # number of samples a row is exact over is read from the row rather than recomputed here.
+    default = suites["default-scenarios.json"]
+    mirror = suites["adversarial-scenarios.json"]
+    rows = {row["sample_size"]: row for row in default["sampling"] if "method" in row}
+
+    def _samples(size: int) -> str:
+        return _grouped(int(rows[size]["method"].split()[2]))
+
+    first_within_ten = min(
+        size for size, row in rows.items() if row["share_off_by_over_10_points"] == 0.0
+    )
+    claims += [
+        (
+            r"Against the (\d+\.\d)\\% suite, a sample of 4",
+            (_pct(default["exact_score"]),),
+            "sampling: the suite the paragraph samples",
+        ),
+        (
+            r"non-equivalent mutants is off by (\d\.\d+) on average",
+            (f"{rows[4]['mean_absolute_error']:.2f}",),
+            "sampling: mean error of a sample of four",
+        ),
+        (
+            r"by more than ten points in (every) sample",
+            ("every" if rows[4]["share_off_by_over_10_points"] == 1.0 else "not every",),
+            "sampling: every sample of four is more than ten points off",
+        ),
+        (
+            rf"at 12 it exceeds ten points in (\d+\.\d)\\% of the ({_GROUPED}) samples",
+            (_pct(rows[12]["share_off_by_over_10_points"]), _samples(12)),
+            "sampling: exceedance share of a sample of twelve",
+        ),
+        (
+            r"only at (\d+) of (\d+) does it reliably come within ten",
+            (str(first_within_ten), str(default["mutants_live"])),
+            "sampling: the first sample size never ten points off",
+        ),
+        (
+            rf"The worst sample of eight is off by (\d\.\d+): it kills none of the eight, "
+            rf"occurs with probability \$1/({_GROUPED})\$",
+            (f"{rows[8]['worst_absolute_error']:.4f}", _samples(8)),
+            "sampling: the exact worst case of a sample of eight",
+        ),
+        (
+            rf"exhaustive enumeration of all ({_GROUPED}) and ({_GROUPED}) samples",
+            (_samples(8), _samples(12)),
+            "sampling: the formerly simulated rows, checked by enumeration",
+        ),
+        (
+            r"and its (\d+\.\d)\\% mirror image",
+            (_pct(mirror["exact_score"]),),
+            "sampling: the mirror-image suite",
+        ),
+    ]
+    # The mirror-image claim is a claim about every row, so it is checked as one.
+    assert default["sampling"] == mirror["sampling"], (
+        "the default and adversarial suites no longer report identical sampling rows"
+    )
+
     # One entry per row of the membership table, keyed by the label the paper prints.
     # The table carries an author column, so a row is
     #   <label> [\cite{...}] & <author> & <artifacts> & <inside> & <outside> & <und> & <share>
@@ -624,21 +684,23 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "xacml: policies the filename convention left out",
         ),
         (
-            rf"found ({_GROUPED}) no longer available",
-            (_grouped(revalidation["files_no_longer_available"]),),
-            "third-party: files that could not be re-fetched",
+            rf"reported ({_GROUPED}) of them unavailable",
+            (_grouped(revalidation["supersedes"]["files_no_longer_available"]),),
+            "third-party: what the superseded re-fetch reported",
         ),
         (
-            rf"Every one of the ({_GROUPED}) still reachable",
-            (_grouped(revalidation["files_still_fetchable_at_their_commit"]),),
-            "third-party: files still reachable",
-        ),
-        (
-            rf"({_GROUPED}) of its subjects",
-            (_grouped(revalidation["files_no_longer_available"]),),
-            "third-party: subjects whose verification cannot be repeated",
+            rf"Re-fetched on (\d{{4}}-\d\d-\d\d) with a client that retries and records how each "
+            rf"request fails, all ({_GROUPED}) hashed to their recorded digests",
+            (
+                revalidation["revalidated_on"],
+                _grouped(revalidation["files_still_fetchable_at_their_commit"]),
+            ),
+            "third-party: the current re-fetch",
         ),
     ]
+    # "All" is a claim about the rest, so it is checked as one.
+    assert revalidation["files_no_longer_available"] == 0, revalidation["unavailable"]
+    assert revalidation["verdicts_changed_among_those_refetched"] == []
 
     taxonomy = _load(docs, "exclusion-taxonomy-v1")
     kinds = taxonomy["exclusions_by_kind"]
@@ -926,11 +988,6 @@ def numeric_claims(docs: Path) -> list[Claim]:
     dynamic_tests = sum(entry["tests_compared"] for entry in rego_oracle["dynamic"])
     claims += [
         (
-            r"dependency analysis on all (\d+) modules",
-            (str(rego_oracle["modules"]),),
-            "oracle: modules the engine was asked about (abstract)",
-        ),
-        (
             r"consistent on every one of the (\d+) modules",
             (str(rego_oracle["modules"]),),
             "oracle: modules the engine was asked about",
@@ -1038,6 +1095,484 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
     ]
 
+    # The Kyverno harness caps the mutants it runs per policy, and the cap shapes the score.
+    kyverno_run = _load(docs, "kyverno-mutation-v1")
+    attempted = [
+        entry["mutants_applied"] + entry.get("mutants_unrunnable", 0)
+        for entry in kyverno_run["detail"]
+    ]
+    cap = max(attempted)
+    claims.append(
+        (
+            rf"over at most ({_WORD_PATTERN}) mutants: the harness keeps the first "
+            rf"({_WORD_PATTERN}) a policy "
+            rf"yields, in line order, which is its default, and (\d+) of the (\d+) scored "
+            rf"policies are at that cap",
+            (_word(cap), _word(cap), str(attempted.count(cap)), str(len(attempted))),
+            "kyverno mutation: the per-policy cap and how many policies reach it",
+        )
+    )
+
+    # The Cedar archive is quoted in four sections and was pinned in none of them, which is
+    # how a count that 651 annotation keys, keywords and string fragments had inflated went
+    # unchecked through every one.
+    archive = _load(docs, "fragment-membership-cedar-archive-v1")
+    loose = _load(docs, "fragment-membership-cedar-wide-v1")
+    held = _grouped(archive["policies_considered"])
+    declined = _grouped(archive["counts"]["undetermined"])
+    claims += [
+        (
+            rf"declines ({_GROUPED}) of ({_GROUPED}) policies rather than judging them",
+            (declined, held),
+            "cedar archive: declined, where the row's summary is qualified",
+        ),
+        (
+            rf"returns undetermined on ({_GROUPED}) of the ({_GROUPED}) policies it holds",
+            (declined, held),
+            "cedar archive: declined, beside the undetermined column",
+        ),
+        (
+            rf"over the ({_GROUPED}) Cedar policies the same repository seals in an archive "
+            rf"\(Section~\\ref\{{sec:limits\}}\) the same adapter returns undetermined "
+            rf"({_GROUPED}) times",
+            (held, declined),
+            "cedar archive: declined, in the caveat on the 100% rows",
+        ),
+        (
+            rf"holding ({_GROUPED}) more\.",
+            (held,),
+            "cedar archive: policies the archive holds",
+        ),
+        (
+            rf"over the archive gives ({_GROUPED}) inside, ({_GROUPED}) undetermined and "
+            rf"({_GROUPED}) outside",
+            (
+                _grouped(archive["counts"]["inside"]),
+                declined,
+                _grouped(archive["counts"]["outside"]),
+            ),
+            "cedar archive: the three counts",
+        ),
+        (
+            rf"Over the archive it fires ({_GROUPED}) times",
+            (declined,),
+            "cedar archive: refusals, every one an operator",
+        ),
+        (
+            rf"stand silently for a ({_GROUPED})-file corpus",
+            (_grouped(archive["policies_considered"] + loose["policies_considered"]),),
+            "cedar: the loose files and the archive together",
+        ),
+    ]
+
+    claims += _payoff_claims(docs)
+    claims += _review_claims(docs)
+    claims += _third_party_claims(docs)
+    claims += _summary_claims(docs)
+    return claims
+
+
+def _summary_claims(docs: Path) -> list[Claim]:
+    """The new results as the abstract and the conclusion restate them."""
+
+    suites = _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]
+    review = _load(docs, "review-signal-study-v1")["operator_sets"]["A"]["generated"]
+    summary = _load(docs, "third-party-sample-summary-v1")
+    scores = suites["mean_expected_score"]
+    weakenings = _pct(review["weakening"]["reviewers"]["trustweave_diff"]["recall"])
+    schemas = sum(row["sample"]["schemas"] for row in summary["ecosystems"].values())
+    assert len(summary["ecosystems"]) == 4
+    # "parameterisation appears in all four": every sample holds at least one schema.
+    assert all(row["sample"]["schemas"] for row in summary["ecosystems"].values())
+    return [
+        (
+            rf"on ({_GROUPED}) generated policies, a suite with one witness per quotient class "
+            r"detects (\d+\.\d)\\% of seeded faults in expectation, against (\d+\.\d)\\% for a "
+            r"random suite of the same size and (\d+\.\d)\\% for a decision-coverage proxy",
+            (
+                _grouped(suites["policies_scored"]),
+                _pct(scores["quotient"]),
+                _pct(scores["random_quotient"]),
+                _pct(scores["decision"]),
+            ),
+            "abstract: the suite strategies",
+        ),
+        (
+            r"the tool's own diff naming (\d+\.\d)\\% of policy weakenings",
+            (weakenings,),
+            "abstract: the weakenings the diff names",
+        ),
+        (
+            rf"A seeded sample of ({_GROUPED}) policy files from ({_GROUPED}) repositories "
+            rf"outside the vendors, in four languages, sits at or below the vendor share in "
+            rf"each, holds ({_GROUPED}) policy schemas",
+            (_grouped(summary["sampled"]), _grouped(summary["repositories"]), _grouped(schemas)),
+            "abstract: the third-party samples",
+        ),
+        (
+            r"it detects (\d+\.\d)\\% of seeded faults in expectation where the proxy detects "
+            r"(\d+\.\d)\\%",
+            (_pct(scores["quotient"]), _pct(scores["decision"])),
+            "conclusion: the quotient against the proxy",
+        ),
+        (
+            r"which the tool's own diff names for (\d+\.\d)\\% of them today",
+            (weakenings,),
+            "conclusion: the weakenings the diff names",
+        ),
+        (
+            rf"({_GROUPED}) files from ({_GROUPED}) repositories in four languages, drawn by a "
+            rf"recorded procedure and pinned file by file\. Each sits at or below its vendor's "
+            rf"share, parameterisation appears in all four, and the exclusion taxonomy holds on "
+            rf"every one of their ({_GROUPED}) exclusions",
+            (
+                _grouped(summary["sampled"]),
+                _grouped(summary["repositories"]),
+                _grouped(summary["exclusions"]),
+            ),
+            "contributions: the third-party samples",
+        ),
+    ]
+
+
+def _third_party_claims(docs: Path) -> list[Claim]:
+    """The samples of policy written outside the vendors, and the table beside the vendors."""
+
+    summary = _load(docs, "third-party-sample-summary-v1")
+    rows = summary["ecosystems"]
+    manifests = {name: _load(docs, f"third-party-sample-{name}-corpus-v1") for name in rows}
+    (repository_cap,) = {manifest["repository_cap"] for manifest in manifests.values()}
+    (owner_cap,) = {manifest["owner_cap"] for manifest in manifests.values()}
+
+    # The sentences that are claims about every case, checked as such.
+    assert summary["taxonomy_holds"] and summary["exclusions_unclassified"] == 0
+    assert all(rows[name]["vendor"]["schemas"] == 0 for name in ("kyverno", "iam", "cedar"))
+    assert rows["rego"]["sample"]["schemas_outside_a_constraint_context"] == 0
+    for name in ("kyverno", "rego", "cedar"):
+        sample, vendor = rows[name]["sample"], rows[name]["vendor"]
+        assert vendor["share_inside_of_policies"] > sample["share_inside_of_policies_wilson_95"][1]
+    assert (
+        rows["iam"]["sample"]["share_inside_of_policies"]
+        == rows["iam"]["vendor"]["share_inside_of_policies"]
+    )
+
+    def share(name: str, side: str) -> str:
+        # From the counts: a share stored at four places and formatted again at one rounds
+        # twice, which turned 270 of 342 (78.947%) into 79.0.
+        counts = rows[name][side]
+        return _pct(counts["inside"] / counts["policies"])
+
+    claims: list[Claim] = []
+    for label, name in (
+        ("Kyverno", "kyverno"),
+        ("Rego", "rego"),
+        ("AWS IAM", "iam"),
+        ("Cedar", "cedar"),
+    ):
+        row, sample = rows[name], rows[name]["sample"]
+        low, high = sample["share_inside_of_policies_wilson_95"]
+        claims.append(
+            (
+                rf"{label} & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & "
+                rf"({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & (\d+\.\d)\\% "
+                r"\[(\d+\.\d), (\d+\.\d)\] & (\d+\.\d)\\%",
+                (
+                    _grouped(row["frame"]),
+                    _grouped(row["sampled"]),
+                    _grouped(row["repositories"]),
+                    _grouped(sample["inside"]),
+                    _grouped(sample["outside"]),
+                    _grouped(sample["undetermined"]),
+                    _grouped(sample["schemas"]),
+                    share(name, "sample"),
+                    _pct(low),
+                    _pct(high),
+                    share(name, "vendor"),
+                ),
+                f"third-party sample: {name} row",
+            )
+        )
+    schemas = {name: rows[name]["sample"]["schemas"] for name in rows}
+    resting = rows["rego"]["sample"]["resting_on_an_undefined_data_document"]
+    claims += [
+        (
+            rf"gives the result: ({_GROUPED}) files from ({_GROUPED}) repositories",
+            (_grouped(summary["sampled"]), _grouped(summary["repositories"])),
+            "third-party sample: files and repositories",
+        ),
+        (
+            rf"under caps of ({_WORD_PATTERN}) and ({_WORD_PATTERN}) files",
+            (_word(repository_cap), _word(owner_cap)),
+            "third-party sample: the caps, in the procedure",
+        ),
+        (
+            rf"under caps of ({_WORD_PATTERN}) files per repository and ({_WORD_PATTERN}) "
+            r"per owner",
+            (_word(repository_cap), _word(owner_cap)),
+            "third-party sample: the caps, in the caption",
+        ),
+        (
+            rf"({_GROUPED}) of the ({_GROUPED}) Kyverno files are Helm templates, ({_GROUPED}) of "
+            rf"the IAM documents interpolate a Terraform or CloudFormation placeholder, "
+            rf"({_GROUPED}) Cedar files are templates and ({_GROUPED}) Rego modules are "
+            rf"constraint templates: ({_GROUPED}) policy schemas",
+            (
+                _grouped(schemas["kyverno"]),
+                _grouped(rows["kyverno"]["sampled"]),
+                _grouped(schemas["iam"]),
+                _grouped(schemas["cedar"]),
+                _grouped(schemas["rego"]),
+                _grouped(sum(schemas.values())),
+            ),
+            "third-party sample: the schemas, by language",
+        ),
+        (
+            r"Kyverno (\d+\.\d)\\% against (\d+\.\d)\\%, Rego (\d+\.\d)\\% against (\d+\.\d)\\%, "
+            r"Cedar (\d+\.\d)\\% against (\d+\.\d)\\%, and IAM (\d+\.\d)\\% in both",
+            (
+                share("kyverno", "sample"),
+                share("kyverno", "vendor"),
+                share("rego", "sample"),
+                share("rego", "vendor"),
+                share("cedar", "sample"),
+                share("cedar", "vendor"),
+                share("iam", "sample"),
+            ),
+            "third-party sample: each share against its vendor",
+        ),
+        (
+            rf"every one of the ({_GROUPED}) exclusions in these samples falls in one of its "
+            r"three rows",
+            (_grouped(summary["exclusions"]),),
+            "third-party sample: the taxonomy holds",
+        ),
+        (
+            rf"({_GROUPED}) Rego verdicts rest on a \\texttt\{{data\}} document that no module "
+            r"of the repository defines",
+            (_grouped(resting),),
+            "third-party sample: Rego verdicts resting on undefined data",
+        ),
+        (
+            rf"The ({_GROUPED}) bound how far that reading could move the Rego row",
+            (_grouped(resting),),
+            "third-party sample: the bound on the Conftest reading",
+        ),
+    ]
+    return claims
+
+
+def _review_claims(docs: Path) -> list[Claim]:
+    """The reviewer study: what each reviewer flags, and the two edits the diff never shows."""
+
+    study = _load(docs, "review-signal-study-v1")["operator_sets"]["A"]
+    change, weakening = study["generated"]["change"], study["generated"]["weakening"]
+
+    def row(reviewer: str) -> tuple[str, ...]:
+        first, second = change["reviewers"][reviewer], weakening["reviewers"][reviewer]
+        return tuple(
+            f"{value:.3f}"
+            for value in (
+                first["recall"],
+                first["precision"],
+                second["recall"],
+                second["precision"],
+            )
+        )
+
+    # "produce no signal at all" and "all of them a decision flipped towards permission or a
+    # default changed to allow" are claims about every edit, so they are checked as such.
+    silent = study["decision_edits_by_direction"]
+    assert silent["flip_decision to a stricter decision"]["signalled"] == 0
+    assert silent["default_decision to anything but allow"]["signalled"] == 0
+    named = {
+        operator
+        for operator, entry in weakening["recall_by_operator"].items()
+        if entry["trustweave_diff_recall"]
+    }
+    assert named == {"flip_decision", "default_decision"}, named
+
+    labels = (
+        (r"exact table comparison \(Theorem~\\ref\{thm:equivalence\}\)", "exact_table"),
+        ("TrustWeave's diff signals", "trustweave_diff"),
+        ("suite, one witness per quotient class", "suite_quotient"),
+        ("suite, one witness per decision", "suite_decision"),
+        ("text diff", "text_diff"),
+    )
+    claims: list[Claim] = [
+        (
+            rf"{label} & (\d\.\d+) & (\d\.\d+) & (\d\.\d+) & (\d\.\d+)",
+            row(reviewer),
+            f"reviewers: {reviewer} row",
+        )
+        for label, reviewer in labels
+    ]
+    tool = change["reviewers"]["trustweave_diff"]
+    claims += [
+        (
+            rf"--- ({_GROUPED}) changes, of which ({_GROUPED}) are semantic and "
+            rf"({_GROUPED}) weaken the policy ---",
+            (
+                _grouped(change["changes"]),
+                _grouped(change["positives"]),
+                _grouped(weakening["positives"]),
+            ),
+            "reviewers: the changes scored",
+        ),
+        (
+            rf"pooled over ({_GROUPED}) proposed changes",
+            (_grouped(change["changes"]),),
+            "reviewers: the changes pooled in the table",
+        ),
+        (
+            rf"The diff routes (\d+\.\d)\\% of semantic changes to a reviewer and raises "
+            rf"({_GROUPED}) alarms on edits that change no decision",
+            (_pct(tool["recall"]), _grouped(tool["false_alarms"])),
+            "reviewers: what the diff routes and its false alarms",
+        ),
+        (
+            r"It names (\d+\.\d)\\% of the weakenings as weakenings",
+            (_pct(weakening["reviewers"]["trustweave_diff"]["recall"]),),
+            "reviewers: weakenings the diff names",
+        ),
+        (
+            rf"a median of ({_GROUPED}) cells per change",
+            (_grouped(int(study["exact_table_cells_per_change_median"])),),
+            "reviewers: what the exact comparison decides per change",
+        ),
+        (
+            r"its diff routes (\d+\.\d)\\% of semantic changes to a reviewer and names "
+            r"(\d+\.\d)\\% of policy weakenings as weakenings",
+            (_pct(tool["recall"]), _pct(weakening["reviewers"]["trustweave_diff"]["recall"])),
+            "reviewers: the contribution as the introduction states it",
+        ),
+    ]
+    return claims
+
+
+def _payoff_claims(docs: Path) -> list[Claim]:
+    """The suite-strategy study: the sample it ran on, the table, and the three comparisons."""
+
+    sample = _load(docs, "generated-policy-sample-v1")
+    study = _load(docs, "suite-strategy-study-v1")
+    paper, extended = study["operator_sets"]["A"], study["operator_sets"]["B"]
+    sizes = {name: str(int(size)) for name, size in paper["median_suite_size"].items()}
+    first, second, third = (paper["hypotheses"][name] for name in ("H1", "H2", "H3"))
+
+    def means(strategy: str) -> tuple[str, str]:
+        return (
+            _pct(paper["mean_expected_score"][strategy]),
+            _pct(extended["mean_expected_score"][strategy]),
+        )
+
+    def interval(hypothesis: dict[str, Any]) -> tuple[str, str, str]:
+        low, high = hypothesis["bootstrap_95"]
+        return (f"{hypothesis['mean_difference']:.3f}", f"{low:.3f}", f"{high:.3f}")
+
+    # Two sentences are checked rather than quoted: that every comparison hit the test's
+    # floor, and that the extended operators order the strategies as the paper's do.
+    floor = round(1 / (1 + study["resamples"]), 4)
+    assert all(paper["hypotheses"][name]["p_value"] == floor for name in ("H1", "H2", "H3"))
+    holm = {paper["hypotheses"][name]["p_value_holm"] for name in ("H1", "H2", "H3")}
+    assert len(holm) == 1, holm
+    ranked = [
+        sorted(scores["mean_expected_score"], key=scores["mean_expected_score"].get)
+        for scores in (paper, extended)
+    ]
+    assert ranked[0] == ranked[1], ranked
+
+    rows = (
+        ("one witness per decision", "decision", sizes["decision"]),
+        ("random, as many cells as decisions", "random_decision", sizes["decision"]),
+        ("random, as many cells as quotient classes", "random_quotient", sizes["quotient"]),
+        ("one witness per quotient class", "quotient", sizes["quotient"]),
+        ("one witness per refinement cell", "refinement", sizes["refinement"]),
+    )
+    claims: list[Claim] = [
+        (
+            rf"{re.escape(label)} & ({_GROUPED}) & (\d+\.\d)\\% & (\d+\.\d)\\%",
+            (size, *means(strategy)),
+            f"suite strategies: {strategy} row",
+        )
+        for label, strategy, size in rows
+    ]
+    claims += [
+        (
+            rf"at most ({_GROUPED}) cells, until it has ({_GROUPED}): it drew ({_GROUPED}) "
+            rf"candidates, the parser refused ({_GROUPED}) and ({_GROUPED}) were over the cap",
+            (
+                _grouped(sample["max_cells"]),
+                _grouped(len(sample["policies"])),
+                _grouped(sample["candidates_drawn"]),
+                _grouped(sample["rejected_by_parser"]),
+                _grouped(sample["over_cell_cap"]),
+            ),
+            "suite strategies: the generated sample",
+        ),
+        (
+            rf"averaged over the ({_GROUPED}) generated policies",
+            (_grouped(paper["policies_scored"]),),
+            "suite strategies: policies scored",
+        ),
+        (
+            r"covering the quotient detects (\d+\.\d)\\% of the live mutants in expectation "
+            r"against (\d+\.\d)\\% for a random suite of the same size: a paired difference of "
+            r"(\d\.\d+), with a 95\\% bootstrap interval of \$\[(\d\.\d+), (\d\.\d+)\]\$, "
+            rf"higher on ({_GROUPED}) of the ({_GROUPED}) policies and lower on ({_GROUPED})",
+            (
+                _pct(paper["mean_expected_score"]["quotient"]),
+                _pct(paper["mean_expected_score"]["random_quotient"]),
+                *interval(first),
+                _grouped(first["wins"]),
+                _grouped(first["policies"]),
+                _grouped(first["losses"]),
+            ),
+            "suite strategies: H1, the quotient against random at equal size",
+        ),
+        (
+            r"Against the decision-coverage proxy the difference is (\d\.\d+) "
+            r"\$\[(\d\.\d+), (\d\.\d+)\]\$, higher on "
+            rf"({_GROUPED}) policies and lower on (none|{_GROUPED})",
+            (
+                *interval(second),
+                _grouped(second["wins"]),
+                "none" if second["losses"] == 0 else _grouped(second["losses"]),
+            ),
+            "suite strategies: H2, the quotient against the proxy",
+        ),
+        (
+            r"by (\d\.\d+)\s*\$\[(\d\.\d+), (\d\.\d+)\]\$, so it is not worthless",
+            interval(third),
+            "suite strategies: H3, the proxy against random at equal size",
+        ),
+        (
+            rf"at a median of ({_WORD_PATTERN}) test cases against ({_GROUPED})",
+            (_word(int(paper["median_suite_size"]["decision"])), sizes["quotient"]),
+            "suite strategies: the proxy's suite size against the quotient's",
+        ),
+        (
+            rf"reach \$p = (\d\.\d+)\$, the smallest a ({_GROUPED})-permutation sign-flip test "
+            r"can return, and \$p = (\d\.\d+)\$ after Holm's correction",
+            (f"{floor:.4f}", _grouped(study["resamples"]), f"{holm.pop():.4f}"),
+            "suite strategies: the permutation floor, raw and corrected",
+        ),
+        (
+            rf"at a median of ({_GROUPED}) cells rather than ({_GROUPED})",
+            (sizes["refinement"], sizes["quotient"]),
+            "suite strategies: the refinement's suite size against the quotient's",
+        ),
+        (
+            r"detects (\d+\.\d)\\% of seeded faults in expectation, against (\d+\.\d)\\% for a "
+            r"random suite of the same size and (\d+\.\d)\\% for the decision-coverage proxy, "
+            rf"across ({_GROUPED}) generated policies",
+            (
+                _pct(paper["mean_expected_score"]["quotient"]),
+                _pct(paper["mean_expected_score"]["random_quotient"]),
+                _pct(paper["mean_expected_score"]["decision"]),
+                _grouped(paper["policies_scored"]),
+            ),
+            "suite strategies: the contribution as the introduction states it",
+        ),
+    ]
     return claims
 
 
