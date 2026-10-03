@@ -8,6 +8,7 @@ These tests need the Cedar engine's bindings and skip without them.
 
 from __future__ import annotations
 
+import importlib.metadata
 import importlib.util
 import json
 import random
@@ -52,6 +53,17 @@ def _est(text: str) -> dict:
 
 def test_the_protocol_is_the_one_the_study_was_fixed_under() -> None:
     study.require_protocol()
+
+
+def test_the_binding_bundles_the_engine_version_the_paper_names() -> None:
+    # The protocol calls the engine "Cedar 4.12.1", which is the binding's version. The engine
+    # inside it is the one its software bill of materials records, and the paper names that.
+    distribution = importlib.metadata.distribution("cedarpy")
+    assert f"cedarpy {distribution.version}" == study.ENGINE
+    boms = [path for path in distribution.files or [] if path.name.endswith(".cyclonedx.json")]
+    assert boms, "the cedarpy wheel ships no software bill of materials"
+    components = json.loads(boms[0].read_text(encoding="utf-8"))["components"]
+    assert {c["name"]: c["version"] for c in components}["cedar-policy"] == "4.12.0"
 
 
 @pytest.mark.parametrize(

@@ -1236,6 +1236,18 @@ def _cedar_claims(docs: Path) -> list[Claim]:
         pair["changes_a_decision"] for pair in edits["pairs"] if pair.get("weakens_a_decision")
     )
     assert weakening_within_changes
+    # A scored file enters an analysis only if some mutant changes a decision, so the analyses
+    # are smaller than the scored files by the files with nothing to detect. The paper names
+    # the one such file with a condition, and says it gives every request the same decision.
+    scored = [entry for entry in cedar["files"].values() if entry["status"] == "scored"]
+    conditioned = [entry for entry in scored if entry["with_condition"]]
+    nothing_to_detect = [entry for entry in conditioned if entry["expected_score"] is None]
+    assert len(conditioned) - primary["files_scored"] == len(nothing_to_detect) == 1
+    assert nothing_to_detect[0]["decision_range"] == 1
+    assert set(nothing_to_detect[0]["mutants"]) == {"equivalent"}
+    assert len(scored) - secondary["files_scored"] == sum(
+        entry["expected_score"] is None for entry in scored
+    )
 
     def interval(hypothesis: dict[str, Any]) -> tuple[str, str, str]:
         low, high = hypothesis["bootstrap_95"]
@@ -1259,14 +1271,22 @@ def _cedar_claims(docs: Path) -> list[Claim]:
     ]
     claims += [
         (
-            rf"Of its ({_GROUPED}) files judged inside, ({_GROUPED}) parse under Cedar 4\.12\.1 "
-            rf"and ({_GROUPED}) are exact-eligible",
+            rf"Of its ({_GROUPED}) files judged inside, ({_GROUPED}) parse under the Cedar engine",
             (
                 _grouped(population["judged inside"]),
                 _grouped(population["judged inside"] - population["Cedar does not parse it"]),
-                _grouped(population["exact-eligible"]),
             ),
             "cedar replication: the population",
+        ),
+        (
+            r"through its Python binding cedarpy (\d+\.\d+\.\d+)\.",
+            (cedar["engine"].removeprefix("cedarpy "),),
+            "cedar replication: the binding the artifact records",
+        ),
+        (
+            rf"and ({_GROUPED}) are exact-eligible",
+            (_grouped(population["exact-eligible"]),),
+            "cedar replication: the eligible files",
         ),
         (
             rf"of which ({_GROUPED}) exceed the cap of ({_GROUPED}) cells",
@@ -1284,8 +1304,14 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar replication: files failing completeness",
         ),
         (
-            rf"Of the rest, ({_GROUPED}) have at least one condition and form the primary analysis",
-            (_grouped(primary["files_scored"]),),
+            rf"Of the ({_GROUPED}) that remain, ({_GROUPED}) have at least one condition, and "
+            rf"the ({_GROUPED}) of them with a mutant that changes a decision form the primary "
+            r"analysis",
+            (
+                _grouped(statuses["scored"]),
+                _grouped(len(conditioned)),
+                _grouped(primary["files_scored"]),
+            ),
             "cedar replication: the primary analysis",
         ),
         (
@@ -1316,7 +1342,8 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar replication: H2",
         ),
         (
-            rf"the secondary analysis over all ({_GROUPED}) scored files",
+            rf"the secondary analysis, over the ({_GROUPED}) scored files with a mutant that "
+            r"changes a decision, gives the same ordering",
             (_grouped(secondary["files_scored"]),),
             "cedar replication: the secondary analysis",
         ),

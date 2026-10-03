@@ -179,8 +179,10 @@ python scripts/third_party_sample.py oracle-rego \
 
 Runs under [`EXACT_EVALUATION_PROTOCOL_CEDAR.md`](EXACT_EVALUATION_PROTOCOL_CEDAR.md). Every
 decision is the Cedar engine's, through its Python bindings, which are not a dependency of the
-package: `pip install cedarpy==4.12.1` first. The files are re-fetched by the pins of the
-Cedar sample manifest, so this needs the network once.
+package: `pip install cedarpy==4.12.1` first. That binding bundles the engine cedar-policy
+4.12.0, as its software bill of materials records; the protocol gives the binding's version,
+4.12.1, as the engine's. The files are re-fetched by the pins of the Cedar sample manifest, so
+this needs the network once.
 
 ```bash
 python scripts/cedar_exact_study.py study --cache /tmp/cedar-cache \
