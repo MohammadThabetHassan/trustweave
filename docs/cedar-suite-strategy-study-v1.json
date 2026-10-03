@@ -1,0 +1,3887 @@
+{
+  "analyses": {
+    "primary: files with a condition": {
+      "files_scored": 96,
+      "hypotheses": {
+        "H1": {
+          "alternative": "greater",
+          "bootstrap_95": [
+            0.061521,
+            0.117783
+          ],
+          "losses": 2,
+          "mean_difference": 0.088798,
+          "median_difference": 0.005534,
+          "p_value": 0.0001,
+          "p_value_holm": 0.0003,
+          "policies": 96,
+          "strategies": [
+            "quotient",
+            "random_quotient"
+          ],
+          "ties": 41,
+          "wins": 53
+        },
+        "H2": {
+          "alternative": "greater",
+          "bootstrap_95": [
+            0.664613,
+            0.747769
+          ],
+          "losses": 0,
+          "mean_difference": 0.707991,
+          "median_difference": 0.739657,
+          "p_value": 0.0001,
+          "p_value_holm": 0.0003,
+          "policies": 96,
+          "strategies": [
+            "quotient",
+            "decision"
+          ],
+          "ties": 2,
+          "wins": 94
+        },
+        "H3": {
+          "alternative": "two-sided",
+          "bootstrap_95": [
+            0.087186,
+            0.140338
+          ],
+          "losses": 0,
+          "mean_difference": 0.113054,
+          "median_difference": 0.047568,
+          "p_value": 0.0001,
+          "p_value_holm": 0.0003,
+          "policies": 96,
+          "strategies": [
+            "decision",
+            "random_decision"
+          ],
+          "ties": 28,
+          "wins": 68
+        }
+      },
+      "mean_expected_score": {
+        "decision": 0.285392,
+        "quotient": 0.993383,
+        "random_decision": 0.172338,
+        "random_quotient": 0.904585,
+        "refinement": 1.0
+      },
+      "median_suite_size": {
+        "quotient": 36,
+        "refinement": 81
+      }
+    },
+    "secondary: every eligible file": {
+      "files_scored": 152,
+      "hypotheses": {
+        "H1": {
+          "alternative": "greater",
+          "bootstrap_95": [
+            0.098822,
+            0.144731
+          ],
+          "losses": 2,
+          "mean_difference": 0.121289,
+          "median_difference": 0.038967,
+          "p_value": 0.0001,
+          "p_value_holm": 0.0003,
+          "policies": 152,
+          "strategies": [
+            "quotient",
+            "random_quotient"
+          ],
+          "ties": 58,
+          "wins": 92
+        },
+        "H2": {
+          "alternative": "greater",
+          "bootstrap_95": [
+            0.542973,
+            0.637204
+          ],
+          "losses": 0,
+          "mean_difference": 0.591108,
+          "median_difference": 0.666677,
+          "p_value": 0.0001,
+          "p_value_holm": 0.0003,
+          "policies": 152,
+          "strategies": [
+            "quotient",
+            "decision"
+          ],
+          "ties": 20,
+          "wins": 132
+        },
+        "H3": {
+          "alternative": "two-sided",
+          "bootstrap_95": [
+            0.088064,
+            0.126571
+          ],
+          "losses": 0,
+          "mean_difference": 0.106957,
+          "median_difference": 0.053007,
+          "p_value": 0.0001,
+          "p_value_holm": 0.0003,
+          "policies": 152,
+          "strategies": [
+            "decision",
+            "random_decision"
+          ],
+          "ties": 47,
+          "wins": 105
+        }
+      },
+      "mean_expected_score": {
+        "decision": 0.404713,
+        "quotient": 0.995821,
+        "random_decision": 0.297756,
+        "random_quotient": 0.874532,
+        "refinement": 1.0
+      },
+      "median_suite_size": {
+        "quotient": 16,
+        "refinement": 36
+      }
+    }
+  },
+  "deviations": [
+    "the completeness check also requires every drawn request's atom valuations to appear among the cells', which detects a missing quotient class; the protocol's criterion looked only at mutants misjudged equivalent, and on the development set a deliberately removed class went undetected by it. Added before the study ran on its population; it can only exclude files.",
+    "a first attempt on the population was stopped before it wrote any result: it built the power sets of witness spaces far over the cap before checking the cap, and ran out of memory. The space is now sized before it is built, and requests are evaluated in batches that share an entity store, which on the development set gave the same decision and atom value as one-by-one evaluation on every cell.",
+    "a second attempt stopped with an engine error before writing any result: a cell naming a principal in a group the resource is, while the resource is in the principal, has a cyclic hierarchy, which Cedar refuses. Such a cell is no request and is now omitted, and batches are formed so that merging never closes a cycle."
+  ],
+  "engine": "cedarpy 4.12.1",
+  "file_statuses": {
+    "missing cells": 19,
+    "over the cell cap": 28,
+    "scored": 153
+  },
+  "files": {
+    "Aeluin-Technologies/Galadril/schemas/spicedb/examples/contextual-constraints.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 1701,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.349844,
+        "quotient": 0.99852,
+        "random_decision": 0.221574,
+        "random_quotient": 0.999885,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 29
+      },
+      "quotient_classes": 972,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Agentcygroup/tmig-full/extensions/embeddings/domain.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 9,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.428571,
+        "quotient": 1.0,
+        "random_decision": 0.319444,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 12
+      },
+      "quotient_classes": 9,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Agentcygroup/tmig-full/policy/rules/14-nist-ai-rmf.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 9,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.222222,
+        "quotient": 1.0,
+        "random_decision": 0.222222,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 11,
+        "live": 1
+      },
+      "quotient_classes": 9,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Ajeetmaurya395/civicsahayak/backend/policies/ai_agent.cedar": {
+      "atoms": 15,
+      "batches": 1,
+      "cells": 77,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.098716,
+        "quotient": 1.0,
+        "random_decision": 0.092721,
+        "random_quotient": 0.923587,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 43
+      },
+      "quotient_classes": 66,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Ajeetmaurya395/paradox/backend/policies/owasp_security.cedar": {
+      "cells": 139968,
+      "status": "over the cell cap"
+    },
+    "Anumehajain78/promptfence/backend/policies/forbid-support-delete.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.041667,
+        "quotient": 1.0,
+        "random_decision": 0.041667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 7,
+        "live": 1
+      },
+      "quotient_classes": 24,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Bharathhh30/Food-Shield/policies/foodshield.cedar": {
+      "atoms": 11,
+      "batches": 30,
+      "cells": 3000,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.140051,
+        "quotient": 1.0,
+        "random_decision": 0.089837,
+        "random_quotient": 0.995818,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 22
+      },
+      "quotient_classes": 480,
+      "status": "scored",
+      "with_condition": true
+    },
+    "BigHandsDan/molt/packages/permit/policies/default.cedar": {
+      "atoms": 13,
+      "batches": 1,
+      "cells": 864,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.120148,
+        "quotient": 0.998077,
+        "random_decision": 0.066889,
+        "random_quotient": 0.999748,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 13,
+        "live": 65
+      },
+      "quotient_classes": 648,
+      "status": "scored",
+      "with_condition": true
+    },
+    "BriceKrispies/atlas/specs/policy-fixtures/cli/bad-action.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 4,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.666667,
+        "quotient": 1.0,
+        "random_decision": 0.5,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 4
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "BriceKrispies/atlas/specs/policy-fixtures/cli/dsl-expression-default.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 8,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.266667,
+        "quotient": 1.0,
+        "random_decision": 0.25,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 12
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "BugHunterX2101/cell-guard/gateway-policy/policies/policies/01-forbid-delete-customer-record.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 8,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.125,
+        "quotient": 1.0,
+        "random_decision": 0.125,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 1
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "BugHunterX2101/cell-guard/gateway-policy/policies/policies/05-permit-wire-transfer-within-threshold.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 56,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.43493,
+        "quotient": 0.910256,
+        "random_decision": 0.096753,
+        "random_quotient": 0.845452,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 13
+      },
+      "quotient_classes": 32,
+      "status": "scored",
+      "with_condition": true
+    },
+    "CSNEHA20/policylab/fixtures/docvault/docvault_baseline.cedar": {
+      "atoms": 8,
+      "batches": 30,
+      "cells": 2880,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.260343,
+        "quotient": 1.0,
+        "random_decision": 0.234574,
+        "random_quotient": 0.985444,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 19
+      },
+      "quotient_classes": 192,
+      "status": "scored",
+      "with_condition": true
+    },
+    "CSNEHA20/policylab/fixtures/docvault/docvault_fixed.cedar": {
+      "atoms": 8,
+      "batches": 30,
+      "cells": 2880,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.260343,
+        "quotient": 1.0,
+        "random_decision": 0.234574,
+        "random_quotient": 0.985444,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 19
+      },
+      "quotient_classes": 192,
+      "status": "scored",
+      "with_condition": true
+    },
+    "CSNEHA20/policylab/fixtures/valid_policy.cedar": {
+      "atoms": 14,
+      "batches": 493,
+      "cells": 15360,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.194899,
+        "quotient": 1.0,
+        "random_decision": 0.162685,
+        "random_quotient": 0.991579,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 27
+      },
+      "quotient_classes": 448,
+      "status": "scored",
+      "with_condition": true
+    },
+    "ChiragAgg5k/sahyog-opal-cedar/policy/admin.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.822222,
+        "random_quotient": 0.822222,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "ChiragAgg5k/sahyog-opal-cedar/policy/user.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 4,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.833333,
+        "random_quotient": 0.833333,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Diekgbbtt/cloud-native-mobile-app/terraform/modules/verifiedpermissions/policies/disabled_users.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 3,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.333333,
+        "quotient": 1.0,
+        "random_decision": 0.333333,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 1
+      },
+      "quotient_classes": 3,
+      "status": "scored",
+      "with_condition": true
+    },
+    "ElevenID/Marty/packages/marty-common/marty_common/cedar/credential_verification.cedar": {
+      "cells": 1088640,
+      "status": "over the cell cap"
+    },
+    "EnzoTironi/OS/e2e/evolution-breaking/lifecycle.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 80,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.272024,
+        "quotient": 1.0,
+        "random_decision": 0.231535,
+        "random_quotient": 0.999003,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 40
+      },
+      "quotient_classes": 60,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Firma-AI/openfirma/examples/demos/demo2/issuance-policies/issuance.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 2
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Firma-AI/openfirma/examples/demos/demo2/policies/policy.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 9,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.357143,
+        "quotient": 1.0,
+        "random_decision": 0.270833,
+        "random_quotient": 0.729167,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 8
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Firma-AI/openfirma/examples/policies/credential.cedar": {
+      "atoms": 5,
+      "batches": 3,
+      "cells": 252,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.496334,
+        "quotient": 0.939394,
+        "random_decision": 0.098046,
+        "random_quotient": 0.554094,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 11
+      },
+      "quotient_classes": 24,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Govcraft/talon-hub/policies/permissions.cedar": {
+      "atoms": 14,
+      "batches": 1,
+      "cells": 180,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.325891,
+        "quotient": 1.0,
+        "random_decision": 0.146854,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 43
+      },
+      "quotient_classes": 180,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Govcraft/talon/policies/talon.cedar": {
+      "atoms": 15,
+      "batches": 1,
+      "cells": 70,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.146285,
+        "quotient": 1.0,
+        "random_decision": 0.122497,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 65
+      },
+      "quotient_classes": 70,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Harish-0412/AWS---Foundations/agent/policies/findings/03-auth.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.166667,
+        "quotient": 1.0,
+        "random_decision": 0.166667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Harish-0412/AWS---Foundations/agent/policies/remediation.cedar": {
+      "atoms": 13,
+      "batches": 1,
+      "cells": 15309,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.246661,
+        "quotient": 1.0,
+        "random_decision": 0.039956,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 10,
+        "live": 44
+      },
+      "quotient_classes": 15309,
+      "status": "scored",
+      "with_condition": true
+    },
+    "INTENTIUS/chant/lexicons/cedar/src/import/testdata/simple.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.472727,
+        "quotient": 1.0,
+        "random_decision": 0.19697,
+        "random_quotient": 0.715152,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Iamritupatil/AgentGate/policies/execute.cedar": {
+      "atoms": 16,
+      "batches": 6,
+      "cells": 15360,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.095176,
+        "quotient": 0.970037,
+        "random_decision": 0.051353,
+        "random_quotient": 0.760265,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 59
+      },
+      "quotient_classes": 900,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Iamritupatil/AgentGate/policies/request_approval.cedar": {
+      "atoms": 11,
+      "batches": 1,
+      "cells": 1200,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.085093,
+        "quotient": 0.962302,
+        "random_decision": 0.043455,
+        "random_quotient": 0.685213,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 42
+      },
+      "quotient_classes": 180,
+      "status": "scored",
+      "with_condition": true
+    },
+    "J466Y/WhiteTower/test/conformance/vectors/bundles/unsupported-algorithm/policies/global/0192f1c2-7a3b-7c4d-8e5f-000000000101.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.166667,
+        "quotient": 1.0,
+        "random_decision": 0.166667,
+        "random_quotient": 0.666667,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 1
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "JKSNS/claude_preflight/governance/policy/cedar/deployment.cedar": {
+      "atoms": 10,
+      "batches": 1,
+      "cells": 864,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 14,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 43
+      },
+      "quotient_classes": 864,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "JKSNS/claude_preflight/governance/policy/cedar/shell.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 4374,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.360003,
+        "quotient": 1.0,
+        "random_decision": 0.050862,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 24
+      },
+      "quotient_classes": 4374,
+      "status": "scored",
+      "with_condition": true
+    },
+    "JKSNS/claude_preflight/governance/policy/cedar/upstream.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.635897,
+        "quotient": 1.0,
+        "random_decision": 0.26546,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 13
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "JanssenProject/jans/jans-core/cedarling/src/test/resources/test-policy-store/policies/audit/log_bulk_write.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 144,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 47,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 7
+      },
+      "quotient_classes": 20,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "JanssenProject/jans/jans-lock/lock-server/service/src/main/policy_store/policies/audit/telemetry_bulk_write.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 144,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 39,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 7
+      },
+      "quotient_classes": 20,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "JanssenProject/jans/jans-lock/lock-server/service/src/main/policy_store/policies/policy/policy_get.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 144,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 55,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 7
+      },
+      "quotient_classes": 20,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "JohnChe88/AgentAI-Data-Operation/shared/policies/guardrails/ops_002_encryption_rekeyed.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.055556,
+        "quotient": 1.0,
+        "random_decision": 0.055556,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 8,
+        "live": 1
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "JohnChe88/AgentAI-Data-Operation/shared/policies/guardrails/sec_003_pii_masking.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.055556,
+        "quotient": 1.0,
+        "random_decision": 0.055556,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 8,
+        "live": 1
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "KeyRack-io/keyrack/demos/04-hyok-full-stack/config/cedar-policy.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 4,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.666667,
+        "quotient": 1.0,
+        "random_decision": 0.611111,
+        "random_quotient": 0.833333,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 6
+      },
+      "quotient_classes": 3,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Lakshmi786/Verisettle/policies/01-agent-approval-threshold.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 192,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.255174,
+        "quotient": 0.947917,
+        "random_decision": 0.057871,
+        "random_quotient": 0.911949,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 24
+      },
+      "quotient_classes": 108,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Lakshmi786/Verisettle/policies/02-first-seen-vendor-dual-approval.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 48,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.020833,
+        "quotient": 1.0,
+        "random_decision": 0.020833,
+        "random_quotient": 0.75,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 9,
+        "live": 1
+      },
+      "quotient_classes": 36,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Marioiubas/sandbox/code/policies/ceiling.cedar": {
+      "atoms": 3,
+      "batches": 10,
+      "cells": 40,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.1,
+        "quotient": 1.0,
+        "random_decision": 0.1,
+        "random_quotient": 0.606522,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 3
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Marty-Protocol/Marty-Protocol/cedar/policies/credential_verification.cedar": {
+      "cells": 151200,
+      "status": "over the cell cap"
+    },
+    "MeloveGupta/agent-jail/policies/agent.cedar": {
+      "atoms": 10,
+      "batches": 17,
+      "cells": 9216,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.182131,
+        "quotient": 1.0,
+        "random_decision": 0.146586,
+        "random_quotient": 0.997738,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 39
+      },
+      "quotient_classes": 810,
+      "status": "scored",
+      "with_condition": true
+    },
+    "MythologIQ-Labs-LLC/Qor-logic/qor/policies/owasp_enforcement.cedar": {
+      "atoms": 8,
+      "batches": 243,
+      "cells": 1944,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.01821,
+        "quotient": 1.0,
+        "random_decision": 0.01821,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 30,
+        "live": 5
+      },
+      "quotient_classes": 1458,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Obelus-Labs-LLC/Aether/aether-ref/deploy/authz-policy.cedar": {
+      "cells": 20480,
+      "status": "over the cell cap"
+    },
+    "Pigius/avp-cli/scenarios/documentsScenario/deny_policy.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.25,
+        "quotient": 1.0,
+        "random_decision": 0.25,
+        "random_quotient": 0.745455,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 1
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Pigius/avp-cli/scenarios/ecommerceCognitoGroupsScenario/allow_policy_1.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.708333,
+        "quotient": 1.0,
+        "random_decision": 0.569746,
+        "random_quotient": 0.790726,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 4
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Pigius/awesome-amazon-verified-permissions-and-cedar/terraform/scenarios/documentsScenario/deny_policy.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.25,
+        "quotient": 1.0,
+        "random_decision": 0.25,
+        "random_quotient": 0.745455,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 1
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Pigius/cedar-mcp-server/examples/rbac-document-management/policies/top-secret-forbid.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.111111,
+        "quotient": 1.0,
+        "random_decision": 0.111111,
+        "random_quotient": 0.568627,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Rartemos/tau2-cedar/cedar/policies/airline/permit.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 2
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "Rubentxu/hodei-verified-permissions/examples/app/config/policies/admin.cedar": {
+      "cells": 41472,
+      "status": "over the cell cap"
+    },
+    "Rubentxu/hodei-verified-permissions/examples/app/config/policies/vet.cedar": {
+      "cells": 41472,
+      "status": "over the cell cap"
+    },
+    "Rubentxu/hodei-verified-permissions/examples/policies/allow_admin_full_access.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.822222,
+        "random_quotient": 0.822222,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "ScopeBlind/examples/claude-code-hooks/policies/default.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 2
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "ShashankVaish/address-simplfy/backend/layers/common/python/patasetu/policies/contact.cedar": {
+      "cells": 32256,
+      "status": "over the cell cap"
+    },
+    "Shashidhar-Pawadashetti/cedarguard/policies/r1_s3_public.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.291667,
+        "quotient": 1.0,
+        "random_decision": 0.291667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 13,
+        "live": 1
+      },
+      "quotient_classes": 24,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Shashidhar-Pawadashetti/cedarguard/policies/r5_no_mfa_condition.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.055556,
+        "quotient": 1.0,
+        "random_decision": 0.055556,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 8,
+        "live": 1
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "TheFellow/go-modular-monolith/app/domains/ingredients/authz/policies.cedar": {
+      "atoms": 4,
+      "batches": 442,
+      "cells": 6144,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.449662,
+        "quotient": 1.0,
+        "random_decision": 0.336966,
+        "random_quotient": 0.664704,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 8
+      },
+      "quotient_classes": 16,
+      "status": "scored",
+      "with_condition": false
+    },
+    "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar": {
+      "cells": 319488,
+      "status": "over the cell cap"
+    },
+    "TheFellow/go-modular-monolith/app/domains/orders/authz/policies.cedar": {
+      "cells": 23040,
+      "status": "over the cell cap"
+    },
+    "UQ-PAC/RSVP/rsvp/policy-dl/src/test/resources/translation/primitive-types/long-3.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 96,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.430368,
+        "quotient": 0.954545,
+        "random_decision": 0.070295,
+        "random_quotient": 0.943674,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 11
+      },
+      "quotient_classes": 72,
+      "status": "scored",
+      "with_condition": true
+    },
+    "VineetKamath/trustline/infra/cedar/policies/forbid-raw-values.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 2,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.5,
+        "quotient": 1.0,
+        "random_decision": 0.5,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 1
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "VineetKamath/trustline/infra/cedar/policies/forbid-unregistered-verifier.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.166667,
+        "quotient": 1.0,
+        "random_decision": 0.166667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Vishallakshmikanthan/cedar-demo-template/cedar-demo-template/policies/03-inactive-deny.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.166667,
+        "quotient": 1.0,
+        "random_decision": 0.166667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Ziack/s2s-m2m-identity-stack/examples/migrations/from-passport-jwt/after/policies/orders.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.427845,
+        "quotient": 1.0,
+        "random_decision": 0.364625,
+        "random_quotient": 0.837706,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 11
+      },
+      "quotient_classes": 12,
+      "status": "scored",
+      "with_condition": true
+    },
+    "Ziack/s2s-m2m-identity-stack/packages/cedar-policies/policies/accounts.cedar": {
+      "cells": 25920,
+      "status": "over the cell cap"
+    },
+    "Ziack/s2s-m2m-identity-stack/packages/cedar-policies/policies/payments.cedar": {
+      "cells": 25920,
+      "status": "over the cell cap"
+    },
+    "aadk979/SPOH_2027/remediation/reports/P05/cedar/policies/attendance.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 162,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.233986,
+        "quotient": 1.0,
+        "random_decision": 0.057075,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 16
+      },
+      "quotient_classes": 162,
+      "status": "scored",
+      "with_condition": true
+    },
+    "aadk979/SPOH_2027/remediation/reports/P05/cedar/policies/grants.generated.cedar": {
+      "cells": 13229323905401020,
+      "status": "over the cell cap"
+    },
+    "aashutoshkumarbhardwaj/AgentGuard/backend/app/security/policies.cedar": {
+      "atoms": 11,
+      "batches": 1,
+      "cells": 108,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.273639,
+        "quotient": 1.0,
+        "random_decision": 0.233626,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 7,
+        "live": 28
+      },
+      "quotient_classes": 108,
+      "status": "scored",
+      "with_condition": true
+    },
+    "abhinavg6/yutha/crates/yutha-diff/tests/fixtures/tightened.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.487603,
+        "quotient": 0.954545,
+        "random_decision": 0.385046,
+        "random_quotient": 0.921038,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 11
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "adityagupta708481-cell/SocraticDSA/socratic_dsa/policies/policy.cedar": {
+      "atoms": 8,
+      "batches": 44,
+      "cells": 10080,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.125296,
+        "quotient": 1.0,
+        "random_decision": 0.075589,
+        "random_quotient": 0.595084,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 28
+      },
+      "quotient_classes": 120,
+      "status": "scored",
+      "with_condition": true
+    },
+    "agentrust-io/integrations/examples/financial-services/policy/allow.cedar": {
+      "cells": 40824,
+      "status": "over the cell cap"
+    },
+    "agentrust-io/integrations/examples/healthcare/sg-moh/policy/radiology-sg.cedar": {
+      "atoms": 12,
+      "batches": 1,
+      "cells": 2592,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.234601,
+        "quotient": 1.0,
+        "random_decision": 0.128851,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 44
+      },
+      "quotient_classes": 1728,
+      "status": "scored",
+      "with_condition": true
+    },
+    "alpaylan/cedar-etna/cedar-lean-cli/examples/analyze/view_box/policies6.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 3,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.777778,
+        "random_quotient": 0.777778,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "alpaylan/cedar-etna/cedar-lean-cli/examples/analyze/view_box/policies9.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 3,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.777778,
+        "random_quotient": 0.777778,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "ankan288/SentinalFlow/backend/infrastructure/cedar/policies.cedar": {
+      "cells": 276480,
+      "status": "over the cell cap"
+    },
+    "anthemist/cautious-invention/cedar/policies/admin-user-management.cedar": {
+      "atoms": 3,
+      "batches": 10,
+      "cells": 192,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.654836,
+        "quotient": 1.0,
+        "random_decision": 0.361599,
+        "random_quotient": 0.81439,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 7
+      },
+      "quotient_classes": 12,
+      "status": "scored",
+      "with_condition": true
+    },
+    "arj-co/secval/policies/procurement-approval-limit.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 96,
+      "decision_range": 1,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 2,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 9,
+        "live": 1
+      },
+      "quotient_classes": 32,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "arushshinde2712-del/AWSrengers-Infinity-Toolbox/backend/guardrail.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 4,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.5625,
+        "quotient": 1.0,
+        "random_decision": 0.541667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 8
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "atomicgravity/postern/terraform/postern-broker/cedar/starter.cedar": {
+      "atoms": 7,
+      "batches": 10,
+      "cells": 1152,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.316499,
+        "quotient": 1.0,
+        "random_decision": 0.251445,
+        "random_quotient": 0.831038,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 21
+      },
+      "quotient_classes": 108,
+      "status": "scored",
+      "with_condition": true
+    },
+    "baoqger/agt-fork/examples/cedarling-governed/policy-stores/unsigned/policies/forbid-write.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.041667,
+        "quotient": 1.0,
+        "random_decision": 0.041667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 7,
+        "live": 1
+      },
+      "quotient_classes": 24,
+      "status": "scored",
+      "with_condition": true
+    },
+    "burdettadam/cedar_py/examples/cli_example.cedar": {
+      "atoms": 4,
+      "batches": 2,
+      "cells": 60,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.407609,
+        "quotient": 1.0,
+        "random_decision": 0.324435,
+        "random_quotient": 0.634662,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 8
+      },
+      "quotient_classes": 16,
+      "status": "scored",
+      "with_condition": false
+    },
+    "busyfit-admin/gmv-back-end-v2/permissions_tests/admin/admin-role.cedar": {
+      "atoms": 5,
+      "batches": 187,
+      "cells": 5376,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.276012,
+        "quotient": 1.0,
+        "random_decision": 0.178071,
+        "random_quotient": 0.762638,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 10
+      },
+      "quotient_classes": 24,
+      "status": "scored",
+      "with_condition": false
+    },
+    "cameronwc/sluice-ai/packages/policy-engine/policy_packs/confidential-marker-block.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 3,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.333333,
+        "quotient": 1.0,
+        "random_decision": 0.333333,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 1
+      },
+      "quotient_classes": 3,
+      "status": "scored",
+      "with_condition": true
+    },
+    "cameronwc/sluice-ai/packages/policy-engine/policy_packs/enterprise-account-enforcement.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 51,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.019608,
+        "quotient": 1.0,
+        "random_decision": 0.019608,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 24,
+        "live": 4
+      },
+      "quotient_classes": 51,
+      "status": "scored",
+      "with_condition": true
+    },
+    "casselc/observability/otel-chdb/grants/examples/rejected.cedar": {
+      "cells": 3686400,
+      "status": "over the cell cap"
+    },
+    "cdupuis/sbx-warden/policies/readonly.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 4,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.833333,
+        "random_quotient": 0.833333,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "cdupuis/sbx-warden/policies/root.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.464286,
+        "quotient": 1.0,
+        "random_decision": 0.437888,
+        "random_quotient": 0.651797,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 7
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": true
+    },
+    "cdupuis/sbx-warden/policies/worker.cedar": {
+      "atoms": 3,
+      "batches": 3,
+      "cells": 108,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.624448,
+        "quotient": 1.0,
+        "random_decision": 0.410053,
+        "random_quotient": 0.843365,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 7
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "chrisbennight/waygate/crates/waygate-authz/tests/fixtures/policies/20-example-mail-admin.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 360,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.391554,
+        "quotient": 1.0,
+        "random_decision": 0.061413,
+        "random_quotient": 0.910238,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 23
+      },
+      "quotient_classes": 120,
+      "status": "scored",
+      "with_condition": true
+    },
+    "chrisbennight/waygate/crates/waygate-authz/tests/fixtures/policies/20-example-security.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 216,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.559507,
+        "quotient": 1.0,
+        "random_decision": 0.075581,
+        "random_quotient": 0.864753,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 10,
+        "live": 13
+      },
+      "quotient_classes": 72,
+      "status": "scored",
+      "with_condition": true
+    },
+    "chrisbennight/waygate/crates/waygate-authz/tests/fixtures/policies/40-cross-app-access.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 54,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.419287,
+        "quotient": 1.0,
+        "random_decision": 0.19986,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 9
+      },
+      "quotient_classes": 54,
+      "status": "scored",
+      "with_condition": true
+    },
+    "common-fate/cedar-validate-action/testing/valid.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 4,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.666667,
+        "quotient": 1.0,
+        "random_decision": 0.5,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 4
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "coolchigi/GenAI-Dev/strands-agent-lab/05-agentcore/cli/07_policy_guardrails/policies/allow_safe_tools.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.8,
+        "quotient": 1.0,
+        "random_decision": 0.371429,
+        "random_quotient": 0.704762,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 7
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": true
+    },
+    "crystal-warden/prism-path/prismpath/comparisons/systems/cedar/generated/sensor_interlock/sensor_interlock.cedar": {
+      "atoms": 14,
+      "batches": 1,
+      "cells": 882,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 18,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 46,
+        "live": 88
+      },
+      "quotient_classes": 288,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "data-guru0/Financial-Agent-with-AI-Governance/policies/03-payment-execution-exclusive-ledger-write.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.669421,
+        "quotient": 1.0,
+        "random_decision": 0.166667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 11
+      },
+      "quotient_classes": 12,
+      "status": "scored",
+      "with_condition": true
+    },
+    "diegopacheco/rust-playground/cedar-policy-fun/policies/s3_policy.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 64,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.164256,
+        "quotient": 1.0,
+        "random_decision": 0.06355,
+        "random_quotient": 0.757118,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 17
+      },
+      "quotient_classes": 36,
+      "status": "scored",
+      "with_condition": false
+    },
+    "dome-systems/demo-hr-desk/hr-assistant.cedar": {
+      "atoms": 4,
+      "batches": 76,
+      "cells": 1344,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.345639,
+        "quotient": 1.0,
+        "random_decision": 0.257755,
+        "random_quotient": 0.753621,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 13
+      },
+      "quotient_classes": 12,
+      "status": "scored",
+      "with_condition": true
+    },
+    "donta-dalpoas/AWS-Blue-Team/policies/cedar/compliance-auditor.cedar": {
+      "cells": 4423680,
+      "status": "over the cell cap"
+    },
+    "donta-dalpoas/AWS-Blue-Team/policies/cedar/executive-summary.cedar": {
+      "cells": 3194880,
+      "status": "over the cell cap"
+    },
+    "duttarnab/CedarligngUpgradeTest/myStore2/policies/AdminCanManageAuthServerConfiguration.cedar": {
+      "atoms": 3,
+      "batches": 10,
+      "cells": 1152,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.556098,
+        "quotient": 1.0,
+        "random_decision": 0.429641,
+        "random_quotient": 0.75976,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "foalem/Pac-paper/data_analysis/policies/Cedar Policy Language (CPL)/cedar-policy__cedar/policies_4.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 144,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.505882,
+        "quotient": 0.95,
+        "random_decision": 0.179662,
+        "random_quotient": 0.898688,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 10
+      },
+      "quotient_classes": 36,
+      "status": "scored",
+      "with_condition": true
+    },
+    "gitUrLifeTogether/hallmark/policies/email.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 1944,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.36555,
+        "quotient": 1.0,
+        "random_decision": 0.100626,
+        "random_quotient": 0.942463,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 20
+      },
+      "quotient_classes": 486,
+      "status": "scored",
+      "with_condition": true
+    },
+    "goraiabhijit/pr-gatekeeper/security.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 216,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.344077,
+        "quotient": 0.961538,
+        "random_decision": 0.08811,
+        "random_quotient": 0.847982,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 13
+      },
+      "quotient_classes": 72,
+      "status": "scored",
+      "with_condition": true
+    },
+    "goropikari/misc/cedar/02_rbac/policy.cedar": {
+      "atoms": 7,
+      "batches": 60,
+      "cells": 1920,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.323375,
+        "quotient": 1.0,
+        "random_decision": 0.273783,
+        "random_quotient": 0.982819,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 17
+      },
+      "quotient_classes": 120,
+      "status": "scored",
+      "with_condition": true
+    },
+    "guyco3/burr/crates/cli/src/assets/default_policy.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 1
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "hakanson/that2024/cedar/JaneVacation.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 36,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.4875,
+        "quotient": 1.0,
+        "random_decision": 0.229524,
+        "random_quotient": 0.650901,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "harshendram/firstcommit-hack/ally/policy/base.cedar": {
+      "cells": 38928384,
+      "status": "over the cell cap"
+    },
+    "hashintel/hash/libs/@local/graph/authorization/rust/tests/policies/definitions/permit-instantiate.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 168,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.134214,
+        "quotient": 1.0,
+        "random_decision": 0.119968,
+        "random_quotient": 0.940596,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 44
+      },
+      "quotient_classes": 56,
+      "status": "scored",
+      "with_condition": true
+    },
+    "highflame-ai/highflame-cookbook/recipes/deep-context/policies/00_baseline.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 2
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "highflame-ai/highflame-cookbook/recipes/deep-context/policies/02_session_accumulation.cedar": {
+      "atoms": 11,
+      "batches": 1,
+      "cells": 1536,
+      "decision_range": 1,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 44,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 31,
+        "live": 3
+      },
+      "quotient_classes": 486,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "highflame-ai/highflame-cookbook/recipes/deep-context/policies/03_dual_attribution.cedar": {
+      "atoms": 13,
+      "batches": 1,
+      "cells": 1296,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.030093,
+        "quotient": 1.0,
+        "random_decision": 0.030093,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 50,
+        "live": 3
+      },
+      "quotient_classes": 1296,
+      "status": "scored",
+      "with_condition": true
+    },
+    "hubuum/hubuum/docs/treetop/bootstrap.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.822222,
+        "random_quotient": 0.822222,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "hubuum/hubuum/docs/treetop/test-fixture.cedar": {
+      "cells": 5109842851135488,
+      "status": "over the cell cap"
+    },
+    "hupe1980/hirn/crates/hirn-engine/src/cedar/default.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 2
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "its-aryansingh/NETRA/policy/netra.cedar": {
+      "cells": 36864,
+      "status": "over the cell cap"
+    },
+    "jagmarques/asqav-cedar-policies/policies/receipt_risk_class_ceiling.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 8,
+      "decision_range": 1,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 37,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 13,
+        "live": 1
+      },
+      "quotient_classes": 5,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "jankneumann/agentic-coding-tools/agent-coordinator/cedar/default_policies.cedar": {
+      "atoms": 34,
+      "batches": 1,
+      "cells": 1092,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 16,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 206
+      },
+      "quotient_classes": 780,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "jbcallv/sage/policies/agents.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 72,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.164535,
+        "quotient": 1.0,
+        "random_decision": 0.062782,
+        "random_quotient": 0.808132,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 17
+      },
+      "quotient_classes": 45,
+      "status": "scored",
+      "with_condition": false
+    },
+    "jlcanela/Permission/onlinestore.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 8,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.76,
+        "quotient": 1.0,
+        "random_decision": 0.628571,
+        "random_quotient": 0.857143,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": true
+    },
+    "joeblew999/cf-connectrpc-middleware/examples/remy-sport-policies/policies/platform.cedar": {
+      "atoms": 12,
+      "batches": 44,
+      "cells": 2688,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.049924,
+        "quotient": 1.0,
+        "random_decision": 0.043626,
+        "random_quotient": 0.928214,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 77
+      },
+      "quotient_classes": 1152,
+      "status": "scored",
+      "with_condition": true
+    },
+    "kameas-ai/kenaz-harness/core/rpc/views/agentgraph/cedar/graph_author_permit.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 36,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.521429,
+        "quotient": 1.0,
+        "random_decision": 0.08254,
+        "random_quotient": 0.780952,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 8
+      },
+      "quotient_classes": 24,
+      "status": "scored",
+      "with_condition": true
+    },
+    "kenhuangus/mcp-dynamic-policy/cedar-policy.cedar": {
+      "atoms": 7,
+      "batches": 12,
+      "cells": 128,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.469951,
+        "quotient": 1.0,
+        "random_decision": 0.393477,
+        "random_quotient": 0.834252,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 7,
+        "live": 11
+      },
+      "quotient_classes": 32,
+      "status": "scored",
+      "with_condition": true
+    },
+    "lRunel/AWSolotl/invariants/generic/000_base_permit.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 2
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "lRunel/AWSolotl/invariants/generic/inv06_no_new_iam_access.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.166667,
+        "quotient": 1.0,
+        "random_decision": 0.166667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "lep511/cedar-evaluation-engine/examples/marketing-pipeline/policies/marketing.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 32,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.208791,
+        "quotient": 1.0,
+        "random_decision": 0.151066,
+        "random_quotient": 0.754115,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 14
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": false
+    },
+    "lep511/strands-main-repo/workshop/lab02/policies/restricted_geography.cedar": {
+      "atoms": 4,
+      "batches": 29,
+      "cells": 1440,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.054861,
+        "quotient": 1.0,
+        "random_decision": 0.054861,
+        "random_quotient": 0.596528,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 8,
+        "live": 1
+      },
+      "quotient_classes": 16,
+      "status": "scored",
+      "with_condition": true
+    },
+    "lexicone42/l42-cognito-passkey/examples/backends/express/cedar/policies/publisher.cedar": {
+      "atoms": 2,
+      "batches": 10,
+      "cells": 192,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.742647,
+        "quotient": 1.0,
+        "random_decision": 0.583892,
+        "random_quotient": 0.711172,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 4
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "lexicone42/l42-cognito-passkey/examples/backends/express/cedar/policies/reviewer.cedar": {
+      "atoms": 2,
+      "batches": 10,
+      "cells": 192,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.742647,
+        "quotient": 1.0,
+        "random_decision": 0.583892,
+        "random_quotient": 0.711172,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 4
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "lexicone42/l42-cognito-passkey/rust/cedar/policies/editor.cedar": {
+      "atoms": 2,
+      "batches": 10,
+      "cells": 192,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.742647,
+        "quotient": 1.0,
+        "random_decision": 0.583892,
+        "random_quotient": 0.711172,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 4
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "lhaig/sdm-pico-agent-demo/policies/00-baseline.cedar": {
+      "cells": 17694720,
+      "status": "over the cell cap"
+    },
+    "lhaig/sdm-pico-agent-demo/policies/20-redact-pii.cedar": {
+      "atoms": 6,
+      "batches": 3,
+      "cells": 2592,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 31,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 8,
+        "live": 14
+      },
+      "quotient_classes": 32,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "llllIIIIllllIIII/carbon-cred-demo/policies/p2.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.166667,
+        "quotient": 1.0,
+        "random_decision": 0.166667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "lochangowda10/NammaSignal/authorization/policies.cedar": {
+      "cells": 2359296,
+      "status": "over the cell cap"
+    },
+    "mas5464/aeronta-inventory/services/agent-spine/src/trax_io_spine/guardrail/policies/autonomy_bands.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 360,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.249513,
+        "quotient": 0.944444,
+        "random_decision": 0.080616,
+        "random_quotient": 0.930156,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 30
+      },
+      "quotient_classes": 120,
+      "status": "scored",
+      "with_condition": true
+    },
+    "microsoft/agent-governance-toolkit/examples/cedarling-governed/policy-stores/unsigned/policies/allow-admin-tools.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 36,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.272059,
+        "quotient": 1.0,
+        "random_decision": 0.075794,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 16
+      },
+      "quotient_classes": 36,
+      "status": "scored",
+      "with_condition": true
+    },
+    "minorun365/agentcore-book/chapter9/01_permit_amount.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 48,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.462006,
+        "quotient": 0.928571,
+        "random_decision": 0.092072,
+        "random_quotient": 0.416472,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 7
+      },
+      "quotient_classes": 12,
+      "status": "scored",
+      "with_condition": true
+    },
+    "moabu/cedarling-opa-terraform-jwt/policy-store/policies/ci-permit-apply-prod-via-environment.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 1944,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 15,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 18
+      },
+      "quotient_classes": 332,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "mrwersa/agentmandate/docs/evidence/agentcore-refund-policy/continuation-permit.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.472727,
+        "quotient": 1.0,
+        "random_decision": 0.19697,
+        "random_quotient": 0.715152,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "mrwersa/agentmandate/docs/evidence/agentcore-refund-policy/principal-continuity-permit.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.472727,
+        "quotient": 1.0,
+        "random_decision": 0.19697,
+        "random_quotient": 0.715152,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "navoditk/agentic-pm-lab/governance/policies/tool-permissions.cedar": {
+      "atoms": 23,
+      "batches": 1,
+      "cells": 210,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.093654,
+        "quotient": 1.0,
+        "random_decision": 0.058169,
+        "random_quotient": 0.921446,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 165
+      },
+      "quotient_classes": 160,
+      "status": "scored",
+      "with_condition": true
+    },
+    "nerdsane/temper/reference-apps/crucible/specs/policies/managed_agent.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 2,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "nerdsane/temper/reference-apps/crucible/specs/policies/session_resource.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 2,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "ninthwave-io/strait/templates/aws-s3-readonly.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.39375,
+        "quotient": 1.0,
+        "random_decision": 0.167974,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 20,
+        "live": 20
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "ninthwave-io/strait/templates/aws-s3-readwrite.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.228571,
+        "quotient": 1.0,
+        "random_decision": 0.175817,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 10,
+        "live": 30
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "nynymike/cedudo/policy/store/policies/forbid-critical-restart.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 6,
+      "decision_range": 1,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 16,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "open-lakehouse/policast/.cursor/skills/tag-columns/templates/column_mask_by_pii.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 8,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.125,
+        "quotient": 1.0,
+        "random_decision": 0.125,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 10,
+        "live": 1
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": true
+    },
+    "open-lakehouse/policast/.cursor/skills/tag-columns/templates/row_filter_by_clinical.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 2,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 4
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": true
+    },
+    "open-lakehouse/policast/examples/policies/column_mask.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 8,
+      "decision_range": 1,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 22
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": true
+    },
+    "openinherit/standard/tests/cedar/service-eligibility/ew.LEAKY.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 96,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.352204,
+        "quotient": 1.0,
+        "random_decision": 0.144471,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 28
+      },
+      "quotient_classes": 96,
+      "status": "scored",
+      "with_condition": true
+    },
+    "orkestra-cc/orkestra/backend/internal/core/authz/cedar/policies/platform.cedar": {
+      "atoms": 11,
+      "batches": 1,
+      "cells": 75,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.333312,
+        "quotient": 1.0,
+        "random_decision": 0.292658,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 8,
+        "live": 55
+      },
+      "quotient_classes": 75,
+      "status": "scored",
+      "with_condition": true
+    },
+    "orkestra-cc/orkestra/backend/internal/core/authz/cedar/policies/system_actions.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 15,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.133333,
+        "quotient": 1.0,
+        "random_decision": 0.133333,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 23,
+        "live": 1
+      },
+      "quotient_classes": 15,
+      "status": "scored",
+      "with_condition": true
+    },
+    "oyatie/oyatie/docs/policies/autonomy-ceiling.cedar": {
+      "atoms": 2,
+      "batches": 6,
+      "cells": 16,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.766667,
+        "quotient": 1.0,
+        "random_decision": 0.6125,
+        "random_quotient": 0.762821,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 6
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "pegasus102/last_mile_drop/policy.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 756,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.20316,
+        "quotient": 0.951389,
+        "random_decision": 0.01829,
+        "random_quotient": 0.76743,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 24
+      },
+      "quotient_classes": 216,
+      "status": "scored",
+      "with_condition": true
+    },
+    "plexusone/pipelineconductor/policies/examples/compliance/strict-compliance.cedar": {
+      "atoms": 14,
+      "batches": 1,
+      "cells": 15552,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 48,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 7,
+        "live": 59
+      },
+      "quotient_classes": 15552,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "plexusone/pipelineconductor/policies/examples/go/dependencies.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 378,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 13,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 3,
+        "live": 35
+      },
+      "quotient_classes": 216,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "plexusone/versionconductor/policies/go/dependency.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 324,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.331349,
+        "quotient": 1.0,
+        "random_decision": 0.114084,
+        "random_quotient": 0.991078,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 23
+      },
+      "quotient_classes": 162,
+      "status": "scored",
+      "with_condition": true
+    },
+    "plexusone/versionconductor/policies/go/directives.cedar": {
+      "atoms": 9,
+      "batches": 1,
+      "cells": 8748,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 8,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 7,
+        "live": 40
+      },
+      "quotient_classes": 4374,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "provabl/attest/internal/dashboard/policies/dashboard.cedar": {
+      "atoms": 13,
+      "batches": 1,
+      "cells": 63,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.243235,
+        "quotient": 1.0,
+        "random_decision": 0.220402,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 99
+      },
+      "quotient_classes": 63,
+      "status": "scored",
+      "with_condition": true
+    },
+    "radinshayanfar/yuanrong-datasystem/.github/agent-factory/protocols/code-review/scripts/security/policy/cedar/default/00-exfiltration.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.055556,
+        "quotient": 1.0,
+        "random_decision": 0.055556,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 1
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "rwang5688/ai-stack-2026Q2/workshop4/phase3/studentservices/policies/permit_all_tools.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 2,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 3
+      },
+      "quotient_classes": 2,
+      "status": "scored",
+      "with_condition": false
+    },
+    "safe-ai-factory/saifctl/src/orchestrator/policies/deny-network.cedar": {
+      "cells": 33792,
+      "status": "over the cell cap"
+    },
+    "sanjucoder-96/AgentSheild/config/policies/30-execution.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 81,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.098765,
+        "quotient": 1.0,
+        "random_decision": 0.098765,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 12,
+        "live": 4
+      },
+      "quotient_classes": 81,
+      "status": "scored",
+      "with_condition": true
+    },
+    "satvikviriyala/ARHV/backend/functions/authorizer/cedar/policies.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 480,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.223512,
+        "quotient": 0.993243,
+        "random_decision": 0.055744,
+        "random_quotient": 0.986358,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 37
+      },
+      "quotient_classes": 360,
+      "status": "scored",
+      "with_condition": true
+    },
+    "shiningcat-labs/usenixsecurity_2027_obpe/backends/servicenow/policy/agent/triage.cedar": {
+      "atoms": 4,
+      "batches": 3,
+      "cells": 48,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.366667,
+        "quotient": 1.0,
+        "random_decision": 0.317598,
+        "random_quotient": 0.714931,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 12
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "shoaibakthar/observeid-platform/policies/rbac.cedar": {
+      "cells": 55296,
+      "status": "over the cell cap"
+    },
+    "shortrib-labs/shortrib-agent/policies/app-delegation.cedar": {
+      "atoms": 5,
+      "batches": 1,
+      "cells": 24,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.530303,
+        "quotient": 1.0,
+        "random_decision": 0.232367,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 1,
+        "live": 15
+      },
+      "quotient_classes": 24,
+      "status": "scored",
+      "with_condition": true
+    },
+    "shortrib-labs/shortrib-agent/policies/mcp-proxy-access.cedar": {
+      "atoms": 1,
+      "batches": 1,
+      "cells": 3,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.866667,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 3,
+      "status": "scored",
+      "with_condition": true
+    },
+    "smhasan94/permdiff/src/permdiff/demo/policy_base/agent.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 168,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.304784,
+        "quotient": 1.0,
+        "random_decision": 0.262366,
+        "random_quotient": 0.776525,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 21
+      },
+      "quotient_classes": 28,
+      "status": "scored",
+      "with_condition": true
+    },
+    "smhasan94/permdiff/src/permdiff/demo/policy_head/agent.cedar": {
+      "atoms": 12,
+      "batches": 1,
+      "cells": 2016,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 13,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 36
+      },
+      "quotient_classes": 189,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "sondera-ai/sondera-coding-agent-hooks/.sondera/policies/cedar/base.cedar": {
+      "atoms": 0,
+      "batches": 1,
+      "cells": 1,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 1.0,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 2
+      },
+      "quotient_classes": 1,
+      "status": "scored",
+      "with_condition": false
+    },
+    "sondera-ai/sondera-coding-agent-hooks/.sondera/policies/cedar/forbid-tool-abuse-prompt.cedar": {
+      "atoms": 2,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.083333,
+        "quotient": 1.0,
+        "random_decision": 0.083333,
+        "random_quotient": 0.5,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "specgraph/specgraph/internal/auth/policies/base.cedar": {
+      "atoms": 9,
+      "batches": 76,
+      "cells": 960,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.207528,
+        "quotient": 1.0,
+        "random_decision": 0.164455,
+        "random_quotient": 0.888268,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 56
+      },
+      "quotient_classes": 160,
+      "status": "scored",
+      "with_condition": true
+    },
+    "spiceai/cookbook/authorization/policies/deal-ownership.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 36,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.325926,
+        "quotient": 1.0,
+        "random_decision": 0.187654,
+        "random_quotient": 0.567435,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 9
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": true
+    },
+    "spiceai/cookbook/authorization/policies/pii-masking.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 36,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.325926,
+        "quotient": 1.0,
+        "random_decision": 0.187654,
+        "random_quotient": 0.567435,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 2,
+        "live": 9
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": true
+    },
+    "spiceai/cookbook/authorization/policies/rbac-salaries.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 36,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.4875,
+        "quotient": 1.0,
+        "random_decision": 0.229524,
+        "random_quotient": 0.650901,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "streamarr/streamarr-server/src/main/resources/authorization/policies/server-administration.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 108,
+      "decision_range": 2,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 25,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 13
+      },
+      "quotient_classes": 36,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "strobilus-lang/strobilus/crates/strobilus/examples/microservices/policy.cedar": {
+      "atoms": 4,
+      "batches": 3,
+      "cells": 216,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.354762,
+        "quotient": 1.0,
+        "random_decision": 0.315525,
+        "random_quotient": 0.88577,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 12
+      },
+      "quotient_classes": 16,
+      "status": "scored",
+      "with_condition": false
+    },
+    "tarlan-huseynov/agentcore-monorepo/terraform/policies/safety.cedar": {
+      "cells": 147438174208,
+      "status": "over the cell cap"
+    },
+    "teihyung/Cedar-Policy-Backend/CedarFiles/sample.cedar": {
+      "atoms": 5,
+      "batches": 3,
+      "cells": 81,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.380952,
+        "quotient": 1.0,
+        "random_decision": 0.112787,
+        "random_quotient": 0.858648,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 7
+      },
+      "quotient_classes": 36,
+      "status": "scored",
+      "with_condition": true
+    },
+    "thphuc06/FairTable/policies/s5c_confirm_needs_an_explicit_yes.cedar": {
+      "atoms": 3,
+      "batches": 3,
+      "cells": 108,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.101852,
+        "quotient": 1.0,
+        "random_decision": 0.101852,
+        "random_quotient": 0.879401,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 1
+      },
+      "quotient_classes": 18,
+      "status": "scored",
+      "with_condition": true
+    },
+    "thrashr888/agentkernel/examples/enterprise/policies/mfa-required.cedar": {
+      "atoms": 8,
+      "batches": 1,
+      "cells": 72,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.10259,
+        "quotient": 1.0,
+        "random_decision": 0.057046,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 6,
+        "live": 37
+      },
+      "quotient_classes": 72,
+      "status": "scored",
+      "with_condition": true
+    },
+    "thrashr888/agentkernel/examples/enterprise/policies/rbac.cedar": {
+      "atoms": 11,
+      "batches": 1,
+      "cells": 252,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.070149,
+        "quotient": 1.0,
+        "random_decision": 0.048878,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 4,
+        "live": 51
+      },
+      "quotient_classes": 252,
+      "status": "scored",
+      "with_condition": true
+    },
+    "tomjwxf/scopeblind-gateway/policies/cedar/clinejection.cedar": {
+      "atoms": 6,
+      "batches": 1,
+      "cells": 14,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.071429,
+        "quotient": 1.0,
+        "random_decision": 0.071429,
+        "random_quotient": 0.857143,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 15,
+        "live": 5
+      },
+      "quotient_classes": 12,
+      "status": "scored",
+      "with_condition": false
+    },
+    "trusted-remote-execution/trusted-remote-execution/core/rex-runner/samples/read-file-example/read-file-policy.cedar": {
+      "atoms": 4,
+      "batches": 3,
+      "cells": 60,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.448171,
+        "quotient": 1.0,
+        "random_decision": 0.353037,
+        "random_quotient": 0.731923,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 8
+      },
+      "quotient_classes": 9,
+      "status": "scored",
+      "with_condition": false
+    },
+    "trusted-remote-execution/trusted-remote-execution/example/setup/scripts/ssm/readonly.cedar": {
+      "cells": 32768,
+      "status": "over the cell cap"
+    },
+    "vela-science/vela/paper/artifacts/real-correction-study/fixtures/erdos-264/vela-repository/.vela/authority/policy-material/policies/c997e39a024934e7355f73422ac10f401398e2ff593dc89de6ffe25c97d452ec.cedar": {
+      "cells": 912384,
+      "status": "over the cell cap"
+    },
+    "verifiedpermissions/examples/express-petstore/finish/backend/policies/policy_2.cedar": {
+      "atoms": 2,
+      "batches": 29,
+      "cells": 480,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.746951,
+        "quotient": 1.0,
+        "random_decision": 0.583631,
+        "random_quotient": 0.701288,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 4
+      },
+      "quotient_classes": 4,
+      "status": "scored",
+      "with_condition": false
+    },
+    "vpriyathimma/reva-litellm-demo/authorisation-v5/policies/agent-can-invoke-reva_demo-get_customer_pii.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 18,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.458824,
+        "quotient": 1.0,
+        "random_decision": 0.152941,
+        "random_quotient": 0.54902,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "vpriyathimma/reva-litellm-demo/authorisation-v5/policies/forbid-chain-depth-over-two.cedar": {
+      "atoms": 2,
+      "batches": 29,
+      "cells": 640,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.123438,
+        "quotient": 1.0,
+        "random_decision": 0.123438,
+        "random_quotient": 0.547879,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 1
+      },
+      "quotient_classes": 6,
+      "status": "scored",
+      "with_condition": true
+    },
+    "vpriyathimma/reva-litellm-demo/authorisation/policies/forbid-finance-off-hours-unless-approved.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 252,
+      "decision_range": 1,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 2,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 20,
+        "live": 1
+      },
+      "quotient_classes": 144,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "wasxy47/mcp-sentinel/policies/00-guards.cedar": {
+      "cells": 3779136,
+      "status": "over the cell cap"
+    },
+    "wasxy47/mcp-sentinel/policies/45-shell.cedar": {
+      "atoms": 7,
+      "batches": 1,
+      "cells": 1296,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.199424,
+        "quotient": 1.0,
+        "random_decision": 0.119014,
+        "random_quotient": 0.958034,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 34
+      },
+      "quotient_classes": 432,
+      "status": "scored",
+      "with_condition": true
+    },
+    "wasxy47/mcp-sentinel/policies/50-governance.cedar": {
+      "atoms": 10,
+      "batches": 35,
+      "cells": 2592,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.100811,
+        "quotient": 1.0,
+        "random_decision": 0.069625,
+        "random_quotient": 0.972277,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 32
+      },
+      "quotient_classes": 432,
+      "status": "scored",
+      "with_condition": true
+    },
+    "woojinnn/dambi/crates/policy-engine-wasm/tests/fixtures/default_policies_v2/signature-chain-mismatch-permit-warn.cedar": {
+      "atoms": 4,
+      "batches": 1,
+      "cells": 12,
+      "decision_range": 1,
+      "expected_score": null,
+      "fuzz_requests_in_no_class": 42,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 8,
+        "live": 1
+      },
+      "quotient_classes": 8,
+      "status": "missing cells",
+      "with_condition": true
+    },
+    "yutaro-sakamoto/learn-cedar/02/policy.cedar": {
+      "atoms": 3,
+      "batches": 1,
+      "cells": 36,
+      "decision_range": 1,
+      "expected_score": {
+        "decision": 0.122222,
+        "quotient": 1.0,
+        "random_decision": 0.122222,
+        "random_quotient": 0.650901,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "equivalent": 5,
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    },
+    "yutaro-sakamoto/learn-cedar/09/policy.cedar": {
+      "atoms": 3,
+      "batches": 3,
+      "cells": 432,
+      "decision_range": 2,
+      "expected_score": {
+        "decision": 0.55,
+        "quotient": 1.0,
+        "random_decision": 0.42083,
+        "random_quotient": 0.783094,
+        "refinement": 1.0
+      },
+      "fuzz_requests_in_no_class": 0,
+      "missing_cells_for": [],
+      "mutants": {
+        "live": 5
+      },
+      "quotient_classes": 8,
+      "status": "scored",
+      "with_condition": false
+    }
+  },
+  "fuzz_requests_per_file": 200,
+  "ineligible_reasons": {
+    "compares two non-literal terms": 69,
+    "contains with a non-literal argument": 33,
+    "containsAll with a non-literal argument": 4,
+    "containsAny with a non-literal argument": 6,
+    "in over something other than a request entity and named entities": 36,
+    "orders two non-literal terms": 20,
+    "uses greaterThan": 1,
+    "uses hasTag": 14,
+    "uses if-then-else": 2,
+    "uses isInRange": 2,
+    "uses isLoopback": 3,
+    "uses lessThan": 1,
+    "uses like": 31
+  },
+  "max_cells": 20000,
+  "population": {
+    "Cedar does not parse it": 16,
+    "exact-eligible": 200,
+    "judged inside": 382,
+    "not exact-eligible": 166
+  },
+  "protocol_sha256": "0103fa4a038da6c1606caf82b46ef739f5eef014a9632f51dcc2f781f4cbbbcc",
+  "resamples": 10000,
+  "schema_version": "v1",
+  "seed": 20261003
+}

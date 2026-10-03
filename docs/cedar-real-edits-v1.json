@@ -1,0 +1,1205 @@
+{
+  "change_a_decision": 24,
+  "engine": "cedarpy 4.12.1",
+  "mean_detection_of_decision_changes": {
+    "decision": 0.310679,
+    "quotient": 0.878218,
+    "random_decision": 0.205175,
+    "random_quotient": 0.722085,
+    "refinement": 1.0
+  },
+  "pairs": [
+    {
+      "after": {
+        "commit": "9088c8ade5417f8d3d9ee9515e26c5829288c800",
+        "sha256": "713f6844c976e43ad294735e43b64a495cbfa0238c20a8c90ca39362de61e20c"
+      },
+      "before": {
+        "commit": "bcdfa8d9f3a912cb604396bb60b60362e8bee2a0",
+        "sha256": "51540534a838bbc20b32e4cfbdb3364d01ba019144923570336d88184bc1c63c"
+      },
+      "cells": 56,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.4,
+        "quotient": 0.4,
+        "random_decision": 0.070779,
+        "random_quotient": 0.677922,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "BugHunterX2101/cell-guard/gateway-policy/policies/policies/05-permit-wire-transfer-within-threshold.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "e60967cc365cd62f3ae9d4491dae13869d0f2832",
+        "sha256": "f64cd57d08992219ba212c1182bfec6d83d11730511ba350ce59a903cbc22ec2"
+      },
+      "before": {
+        "commit": "7bc78793a9985992e2b26b690405648e85ae5118",
+        "sha256": "be0294953d5052ead33b3ccb15fe4a4677badcb279f08863f8712a4cc6a1d0f4"
+      },
+      "cells": 1088640,
+      "status": "over the cell cap",
+      "subject": "ElevenID/Marty/packages/marty-common/marty_common/cedar/credential_verification.cedar"
+    },
+    {
+      "after": {
+        "commit": "4cf215884bdce7ecfd676dca123212fd9bb1d2d8",
+        "sha256": "7cbb15d4aac85e7f2ef4262143b5d6c501066b17030a9cd7b5da750338c58256"
+      },
+      "before": {
+        "commit": "0dd237eb32c0a176e96c5f8b4a791c6d2871f529",
+        "sha256": "8ac654cf1c5545cec7a12c2c43f0a939f03628faba97678fb262d064b5c229fe"
+      },
+      "cells": 12,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.575758,
+        "random_quotient": 0.969697,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "Firma-AI/openfirma/examples/demos/demo2/policies/policy.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "624d9433e4344cd79712debb76a75ad9b44b9924",
+        "sha256": "291b8d89b93bf8cc657fee4b5eb45cc7be3809e90cb7f52819dc6ed38bffa1f1"
+      },
+      "before": {
+        "commit": "4cf215884bdce7ecfd676dca123212fd9bb1d2d8",
+        "sha256": "9dc20f30c88b90418e444360549f74e3d0f10c73bd83e775af9b35fe6ef8efd5"
+      },
+      "cells": 252,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "Firma-AI/openfirma/examples/policies/credential.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "4cf215884bdce7ecfd676dca123212fd9bb1d2d8",
+        "sha256": "9dc20f30c88b90418e444360549f74e3d0f10c73bd83e775af9b35fe6ef8efd5"
+      },
+      "before": {
+        "commit": "268080cb020bbe496a73836806c9cdd689d14235",
+        "sha256": "86bace774a2e73d5a4af73d74d50ddb87665e0d267c325993ce878036c0088ff"
+      },
+      "cells": 336,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.047122,
+        "random_quotient": 0.450845,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "Firma-AI/openfirma/examples/policies/credential.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "f1cba7a1e5207463a3e916955d8ce56e1600108d",
+        "sha256": "4ed552e2d32b3535ed8e0610f7fd361d89754054c715232b9ea1e2949f05943e"
+      },
+      "before": {
+        "commit": "679eee270ae1c1264ab775418fd3be945f079f7b",
+        "sha256": "b88a1cc990854cfc5c28c1d817214e97a6a7515664f6bb44eadee2892dc4d761"
+      },
+      "cells": 15360,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.217012,
+        "quotient": 1.0,
+        "random_decision": 0.202148,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "Iamritupatil/AgentGate/policies/execute.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "f1cba7a1e5207463a3e916955d8ce56e1600108d",
+        "sha256": "c48aa8b99244e1df41413834189ad1e0fde899383c76f68054e39ec708b7b43c"
+      },
+      "before": {
+        "commit": "679eee270ae1c1264ab775418fd3be945f079f7b",
+        "sha256": "f98a97deb41fbf55f684f276db4dd7e3e9e50d1d2dee0e2543ffedb30ed45c36"
+      },
+      "cells": 1200,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.074353,
+        "quotient": 0.825511,
+        "random_decision": 0.14289,
+        "random_quotient": 0.917889,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "Iamritupatil/AgentGate/policies/request_approval.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "fb0e48233f40013aba8dd59b0740f1fd52f77432",
+        "sha256": "c51ce5758219b9b5da69d22a44a7003ce838534783bed3793bb3103f2f2431a0"
+      },
+      "before": {
+        "commit": "bf62a37d3fed111329dcb815f89ca666512c61ed",
+        "sha256": "55c4045e0e6708b8dbe13c2b72121e8f98472bf1a8d9801cf0e74feaa72bb47d"
+      },
+      "cells": 720,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 1.0,
+        "quotient": 1.0,
+        "random_decision": 0.054822,
+        "random_quotient": 0.963039,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "Lakshmi786/Verisettle/policies/01-agent-approval-threshold.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "fb0e48233f40013aba8dd59b0740f1fd52f77432",
+        "sha256": "beca0e537847bbdfb5d9ec2f57c4a81e250d6fff548eeed5a958c2177dec5987"
+      },
+      "before": {
+        "commit": "bf62a37d3fed111329dcb815f89ca666512c61ed",
+        "sha256": "829fa490b97b5d1169d9212680c2d9f89f032960785a05515c08b706b3f79724"
+      },
+      "cells": 108,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "Lakshmi786/Verisettle/policies/02-first-seen-vendor-dual-approval.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "57f447d8825260e64c986df7cd272fd5d408cc15",
+        "sha256": "15ee9ccf6dfb8d114669c92af2c6b46cecf0a69c9fac8161fb34274e1c74a2f8"
+      },
+      "before": {
+        "commit": "0aa1752c47944ecf41d753adb626a042d1fd7e5b",
+        "sha256": "be0294953d5052ead33b3ccb15fe4a4677badcb279f08863f8712a4cc6a1d0f4"
+      },
+      "cells": 151200,
+      "status": "over the cell cap",
+      "subject": "Marty-Protocol/Marty-Protocol/cedar/policies/credential_verification.cedar"
+    },
+    {
+      "after": {
+        "commit": "ca519d434e4879472b8c371ab67e60a572e1442f",
+        "sha256": "d423efd81a9fcd44860a6cd2aea3c6d36f3619cf2b3afceae2f849639cb6eeb9"
+      },
+      "before": {
+        "commit": "b33bd3b61304f6f16a1274042de918d75de4edc8",
+        "sha256": "9b8dc52fc1f17e0f97af26582f2ef670b916bcfe2c3dc2346e99b2f23cb1e76d"
+      },
+      "cells": 1944,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "MythologIQ-Labs-LLC/Qor-logic/qor/policies/owasp_enforcement.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "b33bd3b61304f6f16a1274042de918d75de4edc8",
+        "sha256": "9b8dc52fc1f17e0f97af26582f2ef670b916bcfe2c3dc2346e99b2f23cb1e76d"
+      },
+      "before": {
+        "commit": "8081422e0a3ca451e08bebc06b3d5a5596af9747",
+        "sha256": "11e7e70cc68b9c86767dcf15133fe1d6f6787702c94137881306545430ec02ff"
+      },
+      "cells": 486,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "MythologIQ-Labs-LLC/Qor-logic/qor/policies/owasp_enforcement.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "5f46205c61e6f581b3deb1062dcb6bee234b92f2",
+        "sha256": "c50ffadfccbcf4978c56049c0b8dd5f23a23922e2e6e28c7716096d731e3122b"
+      },
+      "before": {
+        "commit": "d1a023a3b2285dd14c68589107dd22413c8d893c",
+        "sha256": "588d9ffddda24d0bb0eeebfb47a7b29edef7b3d43abe0480617f5b4a4c82603f"
+      },
+      "cells": 13824,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.001596,
+        "quotient": 0.751689,
+        "random_decision": 0.000868,
+        "random_quotient": 0.006926,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/ingredients/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "d1a023a3b2285dd14c68589107dd22413c8d893c",
+        "sha256": "588d9ffddda24d0bb0eeebfb47a7b29edef7b3d43abe0480617f5b4a4c82603f"
+      },
+      "before": {
+        "commit": "56fa8d12578f1807f636c6d65e82ba292a997dc2",
+        "sha256": "09549f7da84fc9cb8a42f32d9b5663461024354fd3b3f453488142944c6ee313"
+      },
+      "cells": 6144,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.011317,
+        "quotient": 0.916667,
+        "random_decision": 0.003578,
+        "random_quotient": 0.028298,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/ingredients/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "56fa8d12578f1807f636c6d65e82ba292a997dc2",
+        "sha256": "09549f7da84fc9cb8a42f32d9b5663461024354fd3b3f453488142944c6ee313"
+      },
+      "before": {
+        "commit": "3969cc47ea308bfa78c97af3555908b13da52802",
+        "sha256": "a2324cae16d300f9f43b78e6666944bcc0e2ed08b9ffb2236988ce4eb3ef81bb"
+      },
+      "cells": 1536,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.801765,
+        "quotient": 0.999796,
+        "random_decision": 0.706053,
+        "random_quotient": 0.999376,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/ingredients/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "3969cc47ea308bfa78c97af3555908b13da52802",
+        "sha256": "a2324cae16d300f9f43b78e6666944bcc0e2ed08b9ffb2236988ce4eb3ef81bb"
+      },
+      "before": {
+        "commit": "23e84f94f39f75e00d93af7fe9253f565ea62200",
+        "sha256": "826138249086a69ce8638ebba54ecd1c20de14043515e1df0134dd181df2c3e6"
+      },
+      "cells": 18,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.1,
+        "quotient": 0.5,
+        "random_decision": 0.111111,
+        "random_quotient": 0.555556,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/ingredients/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "97b52fbe5d88cebf46c695224a7c9a3d938fcbd7",
+        "sha256": "dc4bd8b57593a5fa318966a7ff44acc48dfdfd8357658eab744ed11204676df8"
+      },
+      "before": {
+        "commit": "54236c9657e91e6728724e7495d14056050476d3",
+        "sha256": "eaa5b37d44e1ec25c1ddf4d5ea94aa9db5555c8cb63d866a10b68ed7e97e6ad4"
+      },
+      "cells": 1474560,
+      "status": "over the cell cap",
+      "subject": "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar"
+    },
+    {
+      "after": {
+        "commit": "54236c9657e91e6728724e7495d14056050476d3",
+        "sha256": "eaa5b37d44e1ec25c1ddf4d5ea94aa9db5555c8cb63d866a10b68ed7e97e6ad4"
+      },
+      "before": {
+        "commit": "95738310e66d015d7c5b6f5cbf4fe05e1a083cb9",
+        "sha256": "414ebcdd90f2bad2dcee7b55fdd3a56e375f4766901427977502ff3bb7199765"
+      },
+      "cells": 319488,
+      "status": "over the cell cap",
+      "subject": "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar"
+    },
+    {
+      "after": {
+        "commit": "95738310e66d015d7c5b6f5cbf4fe05e1a083cb9",
+        "sha256": "414ebcdd90f2bad2dcee7b55fdd3a56e375f4766901427977502ff3bb7199765"
+      },
+      "before": {
+        "commit": "d1a023a3b2285dd14c68589107dd22413c8d893c",
+        "sha256": "a9be29e4eef182e9e3adb7866d2f922395dcd0c92fc724450debc6b873f100ac"
+      },
+      "cells": 319488,
+      "status": "over the cell cap",
+      "subject": "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar"
+    },
+    {
+      "after": {
+        "commit": "d1a023a3b2285dd14c68589107dd22413c8d893c",
+        "sha256": "a9be29e4eef182e9e3adb7866d2f922395dcd0c92fc724450debc6b873f100ac"
+      },
+      "before": {
+        "commit": "d1270cfbb1cd9be87a1de1d2c587ebed74e999e6",
+        "sha256": "05025054b20e079bcafae8a458524eb71b13916cdd788fb98aa37f9b1a4e0a63"
+      },
+      "cells": 147456,
+      "status": "over the cell cap",
+      "subject": "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar"
+    },
+    {
+      "after": {
+        "commit": "d1270cfbb1cd9be87a1de1d2c587ebed74e999e6",
+        "sha256": "05025054b20e079bcafae8a458524eb71b13916cdd788fb98aa37f9b1a4e0a63"
+      },
+      "before": {
+        "commit": "79a2bee9f622439f0ac5c9c10439e930c39b69fe",
+        "sha256": "2f7c4ca77c844806c4e6ceb4ecdaa9513d86d1315384f2cd7885941383cb9fe2"
+      },
+      "cells": 30720,
+      "status": "over the cell cap",
+      "subject": "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar"
+    },
+    {
+      "after": {
+        "commit": "79a2bee9f622439f0ac5c9c10439e930c39b69fe",
+        "sha256": "2f7c4ca77c844806c4e6ceb4ecdaa9513d86d1315384f2cd7885941383cb9fe2"
+      },
+      "before": {
+        "commit": "5be6b1a23c7f698cc25f4738f3added42424b8d3",
+        "sha256": "2f932ad961dcd58c0f75b627e60d466269aebb10b3e6da657056d508bf523f80"
+      },
+      "cells": 13824,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.004885,
+        "quotient": 0.916667,
+        "random_decision": 0.001591,
+        "random_quotient": 0.012663,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "37939c62181a92aed03ff921d89bf689ccdff7f9",
+        "sha256": "aa145c1a5fe5891bbec6bbff0b60acf5a313ad04082c1acbedc0e60ea762a46e"
+      },
+      "before": {
+        "commit": "d1a023a3b2285dd14c68589107dd22413c8d893c",
+        "sha256": "90c918e9c1d9102b81f08eb6b0bff0ceaeb3e88f12ea3dff4c8d6f597a5057a2"
+      },
+      "cells": 23040,
+      "status": "over the cell cap",
+      "subject": "TheFellow/go-modular-monolith/app/domains/orders/authz/policies.cedar"
+    },
+    {
+      "after": {
+        "commit": "d1a023a3b2285dd14c68589107dd22413c8d893c",
+        "sha256": "90c918e9c1d9102b81f08eb6b0bff0ceaeb3e88f12ea3dff4c8d6f597a5057a2"
+      },
+      "before": {
+        "commit": "02f2f81543faf51a57073a83ee2650651fccdae1",
+        "sha256": "1f731fac8f2d698f57fea2319310dd8ffe4c0246275ece7f05a2a16a2c45a2a5"
+      },
+      "cells": 10240,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.004501,
+        "quotient": 0.993056,
+        "random_decision": 0.004292,
+        "random_quotient": 0.066607,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/orders/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "02f2f81543faf51a57073a83ee2650651fccdae1",
+        "sha256": "1f731fac8f2d698f57fea2319310dd8ffe4c0246275ece7f05a2a16a2c45a2a5"
+      },
+      "before": {
+        "commit": "56fa8d12578f1807f636c6d65e82ba292a997dc2",
+        "sha256": "1dd29089c3e68d8604518b28ff28464e49900de661699de49a656794b0d078b2"
+      },
+      "cells": 1920,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.348331,
+        "quotient": 1.0,
+        "random_decision": 0.437598,
+        "random_quotient": 0.999908,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/orders/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "56fa8d12578f1807f636c6d65e82ba292a997dc2",
+        "sha256": "1dd29089c3e68d8604518b28ff28464e49900de661699de49a656794b0d078b2"
+      },
+      "before": {
+        "commit": "79efdc2ba4761238f92341927d912a2addf496cf",
+        "sha256": "cd555b09f13742461f2b42b34245ef2594791a81779b49946be85d251f41bc63"
+      },
+      "cells": 2304,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.446695,
+        "quotient": 1.0,
+        "random_decision": 0.326439,
+        "random_quotient": 0.991497,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "TheFellow/go-modular-monolith/app/domains/orders/authz/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "8e412934e7f89e015907a1c2e1ef4d8947b66ed6",
+        "sha256": "2e0e235a3d93ab82a9bc6ad90a9b3d8ac387a7497d0b6650aab9238f2e0240df"
+      },
+      "before": {
+        "commit": "c57f90e2b7555631730dcc73e5aeddce04a10567",
+        "sha256": "9992751ffb7f68f63163889f860d6358565b5f08dbdb4587d9d02f8aeedc7825"
+      },
+      "cells": 1152,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.742832,
+        "quotient": 0.742832,
+        "random_decision": 0.921561,
+        "random_quotient": 0.921561,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "atomicgravity/postern/terraform/postern-broker/cedar/starter.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "09915dbc6d35334142ec6d0289c412eeda679f72",
+        "sha256": "fc91a8ebb415e9715cbcf8f8015114ae8224639da012bb97e0d64a66983631ac"
+      },
+      "before": {
+        "commit": "efbeb373ba7c8485da0ebbd83f35a082ae0919df",
+        "sha256": "6d64adb2bea43131b12d6238d748c17a7500e6a5ecd1eb43e5bcadb4e5150d54"
+      },
+      "cells": 4,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "cdupuis/sbx-warden/policies/readonly.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "09915dbc6d35334142ec6d0289c412eeda679f72",
+        "sha256": "b35c75502d9aa2d2a811394d41ae9b53f34a5b1c8bb6436f81178f2b4b32cbfc"
+      },
+      "before": {
+        "commit": "efbeb373ba7c8485da0ebbd83f35a082ae0919df",
+        "sha256": "de79d34c9672f43cb8e69ad26fdfe026a98be49af67deb8456fa3f0673fda762"
+      },
+      "cells": 108,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "cdupuis/sbx-warden/policies/worker.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "ac70873faab05803ac0a593367c605b2219c55d2",
+        "sha256": "586f77939352b282e4c56d73b1daa019f47566204438fe927af56b2fb0382765"
+      },
+      "before": {
+        "commit": "412df9a7dd52459b842b097f4e88aeb7e59d0993",
+        "sha256": "1c0cb15185910a9d7e7679036879b6565554ab3480c19c390eb34ef7f4ebd652"
+      },
+      "cells": 1,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "guyco3/burr/crates/cli/src/assets/default_policy.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "ed57cad5f41970434a95e1e815a11b5450c691f4",
+        "sha256": "e5d09f7b146eac4755dedf70819b4a87300f582ad065661b5bcea6d1fa009dc8"
+      },
+      "before": {
+        "commit": "48c6fb431479e8204896e2f4d3ff943bf4e0c159",
+        "sha256": "0857a24b5632a773c230547f333ee63ee0a8611f4215254a9301aad3b0d49b58"
+      },
+      "cells": 1536,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "highflame-ai/highflame-cookbook/recipes/deep-context/policies/02_session_accumulation.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "ed57cad5f41970434a95e1e815a11b5450c691f4",
+        "sha256": "5ee7468763c6d1cc559256de97a88e49a9f4cb3bbe1251396f3454c27878d63b"
+      },
+      "before": {
+        "commit": "48c6fb431479e8204896e2f4d3ff943bf4e0c159",
+        "sha256": "b32437dffdbb7b5a3bdf4de7a65e2ae24c83ca94b2ac1ef3323f87c868530026"
+      },
+      "cells": 1296,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "highflame-ai/highflame-cookbook/recipes/deep-context/policies/03_dual_attribution.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "ff7ff5ca9ffd22248a76374d05df6f1e1c371e00",
+        "sha256": "4152b4809501f25f9165d1abec833b8984896e57f4a375f0052013926bb281d9"
+      },
+      "before": {
+        "commit": "9a18348bc53de7d65863f90363c6a958dea909f8",
+        "sha256": "18115226da0ed23352e7f0f9d6da07d3e011a66bb44dc4acf07d906b198e2a6b"
+      },
+      "cells": 5109842851135488,
+      "status": "over the cell cap",
+      "subject": "hubuum/hubuum/docs/treetop/test-fixture.cedar"
+    },
+    {
+      "after": {
+        "commit": "9a18348bc53de7d65863f90363c6a958dea909f8",
+        "sha256": "18115226da0ed23352e7f0f9d6da07d3e011a66bb44dc4acf07d906b198e2a6b"
+      },
+      "before": {
+        "commit": "1fba446ebe62af80426c1128ee3257c9feaf9683",
+        "sha256": "88ed60a02139be17c9141c540818e54236e352c9596e702e2b8fa8b849a81b3e"
+      },
+      "cells": 1239888338878464,
+      "status": "over the cell cap",
+      "subject": "hubuum/hubuum/docs/treetop/test-fixture.cedar"
+    },
+    {
+      "after": {
+        "commit": "70aa92dd355ead75e54e8a1698f42282486bebbb",
+        "sha256": "ffa197a1a7d9b0e850fb9a3d249813baed41eddde4083bc78f7b5878e1efbb26"
+      },
+      "before": {
+        "commit": "c4a2af4491c836c2e842aa45a122bd1bb9693201",
+        "sha256": "d4e23d704471f10c990701645a09e438db213613100758249b9da771c71d6956"
+      },
+      "cells": 1092,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.027237,
+        "quotient": 0.984375,
+        "random_decision": 0.025488,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "jankneumann/agentic-coding-tools/agent-coordinator/cedar/default_policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "c4a2af4491c836c2e842aa45a122bd1bb9693201",
+        "sha256": "d4e23d704471f10c990701645a09e438db213613100758249b9da771c71d6956"
+      },
+      "before": {
+        "commit": "fe579586bb171dda262e941474d616d18752fdee",
+        "sha256": "d01fb33173d4281593ffec09757954edbc93cac9964792d89fbf17c46523ca68"
+      },
+      "cells": 1050,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.081712,
+        "quotient": 0.999998,
+        "random_decision": 0.078437,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "jankneumann/agentic-coding-tools/agent-coordinator/cedar/default_policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "fe579586bb171dda262e941474d616d18752fdee",
+        "sha256": "d01fb33173d4281593ffec09757954edbc93cac9964792d89fbf17c46523ca68"
+      },
+      "before": {
+        "commit": "f06e42ee8651df2c5b796998800bb4834914c1b1",
+        "sha256": "260185e28a73e4e605b964bce986718091b9555fedf64cc2dc61e4d47f036d12"
+      },
+      "cells": 966,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.206642,
+        "quotient": 1.0,
+        "random_decision": 0.218548,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "jankneumann/agentic-coding-tools/agent-coordinator/cedar/default_policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "f06e42ee8651df2c5b796998800bb4834914c1b1",
+        "sha256": "260185e28a73e4e605b964bce986718091b9555fedf64cc2dc61e4d47f036d12"
+      },
+      "before": {
+        "commit": "d2b484815e7479138f97e8dd775c8742d1730068",
+        "sha256": "9a5dd79c5d5c7d8242629e431fe496aa4f586e7e4e870170a6b4a0b961b5d48c"
+      },
+      "cells": 756,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "jankneumann/agentic-coding-tools/agent-coordinator/cedar/default_policies.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "d2b484815e7479138f97e8dd775c8742d1730068",
+        "sha256": "9a5dd79c5d5c7d8242629e431fe496aa4f586e7e4e870170a6b4a0b961b5d48c"
+      },
+      "before": {
+        "commit": "97fbe6699211811582764b6c1867de27a1413e0f",
+        "sha256": "4be22ebcbd94bdbfe436eb1caf9cb16d2fc4f1bdb6f77ba9b8e388d7c1d85efc"
+      },
+      "cells": 756,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.05949,
+        "quotient": 0.999756,
+        "random_decision": 0.05482,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "jankneumann/agentic-coding-tools/agent-coordinator/cedar/default_policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "04ddfa1a4215e8546921c51fc5dadab7c23ea7a2",
+        "sha256": "0a6b1a45041ebfe8712278add9720cf659958988d49e54a5da7f51817bc8decd"
+      },
+      "before": {
+        "commit": "4d0ed74e83876b8c0ec42800d78e48805f3d554a",
+        "sha256": "a7efe84cafbebf21ccf9a81ec8fe1da4f47b3ec40f4ee6d9997f3bc9f6172946"
+      },
+      "cells": 2688,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "joeblew999/cf-connectrpc-middleware/examples/remy-sport-policies/policies/platform.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "3763e68bed9ff746e88a100aaf1214f01c0c4bdc",
+        "sha256": "1879e5834dd61fa2097c6000008dd638cca822e14def443b5842d9546fb70c0e"
+      },
+      "before": {
+        "commit": "5e51a98058f191815d682c6f55a0999475560844",
+        "sha256": "6e6476e71e7cc793e832195adfd088995684ab759e3e753c2a97b217d1c35bd8"
+      },
+      "cells": 38928384,
+      "status": "over the cell cap",
+      "subject": "lhaig/sdm-pico-agent-demo/policies/00-baseline.cedar"
+    },
+    {
+      "after": {
+        "commit": "5e51a98058f191815d682c6f55a0999475560844",
+        "sha256": "6e6476e71e7cc793e832195adfd088995684ab759e3e753c2a97b217d1c35bd8"
+      },
+      "before": {
+        "commit": "742610c67dbb1dc9fce52e81ea72946b54808a39",
+        "sha256": "1879e5834dd61fa2097c6000008dd638cca822e14def443b5842d9546fb70c0e"
+      },
+      "cells": 38928384,
+      "status": "over the cell cap",
+      "subject": "lhaig/sdm-pico-agent-demo/policies/00-baseline.cedar"
+    },
+    {
+      "after": {
+        "commit": "b942c1e7047e98555ec0167df274735c8171a413",
+        "sha256": "80149d272fc0208958ccb55f574ea768af60f3e9d6f3f3d0166e7b0d98328ed7"
+      },
+      "before": {
+        "commit": "2d9c072288ed8e90b4b97fa55565b18692237f47",
+        "sha256": "152264f0d744439f42785c7eadb2a4e1e43fb18b014a0d4163ea917930c88e51"
+      },
+      "cells": 6,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "llllIIIIllllIIII/carbon-cred-demo/policies/p2.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "19903f1b5afd11086c8c97a2722df78d06ba09ee",
+        "sha256": "67dd98b80f238d4348996d63375fa2694b17d639ecf771b7835d76969c98ecb4"
+      },
+      "before": {
+        "commit": "5ef077a923d4734f9b640f60fdd9a925173308e1",
+        "sha256": "10696e0845726205f6003bbbfb78b644040de96b02efa8963a3ea9530165bd8d"
+      },
+      "cells": 210,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.030488,
+        "quotient": 0.8125,
+        "random_decision": 0.047163,
+        "random_quotient": 0.997245,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "navoditk/agentic-pm-lab/governance/policies/tool-permissions.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "a3ec65dc7fc5f2acac9e61e9314b1dbb6d27047d",
+        "sha256": "a31cf5a3e4fd89dc7925ef87238b2b9f84fb569d79cc38ed142b94bd78a5a208"
+      },
+      "before": {
+        "commit": "fd6a58e275459c5be0243f78b2f3aa18ce2f4cc6",
+        "sha256": "517f460b5fa65bf24192936e233f186339871053388a4d4f9fe54688cc87a4b2"
+      },
+      "cells": 18,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "ninthwave-io/strait/templates/aws-s3-readonly.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "a3ec65dc7fc5f2acac9e61e9314b1dbb6d27047d",
+        "sha256": "59d8b07ebbd47dd7245cc1bad02e89203ca399d772b11c8915692da4c00e5c94"
+      },
+      "before": {
+        "commit": "fd6a58e275459c5be0243f78b2f3aa18ce2f4cc6",
+        "sha256": "fbb88cf795151ab53b4e6b5409610474d30700e00073f7e7580f954f73e580ed"
+      },
+      "cells": 18,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "ninthwave-io/strait/templates/aws-s3-readwrite.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "2c1982e9f2c66d4ec08dd4bba1a82a66c690c7cb",
+        "sha256": "53d352c808abfee71327aac56fe5eea4dd446e4f18ba8e95fbe117d185a1dc7e"
+      },
+      "before": {
+        "commit": "8a359932b22dbc16a10e40d2c7fe7e1c2f0548d5",
+        "sha256": "3b9f79265627edff69329f94196af1a92abd2e8d5341bf38e7032bc7d2f01d7e"
+      },
+      "cells": 15,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "orkestra-cc/orkestra/backend/internal/core/authz/cedar/policies/system_actions.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "c93fba899983bbbbe7830241e3c40f1816b46e95",
+        "sha256": "66d9aa8e37b39b05785fa3b4f9deee21b13fb84814cb030a48ec8b234f9c3638"
+      },
+      "before": {
+        "commit": "434e4809732582715d5cb767af742e15405e42ab",
+        "sha256": "f5af20edcad98c409df0c334e028830506ba30166f60aed94065ac2784394cee"
+      },
+      "cells": 2,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.5,
+        "quotient": 0.5,
+        "random_decision": 0.5,
+        "random_quotient": 0.5,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "rwang5688/ai-stack-2026Q2/workshop4/phase3/studentservices/policies/permit_all_tools.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "6e4a18da84c8cc72043626cdb7269047e3a0677f",
+        "sha256": "913307d21cf74e89013d55d1826444809741ab03a104236f163f8d3f4b0907c7"
+      },
+      "before": {
+        "commit": "bc4673fec271baedd2b53fe5816486175aad60c1",
+        "sha256": "3834962de6f5e8003f2ff84c2edaae8b2ca95e75d8c1097e163c85a1877c7f3d"
+      },
+      "cells": 73728,
+      "status": "over the cell cap",
+      "subject": "safe-ai-factory/saifctl/src/orchestrator/policies/deny-network.cedar"
+    },
+    {
+      "after": {
+        "commit": "bc4673fec271baedd2b53fe5816486175aad60c1",
+        "sha256": "3834962de6f5e8003f2ff84c2edaae8b2ca95e75d8c1097e163c85a1877c7f3d"
+      },
+      "before": {
+        "commit": "aa3f46e639f74cef941059855be649b5c2216366",
+        "sha256": "435f11fb4ae04bb0b180043fc4f6bcaaa91594c89d8f15a7bbf94e8205e20a2d"
+      },
+      "cells": 30720,
+      "status": "over the cell cap",
+      "subject": "safe-ai-factory/saifctl/src/orchestrator/policies/deny-network.cedar"
+    },
+    {
+      "after": {
+        "commit": "aa3f46e639f74cef941059855be649b5c2216366",
+        "sha256": "435f11fb4ae04bb0b180043fc4f6bcaaa91594c89d8f15a7bbf94e8205e20a2d"
+      },
+      "before": {
+        "commit": "c118fec8afd6741f8783c4244808b283c71478ed",
+        "sha256": "1307e755fee501ee5cf8e3c49622eae7128a284b8f250e189cc1fef35f7a2c27"
+      },
+      "cells": 212992,
+      "status": "over the cell cap",
+      "subject": "safe-ai-factory/saifctl/src/orchestrator/policies/deny-network.cedar"
+    },
+    {
+      "after": {
+        "commit": "d56bf892d95f5660a4ef0e2d514ddf5d7d193479",
+        "sha256": "93e3c043cb82cb4597a59e553708eda5ab5e661411a6e047932a203019d0125c"
+      },
+      "before": {
+        "commit": "2f7070a6c3159c274ada690bb660afd541e6a270",
+        "sha256": "6bdaa0f9c0238ff44ebd21d18b0161c6f0e76581cda33aef045cc83100a625c3"
+      },
+      "cells": 480,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.017021,
+        "quotient": 0.984375,
+        "random_decision": 0.03309,
+        "random_quotient": 0.999401,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "satvikviriyala/ARHV/backend/functions/authorizer/cedar/policies.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "540b6da48024ebd77e70424b4aae97c344d2a979",
+        "sha256": "b5ae9113b5c3872cca98537c1aa540285383733d7447db3efc137f8d1be38271"
+      },
+      "before": {
+        "commit": "1a49b42b6a28c03956d43c828a44737647da3580",
+        "sha256": "a678f0f655cfdd4963a293e5ce3f6adfe570d286cedce79875e3d40ca2b8767b"
+      },
+      "cells": 960,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.366,
+        "quotient": 1.0,
+        "random_decision": 0.345073,
+        "random_quotient": 1.0,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "specgraph/specgraph/internal/auth/policies/base.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "1a49b42b6a28c03956d43c828a44737647da3580",
+        "sha256": "a678f0f655cfdd4963a293e5ce3f6adfe570d286cedce79875e3d40ca2b8767b"
+      },
+      "before": {
+        "commit": "193942849b3e79b8efd766a25aa6b7cb1b3f2862",
+        "sha256": "6108c0e4b40a86c7ad51b6bc84ce56c0f34bf2182d02f2a21b14c0e66830e661"
+      },
+      "cells": 400,
+      "changes_a_decision": true,
+      "detection": {
+        "decision": 0.014423,
+        "quotient": 0.75,
+        "random_decision": 0.014962,
+        "random_quotient": 0.27161,
+        "refinement": 1.0
+      },
+      "status": "measured",
+      "subject": "specgraph/specgraph/internal/auth/policies/base.cedar",
+      "weakens_a_decision": true
+    },
+    {
+      "after": {
+        "commit": "bbd5ce120dc459ad323fdc9e0fe5194d488d7463",
+        "sha256": "ebce32ab68c94d1b2f1d2b71aedd5823bfcf2d22c785336cff8508383b760130"
+      },
+      "before": {
+        "commit": "19574d2a1e5af9a3c3d0062680f4de680b848148",
+        "sha256": "896322cfbe4b6edd169af380f1cc49970c451728a41bab8420a17ceed8882338"
+      },
+      "cells": 108,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "streamarr/streamarr-server/src/main/resources/authorization/policies/server-administration.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "ca858c48eec0b6b0c2b5ea3458e8473bb0160f17",
+        "sha256": "cb665d69c3640c9eddc93827d7010cb0da7b3d02ce8da6c85c8e84ce9f6d9b6d"
+      },
+      "before": {
+        "commit": "9661ffeaded3223d88e38dbcebf193ba35ea9ee8",
+        "sha256": "9199c8fa9d912979b53e0e80f1e57490b15a6324251cadfbaf7cad8803e28a8f"
+      },
+      "cells": 216,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "strobilus-lang/strobilus/crates/strobilus/examples/microservices/policy.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "76b0e58753b0c528537e3817145870540a78eb70",
+        "sha256": "48712a81d241e723140077c637934be37e42d285a3e8a963d5ac84844e18b226"
+      },
+      "before": {
+        "commit": "a4f41cdbca74e8de4ee22bb6b6e04eb2924a7934",
+        "sha256": "0ce6a4f3a3bd48f9be9899091870dd81dbe37bb2ad907e5627d701b32f78f6a6"
+      },
+      "cells": 147438174208,
+      "status": "over the cell cap",
+      "subject": "tarlan-huseynov/agentcore-monorepo/terraform/policies/safety.cedar"
+    },
+    {
+      "after": {
+        "commit": "a4f41cdbca74e8de4ee22bb6b6e04eb2924a7934",
+        "sha256": "0ce6a4f3a3bd48f9be9899091870dd81dbe37bb2ad907e5627d701b32f78f6a6"
+      },
+      "before": {
+        "commit": "b1cec7156b44e56e0bfb2bb77350fabf8de068b5",
+        "sha256": "2eea5e553582e144557a6be42187bd38aa5f343461f9fb8a7e412db583062dfa"
+      },
+      "cells": 599785472,
+      "status": "over the cell cap",
+      "subject": "tarlan-huseynov/agentcore-monorepo/terraform/policies/safety.cedar"
+    },
+    {
+      "after": {
+        "commit": "b1cec7156b44e56e0bfb2bb77350fabf8de068b5",
+        "sha256": "2eea5e553582e144557a6be42187bd38aa5f343461f9fb8a7e412db583062dfa"
+      },
+      "before": {
+        "commit": "6e10e1d6293f0e15d10ca08ef41e618f2899058e",
+        "sha256": "b331916c877c79a0633dfc05cb3463991775a99ac32591df5c551de201bba624"
+      },
+      "cells": 1134695999864832,
+      "status": "over the cell cap",
+      "subject": "tarlan-huseynov/agentcore-monorepo/terraform/policies/safety.cedar"
+    },
+    {
+      "after": {
+        "commit": "de9b06f1ddba0b789e6931cd22d8c83cebcb9303",
+        "sha256": "10bdefb5177aadecea13dc3f6eecc9e866a3c813942e449d95a342a081785b10"
+      },
+      "before": {
+        "commit": "2f69eccf31383c12ce332133514471520e00c3f6",
+        "sha256": "ada7b7d6aea2f592ea7b161badd36457aa7ec2e0ee8996126e71668f0da328c1"
+      },
+      "cells": 12,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "woojinnn/dambi/crates/policy-engine-wasm/tests/fixtures/default_policies_v2/signature-chain-mismatch-permit-warn.cedar",
+      "weakens_a_decision": false
+    },
+    {
+      "after": {
+        "commit": "2f69eccf31383c12ce332133514471520e00c3f6",
+        "sha256": "ada7b7d6aea2f592ea7b161badd36457aa7ec2e0ee8996126e71668f0da328c1"
+      },
+      "before": {
+        "commit": "55934aea095c84416a166eb4a5d95f8885ed68b6",
+        "sha256": "448c32767ee6ab63ba12ab17854b2c7053ceb8b7df7fbd2bf9259fa2ee6065dd"
+      },
+      "cells": 12,
+      "changes_a_decision": false,
+      "detection": {
+        "decision": 0.0,
+        "quotient": 0.0,
+        "random_decision": 0.0,
+        "random_quotient": 0.0,
+        "refinement": 0.0
+      },
+      "status": "measured",
+      "subject": "woojinnn/dambi/crates/policy-engine-wasm/tests/fixtures/default_policies_v2/signature-chain-mismatch-permit-warn.cedar",
+      "weakens_a_decision": false
+    }
+  ],
+  "pairs_measured": 43,
+  "pairs_over_the_cell_cap": 18,
+  "pairs_skipped": {
+    "a version Cedar does not parse": 7,
+    "a version could not be fetched at its commit": 6,
+    "a version that is not exact-eligible": 144
+  },
+  "protocol_sha256": "0103fa4a038da6c1606caf82b46ef739f5eef014a9632f51dcc2f781f4cbbbcc",
+  "schema_version": "v1",
+  "suites_built_from": "the earlier version of each pair",
+  "weaken_a_decision": 21,
+  "what_this_is": "every earlier-version pair of an exact-eligible sampled Cedar file, as a real edit; descriptive only, no hypothesis is tested on these"
+}
