@@ -1,0 +1,786 @@
+{
+  "agreements": 150,
+  "by_adapter_kind": {
+    "inside": 217,
+    "outside: nondeterministic builtin": 18,
+    "outside: reads state the subject does not carry": 43,
+    "schema": 7,
+    "undetermined": 15
+  },
+  "could_not_load": [
+    {
+      "error": "1 error occurred: /DevAge/policy/rego/adsm.rego:13: rego_unsafe_var_error: var _ is unsafe",
+      "subject": "A-iCan/AiCan_2.0/DevAge/policy/rego/adsm.rego"
+    },
+    {
+      "error": "1 error occurred: /Validations/policies/opa/apparmor_profile.rego:48: rego_type_error: conflicting rules data.main.has_apparmor_annotation found",
+      "subject": "AHegab/SafeFix-K8s/Validations/policies/opa_minimal/security_context_required.rego"
+    },
+    {
+      "error": "8 errors occurred:",
+      "subject": "Alivanroy/Typosentinel/policies/typosquat.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "Azure/azure-cli-extensions/src/confcom/samples/aci/duplicated_probes/policy_exclude_default_fragment.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "Azure/azure-cli-extensions/src/confcom/samples/aci/minimal/policy_infrastructure_svn.rego"
+    },
+    {
+      "error": "4 errors occurred:",
+      "subject": "Cukurikik/Omni/src/policy/rego_core/omni_instruction_tuning_policy.rego"
+    },
+    {
+      "error": "1 error occurred: 1:5: rego_parse_error: unexpected eof token: expected identifier",
+      "subject": "DevOpsMadDog/Aldeci.AI/suite-core/simulations/experiments/e2e_orchestration/policy/APP2_fintech/deny_crypto_vulnerabilities.rego"
+    },
+    {
+      "error": "1 error occurred: /security/opa-policies/wallet.rego:138: rego_unsafe_var_error: var last_recovery is unsafe",
+      "subject": "EmploymentVC/EmploymentVC/security/opa-policies/verification.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "GauravGirase/terraform-golden-modules/policies/network/naming.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "Gorski-Maciej/NexusAI/JDG/rules/p24_innovations_enterprise.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "Gorski-Maciej/NexusAI/policies/micro/rodo_aml_bdo_atomic_p15.rego"
+    },
+    {
+      "error": "1 error occurred: /policies/terraform/cve-2025-13357-vault-ldap.rego:14: rego_type_error: sprintf: arity mismatch",
+      "subject": "Gurkirxt/devops-project/policies/ansible/cve-2024-8775-no-log.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "Hardhat-Enterprises/AutoAudit/engine/legacy/rules-gcp/CIS_GCP_6_3_5.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "Hardhat-Enterprises/AutoAudit/policy/compose/compose_compliance.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "Hardhat-Enterprises/Policy-Deployment-Engine/policies/gcp/Cloud Source Repositories/google_sourcerepo_repository/pubsub_configs.service_account_email.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "Hardhat-Enterprises/Policy-Deployment-Engine/policies/gcp/Cloud Storage/google_storage_object_acl/predefined_acl.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "Loginsoft-LLC/Vulnerability-and-Security-Compliance-Research/Rego/Cloud Native/GCP Terraform/gke_no_public_control_plane.rego"
+    },
+    {
+      "error": "1 error occurred: /agentpolicy/policies/resolver.rego:35: rego_type_error: multiple default rules data.agentjail.decision found at /agentpolicy/policies/resolver.rego:87, /cmd/agentjail/policies/resol",
+      "subject": "LuD1161/agentjail/agentpolicy/policies/experimental/principal_shape.rego"
+    },
+    {
+      "error": "1 error occurred: /agentpolicy/policies/resolver.rego:35: rego_type_error: multiple default rules data.agentjail.decision found at /agentpolicy/policies/resolver.rego:87, /cmd/agentjail/policies/resol",
+      "subject": "LuD1161/agentjail/cmd/agentjail/policies/aws_posture.rego"
+    },
+    {
+      "error": "1 error occurred: /pam-session-termination-on-anomaly.rego:7: rego_type_error: conflicting rules data.pam.session_termination.terminate found",
+      "subject": "Manjula101/opa-pam-policies/pam-zero-trust-verification.rego"
+    },
+    {
+      "error": "1 error occurred: /configs/policies/default.rego:1: rego_type_error: multiple default rules data.soholink.authz.allow found at /configs/policies/default.rego:6, /default.rego:6",
+      "subject": "NTARI-RAND/SoHoLINK/configs/policies/resource_sharing.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "OpsMx/ssd-policies/scripts/s270.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "PacktPublishing/Kubernetes-An-Enterprise-Guide-Third-Edition/chapter11/enforce-ingress/rego/enforceingress.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "PinSpace-Org/GistPin/infrastructure/k8s/opa/policies/images.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "PinSpace-Org/GistPin/infrastructure/k8s/opa/policies/secrets.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "ShivaSirigadhi1/cloudforge-idp/security/opa/policies/deny_privileged.rego"
+    },
+    {
+      "error": "1 error occurred: 1:5: rego_parse_error: unexpected eof token: expected identifier",
+      "subject": "Sunbird-Spark/sunbird-spark-installer/helmcharts/learnbb/charts/registry/configs/opa/main.rego"
+    },
+    {
+      "error": "1 error occurred: /internal/sast/rules/lib_secrets.rego:81: rego_type_error: undefined function vulnetix.shannon_entropy",
+      "subject": "Vulnetix/cli/internal/sast/rules/vnx-184.rego"
+    },
+    {
+      "error": "1 error occurred: /internal/sast/rules/lib_secrets.rego:81: rego_type_error: undefined function vulnetix.shannon_entropy",
+      "subject": "Vulnetix/cli/internal/sast/rules/vnx-java-012.rego"
+    },
+    {
+      "error": "opa deps did not finish within its time limit",
+      "subject": "acuvity/mcp-servers-registry/mcp-server-couchbase/docker/policy.rego"
+    },
+    {
+      "error": "opa deps did not finish within its time limit",
+      "subject": "acuvity/mcp-servers-registry/mcp-server-httpx/docker/policy.rego"
+    },
+    {
+      "error": "opa deps did not finish within its time limit",
+      "subject": "acuvity/mcp-servers-registry/mcp-server-multiversx/docker/policy.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/policer-rego/basic-auth.rego:5: rego_type_error: multiple default rules data.main.allow found at /examples/policer-rego/basic-auth.rego:16, /examples/policer-rego/simple.re",
+      "subject": "acuvity/minibridge/examples/policer-rego/police.rego"
+    },
+    {
+      "error": "1 error occurred: /k8s/layer3/kbs-allow-sample.rego:3: rego_type_error: multiple default rules data.policy.allow found at /k8s/layer3/kbs-allow-sample.rego:5, /k8s/layer3/kbs-deny-all.rego:4",
+      "subject": "adeavid/confidential-ml-distribution/k8s/layer3/kbs-deny-all.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/rego/starter/deletion.rego:3: rego_type_error: conflicting rules data.rcdo.findings found",
+      "subject": "afterdarksys/rcdo/examples/rego/starter/base.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "aileron-gateway/aileron-gateway/test/ut/app/opa/bundle/authz/policy.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "albinoJimy/Neural-Hive-Mind/helm-charts/guard-agents/policies/resource_policies.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "albinoJimy/Neural-Hive-Mind/helm-charts/orchestrator-dynamic/policies/rego/orchestrator/sla_enforcement.rego"
+    },
+    {
+      "error": "1 error occurred: /k8s/kustomize/app-w-policy/policy.rego:1: rego_type_error: multiple default rules data.envoy.authz.allow found at /k8s/kustomize/app-w-policy/policy.rego:5, /k8s/kustomize/overlays/",
+      "subject": "alex-y-kozlov-sandbox/opa-envoy-tut/k8s/kustomize/overlays/sandbox/policy.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "ameytriage/testlea-mirror/security-policies/bundle/compliance/cis_gcp/rules/cis_3_8/test.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "ancoleman/ai-design-components/skills/implementing-compliance/examples/opa-policies/encryption.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "androvonx95/DEPIN_Network_Mini_Project/pkg/authz/policies/policy_test_deny.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "antgroup/CloudRec/rules/ALI_CLOUD/ALI_CLOUD_RAM Role_202507101903_755145/policy.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/awssam/policy/policy.rego:36: rego_type_error: data.main.check_runtime: invalid argument(s)",
+      "subject": "anusmithapatnaik/OPAConftest/examples/hcl2/policy/deny.rego"
+    },
+    {
+      "error": "1 error occurred: /darwinOSBits/DarwinInit/Models/PCCRegoPolicy/policy/main/main.rego:165: rego_type_error: document annotation redeclared: /darwinOSBits/DarwinInit/Models/PCCRegoPolicy/bundle/policy/",
+      "subject": "apple/security-pcc/darwinOSBits/DarwinInit/Models/PCCRegoPolicy/bundle/policy/main/main.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "aquasecurity/trivy-checks/.regal/rules/custom/invalid-metadata/invalid_metadata.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "aquasecurity/trivy-operator/tests/envtest/testdata/content/policies/kubernetes/policies/general/manage_namespace_secrets.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "aws-cloudformation/cloudformation-validate/src/rego-engine/handwritten/rego/intrinsics/findinmap.rego"
+    },
+    {
+      "error": "6 errors occurred:",
+      "subject": "badmintoncryer/cdk-preflight/rules/apigatewayv2/pf-apigwv2-access-log-destination-log-group/rule.rego"
+    },
+    {
+      "error": "6 errors occurred:",
+      "subject": "badmintoncryer/cdk-preflight/rules/bedrock-agentcore/pf-agentcore-required-union-empty/rule.rego"
+    },
+    {
+      "error": "6 errors occurred:",
+      "subject": "badmintoncryer/cdk-preflight/rules/mediaconvert/pf-mediaconvert-pkg-group-container/rule.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "bartytime4life/Kansas-Frontier-Matrix/policy/focus/citation_validation_required.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "button-inc/batten/policy/coderabbit-config.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "button-inc/batten/policy/release-provision-parity.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "button-inc/batten/policy/workspace-dep-referenced.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "caldas479/InfraPaC/data/datasets/spec_bug_fix_kics_extended/cloudformation/aws/kics_cloudformation_aws_elb_sensitive_port_is_exposed_to_entire_network_002/policy.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "caldas479/InfraPaC/examples/s3_versioning.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "codertjay/gitlab/gems/gitlab-policy-store/spec/fixtures/rules/calendar_window/rule.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "conforma/policy/policy/release/olm/olm.rego"
+    },
+    {
+      "error": "1 error occurred: /kube_scripts/OPA-Testing/bookInfo/allow-all.rego:1: rego_type_error: multiple default rules data.envoy.authz.allow found at /kube_scripts/OPA-Testing/bookInfo/allow-all.rego:5, /kub",
+      "subject": "daltonhahn/anvResearch/kube_scripts/OPA-Testing/gcp/allow-all.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "daniel-git574/cvat-testing/cvat-fork-project/cvat/apps/engine/rules/jobs.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/policies/cost-budget.rego:9: rego_type_error: multiple default rules data.talon.gateway.allow found at /examples/policies/cost-budget.rego:13, /examples/policies/data-resid",
+      "subject": "dativo-io/talon/internal/policy/rego/gateway_access.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "demis1997/kata2-trustee/demo_policy.rego"
+    },
+    {
+      "error": "1 error occurred: /d2/comparrays.rego:4: rego_type_error: match error",
+      "subject": "douglasnaphas/play-rego/d2/allow-if-no-cats.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "elastic/cloudbeat/security-policies/bundle/compliance/cis_gcp/rules/cis_2_8/test.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "elastic/cloudbeat/security-policies/bundle/compliance/cis_k8s/rules/cis_1_2_24/test.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "env0/acme-demo/ec2-kics/assets/queries/azureResourceManager/network_security_group_with_unrestricted_access_to_ssh/query.rego"
+    },
+    {
+      "error": "1 error occurred: /auto-approve-if-no-changes/dev.rego:10: rego_type_error: conflicting rules data.env0.allow found",
+      "subject": "env0/approval-policies/resources-limit/env0.rego"
+    },
+    {
+      "error": "1 error occurred: /cupcake-core/tests/fixtures/system_evaluate.rego:1: rego_type_error: multiple default rules data.cupcake.system.collect_verbs found at /cupcake-core/tests/fixtures/system_evaluate.r",
+      "subject": "eqtylab/cupcake/fixtures/claude/builtins/git_pre_check.rego"
+    },
+    {
+      "error": "1 error occurred: /cupcake-core/tests/fixtures/system_evaluate.rego:1: rego_type_error: multiple default rules data.cupcake.system.collect_verbs found at /cupcake-core/tests/fixtures/system_evaluate.r",
+      "subject": "eqtylab/cupcake/fixtures/system/evaluate.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "flatt-security/shisho-cloud-managed-workflows/workflows/cis-benchmark/googlecloud-v1.3.0/iam/service-account-admin-separation/decide.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "flatt-security/shisho-cloud-managed-workflows/workflows/csp/aws-fsbp/s3/bucket-public-write-access/decide.rego"
+    },
+    {
+      "error": "1 error occurred: 1:5: rego_parse_error: unexpected eof token: expected identifier",
+      "subject": "fmfalgun/Autherization/examples/network-authorization/ble/ble-5.4/policy.rego"
+    },
+    {
+      "error": "4 errors occurred:",
+      "subject": "foalem/Pac-paper/policies/Open Policy Agent (OPA)/aquasecurity__trivy-checks/no_public_cluster_access_to_cidr.rego"
+    },
+    {
+      "error": "4 errors occurred:",
+      "subject": "foalem/Pac-paper/policies/Open Policy Agent (OPA)/aquasecurity__trivy-checks/update_instruction_alone.rego"
+    },
+    {
+      "error": "4 errors occurred:",
+      "subject": "foalem/Pac-paper/policies/Open Policy Agent (OPA)/open-policy-agent__conftest/images.rego"
+    },
+    {
+      "error": "1 error occurred: /tests/rego/with-03.rego:17: rego_compile_error: with keyword cannot partially replace virtual document(s)",
+      "subject": "fugue/fregot/tests/golden/repl/debug-cache.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "g33ck0o-coder/devsecops-k8s-demo/opa-k8s-security.rego"
+    },
+    {
+      "error": "5 errors occurred:",
+      "subject": "gbrindisi/dockerfile-security/dockerfile-security.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "genvaldev/genval/templates/defaultpolicies/rego/terraform.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "google/gke-policy-automation/gke-policies-v2/policy/control_plane_access.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "google/gke-policy-automation/gke-policies-v2/policy/node_pool_disk_encryption.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "google/gke-policy-automation/gke-policies/policy/cluster_enable_workload_scanning.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "hasan7n/tmp-policies/policy_cards/ethics-approval-required/policy.rego"
+    },
+    {
+      "error": "1 error occurred: /policies/deployment.rego:118: rego_recursion_error: rule data.deployment.to_number is recursive: data.deployment.to_number -> data.deployment.to_number",
+      "subject": "hoangsonww/PetSwipe-Match-App/policies/resource-limits.rego"
+    },
+    {
+      "error": "1 error occurred: /gitops/policy/rego/deny_gpu.rego:6: rego_compile_error: var c declared above",
+      "subject": "iangreen74/radix/gitops/policy/rego/deny_deploy.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "infragov-project/cwe2rego/generated_rego/ablation_no_semantic_check/claude-sonnet-4-6/runs/run_001/cwe_284.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "innovationmech/swit/examples/full-security-stack/policies/rbac.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "innovationmech/swit/pkg/security/opa/policies/examples/financial_abac.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/awssam/policy/policy.rego:30: rego_type_error: conflicting rules data.main.deny found",
+      "subject": "jackcarterc/conftest/examples/compose/policy/deny.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/awssam/policy/policy.rego:30: rego_type_error: conflicting rules data.main.deny found",
+      "subject": "jackcarterc/conftest/examples/kubernetes/policy/labels.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/awssam/policy/policy.rego:30: rego_type_error: conflicting rules data.main.deny found",
+      "subject": "jackcarterc/conftest/examples/vcl/policy/deny.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/oci-suites/returns-control-plane/policies/event_schema.rego:1: rego_type_error: multiple default rules data.babelsuite.event_schema.allow found at /examples/oci-suites/retu",
+      "subject": "jarin-devoss/babelSuite/examples/oci-suites/soap-claims-hub/policies/soap_faults.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "jonathan-kellerai/kellerai-oss-template/template/_files/conformance/blast_radius.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "khulnasoft/postee/rego-filters/Allow-Registry.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "khulnasoft/tunnel-checks/checks/cloud/azure/compute/no_secrets_in_custom_data.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "khulnasoft/tunnel-checks/checks/cloud/azure/network/disable_rdp_from_internet.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "kubescape/regolibrary/rules/agent-sandbox-egress-policy/raw.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "kubescape/regolibrary/rules/agent-sandbox-image-registry-allowlist/raw.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "kubescape/regolibrary/rules/rule-deny-cronjobs/raw.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "kubewarden/policies/policies/ControllerMissingLabelValue/policy.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "kubewarden/policies/staging/MYSQLEnforceSkipTzinfoEnvVar/policy.rego"
+    },
+    {
+      "error": "1 error occurred: 1:5: rego_parse_error: unexpected eof token: expected identifier",
+      "subject": "kumarrajapuvvalla-bit/ops-platform/policies/k8s/deny-root-containers.rego"
+    },
+    {
+      "error": "1 error occurred: /2.keywords.contains/contains.rego:7: rego_type_error: rule data.play.fruit conflicts with:",
+      "subject": "mjbright/opa-rego-scenarios/sample-data/Lab4/conftest-terraform/policy/deny.rego"
+    },
+    {
+      "error": "1 error occurred: /docs/opa-samples/01-deny-override-structure.rego:24: rego_type_error: multiple default rules data.graphql.allow found at /docs/opa-samples/01-deny-override-structure.rego:26, /docs/",
+      "subject": "monch1962/gql-firewall/docs/opa-samples/09-batch-size-limit.rego"
+    },
+    {
+      "error": "1 error occurred: /docs/opa-samples/01-deny-override-structure.rego:24: rego_type_error: multiple default rules data.graphql.allow found at /docs/opa-samples/01-deny-override-structure.rego:26, /docs/",
+      "subject": "monch1962/gql-firewall/docs/opa-samples/21-time-based-access.rego"
+    },
+    {
+      "error": "3 errors occurred:",
+      "subject": "mshytse/base/policies/3_levels_policy/pass.rego"
+    },
+    {
+      "error": "1 error occurred: /opa-go/tests/empty.rego:1: rego_type_error: multiple default rules data.tests.allow found at /opa-go/tests/empty.rego:3, /opa-wasm/tests/empty.rego:3",
+      "subject": "myagley/opa-rs/opa-go/tests/empty.rego"
+    },
+    {
+      "error": "1 error occurred: /k8s/envoy-jwt-opa/k8s/backend/config/opa-policy.rego:1: rego_type_error: multiple default rules data.envoy.authz.allow found at /k8s/envoy-jwt-opa/k8s/backend/config/opa-policy.rego",
+      "subject": "naveensrinivasan/oidc-spire/k8s/envoy-jwt-opa/k8s/backend/config/opa-policy.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "nonfx/starchitect-cloudguard/terraform/aws/Amazon DocumentDB/aws_db_instance_encryption_in_transit.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "nonfx/starchitect-cloudguard/terraform/aws/Amazon Keyspaces (for Apache Cassandra)/aws_keyspaces_vpc_endpoint_security_authentication.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "nonfx/starchitect-cloudguard/terraform/gcp/Cloud SQL/gcp_sql_server_user_connections.rego"
+    },
+    {
+      "error": "1 error occurred: /crates/weaver_live_check/data/policies/bad_advice/bad.rego:16: rego_unsafe_var_error: var attribu1te_name is unsafe",
+      "subject": "open-telemetry/weaver/crates/weaver_checker/data/policies/invalid_policies.rego"
+    },
+    {
+      "error": "6 errors occurred:",
+      "subject": "openstack-experimental/keystone/policy/mapping/ruleset/update.rego"
+    },
+    {
+      "error": "6 errors occurred:",
+      "subject": "openstack-experimental/keystone/policy/oauth2/client/show.rego"
+    },
+    {
+      "error": "6 errors occurred:",
+      "subject": "openstack-experimental/keystone/policy/vendordata/create.rego"
+    },
+    {
+      "error": "1 error occurred: /contrib/example_policy/advanced.rego:1: rego_type_error: multiple default rules data.trivy.ignore found at /contrib/example_policy/advanced.rego:5, /contrib/example_policy/basic.reg",
+      "subject": "piyushpurohit23/trivy/examples/misconf/custom-data/policy/custom.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "prancer-io/prancer-compliance-test/aws/cloud/sqs.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "prancer-io/prancer-compliance-test/azure/terraform/dbfirewallrules.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "prancer-io/prancer-compliance-test/google/kcc/ComputeFirewall.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "pvsone/opa-ext-authz/spring-app/cloudfoundry-styra-das/rules.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "r33drichards/mcp-js/examples/chartjs/policies/fetch.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "rode/rode/pkg/policy/test/missing_results_return.rego"
+    },
+    {
+      "error": "1 error occurred: 1:5: rego_parse_error: unexpected eof token: expected identifier",
+      "subject": "rthexton1964/prisma-to-wiz-dev/wiz_rego_policies/pcp-064_vpc_flow_logs_enabled.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "scribe-public/sample-policies/v1/github/api/signed-commits-range.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "scribe-public/sample-policies/v1/github/org/allow-admins.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "scribe-public/sample-policies/v2/rules/gitlab/org/allow-token-scopes.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "snyk/policy-engine/examples/01-simple.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "snyk/policy-engine/examples/02-simple-attributes.rego"
+    },
+    {
+      "error": "9 errors occurred:",
+      "subject": "snyk/policy-engine/examples/11-finding.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/mcp-governance/policies/no-path-traversal-in-message.rego:10: rego_type_error: multiple default rules data.sbproxy.allow found at /examples/mcp-governance/policies/no-path-",
+      "subject": "soapbucket/sbproxy/examples/rego-modifier-parity/policy.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/access/label-based-team-access.rego:35: rego_type_error: conflicting rules data.spacelift.deny found",
+      "subject": "spacelift-io/spacelift-policies-example-library/examples/login/access-levels-within-an-organization.rego"
+    },
+    {
+      "error": "1 error occurred: /aws_rego/iam_checks/overdue_api_keys/overdue_api_keys/overdue_api_keys.rego:26: rego_unsafe_var_error: var overdue_api_keys is unsafe",
+      "subject": "sudoersllc/opsbox-rego/aws_rego/elb_checks/no_healthy_targets/no_healthy_targets.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "swagwatch/AWS-PROJECT-2026-CYCLE-0001-DEV/modules/secretsmanager/policy/main.rego"
+    },
+    {
+      "error": "11 errors occurred:",
+      "subject": "tarcinapp/entity-persistence-gateway-policies/policies/auth/routes/listReactions/findParentsByListReactionId/policy.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "truckercore/truckercore1/policy/rego/github.rego"
+    },
+    {
+      "error": "1 error occurred: /wiz_custom_rules/Storage.C102_allowlist/cloud/file_share_smb21_required.rego:1: rego_type_error: multiple default rules data.wiz.result found at /wiz_custom_rules/Storage.C102_allow",
+      "subject": "trustoncloud/threatmodel-for-azure-storage/wiz_custom_rules/Storage.C78_denylist/cloud/authorized_region_detection.rego"
+    },
+    {
+      "error": "1 error occurred: /wiz_custom_rules/controls/Bigquery.C100/allowlist/bigquery_listing_security.rego:1: rego_type_error: multiple default rules data.wiz.result found at /wiz_custom_rules/controls/Bigqu",
+      "subject": "trustoncloud/threatmodel-for-google-bigquery/wiz_custom_rules/controls/Bigquery.C129/allowlist/bigquery_gemini_enablement.rego"
+    },
+    {
+      "error": "1 error occurred: /wiz_custom_rules/controls/Bigquery.C100/allowlist/bigquery_listing_security.rego:1: rego_type_error: multiple default rules data.wiz.result found at /wiz_custom_rules/controls/Bigqu",
+      "subject": "trustoncloud/threatmodel-for-google-bigquery/wiz_custom_rules/controls/Bigquery.C129/universal/bigquery_gemini_enablement.rego"
+    },
+    {
+      "error": "1 error occurred: /examples/policies/02_deny_destructive.rego:3: rego_type_error: conflicting rules data.loopers.policy.deny found",
+      "subject": "try-loopers/loopers-oss/examples/policies/02_deny_destructive.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "vagabond-cloud/Vagabond-Fuse/examples/eudi-toolkit/demo_files/gdpr_policy.rego"
+    },
+    {
+      "error": "2 errors occurred:",
+      "subject": "vencil/Dynamic-Alerting-Integrations/policies/examples/log-egress.rego"
+    },
+    {
+      "error": "1 error occurred: /charts/ai-k8s-gateway/agent_actions.rego:39: rego_type_error: multiple default rules data.agent.authz.allow found at /charts/ai-k8s-gateway/agent_actions.rego:80, /policies/agent_ac",
+      "subject": "wejdeneh/ai-k8s-gateway/charts/ai-k8s-gateway/agent_actions.rego"
+    },
+    {
+      "error": "1 error occurred: /scope1/rbac.rego:1: rego_type_error: multiple default rules data.app.rbac.allow found at /scope1/rbac.rego:6, /scope2/rbac.rego:4",
+      "subject": "zsombix/opapoc/scope2/rbac.rego"
+    }
+  ],
+  "disagreeing_modules": [
+    {
+      "adapter": {
+        "kind": "inside",
+        "reason": "every guard reads the request and literals the policy contains",
+        "verdict": "inside"
+      },
+      "agree": false,
+      "engine": {
+        "base_documents": [
+          "data.metabolights.validation.v2.configuration.violatedValueListMaxLength",
+          "data.metabolights.validation.v2.controls.assayFileControls",
+          "data.metabolights.validation.v2.controls.sampleFileControls",
+          "data.metabolights.validation.v2.templates.assayFileHeaderTemplates",
+          "data.metabolights.validation.v2.templates.configuration.defaultTemplateVersion",
+          "data.metabolights.validation.v2.templates.configuration.studyCategories",
+          "data.metabolights.validation.v2.templates.configuration.versions",
+          "data.metabolights.validation.v2.templates.sampleFileHeaderTemplates",
+          "input.assays",
+          "input.investigation.ontologySourceReferences.references",
+          "input.investigation.studies.0.createdAt",
+          "input.investigation.studies.0.sampleTemplate",
+          "input.investigation.studies.0.studyCategory",
+          "input.investigation.studies.0.templateVersion",
+          "input.samples",
+          "input.studyDbMetadata.createdAt",
+          "input.studyDbMetadata.sampleTemplate",
+          "input.studyDbMetadata.studyCategory",
+          "input.studyDbMetadata.templateVersion"
+        ],
+        "fetches_parameters": [],
+        "nondeterministic_calls": [],
+        "reads_injected": [],
+        "reads_parameter_keys": [],
+        "reads_undefined_data": [
+          "data.metabolights.validation.v2.configuration.violatedValueListMaxLength",
+          "data.metabolights.validation.v2.controls.assayFileControls",
+          "data.metabolights.validation.v2.controls.sampleFileControls",
+          "data.metabolights.validation.v2.templates.assayFileHeaderTemplates",
+          "data.metabolights.validation.v2.templates.configuration.defaultTemplateVersion",
+          "data.metabolights.validation.v2.templates.configuration.studyCategories",
+          "data.metabolights.validation.v2.templates.configuration.versions",
+          "data.metabolights.validation.v2.templates.sampleFileHeaderTemplates"
+        ],
+        "verdict": "external"
+      },
+      "files_sharing_its_package": 2,
+      "package": "metabolights.validation.v2.rules.phase2.violations",
+      "subject": "EBI-Metabolights/mtbls-validation/validation/metabolights/validation/v2/rules/phase2/violations/phase2_violations.rego"
+    },
+    {
+      "adapter": {
+        "kind": "inside",
+        "reason": "every guard reads the request and literals the policy contains",
+        "verdict": "inside"
+      },
+      "agree": false,
+      "engine": {
+        "base_documents": [
+          "data.config.soft_fail",
+          "input",
+          "input.POAM_PLAN_OF_ACTION.md.poam_ids",
+          "input.resource_changes",
+          "input.services"
+        ],
+        "fetches_parameters": [],
+        "nondeterministic_calls": [],
+        "reads_injected": [],
+        "reads_parameter_keys": [],
+        "reads_undefined_data": [
+          "data.config.soft_fail"
+        ],
+        "verdict": "external"
+      },
+      "files_sharing_its_package": 25,
+      "package": "main",
+      "subject": "ET-sec/cyber-squire1/terraform/cd-oci-infrastructure/policy/deny_missing_prevent_destroy.rego"
+    },
+    {
+      "adapter": {
+        "kind": "outside: nondeterministic builtin",
+        "reason": "reaches outside through abbey.functions.expire_after, which calls a builtin whose result is not a function of its arguments: time.now_ns",
+        "verdict": "outside"
+      },
+      "agree": false,
+      "engine": {
+        "base_documents": [
+          "data.system.abbey.target.grant.approved_at"
+        ],
+        "fetches_parameters": [],
+        "nondeterministic_calls": [],
+        "reads_injected": [],
+        "reads_parameter_keys": [],
+        "reads_undefined_data": [
+          "data.system.abbey.target.grant.approved_at"
+        ],
+        "verdict": "external"
+      },
+      "files_sharing_its_package": 3,
+      "package": "time",
+      "subject": "abbeylabs/policy-library/max-grant-duration/1d/policy.rego"
+    },
+    {
+      "adapter": {
+        "kind": "undetermined",
+        "reason": "calls a name this test cannot resolve",
+        "verdict": "undetermined"
+      },
+      "agree": false,
+      "engine": {
+        "base_documents": [
+          "input.resource_changes"
+        ],
+        "fetches_parameters": [],
+        "nondeterministic_calls": [],
+        "reads_injected": [],
+        "reads_parameter_keys": [],
+        "reads_undefined_data": [],
+        "verdict": "request and literals only"
+      },
+      "files_sharing_its_package": 1,
+      "package": "aws.emr.m3",
+      "subject": "aws-samples/aws-infra-policy-as-code-with-terraform/policy-as-code/OPA/policy/aws/emr/aws-emr-m-3.rego"
+    },
+    {
+      "adapter": {
+        "kind": "inside",
+        "reason": "every guard reads the request and literals the policy contains",
+        "verdict": "inside"
+      },
+      "agree": false,
+      "engine": {
+        "base_documents": [
+          "data.cloudsentinel.exceptions.exceptions",
+          "input"
+        ],
+        "fetches_parameters": [],
+        "nondeterministic_calls": [],
+        "reads_injected": [],
+        "reads_parameter_keys": [],
+        "reads_undefined_data": [
+          "data.cloudsentinel.exceptions.exceptions"
+        ],
+        "verdict": "external"
+      },
+      "files_sharing_its_package": 10,
+      "package": "cloudsentinel.gate",
+      "subject": "drghassen/PFE-MPSSR/policies/opa/gate/gate_deny_intent.rego"
+    },
+    {
+      "adapter": {
+        "kind": "outside: nondeterministic builtin",
+        "reason": "reaches outside through configuration.env, which calls a builtin whose result is not a function of its arguments: opa.runtime",
+        "verdict": "outside"
+      },
+      "agree": false,
+      "engine": {
+        "base_documents": [
+          "input.action.filterResources",
+          "input.action.filterResources.0.table.catalogName",
+          "input.action.filterResources.0.table.schemaName",
+          "input.action.filterResources.0.table.tableName",
+          "input.action.operation",
+          "input.action.resource",
+          "input.action.resource.catalog.name",
+          "input.action.resource.function.catalogName",
+          "input.action.resource.function.functionName",
+          "input.action.resource.schema",
+          "input.action.resource.schema.catalogName",
+          "input.action.resource.schema.schemaName",
+          "input.action.resource.table",
+          "input.action.resource.table.catalogName",
+          "input.action.resource.table.schemaName",
+          "input.action.resource.table.tableName",
+          "input.action.resource.user.user",
+          "input.action.targetResource.table.catalogName",
+          "input.action.targetResource.table.schemaName",
+          "input.context",
+          "input.context.identity.user"
+        ],
+        "fetches_parameters": [],
+        "nondeterministic_calls": [],
+        "reads_injected": [],
+        "reads_parameter_keys": [],
+        "reads_undefined_data": [],
+        "verdict": "request and literals only"
+      },
+      "files_sharing_its_package": 8,
+      "package": "trino",
+      "subject": "lakekeeper/lakekeeper/authz/opa-bridge/policies/trino/allow_default_access.rego"
+    }
+  ],
+  "disagreeing_modules_whose_package_is_shared": 6,
+  "disagreements": 6,
+  "engine_could_not_load": 144,
+  "modules": 300,
+  "schema_version": "v1",
+  "what_this_is": "every sampled third-party Rego module's adapter verdict against `opa deps` on the package, compiled with the module's whole repository at the pinned commit"
+}

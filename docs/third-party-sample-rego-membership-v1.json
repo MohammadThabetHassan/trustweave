@@ -1184,8 +1184,8 @@
   ],
   "corpus_scope": "third-party",
   "counts": {
-    "inside": 219,
-    "outside": 66,
+    "inside": 217,
+    "outside": 68,
     "undetermined": 15
   },
   "ecosystem": "rego",
@@ -1645,9 +1645,12 @@
       "package": "agentjail",
       "reads_admission_review": false,
       "reads_constraint": false,
-      "reason": "every guard reads the request and literals the policy contains",
+      "reason": "reads a data document the bundle does not define: data.agentjail.config.aws, data.agentjail.config.aws.accounts.allow_cud, data.agentjail.config.aws.accounts.deny_delete, data.agentjail.config.aws.accounts.posture",
+      "reasons": [
+        "reads a data document the bundle does not define: data.agentjail.config.aws, data.agentjail.config.aws.accounts.allow_cud, data.agentjail.config.aws.accounts.deny_delete, data.agentjail.config.aws.accounts.posture"
+      ],
       "subject": "LuD1161/agentjail/cmd/agentjail/policies/aws_posture.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "commit": "59b6c1750dbf8370d994b586714967c9e1cfce9e",
@@ -2734,7 +2737,8 @@
       "reads_constraint": false,
       "reason": "reads a data document the bundle does not define: data.cupcake.policies",
       "reasons": [
-        "reads a data document the bundle does not define: data.cupcake.policies"
+        "reads a data document the bundle does not define: data.cupcake.policies",
+        "reaches outside through cupcake.policies.builtins.protected_paths.get_protected_paths, which reads a data document the bundle does not define: data.cupcake.system.paths"
       ],
       "subject": "eqtylab/cupcake/fixtures/system/evaluate.rego",
       "verdict": "outside"
@@ -3874,9 +3878,12 @@
       "package": "rules.snyk_001.tf",
       "reads_admission_review": false,
       "reads_constraint": false,
-      "reason": "every guard reads the request and literals the policy contains",
+      "reason": "reads a data document the bundle does not define: data.rules.snyk_001.metadata",
+      "reasons": [
+        "reads a data document the bundle does not define: data.rules.snyk_001.metadata"
+      ],
       "subject": "snyk/policy-engine/examples/01-simple.rego",
-      "verdict": "inside"
+      "verdict": "outside"
     },
     {
       "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
@@ -4259,5 +4266,5 @@
   "provenance": "third-party",
   "repositories": 236,
   "schema_version": "v1",
-  "share_inside": 0.73
+  "share_inside": 0.7233
 }
