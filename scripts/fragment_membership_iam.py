@@ -53,10 +53,57 @@ shape it does not recognise, is undetermined.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 from fragment_membership import INSIDE, OUTSIDE, UNDETERMINED, Verdict
+
+# A template placeholder that a deployment tool fills before the document reaches IAM.
+# IAM's own policy variables are `${namespace:key}` -- `${aws:username}`, `${s3:prefix}`,
+# `${aws:PrincipalTag/team}` -- plus three escapes, `${*}`, `${?}` and `${$}`, and they are
+# attributes of the request, so a guard over one stays inside. Anything else between `${` and
+# `}` -- Terraform's `${var.bucket}`, CloudFormation's `${AWS::AccountId}`, whose double colon
+# no IAM variable has -- or between `{{` and `}}` is bound when the document is rendered, and
+# until then the document is a policy schema, for the reason an Azure definition with an
+# undefaulted parameter is one. Angle-bracket placeholders such as `<ACCOUNT_ID>` are left
+# alone: to IAM they are literals, and a policy naming one decides something.
+PLACEHOLDER = re.compile(r"\$\{([^{}]*)\}|\{\{(.*?)\}\}")
+POLICY_VARIABLE = re.compile(r"[A-Za-z0-9.\-]+:[^:{}][^{}]*")
+POLICY_VARIABLE_ESCAPES = frozenset({"*", "?", "$"})
+SCHEMA_REASON = (
+    "is a policy schema rather than a policy: it interpolates a template placeholder that "
+    "is bound when a deployment tool renders it, and no default is given for it"
+)
+CLOCK_REASON = (
+    "reads the clock: the value of this condition key is resolved at evaluation time and is "
+    "not carried by the request"
+)
+
+
+def _strings(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [found for key, item in value.items() for found in [*_strings(key), *_strings(item)]]
+    if isinstance(value, list):
+        return [found for item in value for found in _strings(item)]
+    return []
+
+
+def template_placeholders(document: dict[str, Any]) -> list[str]:
+    """Every placeholder in the document that is not one of IAM's own policy variables."""
+
+    found: set[str] = set()
+    for text in _strings(document):
+        for match in PLACEHOLDER.finditer(text):
+            inner = match.group(1)
+            if inner is None:
+                found.add("{{" + match.group(2) + "}}")
+            elif inner not in POLICY_VARIABLE_ESCAPES and not POLICY_VARIABLE.fullmatch(inner):
+                found.add("${" + inner + "}")
+    return sorted(found)
+
 
 ECOSYSTEM = "iam"
 
@@ -235,14 +282,20 @@ def classify(text: str) -> Verdict:
         "condition_operators": sorted(operators),
     }
 
+    placeholders = template_placeholders(document)
     if clock_keys:
         detail["clock_condition_keys"] = sorted(clock_keys)
-        return Verdict(
-            OUTSIDE,
-            "reads the clock: the value of this condition key is resolved at evaluation "
-            "time and is not carried by the request",
-            detail,
-        )
+        if placeholders:
+            # The verdict names what survives rendering; the taxonomy counts the schema.
+            detail["template_placeholders"] = placeholders
+            detail["reasons"] = [CLOCK_REASON, SCHEMA_REASON]
+        return Verdict(OUTSIDE, CLOCK_REASON, detail)
+
+    if placeholders:
+        # A schema whatever else is true of it, as an Azure definition that delegates its
+        # guard is: rendering is what would make the rest of it judgeable.
+        detail["template_placeholders"] = placeholders
+        return Verdict(OUTSIDE, SCHEMA_REASON, detail)
 
     if unrecognised_shapes:
         detail["unrecognised_shapes"] = sorted(set(unrecognised_shapes))

@@ -36,6 +36,15 @@ EXTERNAL_CONTEXT_SOURCES = ("apiCall", "configMap", "imageRegistry", "globalRefe
 # on a corpus mined from third-party repositories, where three policies read attestation
 # fields the adapter could not place.
 IMAGE_VERIFICATION_BLOCK = re.compile(r"^\s*verifyImages:", re.MULTILINE)
+# A Helm action. Kyverno's own variables share the braces -- `{{ request.object.kind }}` --
+# but never begin with a dot, a trim marker, a `$` or a template keyword, which every Helm
+# action that reads a value or controls the rendering does. A chart's policy is bound when the
+# chart is rendered, so until then it is a policy schema, for the reason an Azure definition
+# with an undefaulted parameter is one.
+HELM_ACTION = re.compile(
+    r"\{\{-|-\}\}|\{\{\s*(?:\.(?:Values|Release|Chart|Capabilities|Files|Template)\b|\$"
+    r"|(?:if|else|end|range|with|define|include|template|toYaml|tpl)\b)"
+)
 
 # JMESPath functions that read the clock rather than compute from their arguments.
 # Kyverno's other `time_*` functions -- `time_parse`, `time_add`, `time_diff`,
@@ -437,6 +446,22 @@ def _rbac_selectors(text: str) -> list[str]:
 
 def classify(text: str) -> Verdict:
     detail: dict[str, object] = {}
+
+    if HELM_ACTION.search(text):
+        return Verdict(
+            OUTSIDE,
+            "is a policy schema rather than a policy: a Helm template whose values are bound "
+            "when the chart is rendered",
+            {"helm_template": True},
+        )
+    # Every check below reads the text with patterns, and a document that does not parse
+    # matches none of them -- which used to make an unreadable file `inside`. Composing checks
+    # the syntax without constructing values, so a fragment such as a bare
+    # `{{ request.object.kind }}`, which is well-formed but has no Python value, is still read.
+    try:
+        list(yaml.compose_all(text))
+    except yaml.YAMLError:
+        return Verdict(UNDETERMINED, "does not parse as YAML")
 
     sources = sorted(
         {
