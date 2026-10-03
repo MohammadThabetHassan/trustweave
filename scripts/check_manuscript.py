@@ -218,11 +218,6 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "mutants generated (worked example)",
         ),
         (
-            r"of (\d+) mutants of our reference policy",
-            (str(reference["mutants_generated"]),),
-            "mutants generated (abstract)",
-        ),
-        (
             r"(\d+) are provably equivalent",
             (str(reference["mutants_equivalent"]),),
             "mutants provably equivalent",
@@ -742,6 +737,11 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "taxonomy: evaluation-time state",
         ),
         (
+            r"The (\d+) undetermined verdicts are Azure Policy definitions",
+            (str(undetermined),),
+            "membership: the undetermined verdicts, as the text beside the table restates them",
+        ),
+        (
             rf"the clock in ({_GROUPED}) policies across (\w+)\s*languages, the network in (\w+)",
             (
                 _grouped(clock_readers(docs)),
@@ -756,9 +756,10 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "taxonomy: schema share restated in prose",
         ),
         (
-            rf"of the ({_GROUPED}) that are policies, ({_GROUPED}) lie inside: (\d+\.\d)\\%",
-            (_grouped(policies), _grouped(inside), _pct(inside / policies)),
-            "abstract: policies inside",
+            rf"eight corpora \(({_GROUPED}) artifacts\), ({_GROUPED}) of the ({_GROUPED}) that "
+            rf"are policies meet it \((\d+\.\d)\\%\)",
+            (_grouped(artifacts), _grouped(inside), _grouped(policies), _pct(inside / policies)),
+            "abstract: corpus size, policies inside",
         ),
         (
             rf"met by ({_GROUPED}) of the ({_GROUPED}) published policies",
@@ -796,12 +797,6 @@ def numeric_claims(docs: Path) -> list[Claim]:
             rf"policy schemas, not policies\}} & ({_GROUPED}) &",
             (_grouped(schemas),),
             "membership table: the schemas row",
-        ),
-        (
-            rf"({_GROUPED})\s*artifacts, of which the procedure declines to judge (\d+) --- "
-            rf"({_GROUPED}) turn out",
-            (_grouped(artifacts), str(undetermined), _grouped(schemas)),
-            "abstract: corpus size, refusals and schemas",
         ),
         # The contributions list restates the headline in a different phrasing, which is how
         # it came to disagree with the abstract while every pin still passed: the pin
@@ -1113,6 +1108,14 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "kyverno mutation: the per-policy cap and how many policies reach it",
         )
     )
+    claims.append(
+        (
+            rf"each score is over at most ({_WORD_PATTERN}) mutants, so for the (\d+) of "
+            rf"(\d+) policies at that cap",
+            (_word(cap), str(attempted.count(cap)), str(len(attempted))),
+            "kyverno mutation: the cap, as the threats section restates it",
+        )
+    )
 
     # The Cedar archive is quoted in four sections and was pinned in none of them, which is
     # how a count that 651 annotation keys, keywords and string fragments had inflated went
@@ -1134,7 +1137,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
         ),
         (
             rf"over the ({_GROUPED}) Cedar policies the same repository seals in an archive "
-            rf"\(Section~\\ref\{{sec:limits\}}\) the same adapter returns undetermined "
+            rf"\(Section~\\ref\{{sec:threats\}}\) the same adapter returns undetermined "
             rf"({_GROUPED}) times",
             (held, declined),
             "cedar archive: declined, in the caveat on the 100% rows",
@@ -1163,6 +1166,11 @@ def numeric_claims(docs: Path) -> list[Claim]:
             rf"stand silently for a ({_GROUPED})-file corpus",
             (_grouped(archive["policies_considered"] + loose["policies_considered"]),),
             "cedar: the loose files and the archive together",
+        ),
+        (
+            rf"the ({_GROUPED}) policies in its sealed archive",
+            (held,),
+            "cedar archive: policies held, as the membership section restates it",
         ),
     ]
 
@@ -1233,10 +1241,15 @@ def _rego_suite_claims(docs: Path) -> list[Claim]:
             "rego suite study: the uneven gap by operator",
         ),
         (
-            r"author-written suites for real Rego policy reach (\d+\.\d)\\% line coverage yet "
-            r"kill only (\d+\.\d)\\% of the policies' mutants",
+            r"[Aa]uthor-written Rego suites reach (\d+\.\d)\\% line coverage yet kill "
+            r"(\d+\.\d)\\% of mutants",
             (f"{head['mean_coverage']:.1f}", _pct(head["mean_mutation_score"])),
-            "rego suite study: the figures restated in related work",
+            "rego suite study: the figures restated in the abstract and conclusion",
+        ),
+        (
+            r"overstates adequacy by (\d+\.\d) points",
+            (_pct(head["mean_gap"]),),
+            "rego suite study: the gap, as the introduction restates it",
         ),
     ]
 
@@ -1499,15 +1512,9 @@ def _summary_claims(docs: Path) -> list[Claim]:
             "abstract: the suite strategies",
         ),
         (
-            r"the tool's own diff naming (\d+\.\d)\\% of policy weakenings",
-            (weakenings,),
-            "abstract: the weakenings the diff names",
-        ),
-        (
-            rf"A seeded sample of ({_GROUPED}) policy files from ({_GROUPED}) repositories "
-            rf"outside the vendors, in four languages, sits at or below the vendor share in "
-            rf"each, holds ({_GROUPED}) policy schemas",
-            (_grouped(summary["sampled"]), _grouped(summary["repositories"]), _grouped(schemas)),
+            rf"a seeded sample of ({_GROUPED}) files from ({_GROUPED}) repositories outside the "
+            rf"vendors agrees",
+            (_grouped(summary["sampled"]), _grouped(summary["repositories"])),
             "abstract: the third-party samples",
         ),
         (
@@ -1739,12 +1746,6 @@ def _review_claims(docs: Path) -> list[Claim]:
             rf"a median of ({_GROUPED}) cells per change",
             (_grouped(int(study["exact_table_cells_per_change_median"])),),
             "reviewers: what the exact comparison decides per change",
-        ),
-        (
-            r"its diff routes (\d+\.\d)\\% of semantic changes to a reviewer and names "
-            r"(\d+\.\d)\\% of policy weakenings as weakenings",
-            (_pct(tool["recall"]), _pct(weakening["reviewers"]["trustweave_diff"]["recall"])),
-            "reviewers: the contribution as the introduction states it",
         ),
     ]
     return claims
@@ -2044,8 +2045,28 @@ def figure_findings(tex: str, docs: Path) -> list[str]:
     return problems
 
 
+def with_supplement(tex: str, paper: Path) -> str:
+    """The manuscript with its Supporting Information, when the paper is split in two.
+
+    A journal that caps the main text sends the long measurement notes to a separate file,
+    `supplement.tex` beside the manuscript. The claims are about the paper as a whole, so
+    the supplement's body is read as if it followed the manuscript. A reference that
+    crosses the file boundary is written `\\ref{S-label}` or `\\ref{M-label}` for the
+    cross-document package; the prefix is dropped so the label resolves here.
+    """
+
+    supplement = paper.with_name("supplement.tex")
+    if supplement.is_file():
+        text = supplement.read_text(encoding="utf-8")
+        start, end = "%%BODY-START", "%%BODY-END"
+        if start in text and end in text:
+            text = text.split(start, 1)[1].split(end, 1)[0]
+        tex = tex + "\n" + text
+    return re.sub(r"\\(ref|pageref|eqref)\{[SM]-", r"\\\1{", tex)
+
+
 def check(paper: Path, docs: Path) -> list[str]:
-    tex = paper.read_text(encoding="utf-8")
+    tex = with_supplement(paper.read_text(encoding="utf-8"), paper)
     bib = (paper.parent / "refs.bib").read_text(encoding="utf-8")
     flat = flatten(tex)
     problems = structural_findings(tex, bib)

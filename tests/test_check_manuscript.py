@@ -91,6 +91,9 @@ def workspace(tmp_path: Path) -> Path:
     paper_directory.mkdir()
     shutil.copy(PAPER, paper_directory / "main.tex")
     shutil.copy(PAPER.parent / "refs.bib", paper_directory / "refs.bib")
+    supplement = PAPER.parent / "supplement.tex"
+    if supplement.is_file():
+        shutil.copy(supplement, paper_directory / "supplement.tex")
     documents = tmp_path / "docs"
     documents.mkdir()
     for artifact in DOCS.glob("*.json"):
@@ -141,6 +144,25 @@ def test_an_edited_phrasing_fails_rather_than_passing_silently(
 
     problems = checker.check(paper, workspace / "docs")
     assert any("no longer states" in problem for problem in problems), problems
+
+
+def test_a_figure_changed_in_the_supplement_is_caught(workspace: Path) -> None:
+    """The claims are about the paper as a whole, so the supporting file is read too.
+
+    A manuscript split to meet a page limit keeps its measurement notes in `supplement.tex`;
+    a guard that read only the main file would pass a wrong number moved there.
+    """
+
+    supplement = workspace / "paper" / "supplement.tex"
+    if not supplement.is_file():
+        pytest.skip("the manuscript is not split into a main file and a supplement")
+    text = supplement.read_text(encoding="utf-8")
+    assert "reproduces all 7 of them" in text
+    supplement.write_text(text.replace("reproduces all 7 of them", "reproduces all 6 of them"), "utf-8")
+
+    problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
+
+    assert any("provenance" in problem for problem in problems), problems
 
 
 def test_a_perturbed_artifact_disagrees_with_the_manuscript(workspace: Path) -> None:
