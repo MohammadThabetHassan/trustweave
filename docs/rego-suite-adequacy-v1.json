@@ -1,0 +1,1327 @@
+{
+ "schema_version": "v1",
+ "protocol_sha256": "1b18d80285d07fa84970523801801eb6b19a0175dd1373deb56b095ded525675",
+ "engine": "opa 1.20.2",
+ "seed": 20261003,
+ "resamples": 10000,
+ "corpus": {
+  "name": "gatekeeper-library",
+  "commit": "e034212e94e666ab3ba69108d96222bffc8ef671"
+ },
+ "development_module": "src/general/httpsonly/src.rego",
+ "population": {
+  "modules_with_a_suite_and_a_decision": 49,
+  "measured": 49
+ },
+ "by_operator": {
+  "change a comparison": {
+   "killed": 22,
+   "total": 46
+  },
+  "change a number literal": {
+   "killed": 48,
+   "total": 129
+  },
+  "change a string literal": {
+   "killed": 393,
+   "total": 768
+  },
+  "delete a rule": {
+   "killed": 380,
+   "total": 473
+  },
+  "drop a condition": {
+   "killed": 380,
+   "total": 628
+  },
+  "flip a boolean literal": {
+   "killed": 68,
+   "total": 103
+  },
+  "flip a comparison": {
+   "killed": 208,
+   "total": 222
+  },
+  "negate a condition": {
+   "killed": 370,
+   "total": 422
+  },
+  "remove a negation": {
+   "killed": 235,
+   "total": 251
+  }
+ },
+ "headline": {
+  "modules": 48,
+  "mutants": 2984,
+  "killed": 2057,
+  "pooled_mutation_score": 0.6893,
+  "mean_coverage": 93.8377,
+  "median_coverage": 95.9177,
+  "mean_mutation_score": 0.706,
+  "median_mutation_score": 0.745,
+  "mean_gap": 0.2324,
+  "gap_bootstrap_95": [
+   0.2024,
+   0.2674
+  ]
+ },
+ "with_development_module": {
+  "modules": 49,
+  "mutants": 3042,
+  "killed": 2104,
+  "pooled_mutation_score": 0.6917,
+  "mean_coverage": 93.9635,
+  "median_coverage": 95.9677,
+  "mean_mutation_score": 0.7081,
+  "median_mutation_score": 0.75,
+  "mean_gap": 0.2315,
+  "gap_bootstrap_95": [
+   0.2025,
+   0.265
+  ]
+ },
+ "modules": {
+  "src/general/allowedrepos/src.rego": {
+   "subject": "src/general/allowedrepos/src.rego",
+   "status": "measured",
+   "coverage": 75.0,
+   "mutants": 15,
+   "killed": 6,
+   "mutation_score": 0.4,
+   "killed_by_operator": {
+    "delete a rule": 2,
+    "drop a condition": 2,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 6,
+    "delete a rule": 3,
+    "drop a condition": 3,
+    "remove a negation": 3
+   }
+  },
+  "src/general/allowedreposv2/src.rego": {
+   "subject": "src/general/allowedreposv2/src.rego",
+   "status": "measured",
+   "coverage": 85.7143,
+   "mutants": 29,
+   "killed": 17,
+   "mutation_score": 0.5862,
+   "killed_by_operator": {
+    "change a string literal": 2,
+    "delete a rule": 4,
+    "drop a condition": 4,
+    "flip a comparison": 1,
+    "negate a condition": 3,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a string literal": 9,
+    "delete a rule": 5,
+    "drop a condition": 7,
+    "flip a comparison": 1,
+    "negate a condition": 3,
+    "remove a negation": 4
+   }
+  },
+  "src/general/automount-serviceaccount-token/src.rego": {
+   "subject": "src/general/automount-serviceaccount-token/src.rego",
+   "status": "measured",
+   "coverage": 93.75,
+   "mutants": 24,
+   "killed": 18,
+   "mutation_score": 0.75,
+   "killed_by_operator": {
+    "change a string literal": 1,
+    "delete a rule": 5,
+    "drop a condition": 3,
+    "flip a boolean literal": 1,
+    "flip a comparison": 3,
+    "negate a condition": 3,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 6,
+    "drop a condition": 5,
+    "flip a boolean literal": 1,
+    "flip a comparison": 3,
+    "negate a condition": 3,
+    "remove a negation": 2
+   }
+  },
+  "src/general/block-endpoint-edit-default-role/src.rego": {
+   "subject": "src/general/block-endpoint-edit-default-role/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 31,
+   "killed": 28,
+   "mutation_score": 0.9032,
+   "killed_by_operator": {
+    "change a string literal": 5,
+    "delete a rule": 5,
+    "drop a condition": 6,
+    "flip a comparison": 5,
+    "negate a condition": 7
+   },
+   "total_by_operator": {
+    "change a string literal": 7,
+    "delete a rule": 5,
+    "drop a condition": 7,
+    "flip a comparison": 5,
+    "negate a condition": 7
+   }
+  },
+  "src/general/block-loadbalancer-services/src.rego": {
+   "subject": "src/general/block-loadbalancer-services/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 11,
+   "killed": 8,
+   "mutation_score": 0.7273,
+   "killed_by_operator": {
+    "change a string literal": 2,
+    "delete a rule": 1,
+    "drop a condition": 1,
+    "flip a comparison": 2,
+    "negate a condition": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 1,
+    "drop a condition": 2,
+    "flip a comparison": 2,
+    "negate a condition": 2
+   }
+  },
+  "src/general/block-nodeport-services/src.rego": {
+   "subject": "src/general/block-nodeport-services/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 11,
+   "killed": 8,
+   "mutation_score": 0.7273,
+   "killed_by_operator": {
+    "change a string literal": 2,
+    "delete a rule": 1,
+    "drop a condition": 1,
+    "flip a comparison": 2,
+    "negate a condition": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 1,
+    "drop a condition": 2,
+    "flip a comparison": 2,
+    "negate a condition": 2
+   }
+  },
+  "src/general/block-wildcard-ingress/src.rego": {
+   "subject": "src/general/block-wildcard-ingress/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 22,
+   "killed": 19,
+   "mutation_score": 0.8636,
+   "killed_by_operator": {
+    "change a string literal": 5,
+    "delete a rule": 3,
+    "drop a condition": 3,
+    "flip a boolean literal": 2,
+    "flip a comparison": 2,
+    "negate a condition": 4
+   },
+   "total_by_operator": {
+    "change a string literal": 7,
+    "delete a rule": 3,
+    "drop a condition": 4,
+    "flip a boolean literal": 2,
+    "flip a comparison": 2,
+    "negate a condition": 4
+   }
+  },
+  "src/general/containerlimits/src.rego": {
+   "subject": "src/general/containerlimits/src.rego",
+   "status": "measured",
+   "coverage": 95.9677,
+   "mutants": 269,
+   "killed": 183,
+   "mutation_score": 0.6803,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 6,
+    "change a string literal": 45,
+    "delete a rule": 30,
+    "drop a condition": 22,
+    "flip a boolean literal": 13,
+    "flip a comparison": 10,
+    "negate a condition": 36,
+    "remove a negation": 20
+   },
+   "total_by_operator": {
+    "change a comparison": 5,
+    "change a number literal": 27,
+    "change a string literal": 63,
+    "delete a rule": 37,
+    "drop a condition": 48,
+    "flip a boolean literal": 16,
+    "flip a comparison": 11,
+    "negate a condition": 41,
+    "remove a negation": 21
+   }
+  },
+  "src/general/containerrequests/src.rego": {
+   "subject": "src/general/containerrequests/src.rego",
+   "status": "measured",
+   "coverage": 95.8678,
+   "mutants": 257,
+   "killed": 175,
+   "mutation_score": 0.6809,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 6,
+    "change a string literal": 44,
+    "delete a rule": 30,
+    "drop a condition": 21,
+    "flip a boolean literal": 13,
+    "flip a comparison": 7,
+    "negate a condition": 33,
+    "remove a negation": 20
+   },
+   "total_by_operator": {
+    "change a comparison": 5,
+    "change a number literal": 27,
+    "change a string literal": 60,
+    "delete a rule": 37,
+    "drop a condition": 45,
+    "flip a boolean literal": 16,
+    "flip a comparison": 8,
+    "negate a condition": 38,
+    "remove a negation": 21
+   }
+  },
+  "src/general/containerresourceratios/src.rego": {
+   "subject": "src/general/containerresourceratios/src.rego",
+   "status": "measured",
+   "coverage": 96.7742,
+   "mutants": 310,
+   "killed": 181,
+   "mutation_score": 0.5839,
+   "killed_by_operator": {
+    "change a comparison": 2,
+    "change a number literal": 8,
+    "change a string literal": 48,
+    "delete a rule": 27,
+    "drop a condition": 27,
+    "flip a boolean literal": 3,
+    "flip a comparison": 8,
+    "negate a condition": 28,
+    "remove a negation": 30
+   },
+   "total_by_operator": {
+    "change a comparison": 5,
+    "change a number literal": 28,
+    "change a string literal": 80,
+    "delete a rule": 43,
+    "drop a condition": 58,
+    "flip a boolean literal": 16,
+    "flip a comparison": 8,
+    "negate a condition": 41,
+    "remove a negation": 31
+   }
+  },
+  "src/general/containerresources/src.rego": {
+   "subject": "src/general/containerresources/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 36,
+   "killed": 30,
+   "mutation_score": 0.8333,
+   "killed_by_operator": {
+    "change a comparison": 2,
+    "change a number literal": 2,
+    "change a string literal": 10,
+    "delete a rule": 4,
+    "drop a condition": 4,
+    "flip a comparison": 2,
+    "negate a condition": 4,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a comparison": 2,
+    "change a number literal": 2,
+    "change a string literal": 14,
+    "delete a rule": 4,
+    "drop a condition": 6,
+    "flip a comparison": 2,
+    "negate a condition": 4,
+    "remove a negation": 2
+   }
+  },
+  "src/general/disallowanonymous/src.rego": {
+   "subject": "src/general/disallowanonymous/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 34,
+   "killed": 27,
+   "mutation_score": 0.7941,
+   "killed_by_operator": {
+    "change a string literal": 7,
+    "delete a rule": 5,
+    "drop a condition": 5,
+    "flip a boolean literal": 1,
+    "flip a comparison": 2,
+    "negate a condition": 5,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 12,
+    "delete a rule": 5,
+    "drop a condition": 7,
+    "flip a boolean literal": 1,
+    "flip a comparison": 2,
+    "negate a condition": 5,
+    "remove a negation": 2
+   }
+  },
+  "src/general/disallowedrepos/src.rego": {
+   "subject": "src/general/disallowedrepos/src.rego",
+   "status": "measured",
+   "coverage": 73.3333,
+   "mutants": 15,
+   "killed": 7,
+   "mutation_score": 0.4667,
+   "killed_by_operator": {
+    "delete a rule": 2,
+    "drop a condition": 2,
+    "negate a condition": 3
+   },
+   "total_by_operator": {
+    "change a string literal": 6,
+    "delete a rule": 3,
+    "drop a condition": 3,
+    "negate a condition": 3
+   }
+  },
+  "src/general/disallowedtags/src.rego": {
+   "subject": "src/general/disallowedtags/src.rego",
+   "status": "measured",
+   "coverage": 94.4444,
+   "mutants": 22,
+   "killed": 16,
+   "mutation_score": 0.7273,
+   "killed_by_operator": {
+    "change a number literal": 1,
+    "change a string literal": 4,
+    "delete a rule": 4,
+    "drop a condition": 3,
+    "negate a condition": 1,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a number literal": 1,
+    "change a string literal": 8,
+    "delete a rule": 5,
+    "drop a condition": 4,
+    "negate a condition": 1,
+    "remove a negation": 3
+   }
+  },
+  "src/general/disallowinteractive/src.rego": {
+   "subject": "src/general/disallowinteractive/src.rego",
+   "status": "measured",
+   "coverage": 94.7368,
+   "mutants": 31,
+   "killed": 25,
+   "mutation_score": 0.8065,
+   "killed_by_operator": {
+    "change a string literal": 2,
+    "delete a rule": 6,
+    "drop a condition": 5,
+    "flip a boolean literal": 3,
+    "flip a comparison": 2,
+    "negate a condition": 4,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a string literal": 5,
+    "delete a rule": 7,
+    "drop a condition": 7,
+    "flip a boolean literal": 3,
+    "flip a comparison": 2,
+    "negate a condition": 4,
+    "remove a negation": 3
+   }
+  },
+  "src/general/ephemeralstoragelimit/src.rego": {
+   "subject": "src/general/ephemeralstoragelimit/src.rego",
+   "status": "measured",
+   "coverage": 92.4731,
+   "mutants": 219,
+   "killed": 116,
+   "mutation_score": 0.5297,
+   "killed_by_operator": {
+    "change a number literal": 8,
+    "change a string literal": 27,
+    "delete a rule": 16,
+    "drop a condition": 18,
+    "flip a boolean literal": 4,
+    "flip a comparison": 7,
+    "negate a condition": 21,
+    "remove a negation": 15
+   },
+   "total_by_operator": {
+    "change a comparison": 4,
+    "change a number literal": 25,
+    "change a string literal": 48,
+    "delete a rule": 32,
+    "drop a condition": 36,
+    "flip a boolean literal": 17,
+    "flip a comparison": 7,
+    "negate a condition": 34,
+    "remove a negation": 16
+   }
+  },
+  "src/general/externalip/src.rego": {
+   "subject": "src/general/externalip/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 16,
+   "killed": 13,
+   "mutation_score": 0.8125,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 2,
+    "delete a rule": 1,
+    "drop a condition": 2,
+    "flip a comparison": 3,
+    "negate a condition": 3
+   },
+   "total_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 4,
+    "delete a rule": 1,
+    "drop a condition": 3,
+    "flip a comparison": 3,
+    "negate a condition": 3
+   }
+  },
+  "src/general/horizontalpodautoscaler/src.rego": {
+   "subject": "src/general/horizontalpodautoscaler/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 53,
+   "killed": 41,
+   "mutation_score": 0.7736,
+   "killed_by_operator": {
+    "change a comparison": 3,
+    "change a number literal": 1,
+    "change a string literal": 3,
+    "delete a rule": 6,
+    "drop a condition": 8,
+    "flip a comparison": 7,
+    "negate a condition": 10,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a comparison": 4,
+    "change a number literal": 1,
+    "change a string literal": 9,
+    "delete a rule": 6,
+    "drop a condition": 13,
+    "flip a comparison": 7,
+    "negate a condition": 10,
+    "remove a negation": 3
+   }
+  },
+  "src/general/httpsonly/src.rego": {
+   "subject": "src/general/httpsonly/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 58,
+   "killed": 47,
+   "mutation_score": 0.8103,
+   "killed_by_operator": {
+    "change a number literal": 1,
+    "change a string literal": 11,
+    "delete a rule": 5,
+    "drop a condition": 7,
+    "flip a boolean literal": 4,
+    "flip a comparison": 6,
+    "negate a condition": 10,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 15,
+    "delete a rule": 5,
+    "drop a condition": 13,
+    "flip a boolean literal": 4,
+    "flip a comparison": 6,
+    "negate a condition": 10,
+    "remove a negation": 3
+   }
+  },
+  "src/general/imagedigests/src.rego": {
+   "subject": "src/general/imagedigests/src.rego",
+   "status": "measured",
+   "coverage": 73.3333,
+   "mutants": 24,
+   "killed": 12,
+   "mutation_score": 0.5,
+   "killed_by_operator": {
+    "change a string literal": 2,
+    "delete a rule": 2,
+    "drop a condition": 4,
+    "remove a negation": 4
+   },
+   "total_by_operator": {
+    "change a string literal": 9,
+    "delete a rule": 3,
+    "drop a condition": 6,
+    "remove a negation": 6
+   }
+  },
+  "src/general/noupdateserviceaccount/src.rego": {
+   "subject": "src/general/noupdateserviceaccount/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 84,
+   "killed": 74,
+   "mutation_score": 0.881,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 20,
+    "delete a rule": 13,
+    "drop a condition": 8,
+    "flip a comparison": 14,
+    "negate a condition": 14,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 21,
+    "delete a rule": 13,
+    "drop a condition": 17,
+    "flip a comparison": 14,
+    "negate a condition": 14,
+    "remove a negation": 3
+   }
+  },
+  "src/general/poddisruptionbudget/src.rego": {
+   "subject": "src/general/poddisruptionbudget/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 43,
+   "killed": 33,
+   "mutation_score": 0.7674,
+   "killed_by_operator": {
+    "change a comparison": 2,
+    "change a number literal": 3,
+    "change a string literal": 5,
+    "delete a rule": 5,
+    "drop a condition": 5,
+    "flip a comparison": 5,
+    "negate a condition": 5,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a comparison": 2,
+    "change a number literal": 4,
+    "change a string literal": 11,
+    "delete a rule": 5,
+    "drop a condition": 8,
+    "flip a comparison": 5,
+    "negate a condition": 5,
+    "remove a negation": 3
+   }
+  },
+  "src/general/replicalimits/src.rego": {
+   "subject": "src/general/replicalimits/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 28,
+   "killed": 20,
+   "mutation_score": 0.7143,
+   "killed_by_operator": {
+    "change a comparison": 2,
+    "change a number literal": 1,
+    "delete a rule": 5,
+    "drop a condition": 4,
+    "flip a comparison": 3,
+    "negate a condition": 4,
+    "remove a negation": 1
+   },
+   "total_by_operator": {
+    "change a comparison": 3,
+    "change a number literal": 1,
+    "change a string literal": 2,
+    "delete a rule": 5,
+    "drop a condition": 7,
+    "flip a boolean literal": 2,
+    "flip a comparison": 3,
+    "negate a condition": 4,
+    "remove a negation": 1
+   }
+  },
+  "src/general/requiredannotations/src.rego": {
+   "subject": "src/general/requiredannotations/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 22,
+   "killed": 14,
+   "mutation_score": 0.6364,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "delete a rule": 2,
+    "drop a condition": 3,
+    "flip a comparison": 3,
+    "negate a condition": 3,
+    "remove a negation": 1
+   },
+   "total_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 7,
+    "delete a rule": 2,
+    "drop a condition": 4,
+    "flip a comparison": 3,
+    "negate a condition": 3,
+    "remove a negation": 1
+   }
+  },
+  "src/general/requiredlabels/src.rego": {
+   "subject": "src/general/requiredlabels/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 28,
+   "killed": 21,
+   "mutation_score": 0.75,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 1,
+    "delete a rule": 4,
+    "drop a condition": 5,
+    "flip a boolean literal": 1,
+    "flip a comparison": 3,
+    "negate a condition": 3,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 1,
+    "change a string literal": 7,
+    "delete a rule": 4,
+    "drop a condition": 6,
+    "flip a boolean literal": 1,
+    "flip a comparison": 3,
+    "negate a condition": 3,
+    "remove a negation": 2
+   }
+  },
+  "src/general/requiredprobes/src.rego": {
+   "subject": "src/general/requiredprobes/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 22,
+   "killed": 19,
+   "mutation_score": 0.8636,
+   "killed_by_operator": {
+    "delete a rule": 5,
+    "drop a condition": 5,
+    "flip a boolean literal": 3,
+    "flip a comparison": 1,
+    "negate a condition": 3,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 2,
+    "delete a rule": 6,
+    "drop a condition": 5,
+    "flip a boolean literal": 3,
+    "flip a comparison": 1,
+    "negate a condition": 3,
+    "remove a negation": 2
+   }
+  },
+  "src/general/storageclass/src.rego": {
+   "subject": "src/general/storageclass/src.rego",
+   "status": "measured",
+   "coverage": 85.3933,
+   "mutants": 129,
+   "killed": 73,
+   "mutation_score": 0.5659,
+   "killed_by_operator": {
+    "change a string literal": 17,
+    "delete a rule": 14,
+    "drop a condition": 12,
+    "flip a comparison": 8,
+    "negate a condition": 16,
+    "remove a negation": 6
+   },
+   "total_by_operator": {
+    "change a string literal": 53,
+    "delete a rule": 15,
+    "drop a condition": 26,
+    "flip a comparison": 9,
+    "negate a condition": 20,
+    "remove a negation": 6
+   }
+  },
+  "src/general/uniqueingresshost/src.rego": {
+   "subject": "src/general/uniqueingresshost/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 26,
+   "killed": 22,
+   "mutation_score": 0.8462,
+   "killed_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 2,
+    "drop a condition": 5,
+    "flip a comparison": 4,
+    "negate a condition": 6,
+    "remove a negation": 1
+   },
+   "total_by_operator": {
+    "change a string literal": 6,
+    "delete a rule": 2,
+    "drop a condition": 7,
+    "flip a comparison": 4,
+    "negate a condition": 6,
+    "remove a negation": 1
+   }
+  },
+  "src/general/uniqueserviceselector/src.rego": {
+   "subject": "src/general/uniqueserviceselector/src.rego",
+   "status": "measured",
+   "coverage": 92.3077,
+   "mutants": 50,
+   "killed": 37,
+   "mutation_score": 0.74,
+   "killed_by_operator": {
+    "change a string literal": 6,
+    "delete a rule": 4,
+    "drop a condition": 4,
+    "flip a comparison": 12,
+    "negate a condition": 10,
+    "remove a negation": 1
+   },
+   "total_by_operator": {
+    "change a string literal": 11,
+    "delete a rule": 5,
+    "drop a condition": 11,
+    "flip a comparison": 12,
+    "negate a condition": 10,
+    "remove a negation": 1
+   }
+  },
+  "src/general/verifydeprecatedapi/src.rego": {
+   "subject": "src/general/verifydeprecatedapi/src.rego",
+   "status": "measured",
+   "coverage": 83.7209,
+   "mutants": 21,
+   "killed": 2,
+   "mutation_score": 0.0952,
+   "killed_by_operator": {
+    "delete a rule": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 4,
+    "drop a condition": 5,
+    "flip a comparison": 3,
+    "negate a condition": 4,
+    "remove a negation": 1
+   }
+  },
+  "src/pod-security-policy/allow-privilege-escalation/src.rego": {
+   "subject": "src/pod-security-policy/allow-privilege-escalation/src.rego",
+   "status": "measured",
+   "coverage": 94.4444,
+   "mutants": 26,
+   "killed": 20,
+   "mutation_score": 0.7692,
+   "killed_by_operator": {
+    "change a string literal": 1,
+    "delete a rule": 5,
+    "drop a condition": 5,
+    "flip a boolean literal": 2,
+    "flip a comparison": 1,
+    "negate a condition": 2,
+    "remove a negation": 4
+   },
+   "total_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 7,
+    "drop a condition": 6,
+    "flip a boolean literal": 2,
+    "flip a comparison": 1,
+    "negate a condition": 2,
+    "remove a negation": 4
+   }
+  },
+  "src/pod-security-policy/apparmor/src.rego": {
+   "subject": "src/pod-security-policy/apparmor/src.rego",
+   "status": "measured",
+   "coverage": 73.6842,
+   "mutants": 61,
+   "killed": 28,
+   "mutation_score": 0.459,
+   "killed_by_operator": {
+    "change a string literal": 3,
+    "delete a rule": 6,
+    "drop a condition": 5,
+    "flip a comparison": 5,
+    "negate a condition": 6,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a string literal": 21,
+    "delete a rule": 12,
+    "drop a condition": 10,
+    "flip a comparison": 8,
+    "negate a condition": 7,
+    "remove a negation": 3
+   }
+  },
+  "src/pod-security-policy/capabilities/src.rego": {
+   "subject": "src/pod-security-policy/capabilities/src.rego",
+   "status": "measured",
+   "coverage": 84.3137,
+   "mutants": 91,
+   "killed": 54,
+   "mutation_score": 0.5934,
+   "killed_by_operator": {
+    "change a comparison": 3,
+    "change a number literal": 3,
+    "change a string literal": 2,
+    "delete a rule": 8,
+    "drop a condition": 15,
+    "flip a boolean literal": 1,
+    "flip a comparison": 4,
+    "negate a condition": 7,
+    "remove a negation": 11
+   },
+   "total_by_operator": {
+    "change a comparison": 3,
+    "change a number literal": 3,
+    "change a string literal": 20,
+    "delete a rule": 10,
+    "drop a condition": 25,
+    "flip a boolean literal": 2,
+    "flip a comparison": 4,
+    "negate a condition": 9,
+    "remove a negation": 15
+   }
+  },
+  "src/pod-security-policy/flexvolume-drivers/src.rego": {
+   "subject": "src/pod-security-policy/flexvolume-drivers/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 20,
+   "killed": 17,
+   "mutation_score": 0.85,
+   "killed_by_operator": {
+    "change a string literal": 1,
+    "delete a rule": 4,
+    "drop a condition": 5,
+    "flip a boolean literal": 1,
+    "flip a comparison": 1,
+    "negate a condition": 3,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 4,
+    "drop a condition": 5,
+    "flip a boolean literal": 1,
+    "flip a comparison": 1,
+    "negate a condition": 3,
+    "remove a negation": 2
+   }
+  },
+  "src/pod-security-policy/forbidden-sysctls/src.rego": {
+   "subject": "src/pod-security-policy/forbidden-sysctls/src.rego",
+   "status": "measured",
+   "coverage": 82.3529,
+   "mutants": 58,
+   "killed": 42,
+   "mutation_score": 0.7241,
+   "killed_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 8,
+    "drop a condition": 11,
+    "flip a comparison": 6,
+    "negate a condition": 8,
+    "remove a negation": 5
+   },
+   "total_by_operator": {
+    "change a string literal": 13,
+    "delete a rule": 11,
+    "drop a condition": 14,
+    "flip a comparison": 6,
+    "negate a condition": 9,
+    "remove a negation": 5
+   }
+  },
+  "src/pod-security-policy/fsgroup/src.rego": {
+   "subject": "src/pod-security-policy/fsgroup/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 68,
+   "killed": 53,
+   "mutation_score": 0.7794,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a number literal": 2,
+    "change a string literal": 6,
+    "delete a rule": 7,
+    "drop a condition": 10,
+    "flip a boolean literal": 1,
+    "flip a comparison": 9,
+    "negate a condition": 13,
+    "remove a negation": 4
+   },
+   "total_by_operator": {
+    "change a comparison": 4,
+    "change a number literal": 2,
+    "change a string literal": 10,
+    "delete a rule": 8,
+    "drop a condition": 17,
+    "flip a boolean literal": 1,
+    "flip a comparison": 9,
+    "negate a condition": 13,
+    "remove a negation": 4
+   }
+  },
+  "src/pod-security-policy/host-filesystem/src.rego": {
+   "subject": "src/pod-security-policy/host-filesystem/src.rego",
+   "status": "measured",
+   "coverage": 94.7368,
+   "mutants": 85,
+   "killed": 75,
+   "mutation_score": 0.8824,
+   "killed_by_operator": {
+    "change a comparison": 1,
+    "change a string literal": 4,
+    "delete a rule": 16,
+    "drop a condition": 20,
+    "flip a boolean literal": 3,
+    "flip a comparison": 10,
+    "negate a condition": 13,
+    "remove a negation": 8
+   },
+   "total_by_operator": {
+    "change a comparison": 2,
+    "change a string literal": 8,
+    "delete a rule": 19,
+    "drop a condition": 22,
+    "flip a boolean literal": 3,
+    "flip a comparison": 10,
+    "negate a condition": 13,
+    "remove a negation": 8
+   }
+  },
+  "src/pod-security-policy/host-namespaces/src.rego": {
+   "subject": "src/pod-security-policy/host-namespaces/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 14,
+   "killed": 11,
+   "mutation_score": 0.7857,
+   "killed_by_operator": {
+    "delete a rule": 3,
+    "drop a condition": 4,
+    "negate a condition": 3,
+    "remove a negation": 1
+   },
+   "total_by_operator": {
+    "change a string literal": 3,
+    "delete a rule": 3,
+    "drop a condition": 4,
+    "negate a condition": 3,
+    "remove a negation": 1
+   }
+  },
+  "src/pod-security-policy/host-network-ports/src.rego": {
+   "subject": "src/pod-security-policy/host-network-ports/src.rego",
+   "status": "measured",
+   "coverage": 86.3636,
+   "mutants": 32,
+   "killed": 22,
+   "mutation_score": 0.6875,
+   "killed_by_operator": {
+    "delete a rule": 4,
+    "drop a condition": 8,
+    "flip a comparison": 2,
+    "negate a condition": 4,
+    "remove a negation": 4
+   },
+   "total_by_operator": {
+    "change a comparison": 2,
+    "change a string literal": 3,
+    "delete a rule": 7,
+    "drop a condition": 9,
+    "flip a comparison": 2,
+    "negate a condition": 4,
+    "remove a negation": 5
+   }
+  },
+  "src/pod-security-policy/host-probes-lifecycle/src.rego": {
+   "subject": "src/pod-security-policy/host-probes-lifecycle/src.rego",
+   "status": "measured",
+   "coverage": 93.3333,
+   "mutants": 56,
+   "killed": 25,
+   "mutation_score": 0.4464,
+   "killed_by_operator": {
+    "delete a rule": 11,
+    "drop a condition": 2,
+    "flip a comparison": 3,
+    "negate a condition": 3,
+    "remove a negation": 6
+   },
+   "total_by_operator": {
+    "change a string literal": 16,
+    "delete a rule": 12,
+    "drop a condition": 12,
+    "flip a comparison": 4,
+    "negate a condition": 4,
+    "remove a negation": 8
+   }
+  },
+  "src/pod-security-policy/host-process/src.rego": {
+   "subject": "src/pod-security-policy/host-process/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 25,
+   "killed": 18,
+   "mutation_score": 0.72,
+   "killed_by_operator": {
+    "delete a rule": 5,
+    "drop a condition": 4,
+    "flip a boolean literal": 2,
+    "flip a comparison": 2,
+    "negate a condition": 2,
+    "remove a negation": 3
+   },
+   "total_by_operator": {
+    "change a string literal": 6,
+    "delete a rule": 5,
+    "drop a condition": 5,
+    "flip a boolean literal": 2,
+    "flip a comparison": 2,
+    "negate a condition": 2,
+    "remove a negation": 3
+   }
+  },
+  "src/pod-security-policy/privileged-containers/src.rego": {
+   "subject": "src/pod-security-policy/privileged-containers/src.rego",
+   "status": "measured",
+   "coverage": 91.6667,
+   "mutants": 13,
+   "killed": 9,
+   "mutation_score": 0.6923,
+   "killed_by_operator": {
+    "delete a rule": 3,
+    "drop a condition": 3,
+    "negate a condition": 1,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 3,
+    "delete a rule": 4,
+    "drop a condition": 3,
+    "negate a condition": 1,
+    "remove a negation": 2
+   }
+  },
+  "src/pod-security-policy/proc-mount/src.rego": {
+   "subject": "src/pod-security-policy/proc-mount/src.rego",
+   "status": "measured",
+   "coverage": 94.7368,
+   "mutants": 67,
+   "killed": 52,
+   "mutation_score": 0.7761,
+   "killed_by_operator": {
+    "change a string literal": 7,
+    "delete a rule": 8,
+    "drop a condition": 12,
+    "flip a comparison": 11,
+    "negate a condition": 8,
+    "remove a negation": 6
+   },
+   "total_by_operator": {
+    "change a string literal": 11,
+    "delete a rule": 12,
+    "drop a condition": 16,
+    "flip a comparison": 12,
+    "negate a condition": 10,
+    "remove a negation": 6
+   }
+  },
+  "src/pod-security-policy/read-only-root-filesystem/src.rego": {
+   "subject": "src/pod-security-policy/read-only-root-filesystem/src.rego",
+   "status": "measured",
+   "coverage": 94.4444,
+   "mutants": 26,
+   "killed": 20,
+   "mutation_score": 0.7692,
+   "killed_by_operator": {
+    "change a string literal": 1,
+    "delete a rule": 5,
+    "drop a condition": 5,
+    "flip a boolean literal": 2,
+    "flip a comparison": 1,
+    "negate a condition": 2,
+    "remove a negation": 4
+   },
+   "total_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 7,
+    "drop a condition": 6,
+    "flip a boolean literal": 2,
+    "flip a comparison": 1,
+    "negate a condition": 2,
+    "remove a negation": 4
+   }
+  },
+  "src/pod-security-policy/seccomp/src.rego": {
+   "subject": "src/pod-security-policy/seccomp/src.rego",
+   "status": "measured",
+   "coverage": 91.8367,
+   "mutants": 161,
+   "killed": 122,
+   "mutation_score": 0.7578,
+   "killed_by_operator": {
+    "change a string literal": 36,
+    "delete a rule": 23,
+    "drop a condition": 24,
+    "flip a boolean literal": 2,
+    "flip a comparison": 6,
+    "negate a condition": 16,
+    "remove a negation": 15
+   },
+   "total_by_operator": {
+    "change a string literal": 60,
+    "delete a rule": 26,
+    "drop a condition": 33,
+    "flip a boolean literal": 2,
+    "flip a comparison": 9,
+    "negate a condition": 16,
+    "remove a negation": 15
+   }
+  },
+  "src/pod-security-policy/seccompv2/src.rego": {
+   "subject": "src/pod-security-policy/seccompv2/src.rego",
+   "status": "measured",
+   "coverage": 96.875,
+   "mutants": 116,
+   "killed": 98,
+   "mutation_score": 0.8448,
+   "killed_by_operator": {
+    "change a string literal": 27,
+    "delete a rule": 17,
+    "drop a condition": 17,
+    "flip a comparison": 14,
+    "negate a condition": 17,
+    "remove a negation": 6
+   },
+   "total_by_operator": {
+    "change a string literal": 37,
+    "delete a rule": 19,
+    "drop a condition": 23,
+    "flip a comparison": 14,
+    "negate a condition": 17,
+    "remove a negation": 6
+   }
+  },
+  "src/pod-security-policy/selinux/src.rego": {
+   "subject": "src/pod-security-policy/selinux/src.rego",
+   "status": "measured",
+   "coverage": 93.9394,
+   "mutants": 60,
+   "killed": 37,
+   "mutation_score": 0.6167,
+   "killed_by_operator": {
+    "change a string literal": 4,
+    "delete a rule": 8,
+    "drop a condition": 7,
+    "flip a boolean literal": 1,
+    "flip a comparison": 1,
+    "negate a condition": 10,
+    "remove a negation": 6
+   },
+   "total_by_operator": {
+    "change a string literal": 15,
+    "delete a rule": 9,
+    "drop a condition": 17,
+    "flip a boolean literal": 1,
+    "flip a comparison": 1,
+    "negate a condition": 11,
+    "remove a negation": 6
+   }
+  },
+  "src/pod-security-policy/users/src.rego": {
+   "subject": "src/pod-security-policy/users/src.rego",
+   "status": "measured",
+   "coverage": 98.6667,
+   "mutants": 105,
+   "killed": 94,
+   "mutation_score": 0.8952,
+   "killed_by_operator": {
+    "change a number literal": 2,
+    "change a string literal": 20,
+    "delete a rule": 21,
+    "drop a condition": 20,
+    "flip a boolean literal": 5,
+    "flip a comparison": 8,
+    "negate a condition": 7,
+    "remove a negation": 11
+   },
+   "total_by_operator": {
+    "change a number literal": 3,
+    "change a string literal": 27,
+    "delete a rule": 22,
+    "drop a condition": 22,
+    "flip a boolean literal": 5,
+    "flip a comparison": 8,
+    "negate a condition": 7,
+    "remove a negation": 11
+   }
+  },
+  "src/pod-security-policy/volumes/src.rego": {
+   "subject": "src/pod-security-policy/volumes/src.rego",
+   "status": "measured",
+   "coverage": 100.0,
+   "mutants": 18,
+   "killed": 15,
+   "mutation_score": 0.8333,
+   "killed_by_operator": {
+    "change a string literal": 2,
+    "delete a rule": 3,
+    "drop a condition": 4,
+    "flip a comparison": 2,
+    "negate a condition": 2,
+    "remove a negation": 2
+   },
+   "total_by_operator": {
+    "change a string literal": 5,
+    "delete a rule": 3,
+    "drop a condition": 4,
+    "flip a comparison": 2,
+    "negate a condition": 2,
+    "remove a negation": 2
+   }
+  }
+ }
+}
