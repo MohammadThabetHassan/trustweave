@@ -1172,7 +1172,73 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _summary_claims(docs)
     claims += _cedar_claims(docs)
     claims += _sample_oracle_claims(docs)
+    claims += _rego_suite_claims(docs)
     return claims
+
+
+def _rego_suite_claims(docs: Path) -> list[Claim]:
+    """What a real suite's line coverage is worth against its mutation score (Gatekeeper Rego)."""
+
+    suite = _load(docs, "rego-suite-adequacy-v1")
+    head = suite["headline"]
+    operators = suite["by_operator"]
+
+    def rate(operator: str) -> str:
+        counts = operators[operator]
+        return str(round(100 * counts["killed"] / counts["total"]))
+
+    return [
+        (
+            rf"on the ({_GROUPED}) Gatekeeper modules\s+that ship an author-written suite",
+            (_grouped(suite["population"]["modules_with_a_suite_and_a_decision"]),),
+            "rego suite study: the population",
+        ),
+        (
+            r"a mean of (\d+\.\d)\\% line coverage",
+            (f"{head['mean_coverage']:.1f}",),
+            "rego suite study: mean coverage",
+        ),
+        (
+            r"killing\s+(\d+\.\d)\\% in the mean "
+            rf"\(({_GROUPED}) of ({_GROUPED}) over the ({_GROUPED}) modules",
+            (
+                _pct(head["mean_mutation_score"]),
+                _grouped(head["killed"]),
+                _grouped(head["mutants"]),
+                _grouped(head["modules"]),
+            ),
+            "rego suite study: mean mutation score and pool",
+        ),
+        (
+            r"a per-module gap of (\d+\.\d) points with a 95\\% bootstrap interval of "
+            r"\$\[(\d+\.\d), (\d+\.\d)\]\$",
+            (
+                _pct(head["mean_gap"]),
+                _pct(head["gap_bootstrap_95"][0]),
+                _pct(head["gap_bootstrap_95"][1]),
+            ),
+            "rego suite study: the gap",
+        ),
+        (
+            r"the suites kill (\d+)\\% of deleted rules and (\d+)\\% of removed negations but "
+            r"only (\d+)\\% of changed string literals, (\d+)\\% of changed comparisons and "
+            r"(\d+)\\% of changed numbers",
+            (
+                rate("delete a rule"),
+                rate("remove a negation"),
+                rate("change a string literal"),
+                rate("change a comparison"),
+                rate("change a number literal"),
+            ),
+            "rego suite study: the uneven gap by operator",
+        ),
+        (
+            r"author-written suites for real Rego policy reach (\d+\.\d)\\% line coverage yet "
+            r"kill only (\d+\.\d)\\% of the policies' mutants",
+            (f"{head['mean_coverage']:.1f}", _pct(head["mean_mutation_score"])),
+            "rego suite study: the figures restated in related work",
+        ),
+    ]
 
 
 def _sample_oracle_claims(docs: Path) -> list[Claim]:

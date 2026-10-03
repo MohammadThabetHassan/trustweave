@@ -195,6 +195,24 @@ python scripts/cedar_exact_study.py edits --cache /tmp/cedar-cache \
 `repos/{owner}/{repo}/commits?path=` returns them; `docs/cedar-real-edits-v1.json` pins every
 pair it measured by commit and SHA-256, so re-deriving the pairs does not depend on it.
 
+### 4d. What a real suite's line coverage is worth (Gatekeeper Rego)
+
+Runs under [`SUITE_ADEQUACY_PROTOCOL_REGO.md`](SUITE_ADEQUACY_PROTOCOL_REGO.md). Needs `opa`
+on `PATH` and the pinned Gatekeeper library (a cloned corpus, commit in the artifact's `corpus`
+block). For each module with an author-written suite it records the suite's line coverage and
+its mutation score, every number from `opa test`.
+
+```bash
+python scripts/rego_suite_study.py study \
+  --corpus /path/to/gatekeeper-library \
+  --json docs/rego-suite-adequacy-v1.json
+```
+
+This is a different measurement from the decision-blindness prediction of §4 above: it reports
+line coverage against a located-source mutation score (`scripts/rego_source_mutation.py`), where
+`scripts/rego_mutation.py` reports a text-search mutation score against the decision-coverage
+flag. The protocol states how the two operator sets differ.
+
 ### 5. The whole gate
 
 ```bash
