@@ -2481,3 +2481,36 @@ def test_a_kyverno_file_that_does_not_parse_is_not_judged_inside() -> None:
 
     assert verdict.verdict == core.UNDETERMINED
     assert verdict.reason == "does not parse as YAML"
+
+
+@opa_required
+def test_a_name_under_a_declared_package_that_is_no_rule_is_a_data_document(
+    tmp_path: Path,
+) -> None:
+    """A `config` package does not define `data.config.soft_fail` unless it has that rule.
+
+    The engine's `opa deps` reports such a path as a base document the bundle does not
+    define, and `_resolve_rules` said the same; the direct check used to accept the path on
+    the package alone and call the policy reading it inside.
+    """
+
+    (tmp_path / "config.rego").write_text(
+        'package config\n\nimport rego.v1\n\nregion := "eu"\n', encoding="utf-8"
+    )
+    policy = (
+        "package main\n\nimport rego.v1\n\n"
+        'deny contains msg if {\n  not data.config.soft_fail\n  msg := "blocked"\n}\n'
+    )
+    (tmp_path / "policy.rego").write_text(policy, encoding="utf-8")
+    rego.discover(tmp_path)
+
+    verdict = rego.classify(policy)
+
+    assert verdict.verdict == core.OUTSIDE
+    assert "data document the bundle does not define" in verdict.reason
+
+    defined = policy.replace("data.config.soft_fail", "data.config.region")
+    (tmp_path / "policy.rego").write_text(defined, encoding="utf-8")
+    rego.discover(tmp_path)
+
+    assert rego.classify(defined).verdict == core.INSIDE

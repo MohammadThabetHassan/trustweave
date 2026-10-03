@@ -708,7 +708,14 @@ def _resolves_to_bundle(reference: list[str | None], declared: set[str]) -> bool
     """
 
     names = [name for name in reference[1:] if name]
-    return any(".".join(names[:length]) in declared for length in range(len(names), 0, -1))
+    if not any(".".join(names[:length]) in declared for length in range(len(names), 0, -1)):
+        return False
+    # A declared package prefixing the path is not enough: the name after it must be one of
+    # the package's rules, or the path must iterate the package. `data.config.soft_fail`
+    # beside a `config` package with no `soft_fail` rule is a data document, which is what
+    # `_resolve_rules` already said and what the engine's `opa deps` reports; this check used
+    # to accept it on the package alone and call the policy reading it inside.
+    return bool(_resolve_rules(list(reference[1:])))
 
 
 def _external_findings(ast: dict[str, Any], declared: set[str]) -> tuple[list[str], list[str]]:
