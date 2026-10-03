@@ -1,0 +1,3230 @@
+{
+  "corpus_scope": "third-party",
+  "counts": {
+    "inside": 270,
+    "outside": 118,
+    "undetermined": 12
+  },
+  "ecosystem": "kyverno",
+  "excluded_owners": [
+    "kyverno",
+    "nirmata"
+  ],
+  "how_collected": "GitHub code search, each query split into eight size shards and read to at most 400 results per shard; the pool filtered to a frame and the frame shuffled with the recorded seed and walked under the recorded caps, as scripts/third_party_sample.py states",
+  "owners": 293,
+  "policies": [
+    {
+      "commit": "9a6c9c86692e19fb0fc1d2bdeaf0c642a612d6b8",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "AI-Riksarkivet/htrflow-batch/charts/htrflow-batch/templates/policies/images-pinned.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "2c0bb6db7d3fa3ecb5fe73dff34dc4a98e60d0b6",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ATIC-Yugandhar/cis-eks-kyverno/policies/kubernetes/worker-nodes/custom-3.2.9.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f07d70b9ccf8648c3ba9940a7920d54c5b6fd063",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "Advit105/secure-supply-chain-pipeline/policies/kyverno/verify-vuln-attestation.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f24fa84a01e770467588bebd185c2f15d69dbbff",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Agnostic-Security/yashigani/helm/yashigani/templates/admission-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "33085bd89bda6d0f0b95a720088eebadec92d62a",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "AnouarMohamed/Mundia_library/platform/policies/kyverno/require-secure-workloads.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "8e92c73706d10db7e9f2da9a85006640ecae2c52",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "AnouarMohamed/gitops-supply-chain-security/policy-no-root.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6e920ffb9756f334a68ebb8a13e1eaa5527d5621",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Apurvbajpai2531/Stockloom/k8s/policies/kyverno-policies.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c87a1e2f2c7297d38c1d4f86dd29e5426891875c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Area-51-Devops/k8s-banking-application/banking/admission-controller/bankingImagePolicy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "bcb771e29326321b7be0c4bfe2d2a7c742ac7955",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Armor-test/argo-cd/resource_customizations/kyverno.io/ClusterPolicy/testdata/healthy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "83ddc95cb158f0b2eeb4598d6a7d0ab09c3cc484",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "Arnazz10/forgeseal/supply-chain-security/kyverno/clusterpolicy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e94c5d66ab32c28fef9acd7ff88f2724ea85b9b5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ArthurVardevanyan/HomeLab/kubernetes/argocd/base/kyverno.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e94c5d66ab32c28fef9acd7ff88f2724ea85b9b5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ArthurVardevanyan/HomeLab/kubernetes/network-observability/base/kyverno.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e94c5d66ab32c28fef9acd7ff88f2724ea85b9b5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ArthurVardevanyan/HomeLab/kubernetes/nmstate/components/openshift/policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6107538c4b01b4cc391c2f2ef2c397771cbf9d66",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Assstra/kube_security/kyverno_policies/enforce-ressources-limit.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6107538c4b01b4cc391c2f2ef2c397771cbf9d66",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Assstra/kube_security/kyverno_policies/set-image-pull-policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7077f7c25bd516dd64506d8753e69316ceb02ba4",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "Avni-Sharma/gitopscon_na_2022_session/install/kyverno_policies/unsigned/require-signed-images.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f97e72a78d155396f06ef84ec091594f69b29d96",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Ax3lrod/DevOps-Kubernetes-Kelompok6/kelompok6-devsecops-future/implementation/kyverno/policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0f55297ad01603b6d7553b87cb5deab65a41f2c3",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Balmine/kubeflow/generator/templates/manifests/deploykf-core/deploykf-auth/templates/ClusterPolicy--restart-on-secret-updates.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0f55297ad01603b6d7553b87cb5deab65a41f2c3",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Balmine/kubeflow/generator/templates/manifests/deploykf-dependencies/kyverno/templates/ClusterPolicy-image-pull-secrets.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0f55297ad01603b6d7553b87cb5deab65a41f2c3",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Balmine/kubeflow/generator/templates/manifests/kubeflow-dependencies/kubeflow-argo-workflows/templates/ClusterPolicy-clone-bucket-secret.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "3f9b934fd3bdd5a7bfd7e3140e4326fda49d7a82",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Barrie20/aws-secure-campus-platform/security/network-policies/pod-security-standards.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3f3c9293e2bfbdac38a6867fb53dcb54a67167a6",
+      "context_bound_names": [
+        "appName",
+        "claimName",
+        "namespace",
+        "nodeAffinity"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "BeryJu/k8s/common-backup/kyverno/snapshot-cronjob-controller.yaml",
+      "variable_roots": [
+        "appName",
+        "claimName",
+        "namespace",
+        "nodeAffinity",
+        "request",
+        "truncate"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b2f63cc63ec269b73daf430c6b3fab193aff786e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Chandan-DK/my-tests-vap/multitenancy-benchmarks/require-resource-quota/.chainsaw-test/chainsaw-policy-assert.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b2f63cc63ec269b73daf430c6b3fab193aff786e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Chandan-DK/my-tests-vap/pod-security/baseline/disallow-capabilities/e2e/policy-assert.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b2f63cc63ec269b73daf430c6b3fab193aff786e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Chandan-DK/my-tests-vap/pod-security/baseline/disallow-selinux/disallow-selinux.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d0d8dd8f634705cd76a223b580903fa15a54c558",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Cliftonz/akuity-deployment-examples/framework/platform/policy/kyverno/require-resources.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "bd5dda80bfd282e0f98e221d25da4066b2118500",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Coolbreeze151/Kubernetes/k8/kyverno/policies/disallow-priviledge-containers.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b5d1322e3b20e24a74b35cfb5a4374716be1ec97",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Cray-HPE/cray-keycloak/kubernetes/cray-keycloak/templates/ipv6-support.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "8f01b46a9e84f34b9540cd95f1404502d5de4836",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Cray-HPE/cray-kyverno-policies/charts/kyverno-policy/templates/security/pod-sec-ctxt-activemq-artemis-operator.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "8f01b46a9e84f34b9540cd95f1404502d5de4836",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Cray-HPE/cray-kyverno-policies/charts/kyverno-policy/templates/security/pod-sec-ctxt-sts.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "8f01b46a9e84f34b9540cd95f1404502d5de4836",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Cray-HPE/cray-kyverno-policies/charts/kyverno-policy/templates/security/validation/validate-pod-sec-ctxt-fas.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "db48ff7131ec2d70226d4b2d2c81a03b500cf6d7",
+      "context_bound_names": [
+        "images_in_crunchy_access_portal",
+        "images_in_crunchy_harbor"
+      ],
+      "reason": "binds a context variable this test does not resolve",
+      "subject": "CrunchyData/postgres-operator-client/testing/chainsaw/policies/v1.15.1/02-add-imagepullsecrets.yaml",
+      "unresolved_context_bindings": [
+        ""
+      ],
+      "variable_roots": [
+        "images_in_crunchy_access_portal",
+        "images_in_crunchy_harbor"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "b9db3d4a27aa5f3cc95643c611dd47e9db5f1881",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "DanielOlynsma/kubrix-demo/platform-apps/charts/kyverno/templates/policy-kargo-project-name-validation-apps-in-any-ns.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "b9db3d4a27aa5f3cc95643c611dd47e9db5f1881",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "DanielOlynsma/kubrix-demo/platform-apps/charts/kyverno/templates/policy-kubevirt-rolebinding.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "3c9dbfda03c42edf2e117b1db4a9d3f7683553d2",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "DaoCloud/storage-charts-repackage/charts/openebs/openebs/templates/kyverno/allow-capabilities.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "3c9dbfda03c42edf2e117b1db4a9d3f7683553d2",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "DaoCloud/storage-charts-repackage/charts/openebs/openebs/templates/kyverno/allow-privilege-escalation.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "cc4c3f74e82a4fc500f392d7b3f4fd9f37c9f237",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "DevOpsDerek/kind-argocd-platform-lab/gitops/platform/base/kyverno-policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ce21af98652c979737508292c3a09206070340bd",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "DiamondLightSource/workflows/charts/events/templates/populate-trigger-clusterpolicy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "fcbba6cb39ec37d1c642bef08cd104cf80426c29",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Divyansh-arma/k8s-zero-trust/manifests/kyverno/tag-policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ba6df77f65e3de34f899f671bf0088c6e55da810",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "DoD-Platform-One/Kyverno-Policies/chart/templates/disallow-deprecated-apis.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ba6df77f65e3de34f899f671bf0088c6e55da810",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "DoD-Platform-One/Kyverno-Policies/chart/templates/require-non-root-group.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9c4ea4d82414042c8be9ddea5a28de07a49d4839",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Dynatrace/k8s-problem-patterns/kyverno/problem-patterns/templates/patterns.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "fd0ba78c998a4e915295dc030cc4de8369616d3f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "EUCAIM/k8s-deploy-node/kyverno/policies/restrict-volume-types.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "dd35e4afb108fa542f77c1eca830cc9b7bb0fc97",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "EnsarTopal/platform-gitops/clusters/work/infra/config/kyverno/harbor-trivy-securitycontext.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "788328bf0ef0f90577fc2a44f9598986c8900a30",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Eunryong/_Lecture_k8s_learning.kit/B/B.009/kyverno-{{Yaml,CEL}}/CEL/3.CEL-ClusterPolicy-NoReplicasLess3.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "69b38d18f83e4e3fbd86e9ca07452a96b7e93de9",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "FabioBartoli/LINUXtips-PICK/security/kyverno/disalow-default-ns.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d2dac90c04e0cacbedb1022a92af466a8a03b1de",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "FrederiqueRetsema/Kubecon26-example-repo/examples/06-policy-engines/02-Kyverno/mutate-default-resources.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "20833561481b65824adeb071c65895daf632f9e0",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "FrederiqueRetsema/kyverno-exercises/Exercise_3_security_department/kyverno-deny-nginx-1.31-conditional.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e687593255253026a6d3d9d546629e2ccb8e29cb",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "GeoNodeUserGroup-DE/geonode-k8s/charts/geonode/templates/postgres/postgres-securitycontext.yaml",
+      "verdict": "outside"
+    },
+    {
+      "clock_functions": [
+        "time_since"
+      ],
+      "commit": "91e0d0d70c7df5ff8876c6056f96b88c0350bd72",
+      "reason": "reads the clock, which is not part of the subject",
+      "subject": "GurdipSCode/devops-policies-kubernetes/policies/cleanup/cleanup-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "91e0d0d70c7df5ff8876c6056f96b88c0350bd72",
+      "reason": "does not parse as YAML",
+      "subject": "GurdipSCode/devops-policies-kubernetes/policies/monitoring/prometheus-observability-policies.yaml",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "91e0d0d70c7df5ff8876c6056f96b88c0350bd72",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "GurdipSCode/devops-policies-kubernetes/policies/rbac/rbac-policies.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f788abf97da19565d667484b450e6264106b5387",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "GurdipSCode/devops-rules-semgrep/Helm/helm-rules.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e45bcc71f9211fb3355e7d0cf9f7365c59fbfe0a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "HalcyonOps/container-hardening-lab/policies/kyverno/no-root.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "edb4268cb24e97b66c570597aa064b03a0148f5d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "HalcyonOps/go-deploy-lab/policies/require-resource-limits.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f84ce362c794b683a8f8e1aa2e8452fa477df28b",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "HalcyonOps/mlops-pipeline-lab/policies/require-scan.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "32103b5ce75806fb0e78b8fb1371d310afc62d4e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Haliltarik/argocd-crossplane-kyverno/apps/kyverno-policies/base/require-s3-ssl.yaml",
+      "variable_roots": [
+        "contains"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4ccf53cdb9718f201943fe77cab5ea4f20469fbd",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Health-watchers/health_watchers/k8s/cost-allocation-labels.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8a27a484b31f21ec17c5ceaf909ed7d1615a652f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "JBrejnholt/demos/cloudNativeAalborg/sync-secret/sync-postgres-cluster-secrets.yml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8a27a484b31f21ec17c5ceaf909ed7d1615a652f",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "JBrejnholt/demos/cloudNativeCopenhagen/pdb-validation/verify-pdb-configuration.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "1370a6610ddd2f7bf452f33ab6b13491127bc242",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "JoaoHenrique12/problem_solve/kubernetes/day13-kyverno/limit-cpu-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3bde1884a48db2c1e5c512df00cb72f4190c4c16",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Joe1172003/Practicas-SA-B-202200271/P8/charts/politicas/templates/verificar-firma.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "457077e92a086934234c4572f24f0c09964b7c9a",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "JonathanCGill/airuntimesecurity.io/docs/infrastructure/policy/kyverno/restrict-agent-egress.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "dc1d3ace9e8ee368739914f4ea1462bc913b4a71",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "JustinKuli/policy-transformer/examples/common/kyverno-remote/.out.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "dc1d3ace9e8ee368739914f4ea1462bc913b4a71",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "JustinKuli/policy-transformer/examples/config-remote/.out.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2130c190d54780f94e30b11bc4c22a9fc1e27d09",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "KDim67/boostflow-thesis/ansible/playbooks/provision-cluster.yml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "bade8c2841344fe5a69d1beb3af271a46a956dde",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "MichaelCade/Homelab/kyverno-demo/demo1-kyverno-dp-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3b0384ea12f0480dee87b5911d73597f297f2233",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Michaelpalacce/HomeLab/cluster/homelab/configs/kyverno/default-network-policy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3b0384ea12f0480dee87b5911d73597f297f2233",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Michaelpalacce/HomeLab/cluster/homelab/configs/kyverno/restrict-node-port.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e771d20c7642586744daa385d9f28b8c2afce2ce",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "MuhamedAyoub/kubeflow_manifests/manifests/deploykf-core/deploykf-auth/templates/dex/ClusterPolicy-clone-minio-openid-secret.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c0c98ba838835d7a7d960bedb3a4b5fd2162258c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "NVIDIA/nodewright/docs/security/kyverno/kyverno/disable_packages.yaml",
+      "variable_roots": [
+        "regex_match"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7e4fdcc4ea45559959bb20cd388a084d4275e34d",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "NX211/homelab-infra/tekton/config/kyverno-fix-entrypoint-perms.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "2165ac2106b45e791389e1ea44866188eb4d28e5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Neutrollized/free-tier-gke/examples/kyverno/policies/disallow-node-port.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2165ac2106b45e791389e1ea44866188eb4d28e5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Neutrollized/free-tier-gke/examples/kyverno/require-ns-label.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5318b4ca47bda6e8f746b2a2a596a1de820cf8d8",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Nividhitha99/ENPM818R_Group3/video-analytics/k8s/policies/kyverno-policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4381176e2a733c7950da52eab354a4c6ea3c655f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "NorskHelsenett/gitOps/cluster/extras/kyverno/policies/best-practices/check-deprecated-apis/check-deprecated-apis.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d0f1a7362dba979568a8c2a39e10c70dded58d27",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "PacktPublishing/Mastering-Kubernetes-4th-Edition/ch16/code/exclude-services-namespace-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ad41d1936462220b84b987d5998cf159cd792c22",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "PatrickKoss/baukit/deploy/platform/kyverno/policies.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "dacf63e8ee6fb4bb1c67b7caabb4c8d862996614",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "PingCAP-QE/ee-ops/apps/gcp/cla-assistant/policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "dacf63e8ee6fb4bb1c67b7caabb4c8d862996614",
+      "context_bound_names": [
+        "ci_job",
+        "ci_refs_raw",
+        "is_hotfix_branch",
+        "is_special_job",
+        "parsed_refs"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "PingCAP-QE/ee-ops/apps/gcp/jenkins/beta/post/_base/policies/set-pod-compute-class.yaml",
+      "variable_roots": [
+        "is_hotfix_branch",
+        "is_special_job"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "dacf63e8ee6fb4bb1c67b7caabb4c8d862996614",
+      "context_bound_names": [
+        "is_retried_pod"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "PingCAP-QE/ee-ops/apps/gcp/tekton/configs/policies.yaml",
+      "variable_roots": [
+        "is_retried_pod"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "611a3f87027eddc361e8e383d514023d2ce9c871",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "PlatformRelay/Kaddy/deploy/policies/kyverno/restrict-data-classification.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ac79a36c4a2d0bce23f0fd0df5cd4e5e90931b7c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Priceless-P/Devops-Projects/kubernetes/kyverno-policies/best-practices/require-drop-all/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ac79a36c4a2d0bce23f0fd0df5cd4e5e90931b7c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Priceless-P/Devops-Projects/kubernetes/kyverno-policies/best-practices/require-labels/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ac79a36c4a2d0bce23f0fd0df5cd4e5e90931b7c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Priceless-P/Devops-Projects/kubernetes/kyverno-policies/best-practices/restrict-node-port/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "64c228d6ac9f7a488f3c833c27f2cbc710c11bda",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "RHsyseng/telco-operations/rhacm/kyverno/assets/team-validate-ns-schema.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e089b6d75e2a54b09d5ac5a6bc77996f77154631",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Rahu2000/charts/charts/kyverno/templates/best_practices/check-deprecated-apis.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "6b5c07a23ce9543716688c8b6183e5a38c087a72",
+      "reason": "substitutes a variable this test does not judge",
+      "subject": "RedHatTraining/do480-policy-collection/stable/CM-Configuration-Management/policy-kyverno-add-network-policy.yaml",
+      "unrecognised_variable_roots": [
+        "`{{request"
+      ],
+      "variable_roots": [
+        "`{{request"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "9c82d266cdc6bdd277b98db155f3933b06457e23",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "ReinaldoSolano/brewery/k8s/kyverno-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f00737409a83d5d9a5a9fd86e3f64f583910aab2",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "RobertDWhite/whitehouse-rke2/platform/policy/policy/restrict-image-registries.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3fa860b235d0061aa5f96d2b68c39037e49f9933",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "SAP/astonish/deploy/helm/astonish/templates/openshell/kyverno-cert-bundle-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ead33b1775050e628a85e1b951adc747b6f687b6",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "SYSDOSrepo/GitOps-kubernetes/.github/policies/kyverno/require-probes.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "234e140efede585e989be6e3020142137e1a9c6c",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "SaidNajim/KubeForge-IDP/kyverno-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "35586326378753022afea0de247d7253d580db56",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "SnekCode/Kyverno-Policies/chart/templates/update-image-registry.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "3be00da2c2756139cfb79f02d58c1501e19e5f76",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "SviatoslavShafulin/ultimate-eks-gitops-infra/config/base/policies/disallow-host-namespaces.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3be00da2c2756139cfb79f02d58c1501e19e5f76",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "SviatoslavShafulin/ultimate-eks-gitops-infra/config/test/patch_validation_failure_action.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d65214ea2ed25e95e50b87c998b984330700b4ac",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Team-Ikujo/Goti-k8s/infrastructure/prod/kyverno/config/require-resource-limits.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b36530262a20f68245d6b60ad35eecc63aa3c79a",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "Thakurvaibhav/k8s/charts/kyverno/templates/policies/ops/disallow-default-ns.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "fb211e6d5d1714accdacb92f18be87031fb11713",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "TheBranchDriftCatalyst/talos-homelab/infrastructure/base/kyverno-policies/externalsecret-defaults.yaml",
+      "variable_roots": [
+        "length",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "fb211e6d5d1714accdacb92f18be87031fb11713",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "TheBranchDriftCatalyst/talos-homelab/infrastructure/base/kyverno-policies/helmrelease-remediation-defaults.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "bf8b3e449979149abc823b25e4db4074313c5103",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "TheYemi/kubernetes-demo/kubernetes/kyverno-policies/disallow-latest-tag.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6423dbf79b4f535ab74892189a0a88defa16886e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ToLToL/kyverno-extend-pod-security-admission-demo/sig-auth/capabilities_exclude_all/enforce-restricted-exclude-all-capabilites-nginx.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2e482921101b91dba079fd26ae84bd39c48cb6b3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Toni744/UMG-EKS-Gitops/deploy/argocd/kyverno-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "a6a7a79e2fbd022be8285f860b381a71bdbaa25d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "TrueBad0ur/local-raspberry-kube-cluster/configs/kyverno/policies/podsecurity-subrule-baseline.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "a6a7a79e2fbd022be8285f860b381a71bdbaa25d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "TrueBad0ur/local-raspberry-kube-cluster/configs/kyverno/policies/require-requests-limits.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6e49fc5eed9eb59c3bd649faf5176f4272ceaae7",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "USA-RedDragon/home-cluster-flux/infrastructure/kyverno/policies/enforce-ingress-host-tls-match.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d9c58e372c62a0046691df36a5288c7df6e39cf6",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "WoodenMaiden/reverse-shell/manifests/kyverno/disallow-unsigned-images.yml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9260d455415de7b776bf647076d042812b17b213",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "YassinoMed/MasterPFE/infra/k8s/policies/kyverno/audit/require-workload-controls.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "fa56c81811efca85bea1fc73472073b069107d17",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "Z3ROX-lab/ai-security-platform/argocd/applications/security/kyverno-policies/manifests/policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "fc3627028f87ec4c79a6d9481a9df54b77f9b5e6",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "ZOO-Project/charts/zoo-project-dru/templates/kyverno-zoofpm-protection.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f9f037636591c57d545e844fc3d70c17f5e01636",
+      "reason": "substitutes a variable this test does not judge",
+      "subject": "Ziyad-Mabrouk/5g_ansible/roles/5g/core/tasks/main.yml",
+      "unrecognised_variable_roots": [
+        "deployment_option",
+        "groups",
+        "item",
+        "nad_list",
+        "nfs",
+        "open5gs_ns",
+        "repo_dest",
+        "repo_url"
+      ],
+      "variable_roots": [
+        "deployment_option",
+        "groups",
+        "item",
+        "nad_list",
+        "nfs",
+        "open5gs_ns",
+        "repo_dest",
+        "repo_url"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "feb68abe397acc14f32b34984975c48fedba2b33",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "a5c-ai/babysitter/packages/kradle/core/examples/policy-kyverno-pr-title.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1e319f2759e8b27aeae88b1a4018d5b870994538",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "agentydragon/ducktape/cluster/generated/kyverno/policies/policies.k8s.yaml",
+      "variable_roots": [
+        "element",
+        "elementIndex",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0bf7ff97920052021af7bebdc8eaf5111422cfce",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ahgraber/homelab-gitops-k3s/kubernetes/apps/security/authelia/app/kyverno-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "93ad45da9bf6830a30db1ccb75e9ea7f87b15615",
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "ahouab/container.training/k8s/kyverno-ingress-domain-name-3.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9d77a01f24daa70614f8abad71b8b2a589b47843",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "ai-integr8tor/linode-apl-core/charts/team-ns/templates/policies/baseline/disallow-host-process.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9d77a01f24daa70614f8abad71b8b2a589b47843",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "ai-integr8tor/linode-apl-core/charts/team-ns/templates/policies/restricted/disallow-capabilities-strict.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9d77a01f24daa70614f8abad71b8b2a589b47843",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "ai-integr8tor/linode-apl-core/charts/team-ns/templates/policies/restricted/restrict-volume-types.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "2b1d53faf2091f33bd7801af7ea71c8ab482a4ac",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "akhan4u/argo-testing/kyverno/policies/require-non-root/.chainsaw/policy-ready.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "92eaeabba098d639bf1de1e98497ac055c48a59f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "akshayraina999/argo-cd/kyverno-policies/policies/disallow-latest-tag.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0d2eb64c80ff2f5b4e0a34cacf0845ce5bec5232",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "alexander-zimmermann/lares/kubernetes/components/admission-controller/base/clusterpolicy-secrets.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7ea6d25a2235db2cccc9fc01c6268f7eabdf79ba",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "alexbergh/test-hard/k8s/base/image-verification.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f67f37c217d67c5ec3d116a12e0b6c19c481b788",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ali-fathi/devops-homelab/kubernetes/security/kyverno/policies/audit-workload-security.yaml",
+      "variable_roots": [
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e4cfbcd39f89bdef26cd46d11342223ec0d47fe7",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "alvo254/cka-study/pkg/pkg2/manifests/restrict-images.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "302d59c0f5aed7a399b9a5c743410ea7a24d2581",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "amd-enterprise-ai/amd-eai-apps/helm/aiwb/templates/kyverno-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9406edabd1a4eac349db821d7d6eb2de105870fa",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "andriktr/helm-charts/charts/aks-kyverno-policies/templates/create-limit-ranges.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "8c97a283f36d71d93e7c0b13e3c0799023d46039",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "anokfireball/homelab-as-code/flux/system/app-configs/kyverno.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8e7453b6a75576636c2c1010f1e17f4d6848de93",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "anuddeeph1/POV-policies/POV/Pod-Security-Standards/Audit/baseline/disallow-host-ports.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "37793474413a1d428bd5e3158ac01f50597aff2d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "anuddeeph1/pss-containername-pol/baseline/Audit/restrict-seccomp.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "37793474413a1d428bd5e3158ac01f50597aff2d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "anuddeeph1/pss-containername-pol/restricted/Audit/restrict-seccomp-strict.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ecfd7ddfe9844b5eba100968d5c1b83525a7489e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "anyaegbufrancis/openprep/03-app-onboarding/application/app-argo/overlays/default/require-image-repo.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6df8032c53e563cd64eda1667d61e9ee5ac423bb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "arunvel1988/docker_app_cd/policies/disallow-latest-tag.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f23edfb63ea1daf5fc071327dab860bee1f21023",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "ashokjjk/renovate/chart/kyverno-policies/templates/argocd/applicationset-name-matches-project.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "7ddccc257940164b19971330818d03044d17f432",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "awslabs/idf-modules/modules/compute/eks/kyverno-policies/validate/check-deprecated-apis.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ee81f1eeac6525642eaf59db3a111f5b954ffa0f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "back-stack/everything-as-code/policies/kubernetes/mutating-add-quota.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1ca3dca4ea224bd602065cddd7fcb9e3b00e928d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "back-stack/kubecon-na-2025/kyverno/nginx-not-allowed-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "a8b7071c32621b85e7ffe4e31a3199d20b6ec946",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "back-stack/showcase/kyverno/policies/pod-security/restrict-seccomp.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "a8b7071c32621b85e7ffe4e31a3199d20b6ec946",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "back-stack/showcase/kyverno/policies/pod-security/restrict_image_registries.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "06321cb26ae6b98b13cfe89cf562d170f8670744",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ballafarhad/platform-gitops/infrastructure/kyverno-policies/disallow-privileged-containers.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f1cdefe0d7990fdc6303ede0a135e35e887d661c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "balleon/portfolio/projects/devsecops/kyverno-policies/policies/require-labels.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e5b715316d2c11a459d332b30ff87426da41bb0f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "bansikah22/kyverno-demo/policies/add-security-context.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e5b715316d2c11a459d332b30ff87426da41bb0f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "bansikah22/kyverno-demo/policies/disallow-latest-image-tag.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c8dae6906095a02e58cdeffd2dd233f80f6c6c2c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "basarsubasi/agent-sandbox-playbook/policy-kata-fc.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5dbf81fa81905c10d2e29949b82a9d6cfb748668",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "bcgov/nr-openmetadata/oc/auto-label-opensearch.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e492b6bd29190669f10959c00512e805f226cdb3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "bebianc/Descomplicando_kubernetes/14-Kyverno/generate-configmap-for-namespace.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "df193ef59d7e4ae7e59129942c2143856b54ab1d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "blazepower/rishik-homelab-rke2/infrastructure/policies/kyverno-policies/pss-baseline/restrict-capabilities.yaml",
+      "variable_roots": [
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5eb06e9daf548d2919fc02fce4c685ff7e31dcc9",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "bmuschko/cks-study-guide/app-a/ch06/kyverno/restrict-image-registries.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6fb060928f1082a8abbdd9916e9c05a663d16f3c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "brunosantostecinf-shell/treinamento_dk8s/day15/add-label-namespace.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6fb060928f1082a8abbdd9916e9c05a663d16f3c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "brunosantostecinf-shell/treinamento_dk8s/day15/exclude-kyverno.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8bc2f2845e74ed48b4de3089b402252f31d04fd5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "bstrauss84/cluster-management/policygenerator/policy-sets/community/kyverno/multitenancy/input/validateplacement/validateplacementredteam-hub.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8bc2f2845e74ed48b4de3089b402252f31d04fd5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "bstrauss84/cluster-management/policygenerator/policy-sets/community/kyverno/security/input/security-context-contraint/disallow-security-context-constraint-anyuid.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1095a2bbc80c79f656c0922bccc4cae621222c49",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "buildcwnelson/vulnerablemart-api/.github/policies/disallow-privileged-containers.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "fd968edcf883a7d74df352e86c88a4d2788aa3be",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "canonical/sylva-core/kustomize-units/kyverno-policies/minio-policies/minio-operator-policies/restart-minio-operator-on-cert-renewal.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5878bd6b1e60ae66dc6f2ccc1694d498bf356e45",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ch-stark/gatekeeper-kyverno-policyset/kyverno-multitenancy/input/generatePlacementRules/generatePlacementredteam-hub.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b05a4d98b195845024e64b639a44a32f346d3110",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ch-stark/gitops-rbac-example/policygenerator/kustomize/kyvernopolicies/generate-argocd-permissions-blueteam-spoke.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b05a4d98b195845024e64b639a44a32f346d3110",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ch-stark/gitops-rbac-example/policygenerator/kustomize/kyvernopolicies/generate-argocd-permissions-redteam-spoke.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "60a66b1e4c9d19d97285a0244c069f86241efd90",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ch-stark/governance-best-practises-for-apps/kyverno-policies/input/deployments/mutate-large-termination-gps.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e4448ad5f082d0a3dfa21c9b5372ecb43d706a39",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ch-stark/policy-collection-consolidation/policies/policy-sets/community/kyverno/multitenancy/input/restrictions/restrict-redteam-to-its-placement-hub.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f05a7e00e6302dc75ae1abee38d06315cf25bca1",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "charchess/vixens/apps/00-infra/kyverno/base/policies/mutate-sidecar-probes.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f05a7e00e6302dc75ae1abee38d06315cf25bca1",
+      "context_bound_names": [
+        "cpuLim",
+        "cpuReq",
+        "memLim",
+        "memReq",
+        "sizingLabel"
+      ],
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "charchess/vixens/apps/00-infra/kyverno/base/policies/sizing-v2-mutate.yaml",
+      "variable_roots": [
+        "cpuLim",
+        "cpuReq",
+        "element",
+        "memLim",
+        "memReq",
+        "request",
+        "sizingLabel"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5a93e62853a2443ac107e849d267bcd716199aac",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "charley-geoffroy/DeployingHelmMicroservices/kubernetes/manifests/network-policies/require-name-label.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2df8f96a4d52bfe1bf810f0ae033bfe885f4b331",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "chipzoller/kyverno-pss/baseline/06a-disallow-host-ports-range/cpol.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1f0e658add27eb19ce6fca5d3fc0db207b654a24",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "chxmxii/kubegoros/ansible/playbooks/files/policies/deny-privilege-escalation.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1f5bb1ce1fff14a0f86d4c457e9678b1df2eafea",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "clayrisser/charts/depricated/taiga/templates/integrations/postgres.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "1f5bb1ce1fff14a0f86d4c457e9678b1df2eafea",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "clayrisser/charts/stable/keycloak/templates/integrations/smtp.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "1f5bb1ce1fff14a0f86d4c457e9678b1df2eafea",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "clayrisser/charts/stable/openldap/templates/patches/phpldapadmin.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "39e8797e4e5c073863b01d87e9d9acd40709868f",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "cnuland/aro-hello-chris-spoke-hub/hub/k8s/hello-chris/policies/require-signed-image.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0fd924066e8c6caad6cd8496b03aa63c4a15d178",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "codacy-open-source-projects-scans/kyverno/test/conformance/chainsaw/exceptions/exclude-volume-types/policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0fd924066e8c6caad6cd8496b03aa63c4a15d178",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "codacy-open-source-projects-scans/kyverno/test/conformance/chainsaw/generate/validation/policy/cloneList/policy-fail-2.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0fd924066e8c6caad6cd8496b03aa63c4a15d178",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "codacy-open-source-projects-scans/kyverno/test/conformance/chainsaw/mutate/policy/cornercases/foreach-remove-elements/policy.yaml",
+      "variable_roots": [
+        "element",
+        "elementIndex"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "997423ef345cb4b9750839ad02e2e2abc43f077d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "codebytes/container-security/demos/1-policy-guardrails/policies/require-signed-nonroot.yaml",
+      "variable_roots": [
+        "contains",
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d2486af71d4fb416f00ecbd37f34bd675a15ab8d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "controlplaneio/collie/AWS/S3/Policies/s3-bucket-logging-enabled.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d2486af71d4fb416f00ecbd37f34bd675a15ab8d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "controlplaneio/collie/AWS/S3/Policies/s3-bucket-server-side-encryption-enabled.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d2486af71d4fb416f00ecbd37f34bd675a15ab8d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "controlplaneio/collie/AWS/S3/Policies/s3-version-lifecycle-policy-check.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "90c4602d9a3bee46a34ca338f18b8ceba817b7d2",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "controlplaneio/simulator/ansible/roles/seven-seas/files/manifests/02-kyverno-policies.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d93824a122edf7f6b9e86f38430c1bc2e9e3897d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "dennis3d19/argo-k6-automation/platform/load-engine/acc/policies/inject-k6-security.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "af229421da48a82a033006c9d797ab49e3013b13",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "devantler-tech/platform/k8s/providers/hetzner/infrastructure/cluster-policies/prioritise-hcloud-volume-pods.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "a93f70dc04720284d31bafdd01cfe7cb5bc83b66",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "devopsabcs-engineering/aks-governance/gitops/policies/kyverno/block-docker-quay-registries.yaml",
+      "variable_roots": [
+        "images"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "27c27b7617d4113cf3213778fd25d1a1eda613ce",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "devopstales/k8s_sec_lab/k8s-manifest/065-kyverno-policies-sec.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "27c27b7617d4113cf3213778fd25d1a1eda613ce",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "devopstales/k8s_sec_lab/k8s-manifest/074-kyverno-policies-ingress.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "19f42fb4c54ef1337a71dd025121db6820ccb5e4",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "diogofiaminghi/LINUXtips-Descomplicando-Kubernetes/day-15/add-label-namespace.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "cc6a347bd215d6fa84f3ee2650b72cb6a2edc4fa",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "djdtimit/open_source_lakehouse/k8s/common/kyverno-policies/baseline-pss.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4b34f2e3e9619ace233aa6ffe5ece7c61916950a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "dongdorrong/kubernetes/k3-kyverno-test/kyverno-policy/kyverno-policies.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "201cf5592261a1ee2204c5e5f3030ef2a3403935",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "dotfilesh/ops/k8s/clusters/kclt-01/apps/kyverno/kyverno/policies/sync-rgwuser-secrets.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d5cc2249b351f1097f8219f3f0b41208952ca1fc",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "dynatrace-perfclinics/observabilitclinic-unlockk8sPower/kyberno/request_limit.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4747b2a730e88f8f1b8ed6869a0ce9ceed035c1e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "edgarrth/platform-kyverno/cases/02-container-security-context/policy.yaml",
+      "variable_roots": [
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4747b2a730e88f8f1b8ed6869a0ce9ceed035c1e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "edgarrth/platform-kyverno/cases/03-run-as-non-root/policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "24e48cb524e574338bdbc81f672c979802a00a2e",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "emilcardell/aishipelago/infrastructure/kyverno/policies/namespace-isolation.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "24e48cb524e574338bdbc81f672c979802a00a2e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "emilcardell/aishipelago/infrastructure/kyverno/policies/validate-appmanifest-claims.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "876000b6b8a4fcebda34482c42bb28d8c3cc7657",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "emiresh/zero-trust-devsecops/policies/kyverno/pod-security.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "a84d064b230331a29edde2edda6b4081646441fb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "enaalsharairi/deploykf/GeneatedManifest/manifests/kubeflow-tools/katib/resources/clone-mysql-secret-clusterpolicy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "dae8fbf15281bee7819a4865697aa9c1043ae8a5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "entwinedent/ci_cd_pipeline/manifests/bleeding-edge/kyverno/policies/resource-limits.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4a4af7b8fc7cdb13892be8b6907b6446efc773ae",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "erkules/dufluxdu/base/kyverno-policies/clusterpolicy-generate-namespace-quota.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5b46bc7f8f37fbabdbe338697788278cd44259db",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "erkules/k8sworkshop/Kyverno/KyvernoNoCEL/disallow_privileged-richtiger.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5b46bc7f8f37fbabdbe338697788278cd44259db",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "erkules/k8sworkshop/Kyverno/KyvernoNoCEL/mutate-imagepullpolicy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5b46bc7f8f37fbabdbe338697788278cd44259db",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "erkules/k8sworkshop/Kyverno/KyvernoNoCEL/validate_ns_exists4pods.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "87b1bb90586a9acf7492b9a25075b78ef951e604",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "fearfactor3/nginx-kustomize-example/kyverno/policies/require-probes.yaml",
+      "variable_roots": [
+        "keys"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "99060fdba47252bea2a68d28b6728f48c1b67065",
+      "external_context_sources": [
+        "apiCall",
+        "configMap",
+        "imageRegistry"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "fminna/LLM-Helm-Fix/templates/kyverno-policies_template.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "foalem/Pac-paper/data_analysis/policies/Kyverno OSS/kubermatic__kubermatic/restrict-apparmor-profiles.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "foalem/Pac-paper/data_analysis/policies/Kyverno OSS/kyverno__kyverno/chainsaw-step-06-apply-1-1.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "foalem/Pac-paper/data_analysis/policies/Kyverno OSS/kyverno__kyverno/policy-error.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5c018df635f5a7c474505bcccca15bb09eacbe52",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "frank-segui/crossplane-gh-test/kyverno/pillar-label-policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0ed87e131515c75a41722d24587d08feeed7523b",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "fzhussain/K8s-Hand-on/12. Kyverno Governance/require-pod-resource-limit.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4b72f3e8f4aef814793e5cea4d6120ea5fc184e7",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "gabrielldn/secure-gitops-platform/policies/kyverno/env/dev/patches/require-resources.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4b72f3e8f4aef814793e5cea4d6120ea5fc184e7",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "gabrielldn/secure-gitops-platform/policies/kyverno/env/homolog/patches/verify-image-attestations.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "49bf22201b6498cb33efd0c41bd42679668edce0",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "gadaugherty/vulnbank/kyverno/policies/require-resource-limits.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "9179ccba32734921ee9a5bddacd25639152b1444",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "gc-ghub/project-kyverno-policy-enforcement/kyverno_policy/policy-04.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6263f366fff09f01d8d99e69a84d340d9c12778f",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "ghantotcon-cpu/cnd-project/kubernetes/kyverno/verify-images-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "7c693c3522cc2e075652b43277928f1964fe5c9a",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "giantswarm/kyverno-policies-connectivity/helm/kyverno-policies-connectivity/templates/wc-ip/WorkloadClusterIp.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "a7a7aa816df224a806b2cb4715833e47cf66693f",
+      "reason": "does not parse as YAML",
+      "subject": "giantswarm/kyverno-policies-dx/policies/dx/EnforceGSRegistries.yaml",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "996e7b6b03e8fdbbf164c84893cf94cf64217d95",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "giantswarm/kyverno-policies-observability/helm/kyverno-policies-observability/templates/Silence.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "19bc1d55b31da3a447334956b6383366ccff2004",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "giantswarm/kyverno-policies/helm/kyverno-policies/templates/restrict-debug-access/clusterpolicy-block-expired-exceptions.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "19bc1d55b31da3a447334956b6383366ccff2004",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "giantswarm/kyverno-policies/helm/kyverno-policies/templates/supplemental/require-read-only-root-filesystem.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "03e9981b59fcbdeaf56675c293ed53c8a360dc9b",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "gnunn1/cosign-demo/kyverno-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f54e94ffa28b7801429c18523638712ab43f652e",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "gr8monk3ys/homelab/kubernetes/policy/kyverno/policies-enforce/30-require-seccomp.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "cebac120f78facbb478696ff603c96462b9c595a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "greg-hellings/nixos-config/manifests/helm/longhorn.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "99a62d174b645398f3cd020588dc27459739812d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "h3mmy/bloopySphere/cluster/apps/kyverno/policies/add-external-dns-annotations.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "99a62d174b645398f3cd020588dc27459739812d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "h3mmy/bloopySphere/cluster/apps/kyverno/policies/add-ndots.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "99a62d174b645398f3cd020588dc27459739812d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "h3mmy/bloopySphere/cluster/apps/kyverno/policies/set-traefik-annotations.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "885c6e5b3f162e96426c61ac87e6f724c53beea5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "hangx969/local-k8s-platform-tools/base/external/kyverno/policies/common/security/psa.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "9b0bdc4ffc63d9d59924beb71ec61e1521778375",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "haraldkoch/kochhaus-home/.archive/kubernetes/apps/kyverno/kyverno/policies/apply-ingress-auth-annotations.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "da4ff07cd486b27846d623bff66ad04d3b02731c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "harness/developer-hub/3k-docs/resilience-testing/security/security-templates/manifest/kyverno-policies/allow-host-namespaces-for-litmus-experiments-which-uses-runtime-api.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6faf0bfb7551f9bf2d47d595745f8b72ef3a12f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "hellekin08/encore-apps-openmetadata/openmetadata/app/utils/kyverno-policy-automation-pods.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "94386f39167b0f0b27c0be6b25d7a6417a4797e4",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "hivecommons/hive/src/deploy/kustomize/overlays/backup-exec-restriction/kyverno-backup-exec-restriction.yaml",
+      "variable_roots": [
+        "regex_match",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f1c45118ab50ef9b4b3ae53c70b52ecb5f5f5f92",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "homelabird/homelab/security/kyverno/policies/baseline-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "04af169960efa82fbf67e2bab78b10db2b1578ac",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "hshahar/shahar-sandbox/helm/microservices-app/templates/kyverno-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "3d93f0a3c28faebacf936562078f2c84dcd6c460",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "hugosleao/platform-engineering-reference/guardrails/kyverno/disallow-latest-tag.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "32c33085058e3556ee86c641bf18297d0b130103",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "humbeatbox/novabank-gitops/Security/disallow-privileged.yml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b68143fbc017de6516b18423049a7eaeda0ea494",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "hunghk43/kimhung-aws-accelerator-p2/cloud/w10/day-2/policies/verify-image-signature.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "7b857ae242a7906ddbf65b6fd62cf7b6fbde16d3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "hwinther/proxmox/bases/kyverno-best-practices/clusterpolicy-require-run-as-non-root.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7b857ae242a7906ddbf65b6fd62cf7b6fbde16d3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "hwinther/proxmox/clusters/production/apps/postgres-production/kyverno-clusterpolicy-clone-clutterstock-pg-secret.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ab222f0c2180b3da3493249f34e0865592f26bcd",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "iamakshu29/Kubernetes-deep-dive-with-projects/01_K8s_Exercises/task_05_RBAC_and_Security/Exercises/kyverno_exercise/policy_1-resources-limits-requried.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ab222f0c2180b3da3493249f34e0865592f26bcd",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "iamakshu29/Kubernetes-deep-dive-with-projects/01_K8s_Exercises/task_05_RBAC_and_Security/Exercises/kyverno_exercise/policy_2-disallow-root-containers.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ab222f0c2180b3da3493249f34e0865592f26bcd",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "iamakshu29/Kubernetes-deep-dive-with-projects/01_K8s_Exercises/task_10_Project/Project/microservices-demo/helm-chart/templates/policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "648b113ec80b7200667a7688cc412fadba03066c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "iamenr0s/gitops-argocd/kyverno/disallow-latest-tag-custom-apps.clusterpolicy.yml",
+      "variable_roots": [
+        "contains"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "265d8aad4123d3b31ab358ff24f55d6dfbe75f9c",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "igorgroz/devseclab/k8s/kyverno/clusterpolicy-image-verify.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "5bbb9308ade88bce9b300f7ee310c5d7df1bc43f",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "iits-consulting/charts/tests/kyverno/test_policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "5999185371cf7eb2e327dc0443f3509a671aab23",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ilpoom-jinro/AWS/kyverno/policies/add-pss-labels.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f26315d173c70d6796f8f6e47e2743811be9f5a8",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "in-the-keyhole/awg-appdev-modules/xpkg/awg-appdev/apis/Application/composition.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "38fa5275be787bb524b4075c4084d9aeb92e5501",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jamalshahverdiev/kyverno/Restart-On-Secret-Configmap-Changes/v1/configmap/cool-cpol-configmap.yaml",
+      "variable_roots": [
+        "equal_fold",
+        "lookup",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "38fa5275be787bb524b4075c4084d9aeb92e5501",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "jamalshahverdiev/kyverno/policies/04-replicas-limit.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "38fa5275be787bb524b4075c4084d9aeb92e5501",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jamalshahverdiev/kyverno/policies/09-service-port-validation.yaml",
+      "variable_roots": [
+        "element",
+        "regex_match",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2c0999c5b06f6a8dad76b05f00b8892001eb1eba",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jamesdkelly88/kubernetes-lab/infrastructure/base/kyverno-policies/check-deprecated-apis-clusterpolicy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c1ac33b4bc331cab3f23c7074531de3a4cc5843a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jamie-stinson/helm-system-monorepo/tmp/kyverno-policies/disallow-naked-pods.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c0d191e55b19dee27e6098a966fe0742c95adee1",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jawsbaek/scp-gitops-sample/policies/kyverno/require-run-as-nonroot.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4097ed1be307964d31b7cbcbb103d3c063916d84",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "jeiang/k8s-manifests/rbac-access/templates/kyverno-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f55148ee97f313dca7ad25c4e9f2c8ddb6705787",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "jetstack/finops-stack/charts/finops-policies/templates/block-large-image.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "b64ed8349ed263827836bdc6cf0c88c429bb26d2",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jlui70/devopsproject-ecommerce-gitops/production/infrastructure/kyverno/restrict-image-registries.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "301d23efcb694ee6b6012a8e60fcf0fda2ec9747",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jo114ge/bsides_sofia__detection_policies_2026/policies/kyverno/disallow-latest.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "07d699ffb9627f4e7762c0700fba7db482fc9b4d",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "jomcgi-org/homelab/projects/platform/kyverno/templates/otel-injection-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9a0d14ea3e5b975f785a8f476ad596974f06379a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jorgetrc/descomplicando_kubernetes/kyverno/registry-allowed.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ce593d76169c66aafe571885ce7d6c5d8088fdbb",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "josef-hak/k0rdent-catalog-2/apps/kyverno-guardrails/charts/kyverno-guardrails-0.1.0/templates/require-pod-requests-limits.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ed2707d318e3bd93d0d01bfaf904bd7862b660f0",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "joshua-nable/cluster/kyverno_copy/overlays/policies/drop_all_capabilities.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "72bf4f9cd93d2d50d66dedcfb2080a9dc528d2f4",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "junghoon2/k8s-01/61.Security/11.kyverno/kyverno/samples/more/require_deployments_have_multiple_replicas.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5833cef75de417850858e3e08ad230d5d95a80d0",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "jvanzyl/kyverno-registries/registry-policies.yaml",
+      "variable_roots": [
+        "regex_replace_all"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "16e0982f3607fd9d97bd62fa7bcfb002351717da",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kamikazechaser/k8s-kyverno-demo/policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f6402afda44bfaa004bee3f49918d0f243d985c5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "karlschriek/kyverno-test/karl/disallow-host-namespaces.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f6402afda44bfaa004bee3f49918d0f243d985c5",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "karlschriek/kyverno-test/karl/disallow-privileged-containers.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "9d953b0aaf2829d2e7ad6d124e3cfa984bc1cc45",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "khpcoding/Kubernetes-In-Action/Kyverno/Task1(Enforcing Resource Limits)/policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "838a9e2391e8524e01e49bf454751ab5b49f836c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "komodorio/failure-scenarios/scenarios/kyverno-policy-scenario.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "a781e8d0a51fda9ddffd82e155d89ba2beeb26b8",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "krsatyamthakur-droid/kitops-mlops-integration-suite/policies/disallow-latest-tag.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "4175e4a0e289279904bd6a091d661403fcc18d44",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "kubara-io/platform-setup-examples/kustomize-application-onboarding/platform-components/helm/kyverno-policies/templates/certManager/restrict-issuer.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "38005efe72fc72a7bfbe806cedd18cd2b3d681d3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kubearmor/policy-templates/5gsec/oai-core/kyverno-core-readonly-volume-mounts.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "167bc2441f21281dd97f4e4178b3731b75b0f30e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kubeden/dstack/k8s-cluster-configuration/kustomize/platform/core/components/policies/kyverno/base/policies.yml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d7f7b8677c953af8c3aff1ba0b20abc7183318eb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "kubermatic/community-components/examples/kubermatic-virtualization/kubev/storage/portworx/kubev-storage-cluster.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1dcd4462b04da4946890dfa7916ac6f40c66b74a",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "l3montree-dev/devguard-helm-chart/templates/kyverno-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e6ee0de7dbd6b83f8f23a5f7ede6ad29db555d84",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "lbogdan/advanced-kubernetes-workshop-2025/manifests/policy/disallow-latest-tag-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f1d00d28e77f74b9768d2a84ce304aa464815d81",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "lehuannhatrang/ml-platform-manifests/applications/enterprise-gateway/overlays/kyverno/inject-jeg-env.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ca347d9d619fee854368a6abd22e397907a1688f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "lftraining/LFS255-code-public/chapter-10-securing-kyverno/lab10.2/cpol-disallow-default-namespace.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ca347d9d619fee854368a6abd22e397907a1688f",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "lftraining/LFS255-code-public/chapter-11-integration-and-extensibility/lab11.3/kyverno-image-attest.yml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "63b1fec233a8be381ce29902bf3cb726aa1a3626",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "linode/apl-core/charts/team-ns/templates/policies/baseline/disallow-capabilities.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "63b1fec233a8be381ce29902bf3cb726aa1a3626",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "linode/apl-core/charts/team-ns/templates/policies/baseline/disallow-proc-mount.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "63b1fec233a8be381ce29902bf3cb726aa1a3626",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "linode/apl-core/charts/team-ns/templates/policies/baseline/restrict-apparmor-profiles.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ed98bc4cd97bbba042e8f70c8b92a58b77c21553",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "linode/apl-examples/open-webui/security-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "adb8074511357bc8ffb69a3c7506c2a50ff28e09",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "linus10x/finserv-agent-audit/deploy/k8s/policies/kyverno/require-sovereign-veto-armed.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "1a313612e61d3941f2daae2433e0b4d3a91d79a7",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "lloydchang/agentic-reconciliation-engine/core/gitops/kyverno-policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ba03860697ea881050ed66a4601606261fef11cc",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "lucawalz/bedrock/kubernetes/infrastructure/configs/policies/require-drop-all-capabilities.yaml",
+      "variable_roots": [
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0f1218458ae20d726635c633cdf5d035ce5dcd33",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "luckymike/consul-review-app-demo/k8s/mutate-rules.yaml",
+      "variable_roots": [
+        "images",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f84775007debc45a5b0362ed966074dc201090c1",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "lurodrisilva/plat-eng-baseline-addons/addon_charts/kyverno-guardrails/templates/g1-disallow-latest-tag.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "aaf707282aabdb39d3e6d3f8d48d1a1211b968e9",
+      "namespace_selectors": [
+        "exclude.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "madfam-org/enclii/infra/k8s/base/kyverno/policies/security-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "aaf707282aabdb39d3e6d3f8d48d1a1211b968e9",
+      "namespace_selectors": [
+        "exclude.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "madfam-org/enclii/infra/k8s/production/kyverno-disallow-latest.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "3e0c05df83f6fe15f6ae765a99e7fc71df270e2a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "majosanchez07/Practicas-SA-B-202100265/P8/policies/02-exigir-limites.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b4dc3cf389314ec596e61032baed565976c93632",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "marcusmvbs/Kind-argocd_nginx_goapp_prom/Kind/kubernetes/kyverno/templates/clusterpolicy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "df50e41ed3c3283c69e346544645e8e078f4ed88",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mcaniga/thesis-comparison-of-k8s-policy-enforcement-systems/kyverno/policies/always-pull-image-from-remote-registry.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "df50e41ed3c3283c69e346544645e8e078f4ed88",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mcaniga/thesis-comparison-of-k8s-policy-enforcement-systems/kyverno/policies/image-can-be-referenced-only-with-image-digest.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "df50e41ed3c3283c69e346544645e8e078f4ed88",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mcaniga/thesis-comparison-of-k8s-policy-enforcement-systems/kyverno/policies/root-filesystem-is-readonly.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "74863af38ae4a25d7602e86ac8395d30b485ff36",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mcolomerc/cfk-k3d-labs/cfk-kyverno-pac/pac/topic-validation.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "360640cbcb48f47d6eeabe0ac2dd8f764088aca9",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "menzenski/kyverno-mwe/disallow_latest_tag.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ab399380aa7ce2adf58fddebb490488ada838fef",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mirjahal/Descomplicando_Kubernetes/day-14/add-label-namespace.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5dccec50ff0ac732726969f28f278332f5680ecb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "moatazeldebsy/backstage-platform-template/kubernetes/policies/kyverno/team-quota-policy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "69c9976582b685bc01c4b8138f84a988927d29f0",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "morbidsteve/sre-platform/policies/custom/require-security-context.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a75ea04b9b7d7ba1c059db41745c366b0f27102",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "mrwulf/home-cluster/cluster/apps/system/kyverno/policies/sync-middlewares.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7850b124c521b55aa023a9ac15b95cb801a088af",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "murulii/public/kyverno/Validate/Block_Default_Namespace.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7850b124c521b55aa023a9ac15b95cb801a088af",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "murulii/public/kyverno/Validate/Disallow_Latest_Tag.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "711d6dd5dacc12c8e85ccc71067bf4f026f778b8",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nairamint/AML-Agent/backend/k8s/enterprise-security-policies.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1542d008388b506419bea6bb4d5db51eb351b821",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nanohype/eks-gitops/policies/kyverno/best-practices/base/require-labels.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "1542d008388b506419bea6bb4d5db51eb351b821",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "nanohype/eks-gitops/policies/kyverno/supply-chain/base/verify-images.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "2b7db39f9087de043eed2e0c933258f31d1cbbb1",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nathansiegfrid/k8s-platform/clusters/cluster-01-k3s/infrastructure/cluster-policies/disable-default-sa-automount.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2fb23829ec2d160661023eddcb9043609cc31d56",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "netgroup-polito/cloud_programming_labs/kyverno/manifests/limitsrequests.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8cf91b1e8e4153cf2655ad15de3dfc028a7af7ca",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nimishmehta8779/idp-gitops/infrastructure/kyverno/policies/register-eks-cluster-argocd.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c7d763238ef27d8d1ef30fa90e2d1c09e6bef90a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nponsard/cybersec-lab/deployments/policies/capabilities.yml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c7d763238ef27d8d1ef30fa90e2d1c09e6bef90a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nponsard/cybersec-lab/deployments/policies/privesc.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c7d763238ef27d8d1ef30fa90e2d1c09e6bef90a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nponsard/cybersec-lab/deployments/policies/seccomp.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ddeed09ac9047527d725adbe8054a94fedeb2a6d",
+      "rbac_selectors": [
+        "exclude.clusterRoles"
+      ],
+      "reason": "selects on the requester's role bindings, which the admission request does not carry",
+      "subject": "nwarila-platform/talos-cluster/clusters/talos-cluster/apps/kyverno/policies/protect-source-minter.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ddeed09ac9047527d725adbe8054a94fedeb2a6d",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "nwarila-platform/talos-cluster/clusters/talos-cluster/apps/kyverno/policies/verify-image-signatures-enforced.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "2cb61951ec031215f140f55130917e8d4c488f1b",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "nzuguem/kubernetes-sandbox-environment/policies/kyverno/restrict-registries.cluster-policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5d205c029832ab1cc2d44a3c8be466b99faf60c1",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "olafkfreund/factory-gitops/apps/kyverno-policies/manifests/strip-last-applied-configuration-from-secrets.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8f4b4c63de8e3d1bb0b5092e39c76ceff7f302fe",
+      "reason": "substitutes a variable this test does not judge",
+      "subject": "open-cluster-management-io/policy-collection/community/CM-Configuration-Management/policy-create-ns-backup-triliovault-for-kubernetes-templatized.yaml",
+      "unrecognised_variable_roots": [
+        "`{{request",
+        "hub"
+      ],
+      "variable_roots": [
+        "`{{request",
+        "hub"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "8f4b4c63de8e3d1bb0b5092e39c76ceff7f302fe",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "open-cluster-management-io/policy-collection/policygenerator/policy-sets/community/kyverno/multitenancy/input/disallowplacementrules/disallow-placementRules.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8f4b4c63de8e3d1bb0b5092e39c76ceff7f302fe",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "open-cluster-management-io/policy-collection/policygenerator/policy-sets/community/kyverno/multitenancy/input/preventupdatesappproject/application-prevent-updates-project-all.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "569877354c77fa13a0b22b34bc682274871dd088",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "opencenter-cloud/openCenter-gitops-base/applications/base/services/kyverno/default-ruleset/disallow-proc-mount.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "10a96d95342ade66d5c6307624584019345026b3",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "openkasugai/dci_manager/others/tenant-infrastructure-management/resources/kyverno-policy-config.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "da4d50d72ddb2d803a5daa248a21cf503f1b9499",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "openmcp-project/service-provider-kyverno/test/e2e/mcp/cluster_policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "21cee9032941db2bd778ee636f4d1c11c7091a16",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "operinko-labs/homeops/kubernetes/apps/security/kyverno/policies/global-ndots.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5576a25fe39b09ec5bcd3e49eaeb57d633969ec3",
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "oshi36/kyverno-policies/other/exclude_namespaces_dynamically/exclude_namespaces_dynamically.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "704fcc26537dad31fbb71ab0934c38d5986c3ca0",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "paruff/fawkes/platform/policies/mandatory-security.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "b8e48e41fa543554b6bac4014636e07fcad4d9ca",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "patrickjmcd/k8s-argo/core/kyverno/cpu-limit-guard.yaml",
+      "variable_roots": [
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "aff2189138081def286e132cf2e9a59c5bca03a6",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "pavestack/pavestack/platform-config/policies/kyverno/disallow-latest-tag.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "clock_functions": [
+        "time_now_utc"
+      ],
+      "commit": "2c6f91d651e65bf3b8ee6973fbb7ed8a70a69016",
+      "reason": "reads the clock, which is not part of the subject",
+      "subject": "peopleforrester/2026_Kubecon_Europe_CNCF_Portal_Fatigue_IDP_Tutorial/kyverno/policies/compliance-standards.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "bfc2e57001dd976a49433e4f39ad0f53681fdd58",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "peopleforrester/LLMday-Texas-2026/demo/gitops/manifests/kyverno-policies/require-limits.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "ade63e0ff91edcb449c8a67f091556135fa2bc79",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "peopleforrester/Unleash_an_Agent_Watch_It_Burn/policies/kyverno/deny-llm-endpoint-bypass.yaml",
+      "variable_roots": [
+        "element"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3aaa9529210bd1ccc699684077d67365b3b46f10",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "pmh-only/cocktail-bar/_cocktails/250213_champs23_3_try3/ap/manifest/restrict_modification.yml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6ae8412648972c5dcb073559e8e2dd4737b684f7",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ppat/homelab-ops-kubernetes-clusters/ci/policy-tests/rbac-clusterrolebinding-roleref.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "68774e22202aec4dcdd736d5683e84d9b5aa9409",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "rajkumardubey10/aws-eks-kubernetes-platform/kyverno/policies/replica-count.yml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2aa9baeca547050fcc8753d8e8f9cd6d3d6ba1e6",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "ramishtaha/kubernetes-project-learning/03-advanced/26-security-hardening/policies/image-security-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "8f033c81f199503beb5a1f99368eb24c2a26f9b8",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "ravindrasinghh/Kubernetes-Playlist/Lesson6/examples/generate-default-network-policy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c31efa192d4f041c6e43402955d4c971a1fdde57",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "redhat-appstudio/infra-deployments/components/policies/base/konflux-rbac/konflux-support-access/.chainsaw-test/chainsaw-assert-clusterpolicy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c31efa192d4f041c6e43402955d4c971a1fdde57",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "redhat-appstudio/infra-deployments/components/policies/rings/ring-0/base/delete-propagate-cost-management-labels.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c31efa192d4f041c6e43402955d4c971a1fdde57",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "redhat-appstudio/infra-deployments/components/policies/rings/ring-0/base/konflux-rbac/restrict-binding-system-authenticated/.chainsaw-test/chainsaw-assert-clusterpolicy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "5f7094d3d54885b23c00ee8f278b6b339bb506dd",
+      "reason": "does not parse as YAML",
+      "subject": "ricCap/crossplane-workshop/gitops/per-vcluster-bundle/templates/policies/05-secret-no-pod-mount.yaml",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "210b512d4f710c30fc415a695513c9427f0c5913",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "rishichirchi/Kyverno-CEL-Policies/add-labels-cel/add-labels.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "78d4fafcd86c10fafbf1cacecf5b422a63a5d861",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "rmallam/RHDH-SM-DevSpaces/components/policy-as-code/base/policies/release-gates.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c0f25eadff02673a55a206987ea0186da2ec207e",
+      "external_context_sources": [
+        "apiCall",
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "rodrigorfk/k8s-kyverno-mutating-policies/src/examples/04-image-registry/policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d66b0d9244a1eaf4ed270cc90ad738b6e90f8492",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "rogerrum/k8s-gitops/infrastructure/kyverno/templates/prefer-worker-nodes-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "rulehub/rulehub/addons/kyverno/policies/betting-slots_no_losses_disguised_as_wins-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "rulehub/rulehub/addons/kyverno/policies/edtech-in_dpdpa_children_verifiable_consent-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "rulehub/rulehub/addons/kyverno/policies/medtech-eu_ivdr_clinical_performance-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "2dbff998a078885aa17bb45076e0a85bd37b1a27",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "rurikudo/kyverno-ishield-library-example/deploy/test-kyverno-mutate-cpol.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "0ad7c1e68159a9556dae568a3e0cb11b15a18c15",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "s3rj1k/playground/lab/rgd/metal3-ironic-ha.yml",
+      "variable_roots": [
+        "request",
+        "target"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f0a888a0b56b318b403d1c226a8f659020d5e389",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sagarkakkalasworld/Add-on-session-Kyverno/replicas.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3a5d7942e04b54980c8b1eb663a1a90cae5bb560",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sagarkpanda/otel-labs-platform/k8s/kyverno/policies/pod-security-policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3a5d7942e04b54980c8b1eb663a1a90cae5bb560",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sagarkpanda/otel-labs-platform/k8s/kyverno/policies/tag-policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "3a5d7942e04b54980c8b1eb663a1a90cae5bb560",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sagarkpanda/otel-labs-platform/k8s/kyverno/policies/trusted-registry-policy.yml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6056a9597887e715f72416b07ca5c96bf858e1a8",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "samip5/k8s-cluster/.archive/base/kyverno/policies/apply-ingress-auth-annotations.yaml",
+      "variable_roots": [
+        "target"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b7fab30f7c6411017eb3829fa3dd68ebf11ea201",
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "sanisoclem/gitops-platform/services/volsync/policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0ee95ca13ff31fff9ac01de967ed5130834c63a2",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "saritasa-nest/saritasa-pre-commit-hooks/pre_commit_hooks/kubernetes/kyverno/kyverno_test/tests/assets/policy-name-mismatch/config/policies/enforce-limits.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "86d32f35a6d50ddc051039ce3daa6aae6fbde6be",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sawyer523/geektime-devops/week8/kyverno/sync-docker-regcred.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "28bfca229dbfe4d33313c60d3bbddb05c1e95856",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "scottypate/sloss-arcade/k8s/platform/kyverno/03-restrict-image-registries.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "bf91d27bf998b5ffcf6a74660fce7d8ab6f85a26",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "shaikhuzair2096/DEVOPS-Projects/Kyverno-policies/restrict-image-registry/clusterpolicy.yml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "b32fe8f946188f0b1b6c05fffdaf616002af5643",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "shouryahere/HRS/2_infrastructure/k8s/kyverno/kyverno-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "39dab5114eeb04d01adfddd0cdefe5b98ca629eb",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "siddharthpatel1993/dcp_devsecops/kyverno-policy.yml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c162093eda695eecfafe474a5b82d21de517131f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sighupio/module-policy/katalog/kyverno/policies/collection/disallow-privilege-escalation.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c162093eda695eecfafe474a5b82d21de517131f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sighupio/module-policy/katalog/kyverno/policies/collection/require-probes.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d897d0c3d5c6a9e3dbdf976f0d31e8f21d3c8a5d",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "silogen/cluster-forge/sources/airm/0.1.0/charts/airm-dispatcher/templates/airm-cluster-policies.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "19274b784bf43cf607a5b611ea8eaa566f10db51",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "simonepri/openplex/src/infra/argocd/components/parca/kustomize/gpu-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "19274b784bf43cf607a5b611ea8eaa566f10db51",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "simonepri/openplex/src/infra/argocd/components/signoz/kustomize/pvc-autoresize-policy.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "19274b784bf43cf607a5b611ea8eaa566f10db51",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "simonepri/openplex/src/infra/argocd/components/tailscale_access/helm/templates/router-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "75e47c9a3cbf7debe05537ec7d3d158573295a47",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "sinanmohd/tcs-infra/charts/kyverno/templates/clusterPolicy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "54ed391efb0b973c762e3299ea492e21ce88ad09",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "sinhnguyen1411/stock-trading-be/deploy/policies/kyverno/clusterpolicy-cve-threshold.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "cc3db662b1024ad100c1700ea5b88b4de9109068",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "siutsin/otaru/helm-charts/tailscale-operator/templates/exit-guard-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0641c2f162cfbe9ccb04518aabf003fb86213f05",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "skyfjell/charts/charts/platform-tenant/templates/components/kyverno/policy-metadata.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "eaf58ea720459fd702c675c4a3a7e66dd65014bd",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "slaclab/slac-kyverno-policies/vcluster--supercdms/mutate-supercdms-securitycontext.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "6bda7b7a2bec300b599f60c01ffba57705cd68f8",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "snoopy82481/home-cluster/kubernetes/apps/monitoring/kyverno/policies/check-deprecated-apis.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "509124e79870be3e6c0ec5bfc2ed5c9de2c6dfee",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "solidDoWant/infra-mk3/cluster/gitops/data/temporal/backend/s3/build-archival-vars-policy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "509124e79870be3e6c0ec5bfc2ed5c9de2c6dfee",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "solidDoWant/infra-mk3/cluster/gitops/tug2/insurgency/stats-api/pull-credentials-policy.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e59737136e4447f830894afc29e3d81afa06ef9a",
+      "reason": "substitutes a variable this test does not judge",
+      "subject": "stolostron/console/frontend/packages/react-form-wizard/wizards/Policy/stable/CM-Configuration-Management/policy-kyverno-add-quota.yaml",
+      "unrecognised_variable_roots": [
+        "`{{request"
+      ],
+      "variable_roots": [
+        "`{{request"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "e5d423cb3754f554173c6c4be4520b57b7963458",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "streamspace-dev/streamspace/manifests/security/image-verification-policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ae8e3eaeafbe40a0b27aaa6603a6d28d945de14f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "swastik959/kyverno-policies/check-resource-configuration/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "f1876174c86442279104fb7c540c2714ca0c732a",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "synaptent/aragora/deploy/kyverno/policies/operational-policies.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e1e20fecf43588d89e536ed4879edcb3b45f4acc",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "taigamiura/kind-study/manifests/extensions/supply-chain/image-sign-policy-sample.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "63b1dcecfd915865fede491cf9eff634dddb48d2",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "taleblou/Secure-Multi-Tenant-AI-Data-Platform-on-Kubernetes/platform/security/base/clusterpolicy-security-baseline.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "122f7a68c3461ac0f329c988289770a9d2a8c46d",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "thepartly/pgroles/charts/pgroles-operator/files/kyverno-plan-decision.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "122f7a68c3461ac0f329c988289770a9d2a8c46d",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "thepartly/pgroles/k8s/security/ephemeral-access-kyverno.yaml",
+      "verdict": "outside"
+    },
+    {
+      "cel_calls": [],
+      "commit": "da040c815f4af3a7c11cda27cdd3b8782c2a4023",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "thev1ndu/2take1/kyverno/manifests/check-deprecated-apis.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "b021e213d68ff2bea87d072ba093eaa96146f3bb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "timkamba2002/financeguard-devsecops-capstone/k8s/kyverno/policies/require-resource-limits.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "c93fc4b5da075e490c1acc5e06aa2c83c60eddff",
+      "external_context_sources": [
+        "configMap"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "tjorourke/solo-labs/agentic-verdict-hitl-kind/yaml/kyverno/20-verdict-hitl.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c93fc4b5da075e490c1acc5e06aa2c83c60eddff",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "tjorourke/solo-labs/agentregistry-agentcore-kind/deploy/yaml/kyverno/inject-agent-model-key.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "d62a303114d2010099d0363ce48168d38318a958",
+      "reason": "does not parse as YAML",
+      "subject": "toaksoy/ckf-examples/pc-proxy-injection.yaml",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "7b41a34ba65d45844cfb4ef6cef3c9bcf6b5fc6c",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "tuckermclean/k3s-lab/infrastructure/kyverno-policies/policy.yaml",
+      "variable_roots": [
+        "element",
+        "regex_replace_all_literal",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "29e3ad81c1e2adc7a17ed5f554a1298915a8b30c",
+      "reason": "substitutes a variable this test does not judge",
+      "subject": "valdo766hi/devsecops-cicd-ssdf-slsa-evaluation/.github/workflows/security-policy.yaml",
+      "unrecognised_variable_roots": [
+        "github",
+        "steps",
+        "vars"
+      ],
+      "variable_roots": [
+        "github",
+        "steps",
+        "vars"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "a1118c59b5cb351f29edcfc160ce65548adc763f",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vfarcic/dot-ai/examples/policies/enforce-database-regional-deployment.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e5d10a8eb4ef87a77ffd6f105d33bc2bf57ce028",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vinod827/cloudkit-lab/iac/demo/kyvernocon/mistake3_bad_patching.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "e5d10a8eb4ef87a77ffd6f105d33bc2bf57ce028",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vinod827/cloudkit-lab/iac/demo/kyvernocon/solution3_bad_patching.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7a849a4443557c022ebe7a376b3b9a394e63b9c2",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vivek-doshi/devops-playbook/finops/policies/gpu-approval-gate.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "cd5b51137bfc7bb8e5131010cc6d7c02d4a538fb",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "vivsoftorg/PlatformOne-BOA/Infrastructure_as_Code/Modules/kyverno-policies/overlays/audit-only/audit-only.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "cd5b51137bfc7bb8e5131010cc6d7c02d4a538fb",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "vivsoftorg/PlatformOne-BOA/Security/Security_Stack/kyverno-policies/chart/templates/restrict-capabilities.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "0e302afc87997bee8312cc7da25b76815ea01b0c",
+      "reason": "does not parse as YAML",
+      "subject": "vrabbi/tkg-resources/TKG Customization/tkg/providers/ytt/04_user_customizations/kyverno-enforce-policies.yaml",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "20d5c935107497f3c66174888a0d5149aac62ca8",
+      "namespace_selectors": [
+        "exclude.namespaceSelector",
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "waxsd100/k8s-platform/addons/kyverno/base/clusterpolicy-app-scheduling.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "20d5c935107497f3c66174888a0d5149aac62ca8",
+      "external_context_sources": [
+        "apiCall"
+      ],
+      "reason": "a context entry fetches data from outside the admission request",
+      "subject": "waxsd100/k8s-platform/addons/kyverno/base/clusterpolicy-headlamp-backup-ops.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "01114137b9013234b37ca4dbf4ddaff70847e35d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "webgrip/homelab-cluster/kubernetes/apps/kyverno/policies/app/cert-manager-governance.yaml",
+      "variable_roots": [],
+      "verdict": "inside"
+    },
+    {
+      "commit": "01114137b9013234b37ca4dbf4ddaff70847e35d",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "webgrip/homelab-cluster/kubernetes/apps/kyverno/policies/app/exception-governance.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "01114137b9013234b37ca4dbf4ddaff70847e35d",
+      "namespace_selectors": [
+        "match.namespaceSelector"
+      ],
+      "reason": "selects on Namespace labels, which the admission request does not carry",
+      "subject": "webgrip/homelab-cluster/kubernetes/apps/kyverno/policies/app/workload-hardening-audit.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d8de2c533da5a95983fb8e977c17520bf6ff1ab0",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "whchoi98/myeks/kyverno/policy/require-drop-cap-net-raw.yaml",
+      "variable_roots": [
+        "element",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "8d182f1ed29353d155eacfec79dff66e4c4e3dea",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "willbossle/LINUXtips-PICK/manifestos_giropops_senhas/policies_kyverno.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "94a8438918bb4b2c02041ad1a497511ae7dd9e0a",
+      "helm_template": true,
+      "reason": "is a policy schema rather than a policy: a Helm template whose values are bound when the chart is rendered",
+      "subject": "williamsbobby1423/kyverno-helm-templates/charts/require-encrypted-aws-lb/templates/policy.yaml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "28d6c895bf72cb09df8d29bc457b493908bf7c24",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "wolfganghuse/nai-llm-fleet-infra/platform/kyverno/_resource-configs/sync-image-pull-secrets.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "04d05a44b3335ad49eb81befd519c6be2de704a9",
+      "image_verification": true,
+      "reason": "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry",
+      "subject": "youssefzaoujal/securePay/k8s-security/kyverno/verify-cosign.yml",
+      "verdict": "outside"
+    },
+    {
+      "commit": "59525cc9bd65ffce07926d5d0fef235b1f0eb3de",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "yyewolf/infra/flux/platform/kyverno/policies/require-kata-for-privileged.yaml",
+      "variable_roots": [
+        "length",
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "7dc15d9ca1474b7b3052c5bb449f7cd90798532e",
+      "reason": "every guard reads the admission request and literals in the policy",
+      "subject": "zavestudios/gitops/platform/policies/kyverno/enforce/bigbang/disallow-deprecated-apis.yaml",
+      "variable_roots": [
+        "request"
+      ],
+      "verdict": "inside"
+    },
+    {
+      "commit": "31256ba6106075c8b28f8fd999fb682444a0dc90",
+      "context_bound_names": [
+        "example",
+        "expected",
+        "jpExpression",
+        "modifiedObj",
+        "obj",
+        "objName"
+      ],
+      "reason": "binds a context variable this test does not resolve",
+      "subject": "zurrehma/kyverno/test/cli/test/context-entries/policies.yaml",
+      "unresolved_context_bindings": [
+        "name",
+        "{{"
+      ],
+      "variable_roots": [
+        "example",
+        "expected",
+        "jpExpression",
+        "modifiedObj",
+        "obj",
+        "objName",
+        "request",
+        "to_string"
+      ],
+      "verdict": "undetermined"
+    }
+  ],
+  "policies_considered": 400,
+  "policies_unavailable": [],
+  "provenance": "third-party",
+  "repositories": 313,
+  "schema_version": "v1",
+  "share_inside": 0.675
+}

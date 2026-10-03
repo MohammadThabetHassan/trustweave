@@ -1,0 +1,212 @@
+{
+  "ecosystems": {
+    "cedar": {
+      "examined": 875,
+      "frame": 2668,
+      "frame_repositories": 480,
+      "owners": 229,
+      "pool": 3480,
+      "reasons": {
+        "is a policy schema rather than a policy": 8,
+        "uses an operator this test does not judge": 10
+      },
+      "repositories": 248,
+      "sample": {
+        "artifacts": 400,
+        "exclusions_by_kind": {
+          "not a policy": 8
+        },
+        "inside": 382,
+        "outside": 8,
+        "policies": 392,
+        "resting_on_an_undefined_data_document": 0,
+        "schemas": 8,
+        "schemas_outside_a_constraint_context": null,
+        "share_inside": 0.955,
+        "share_inside_of_policies": 0.97449,
+        "share_inside_of_policies_wilson_95": [
+          0.953685,
+          0.986085
+        ],
+        "undetermined": 10
+      },
+      "sampled": 400,
+      "unavailable_when_measured": 0,
+      "vendor": {
+        "artifacts": 22,
+        "exclusions_by_kind": {},
+        "inside": 22,
+        "outside": 0,
+        "policies": 22,
+        "schemas": 0,
+        "share_inside": 1.0,
+        "share_inside_of_policies": 1.0,
+        "undetermined": 0
+      }
+    },
+    "iam": {
+      "examined": 790,
+      "frame": 2226,
+      "frame_repositories": 1240,
+      "owners": 335,
+      "pool": 2902,
+      "reasons": {
+        "is a policy schema rather than a policy": 28
+      },
+      "repositories": 352,
+      "sample": {
+        "artifacts": 400,
+        "exclusions_by_kind": {
+          "not a policy": 28
+        },
+        "inside": 372,
+        "outside": 28,
+        "policies": 372,
+        "resting_on_an_undefined_data_document": 0,
+        "schemas": 28,
+        "schemas_outside_a_constraint_context": null,
+        "share_inside": 0.93,
+        "share_inside_of_policies": 1.0,
+        "share_inside_of_policies_wilson_95": [
+          0.989779,
+          1.0
+        ],
+        "undetermined": 0
+      },
+      "sampled": 400,
+      "unavailable_when_measured": 0,
+      "vendor": {
+        "artifacts": 1651,
+        "exclusions_by_kind": {},
+        "inside": 1651,
+        "outside": 0,
+        "policies": 1651,
+        "schemas": 0,
+        "share_inside": 1.0,
+        "share_inside_of_policies": 1.0,
+        "undetermined": 0
+      }
+    },
+    "kyverno": {
+      "examined": 536,
+      "frame": 3079,
+      "frame_repositories": 1143,
+      "owners": 293,
+      "pool": 4644,
+      "reasons": {
+        "a context entry fetches data from outside the admission request": 18,
+        "binds a context variable this test does not resolve": 2,
+        "does not parse as YAML": 5,
+        "is a policy schema rather than a policy": 58,
+        "reads the clock, which is not part of the subject": 2,
+        "selects on Namespace labels, which the admission request does not carry": 14,
+        "selects on the requester's role bindings, which the admission request does not carry": 1,
+        "substitutes a variable this test does not judge": 5,
+        "verifies an image against a registry, so its guards read a signature or attestation the admission request does not carry": 25
+      },
+      "repositories": 313,
+      "sample": {
+        "artifacts": 400,
+        "exclusions_by_kind": {
+          "not a policy": 58,
+          "reads evaluation-time state": 2,
+          "the subject does not determine the guard": 58
+        },
+        "inside": 270,
+        "outside": 118,
+        "policies": 342,
+        "resting_on_an_undefined_data_document": 0,
+        "schemas": 58,
+        "schemas_outside_a_constraint_context": null,
+        "share_inside": 0.675,
+        "share_inside_of_policies": 0.789474,
+        "share_inside_of_policies_wilson_95": [
+          0.743172,
+          0.829345
+        ],
+        "undetermined": 12
+      },
+      "sampled": 400,
+      "unavailable_when_measured": 0,
+      "vendor": {
+        "artifacts": 237,
+        "exclusions_by_kind": {
+          "the subject does not determine the guard": 31
+        },
+        "inside": 206,
+        "outside": 31,
+        "policies": 237,
+        "schemas": 0,
+        "share_inside": 0.869198,
+        "share_inside_of_policies": 0.869198,
+        "undetermined": 0
+      }
+    },
+    "rego": {
+      "examined": 369,
+      "frame": 5274,
+      "frame_repositories": 1632,
+      "owners": 224,
+      "pool": 7409,
+      "reasons": {
+        "calls a builtin whose result is not a function of its arguments": 15,
+        "calls a name this test cannot resolve": 10,
+        "does not parse as Rego v1 or v0": 5,
+        "is a policy schema rather than a policy": 7,
+        "reaches outside through abbey.functions.expire_after, which calls a builtin whose result is not a function of its arguments": 1,
+        "reaches outside through configuration.env, which calls a builtin whose result is not a function of its arguments": 1,
+        "reaches outside through ibmcloud.state.get_resources, which reads a data document the bundle does not define": 1,
+        "reaches outside through lib.rule_data.get, which reads a data document the bundle does not define": 1,
+        "reaches outside through policies.util.common.originalRecord.is_active, which calls a builtin whose result is not a function of its arguments": 1,
+        "reads a data document the bundle does not define": 37,
+        "reads a document the host injects": 2
+      },
+      "repositories": 236,
+      "sample": {
+        "artifacts": 300,
+        "exclusions_by_kind": {
+          "not a policy": 7,
+          "reads evaluation-time state": 18,
+          "the subject does not determine the guard": 41
+        },
+        "inside": 219,
+        "outside": 66,
+        "policies": 293,
+        "resting_on_an_undefined_data_document": 41,
+        "schemas": 7,
+        "schemas_outside_a_constraint_context": 0,
+        "share_inside": 0.73,
+        "share_inside_of_policies": 0.74744,
+        "share_inside_of_policies_wilson_95": [
+          0.694708,
+          0.793768
+        ],
+        "undetermined": 15
+      },
+      "sampled": 300,
+      "unavailable_when_measured": 0,
+      "vendor": {
+        "artifacts": 273,
+        "exclusions_by_kind": {
+          "not a policy": 61,
+          "reads evaluation-time state": 1,
+          "the subject does not determine the guard": 42
+        },
+        "inside": 169,
+        "outside": 104,
+        "policies": 212,
+        "schemas": 61,
+        "share_inside": 0.619048,
+        "share_inside_of_policies": 0.79717,
+        "undetermined": 0
+      }
+    }
+  },
+  "exclusions": 220,
+  "exclusions_unclassified": 0,
+  "measured": 1500,
+  "repositories": 1149,
+  "sampled": 1500,
+  "schema_version": "v1",
+  "taxonomy_holds": true
+}

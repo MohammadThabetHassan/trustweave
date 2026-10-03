@@ -195,13 +195,15 @@ def test_the_report_says_whether_each_checkout_was_complete() -> None:
             assert entry["checkout_was_complete"] is True, (row["artifact"], entry["name"])
 
 
-def test_the_third_party_corpus_was_refetched_and_its_decay_recorded() -> None:
-    """A corpus collected by code search does not stay fetchable, and that is a finding.
+def test_the_third_party_corpus_was_refetched_and_every_file_verified() -> None:
+    """A re-fetch that cannot tell a failed request from a missing file reports decay.
 
-    Re-fetching the 49 files at the commits the manifest records found 18 gone three weeks
-    later. Every one that could be fetched still hashed to its recorded sha256 and was
-    judged identically, so the corrected Kyverno adapter leaves the third-party verdicts as
-    measured; the 18 rest on the verification done when they were collected.
+    The first re-fetch of the 49 files, three weeks after they were collected, reported 18
+    gone: its fetch did not fail on an HTTP error, retried nothing, and counted every request
+    that did not return the recorded digest as a file that no longer exists. Re-fetched with
+    a client that retries and says how each request failed, all 49 hashed to their recorded
+    sha256 and were judged identically. The artifact keeps the superseded run beside the
+    current one, so the correction is on the record rather than in place of it.
     """
 
     for candidate in (ROOT, *ROOT.parents):
@@ -222,4 +224,9 @@ def test_the_third_party_corpus_was_refetched_and_its_decay_recorded() -> None:
         + revalidation["files_no_longer_available"]
         == 49
     )
-    assert revalidation["files_no_longer_available"] == 18
+    assert revalidation["files_no_longer_available"] == 0
+    assert revalidation["counts_among_those_refetched"] == measured["counts"]
+    # Every failure the current run could record says how the request failed.
+    assert all(item["failure"] for item in revalidation["unavailable"])
+    assert "--fail" in revalidation["fetch"]["command"]
+    assert revalidation["supersedes"]["files_no_longer_available"] == 18

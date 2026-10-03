@@ -1,0 +1,3596 @@
+{
+  "corpus_scope": "third-party",
+  "counts": {
+    "inside": 382,
+    "outside": 8,
+    "undetermined": 10
+  },
+  "ecosystem": "cedar",
+  "excluded_owners": [
+    "amazon-archives",
+    "amzn",
+    "aws",
+    "awsdocs",
+    "awslabs",
+    "cedar-policy"
+  ],
+  "how_collected": "GitHub code search, each query split into eight size shards and read to at most 400 results per shard; the pool filtered to a frame and the frame shuffled with the recorded seed and walked under the recorded caps, as scripts/third_party_sample.py states",
+  "owners": 229,
+  "policies": [
+    {
+      "commit": "fccb60a357e3bb340f5e6d138a67abccbdd5ffd6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Aeluin-Technologies/Galadril/schemas/spicedb/examples/contextual-constraints.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "18865ab2137fd99164577b22d58340531e6336c5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Agentcygroup/tmig-full/extensions/embeddings/domain.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "18865ab2137fd99164577b22d58340531e6336c5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Agentcygroup/tmig-full/policies/boundaries.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "18865ab2137fd99164577b22d58340531e6336c5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Agentcygroup/tmig-full/policy/rules/14-nist-ai-rmf.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8646c08dabda6984d27e6f67d282887e9e7694fd",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ajeetmaurya395/civicsahayak/backend/policies/ai_agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8646c08dabda6984d27e6f67d282887e9e7694fd",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ajeetmaurya395/civicsahayak/backend/policies/citizen.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ebc99e7823a701d18b14330e232e6058a128479a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ajeetmaurya395/paradox/backend/policies/owasp_security.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "42938bdea5c2981493412a858109b2c0e3a0ca84",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Anumehajain78/promptfence/backend/policies/forbid-support-delete.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8c88d6fe49ae4cbc4839bd664cdd8dd7be2ef7a7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ArushJain-697/Pratidaava/policies/coverage.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "45d96f5baf20c6d6dc9a5442be93e23f652e08c9",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Bharathhh30/Food-Shield/policies/foodshield.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9b04ea489897b95a6cc905a6a9be7d46beba943e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "BigHandsDan/molt/packages/permit/policies/default.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fef297519c7faef456eec99783c234b8fddc4a1e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "BriceKrispies/atlas/specs/policy-fixtures/badge-family-rbac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fef297519c7faef456eec99783c234b8fddc4a1e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "BriceKrispies/atlas/specs/policy-fixtures/cli/bad-action.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fef297519c7faef456eec99783c234b8fddc4a1e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "BriceKrispies/atlas/specs/policy-fixtures/cli/dsl-expression-default.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d90c699645face75a4f072ffc87c517263cf4c38",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "BugHunterX2101/cell-guard/gateway-policy/policies/policies/01-forbid-delete-customer-record.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d90c699645face75a4f072ffc87c517263cf4c38",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "BugHunterX2101/cell-guard/gateway-policy/policies/policies/05-permit-wire-transfer-within-threshold.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3501086ef87891256fc46c218f2ca32a1a054610",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "CSNEHA20/policylab/fixtures/docvault/docvault_baseline.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3501086ef87891256fc46c218f2ca32a1a054610",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "CSNEHA20/policylab/fixtures/docvault/docvault_fixed.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3501086ef87891256fc46c218f2ca32a1a054610",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "CSNEHA20/policylab/fixtures/valid_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4364484380315b17d9204beb289f111977682270",
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [
+        "contains",
+        "isInRange",
+        "isLoopback"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "CSOAI-ORG/councilof-ai/harness/openshell-cedar/out/deny.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4364484380315b17d9204beb289f111977682270",
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [
+        "contains",
+        "isInRange",
+        "isLoopback"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "CSOAI-ORG/councilof-ai/harness/openshell-cedar/out/unknown-field.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4364484380315b17d9204beb289f111977682270",
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [
+        "contains",
+        "isInRange",
+        "isLoopback"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "CSOAI-ORG/councilof-ai/harness/openshell-cedar/out/unknown-top-level.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "444b72ce92bcc65c871271a02a9243328648c2b5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ChiragAgg5k/sahyog-opal-cedar/policy/admin.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "444b72ce92bcc65c871271a02a9243328648c2b5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ChiragAgg5k/sahyog-opal-cedar/policy/user.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5965e812638b03cf56dba0710bbcd347565e3a59",
+      "constructors": [
+        "decimal",
+        "ip"
+      ],
+      "method_calls": [
+        "isIpv6",
+        "lessThan"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "CosimoMatassini/university-cedar-experience/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e31539337b26fdcee0bc559a7b2e0dd459da3d52",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Dahkenangnon/cedarling-lab/taskapp/idp/policies/signed.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e810703b74ff13beded267ad3297ea3ec86dac07",
+      "constructors": [],
+      "method_calls": [
+        "containsAny"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "DevNico/cedar4s/examples/docshare/src/main/resources/policies/docshare.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e810703b74ff13beded267ad3297ea3ec86dac07",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "DevNico/cedar4s/modules/bench-integration/src/main/resources/policies/ownership.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e810703b74ff13beded267ad3297ea3ec86dac07",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "DevNico/cedar4s/modules/client/src/test/resources/test-policies/ownership.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bcc13b144b17a34d7a897d135e1b983cdc6e7553",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Diekgbbtt/cloud-native-mobile-app/terraform/modules/verifiedpermissions/policies/dailypost_mutation.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bcc13b144b17a34d7a897d135e1b983cdc6e7553",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Diekgbbtt/cloud-native-mobile-app/terraform/modules/verifiedpermissions/policies/disabled_users.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bcc13b144b17a34d7a897d135e1b983cdc6e7553",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Diekgbbtt/cloud-native-mobile-app/terraform/modules/verifiedpermissions/policies/event_create_forbid_global.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d364a95ff7e3e5e42ec49dd8614f5206bf592960",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAny"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Diekgbbtt/events-platform-webapp/EventPlatformFlask/src/cedar/main.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5e8d3d6b8c95aec8558d62ab9cc54576ceef25e2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ElevenID/Marty/packages/marty-common/marty_common/cedar/approval_rules.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5e8d3d6b8c95aec8558d62ab9cc54576ceef25e2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ElevenID/Marty/packages/marty-common/marty_common/cedar/credential_verification.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d07bde3672594508c51a4d60ae38cc6578c2e28a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "EnzoTironi/OS/e2e/evolution-breaking/lifecycle.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8496b5d27b8457531013a82c8dafc472e79770d1",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Firma-AI/openfirma/examples/demos/demo2/issuance-policies/issuance.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8496b5d27b8457531013a82c8dafc472e79770d1",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Firma-AI/openfirma/examples/demos/demo2/policies/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8496b5d27b8457531013a82c8dafc472e79770d1",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Firma-AI/openfirma/examples/policies/credential.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "807888baa939cfb4ceb48074bb262efc34e2eb83",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "GluuFederation/GluuFlexAdminUIPolicyStore/admin_ui_2_0/policies/AuditorCanManageDashboard.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "69f7dbfbb0cffaf1a5805d16f74bf402ac575241",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "GluuFederation/cedarling-tutorials/p2-tenantrag/policy-store/policies/server-access.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "321b61336eeefe5dcc4eb078d4127cac47d9c164",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Govcraft/mail-laser/policies/example.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "88737683652749ea1f2cfbadca758a1369af075d",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Govcraft/talon-hub/policies/permissions.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "34a14aa9c21dba4c23bf6eb1442e8a8c0f817ca6",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Govcraft/talon/policies/talon.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "324dc4386c68d7c1f1b7d85c98ee20b91e6f3ada",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAll",
+        "isEmpty"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "GusEllerm/memgate/memgate/src/memgate/policies/memgate.cedar",
+      "unrecognised": [
+        "isEmpty"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "c060179fc4cc0ee256150d33855cf6770daf9d49",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Harish-0412/AWS---Foundations/agent/policies/findings/03-auth.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c060179fc4cc0ee256150d33855cf6770daf9d49",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Harish-0412/AWS---Foundations/agent/policies/findings/06-compound.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c060179fc4cc0ee256150d33855cf6770daf9d49",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Harish-0412/AWS---Foundations/agent/policies/remediation.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fa0ad130eb5fed61403922b08dbd66ab5510d6cd",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "INTENTIUS/chant/lexicons/cedar/src/import/testdata/simple.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b6be6f3d9707242dd8bea9dd2e984f7ca1c7e80e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Iamritupatil/AgentGate/policies/execute.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b6be6f3d9707242dd8bea9dd2e984f7ca1c7e80e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Iamritupatil/AgentGate/policies/request_approval.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e82f6c2b08c0b49c525197e4293232dbcebb505f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "J466Y/WhiteTower/test/conformance/vectors/bundles/unsupported-algorithm/policies/global/0192f1c2-7a3b-7c4d-8e5f-000000000101.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "91b37e4d5aa13a0c51b4762bd313bcb2944269b4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JCDubs/serverless-cedar-authorisation/common-sdk/src/authorization-service/authorization-tests/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1beeacdd623cc6e4904c2ea1d19d08409d88bba0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JKSNS/claude_preflight/governance/policy/cedar/deployment.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1beeacdd623cc6e4904c2ea1d19d08409d88bba0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JKSNS/claude_preflight/governance/policy/cedar/shell.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1beeacdd623cc6e4904c2ea1d19d08409d88bba0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JKSNS/claude_preflight/governance/policy/cedar/upstream.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "08b1fdc62bbe49c7e2600b5af6ce592238262c3a",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JanssenProject/CedarlingQuickstart/tarpDemo/policies/cannot_write_if_not_admin.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6089c64257f335fdf9efef4b21a4061b00c845d",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JanssenProject/jans/jans-core/cedarling/src/test/resources/test-policy-store/policies/audit/log_bulk_write.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6089c64257f335fdf9efef4b21a4061b00c845d",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JanssenProject/jans/jans-lock/lock-server/service/src/main/policy_store/policies/audit/telemetry_bulk_write.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6089c64257f335fdf9efef4b21a4061b00c845d",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JanssenProject/jans/jans-lock/lock-server/service/src/main/policy_store/policies/policy/policy_get.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "610f1f34ab829dbd5f4d6cba62caa030009eb53f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JohnChe88/AgentAI-Data-Operation/shared/policies/guardrails/int_002_fk_integrity.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "610f1f34ab829dbd5f4d6cba62caa030009eb53f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JohnChe88/AgentAI-Data-Operation/shared/policies/guardrails/ops_002_encryption_rekeyed.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "610f1f34ab829dbd5f4d6cba62caa030009eb53f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "JohnChe88/AgentAI-Data-Operation/shared/policies/guardrails/sec_003_pii_masking.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5d10aac667fab7c01776f9383e8e34328f0047e7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "KeyRack-io/keyrack/demos/04-hyok-full-stack/config/cedar-policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27f3c32ac6fb824cb61f1bd5643d9883ad57f28c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Lakshmi786/Verisettle/policies/01-agent-approval-threshold.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27f3c32ac6fb824cb61f1bd5643d9883ad57f28c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Lakshmi786/Verisettle/policies/02-first-seen-vendor-dual-approval.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27f3c32ac6fb824cb61f1bd5643d9883ad57f28c",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Lakshmi786/Verisettle/policies/04-tool-allowlist.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2bd2c960c6a3370414ee44c92bedf0e8ffaccebc",
+      "constructors": [
+        "datetime",
+        "decimal",
+        "ip"
+      ],
+      "method_calls": [
+        "contains",
+        "isInRange",
+        "isLoopback",
+        "lessThanOrEqual",
+        "toDate"
+      ],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "Letanyan/Genshin_Team_Calc/public/modules/ace-builds/demo/kitchen-sink/docs/cedar.cedar",
+      "template_slots": [
+        "?principal"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "a08d0e24d8e1c0929c83bdb87952988309a00040",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "MRob87/ai-grounded-you-news/governance-commons/policies/agent-trust-decay.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a08d0e24d8e1c0929c83bdb87952988309a00040",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "MRob87/ai-grounded-you-news/governance-commons/policies/no-credential-paths.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b83ece03c310cc3111b40c496b20047ecd75fea3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Marioiubas/sandbox/code/policies/ceiling.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c638026cc48d24e3543699b4d38b2aa887cfbd68",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Marty-Protocol/Marty-Protocol/cedar/policies/canvas_approval_examples.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c638026cc48d24e3543699b4d38b2aa887cfbd68",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Marty-Protocol/Marty-Protocol/cedar/policies/credential_verification.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c638026cc48d24e3543699b4d38b2aa887cfbd68",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Marty-Protocol/Marty-Protocol/cedar/policies/machine_authorization.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7625f2d16b8aff0790b3b2daff12555c075d501a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "MeloveGupta/agent-jail/policies/agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d248ddcd8e25fda3993aa92d2a739b28e7ba895f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Mohammed-AjmalRais/AWS-Hackthon/cedar/policies/certificates.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "25babc0e31fb7ad0b64d5690b3740d3bc9322d28",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "MythologIQ-Labs-LLC/Qor-logic/qor/policies/owasp_enforcement.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2be2d091f0c9319857949bece28695e7a799b761",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Neosofia/authentication/policies/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "db095f961bc24f9a40e950a5edccda46f452da8a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Obelus-Labs-LLC/Aether/aether-ref/deploy/authz-policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "95c7a923f54d545518774931fba46231a50505dc",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Obrazcoff/quorum-wip/authority/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "03039c964329dcdf3394fafce8f57a23490d1360",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ParvGoyal08/DoseCircle/cedar/policies/owners-manage-members.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "980fc0c561651ba3959144023306532e85e6b9cf",
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [
+        "isInRange"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "PaulDuvall/ai-development-patterns/examples/policy-generation/iam_permissions.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7dd556f5ae5ecc772ab42d23b7db283d4c107d03",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Pigius/avp-cli/scenarios/documentsScenario/deny_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7dd556f5ae5ecc772ab42d23b7db283d4c107d03",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Pigius/avp-cli/scenarios/ecommerceCognitoGroupsScenario/allow_policy_1.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "eeab1fb0add9bdb55c42cb659deeacdaba4ce416",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Pigius/awesome-amazon-verified-permissions-and-cedar/terraform/scenarios/documentsScenario/deny_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a1e1c1063345f3c95b9c24630c6c0033cc487a0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Pigius/cedar-mcp-server/examples/rbac-document-management/policies/top-secret-forbid.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "31b5259f29ee823ac23f8d7571b818bf5f609c71",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "QuentinCody/interlinked-cli/docs/examples/policies/disk-forensics/skill-disk-forensics.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3f483fffd930e675bb4e0d1537e741c592ba76c6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Rartemos/tau2-cedar/cedar/policies/airline/permit.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "82b49ee7acdc0aaba4144666e287178a5e0fe5d7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "ReubenKabiti/tinytodo/policies-templates.cedar",
+      "template_slots": [
+        "?principal",
+        "?resource"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "dbd5fff7fb5686ef39790e3c85152f39cc7cd68b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Rubentxu/hodei-verified-permissions/examples/app/config/policies/admin.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dbd5fff7fb5686ef39790e3c85152f39cc7cd68b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Rubentxu/hodei-verified-permissions/examples/app/config/policies/vet.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dbd5fff7fb5686ef39790e3c85152f39cc7cd68b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Rubentxu/hodei-verified-permissions/examples/policies/allow_admin_full_access.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "35aabb37ebdc3f0214c9789e63a6102b46b13051",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ryanrezzz/Iteration0Sentinel/policies/v1/authz.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "35aabb37ebdc3f0214c9789e63a6102b46b13051",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ryanrezzz/Iteration0Sentinel/policies/v1/decisions.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e930122d5bdd0b26ff1f5f171fcdbd2c9ba603f8",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "SafetyMP/FidusGate/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "10681368e7d7da7d0b51570b7bb8e3555d55e33f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Samrudh2006/-OmniRevive-OS/aws/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f4d22e59b50f0c48e0cd480fcb4c5fb76894d009",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ScopeBlind/examples/claude-code-hooks/policies/default.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d7b20db04c97058960c8f03b8f498e0419a77cd7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ShashankVaish/address-simplfy/backend/layers/common/python/patasetu/policies/contact.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e9cc7cca4fb038fe96613f9f1926e605b4a03f0e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Shashidhar-Pawadashetti/cedarguard/policies/r1_s3_public.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e9cc7cca4fb038fe96613f9f1926e605b4a03f0e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Shashidhar-Pawadashetti/cedarguard/policies/r5_no_mfa_condition.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "373a0dfa0886c229e62d1a1424d95b95d21a71db",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "SiddhanthKapoor/civicproof/policies/case-actions.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0536d4ad704f1d644b5e0604a2901b752cb0e4e3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "TSaiPradyumna/ShiftFair-V2/cedar-policies/shiftfair.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f00d9ae729f44eb0f78c013ad6283db6208c2fb7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "TheFellow/go-modular-monolith/app/domains/ingredients/authz/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f00d9ae729f44eb0f78c013ad6283db6208c2fb7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "TheFellow/go-modular-monolith/app/domains/menus/authz/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f00d9ae729f44eb0f78c013ad6283db6208c2fb7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "TheFellow/go-modular-monolith/app/domains/orders/authz/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "89fec3e7d3ef6a24e3cdd02951cbbb34e031fbf7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "TraceFold/tracefold/crates/gx-adapter-mcp/tests/fixtures/github-target-a2.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "89fec3e7d3ef6a24e3cdd02951cbbb34e031fbf7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "TraceFold/tracefold/crates/gx-adapter-mcp/tests/fixtures/notion-target-a2b.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "89fec3e7d3ef6a24e3cdd02951cbbb34e031fbf7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "TraceFold/tracefold/crates/gx-cli/tests/fixtures/deny-mcp-note.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c20ce34572de732d599106d6f5fad94ac69b92b3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "UQ-PAC/RSVP/rsvp/policy-dl/src/test/resources/translation/github/github.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c20ce34572de732d599106d6f5fad94ac69b92b3",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAny"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "UQ-PAC/RSVP/rsvp/policy-dl/src/test/resources/translation/petclinic/petclinic.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c20ce34572de732d599106d6f5fad94ac69b92b3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "UQ-PAC/RSVP/rsvp/policy-dl/src/test/resources/translation/primitive-types/long-3.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "30339e1a392a411ba881e91d1eb12a47d78c1073",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "VineetKamath/trustline/infra/cedar/policies/forbid-raw-values.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "30339e1a392a411ba881e91d1eb12a47d78c1073",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "VineetKamath/trustline/infra/cedar/policies/forbid-unregistered-verifier.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1ad34c9b26f12927ea7234ef6c9f213bf7a943db",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Vishallakshmikanthan/cedar-demo-template/cedar-demo-template/policies/03-inactive-deny.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4d768bef4c8d91fcd8638affd5cd69b0ee53af28",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ziack/s2s-m2m-identity-stack/examples/migrations/from-passport-jwt/after/policies/orders.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4d768bef4c8d91fcd8638affd5cd69b0ee53af28",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ziack/s2s-m2m-identity-stack/packages/cedar-policies/policies/accounts.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4d768bef4c8d91fcd8638affd5cd69b0ee53af28",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Ziack/s2s-m2m-identity-stack/packages/cedar-policies/policies/payments.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dfcafdfbbf2191ee48921207c5c8a8ca77da957b",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAll"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "Zynapses/Radiant/infrastructure/cedar/policies/base.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dfcafdfbbf2191ee48921207c5c8a8ca77da957b",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAny",
+        "size"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "Zynapses/Radiant/packages/infrastructure/config/cedar/interface-access-policies.cedar",
+      "unrecognised": [
+        "size"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "3a3d19779f79040242ad7db7bd08fd30c0dbd84f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "aadk979/SPOH_2027/remediation/reports/P05/cedar/policies/attendance.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3a3d19779f79040242ad7db7bd08fd30c0dbd84f",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "aadk979/SPOH_2027/remediation/reports/P05/cedar/policies/grants.generated.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4a8f146cb1ec6b9182da6a9b137974297e254d25",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "aashutoshkumarbhardwaj/AgentGuard/backend/app/security/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6172254bf8a219f34f195e7ffdeb4f7dfd769e6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "abhinavg6/yutha/crates/yutha-diff/tests/fixtures/tightened.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e4ecaf56b31aeed2e93c91ab0ce26424ae197e54",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "acgs-ai/enhanced-agent-bus/cedar/policies/rbac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d822e805b20501a3c2bff89dc1db3e305da546bf",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "adityagupta708481-cell/SocraticDSA/socratic_dsa/policies/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "34c1df64c9c7bc124a306c7afabfb67ee2d9c781",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "aeterna-universe/aeterna/policies/cedar/forbid.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0801cd6f48970e1f2c6c5a9fb7b594c990a90577",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "agentrust-io/integrations/examples/financial-services/policy/allow.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0801cd6f48970e1f2c6c5a9fb7b594c990a90577",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "agentrust-io/integrations/examples/healthcare/sg-moh/policy/radiology-sg.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0801cd6f48970e1f2c6c5a9fb7b594c990a90577",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "agentrust-io/integrations/examples/multi-tenant-saas/tenants/metzler-eu/policy/allow.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f43d1a7b4141783d522eb24ded153ca13bcf76b6",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "alejandro-publius/agents-for-humans/infra/agentcore/policy/forbid_unknown_elevator.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f43d1a7b4141783d522eb24ded153ca13bcf76b6",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "alejandro-publius/agents-for-humans/infra/agentcore/policy/forbid_unknown_option.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f43d1a7b4141783d522eb24ded153ca13bcf76b6",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "alejandro-publius/agents-for-humans/infra/agentcore/policy/forbid_unknown_station.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ee3cb3a20790dd64458d9039e3325b1986a774f0",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "alpaylan/cedar-etna/cedar-lean-cli/examples/analyze/sets/tgt2.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ee3cb3a20790dd64458d9039e3325b1986a774f0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "alpaylan/cedar-etna/cedar-lean-cli/examples/analyze/view_box/policies6.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ee3cb3a20790dd64458d9039e3325b1986a774f0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "alpaylan/cedar-etna/cedar-lean-cli/examples/analyze/view_box/policies9.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e6c13bdc88979f2c1577a966ae524e05142ef93a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ankan288/SentinalFlow/backend/infrastructure/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "00ffd5ead9a3c4977a3917b004821df34c12bb3a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "anthemist/cautious-invention/cedar/policies/admin-user-management.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "52088c179d78e414db1a49e98e4853eaec9a7648",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "arcadeai-labs/safe-hands/laws.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fd0437ec6728eb12d711ceac7ff889446715364f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "arj-co/secval/policies/procurement-approval-limit.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b9279fc489c46106f79ca8f6b6c5932e0ce56f23",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "arushshinde2712-del/AWSrengers-Infinity-Toolbox/backend/guardrail.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e4044780ed724f5207e297b21a29c628161230a2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "aslitaser/infra-sentinel/policies/base.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e4044780ed724f5207e297b21a29c628161230a2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "aslitaser/infra-sentinel/policies/infra.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ecfcfb097e0d0fd193638652c45913126b552422",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "atomicgravity/postern/terraform/postern-broker/cedar/starter.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9703f549830b5424ec71c770e1b10e01432bfa26",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "babasyed07/docs/reva-agentic-sample-policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "baoqger/agt-fork/examples/cedarling-governed/policy-stores/unsigned/policies/forbid-write.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "baoqger/agt-fork/policy-engine/policy/cedar-lib/content_hash.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "baoqger/agt-fork/policy-engine/policy/cedar-lib/patterns.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "67bfa513a38ab583aa15af9a92e21f0f939107a9",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "bernard-kavanagh/tidb_agentcore_gateway_mcp_tools/cedar/tenant_isolation.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "46bbb0bbdf24193a49b7e9c3b488976d09746a62",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "blaxmankumar/cloud-notes/policies/group-policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b348bb216b52184f07d1decd2126f51c5901e03c",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "blind-insight/blind-policy/src/blind_policy/bundled/policies/us-health.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f4b612d627a0b985d0af6b970dd094ade8ce2316",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "burdettadam/cedar_py/examples/cli_example.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f4b612d627a0b985d0af6b970dd094ade8ce2316",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "burdettadam/cedar_py/examples/example_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5a5b3925e68a34a1e00170d8f606330ff6e612c0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "busyfit-admin/gmv-back-end-v2/permissions_tests/admin/admin-role.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "52810c876d5e8f663291242883bbf6c31c0fd011",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "cameronwc/sluice-ai/packages/policy-engine/policy_packs/confidential-marker-block.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "52810c876d5e8f663291242883bbf6c31c0fd011",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "cameronwc/sluice-ai/packages/policy-engine/policy_packs/enterprise-account-enforcement.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ca7ae8a6250f2af3623d0c0cad26c9710a6bbc4d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "casselc/observability/otel-chdb/grants/examples/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ca7ae8a6250f2af3623d0c0cad26c9710a6bbc4d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "casselc/observability/otel-chdb/grants/examples/rejected.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d92782a7ef1c5b77fa7f5a27db3c5d9eb5f10e08",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "cdupuis/sbx-warden/policies/readonly.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d92782a7ef1c5b77fa7f5a27db3c5d9eb5f10e08",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "cdupuis/sbx-warden/policies/root.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d92782a7ef1c5b77fa7f5a27db3c5d9eb5f10e08",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "cdupuis/sbx-warden/policies/worker.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "841f7414188ddd07e8be932441a75d9bb055acac",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "chf3198/megingjord-harness/inventory/cedar-policies/signer-alias-canonical.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a4b9572153b4e6974c1618aed22c9507491b419c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "chrisbennight/waygate/crates/waygate-authz/tests/fixtures/policies/20-example-mail-admin.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a4b9572153b4e6974c1618aed22c9507491b419c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "chrisbennight/waygate/crates/waygate-authz/tests/fixtures/policies/20-example-security.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a4b9572153b4e6974c1618aed22c9507491b419c",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "chrisbennight/waygate/crates/waygate-authz/tests/fixtures/policies/40-cross-app-access.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b047779d84e3ecf6cbb42447e27bcdf6f0a3aa0e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "codeasice/agentcore-presentation/infra/policy/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b709090c8a214734acaea91e4bac76b3c161313d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "common-fate/cedar-training/oncall/04_combine_on_call_with_group_membership.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0790a7584a5a7f719f9aa1bcd2e17768ecb7d154",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "common-fate/cedar-validate-action/testing/valid.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f8f69c973304dc2ac3311d26fbaa39dbfed6bfa9",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "complytime-labs/complytime-core/internal/locker/testdata/test-service-policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1f3ed00bbff3ca016c7fcd5c288f0b4e6465c03a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "coolchigi/GenAI-Dev/strands-agent-lab/05-agentcore/cli/07_policy_guardrails/policies/allow_safe_tools.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "40df0ccb09e32a479988bba0ba039356feef7fad",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "crystal-warden/prism-path/prismpath/comparisons/systems/cedar/generated/sensor_interlock/sensor_interlock.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2b4bbb067e8f9ffb58a08c95999bda2d15b08c3a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "data-guru0/Financial-Agent-with-AI-Governance/policies/03-payment-execution-exclusive-ledger-write.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b8ec5375a13e5052c498d1ce978d74265fd7922a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "diegopacheco/rust-playground/cedar-policy-fun/policies/s3_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "996d756de1013b7ae209a14f566a80375a59f2f0",
+      "constructors": [],
+      "method_calls": [
+        "isEmpty"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "dogwood-policy/dogwood/dogwood-language/tests/passing/cedar_only/corpus_fuzz/7e4d15157d23d93e3e8cbe51a1ebc797cd9c1bfe.cedar",
+      "unrecognised": [
+        "isEmpty"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "996d756de1013b7ae209a14f566a80375a59f2f0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "dogwood-policy/dogwood/dogwood-language/tests/passing/cedar_only/corpus_fuzz/98d341ab6fd66f2c71bb34b015f2ce42a4b59aa8.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "996d756de1013b7ae209a14f566a80375a59f2f0",
+      "constructors": [],
+      "method_calls": [
+        "containsAny"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "dogwood-policy/dogwood/dogwood-language/tests/passing/cedar_only/corpus_fuzz/b04492e19e02f5a382163795b935c9267b702001.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "782154dcbdea22248898c0dbe740f95af4b9547e",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "dome-systems/demo-hr-desk/delegated-hr.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "782154dcbdea22248898c0dbe740f95af4b9547e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "dome-systems/demo-hr-desk/hr-assistant.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "28454592c4849f4c813d265d925d77de462fc383",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "donta-dalpoas/AWS-Blue-Team/policies/cedar/compliance-auditor.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "28454592c4849f4c813d265d925d77de462fc383",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "donta-dalpoas/AWS-Blue-Team/policies/cedar/executive-summary.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "74d118ae9e0078d1ac2acbfd0abe983cc5412424",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "duttarnab/CedarligngUpgradeTest/myStore2/policies/AdminCanManageAuthServerConfiguration.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9424cbf250f4641ad12131d2489370ad8b5bcb03",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "engnaman7752/Yojna-Sathi/backend/src/main/resources/cedar/policies/00-citizen-own-household.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9424cbf250f4641ad12131d2489370ad8b5bcb03",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "engnaman7752/Yojna-Sathi/backend/src/main/resources/cedar/policies/10-operator-registered-with-consent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9424cbf250f4641ad12131d2489370ad8b5bcb03",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "engnaman7752/Yojna-Sathi/backend/src/main/resources/cedar/policies/50-maker-checker-publish.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bc53bb2de8342080af4d2e04f9aa5425ad28e923",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "eterna2/kest/libs/kest-core/python/src/kest/core/policies/bell_lapadula.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bc53bb2de8342080af4d2e04f9aa5425ad28e923",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "eterna2/kest/showcase/kest-lab/cedar/policies/gateway_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "foalem/Pac-paper/data_analysis/policies/Cedar Policy Language (CPL)/cedar-policy__cedar/arith.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "foalem/Pac-paper/data_analysis/policies/Cedar Policy Language (CPL)/cedar-policy__cedar/policies_4.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "foalem/Pac-paper/data_analysis/policies/Cedar Policy Language (CPL)/celest-dev__celest/cloud.projects.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1b4dcd13dbd71ae5ffc7d4c7b76010ba60ce2860",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "fossamagna/amplify-verified-permissions-examples/amplify/authz/policies/contributor.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9dbd602408d1dc6dcde3fc4625d6c4b9bbc21741",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "getpaidhqco/getpaidhq/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1be3875d07247990e3849b2f2e623f4cc086e7dc",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "gitUrLifeTogether/hallmark/policies/email.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "aecc11a98b2748eeabc73f163f7dc5fa796f53b4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "gitmono-dev/mega/saturn/mega_policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8194ab0c30b68ead401dc93be2f7ba3ed42425d0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "goraiabhijit/pr-gatekeeper/security.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e01d4b7e4021ed382f75b6175e2cd74ae1f6c77a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "goropikari/misc/cedar/02_rbac/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0cfe5046c9efb3a2bcf65d6f23a2d212d4564f3c",
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [
+        "containsAny",
+        "isInRange",
+        "isIpv4",
+        "isLoopback"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "gravitational/policy-languages-framework/testcases/testcase-25/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "379cd2d92387b34573e2d5648717a7fb0161f73c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "guyco3/burr/crates/cli/src/assets/default_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "872f7410fd132d0a549d25b0ecb6f675ab4daca5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hakanson/that2024/cedar/JaneVacation.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "872f7410fd132d0a549d25b0ecb6f675ab4daca5",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hakanson/that2024/cedar/Photo-labels-private.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "872f7410fd132d0a549d25b0ecb6f675ab4daca5",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "hakanson/that2024/cedar/testdata/temppolicies.cedar",
+      "template_slots": [
+        "?principal",
+        "?resource"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "329da62286426cb54d4b981c115311c2f74a6b24",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "harshendram/firstcommit-hack/ally/policy/base.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c80d0ae0c1c5265cc56ba8fc5dfcc94ce4390cca",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hashintel/hash/libs/@local/graph/authorization/rust/tests/policies/definitions/permit-instantiate.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f0676d13533c527144883e86dbc8b94b1c092b8c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hatan4ik/prompts-and-agents/upstreams/wshobson-agents/plugins/review-agent-governance/policies/review-agent-governance.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e634c199f36e7b0789550d3b87510f574d8466ca",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "henrikrexed/ChatloopbackOff-Cedar/deploy/cedar-policies/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4d4721990d24fffac4cf40597d300dee3cdc15e3",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "heurema/cak/experiments/predicate-language/cedar/block.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4c8fdb09092ef95236f2125f66c6b78230253eff",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "heutelbeck/cedar-benchmarks/cedar-policy-language-in-action/PhotoApp/photoapp.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4c8fdb09092ef95236f2125f66c6b78230253eff",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "heutelbeck/cedar-benchmarks/oopsla2024-benchmarks/openfga-examples/gdrive-templates/policies.cedar",
+      "template_slots": [
+        "?principal",
+        "?resource"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "4c8fdb09092ef95236f2125f66c6b78230253eff",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "heutelbeck/cedar-benchmarks/oopsla2024-benchmarks/openfga-examples/github-templates/policies.cedar",
+      "template_slots": [
+        "?principal",
+        "?resource"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "490ea78d38010c2bcb33d0f97d4533dbd3aeb0a6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "highflame-ai/highflame-cookbook/recipes/deep-context/policies/00_baseline.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "490ea78d38010c2bcb33d0f97d4533dbd3aeb0a6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "highflame-ai/highflame-cookbook/recipes/deep-context/policies/02_session_accumulation.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "490ea78d38010c2bcb33d0f97d4533dbd3aeb0a6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "highflame-ai/highflame-cookbook/recipes/deep-context/policies/03_dual_attribution.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cdae4027982e48d11bcd41193b13b56e05a33acc",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hubuum/hubuum/docs/treetop/bootstrap.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cdae4027982e48d11bcd41193b13b56e05a33acc",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hubuum/hubuum/docs/treetop/test-fixture.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "77a966d4c7565ee9b4080750ac9e105e43c18701",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hupe1980/hirn/crates/hirn-engine/src/cedar/default.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "06320f820fa3f96b154c6945d77aa215a9a92c36",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAny"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hupe1980/mako/services/accountingd/policies/accountingd.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "06320f820fa3f96b154c6945d77aa215a9a92c36",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "hupe1980/mako/services/marktd/policies/marktd.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dee39e78a174480325f47ec39dfe62b4a7a58451",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "its-aryansingh/NETRA/policy/netra.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ff9b9d1d2b87bda52624bc0417c849c255132dd3",
+      "constructors": [
+        "deny"
+      ],
+      "method_calls": [],
+      "reason": "uses an operator this test does not judge",
+      "subject": "j3brns/tf-harness-acore/terraform/modules/agentcore-governance/policies/cedar/tenant-isolation.cedar",
+      "unrecognised": [
+        "deny"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "7820b0f4975f5667b673b15e5b88ef5d39d2a3dd",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jagmarques/asqav-cedar-policies/policies/receipt_chain_validity.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7820b0f4975f5667b673b15e5b88ef5d39d2a3dd",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jagmarques/asqav-cedar-policies/policies/receipt_risk_class_ceiling.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cea1cb7371e69d3619509bf8e6a136a7c08d66a3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jankneumann/agentic-coding-tools/agent-coordinator/cedar/default_policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "594cc073019766a71c90ac871e1218b8f9fbf1c4",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jaredgrabill/agentic-control-plane/policies/allow-tool-knowledge-search.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "594cc073019766a71c90ac871e1218b8f9fbf1c4",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jaredgrabill/agentic-control-plane/policies/allow-tool-netsec-vuln-scan-report.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "594cc073019766a71c90ac871e1218b8f9fbf1c4",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jaredgrabill/agentic-control-plane/policies/gate-tool-itsm-change-submit.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "be89bc8c7596e8fe9439a5b393ffd419cae16579",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jbcallv/sage/policies/agents.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9bbed9230e99c73551af5ef2575b41b481653c4d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jlcanela/Permission/onlinestore.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d11935bf8da65c2f0c0423227d5ae03bd3a4a11a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jlcanela/project_management_app/cedar-policies/projects/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f0d479bdbe6699e190329566dcf9b8d7e0581fc3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "jlugo63/gavel/gavel-v2/gavel/policies/constitution.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "61946f26b3bc4006531a738279b5c2679fa346c3",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "joeblew999/cf-connectrpc-middleware/examples/remy-sport-policies/policies/event.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "61946f26b3bc4006531a738279b5c2679fa346c3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "joeblew999/cf-connectrpc-middleware/examples/remy-sport-policies/policies/platform.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d4957b04e830f926bed55c837af7776c47827ea8",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "kameas-ai/kenaz-harness/core/mcp/builtin/harness/cedar/harness_read_default.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d4957b04e830f926bed55c837af7776c47827ea8",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "kameas-ai/kenaz-harness/core/mcp/builtin/harness/cedar/harness_write_onboarding.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d4957b04e830f926bed55c837af7776c47827ea8",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "kameas-ai/kenaz-harness/core/rpc/views/agentgraph/cedar/graph_author_permit.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3593ffa6d836d9eceae4af9e07c524de84e91283",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "kenhuangus/agentctl/security_auditor.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d755da1c87278bc0c82e82745efecb89e86f9eb7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "kenhuangus/mcp-dynamic-policy/cedar-policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b3268d70830f6b7d7159cf7569cf72916a70742a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lRunel/AWSolotl/invariants/generic/000_base_permit.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b3268d70830f6b7d7159cf7569cf72916a70742a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lRunel/AWSolotl/invariants/generic/inv06_no_new_iam_access.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "43183b14aef26e9c6d293875b1dd5d69f9ca1e9f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lep511/cedar-evaluation-engine/examples/marketing-pipeline/policies/marketing.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "487b248ee9ae84c45711bc583694fe77e05afc18",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lep511/strands-main-repo/cedar-auth/policies/file_based_policie.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "487b248ee9ae84c45711bc583694fe77e05afc18",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lep511/strands-main-repo/workshop/lab02/policies/restricted_geography.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b12f9aa05eec21a81165b48b2c4dddd04636962f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lexicone42/l42-cognito-passkey/examples/backends/express/cedar/policies/publisher.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b12f9aa05eec21a81165b48b2c4dddd04636962f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lexicone42/l42-cognito-passkey/examples/backends/express/cedar/policies/reviewer.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b12f9aa05eec21a81165b48b2c4dddd04636962f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lexicone42/l42-cognito-passkey/rust/cedar/policies/editor.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2836719ead5d99f1bf452b7d72056119b6380ab5",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lhaig/sdm-pico-agent-demo/policies/00-baseline.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2836719ead5d99f1bf452b7d72056119b6380ab5",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lhaig/sdm-pico-agent-demo/policies/20-redact-pii.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0b0901d89bc5724c94cdf8497cec7255411bdfd8",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "llllIIIIllllIIII/carbon-cred-demo/policies/p2.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bd4803c9c5e95474c13a79778f1ae8ab91d6f06b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lochangowda10/NammaSignal/authorization/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a0543be7bce87965a13bdf0af7162363a70f3c5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "lsendel/rust-security/enterprise/policy-service/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4d4d00b6cdf3070a136435025d9a0535baceb43e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "madmecodes/jhola/agent/src/jhola/policies/payments.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "831905f7196f47530ebe92ff604c765d3b295447",
+      "constructors": [],
+      "method_calls": [
+        "containsAll"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "mafifi/drawloom/spikes/adr-0023-authorization/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "051b7001df7f292c14706058311d86e71bd8ca59",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "marlinspike/TypeSystem/packages/policy-cedar/examples/demo-domains.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4980d739d7721eb1257a400d43af113e32dfd6c6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "mas5464/aeronta-inventory/services/agent-spine/src/trax_io_spine/guardrail/policies/autonomy_bands.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "611d4271c2e441bc9e2f2718c4006e205ae5d59c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "michaeljboscia/triumvirate/archive/daemon-v1/policies/default.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dda88fb8294fc236b4f66bdbabe8fbb5a9f98251",
+      "constructors": [],
+      "method_calls": [
+        "has",
+        "like"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "micheal-quest1/PACT/envs/meridian-legal/policies/meridian_v1.cedar",
+      "unrecognised": [
+        "has",
+        "like"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "c3e8229dfb19c697468cfb790495d7174ef8bc45",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "microsoft/agent-governance-toolkit/examples/cedarling-governed/policy-stores/multi-issuer/policies/allow-admin-write.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c3e8229dfb19c697468cfb790495d7174ef8bc45",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "microsoft/agent-governance-toolkit/examples/cedarling-governed/policy-stores/unsigned/policies/allow-admin-tools.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7d791e71c0124a167801175ea07b365d69b5d1a4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "minorun365/agentcore-book/chapter9/01_permit_amount.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7d791e71c0124a167801175ea07b365d69b5d1a4",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "minorun365/agentcore-book/chapter9/02_permit_department.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7d791e71c0124a167801175ea07b365d69b5d1a4",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "minorun365/agentcore-book/chapter9/04_permit_pattern_match.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "93857d051ea9d3b168795d22e243a2ce778310e1",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "moabu/cedarling-opa-terraform-jwt/policy-store/policies/ci-permit-apply-prod-via-environment.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5fc8ad7ebead08f67ff1c5a8119aee4e343d89d7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "mrwersa/agentmandate/docs/evidence/agentcore-refund-policy/continuation-permit.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5fc8ad7ebead08f67ff1c5a8119aee4e343d89d7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "mrwersa/agentmandate/docs/evidence/agentcore-refund-policy/principal-continuity-permit.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "563408d38cb26c91e8d2114a46e51aa7bffad7b4",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "muneeebnaveeed/thesis-dispute-engine/backend/internal/dispute/authz/policy/guardrails.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8bbb7a221bfbccbd5f2268b16195315575e14d2b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "navoditk/agentic-pm-lab/governance/policies/tool-permissions.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f66287d99a923663a334b3009809f050292d9f8c",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "nerdsane/temper/os-apps/directed-evolution/policies/directed_evolution.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f66287d99a923663a334b3009809f050292d9f8c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "nerdsane/temper/reference-apps/crucible/specs/policies/managed_agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f66287d99a923663a334b3009809f050292d9f8c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "nerdsane/temper/reference-apps/crucible/specs/policies/session_resource.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c8885a9a2336c2bd95175b9fa1a9cced77d403c2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ninthwave-io/strait/templates/aws-s3-readonly.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c8885a9a2336c2bd95175b9fa1a9cced77d403c2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ninthwave-io/strait/templates/aws-s3-readwrite.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c8885a9a2336c2bd95175b9fa1a9cced77d403c2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ninthwave-io/strait/templates/container-sandbox.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "23b11a8c27928e8dea0188253d3674641eb25c4f",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAny"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "nunesgh/paediatric-clinic/app/src/main/resources/cedar/paediatric-clinic.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8877e8336cf0f84bc52e7c92c49002a5cf7f5f66",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "nynymike/cedudo/policy/store/policies/forbid-critical-restart.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f0ce9135e3c42853dac248e543fd7663c421a21d",
+      "constructors": [],
+      "method_calls": [
+        "all",
+        "any",
+        "size"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "nynymike/kiro-demo/multi-issuer-policies.cedar",
+      "unrecognised": [
+        "all",
+        "any",
+        "size"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "c6c3ecc37034b17147c73f74fa233fa94fa40f0d",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "oleg-tkachuk/paladin/backend/policies/examples/restricted-media-bucket.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c6c3ecc37034b17147c73f74fa233fa94fa40f0d",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAny",
+        "isEmpty"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "oleg-tkachuk/paladin/backend/policies/examples/scope_enforcement.cedar",
+      "unrecognised": [
+        "isEmpty"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "6e2666d7af05a4c2fe42e315fc1d03bbeb37d83d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "om423/ai-group-chat/apps/pdp/policies/10-rbac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6e2666d7af05a4c2fe42e315fc1d03bbeb37d83d",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "om423/ai-group-chat/apps/pdp/policies/20-abac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4dc37d98124d0c0ffbf59fdf73b6dc57a57342a9",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "open-lakehouse/hydrofoil/config/policies/demo.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c6891d553fa1105546668c75b9a0d175bc54f70d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "open-lakehouse/policast/.cursor/skills/tag-columns/templates/column_mask_by_pii.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c6891d553fa1105546668c75b9a0d175bc54f70d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "open-lakehouse/policast/.cursor/skills/tag-columns/templates/row_filter_by_clinical.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c6891d553fa1105546668c75b9a0d175bc54f70d",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "open-lakehouse/policast/examples/policies/column_mask.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8c7416f4b8c687d31ca4c1fcc5610bfdd1b3cfc4",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "openinherit/standard/cedar/service-eligibility/ew.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8c7416f4b8c687d31ca4c1fcc5610bfdd1b3cfc4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "openinherit/standard/tests/cedar/service-eligibility/ew.LEAKY.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8c7416f4b8c687d31ca4c1fcc5610bfdd1b3cfc4",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "openinherit/standard/tests/cedar/service-eligibility/ew.forbidden.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d4e97813d7cfb9654a3b0be31562bf4ec364eec0",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "openkcm/extauthz/examples/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "37ea7531df877ae86e08c0c35afdd6f4c2ec52a3",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "openshift-online/rosa-hyperfleet-api/platform-api/pkg/authz/testdata/policies/07-condition-keys/kubernetes-groups-condition.cedar",
+      "template_slots": [
+        "?principal"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "37ea7531df877ae86e08c0c35afdd6f4c2ec52a3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "openshift-online/rosa-hyperfleet-api/platform-api/pkg/authz/testdata/policies/07-condition-keys/principal-arn-condition.cedar",
+      "template_slots": [
+        "?principal"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "37ea7531df877ae86e08c0c35afdd6f4c2ec52a3",
+      "constructors": [],
+      "method_calls": [
+        "containsAll"
+      ],
+      "reason": "is a policy schema rather than a policy: a template whose slots are bound only when it is linked",
+      "subject": "openshift-online/rosa-hyperfleet-api/platform-api/pkg/authz/testdata/policies/08-complex-scenarios/team-lead-namespace-admin.cedar",
+      "template_slots": [
+        "?principal"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "0d31fc444bb69a79806b86a28a83188cb265b7bf",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "orkestra-cc/orkestra/backend/internal/core/authz/cedar/policies/capability_grants.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0d31fc444bb69a79806b86a28a83188cb265b7bf",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "orkestra-cc/orkestra/backend/internal/core/authz/cedar/policies/platform.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0d31fc444bb69a79806b86a28a83188cb265b7bf",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "orkestra-cc/orkestra/backend/internal/core/authz/cedar/policies/system_actions.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "517503b9a73e482ad8d04bde19b0af0596098959",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "oyatie/oyatie/docs/policies/autonomy-ceiling.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "517503b9a73e482ad8d04bde19b0af0596098959",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "oyatie/oyatie/iam/core/platform-contracts-kernel/cedar/platform-policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "517503b9a73e482ad8d04bde19b0af0596098959",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "oyatie/oyatie/intelligence/cedar/cloud-intelligence.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4244c25e4313a2455b145dbc23cf9fbd6bec5f9e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "pedrambayat/bio-sentry-agent/biosecurity.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d0f39ff18ee0172426b4d389f44816ba2fe727d2",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "pegasus102/last_mile_drop/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6ba2dd3ece0205542cf288dcdfc1d3bbb502cd4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "permguard/permguard/examples/basics/cedar/documents.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6ba2dd3ece0205542cf288dcdfc1d3bbb502cd4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "permguard/permguard/examples/release-pipeline/admin-cedar/release-authors.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d6ba2dd3ece0205542cf288dcdfc1d3bbb502cd4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "permguard/permguard/examples/release-pipeline/admin-cedar/rollback-responders.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c982b24e38935a3f29eb090b352a87089b56cdee",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "petrakol/ScopeBench/scopebench/policy/cedar/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "65b980e06580fad33418c8a975f2b7db74b260d6",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "pkonnoth/DocuEasy/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "afc18cf1682172acb983fe6a285fc872b8b849ae",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "plexusone/pipelineconductor/policies/examples/compliance/strict-compliance.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "afc18cf1682172acb983fe6a285fc872b8b849ae",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "plexusone/pipelineconductor/policies/examples/go/dependencies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "855387ccb66be24ac242745893f3e303a84a1104",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "plexusone/versionconductor/policies/go/dependency.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "855387ccb66be24ac242745893f3e303a84a1104",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "plexusone/versionconductor/policies/go/directives.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "855387ccb66be24ac242745893f3e303a84a1104",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "plexusone/versionconductor/policies/go/timing.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "41759040fc5002fd499d5dc2c47a329812dd8fa4",
+      "constructors": [],
+      "method_calls": [
+        "containsAny"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "podtan/pdt/policies/rbac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5a11549d232142c6bb908d1fb2def1b545f64d67",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "podtan/pep/policies/abac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "398aff9a713428a80c0f74a7b97256ef75adb828",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "prakhar-bip/Yaduka/aws/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d5f67c4ad4882ba101822b5358bed9092fdd6321",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "provabl/attest/internal/dashboard/policies/dashboard.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c4d609e02c8c3e43fed107773387cab5e54dcd2e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "psd401/aistudio/infra/policies/cedar/psd-agent-governance.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2989e76da1d696b6b2b648a90091c1c52063255d",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "pyvvo/funcd/internal/auth/cedar/builtin_catalog.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "14ca1a71779d3ca754fbc4991de3138f4e4b406f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "qkun-zh/nail/code/authorizer/cedar/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "73af9845c518796683dfc08437e682c1de42c0c4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "quome-cloud/quanchor/datasets/005-policy-authz/cedar/clinical.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3f18c3d609f3e3859009a41b6ec29591ae8435a9",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "radinshayanfar/yuanrong-datasystem/.github/agent-factory/protocols/code-review/scripts/security/policy/cedar/default/00-exfiltration.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "603980b9874f8a2ab2be9f8c5958897726fc87d8",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "rajkowski/cms-platform/src/main/webapp/WEB-INF/permission-groups/policies/visual-content-editor.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d03bdc892ed923945c3c129beb0c18bc5efcbda6",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ren8k/aws-specialist-agent/gateway/policies/04-ltm-mcp.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d03bdc892ed923945c3c129beb0c18bc5efcbda6",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ren8k/aws-specialist-agent/gateway/policies/06-web-search.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a9bdfd8fa04cfbcac4144687103dfef0b35d5a84",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "ridi-oss/proxy-monster/docs/cedar-sim/audit-policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a1065da849ebed670738d3251b85b139c1a9da98",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "rwang5688/ai-stack-2026Q2/workshop4/phase3/studentservices/policies/permit_all_tools.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "412f307de09db9b2ba395035459bb3e6165d5739",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "rxbynerd/stirrup/examples/policies/no-secret-in-input.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c716c0d42c1622f10560acb1611329d91c05e28c",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "safe-ai-factory/saifctl/src/orchestrator/policies/deny-network.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e6b7e8d3857c307faf86d8f5dd9739b406780464",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "saluca-labs/pantheon/apps/platform-app-proxy/policies/cedar/matrix.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "42a459375093f42f71e08a968b48855011bfbe12",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "sanjucoder-96/AgentSheild/config/policies/30-execution.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e7c78c291ce0b342df2ce54138b8e46cc9f1539e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "satvikviriyala/ARHV/backend/functions/authorizer/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "20facabc3da0464e32630fa9a370358f0fcc3e67",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAll"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "scttfrdmn/campus-claws/policies/default.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "20facabc3da0464e32630fa9a370358f0fcc3e67",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "containsAll"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "scttfrdmn/campus-claws/policies/templates/approved-domains-only.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "20facabc3da0464e32630fa9a370358f0fcc3e67",
+      "constructors": [],
+      "method_calls": [
+        "containsAll"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "scttfrdmn/campus-claws/policies/templates/read-only.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "07511205fa27a33c723323e0df143b1ccff72878",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shaheerkj/nhi-sentinel/policy/cedar/iam_resource_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "07511205fa27a33c723323e0df143b1ccff72878",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shaheerkj/nhi-sentinel/policy/cedar/s3_resource_policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "20a7df919bd9a1ca76e42609297955fbf88bcfa2",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shankywho/ClearCase/backend/policies/clearcase.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "69617fe17aa72462631ac7bfa0a628ca0308a719",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shiningcat-labs/usenixsecurity_2027_obpe/backends/servicenow/policy/agent/resolution.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "69617fe17aa72462631ac7bfa0a628ca0308a719",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shiningcat-labs/usenixsecurity_2027_obpe/backends/servicenow/policy/agent/triage.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "69617fe17aa72462631ac7bfa0a628ca0308a719",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shiningcat-labs/usenixsecurity_2027_obpe/backends/servicenow/policy/ceiling/servicenow-ceiling.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "758717a95c629429346db1b588ee1cdaba97cb56",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shoaibakthar/observeid-platform/policies/abac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "758717a95c629429346db1b588ee1cdaba97cb56",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shoaibakthar/observeid-platform/policies/agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "758717a95c629429346db1b588ee1cdaba97cb56",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shoaibakthar/observeid-platform/policies/rbac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a6511a799e21f078d6bb0d5c37bbe4c6c1b7b738",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shortrib-labs/shortrib-agent/policies/app-delegation.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a6511a799e21f078d6bb0d5c37bbe4c6c1b7b738",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shortrib-labs/shortrib-agent/policies/mcp-proxy-access.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "eb3db3c170a0aec953df471e84cf6aa4272dd843",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "shreesriv12/WeMakeDevs/firstcommit/policies/shikshamesh.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "90d2cd95e87d72e7596a744b54594dd97d4a3e7e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "smhasan94/permdiff/src/permdiff/demo/policy_base/agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "90d2cd95e87d72e7596a744b54594dd97d4a3e7e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "smhasan94/permdiff/src/permdiff/demo/policy_head/agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f3141fb7614eaf6878c29af041220204095f1299",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "sondera-ai/sondera-coding-agent-hooks/.sondera/policies/cedar/base.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f3141fb7614eaf6878c29af041220204095f1299",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "sondera-ai/sondera-coding-agent-hooks/.sondera/policies/cedar/forbid-tool-abuse-prompt.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f3141fb7614eaf6878c29af041220204095f1299",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "sondera-ai/sondera-coding-agent-hooks/.sondera/policies/cedar/lol-forbid-read-shell-history.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6bc6e1729889747cb0ebcb3e9d3736194677164b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "sondera-ai/sondera-harness-python/examples/adk/policies/investment_chatbot.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6bc6e1729889747cb0ebcb3e9d3736194677164b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "sondera-ai/sondera-harness-python/examples/adk/policies/payment_agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "04c9c9bbe3b2efd7ca6007b5e6aefb14f56ebc44",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "souvikDevloper/career-agent/policies/career_agent.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bd13518e0e956f7a57cfd454ca54092dba21cadf",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "specgraph/specgraph/internal/auth/policies/base.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5c852fe49fa93d38d499a7ef43875be3b91fb581",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "spiceai/cookbook/authorization/policies/deal-ownership.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5c852fe49fa93d38d499a7ef43875be3b91fb581",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "spiceai/cookbook/authorization/policies/pii-masking.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5c852fe49fa93d38d499a7ef43875be3b91fb581",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "spiceai/cookbook/authorization/policies/rbac-salaries.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2eaedb32857207fcef44d135766349a870b3d57b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "streamarr/streamarr-server/src/main/resources/authorization/policies/server-administration.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2eaedb32857207fcef44d135766349a870b3d57b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "streamarr/streamarr-server/src/main/resources/authorization/policies/transfers.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2eaedb32857207fcef44d135766349a870b3d57b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "streamarr/streamarr-server/src/main/resources/authorization/policies/viewing.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "97c9cdee762f7118d7e53210d7af2dea0d5f7ef6",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "strobilus-lang/strobilus/crates/strobilus/examples/microservices/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "decc2d4fd9699520b3c9c6faf75366c80e7a3ea5",
+      "constructors": [
+        "duration"
+      ],
+      "method_calls": [
+        "contains",
+        "offset",
+        "toHours",
+        "toTime"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "strongdm/policy-of-the-week/policies/forbid_connect_bytod.cedar",
+      "unrecognised": [
+        "offset",
+        "toHours",
+        "toTime"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "decc2d4fd9699520b3c9c6faf75366c80e7a3ea5",
+      "constructors": [
+        "duration"
+      ],
+      "method_calls": [
+        "contains",
+        "offset",
+        "toHours",
+        "toTime"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "strongdm/policy-of-the-week/policies/forbid_eks_bytod.cedar",
+      "unrecognised": [
+        "offset",
+        "toHours",
+        "toTime"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "decc2d4fd9699520b3c9c6faf75366c80e7a3ea5",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "strongdm/policy-of-the-week/policies/forbid_noneu_gdpr.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c3de317969cb9447fd3e3aabddec71f82292153e",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "surendra902/OMNIGRAPH/omnigraph/policies/analytos.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bafe769ca65bb38beace8cebaed6fba13839a94f",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "sushh-05/gigproof/cedar-policies/worker-data-access.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d0d0e5b0b5218803a43b3fba74fbf818cd65e9f3",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tarlan-huseynov/agentcore-monorepo/terraform/policies/safety.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c6487843f812bf672adbdfb3025e7853a38da687",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "teihyung/Cedar-Policy-Backend/CedarFiles/sample.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c7220bd7584241b3c1a803feb4e24010ef455894",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "theofanis-tsakanikas/attestor/policy/cedar/tenant_isolation.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "635caeda9cb2f5cf911560e38ad9427a442cc181",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "thphuc06/FairTable/policies/s5c_confirm_needs_an_explicit_yes.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "34d34f7ab638ca1c737712400f50f6450debe087",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "thrashr888/agentkernel/examples/enterprise/policies/mfa-required.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "34d34f7ab638ca1c737712400f50f6450debe087",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "thrashr888/agentkernel/examples/enterprise/policies/rbac.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "01d2d89051566622614010b880906dd437b10c49",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tomjwxf/scopeblind-gateway/policies/cedar/clinejection.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ddf6bec20c142f308fb456c7f298aa44f9741e8e",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "tomkaith13/mongo-cedar/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bad6b4426934bd5d073972c88aed56a46f0a3f3a",
+      "constructors": [
+        "ip"
+      ],
+      "method_calls": [
+        "contains",
+        "isInRange"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "treetop-policy-engine/treetop-client-python/testdata/dns.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a392d41e10c23e7fd9c1cfba4ff1d49d79bcc27",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "trusted-remote-execution/trusted-remote-execution/core/rex-runner/samples/read-file-example/read-file-policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a392d41e10c23e7fd9c1cfba4ff1d49d79bcc27",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "trusted-remote-execution/trusted-remote-execution/example/setup/scripts/ssm/readonly.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c1ce0f60ea3656989adb64a3f57475fe7d131fff",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "upbound/kubernetes-cedar-authorizer/localdev/mount/e2e.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c1ce0f60ea3656989adb64a3f57475fe7d131fff",
+      "constructors": [],
+      "method_calls": [
+        "contains",
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "upbound/kubernetes-cedar-authorizer/src/cedar_authorizer/testfiles/simple.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "99ee6c7ad28e9a83306d3e17f0ce973a47e4d6b4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vectimus/vectimus/policies/code-execution/code_execution.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "99ee6c7ad28e9a83306d3e17f0ce973a47e4d6b4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vectimus/vectimus/policies/database/database.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "99ee6c7ad28e9a83306d3e17f0ce973a47e4d6b4",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vectimus/vectimus/policies/infrastructure/infrastructure.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "28dd96537dd8167f6482db9ffcdc6303f16155ee",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vela-science/vela/paper/artifacts/real-correction-study/fixtures/erdos-264/vela-repository/.vela/authority/policy-material/policies/c997e39a024934e7355f73422ac10f401398e2ff593dc89de6ffe25c97d452ec.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8799bd3a4b93e57a3f03a6a88a5ac06e2079989a",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vercel-fieldeng/cedar-rule-eve-demos/policies/forbid-eu-staff-on-us-only-tools.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8799bd3a4b93e57a3f03a6a88a5ac06e2079989a",
+      "constructors": [
+        "duration"
+      ],
+      "method_calls": [
+        "toTime"
+      ],
+      "reason": "uses an operator this test does not judge",
+      "subject": "vercel-fieldeng/cedar-rule-eve-demos/policies/forbid-mutations-outside-business-hours.cedar",
+      "unrecognised": [
+        "toTime"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "8799bd3a4b93e57a3f03a6a88a5ac06e2079989a",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vercel-fieldeng/cedar-rule-eve-demos/policies/read-access-for-staff.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cbae1d1decf1b0fab27a14c1c1211901c596aae7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "verifiedpermissions/examples/express-petstore/finish/backend/policies/policy_2.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "126346db17de9745a92ea5004ae066dbb2b4383b",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vinaykumar-hash/POP/otherPart/unnamedProject/src/backend/authorization/cedar/policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "25547a440a3da54c7cafaab8220b69f1703aa06a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vpriyathimma/reva-litellm-demo/authorisation-v5/policies/agent-can-invoke-reva_demo-get_customer_pii.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "25547a440a3da54c7cafaab8220b69f1703aa06a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vpriyathimma/reva-litellm-demo/authorisation-v5/policies/forbid-chain-depth-over-two.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "25547a440a3da54c7cafaab8220b69f1703aa06a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vpriyathimma/reva-litellm-demo/authorisation/policies/forbid-finance-off-hours-unless-approved.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "439251cb77171814349cf54c45e7949727d12a19",
+      "constructors": [
+        "decimal"
+      ],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vpriyathimma/securebank-reva/cedar/api-based-policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "439251cb77171814349cf54c45e7949727d12a19",
+      "constructors": [
+        "decimal"
+      ],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "vpriyathimma/securebank-reva/cedar/aws-account-details-policies.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "21d7e217cc4076d5dc8f28dec1420a3260761eb7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "wasxy47/mcp-sentinel/policies/00-guards.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "21d7e217cc4076d5dc8f28dec1420a3260761eb7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "wasxy47/mcp-sentinel/policies/45-shell.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "21d7e217cc4076d5dc8f28dec1420a3260761eb7",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "wasxy47/mcp-sentinel/policies/50-governance.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "25db2064f89a71676cc582566fffff001e227f36",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "wellknown-id/karu/crates/karu/examples/cedar-examples/github_example.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d9e439f21e1aa2f7987063c2b8f18aca75f8aa6a",
+      "constructors": [
+        "decimal"
+      ],
+      "method_calls": [
+        "greaterThan"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "woojinnn/dambi/crates/policy-engine-wasm/tests/fixtures/default_policies_v2/increase-allowance-cap-warn.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d9e439f21e1aa2f7987063c2b8f18aca75f8aa6a",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "woojinnn/dambi/crates/policy-engine-wasm/tests/fixtures/default_policies_v2/signature-chain-mismatch-permit-warn.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d9e439f21e1aa2f7987063c2b8f18aca75f8aa6a",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "woojinnn/dambi/crates/policy-engine/tests/fixtures/policy_catalog_v2/wallet/venue-allowlist/interaction-contract-allowlist/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "be9fd90532d8fb9d868708a43fcb4201a6043f27",
+      "constructors": [],
+      "method_calls": [
+        "getTag",
+        "hasTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "wreyes321/agente_contratos/gateway/policies/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5ad77b1009ee2fb430423e2cf54b2ad0471681cd",
+      "constructors": [],
+      "method_calls": [
+        "getTag"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "yogeshselvarajan/minnal/gateway/policies/agent-team-runtime.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "06bb484ba6f2d53df992c3f63d4326c5f2b0e358",
+      "constructors": [],
+      "method_calls": [
+        "contains"
+      ],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "yoshuacas/pgrest-lambda/conformance/cedar/policies/00-anon.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "06bb484ba6f2d53df992c3f63d4326c5f2b0e358",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "yoshuacas/pgrest-lambda/conformance/fixtures/policies/00-engine-defaults.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fcfad3ca36120896578925f5e50099188342f444",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "yutaro-sakamoto/learn-cedar/02/policy.cedar",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fcfad3ca36120896578925f5e50099188342f444",
+      "constructors": [],
+      "method_calls": [],
+      "reason": "every guard's partition is fixed by a literal or an entity the policy names",
+      "subject": "yutaro-sakamoto/learn-cedar/09/policy.cedar",
+      "verdict": "inside"
+    }
+  ],
+  "policies_considered": 400,
+  "policies_unavailable": [],
+  "provenance": "third-party",
+  "repositories": 248,
+  "schema_version": "v1",
+  "share_inside": 0.955
+}

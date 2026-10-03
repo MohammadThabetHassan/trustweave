@@ -1,35 +1,36 @@
 {
   "counts_among_those_refetched": {
-    "inside": 20,
-    "outside": 11,
+    "inside": 37,
+    "outside": 12,
     "undetermined": 0
   },
+  "fetch": {
+    "command": [
+      "curl",
+      "--silent",
+      "--show-error",
+      "--location",
+      "--fail",
+      "--max-time",
+      "30",
+      "--retry",
+      "3",
+      "--retry-delay",
+      "2"
+    ],
+    "digest": "sha256 of the decoded text, CRLF folded to LF"
+  },
   "files_in_manifest": 49,
-  "files_no_longer_available": 18,
-  "files_still_fetchable_at_their_commit": 31,
-  "note": "Every file that could be re-fetched hashed to the sha256 the manifest records and was judged identically, so the corrected adapter leaves the third-party verdicts as measured. The 18 that could not be re-fetched were sha256-verified when collected and cannot be re-verified now; the measurement stands on that earlier verification.",
-  "revalidated_on": "2026-09-09",
+  "files_no_longer_available": 0,
+  "files_still_fetchable_at_their_commit": 49,
+  "revalidated_on": "2026-10-03",
   "schema_version": "v1",
-  "unavailable": [
-    "AdminTurnedDevOps/kubernetes-examples/Kyverno/disallow.yaml",
-    "Marcusronney/LINUXtips-PICK/Kyverno/enforce-compliance-label.yaml",
-    "adobeSlash/cilium-kyverno/enforce-endpoint-security.yaml",
-    "adobeSlash/cilium-kyverno/limit-ciliumnetworkpolicy-scope.yaml",
-    "fabioluciano/kubestronaut/src/assets/kyverno/clusterpolicy.yaml",
-    "fellipe85/DesafioPick2024/kyverno/resource-limits.yaml",
-    "fellipe85/DesafioPick2024/kyverno/root.yaml",
-    "gbaeke/go-template/policies/limits-pol.yaml",
-    "nadgowdas/protect-the-pipe-demo/policies/block-task-runs.yaml",
-    "pmady/rebac-kyverno/demo/04-validate-policy.yaml",
-    "timtorChen/homelab/kubernetes/ingress-nginx/policy.yaml",
-    "vfarcic/cncf-demo/policies/kyverno-idp-kubevela.yaml",
-    "vfarcic/devops-toolkit-crossplane/examples/k8s/kyverno-b-team.yaml",
-    "vfarcic/devops-toolkit-crossplane/examples/k8s/kyverno.yaml",
-    "vfarcic/idp-demo/policies/kyverno.yaml",
-    "vfarcic/silly-demo/cosign/kyverno.yaml",
-    "wiggitywhitney/cluster-whisperer/k8s/kyverno-allowlist.yaml",
-    "wnqueiroz/platform-engineering-backstack/kyverno/validate-xqueue-fields.yaml"
-  ],
+  "supersedes": {
+    "files_no_longer_available": 18,
+    "revalidated_on": "2026-09-09",
+    "why_it_was_wrong": "its fetch did not fail on an HTTP error, retried nothing, and counted every request that did not return the recorded digest as a file that no longer exists; re-fetched with retries, every one of the 18 verified against its recorded digest"
+  },
+  "unavailable": [],
   "verdicts_changed_among_those_refetched": [],
-  "what_this_is": "A re-fetch of the third-party Kyverno corpus at the commits its manifest records, run after the adapter's external-context test was moved off raw text onto the parsed document. It answers two questions: whether that fix changes any third-party verdict, and whether a corpus collected by code search can still be fetched later."
+  "what_this_is": "every file of the third-party manifest re-fetched at its recorded commit, checked against its recorded digest, and judged again by the current adapter"
 }

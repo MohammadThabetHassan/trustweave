@@ -1,0 +1,4263 @@
+{
+  "bundle": "every module of the repository at the pinned commit",
+  "bundles": [
+    {
+      "commit": "6363bc384c466412ffc98d6eea0007081adbca95",
+      "modules": 1,
+      "repo": "A-iCan/AiCan_2.0"
+    },
+    {
+      "commit": "92595034df34c6f8ec70cc10a7b6514bd4101565",
+      "modules": 1,
+      "repo": "AAH20/network-change-intelligence-twin"
+    },
+    {
+      "commit": "478db98121e3c48b8140536d1fa8169008bde59c",
+      "modules": 78,
+      "repo": "AHegab/SafeFix-K8s"
+    },
+    {
+      "commit": "629fb5d5bdcc73792d3667a4d3473e4316b59450",
+      "modules": 8,
+      "repo": "Alivanroy/Typosentinel"
+    },
+    {
+      "commit": "d2951c6026c53f77762b650bfa221e4ca2ecf587",
+      "modules": 3,
+      "repo": "Anoop1605/secure-devops-pipeline"
+    },
+    {
+      "commit": "144633b9ee229486ef11d9eeacaa8ae0d9ffd287",
+      "modules": 6,
+      "repo": "Azure/ARO-RP"
+    },
+    {
+      "commit": "a5358555221decd278e3b9bd5a284e9f6cc1e8a1",
+      "modules": 13,
+      "repo": "Azure/Community-Policy"
+    },
+    {
+      "commit": "d106f8dce117a3d2bf598cdf3a9b2b90faeb0f9d",
+      "modules": 151,
+      "repo": "Azure/azure-cli-extensions"
+    },
+    {
+      "commit": "43e6c1cfe8b29cb4f1c733dd50694fdcbf2b6e8b",
+      "modules": 9,
+      "repo": "Behavry-ai/behavry-proxy"
+    },
+    {
+      "commit": "fd3a0ec414da5199c363074a441d8d3317a09c59",
+      "modules": 1,
+      "repo": "BilalAlpaslan/gateway-authn-and-authz"
+    },
+    {
+      "commit": "c9be3bfbeb06928140db240a5cd06e8164acd8bf",
+      "modules": 66,
+      "repo": "BlueBandicoot/k3s-lab"
+    },
+    {
+      "commit": "375b3c8c51fd289ef5329d5accd1bbc40a78dc23",
+      "modules": 6,
+      "repo": "BuildIt-Poland/immutable-web-platform"
+    },
+    {
+      "commit": "8d3056b19f3e684ba37be5f7832efe1fd718c7c5",
+      "modules": 2,
+      "repo": "CawaAlreadyTaken/uni.fog_and_cloud_computing"
+    },
+    {
+      "commit": "32ecb2817980b72d0466563e2147cba2107d1bd8",
+      "modules": 113,
+      "repo": "Cigna/confectionery"
+    },
+    {
+      "commit": "7c7ba41d6a262d3b97de8525f39b32100192f6c5",
+      "modules": 1,
+      "repo": "Citadel-Cloud-Management/citadel-saas-factory"
+    },
+    {
+      "commit": "4e4e04c646948fef27d3dd65284eeb96531abc26",
+      "modules": 1,
+      "repo": "Cloud-Byte-Consulting/Catalyst"
+    },
+    {
+      "commit": "a7a448b8797baa2e5c036e2af5052b0bbe61ffc5",
+      "modules": 122,
+      "repo": "Cukurikik/Omni"
+    },
+    {
+      "commit": "e05b88fd369765d42ef05d4fdf463b5f087eae3d",
+      "modules": 1,
+      "repo": "Deengineers/tech-vault"
+    },
+    {
+      "commit": "f913dffe9abcf8dec1ebc734a7f13bb2c106b05b",
+      "modules": 7,
+      "repo": "DevOpsMadDog/Aldeci.AI"
+    },
+    {
+      "commit": "9e7a19d6b98ff2a82f28a96dd6854cb898520fe2",
+      "modules": 1,
+      "repo": "DoubleDensity/minio"
+    },
+    {
+      "commit": "6ddfeebdc3d7960a7238fbbe5b8a736ad3b85b15",
+      "modules": 22,
+      "repo": "EBI-Metabolights/mtbls-validation"
+    },
+    {
+      "commit": "c5968c1873817cd1df871fcc2236a6f93e34e5be",
+      "modules": 26,
+      "repo": "ET-sec/cyber-squire1"
+    },
+    {
+      "commit": "c6377cad4660e010dc0bb01bb1a5fcf04efa60be",
+      "modules": 83,
+      "repo": "EmbarkStudios/opa-policies"
+    },
+    {
+      "commit": "cf6e16acba042d5c74868aba320ce0cb3aceaaa4",
+      "modules": 4,
+      "repo": "EmploymentVC/EmploymentVC"
+    },
+    {
+      "commit": "ff2dff69d6e8e4fe41128ee287785a5215c28f54",
+      "modules": 16,
+      "repo": "GauravGirase/terraform-golden-modules"
+    },
+    {
+      "commit": "27799c2c27414a483a4a043b957bfd2997d53231",
+      "modules": 11,
+      "repo": "GenAI-Security-Project/agent-control-standard"
+    },
+    {
+      "commit": "601d403d60e3cabc8a0b55b53d2ff741710df2df",
+      "modules": 692,
+      "repo": "Gorski-Maciej/NexusAI"
+    },
+    {
+      "commit": "2f2c2ab9742ba7ad4c3187272b82a7798c0c35b5",
+      "modules": 4,
+      "repo": "GurdipSCode/devops-policies-pwsh"
+    },
+    {
+      "commit": "a23dafecb506fea6255d4203bdaed4e2008b0303",
+      "modules": 4,
+      "repo": "Gurkirxt/devops-project"
+    },
+    {
+      "commit": "8ade21c58137d7f10493acc306b73c8221420afd",
+      "modules": 210,
+      "repo": "Hardhat-Enterprises/AutoAudit"
+    },
+    {
+      "commit": "3098546472267752920320dd805cbdf0b3115528",
+      "modules": 2355,
+      "repo": "Hardhat-Enterprises/Policy-Deployment-Engine"
+    },
+    {
+      "commit": "8a621f80cdf7699577335c18ed68c21fe8cd8f13",
+      "modules": 2734,
+      "repo": "IBM-Cloud/terraform-opa-ibm"
+    },
+    {
+      "commit": "687685c2f9fa85365f04add10ea7d070596434e7",
+      "modules": 41,
+      "repo": "JiRaska/open-bank-oss"
+    },
+    {
+      "commit": "729503e13a083f11eb4e719f9ef6d8961aa65496",
+      "modules": 4,
+      "repo": "JimilPrabtani/AWS-WAF-OPS-PLATFORM"
+    },
+    {
+      "commit": "c83f92832efcaeebd6317eb6df6442173cdccdbf",
+      "modules": 3,
+      "repo": "Jitterx69/inflow-ai"
+    },
+    {
+      "commit": "86c9a3aa4fd050f1744c23c7f846f6f196b27c4a",
+      "modules": 1,
+      "repo": "Kishorgujar/CICD-With-Pac"
+    },
+    {
+      "commit": "d4bebdce360f09014d62e12fe37916fd4e9bffef",
+      "modules": 79,
+      "repo": "Loginsoft-LLC/Vulnerability-and-Security-Compliance-Research"
+    },
+    {
+      "commit": "238f9662be106adc4ca683cbe1b1b66afc847e7b",
+      "modules": 33,
+      "repo": "Loongson-Cloud-Community/docker-library"
+    },
+    {
+      "commit": "944df1c747f467c7f78dcd57547bbddc86c72b26",
+      "modules": 39,
+      "repo": "LuD1161/agentjail"
+    },
+    {
+      "commit": "59b6c1750dbf8370d994b586714967c9e1cfce9e",
+      "modules": 0,
+      "repo": "Manjula101/opa-pam-policies"
+    },
+    {
+      "commit": "31147f0d7da6911e06f2059c3655b49c331a1702",
+      "modules": 1,
+      "repo": "MapColonies/mapproxy-deprecated"
+    },
+    {
+      "commit": "f48541580e665369c69bef0c52a530276d443353",
+      "modules": 2,
+      "repo": "Maverick0351a/odin-gateway-starter"
+    },
+    {
+      "commit": "c9d011755919b19db0f1cff8eea3611423e064d7",
+      "modules": 1,
+      "repo": "Modelcode-ai/tokei"
+    },
+    {
+      "commit": "ca363092bdf04c9af13b89368548f11d5428585e",
+      "modules": 8,
+      "repo": "NTARI-RAND/SoHoLINK"
+    },
+    {
+      "commit": "89973702e10a7102b35a88b6ebbbd6d9e04ff603",
+      "modules": 33,
+      "repo": "NiklasWork/wrapping-machine-quality-check-ml"
+    },
+    {
+      "commit": "1d45d1f8266de37b200b3670e1604e8d54d728ae",
+      "modules": 200,
+      "repo": "OpsMx/ssd-policies"
+    },
+    {
+      "commit": "f8ad4b0f361c035173f6632521c20e295baa7822",
+      "modules": 10,
+      "repo": "PacktPublishing/Kubernetes-An-Enterprise-Guide-Third-Edition"
+    },
+    {
+      "commit": "b472e6b0ebbb504cb0bbcc82694ddde44ec63bf0",
+      "modules": 5,
+      "repo": "PinSpace-Org/GistPin"
+    },
+    {
+      "commit": "bb88ece1a43d314bbed166cb6f371ec17ec60eb0",
+      "modules": 1,
+      "repo": "PraneethUpadhya195/banking_zta"
+    },
+    {
+      "commit": "c31f42daf310234639af7901f9d5146a49977de1",
+      "modules": 2,
+      "repo": "Santixie/AUY1105-grupo-7"
+    },
+    {
+      "commit": "1c7b1f7ff3912fb422b6f5d7f41dee38d660d64c",
+      "modules": 6,
+      "repo": "ShivaSirigadhi1/cloudforge-idp"
+    },
+    {
+      "commit": "6a543c4b2a1c6c556edf8efd08137bb294664fc7",
+      "modules": 1,
+      "repo": "Sreelal-VU/sample-sonarqube-repo4"
+    },
+    {
+      "commit": "5a992081bd1e1352787e749bd700a223299f84a5",
+      "modules": 1,
+      "repo": "StuAtKong/kongpose"
+    },
+    {
+      "commit": "19e240ae5e80ad3a0687814857b5bfdc2422cdca",
+      "modules": 5,
+      "repo": "Sunbird-Spark/sunbird-spark-installer"
+    },
+    {
+      "commit": "0f62bb0c75e2ff32908e3e48ee68a3d5d236feb0",
+      "modules": 3,
+      "repo": "Tharbouch/IaC"
+    },
+    {
+      "commit": "961d82c55c2bc87282573f354b68b16d5ee727ad",
+      "modules": 213,
+      "repo": "TheoGoudout/greensecops"
+    },
+    {
+      "commit": "ad89da66bbcfe435a23ab1c599ff263ec3ae77d3",
+      "modules": 49,
+      "repo": "VISENDI56/iLuminara-Core"
+    },
+    {
+      "commit": "0a3d2d146ce58c5c51f5bd1e0e714c4b2db50b56",
+      "modules": 1899,
+      "repo": "Vulnetix/cli"
+    },
+    {
+      "commit": "34a42c09329367a9522c2990eed488c79274d5f1",
+      "modules": 279,
+      "repo": "Vulnetix/opa-fugue-regula"
+    },
+    {
+      "commit": "97245184101d714384232dfb56d5e56a2b013599",
+      "modules": 3,
+      "repo": "aadriantech/helm-chart-metallb"
+    },
+    {
+      "commit": "99ea7ae1946193a676b32cc7009d330aba444c6d",
+      "modules": 7,
+      "repo": "abbeylabs/policy-library"
+    },
+    {
+      "commit": "4281e3cc4f62d5fae653d75a905bfe45746e556b",
+      "modules": 2,
+      "repo": "actions-marketplace-validations/infracloudio_ci-cd-standards-using-opa"
+    },
+    {
+      "commit": "c2985f55834217ed92e6b74899c70a8fe3f8e6c6",
+      "modules": 198,
+      "repo": "acuvity/mcp-servers-registry"
+    },
+    {
+      "commit": "67a60edfb176ead2ebd1827aabe03b6b1e7b320d",
+      "modules": 3,
+      "repo": "acuvity/minibridge"
+    },
+    {
+      "commit": "e71a8c36dcac0ab4599625f5694a462c7cbf7850",
+      "modules": 2,
+      "repo": "adeavid/confidential-ml-distribution"
+    },
+    {
+      "commit": "2f4e4f3a978b158cd324a2803006b86b422bdb36",
+      "modules": 11,
+      "repo": "adityamillind98/gatekeeper"
+    },
+    {
+      "commit": "da319d49b9e971c52062126401fa85e17f4b8d03",
+      "modules": 7,
+      "repo": "afterdarksys/rcdo"
+    },
+    {
+      "commit": "6418b9d0a6229b49f1ede927a84b38939fb1d4af",
+      "modules": 14,
+      "repo": "aileron-gateway/aileron-gateway"
+    },
+    {
+      "commit": "1f854114029ac4b8811b98dd6d64695a700f9d56",
+      "modules": 18,
+      "repo": "ajosianor-source/trading-project-automation"
+    },
+    {
+      "commit": "3700ac60645bb289ec40da86f3459b10c5692791",
+      "modules": 30,
+      "repo": "albinoJimy/Neural-Hive-Mind"
+    },
+    {
+      "commit": "7f45918f7401aaa12e819702bc7087a898a3da1b",
+      "modules": 4,
+      "repo": "alex-y-kozlov-sandbox/opa-envoy-tut"
+    },
+    {
+      "commit": "e2a69f9d76e729db23ef429c9a2d7a7fb8195a4b",
+      "modules": 11,
+      "repo": "alibaba/loongsuite-semantic-conventions-genai"
+    },
+    {
+      "commit": "070762b26810e17c39c7416eba571b0f6d01feee",
+      "modules": 754,
+      "repo": "aliyun/infraguard"
+    },
+    {
+      "commit": "aa03b3033a0dc4f5ff8438a9ce6971a6fe793990",
+      "modules": 2,
+      "repo": "alliswellcaondy/cloud-native-library"
+    },
+    {
+      "commit": "549db80fcb8a1996c0e96c784fe5cd7b23acca70",
+      "modules": 424,
+      "repo": "ameytriage/testlea-mirror"
+    },
+    {
+      "commit": "76551b7b19ebc667764ec75da14990d0aef8b6e5",
+      "modules": 2,
+      "repo": "ancoleman/ai-design-components"
+    },
+    {
+      "commit": "c1eec4c426170dc97117a24b0c9643c8cf897942",
+      "modules": 6,
+      "repo": "anderseknert/opa-kasten-example"
+    },
+    {
+      "commit": "88fe68ac2d29095ffa0853bb08a970e934cce14e",
+      "modules": 57,
+      "repo": "andrewblooman/boundary"
+    },
+    {
+      "commit": "0176ee11aaad13258e5fd7a467b0564b923b19be",
+      "modules": 12,
+      "repo": "androvonx95/DEPIN_Network_Mini_Project"
+    },
+    {
+      "commit": "ba3e682a6e396e4f1624c6796295b9c7191749c7",
+      "modules": 277,
+      "repo": "antgroup/CloudRec"
+    },
+    {
+      "commit": "c9fbd26ce6880ec413cabfdfdd30af634077b134",
+      "modules": 50,
+      "repo": "anusmithapatnaik/OPAConftest"
+    },
+    {
+      "commit": "4f643a29084cb9b9e8c90e878e03bbe6ac80a5db",
+      "modules": 2,
+      "repo": "app-sre/qontract-reconcile"
+    },
+    {
+      "commit": "e3b4584d3caeb0b4244728a01fca50405101b42c",
+      "modules": 10,
+      "repo": "apple/security-pcc"
+    },
+    {
+      "commit": "da4777b4f0fac643b9fe2d3616b2496c36fe9b48",
+      "modules": 3,
+      "repo": "aquaproj/aqua-registry"
+    },
+    {
+      "commit": "71c05d02845cc2c3a5dfa4fe914a68a052cc88bf",
+      "modules": 587,
+      "repo": "aquasecurity/trivy-checks"
+    },
+    {
+      "commit": "14263dd37b3780c7fab9d5d5f2eac8302c44b035",
+      "modules": 31,
+      "repo": "aquasecurity/trivy-operator"
+    },
+    {
+      "commit": "295cdbbfece32655f20c8019f602afe5da91cb95",
+      "modules": 4,
+      "repo": "armory-io/policy-engine-examples"
+    },
+    {
+      "commit": "17b51c838d1098cf00be90f06767e05411685ea4",
+      "modules": 1,
+      "repo": "aserto-demo/policy-gatekeeper"
+    },
+    {
+      "commit": "d5409c252e8f2e40b10901e8d82d5c368491b470",
+      "modules": 3,
+      "repo": "aserto-dev/go-aserto"
+    },
+    {
+      "commit": "8936f2f655fcd087ca26e171f2b4814b2e689c02",
+      "modules": 12,
+      "repo": "ava-orange-education/Ultimate-Terraform-for-Cloud-Security"
+    },
+    {
+      "commit": "ff783d2e9ccb7c8ee7114de684a78c7b92e3b2c2",
+      "modules": 128,
+      "repo": "aws-cloudformation/cloudformation-validate"
+    },
+    {
+      "commit": "cffa57e515d54dec65acba1d88ef0facd160c49b",
+      "modules": 92,
+      "repo": "aws-samples/aws-infra-policy-as-code-with-terraform"
+    },
+    {
+      "commit": "079aa4939df567519170461b23c0533b99f1f200",
+      "modules": 3,
+      "repo": "babanomania/The-TODO-Hardening-Initiative"
+    },
+    {
+      "commit": "d3d71448c2c1c44da8c9be23042055646a417723",
+      "modules": 3278,
+      "repo": "badmintoncryer/cdk-preflight"
+    },
+    {
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "modules": 58,
+      "repo": "baoqger/agt-fork"
+    },
+    {
+      "commit": "891336d25deb001db2ef055ed8bf0d257de0d8ce",
+      "modules": 177,
+      "repo": "bartytime4life/Kansas-Frontier-Matrix"
+    },
+    {
+      "commit": "03231b493ce1a4d242e875f32a6f611c786273de",
+      "modules": 21,
+      "repo": "benjamin-s-hobbs/GRCEportfolio"
+    },
+    {
+      "commit": "e3a40e4b0ecbf5d6f148d949363617d6f430110f",
+      "modules": 1,
+      "repo": "bigwhite/experiments"
+    },
+    {
+      "commit": "22e8c9a0766d7dc12313775637746001548f4443",
+      "modules": 3,
+      "repo": "bijualbert/terraform-gcp-vertex-mlops"
+    },
+    {
+      "commit": "0ba9fd7cee36d458ffd536baa606a788cf4179bd",
+      "modules": 11,
+      "repo": "brunobotelhobr/My-Vulnerable-Code-Snippets"
+    },
+    {
+      "commit": "b6051e8c8c2c1a3ef3e7e6513f7a46689226d6f4",
+      "modules": 2,
+      "repo": "button-inc/batten"
+    },
+    {
+      "commit": "7e7e290c305b2abb1ca3117a93fc89cac43e1e29",
+      "modules": 1315,
+      "repo": "caldas479/InfraPaC"
+    },
+    {
+      "commit": "1731ce252295c1910d1b5849e3b1cbb5480df3ad",
+      "modules": 6,
+      "repo": "camerongable/thesys"
+    },
+    {
+      "commit": "cfdddc0e9bbeb434c9bf27b24c8b89d847a7bd93",
+      "modules": 1461,
+      "repo": "carbonetes/brainiac"
+    },
+    {
+      "commit": "d639d3a29a1d6a819ae3b8253c722f8c44bef5e7",
+      "modules": 125,
+      "repo": "caylent-solutions/terraform-modules"
+    },
+    {
+      "commit": "9063d900522d427869a0f744b32946b49d719076",
+      "modules": 18,
+      "repo": "cds-snc/opa_checks"
+    },
+    {
+      "commit": "b5b2af53f44eec2f77d01f9bfb0c379700edc68c",
+      "modules": 55,
+      "repo": "chaitin/veinmind-tools"
+    },
+    {
+      "commit": "9bc625507d22c241b62c36e4d4d5746b6d3afee6",
+      "modules": 5,
+      "repo": "cisco-ai-defense/defenseclaw"
+    },
+    {
+      "commit": "28772a45f439116d1552c75d50be370546fff0a3",
+      "modules": 5,
+      "repo": "citadelgrad/llm-governance-gateway"
+    },
+    {
+      "commit": "b3e65d642a0d54b1aec6770992504bd3f8497f78",
+      "modules": 11,
+      "repo": "codertjay/gitlab"
+    },
+    {
+      "commit": "20ba101f1e3b6e379bb38a868499330ec1a0cf72",
+      "modules": 8,
+      "repo": "complytime/complypack"
+    },
+    {
+      "commit": "77e1cb996b3a9c5c29b6b072dc037d287e7b9781",
+      "modules": 82,
+      "repo": "conforma/policy"
+    },
+    {
+      "commit": "6d033e66a898abf3b525b84c7b7a6180d80061ba",
+      "modules": 10,
+      "repo": "daltonhahn/anvResearch"
+    },
+    {
+      "commit": "bdefea34228f5dc7cd9c29c3724f94cc33d81c9d",
+      "modules": 50,
+      "repo": "daniel-git574/cvat-testing"
+    },
+    {
+      "commit": "ff82fc8fbc9324b0e15e7a3a1d827f4ff195c529",
+      "modules": 25,
+      "repo": "dativo-io/talon"
+    },
+    {
+      "commit": "602ffb417575d8ca39c6d3a9d1f3e8bd6e5ac950",
+      "modules": 2,
+      "repo": "debasisdev/opa-konzept"
+    },
+    {
+      "commit": "296aa85fd74e1ce1c68210b29a0789d6ca4e5422",
+      "modules": 3,
+      "repo": "declaw-ai/declaw-cli"
+    },
+    {
+      "commit": "57aa7e4d80701fe811d09db927ec29e129dc81e1",
+      "modules": 31,
+      "repo": "demis1997/kata2-trustee"
+    },
+    {
+      "commit": "c71172d1bafe4f2f6e20602378116f8bf29f1062",
+      "modules": 5,
+      "repo": "denniszielke/container_demos"
+    },
+    {
+      "commit": "b4ab29b27de2d8941f0732faa2cfd5639f29c004",
+      "modules": 75,
+      "repo": "dether-net/dethernety-oss"
+    },
+    {
+      "commit": "463423372549956954d7bfdc5f7ac289f22baacd",
+      "modules": 6,
+      "repo": "devspace-cloud/devspace-cloud"
+    },
+    {
+      "commit": "35739c970d1db2928de02643c29a2c6c667840f5",
+      "modules": 62,
+      "repo": "dotnetpower/fdai"
+    },
+    {
+      "commit": "53b5372b8cad6f61ec8e02b32fb0509e0808ed50",
+      "modules": 34,
+      "repo": "douglasnaphas/play-rego"
+    },
+    {
+      "commit": "e6ea1820942d1af66bc6b73e0d6891b78739fb4d",
+      "modules": 35,
+      "repo": "drghassen/PFE-MPSSR"
+    },
+    {
+      "commit": "792fe9f1063b7aa98b52404270c1d83ee33466ac",
+      "modules": 424,
+      "repo": "elastic/cloudbeat"
+    },
+    {
+      "commit": "f5d147d9bdd0f1cc858f4195f00fe601c07cbe6b",
+      "modules": 1668,
+      "repo": "env0/acme-demo"
+    },
+    {
+      "commit": "4640b662d8bc18922dbc2530c13d0182ce35d18c",
+      "modules": 10,
+      "repo": "env0/approval-policies"
+    },
+    {
+      "commit": "27b94b84f6cf555bfde5817deae323ee8cb00cea",
+      "modules": 59,
+      "repo": "eqtylab/cupcake"
+    },
+    {
+      "commit": "2fb1a58aa7f71394e41624c9745bd9fd61a49a06",
+      "modules": 9,
+      "repo": "esteban-mendoza/microservices-security"
+    },
+    {
+      "commit": "d1d4dabe3a236154e041625248a877ddd87ddad0",
+      "modules": 338,
+      "repo": "flatt-security/shisho-cloud-managed-workflows"
+    },
+    {
+      "commit": "628eb429d112f5421581b2298121c480016f358c",
+      "modules": 301,
+      "repo": "flatt-security/shisho-cloud-rego-libraries"
+    },
+    {
+      "commit": "edd03a30654b21baf68f9a0b0f891a2556cf1bb7",
+      "modules": 19,
+      "repo": "fmfalgun/Autherization"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "modules": 10025,
+      "repo": "foalem/Pac-paper"
+    },
+    {
+      "commit": "ad43419ba85de1b2af3e15dd66f09bf9121479c2",
+      "modules": 31,
+      "repo": "fugue/fregot"
+    },
+    {
+      "commit": "9b2d2235bb79937a14eaf8fec0e4fa066a3f7ca7",
+      "modules": 3,
+      "repo": "g33ck0o-coder/devsecops-k8s-demo"
+    },
+    {
+      "commit": "831cb881ddff0e6b8f47a2473c10ec224cf940e4",
+      "modules": 1,
+      "repo": "gbrindisi/dockerfile-security"
+    },
+    {
+      "commit": "4e34a7c7d8f0798910d81b0a26b49d2bdb3f73e7",
+      "modules": 24,
+      "repo": "genvaldev/genval"
+    },
+    {
+      "commit": "fb943e4efba61cf7b0a0c56f6648710a7453519b",
+      "modules": 72,
+      "repo": "getplumber/plumber"
+    },
+    {
+      "commit": "35f63699e480ce2a0c88c6e4dd285a247aa3a08b",
+      "modules": 1,
+      "repo": "glenngillen/terraform-demo-opa"
+    },
+    {
+      "commit": "046b6c00727d0b8cd9bc0db79d74c95360767ac1",
+      "modules": 95,
+      "repo": "google/gke-policy-automation"
+    },
+    {
+      "commit": "20593be4a8354d6d42a7e5ee515199dab7e40daa",
+      "modules": 1,
+      "repo": "goutham018/Lambda-s3-sns-dynamodb"
+    },
+    {
+      "commit": "e05acdce33449b90cc31c3a406e1adea67d9bdb2",
+      "modules": 10,
+      "repo": "grafana/rollout-operator"
+    },
+    {
+      "commit": "7f9b6fa66795429d9c2dd0b15fccade6e709fb34",
+      "modules": 366,
+      "repo": "grcwarlock/warlock"
+    },
+    {
+      "commit": "f2de263333206fb949005ad3896c14e9171e7ef7",
+      "modules": 2,
+      "repo": "guardon-dev/demo-repository"
+    },
+    {
+      "commit": "63079cada852be9c1ad969b6f35cc8076b8953cb",
+      "modules": 10,
+      "repo": "hallllow29/gitops-devsecops-aws"
+    },
+    {
+      "commit": "fd66bb3c6526bdff16873aafa26e3299b59f74c0",
+      "modules": 23,
+      "repo": "hasan7n/tmp-policies"
+    },
+    {
+      "commit": "234e551c04807cebed75dc037458a85bca8f5475",
+      "modules": 2,
+      "repo": "higakikeita/tfdrift-falco"
+    },
+    {
+      "commit": "b8573eead531c68a4e2a551883c3a17828b30826",
+      "modules": 3,
+      "repo": "hoangsonww/PetSwipe-Match-App"
+    },
+    {
+      "commit": "9b55a78b160474a66954025fed65e02726dc1e8e",
+      "modules": 3,
+      "repo": "hong3nguyen/rego_git"
+    },
+    {
+      "commit": "689ab297e7e8ca08b7d6072e126c186dc51e6f5d",
+      "modules": 2,
+      "repo": "iangreen74/radix"
+    },
+    {
+      "commit": "bf71b4e9833166469c94d6db7a7cd4817694f679",
+      "modules": 10,
+      "repo": "infracourse/iac-grader"
+    },
+    {
+      "commit": "d801bcdcaf509aa7190489f380d9fa2139f8b6ca",
+      "modules": 845,
+      "repo": "infragov-project/cwe2rego"
+    },
+    {
+      "commit": "274d4dd6d41cfff2694a3c4b34c4fe4fb3c3f128",
+      "modules": 11,
+      "repo": "innovationmech/swit"
+    },
+    {
+      "commit": "55317bbbb06db33326e86f49e9514018d6765c25",
+      "modules": 62,
+      "repo": "jackcarterc/conftest"
+    },
+    {
+      "commit": "984d2b0cb6cca012ea7dc347aee5b2185a99475d",
+      "modules": 11,
+      "repo": "jarin-devoss/babelSuite"
+    },
+    {
+      "commit": "0b3cddac1b1f7a4be39ba686170669278c6e5bd3",
+      "modules": 4,
+      "repo": "johnmccabe/katacoda-scenarios"
+    },
+    {
+      "commit": "8c0f533df8d19f1ebbb560b31021436c05ff537d",
+      "modules": 6,
+      "repo": "jonathan-kellerai/kellerai-oss-template"
+    },
+    {
+      "commit": "5e92e14751eed87048a8b0fe04dbd8c5144da86a",
+      "modules": 35,
+      "repo": "khulnasoft/postee"
+    },
+    {
+      "commit": "dd3c0ebe23cc6c1c84e5ef1640595ae314e4ccbf",
+      "modules": 542,
+      "repo": "khulnasoft/tunnel-checks"
+    },
+    {
+      "commit": "4a9139ff5416841dc1e317eef36f4effa17c0cea",
+      "modules": 13,
+      "repo": "konflux-ci/konflux-test"
+    },
+    {
+      "commit": "a78801a689b6db4ee4afe4549f1003a4fc06b303",
+      "modules": 449,
+      "repo": "kravciak/weave-migration"
+    },
+    {
+      "commit": "627ebd75e0c92c739de14da80481b7c059e48cf1",
+      "modules": 12,
+      "repo": "krish5322/gitops-microservices"
+    },
+    {
+      "commit": "572cce426f12290b097b7ab7ebf74dd87f6df3d8",
+      "modules": 1,
+      "repo": "kubernetes-native-testbed/kubernetes-native-testbed"
+    },
+    {
+      "commit": "e67b7d42a0d9c855b6617a53a56cd1f3f434e63e",
+      "modules": 383,
+      "repo": "kubescape/regolibrary"
+    },
+    {
+      "commit": "8b7999f9b7dade0bf08915a0ca6b14f66553cc2d",
+      "modules": 229,
+      "repo": "kubewarden/policies"
+    },
+    {
+      "commit": "b7c6662bcedd94c3726c9b5d7510e946d21ff499",
+      "modules": 0,
+      "repo": "kumarrajapuvvalla-bit/ops-platform"
+    },
+    {
+      "commit": "f77be9db80e7e93c0637264f2e2804418424a522",
+      "modules": 13,
+      "repo": "lakekeeper/lakekeeper"
+    },
+    {
+      "commit": "46e9517285d90d8a13b0bead1648a60748396c12",
+      "modules": 20,
+      "repo": "meshery/meshery"
+    },
+    {
+      "commit": "c3e8229dfb19c697468cfb790495d7174ef8bc45",
+      "modules": 99,
+      "repo": "microsoft/agent-governance-toolkit"
+    },
+    {
+      "commit": "2350f91cc2a777ce27e9ada2f693a1167d67df72",
+      "modules": 85,
+      "repo": "mikemol/el-openglo"
+    },
+    {
+      "commit": "6b3b21a4a5f75dada8d83d60bc7cbeaff7c2c3aa",
+      "modules": 5,
+      "repo": "mindclade-old-2/bootstrap"
+    },
+    {
+      "commit": "f8afdcb70e2d55916efa0f46be746b4c939d5b7c",
+      "modules": 7,
+      "repo": "mjbright/opa-rego-scenarios"
+    },
+    {
+      "commit": "d21bc4bc88e8924a218d31351b743ad126d43faa",
+      "modules": 7,
+      "repo": "mjlshen/terraform-aws-opa"
+    },
+    {
+      "commit": "e6424196bddae875840a49279edd7822d6366b36",
+      "modules": 54,
+      "repo": "mmnto-ai/totem"
+    },
+    {
+      "commit": "621c0b79cea7e74d06b6eef529aaa06a59f4c821",
+      "modules": 3,
+      "repo": "mohibul-xyz/ops-solution"
+    },
+    {
+      "commit": "a329155e1fb6ca09c2e021e24fd07691a126c365",
+      "modules": 1,
+      "repo": "monch1962/gql-firewall"
+    },
+    {
+      "commit": "1aa2fafe034e3152d42ed39b990c97b32f4ef530",
+      "modules": 2,
+      "repo": "morethancertified/gitops-minicamp-2024"
+    },
+    {
+      "commit": "027447d5d74caf9f8c2051b0227eb043e1c7a65e",
+      "modules": 143,
+      "repo": "mshytse/base"
+    },
+    {
+      "commit": "f85db53bd3a5b83e79837ef8b55c7e05adfef245",
+      "modules": 7,
+      "repo": "myagley/opa-rs"
+    },
+    {
+      "commit": "574d41e0f8a119e05934f9cffde4965159db04d8",
+      "modules": 7,
+      "repo": "mycodexvantaos/mcv"
+    },
+    {
+      "commit": "6aa1039e8d7e0bde0428ff113ca5d10fce7e5a20",
+      "modules": 2,
+      "repo": "naveensrinivasan/oidc-spire"
+    },
+    {
+      "commit": "639068d78c4b26ac25fc41a1b099874699ec092d",
+      "modules": 2,
+      "repo": "neuro-synapse/opal-policy-repo"
+    },
+    {
+      "commit": "9cd2a4a7c14cbd9003e7476f02b6088ac4724107",
+      "modules": 1,
+      "repo": "nikhiilraj/FlowState"
+    },
+    {
+      "commit": "ff1bddbf7015b49854b3cba5361b012d2c1399d3",
+      "modules": 427,
+      "repo": "nonfx/starchitect-cloudguard"
+    },
+    {
+      "commit": "e5aef07c8f43d2a947ac30a3c81e3bec7eccae34",
+      "modules": 11,
+      "repo": "nuonco/kitchen-sink"
+    },
+    {
+      "commit": "d57c2785bdb13d18a2334778ab4f650d3d3b756f",
+      "modules": 1,
+      "repo": "nuonco/nuon-ext-linter"
+    },
+    {
+      "commit": "ad0d36e93771f6c64a36e3fd1289aae4ab343931",
+      "modules": 28,
+      "repo": "open-telemetry/weaver"
+    },
+    {
+      "commit": "e8044de2435b6ed4b80e87eaf5eae559aa7e69d1",
+      "modules": 150,
+      "repo": "openstack-experimental/keystone"
+    },
+    {
+      "commit": "2848eaa9cb2d3e13dc1291d30528feff0cbcc514",
+      "modules": 67,
+      "repo": "p0tr3c/opa-wasm-bug-reproducer"
+    },
+    {
+      "commit": "439c541fd348f3279ff37c3b2d8162e1875ab420",
+      "modules": 48,
+      "repo": "piyushpurohit23/trivy"
+    },
+    {
+      "commit": "76901b5726522cf8872fb3f6022d83c40e1ed711",
+      "modules": 32,
+      "repo": "plexsystems/konstraint"
+    },
+    {
+      "commit": "f279427282bc1c6a09f06ec59a7b9e1843b68f43",
+      "modules": 399,
+      "repo": "prancer-io/prancer-compliance-test"
+    },
+    {
+      "commit": "063b1152fa2e9bdcdc2840c5e7ce402d20f81197",
+      "modules": 16,
+      "repo": "pvsone/opa-ext-authz"
+    },
+    {
+      "commit": "3efb9355794581f5ac5827d712b89819f4a3179c",
+      "modules": 8,
+      "repo": "r33drichards/mcp-js"
+    },
+    {
+      "commit": "ae4ee1599a13b829231569b9683db8eea0cd927b",
+      "modules": 2,
+      "repo": "rajim59/SwarmFort"
+    },
+    {
+      "commit": "39e822e5dc6c19adb50bdb123dec6b8b3cba5ca8",
+      "modules": 64,
+      "repo": "raspbernetes/k8s-security-policies"
+    },
+    {
+      "commit": "1a95f7ebec5b7cf66945bce764d2fa0d82a9d16e",
+      "modules": 1,
+      "repo": "redhat-data-and-ai/template-ui"
+    },
+    {
+      "commit": "a8e715a12223f78bccfd271f3bcd0578a96cfa59",
+      "modules": 5,
+      "repo": "ridik-il/xptest"
+    },
+    {
+      "commit": "9ae097e86010322798aa2456d5e07be261594cc1",
+      "modules": 10,
+      "repo": "rode/rode"
+    },
+    {
+      "commit": "bd9e40b5338de529fb114226bd5d575f937e14ae",
+      "modules": 2,
+      "repo": "rode/terraform-provider-rode"
+    },
+    {
+      "commit": "ac43797130a7fe32fa08ef2cb5612742e1da1b1a",
+      "modules": 76,
+      "repo": "rthexton1964/prisma-to-wiz-dev"
+    },
+    {
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "modules": 287,
+      "repo": "rulehub/rulehub"
+    },
+    {
+      "commit": "3f2dae6886f8f1c6b7048590bd05af44e95d06aa",
+      "modules": 1,
+      "repo": "rupacesigdel/ToDoList"
+    },
+    {
+      "commit": "eec9fe4d194893d244a7cd57c2818c2dc2e1d11e",
+      "modules": 338,
+      "repo": "scribe-public/sample-policies"
+    },
+    {
+      "commit": "fa0fa3c22e10f99e124ae64711975ccaceeaa005",
+      "modules": 392,
+      "repo": "shadowman-lab/Ansible-Compliance"
+    },
+    {
+      "commit": "3a58ae68679cedb6c68ee6f6890b57760164120a",
+      "modules": 13,
+      "repo": "shivajichaprana/policy-as-code-framework"
+    },
+    {
+      "commit": "2d83bcdceab0bf62ee0c95c9f4ef34c377353265",
+      "modules": 1,
+      "repo": "simongottschlag/opa-bundle-api"
+    },
+    {
+      "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
+      "modules": 36,
+      "repo": "snyk/policy-engine"
+    },
+    {
+      "commit": "11f482167ed9a679228aa963c478ea3f3dda2780",
+      "modules": 2,
+      "repo": "soapbucket/sbproxy"
+    },
+    {
+      "commit": "2964d99bf5b2dbba9ffa6d55a618b9cbacde8eca",
+      "modules": 15,
+      "repo": "sorokinpf/docker_opa"
+    },
+    {
+      "commit": "6ff5edb08bc806f323eff5c48426a7762ef1fee7",
+      "modules": 73,
+      "repo": "spacelift-io/spacelift-policies-example-library"
+    },
+    {
+      "commit": "b8ea22ac1ffd06f54b7ca3026d7b83d599c0d956",
+      "modules": 2,
+      "repo": "stefanutc1/infrastructure"
+    },
+    {
+      "commit": "232d0ce8d1dbc6786aae80c9565beb82781e29d6",
+      "modules": 6,
+      "repo": "sudheeramgothu/90daysofdevops"
+    },
+    {
+      "commit": "8c8ed27975593396f1aff7621140914347f9426f",
+      "modules": 22,
+      "repo": "sudoersllc/opsbox-rego"
+    },
+    {
+      "commit": "c77a3b8fdaa1ff46b5afad9f7206478c2378ed4b",
+      "modules": 40,
+      "repo": "swagwatch/AWS-PROJECT-2026-CYCLE-0001-DEV"
+    },
+    {
+      "commit": "8a9573aa1efafb6c684d2eb400a87d8fc37d5090",
+      "modules": 86,
+      "repo": "tarcinapp/entity-persistence-gateway-policies"
+    },
+    {
+      "commit": "e959bf040b524dbeb96914fea873095f6fa173bf",
+      "modules": 1,
+      "repo": "tidepool-org/opa"
+    },
+    {
+      "commit": "046017a1d2d6f090e7d74a4f7776375e4c20ed8a",
+      "modules": 12,
+      "repo": "tmobile/magtape"
+    },
+    {
+      "commit": "1e9b32e3cc117f45466fa7fe65604c17c8ee5cb7",
+      "modules": 24,
+      "repo": "truckercore/truckercore1"
+    },
+    {
+      "commit": "06845d597674cbcaf5e22b9aad74d21b571cdd95",
+      "modules": 58,
+      "repo": "trustoncloud/threatmodel-for-azure-storage"
+    },
+    {
+      "commit": "95f41899861ec7272a086a5cdbba49131088df0a",
+      "modules": 42,
+      "repo": "trustoncloud/threatmodel-for-google-bigquery"
+    },
+    {
+      "commit": "4974c869bc2ac197b78fee0a85ba2329fb39e660",
+      "modules": 4,
+      "repo": "try-loopers/loopers-oss"
+    },
+    {
+      "commit": "c1429d2b7b9ef972ce39644f7968e9e44e0ce601",
+      "modules": 2,
+      "repo": "tsprasath/ai-devops"
+    },
+    {
+      "commit": "f7a3b08b3c9b410c85b41aff981c6f6a1ed2fa8f",
+      "modules": 4,
+      "repo": "vagabond-cloud/Vagabond-Fuse"
+    },
+    {
+      "commit": "b7921217985c3f629db8f552e1620d0ebd784fa3",
+      "modules": 14,
+      "repo": "valex1984/katacoda-scenarios"
+    },
+    {
+      "commit": "a1611201454729da7f12f6dde5dfafc6980cd086",
+      "modules": 18,
+      "repo": "valitydev/bouncer-policies"
+    },
+    {
+      "commit": "5578a3ca96ee15fead483b8c2a53c14516632da7",
+      "modules": 135,
+      "repo": "vasceannie/noteflow"
+    },
+    {
+      "commit": "f283c4e98e5fe83d6ed3ec655ddc44e6238ad22a",
+      "modules": 4,
+      "repo": "vencil/Dynamic-Alerting-Integrations"
+    },
+    {
+      "commit": "c7212cabf2eeca707ad8c01ee6b56cf2155548db",
+      "modules": 18,
+      "repo": "verlyn13/policy-as-code"
+    },
+    {
+      "commit": "c07abaafaf71b0e754fac12d5199fd7d055b71e4",
+      "modules": 92,
+      "repo": "wakaleo/explico"
+    },
+    {
+      "commit": "c33757323d5dcdac7de4a7ac9393e1932f10c85c",
+      "modules": 225,
+      "repo": "weaveworks/policy-library"
+    },
+    {
+      "commit": "4a067d20deed0ae0362a4ee1f9865e5af675a79c",
+      "modules": 2,
+      "repo": "wejdeneh/ai-k8s-gateway"
+    },
+    {
+      "commit": "2bb5ad2bc687c057056fbb9db892c90daf2a05ad",
+      "modules": 51,
+      "repo": "wirelesssecuritylab/ccbr"
+    },
+    {
+      "commit": "92b9b431c7bf6e2468eec31d7da0313c9366414c",
+      "modules": 717,
+      "repo": "ynotbhatc/rego_policy_libraries"
+    },
+    {
+      "commit": "d7d8a46b9143c9c6fa039ea45597f42f8812ee7a",
+      "modules": 2,
+      "repo": "yowainwright/rego-learning"
+    },
+    {
+      "commit": "9c2f32820d23e221dfc1f6f218e0f36054e09b8a",
+      "modules": 3,
+      "repo": "zsombix/opapoc"
+    }
+  ],
+  "corpus_scope": "third-party",
+  "counts": {
+    "inside": 219,
+    "outside": 66,
+    "undetermined": 15
+  },
+  "ecosystem": "rego",
+  "excluded_owners": [
+    "forseti-security",
+    "googlecloudplatform",
+    "instrumenta",
+    "open-policy-agent",
+    "redhat-cop",
+    "styrainc"
+  ],
+  "how_collected": "GitHub code search, each query split into eight size shards and read to at most 400 results per shard; the pool filtered to a frame and the frame shuffled with the recorded seed and walked under the recorded caps, as scripts/third_party_sample.py states",
+  "owners": 224,
+  "policies": [
+    {
+      "commit": "6363bc384c466412ffc98d6eea0007081adbca95",
+      "package": "adsm",
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "A-iCan/AiCan_2.0/DevAge/policy/rego/adsm.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "92595034df34c6f8ec70cc10a7b6514bd4101565",
+      "package": "netchange.change",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "AAH20/network-change-intelligence-twin/policy/change.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "478db98121e3c48b8140536d1fa8169008bde59c",
+      "package": "kubernetes.securitycontext",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "AHegab/SafeFix-K8s/Validations/policies/opa_minimal/security_context_required.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "629fb5d5bdcc73792d3667a4d3473e4316b59450",
+      "package": "typosentinel.policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Alivanroy/Typosentinel/policies/typosquat.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d2951c6026c53f77762b650bfa221e4ca2ecf587",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Anoop1605/secure-devops-pipeline/policy/no-root.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "144633b9ee229486ef11d9eeacaa8ae0d9ffd287",
+      "package": "arodenydeletepullsecret",
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Azure/ARO-RP/pkg/operator/controllers/guardrails/policies/gktemplates-src/aro-deny-delete-pull-secret/src.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a5358555221decd278e3b9bd5a284e9f6cc1e8a1",
+      "package": "k8sazureapparmor",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "allowedProfiles"
+        ]
+      },
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedProfiles"
+      ],
+      "subject": "Azure/Community-Policy/policyDefinitions/Kubernetes/enforce-apparmor-profile/rego/src.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d106f8dce117a3d2bf598cdf3a9b2b90faeb0f9d",
+      "package": "policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.framework.create_container, data.framework.dump_stacks, data.framework.errors, data.framework.exec_external",
+      "reasons": [
+        "reads a data document the bundle does not define: data.framework.create_container, data.framework.dump_stacks, data.framework.errors, data.framework.exec_external"
+      ],
+      "subject": "Azure/azure-cli-extensions/src/confcom/samples/aci/duplicated_probes/policy_exclude_default_fragment.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d106f8dce117a3d2bf598cdf3a9b2b90faeb0f9d",
+      "package": "policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.framework.create_container, data.framework.dump_stacks, data.framework.errors, data.framework.exec_external",
+      "reasons": [
+        "reads a data document the bundle does not define: data.framework.create_container, data.framework.dump_stacks, data.framework.errors, data.framework.exec_external"
+      ],
+      "subject": "Azure/azure-cli-extensions/src/confcom/samples/aci/minimal/policy_infrastructure_svn.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "43e6c1cfe8b29cb4f1c733dd50694fdcbf2b6e8b",
+      "package": "behavry.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Behavry-ai/behavry-proxy/policies/base/allow_all.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fd3a0ec414da5199c363074a441d8d3317a09c59",
+      "package": "demo.opa",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "BilalAlpaslan/gateway-authn-and-authz/opa/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c9be3bfbeb06928140db240a5cd06e8164acd8bf",
+      "package": "cis_1_2_19",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "BlueBandicoot/k3s-lab/policy/CIS.1.2.19.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c9be3bfbeb06928140db240a5cd06e8164acd8bf",
+      "package": "cis_2_2",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "BlueBandicoot/k3s-lab/policy/CIS.2.2.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "375b3c8c51fd289ef5329d5accd1bbc40a78dc23",
+      "package": "mixerauthz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "BuildIt-Poland/immutable-web-platform/policy/runtime/allow.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8d3056b19f3e684ba37be5f7832efe1fd718c7c5",
+      "package": "k8srequiredlabels",
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "CawaAlreadyTaken/uni.fog_and_cloud_computing/e49/pod-env.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "32ecb2817980b72d0466563e2147cba2107d1bd8",
+      "package": "rules.ebs_volume_encrypted",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Cigna/confectionery/rules/terraform/aws/ebs/ebs_volume_encrypted.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "32ecb2817980b72d0466563e2147cba2107d1bd8",
+      "package": "rules.eks_version_enforcement",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Cigna/confectionery/rules/terraform/aws/eks/eks_version.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7c7ba41d6a262d3b97de8525f39b32100192f6c5",
+      "package": "kubernetes.admission",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Citadel-Cloud-Management/citadel-saas-factory/security/opa/deny-latest-tag.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4e4e04c646948fef27d3dd65284eeb96531abc26",
+      "package": "catalyst.terraform",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Cloud-Byte-Consulting/Catalyst/infrastructure/policy/opa/terraform.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a7a448b8797baa2e5c036e2af5052b0bbe61ffc5",
+      "package": "omni.instruction.tuning",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Cukurikik/Omni/src/policy/rego_core/omni_instruction_tuning_policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e05b88fd369765d42ef05d4fdf463b5f087eae3d",
+      "package": "terraform",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Deengineers/tech-vault/devops-challenges/code/q23/policies/s3.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f913dffe9abcf8dec1ebc734a7f13bb2c106b05b",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "does not parse as Rego v1 or v0",
+      "subject": "DevOpsMadDog/Aldeci.AI/suite-core/simulations/experiments/e2e_orchestration/policy/APP2_fintech/deny_crypto_vulnerabilities.rego",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "9e7a19d6b98ff2a82f28a96dd6854cb898520fe2",
+      "package": "httpapi.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "DoubleDensity/minio/docs/sts/putobject.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6ddfeebdc3d7960a7238fbbe5b8a736ad3b85b15",
+      "package": "metabolights.validation.v2.rules.phase2.violations",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "EBI-Metabolights/mtbls-validation/validation/metabolights/validation/v2/rules/phase2/violations/phase2_violations.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c5968c1873817cd1df871fcc2236a6f93e34e5be",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ET-sec/cyber-squire1/terraform/cd-oci-infrastructure/policy/deny_missing_prevent_destroy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c6377cad4660e010dc0bb01bb1a5fcf04efa60be",
+      "package": "docker",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "EmbarkStudios/opa-policies/policy/docker/deny_curl_bashing.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cf6e16acba042d5c74868aba320ce0cb3aceaaa4",
+      "evaluation_time_state": {
+        "time.now_ns": "the clock"
+      },
+      "package": "verification",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns",
+        "reads a data document the bundle does not define: data.revoked_credentials, data.trusted_issuers"
+      ],
+      "subject": "EmploymentVC/EmploymentVC/security/opa-policies/verification.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ff2dff69d6e8e4fe41128ee287785a5215c28f54",
+      "package": "network.naming",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "GauravGirase/terraform-golden-modules/policies/network/naming.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27799c2c27414a483a4a043b957bfd2997d53231",
+      "package": "agt.ifc",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "GenAI-Security-Project/agent-control-standard/reference-implementations/agt/policy/lib/agt_ifc.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "601d403d60e3cabc8a0b55b53d2ff741710df2df",
+      "package": "jdg.p24_innovations",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Gorski-Maciej/NexusAI/JDG/rules/p24_innovations_enterprise.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "601d403d60e3cabc8a0b55b53d2ff741710df2df",
+      "package": "jdg.micro.rodo_aml_bdo_atomic_p15",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.thresholds.jdg.rodo_aml_bdo.aml_cash_threshold_eur, data.thresholds.jdg.rodo_aml_bdo.aml_str_deadline_hours, data.thresholds.jdg.rodo_aml_bdo.bdo_fine_art194_pln, data.thresholds.jdg.rodo_aml_bdo.bdo_registration_fee_pln",
+      "reasons": [
+        "reads a data document the bundle does not define: data.thresholds.jdg.rodo_aml_bdo.aml_cash_threshold_eur, data.thresholds.jdg.rodo_aml_bdo.aml_str_deadline_hours, data.thresholds.jdg.rodo_aml_bdo.bdo_fine_art194_pln, data.thresholds.jdg.rodo_aml_bdo.bdo_registration_fee_pln"
+      ],
+      "subject": "Gorski-Maciej/NexusAI/policies/micro/rodo_aml_bdo_atomic_p15.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "2f2c2ab9742ba7ad4c3187272b82a7798c0c35b5",
+      "package": "powershell.cicd",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "GurdipSCode/devops-policies-pwsh/policies/cicd.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a23dafecb506fea6255d4203bdaed4e2008b0303",
+      "package": "ansible.security.cve_2024_8775",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Gurkirxt/devops-project/policies/ansible/cve-2024-8775-no-log.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8ade21c58137d7f10493acc306b73c8221420afd",
+      "package": "AutoAudit_tester.rules.CIS_GCP_6_3_5",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Hardhat-Enterprises/AutoAudit/engine/legacy/rules-gcp/CIS_GCP_6_3_5.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8ade21c58137d7f10493acc306b73c8221420afd",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Hardhat-Enterprises/AutoAudit/policy/compose/compose_compliance.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3098546472267752920320dd805cbdf0b3115528",
+      "package": "terraform.gcp.security.cloud_source_repositories.google_sourcerepo_repository.pubsub_configs_service_account_email",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Hardhat-Enterprises/Policy-Deployment-Engine/policies/gcp/Cloud Source Repositories/google_sourcerepo_repository/pubsub_configs.service_account_email.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3098546472267752920320dd805cbdf0b3115528",
+      "package": "terraform.gcp.security.cloud_storage.google_storage_object_acl.predefined_acl",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Hardhat-Enterprises/Policy-Deployment-Engine/policies/gcp/Cloud Storage/google_storage_object_acl/predefined_acl.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8a621f80cdf7699577335c18ed68c21fe8cd8f13",
+      "package": "ibmcloud.resources.state.ibm_dns_glb_monitor",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reaches outside through ibmcloud.state.get_resources, which reads a data document the bundle does not define: data.resources",
+      "reasons": [
+        "reaches outside through ibmcloud.state.get_resources, which reads a data document the bundle does not define: data.resources"
+      ],
+      "subject": "IBM-Cloud/terraform-opa-ibm/resources/ibm_dns_glb_monitor/ibm_dns_glb_monitor_state.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "687685c2f9fa85365f04add10ea7d070596434e7",
+      "package": "openbank.agents",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.agents.agents, data.agents.tool_tiers.deny",
+      "reasons": [
+        "reads a data document the bundle does not define: data.agents.agents, data.agents.tool_tiers.deny"
+      ],
+      "subject": "JiRaska/open-bank-oss/openbank-infra/opa/policies/agents.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "729503e13a083f11eb4e719f9ef6d8961aa65496",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "JimilPrabtani/AWS-WAF-OPS-PLATFORM/policies/conftest/no_terminating_allow.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c83f92832efcaeebd6317eb6df6442173cdccdbf",
+      "package": "kubernetes.admission",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Jitterx69/inflow-ai/infra/security/opa/policies/deny-privileged.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "86c9a3aa4fd050f1744c23c7f846f6f196b27c4a",
+      "package": "terraform",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.aws_instance.instances",
+      "reasons": [
+        "reads a data document the bundle does not define: data.aws_instance.instances"
+      ],
+      "subject": "Kishorgujar/CICD-With-Pac/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d4bebdce360f09014d62e12fe37916fd4e9bffef",
+      "package": "GCP_Terraform_gcp_security_gke_no_public_control_plane",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Loginsoft-LLC/Vulnerability-and-Security-Compliance-Research/Rego/Cloud Native/GCP Terraform/gke_no_public_control_plane.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "238f9662be106adc4ca683cbe1b1b66afc847e7b",
+      "package": "access_token_plugin.tasks",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Loongson-Cloud-Community/docker-library/cvat-ai/cvat/v2.55.0/cvat/cvat/apps/access_tokens/rules/access_token_plugin.tasks.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "944df1c747f467c7f78dcd57547bbddc86c72b26",
+      "package": "agentjail.experimental",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "LuD1161/agentjail/agentpolicy/policies/experimental/principal_shape.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "944df1c747f467c7f78dcd57547bbddc86c72b26",
+      "package": "agentjail",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "LuD1161/agentjail/cmd/agentjail/policies/aws_posture.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "59b6c1750dbf8370d994b586714967c9e1cfce9e",
+      "package": "pam.zero_trust_verification",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Manjula101/opa-pam-policies/pam-zero-trust-verification.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "31147f0d7da6911e06f2059c3655b49c331a1702",
+      "package": "envoy.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "MapColonies/mapproxy-deprecated/helm/config/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f48541580e665369c69bef0c52a530276d443353",
+      "package": "odin.policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Maverick0351a/odin-gateway-starter/policies/egress_allowlist.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c9d011755919b19db0f1cff8eea3611423e064d7",
+      "package": "application.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Modelcode-ai/tokei/tests/data/open_policy_agent.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ca363092bdf04c9af13b89368548f11d5428585e",
+      "package": "resource_sharing",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "NTARI-RAND/SoHoLINK/configs/policies/resource_sharing.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "89973702e10a7102b35a88b6ebbbd6d9e04ff603",
+      "package": "tasks",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "NiklasWork/wrapping-machine-quality-check-ml/cvat-develop/cvat/apps/engine/rules/tasks.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1d45d1f8266de37b200b3670e1604e8d54d728ae",
+      "evaluation_time_state": {
+        "http.send": "the network"
+      },
+      "package": "opsmx",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: http.send",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: http.send"
+      ],
+      "subject": "OpsMx/ssd-policies/scripts/s270.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f8ad4b0f361c035173f6632521c20e295baa7822",
+      "package": "k8senforceingress",
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "reads a document the host injects: data.inventory",
+      "reasons": [
+        "reads a document the host injects: data.inventory"
+      ],
+      "subject": "PacktPublishing/Kubernetes-An-Enterprise-Guide-Third-Edition/chapter11/enforce-ingress/rego/enforceingress.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "b472e6b0ebbb504cb0bbcc82694ddde44ec63bf0",
+      "package": "gistpin.images",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "PinSpace-Org/GistPin/infrastructure/k8s/opa/policies/images.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b472e6b0ebbb504cb0bbcc82694ddde44ec63bf0",
+      "package": "gistpin.secrets",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "PinSpace-Org/GistPin/infrastructure/k8s/opa/policies/secrets.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bb88ece1a43d314bbed166cb6f371ec17ec60eb0",
+      "package": "banking.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.blocked_ips, data.score_weights.blocked_ip, data.score_weights.impossible_travel, data.score_weights.mfa_passed",
+      "reasons": [
+        "reads a data document the bundle does not define: data.blocked_ips, data.score_weights.blocked_ip, data.score_weights.impossible_travel, data.score_weights.mfa_passed"
+      ],
+      "subject": "PraneethUpadhya195/banking_zta/opa/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c31f42daf310234639af7901f9d5146a49977de1",
+      "package": "terraform.security",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Santixie/AUY1105-grupo-7/policies/deny_public_ssh.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1c7b1f7ff3912fb422b6f5d7f41dee38d660d64c",
+      "package": "cloudforge.privileged",
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ShivaSirigadhi1/cloudforge-idp/security/opa/policies/deny_privileged.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6a543c4b2a1c6c556edf8efd08137bb294664fc7",
+      "package": "policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.resources.properties.zone, data.resources.type",
+      "reasons": [
+        "reads a data document the bundle does not define: data.resources.properties.zone, data.resources.type"
+      ],
+      "subject": "Sreelal-VU/sample-sonarqube-repo4/opa/examples/rego/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "5a992081bd1e1352787e749bd700a223299f84a5",
+      "package": "example",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "StuAtKong/kongpose/opa/policies/example.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "19e240ae5e80ad3a0687814857b5bfdc2422cdca",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "does not parse as Rego v1 or v0",
+      "subject": "Sunbird-Spark/sunbird-spark-installer/helmcharts/learnbb/charts/registry/configs/opa/main.rego",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "0f62bb0c75e2ff32908e3e48ee68a3d5d236feb0",
+      "package": "terraform.required_tags",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Tharbouch/IaC/policies/required_tags.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "961d82c55c2bc87282573f354b68b16d5ee727ad",
+      "package": "greensecops.cloud_aws.security.ebs_volume_unencrypted",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "TheoGoudout/greensecops/backend/app/rules/cloud_aws/security/ebs_volume_unencrypted.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "961d82c55c2bc87282573f354b68b16d5ee727ad",
+      "package": "greensecops.container_runtime.reliability.container_pid_explosion",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "TheoGoudout/greensecops/backend/app/rules/container_runtime/reliability/container_pid_explosion.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ad89da66bbcfe435a23ab1c599ff263ec3ae77d3",
+      "package": "iluminara",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "VISENDI56/iLuminara-Core/governance_kernel/policies/eu_ai_act.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a3d2d146ce58c5c51f5bd1e0e714c4b2db50b56",
+      "package": "vulnetix.rules.vnx_184",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Vulnetix/cli/internal/sast/rules/vnx-184.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a3d2d146ce58c5c51f5bd1e0e714c4b2db50b56",
+      "package": "vulnetix.rules.vnx_java_012",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Vulnetix/cli/internal/sast/rules/vnx-java-012.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "34a42c09329367a9522c2990eed488c79274d5f1",
+      "package": "vulnetix.rules.fugue_cfn_cloudtrail_cloudwatch",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "Vulnetix/opa-fugue-regula/rules/cfn/cloudtrail/cloudwatch.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "97245184101d714384232dfb56d5e56a2b013599",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "aadriantech/helm-chart-metallb/policy/controller.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "99ea7ae1946193a676b32cc7009d330aba444c6d",
+      "package": "time",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reaches outside through abbey.functions.expire_after, which calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "reaches outside through abbey.functions.expire_after, which calls a builtin whose result is not a function of its arguments: time.now_ns"
+      ],
+      "subject": "abbeylabs/policy-library/max-grant-duration/1d/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "4281e3cc4f62d5fae653d75a905bfe45746e556b",
+      "package": "kubernetes.admission",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "actions-marketplace-validations/infracloudio_ci-cd-standards-using-opa/test-data/policies/deploy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c2985f55834217ed92e6b74899c70a8fe3f8e6c6",
+      "evaluation_time_state": {
+        "opa.runtime": "the runtime environment"
+      },
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: opa.runtime",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: opa.runtime"
+      ],
+      "subject": "acuvity/mcp-servers-registry/mcp-server-couchbase/docker/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c2985f55834217ed92e6b74899c70a8fe3f8e6c6",
+      "evaluation_time_state": {
+        "opa.runtime": "the runtime environment"
+      },
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: opa.runtime",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: opa.runtime"
+      ],
+      "subject": "acuvity/mcp-servers-registry/mcp-server-httpx/docker/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c2985f55834217ed92e6b74899c70a8fe3f8e6c6",
+      "evaluation_time_state": {
+        "opa.runtime": "the runtime environment"
+      },
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: opa.runtime",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: opa.runtime"
+      ],
+      "subject": "acuvity/mcp-servers-registry/mcp-server-multiversx/docker/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "67a60edfb176ead2ebd1827aabe03b6b1e7b320d",
+      "evaluation_time_state": {
+        "io.jwt.decode_verify": "the clock"
+      },
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: io.jwt.decode_verify",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: io.jwt.decode_verify"
+      ],
+      "subject": "acuvity/minibridge/examples/policer-rego/police.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e71a8c36dcac0ab4599625f5694a462c7cbf7850",
+      "package": "policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "adeavid/confidential-ml-distribution/k8s/layer3/kbs-deny-all.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2f4e4f3a978b158cd324a2803006b86b422bdb36",
+      "package": "admission",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.k8s.matches, data.kubernetes.namespaces",
+      "reasons": [
+        "reads a data document the bundle does not define: data.k8s.matches, data.kubernetes.namespaces"
+      ],
+      "subject": "adityamillind98/gatekeeper/deprecated/admission/ingress-host-fqdn.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "da319d49b9e971c52062126401fa85e17f4b8d03",
+      "package": "rcdo",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "afterdarksys/rcdo/examples/rego/starter/base.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6418b9d0a6229b49f1ede927a84b38939fb1d4af",
+      "package": "authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "aileron-gateway/aileron-gateway/test/ut/app/opa/bundle/authz/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1f854114029ac4b8811b98dd6d64695a700f9d56",
+      "package": "healthgov.iso27001.readiness",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ajosianor-source/trading-project-automation/07-Healthcare-DevSecOps-Governance/policies/iso27001/readiness.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3700ac60645bb289ec40da86f3459b10c5692791",
+      "package": "neuralhive.guard.resource_policies",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "albinoJimy/Neural-Hive-Mind/helm-charts/guard-agents/policies/resource_policies.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3700ac60645bb289ec40da86f3459b10c5692791",
+      "package": "neuralhive.orchestrator.sla_enforcement",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "albinoJimy/Neural-Hive-Mind/helm-charts/orchestrator-dynamic/policies/rego/orchestrator/sla_enforcement.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7f45918f7401aaa12e819702bc7087a898a3da1b",
+      "evaluation_time_state": {
+        "io.jwt.decode_verify": "the clock",
+        "time.now_ns": "the clock"
+      },
+      "package": "envoy.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: io.jwt.decode_verify, time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: io.jwt.decode_verify, time.now_ns"
+      ],
+      "subject": "alex-y-kozlov-sandbox/opa-envoy-tut/k8s/kustomize/overlays/sandbox/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e2a69f9d76e729db23ef429c9a2d7a7fb8195a4b",
+      "package": "after_resolution",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "alibaba/loongsuite-semantic-conventions-genai/policies/registry.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "070762b26810e17c39c7416eba571b0f6d01feee",
+      "package": "infraguard.rules.aliyun.ess_scaling_group_attach_multi_switch",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "aliyun/infraguard/policies/aliyun/rules/ros/ess-scaling-group-attach-multi-switch.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "070762b26810e17c39c7416eba571b0f6d01feee",
+      "package": "infraguard.rules.aliyun.kms_key_delete_protection_enabled",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "aliyun/infraguard/policies/aliyun/rules/ros/kms-key-delete-protection-enabled.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "070762b26810e17c39c7416eba571b0f6d01feee",
+      "package": "infraguard.rules.aliyun.redis_instance_tls_version_check",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "aliyun/infraguard/policies/aliyun/rules/ros/redis-instance-tls-version-check.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "aa03b3033a0dc4f5ff8438a9ce6971a6fe793990",
+      "evaluation_time_state": {
+        "io.jwt.decode_verify": "the clock",
+        "time.now_ns": "the clock"
+      },
+      "package": "envoy.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: io.jwt.decode_verify, time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: io.jwt.decode_verify, time.now_ns"
+      ],
+      "subject": "alliswellcaondy/cloud-native-library/content/tsb/assets/howto/s2s-policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "549db80fcb8a1996c0e96c784fe5cd7b23acca70",
+      "package": "compliance.cis_gcp.rules.cis_3_8",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.benchmark_data_adapter",
+      "reasons": [
+        "reads a data document the bundle does not define: data.benchmark_data_adapter"
+      ],
+      "subject": "ameytriage/testlea-mirror/security-policies/bundle/compliance/cis_gcp/rules/cis_3_8/test.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "76551b7b19ebc667764ec75da14990d0aef8b6e5",
+      "package": "compliance.encryption",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ancoleman/ai-design-components/skills/implementing-compliance/examples/opa-policies/encryption.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c1eec4c426170dc97117a24b0c9643c8cf897942",
+      "package": "policy.exfiltration",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "anderseknert/opa-kasten-example/policy/exfiltration/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "88fe68ac2d29095ffa0853bb08a970e934cce14e",
+      "package": "boundary.mcp.unpinned_package",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "andrewblooman/boundary/policies/mcp/unpinned_package.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0176ee11aaad13258e5fd7a467b0564b923b19be",
+      "package": "bacalhau.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "androvonx95/DEPIN_Network_Mini_Project/pkg/authz/policies/policy_test_deny.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ba3e682a6e396e4f1624c6796295b9c7191749c7",
+      "package": "ram_role_with_high_risk_access_10700002",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "antgroup/CloudRec/rules/ALI_CLOUD/ALI_CLOUD_RAM Role_202507101903_755145/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c9fbd26ce6880ec413cabfdfdd30af634077b134",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "anusmithapatnaik/OPAConftest/examples/hcl2/policy/deny.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4f643a29084cb9b9e8c90e878e03bbe6ac80a5db",
+      "package": "authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.roles, data.users, data.users.*",
+      "reasons": [
+        "reads a data document the bundle does not define: data.roles, data.users, data.users.*"
+      ],
+      "subject": "app-sre/qontract-reconcile/opa/authz/rbac.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e3b4584d3caeb0b4244728a01fca50405101b42c",
+      "package": "policy.main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.policy.deny, data.policy.net_secure_config",
+      "reasons": [
+        "reads a data document the bundle does not define: data.policy.deny, data.policy.net_secure_config"
+      ],
+      "subject": "apple/security-pcc/darwinOSBits/DarwinInit/Models/PCCRegoPolicy/bundle/policy/main/main.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "da4777b4f0fac643b9fe2d3616b2496c36fe9b48",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "aquaproj/aqua-registry/policy/registry/registry.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "71c05d02845cc2c3a5dfa4fe914a68a052cc88bf",
+      "package": "custom.regal.rules.custom.invalid-metadata",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.regal.ast, data.regal.result",
+      "reasons": [
+        "reads a data document the bundle does not define: data.regal.ast, data.regal.result"
+      ],
+      "subject": "aquasecurity/trivy-checks/.regal/rules/custom/invalid-metadata/invalid_metadata.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "14263dd37b3780c7fab9d5d5f2eac8302c44b035",
+      "package": "builtin.kubernetes.KSV113",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "aquasecurity/trivy-operator/tests/envtest/testdata/content/policies/kubernetes/policies/general/manage_namespace_secrets.rego",
+      "unresolvable_calls": [
+        "result.new"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "295cdbbfece32655f20c8019f602afe5da91cb95",
+      "package": "spinnaker.http.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "armory-io/policy-engine-examples/rbac/default/rbac-example.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "17b51c838d1098cf00be90f06767e05411685ea4",
+      "package": "k8srequiredlabels",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "labels"
+        ]
+      },
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for labels",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for labels"
+      ],
+      "subject": "aserto-demo/policy-gatekeeper/policy/k8s_requiredlabels.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d5409c252e8f2e40b10901e8d82d5c368491b470",
+      "package": "example.POST.api.__asset",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "aserto-dev/go-aserto/examples/middleware/policy/example.POST.api.__asset.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8936f2f655fcd087ca26e171f2b4814b2e689c02",
+      "package": "example.gce",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ava-orange-education/Ultimate-Terraform-for-Cloud-Security/Chapter 05/21.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ff783d2e9ccb7c8ee7114de684a78c7b92e3b2c2",
+      "package": "intrinsics",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "aws-cloudformation/cloudformation-validate/src/rego-engine/handwritten/rego/intrinsics/findinmap.rego",
+      "unresolvable_calls": [
+        "cfn_rule_active",
+        "make_diag"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "cffa57e515d54dec65acba1d88ef0facd160c49b",
+      "package": "aws.emr.m3",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "aws-samples/aws-infra-policy-as-code-with-terraform/policy-as-code/OPA/policy/aws/emr/aws-emr-m-3.rego",
+      "unresolvable_calls": [
+        "data.utils.is_create_or_update"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "079aa4939df567519170461b23c0533b99f1f200",
+      "package": "k8ssecurity",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "babanomania/The-TODO-Hardening-Initiative/policy/deny-privileged.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d3d71448c2c1c44da8c9be23042055646a417723",
+      "package": "cdk_preflight",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "badmintoncryer/cdk-preflight/rules/apigatewayv2/pf-apigwv2-access-log-destination-log-group/rule.rego",
+      "unresolvable_calls": [
+        "make_diag_full",
+        "resolve",
+        "resources_of_type"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "d3d71448c2c1c44da8c9be23042055646a417723",
+      "package": "cdk_preflight",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "badmintoncryer/cdk-preflight/rules/bedrock-agentcore/pf-agentcore-required-union-empty/rule.rego",
+      "unresolvable_calls": [
+        "make_diag_full",
+        "resources_of_type"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "d3d71448c2c1c44da8c9be23042055646a417723",
+      "package": "cdk_preflight",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "badmintoncryer/cdk-preflight/rules/mediaconvert/pf-mediaconvert-pkg-group-container/rule.rego",
+      "unresolvable_calls": [
+        "make_diag_full"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "package": "agent_control_specification.input",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "baoqger/agt-fork/policy-engine/core/tests/fixtures/opa/verdict.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "891336d25deb001db2ef055ed8bf0d257de0d8ce",
+      "package": "kfm.citation_validation_required",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "bartytime4life/Kansas-Frontier-Matrix/policy/focus/citation_validation_required.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "03231b493ce1a4d242e875f32a6f611c786273de",
+      "package": "aws.hipaa.least_privilege",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "benjamin-s-hobbs/GRCEportfolio/policies/aws/hipaa/hipaa_roles_leastpriv_aws.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e3a40e4b0ecbf5d6f148d949363617d6f430110f",
+      "package": "opa.examples",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "bigwhite/experiments/authz-examples/abac/opa/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "22e8c9a0766d7dc12313775637746001548f4443",
+      "package": "terraform.security",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "bijualbert/terraform-gcp-vertex-mlops/policies/deny_public_gcs.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0ba9fd7cee36d458ffd536baa606a788cf4179bd",
+      "package": "user.hcl.ID004",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "brunobotelhobr/My-Vulnerable-Code-Snippets/misconf/custom-policy/hcl/policy/full_open.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b6051e8c8c2c1a3ef3e7e6513f7a46689226d6f4",
+      "package": "batten.coderabbit_config",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "button-inc/batten/policy/coderabbit-config.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b6051e8c8c2c1a3ef3e7e6513f7a46689226d6f4",
+      "package": "batten.release_provision_parity",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "button-inc/batten/policy/release-provision-parity.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b6051e8c8c2c1a3ef3e7e6513f7a46689226d6f4",
+      "package": "batten.workspace_dep_referenced",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "button-inc/batten/policy/workspace-dep-referenced.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7e7e290c305b2abb1ca3117a93fc89cac43e1e29",
+      "package": "Cx",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.generic.cloudformation, data.generic.common",
+      "reasons": [
+        "reads a data document the bundle does not define: data.generic.cloudformation, data.generic.common"
+      ],
+      "subject": "caldas479/InfraPaC/data/datasets/spec_bug_fix_kics_extended/cloudformation/aws/kics_cloudformation_aws_elb_sensitive_port_is_exposed_to_entire_network_002/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "7e7e290c305b2abb1ca3117a93fc89cac43e1e29",
+      "package": "terraform",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "caldas479/InfraPaC/examples/s3_versioning.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1731ce252295c1910d1b5849e3b1cbb5480df3ad",
+      "package": "thesys.data_access",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "camerongable/thesys/policies/data_access.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cfdddc0e9bbeb434c9bf27b24c8b89d847a7bd93",
+      "package": "lib.terraform.CB_TFAWS_055",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "carbonetes/brainiac/internal/checker/terraform/rules/aws/bucket/verify_s3bucket_acl_allows_public_write_access.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cfdddc0e9bbeb434c9bf27b24c8b89d847a7bd93",
+      "package": "lib.terraform.CB_TFAWS_046",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "carbonetes/brainiac/internal/checker/terraform/rules/aws/verify_securitygroups_ingress_port_3389.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d639d3a29a1d6a819ae3b8253c722f8c44bef5e7",
+      "package": "terraform.provider.aws.module_types.reference.source",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "caylent-solutions/terraform-modules/policies/opa/terraform/provider/aws/module_types/reference/source_policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d639d3a29a1d6a819ae3b8253c722f8c44bef5e7",
+      "package": "terraform.module.data",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "caylent-solutions/terraform-modules/policies/opa/terraform/provider/github/module_types/data/makefile_policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d639d3a29a1d6a819ae3b8253c722f8c44bef5e7",
+      "package": "terraform.provider.github.module_types.reference.structure",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "caylent-solutions/terraform-modules/policies/opa/terraform/provider/github/module_types/reference/structure_policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9063d900522d427869a0f744b32946b49d719076",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "cds-snc/opa_checks/aws_terraform/cloudfront_custom_error_response_starts_with_slash.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b5b2af53f44eec2f77d01f9bfb0c379700edc68c",
+      "package": "common",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "chaitin/veinmind-tools/plugins/go/veinmind-iac/rules/common/kubernetes.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9bc625507d22c241b62c36e4d4d5746b6d3afee6",
+      "package": "defenseclaw.admission",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.actions, data.config.allow_list_bypass_scan, data.config.scan_on_install, data.first_party_allow_list",
+      "reasons": [
+        "reads a data document the bundle does not define: data.actions, data.config.allow_list_bypass_scan, data.config.scan_on_install, data.first_party_allow_list"
+      ],
+      "subject": "cisco-ai-defense/defenseclaw/policies/rego/admission.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "28772a45f439116d1552c75d50be370546fff0a3",
+      "package": "llm.allow_model",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "citadelgrad/llm-governance-gateway/policies/llm/allow_model.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b3e65d642a0d54b1aec6770992504bd3f8497f78",
+      "package": "governance",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "codertjay/gitlab/gems/gitlab-policy-store/spec/fixtures/rules/calendar_window/rule.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "20ba101f1e3b6e379bb38a868499330ec1a0cf72",
+      "package": "prepack.multi_platform_ci",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "complytime/complypack/internal/prepack/testdata/multi-platform/ci.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "77e1cb996b3a9c5c29b6b072dc037d287e7b9781",
+      "package": "olm",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reaches outside through lib.rule_data.get, which reads a data document the bundle does not define: data.rule_data, data.rule_data__configuration__, data.rule_data_custom",
+      "reasons": [
+        "reaches outside through lib.rule_data.get, which reads a data document the bundle does not define: data.rule_data, data.rule_data__configuration__, data.rule_data_custom"
+      ],
+      "subject": "conforma/policy/policy/release/olm/olm.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "6d033e66a898abf3b525b84c7b7a6180d80061ba",
+      "package": "envoy.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "daltonhahn/anvResearch/kube_scripts/OPA-Testing/gcp/allow-all.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bdefea34228f5dc7cd9c29c3724f94cc33d81c9d",
+      "package": "jobs",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "daniel-git574/cvat-testing/cvat-fork-project/cvat/apps/engine/rules/jobs.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ff82fc8fbc9324b0e15e7a3a1d827f4ff195c529",
+      "package": "talon.policy.gateway_access",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "dativo-io/talon/internal/policy/rego/gateway_access.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "602ffb417575d8ca39c6d3a9d1f3e8bd6e5ac950",
+      "package": "vwg.mcp_authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.mcp_rules.rules",
+      "reasons": [
+        "reads a data document the bundle does not define: data.mcp_rules.rules"
+      ],
+      "subject": "debasisdev/opa-konzept/mcp_authz.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "296aa85fd74e1ce1c68210b29a0789d6ca4e5422",
+      "package": "declaw.platform.cmd",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "declaw-ai/declaw-cli/examples/opa-policies/deny-dangerous-commands.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "57aa7e4d80701fe811d09db927ec29e129dc81e1",
+      "package": "policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "demis1997/kata2-trustee/demo_policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c71172d1bafe4f2f6e20602378116f8bf29f1062",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "denniszielke/container_demos/policy/require_selector.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b4ab29b27de2d8941f0732faa2cfd5639f29c004",
+      "package": "_dt_built_in.exposures.user_input",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "dether-net/dethernety-oss/modules/dethernety-general/data/dethernety-general/data/user-input/policies.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "463423372549956954d7bfdc5f7ac289f22baacd",
+      "package": "ingressannotations",
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "reads a document the host injects: data.inventory",
+      "reasons": [
+        "reads a document the host injects: data.inventory"
+      ],
+      "subject": "devspace-cloud/devspace-cloud/rego/ingress_annotations.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "35739c970d1db2928de02643c29a2c6c667840f5",
+      "package": "fdai.kubernetes.rbac_enabled",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "dotnetpower/fdai/policies/kubernetes/rbac_enabled.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "53b5372b8cad6f61ec8e02b32fb0509e0808ed50",
+      "package": "d2",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "douglasnaphas/play-rego/d2/allow-if-no-cats.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e6ea1820942d1af66bc6b73e0d6891b78739fb4d",
+      "package": "cloudsentinel.gate",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "drghassen/PFE-MPSSR/policies/opa/gate/gate_deny_intent.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "792fe9f1063b7aa98b52404270c1d83ee33466ac",
+      "package": "compliance.cis_gcp.rules.cis_2_8",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.benchmark_data_adapter",
+      "reasons": [
+        "reads a data document the bundle does not define: data.benchmark_data_adapter"
+      ],
+      "subject": "elastic/cloudbeat/security-policies/bundle/compliance/cis_gcp/rules/cis_2_8/test.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "792fe9f1063b7aa98b52404270c1d83ee33466ac",
+      "package": "compliance.cis_k8s.rules.cis_1_2_24",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.benchmark_data_adapter",
+      "reasons": [
+        "reads a data document the bundle does not define: data.benchmark_data_adapter"
+      ],
+      "subject": "elastic/cloudbeat/security-policies/bundle/compliance/cis_k8s/rules/cis_1_2_24/test.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "f5d147d9bdd0f1cc858f4195f00fe601c07cbe6b",
+      "package": "Cx",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "env0/acme-demo/ec2-kics/assets/queries/azureResourceManager/network_security_group_with_unrestricted_access_to_ssh/query.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4640b662d8bc18922dbc2530c13d0182ce35d18c",
+      "package": "env0",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "env0/approval-policies/resources-limit/env0.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27b94b84f6cf555bfde5817deae323ee8cb00cea",
+      "package": "cupcake.policies.builtins.git_pre_check",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "eqtylab/cupcake/fixtures/claude/builtins/git_pre_check.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27b94b84f6cf555bfde5817deae323ee8cb00cea",
+      "package": "cupcake.system",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.cupcake.policies",
+      "reasons": [
+        "reads a data document the bundle does not define: data.cupcake.policies"
+      ],
+      "subject": "eqtylab/cupcake/fixtures/system/evaluate.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "2fb1a58aa7f71394e41624c9745bd9fd61a49a06",
+      "evaluation_time_state": {
+        "time.now_ns": "the clock"
+      },
+      "package": "authz.orders.policy6",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns"
+      ],
+      "subject": "esteban-mendoza/microservices-security/appendix-f/sample01/policies/policy_6.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d1d4dabe3a236154e041625248a877ddd87ddad0",
+      "package": "policy.googlecloud.iam.service_account_admin_separation",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.shisho",
+      "reasons": [
+        "reads a data document the bundle does not define: data.shisho"
+      ],
+      "subject": "flatt-security/shisho-cloud-managed-workflows/workflows/cis-benchmark/googlecloud-v1.3.0/iam/service-account-admin-separation/decide.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "d1d4dabe3a236154e041625248a877ddd87ddad0",
+      "package": "policy.aws.s3.bucket_public_write_access",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.params, data.params.tag_exceptions, data.shisho",
+      "reasons": [
+        "reads a data document the bundle does not define: data.params, data.params.tag_exceptions, data.shisho"
+      ],
+      "subject": "flatt-security/shisho-cloud-managed-workflows/workflows/csp/aws-fsbp/s3/bucket-public-write-access/decide.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "628eb429d112f5421581b2298121c480016f358c",
+      "package": "shisho.decision.aws.efs",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.params, data.params.resource_exceptions, data.shisho",
+      "reasons": [
+        "reads a data document the bundle does not define: data.params, data.params.resource_exceptions, data.shisho"
+      ],
+      "subject": "flatt-security/shisho-cloud-rego-libraries/decision/aws/efs/efs_access_point_user_identity.gen.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "628eb429d112f5421581b2298121c480016f358c",
+      "package": "shisho.decision.googlecloud.sql",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.params, data.params.resource_exceptions, data.shisho",
+      "reasons": [
+        "reads a data document the bundle does not define: data.params, data.params.resource_exceptions, data.shisho"
+      ],
+      "subject": "flatt-security/shisho-cloud-rego-libraries/decision/googlecloud/sql/sql_instance_accessibility.gen.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "edd03a30654b21baf68f9a0b0f891a2556cf1bb7",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "does not parse as Rego v1 or v0",
+      "subject": "fmfalgun/Autherization/examples/network-authorization/ble/ble-5.4/policy.rego",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "package": "builtin.aws.eks.aws0041",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "foalem/Pac-paper/policies/Open Policy Agent (OPA)/aquasecurity__trivy-checks/no_public_cluster_access_to_cidr.rego",
+      "unresolvable_calls": [
+        "cidr.is_public",
+        "result.new"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "package": "builtin.dockerfile.DS017",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "foalem/Pac-paper/policies/Open Policy Agent (OPA)/aquasecurity__trivy-checks/update_instruction_alone.rego",
+      "unresolvable_calls": [
+        "result.new"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "foalem/Pac-paper/policies/Open Policy Agent (OPA)/open-policy-agent__conftest/images.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ad43419ba85de1b2af3e15dd66f09bf9121479c2",
+      "package": "fregot.tests.repl.debug_cache",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "fugue/fregot/tests/golden/repl/debug-cache.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9b2d2235bb79937a14eaf8fec0e4fa066a3f7ca7",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "g33ck0o-coder/devsecops-k8s-demo/opa-k8s-security.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "831cb881ddff0e6b8f47a2473c10ec224cf940e4",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "gbrindisi/dockerfile-security/dockerfile-security.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4e34a7c7d8f0798910d81b0a26b49d2bdb3f73e7",
+      "package": "validate_input_tf",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "genvaldev/genval/templates/defaultpolicies/rego/terraform.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fb943e4efba61cf7b0a0c56f6648710a7453519b",
+      "package": "secrets_inherit",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "getplumber/plumber/policies/secrets_inherit.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fb943e4efba61cf7b0a0c56f6648710a7453519b",
+      "package": "superfluous_action",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "getplumber/plumber/policies/superfluous_action.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "35f63699e480ce2a0c88c6e4dd285a247aa3a08b",
+      "package": "terraform.policies.feedback",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "glenngillen/terraform-demo-opa/policies/feedback.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "046b6c00727d0b8cd9bc0db79d74c95360767ac1",
+      "package": "gke.policy.control_plane_access",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "google/gke-policy-automation/gke-policies-v2/policy/control_plane_access.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "046b6c00727d0b8cd9bc0db79d74c95360767ac1",
+      "package": "gke.policy.node_pool_cmek",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "google/gke-policy-automation/gke-policies-v2/policy/node_pool_disk_encryption.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "046b6c00727d0b8cd9bc0db79d74c95360767ac1",
+      "package": "gke.policy.cluster_workload_scanning",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "google/gke-policy-automation/gke-policies/policy/cluster_enable_workload_scanning.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "20593be4a8354d6d42a7e5ee515199dab7e40daa",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "goutham018/Lambda-s3-sns-dynamodb/first.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e05acdce33449b90cc31c3a406e1adea67d9bdb2",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "grafana/rollout-operator/operations/policies/policies_deployment.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7f9b6fa66795429d9c2dd0b15fccade6e709fb34",
+      "package": "nist.pm.pm_9",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "grcwarlock/warlock/policies/nist-800-53/pm/pm_9_risk_management_strategy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f2de263333206fb949005ad3896c14e9171e7ef7",
+      "package": "kubernetes.admission",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "guardon-dev/demo-repository/no-latest-image.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "63079cada852be9c1ad969b6f35cc8076b8953cb",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "hallllow29/gitops-devsecops-aws/policies/no_public_rds.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fd66bb3c6526bdff16873aafa26e3299b59f74c0",
+      "package": "subpolicy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "hasan7n/tmp-policies/policy_cards/ethics-approval-required/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "234e551c04807cebed75dc037458a85bca8f5475",
+      "package": "tfdrift",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "higakikeita/tfdrift-falco/policies/gcp.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b8573eead531c68a4e2a551883c3a17828b30826",
+      "package": "resource_limits",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "hoangsonww/PetSwipe-Match-App/policies/resource-limits.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9b55a78b160474a66954025fed65e02726dc1e8e",
+      "package": "app.rbac",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.role_permissions, data.users.location.country, data.users.roles",
+      "reasons": [
+        "reads a data document the bundle does not define: data.role_permissions, data.users.location.country, data.users.roles"
+      ],
+      "subject": "hong3nguyen/rego_git/rego_data/rbac.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "689ab297e7e8ca08b7d6072e126c186dc51e6f5d",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "iangreen74/radix/gitops/policy/rego/deny_deploy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bf71b4e9833166469c94d6db7a7cd4817694f679",
+      "package": "rules",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "infracourse/iac-grader/a2-rules/data_stack/aurora.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d801bcdcaf509aa7190489f380d9fa2139f8b6ca",
+      "package": "glitch",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "infragov-project/cwe2rego/generated_rego/ablation_no_semantic_check/claude-sonnet-4-6/runs/run_001/cwe_284.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "274d4dd6d41cfff2694a3c4b34c4fe4fb3c3f128",
+      "package": "rbac",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "innovationmech/swit/examples/full-security-stack/policies/rbac.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "274d4dd6d41cfff2694a3c4b34c4fe4fb3c3f128",
+      "evaluation_time_state": {
+        "time.now_ns": "the clock"
+      },
+      "package": "financial.abac",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns"
+      ],
+      "subject": "innovationmech/swit/pkg/security/opa/policies/examples/financial_abac.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "55317bbbb06db33326e86f49e9514018d6765c25",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "jackcarterc/conftest/examples/compose/policy/deny.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "55317bbbb06db33326e86f49e9514018d6765c25",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "jackcarterc/conftest/examples/kubernetes/policy/labels.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "55317bbbb06db33326e86f49e9514018d6765c25",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "jackcarterc/conftest/examples/vcl/policy/deny.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "984d2b0cb6cca012ea7dc347aee5b2185a99475d",
+      "package": "babelsuite.soap_faults",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "jarin-devoss/babelSuite/examples/oci-suites/soap-claims-hub/policies/soap_faults.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0b3cddac1b1f7a4be39ba686170669278c6e5bd3",
+      "package": "kafka.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "johnmccabe/katacoda-scenarios/bsides-opa-2019/kafka/assets/setup/kafka.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8c0f533df8d19f1ebbb560b31021436c05ff537d",
+      "package": "kellerai.oss.blast_radius",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.blast_radius.affects",
+      "reasons": [
+        "reads a data document the bundle does not define: data.blast_radius.affects"
+      ],
+      "subject": "jonathan-kellerai/kellerai-oss-template/template/_files/conformance/blast_radius.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "5e92e14751eed87048a8b0fe04dbd8c5144da86a",
+      "package": "postee",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "khulnasoft/postee/rego-filters/Allow-Registry.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dd3c0ebe23cc6c1c84e5ef1640595ae314e4ccbf",
+      "package": "builtin.azure.compute.azure0037",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "khulnasoft/tunnel-checks/checks/cloud/azure/compute/no_secrets_in_custom_data.rego",
+      "unresolvable_calls": [
+        "result.new",
+        "squealer.scan_string"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "dd3c0ebe23cc6c1c84e5ef1640595ae314e4ccbf",
+      "package": "builtin.azure.network.azure0048",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a name this test cannot resolve",
+      "subject": "khulnasoft/tunnel-checks/checks/cloud/azure/network/disable_rdp_from_internet.rego",
+      "unresolvable_calls": [
+        "cidr.count_addresses",
+        "cidr.is_public",
+        "result.new"
+      ],
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "4a9139ff5416841dc1e317eef36f4effa17c0cea",
+      "package": "required_checks",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "konflux-ci/konflux-test/policies/image/required-labels.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a78801a689b6db4ee4afe4549f1003a4fc06b303",
+      "package": "policy",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exclude_label_key",
+          "exclude_label_value"
+        ]
+      },
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value"
+      ],
+      "subject": "kravciak/weave-migration/output/policies/ControllerMissingNamespace/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "627ebd75e0c92c739de14da80481b7c059e48cf1",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "krish5322/gitops-microservices/src/cartservice/src/opa-docker-security.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "572cce426f12290b097b7ab7ebf74dd87f6df3d8",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "kubernetes-native-testbed/kubernetes-native-testbed/tools/policy/main.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e67b7d42a0d9c855b6617a53a56cd1f3f434e63e",
+      "package": "armo_builtins",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "kubescape/regolibrary/rules/agent-sandbox-egress-policy/raw.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e67b7d42a0d9c855b6617a53a56cd1f3f434e63e",
+      "package": "armo_builtins",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.postureControlInputs.imageRepositoryAllowList",
+      "reasons": [
+        "reads a data document the bundle does not define: data.postureControlInputs.imageRepositoryAllowList"
+      ],
+      "subject": "kubescape/regolibrary/rules/agent-sandbox-image-registry-allowlist/raw.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e67b7d42a0d9c855b6617a53a56cd1f3f434e63e",
+      "package": "armo_builtins",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "kubescape/regolibrary/rules/rule-deny-cronjobs/raw.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8b7999f9b7dade0bf08915a0ca6b14f66553cc2d",
+      "package": "policy",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exclude_label_key",
+          "exclude_label_value",
+          "exclude_namespaces",
+          "label",
+          "value"
+        ]
+      },
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, exclude_namespaces, label, value",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, exclude_namespaces, label, value"
+      ],
+      "subject": "kubewarden/policies/policies/ControllerMissingLabelValue/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "8b7999f9b7dade0bf08915a0ca6b14f66553cc2d",
+      "package": "policy",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exclude_label_key",
+          "exclude_label_value",
+          "exclude_namespaces"
+        ]
+      },
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, exclude_namespaces",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, exclude_namespaces"
+      ],
+      "subject": "kubewarden/policies/staging/MYSQLEnforceSkipTzinfoEnvVar/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "b7c6662bcedd94c3726c9b5d7510e946d21ff499",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "does not parse as Rego v1 or v0",
+      "subject": "kumarrajapuvvalla-bit/ops-platform/policies/k8s/deny-root-containers.rego",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "f77be9db80e7e93c0637264f2e2804418424a522",
+      "package": "trino",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reaches outside through configuration.env, which calls a builtin whose result is not a function of its arguments: opa.runtime",
+      "reasons": [
+        "reaches outside through configuration.env, which calls a builtin whose result is not a function of its arguments: opa.runtime"
+      ],
+      "subject": "lakekeeper/lakekeeper/authz/opa-bridge/policies/trino/allow_default_access.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "46e9517285d90d8a13b0bead1648a60748396c12",
+      "evaluation_time_state": {
+        "time.now_ns": "the clock",
+        "uuid.rfc4122": "entropy"
+      },
+      "package": "relationship_evaluation_policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns, uuid.rfc4122",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns, uuid.rfc4122"
+      ],
+      "subject": "meshery/meshery/models/meshery-core/0.7.2/v1.0.0/policies/identify_additions.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c3e8229dfb19c697468cfb790495d7174ef8bc45",
+      "package": "agt_policies_africa.kdpa",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "microsoft/agent-governance-toolkit/examples/policies/african-regulatory/rego/kdpa-data-protection.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2350f91cc2a777ce27e9ada2f693a1167d67df72",
+      "package": "el.chrome",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mikemol/el-openglo/policy/chrome.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6b3b21a4a5f75dada8d83d60bc7cbeaff7c2c3aa",
+      "package": "mindclade.bootstrap.key_administration",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mindclade-old-2/bootstrap/policy/key_administration.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f8afdcb70e2d55916efa0f46be746b4c939d5b7c",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mjbright/opa-rego-scenarios/sample-data/Lab4/conftest-terraform/policy/deny.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d21bc4bc88e8924a218d31351b743ad126d43faa",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.terraform.deny",
+      "reasons": [
+        "reads a data document the bundle does not define: data.terraform.deny",
+        "reaches outside through terraform.aws_security_group_rule.deny, which reads a data document the bundle does not define: data.terraform_util.changes_by_type"
+      ],
+      "subject": "mjlshen/terraform-aws-opa/policy/main.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e6424196bddae875840a49279edd7822d6366b36",
+      "package": "totem.spike.r54140f59be3e6e44",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mmnto-ai/totem/spikes/spine-adopt/artifacts/lowered/r54140f59be3e6e44/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e6424196bddae875840a49279edd7822d6366b36",
+      "package": "totem.spike.r87aff037d7de47a7",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mmnto-ai/totem/spikes/spine-adopt/seed/controls/k3/k3-target.policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "621c0b79cea7e74d06b6eef529aaa06a59f4c821",
+      "package": "terraform",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mohibul-xyz/ops-solution/iac/policies/terraform.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a329155e1fb6ca09c2e021e24fd07691a126c365",
+      "package": "graphql",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "monch1962/gql-firewall/docs/opa-samples/09-batch-size-limit.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a329155e1fb6ca09c2e021e24fd07691a126c365",
+      "evaluation_time_state": {
+        "time.now_ns": "the clock"
+      },
+      "package": "graphql",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns"
+      ],
+      "subject": "monch1962/gql-firewall/docs/opa-samples/21-time-based-access.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "1aa2fafe034e3152d42ed39b990c97b32f4ef530",
+      "package": "infracost",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "morethancertified/gitops-minicamp-2024/policies/cost.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "027447d5d74caf9f8c2051b0227eb043e1c7a65e",
+      "package": "terraform",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mshytse/base/policies/3_levels_policy/pass.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f85db53bd3a5b83e79837ef8b55c7e05adfef245",
+      "package": "tests",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "myagley/opa-rs/opa-go/tests/empty.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "574d41e0f8a119e05934f9cffde4965159db04d8",
+      "package": "mycodexvantaos.release",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "mycodexvantaos/mcv/rego/release.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6aa1039e8d7e0bde0428ff113ca5d10fce7e5a20",
+      "package": "envoy.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "naveensrinivasan/oidc-spire/k8s/envoy-jwt-opa/k8s/backend/config/opa-policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "639068d78c4b26ac25fc41a1b099874699ec092d",
+      "package": "app.rbac",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.role_permissions, data.users.location.country, data.users.roles",
+      "reasons": [
+        "reads a data document the bundle does not define: data.role_permissions, data.users.location.country, data.users.roles"
+      ],
+      "subject": "neuro-synapse/opal-policy-repo/rbac.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "9cd2a4a7c14cbd9003e7476f02b6088ac4724107",
+      "package": "flowstate.deploy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "nikhiilraj/FlowState/policies/allow_all_local.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ff1bddbf7015b49854b3cba5361b012d2c1399d3",
+      "package": "rules.aws_db_instance_encryption_in_transit",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.fugue",
+      "reasons": [
+        "reads a data document the bundle does not define: data.fugue"
+      ],
+      "subject": "nonfx/starchitect-cloudguard/terraform/aws/Amazon DocumentDB/aws_db_instance_encryption_in_transit.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ff1bddbf7015b49854b3cba5361b012d2c1399d3",
+      "package": "rules.aws_keyspaces_vpc_endpoint_security_authentication",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.fugue",
+      "reasons": [
+        "reads a data document the bundle does not define: data.fugue"
+      ],
+      "subject": "nonfx/starchitect-cloudguard/terraform/aws/Amazon Keyspaces (for Apache Cassandra)/aws_keyspaces_vpc_endpoint_security_authentication.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "ff1bddbf7015b49854b3cba5361b012d2c1399d3",
+      "package": "rules.gcp_sql_server_user_connections",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.fugue",
+      "reasons": [
+        "reads a data document the bundle does not define: data.fugue"
+      ],
+      "subject": "nonfx/starchitect-cloudguard/terraform/gcp/Cloud SQL/gcp_sql_server_user_connections.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e5aef07c8f43d2a947ac30a3c81e3bec7eccae34",
+      "package": "nuon",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "nuonco/kitchen-sink/gcp/policies/sandbox-limits.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d57c2785bdb13d18a2334778ab4f650d3d3b756f",
+      "package": "nuon",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "nuonco/nuon-ext-linter/testdata/invalid/opa-deny-all-managed/policies/blocks-all.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ad0d36e93771f6c64a36e3fd1289aae4ab343931",
+      "package": "before_resolution",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.groups",
+      "reasons": [
+        "reads a data document the bundle does not define: data.groups"
+      ],
+      "subject": "open-telemetry/weaver/crates/weaver_checker/data/policies/invalid_policies.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e8044de2435b6ed4b80e87eaf5eae559aa7e69d1",
+      "package": "identity.mapping.ruleset.update",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "openstack-experimental/keystone/policy/mapping/ruleset/update.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e8044de2435b6ed4b80e87eaf5eae559aa7e69d1",
+      "package": "identity.oauth2.client.show",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "openstack-experimental/keystone/policy/oauth2/client/show.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e8044de2435b6ed4b80e87eaf5eae559aa7e69d1",
+      "package": "identity.vendordata.create",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "openstack-experimental/keystone/policy/vendordata/create.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2848eaa9cb2d3e13dc1291d30528feff0cbcc514",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "p0tr3c/opa-wasm-bug-reproducer/src/main_ucD_3.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "439c541fd348f3279ff37c3b2d8162e1875ab420",
+      "package": "user.dockerfile.ID002",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.services",
+      "reasons": [
+        "reads a data document the bundle does not define: data.services"
+      ],
+      "subject": "piyushpurohit23/trivy/examples/misconf/custom-data/policy/custom.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "76901b5726522cf8872fb3f6022d83c40e1ed711",
+      "package": "pod_deny_host_ipc",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "plexsystems/konstraint/examples/pod_deny_host_ipc/src.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "76901b5726522cf8872fb3f6022d83c40e1ed711",
+      "package": "psp_deny_host_pid",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "plexsystems/konstraint/examples/psp_deny_host_pid/src.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "76901b5726522cf8872fb3f6022d83c40e1ed711",
+      "package": "psp_deny_privileged",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "plexsystems/konstraint/examples/psp_deny_privileged/src.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f279427282bc1c6a09f06ec59a7b9e1843b68f43",
+      "package": "rule",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "prancer-io/prancer-compliance-test/aws/cloud/sqs.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f279427282bc1c6a09f06ec59a7b9e1843b68f43",
+      "package": "rule",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "prancer-io/prancer-compliance-test/azure/terraform/dbfirewallrules.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f279427282bc1c6a09f06ec59a7b9e1843b68f43",
+      "package": "rule",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "prancer-io/prancer-compliance-test/google/kcc/ComputeFirewall.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "063b1152fa2e9bdcdc2840c5e7ce402d20f81197",
+      "package": "rules",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.dataset",
+      "reasons": [
+        "reads a data document the bundle does not define: data.dataset"
+      ],
+      "subject": "pvsone/opa-ext-authz/spring-app/cloudfoundry-styra-das/rules.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "3efb9355794581f5ac5827d712b89819f4a3179c",
+      "package": "mcp.fetch",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "r33drichards/mcp-js/examples/chartjs/policies/fetch.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ae4ee1599a13b829231569b9683db8eea0cd927b",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "rajim59/SwarmFort/infra/security/opa-policies/runtime-policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "39e822e5dc6c19adb50bdb123dec6b8b3cba5ca8",
+      "package": "cis_5_1_3",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "raspbernetes/k8s-security-policies/policies/CIS.5.1.3/CIS.5.1.3.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "39e822e5dc6c19adb50bdb123dec6b8b3cba5ca8",
+      "package": "containers_resources_limits_cpu",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "raspbernetes/k8s-security-policies/policies/K.SEC.01/K.SEC.01.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "39e822e5dc6c19adb50bdb123dec6b8b3cba5ca8",
+      "package": "containers_securitycontext_allowprivilegedeescalation_true",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "raspbernetes/k8s-security-policies/policies/K.SEC.15/K.SEC.15.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1a95f7ebec5b7cf66945bce764d2fa0d82a9d16e",
+      "package": "compliance.ui",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "redhat-data-and-ai/template-ui/config/compliance/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a8e715a12223f78bccfd271f3bcd0578a96cfa59",
+      "package": "xptest.iam",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ridik-il/xptest/rules/aws/iam.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9ae097e86010322798aa2456d5e07be261594cc1",
+      "package": "harborfail",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "rode/rode/pkg/policy/test/missing_results_return.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bd9e40b5338de529fb114226bd5d575f937e14ae",
+      "package": "tf_acceptance",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "rode/terraform-provider-rode/internal/provider/data/minimal.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ac43797130a7fe32fa08ef2cb5612742e1da1b1a",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "does not parse as Rego v1 or v0",
+      "subject": "rthexton1964/prisma-to-wiz-dev/wiz_rego_policies/pcp-064_vpc_flow_logs_enabled.rego",
+      "verdict": "undetermined"
+    },
+    {
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "package": "rulehub.fintech.stablecoin_reserve_ratio",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "rulehub/rulehub/policies/fintech/stablecoin_reserve_ratio/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "package": "rulehub.k8s.require_resources",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "rulehub/rulehub/policies/k8s/require_resources/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "package": "rulehub.medtech.eu_mdr_eudamed_registration",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "rulehub/rulehub/policies/medtech/eu_mdr_eudamed_registration/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3f2dae6886f8f1c6b7048590bd05af44e95d06aa",
+      "package": "todo",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "rupacesigdel/ToDoList/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "eec9fe4d194893d244a7cd57c2818c2dc2e1d11e",
+      "evaluation_time_state": {
+        "http.send": "the network"
+      },
+      "package": "verify",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: http.send",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: http.send",
+        "reaches outside through verify.response, which calls a builtin whose result is not a function of its arguments: http.send"
+      ],
+      "subject": "scribe-public/sample-policies/v1/github/api/signed-commits-range.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "eec9fe4d194893d244a7cd57c2818c2dc2e1d11e",
+      "package": "verify",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "scribe-public/sample-policies/v1/github/org/allow-admins.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "eec9fe4d194893d244a7cd57c2818c2dc2e1d11e",
+      "package": "verify",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.scribe",
+      "reasons": [
+        "reads a data document the bundle does not define: data.scribe"
+      ],
+      "subject": "scribe-public/sample-policies/v2/rules/gitlab/org/allow-token-scopes.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "fa0fa3c22e10f99e124ae64711975ccaceeaa005",
+      "package": "cis_amazon_linux_2023.services",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "shadowman-lab/Ansible-Compliance/roles/opa_policies/files/rego_policy_libraries/benchmarks/cis/amazon_linux_2023/service_validation.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fa0fa3c22e10f99e124ae64711975ccaceeaa005",
+      "package": "cis_debian_11.auditd",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "shadowman-lab/Ansible-Compliance/roles/opa_policies/files/rego_policy_libraries/benchmarks/cis/debian_11/auditd_validation.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3a58ae68679cedb6c68ee6f6890b57760164120a",
+      "package": "lib.helpers",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "shivajichaprana/policy-as-code-framework/policies/lib/helpers.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2d83bcdceab0bf62ee0c95c9f4ef34c377353265",
+      "package": "rule",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.rules",
+      "reasons": [
+        "reads a data document the bundle does not define: data.rules"
+      ],
+      "subject": "simongottschlag/opa-bundle-api/pkg/bundle/static/rule.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
+      "package": "rules.snyk_001.tf",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "snyk/policy-engine/examples/01-simple.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
+      "package": "rules.snyk_002.tf",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "snyk/policy-engine/examples/02-simple-attributes.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
+      "package": "rules.snyk_011.tf",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "snyk/policy-engine/examples/11-finding.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "11f482167ed9a679228aa963c478ea3f3dda2780",
+      "package": "sbproxy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "soapbucket/sbproxy/examples/rego-modifier-parity/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2964d99bf5b2dbba9ffa6d55a618b9cbacde8eca",
+      "package": "docker.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "sorokinpf/docker_opa/all.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2964d99bf5b2dbba9ffa6d55a618b9cbacde8eca",
+      "package": "docker.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "sorokinpf/docker_opa/part_rego/path.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6ff5edb08bc806f323eff5c48426a7762ef1fee7",
+      "package": "spacelift",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "spacelift-io/spacelift-policies-example-library/examples/login/access-levels-within-an-organization.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b8ea22ac1ffd06f54b7ca3026d7b83d599c0d956",
+      "package": "main",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "stefanutc1/infrastructure/policy/terraform/security.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "232d0ce8d1dbc6786aae80c9565beb82781e29d6",
+      "package": "terraform.s3",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "sudheeramgothu/90daysofdevops/day38-approval-gates/policies/terraform/s3_public.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8c8ed27975593396f1aff7621140914347f9426f",
+      "package": "aws_rego.elb_checks.no_healthy_targets.no_healthy_targets",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "sudoersllc/opsbox-rego/aws_rego/elb_checks/no_healthy_targets/no_healthy_targets.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c77a3b8fdaa1ff46b5afad9f7206478c2378ed4b",
+      "package": "terraform.aws.secretsmanager",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "swagwatch/AWS-PROJECT-2026-CYCLE-0001-DEV/modules/secretsmanager/policy/main.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8a9573aa1efafb6c684d2eb400a87d8fc37d5090",
+      "package": "policies.auth.routes.listReactions.findParentsByListReactionId.policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reaches outside through policies.util.common.originalRecord.is_active, which calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "reaches outside through policies.util.common.originalRecord.is_active, which calls a builtin whose result is not a function of its arguments: time.now_ns",
+        "reaches outside through policies.util.common.originalRecord.is_passive, which calls a builtin whose result is not a function of its arguments: time.now_ns"
+      ],
+      "subject": "tarcinapp/entity-persistence-gateway-policies/policies/auth/routes/listReactions/findParentsByListReactionId/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "e959bf040b524dbeb96914fea873095f6fa173bf",
+      "evaluation_time_state": {
+        "http.send": "the network"
+      },
+      "package": "clinic",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: http.send",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: http.send"
+      ],
+      "subject": "tidepool-org/opa/clinic-policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "046017a1d2d6f090e7d74a4f7776375e4c20ed8a",
+      "package": "kubernetes.admission.policy_pdb",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "tmobile/magtape/policies/policy-pdb-check.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1e9b32e3cc117f45466fa7fe65604c17c8ee5cb7",
+      "package": "policy.github",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "truckercore/truckercore1/policy/rego/github.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "06845d597674cbcaf5e22b9aad74d21b571cdd95",
+      "package": "wiz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "trustoncloud/threatmodel-for-azure-storage/wiz_custom_rules/Storage.C78_denylist/cloud/authorized_region_detection.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "95f41899861ec7272a086a5cdbba49131088df0a",
+      "package": "wiz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "trustoncloud/threatmodel-for-google-bigquery/wiz_custom_rules/controls/Bigquery.C129/allowlist/bigquery_gemini_enablement.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "95f41899861ec7272a086a5cdbba49131088df0a",
+      "package": "wiz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "trustoncloud/threatmodel-for-google-bigquery/wiz_custom_rules/controls/Bigquery.C129/universal/bigquery_gemini_enablement.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4974c869bc2ac197b78fee0a85ba2329fb39e660",
+      "package": "loopers.policy",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "try-loopers/loopers-oss/examples/policies/02_deny_destructive.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c1429d2b7b9ef972ce39644f7968e9e44e0ce601",
+      "package": "kubernetes.admission",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "tsprasath/ai-devops/security/policies/deny-privileged.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f7a3b08b3c9b410c85b41aff981c6f6a1ed2fa8f",
+      "package": "gdpr",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "vagabond-cloud/Vagabond-Fuse/examples/eudi-toolkit/demo_files/gdpr_policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b7921217985c3f629db8f552e1620d0ebd784fa3",
+      "package": "sbercode",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "valex1984/katacoda-scenarios/openapi6/rules/finish.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a1611201454729da7f12f6dde5dfafc6980cd086",
+      "package": "service.authz.api.capi.invoice_template_access_token",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.service.authz.access.api",
+      "reasons": [
+        "reads a data document the bundle does not define: data.service.authz.access.api"
+      ],
+      "subject": "valitydev/bouncer-policies/policies/service/authz/api/capi/invoice_template_access_token.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "5578a3ca96ee15fead483b8c2a53c14516632da7",
+      "package": "cupcake.policies.claude.block_ignore_preexisting",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "vasceannie/noteflow/.cupcake/policies/claude/block_ignore_preexisting.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f283c4e98e5fe83d6ed3ec655ddc44e6238ad22a",
+      "package": "dynamic_alerting.egress",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "vencil/Dynamic-Alerting-Integrations/policies/examples/log-egress.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c7212cabf2eeca707ad8c01ee6b56cf2155548db",
+      "evaluation_time_state": {
+        "time.now_ns": "the clock"
+      },
+      "package": "infisical.intent",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns",
+      "reasons": [
+        "calls a builtin whose result is not a function of its arguments: time.now_ns",
+        "reads a data document the bundle does not define: data.infisical.journal, data.infisical.journal.identities"
+      ],
+      "subject": "verlyn13/policy-as-code/policies/infisical/intent.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c07abaafaf71b0e754fac12d5199fd7d055b71e4",
+      "package": "probes.p02_object_literal_operand",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "wakaleo/explico/src/test/resources/probes/02-object-literal-operand.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c07abaafaf71b0e754fac12d5199fd7d055b71e4",
+      "package": "probes.p21_not_over_complete_rule_with_default",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "wakaleo/explico/src/test/resources/probes/21-not-over-complete-rule-with-default.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c33757323d5dcdac7de4a7ac9393e1932f10c85c",
+      "package": "weave.advisor.rbac.generic_prohibit_resource_verb",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exclude_label_key",
+          "exclude_label_value",
+          "resource",
+          "verb"
+        ]
+      },
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, resource, verb",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, resource, verb"
+      ],
+      "subject": "weaveworks/policy-library/examples/RBACProhibitVerbsOnResources/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "c33757323d5dcdac7de4a7ac9393e1932f10c85c",
+      "package": "weave.advisor.images.image_tag_enforce",
+      "parameter_reads": {
+        "guarded": [],
+        "whole": [],
+        "with_default": [],
+        "without_default": [
+          "exclude_label_key",
+          "exclude_label_value",
+          "exclude_namespaces",
+          "image_tag"
+        ]
+      },
+      "reads_admission_review": true,
+      "reads_constraint": false,
+      "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, exclude_namespaces, image_tag",
+      "reasons": [
+        "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exclude_label_key, exclude_label_value, exclude_namespaces, image_tag"
+      ],
+      "subject": "weaveworks/policy-library/policies/ControllerImageTag/policy.rego",
+      "verdict": "outside"
+    },
+    {
+      "commit": "4a067d20deed0ae0362a4ee1f9865e5af675a79c",
+      "package": "agent.authz",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "wejdeneh/ai-k8s-gateway/charts/ai-k8s-gateway/agent_actions.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2bb5ad2bc687c057056fbb9db892c90daf2a05ad",
+      "package": "cis_1_4_2",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "wirelesssecuritylab/ccbr/rego/kubernetes/cis_1_4_2/cis_1_4_2.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "92b9b431c7bf6e2468eec31d7da0313c9366414c",
+      "package": "csa_ccm.change_control",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ynotbhatc/rego_policy_libraries/frameworks/management/csa_ccm/csa_ccm_change_control.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "92b9b431c7bf6e2468eec31d7da0313c9366414c",
+      "package": "csa_ccm.identity_access",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ynotbhatc/rego_policy_libraries/frameworks/management/csa_ccm/csa_ccm_identity_access.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "92b9b431c7bf6e2468eec31d7da0313c9366414c",
+      "package": "csa_ccm.incident_management",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "ynotbhatc/rego_policy_libraries/frameworks/management/csa_ccm/csa_ccm_incident_management.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d7d8a46b9143c9c6fa039ea45597f42f8812ee7a",
+      "package": "rules",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "every guard reads the request and literals the policy contains",
+      "subject": "yowainwright/rego-learning/policy/policy.rego",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9c2f32820d23e221dfc1f6f218e0f36054e09b8a",
+      "package": "app.rbac",
+      "reads_admission_review": false,
+      "reads_constraint": false,
+      "reason": "reads a data document the bundle does not define: data.scope2.users.roles",
+      "reasons": [
+        "reads a data document the bundle does not define: data.scope2.users.roles"
+      ],
+      "subject": "zsombix/opapoc/scope2/rbac.rego",
+      "verdict": "outside"
+    }
+  ],
+  "policies_considered": 300,
+  "policies_unavailable": [],
+  "provenance": "third-party",
+  "repositories": 236,
+  "schema_version": "v1",
+  "share_inside": 0.73
+}
