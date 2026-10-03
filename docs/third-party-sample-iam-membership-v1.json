@@ -1,0 +1,3525 @@
+{
+  "corpus_scope": "third-party",
+  "counts": {
+    "inside": 372,
+    "outside": 28,
+    "undetermined": 0
+  },
+  "ecosystem": "iam",
+  "excluded_owners": [
+    "amazon-archives",
+    "amzn",
+    "aws",
+    "awsdocs",
+    "awslabs",
+    "iann0036"
+  ],
+  "how_collected": "GitHub code search, each query split into eight size shards and read to at most 400 results per shard; the pool filtered to a frame and the frame shuffled with the recorded seed and walked under the recorded caps, as scripts/third_party_sample.py states",
+  "owners": 335,
+  "policies": [
+    {
+      "commit": "b50f142a949d714192097fbdda0612518c44eed2",
+      "condition_operators": [
+        "StringLikeIfExists"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "100daysofdevops/100daysofdevops/ec2-t2-restrict.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8494212d0e2ebb21564f73c74333347121fcc8f4",
+      "condition_operators": [
+        "IpAddress"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "100rd/portfolio/terraform/terragrunt/live/stage/aws/s3/internal/policies/foundation-static-segments.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4db5812bc5d75a04324a8fb902c191e7a807159f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "1Strategy/cloud-custodian-demo/iam-permissions.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "915820c22f9863ecf2257076825e5152edbac0c5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "1chooo/an-aws-a-day/iam_role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a4ca9d21255e05f31993718df03fc717f3b977a9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "3m3x/nmap-aws/role-trust-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cf8241ed4eba47663c3adc96b4965a262539b59e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "42m4n/infra-automation/minio/backup-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f01de64c8d108da903f746493340d09531d17078",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "4dn-dcic/foursight/.chalice/policy-prod.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7ebd5c3e3f1d491b6eb8bc144ee4f0849fcfc896",
+      "condition_operators": [
+        "ArnLike",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 10,
+      "subject": "916267142/accessrefinery/data/Scalability_05Keys/10_allow.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "50ee27545912c871789bcb41965679d2d24c95b9",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 10,
+      "subject": "ASUCICREPO/PDF_Accessibility/policies/deploy-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ad39607b2901774b99056505e0ed03386c10ef7e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "AWSCookbook/Serverless/assume-role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4ac62628783a7ab0d5ef9d60944551e448a0952b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "AWSinAction/code3/chapter07/bucketpolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9713d3fa3b2f5246c2b0ad383eedb63aac95fcda",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "AaronWiersma/aws-wireless-sensor/sensor/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8ac01c07399f02fdd24c97b4477ec8286635e698",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 9,
+      "subject": "Abdelali12-codes/aws_eks_codepipeline_xray_cloudwatch_fluentd/ebs-csi-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4db96e2616d5d5381c1a5af7c23b0b240e05fc73",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "AdRoll/hologram/permissions.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7702e9eaa9a1aae5e4c0cbb89defd510d5744cfc",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "AjayKumarSimhadri/aws-facial_rekognition/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cc443abe14e61c206cf605c8ba330552118b8eb4",
+      "condition_operators": [
+        "StringEquals",
+        "StringNotEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "Aryanprajapati9445/ReviseX/notes-app-backend/infra/s3-bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b82a4ab5c394d3325ecc353f6faf9daec4090ae3",
+      "condition_operators": [
+        "ArnNotLike"
+      ],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 1,
+      "subject": "AsysGuptaSF/AWSLandingZoneSCPs/Deny-billing-modification-action.json",
+      "template_placeholders": [
+        "${Account}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "c59c79626d3528c8d103940c1847eacc460ee142",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "Authress-Engineering/aws-architect.js/bin/deployment-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8e1914223b235262136df0d259156cf97d56cb4f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Baharul0111/Multi-Agent-Research-System/assume-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dc3cd7ce383561a751146e16225e25ef3c5ba7f7",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "BeryJu/infrastructure/tf/vault/policies/route53.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ecc771a84e20a0a628bdcc6b8fe64de0ef35732e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "BigDataBoutique/elasticsearch-cloud-deploy/assets/node-init.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ecc771a84e20a0a628bdcc6b8fe64de0ef35732e",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "BigDataBoutique/elasticsearch-cloud-deploy/assets/s3-backup.json",
+      "template_placeholders": [
+        "${s3_backup_bucket}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "41722cabc0f57646e42fa37ad51a70bc67867660",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "BrigadaSOS/Nadeshiko/backend/trust-dev.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5768c1b3741c8920869f0dfdadcdde2c35f38397",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Cantara/nerthus2/iam/nerthus_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6fe0733fa2b0374693846e12e2f693bb0a1f3d8b",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 3,
+      "subject": "Capgemini/terraform-amazon-ecs/policies/ecs-service-role-policy.json",
+      "template_placeholders": [
+        "${s3_bucket_name}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "6fe0733fa2b0374693846e12e2f693bb0a1f3d8b",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "Capgemini/terraform-amazon-ecs/policies/registry.json",
+      "template_placeholders": [
+        "${s3_bucket_name}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "da7f69169f6f29c7033e09f081641062de5d8323",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "Chinmayamission/CFF/lambda/.chalice/policy-prod.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cf2faea46f57ee77d854d50c9599fbee330789e5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "Chronasorg/chronas-api/infra/iam-inline-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6c8c9bd165f3f702cc65ad90c4b89a99db13a88d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "CloudAutomator/iam-policies/ecs-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6c8c9bd165f3f702cc65ad90c4b89a99db13a88d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "CloudAutomator/iam-policies/kms-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6c8c9bd165f3f702cc65ad90c4b89a99db13a88d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "CloudAutomator/iam-policies/ssm-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "30ae9bb58ecb03dbfb7735468b4f6f3c9b9c4ada",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "CloudCoder101/aws-bootcamp-cruddur-2023/ecs-task-trust.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0de2c00ec8d09ceddc070f7aa35cf8d6d88ca740",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "CodeSam621/Demo/AWS_IAM/trust-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "68fa410aedeb3621c7d5d49d31f04bd4976a24aa",
+      "condition_operators": [
+        "Bool"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "ConnectedHomes/chaim/policies/chaim-kms.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "68fa410aedeb3621c7d5d49d31f04bd4976a24aa",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "ConnectedHomes/chaim/policies/chaim-paramstore-write.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b3e7d8e342826bb59fcb7d29adf6bbc89b8caaef",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "Daylily-Informatics/daylily-ephemeral-cluster/config/aws/generate_cluster_report.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dbcaee9da6366623fe495d68ae8d73a05343af01",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "DeekshithSN/Terraform/IAM/admin.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d3092a4f36d8d1e2c6329d25447c6def08b785fd",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "DiazzzDev/BFlow-Financial-Engine/infra/lib/ecr-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "17017fec033173366d9fe6a24d2a63825b965a10",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 5,
+      "subject": "ELMOURABEA/Economic-Storm-platform/iam/github-actions-policy.json",
+      "template_placeholders": [
+        "${AWS::AccountId}",
+        "${AWS::Region}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "1347d6526bc8c558ccee62f4919e0aa08eb98f00",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "EMAYAN08/terraform-aws-deployALBWithASG/infra/iam-policies/ec2.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0da68ee3aa01a4905abb69ee91726dd0d2c9d990",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "EmmaLedesma/cloud-file-api/infra/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d58d1e3469d6ba8b669e0eda01314f5f4277d5e8",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Etelis/israid-needs-assessment-master/IsraAid-Rnas-GithubAction-Role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "00eb9676b695d822cc941c5245375063983cb734",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "FiquemSabendo/queremossaber/bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "abec82bee0de1674e90f333280b24a0897c90fae",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "FogSecurity/aws-size/iam/aws_size_no_sensitive.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "abec82bee0de1674e90f333280b24a0897c90fae",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "FogSecurity/aws-size/iam/aws_size_read_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1c5cb0fc84d7e65de98ab68c27332f5e6531d24a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "GaloisInc/ec2-unikernel/policies/role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7ace8841b768fc1dc01d26a3a328f1bac082b6ed",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "GetLinkfire/Linkfire_Cross-Account-Replication/s3-role-trust-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "65feb6172e034509398eb290d5b57819a8226430",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Geun-Oh/s3-mcp-server/s3-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "82a13d9b06c0281c2576ceab372ed98b97d9b2c9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "GowthamReddyNagabhusi/code-sync/deploy/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d09912a67f7ca725ccad5501bf577b8d540eac55",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "HPInc/cloud_deployment_scripts/docs/aws/SamplePolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f59532dd67a583be3522814a15024a561b12c5ec",
+      "condition_operators": [
+        "Bool"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "HariSekhon/Templates/aws_policy_require_mfa.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1d63a061d26ee0b8776b6eb0f4f7361320fb8f9c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Infineon/psoc6-aws-iot-optiga-tpm/aws-iot-core/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d2aaded0fe41956ca1e16403af6280c41112af32",
+      "condition_operators": [
+        "Bool",
+        "StringEquals",
+        "StringNotLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "Instituto-Politecnico-Modelo/2026-MTN-TP5-ORTIZSERRANO-SDD/backup/s3-bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2ce233f286b3cc0a6c898450b8958a2d89f6494a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "InternetOfHealthcare/ehealth-workshop/lambda-trust.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d0489b2d957d87dfb3db8eb620c11168a6a5411d",
+      "condition_operators": [
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "JakubSzuber/Golden-DevOps/aws/gh-action-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d0489b2d957d87dfb3db8eb620c11168a6a5411d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "JakubSzuber/Golden-DevOps/aws/gh-actions-inline-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4a363a116e4da1cef9b57d0445dfac179bc298f1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Jusharra/Compliance-as-Code-Terraform-Guardrails/ci-s3-logs-read.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2be3232c4d68042e40c0ea53a82ae7d9bad27d26",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "KasteM34/github-oidc-terraform/policies/s3-bucket-state.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2bdad18c72464ba7de7467c54995a5f443ff86d6",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "Kevin-byt/AWS-Projects/inventory/lowInventory.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "942299cd4c25d42b21aafcfb21ece5adffb1506f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Khalidgithub2020331007/Hall_Management_Web/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c4d2dabf09a2ccefd9d23c99320fd91753bf65db",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "Kong/kong-hybrid-istio-recipe/aws-iam/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6861124cca927758bd743b842424755112179fcd",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 15,
+      "subject": "Kong/kong-mesh-ecs/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2143f926e9d960fe6461f0437181570261c99f2a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Kulasangar/terraform-demo/assumerolepolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "29c029a0a2e8a349f35e6419703c8da5c9448026",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "LSEG-API-Samples/Article.EDPResearch.Python.ServerlessApplication/role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "87b459d4931a12a285618b369585b820be95c055",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "LaravelDevBose/common-docker/minio/policies/example.policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1187f875ed032e400056564f6d42536b9a1cb8d2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "LinkedInLearning/aws-building-a-strong-iam-model-for-your-enterprise-4517452/cloud-finops-role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1187f875ed032e400056564f6d42536b9a1cb8d2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "LinkedInLearning/aws-building-a-strong-iam-model-for-your-enterprise-4517452/pb-level3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1187f875ed032e400056564f6d42536b9a1cb8d2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "LinkedInLearning/aws-building-a-strong-iam-model-for-your-enterprise-4517452/sec-ops-role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "770336b88986ade6b98aa7f5ee7239b26e7dc8ab",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Llewellyn500/queuezero/dsql.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fef65f020f867c16b9aca42c1556f46b5db0b081",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "MOTSE972/cloud-deployment-capstone/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0798b08dbfc560042788d591081a298e6595114f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "MarkAYoder/BeagleBoard-exercises/cloud/aws/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b796028acfb1859233c4ad0e326f9a0179142560",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "MarkRoddy/count-ec2-instances/lambda-role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "20fd6d59bd6317d4c3ef8c6b442c94821673d267",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "Matiasv117/Fullstack-III-EFT-Backend/aws/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7e80c2362058d756b81493f0c5ccbfcd0a1d53e9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "MegrezZhu/LeetCode-Bot/deploy/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8d55e2ea8409526511326ede92ab36c8d5b07b79",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Merlin-s-Minty-Cards/MerlinsCollection/deploy/scheduled-sync-scheduler-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1ab5360e358cfe2e7c982d34fb10166c4b737427",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "ModusCreateOrg/capsule/policies/dev_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d625d800d533162289361da0d27bbd3feb837b8b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "Netflix-Skunkworks/skunky/iam/skunky_lambda_profile.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a26e8c1d76a42f106da33adfd7a0ac88d11d2101",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Nitya-003/CropChain/backend/secrets-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1c015c68671b9231a037b129b152e17327fe92c8",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 1,
+      "subject": "O01o/obsidian_viewer_iac_aws/syncer/iam_role_github_actions.json",
+      "template_placeholders": [
+        "${github_actions_arn}",
+        "${github_repository_name}",
+        "${github_user_name}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "f573d540ef1c613f4c698ace636aceb7b60259ea",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 3,
+      "subject": "P-Verifier/IoT-Policy-Benchmark/CHALLENGE1/CHALLENGE1-Error-21.json",
+      "template_placeholders": [
+        "${identityPool}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "f573d540ef1c613f4c698ace636aceb7b60259ea",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "P-Verifier/IoT-Policy-Benchmark/CHALLENGE1/CHALLENGE1-Error-48.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e79bc6d8ebf602ca5bdb002f18ff92402b2e4f57",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "P-Verifier/P-Verifier/policy_benchmark/FLAW3/FLAW3-Error-3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e79bc6d8ebf602ca5bdb002f18ff92402b2e4f57",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "P-Verifier/P-Verifier/policy_benchmark/FLAW3/FLAW3-Error-49.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e79bc6d8ebf602ca5bdb002f18ff92402b2e4f57",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "P-Verifier/P-Verifier/policy_benchmark/FLAW3/FLAW3-Error-91.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a4e8bc99e7f4ea3097cbbdd1bebcf45e9ea327ae",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 9,
+      "subject": "PQShield/nist-sigs-zoo/scripts/aws-bench-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "92a70b4a8c3228004961c4eda82330ab3f4421b5",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "PacktPublishing/AWS-Certified-DevOps-Engineer-Professional-Certification-and-Beyond/Chapter-16/cloudtrail_s3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "80e5e9eae5ab876075662c95fe0846ad44bf63f6",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "PacktPublishing/Kubernetes-on-AWS/chapter10/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4dc1d13c421bf5092de69cf7ebe07320acc64c7b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "PacktPublishing/Learn-Grafana-10/Chapter17/metrics_and_logs.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ee7a4f4751078a96e34af578e3fa2920f101ccb3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "PacktPublishing/Serverless-Analytics-with-Amazon-Athena/chapter_8/iam_policy_chapter_8.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ee7a4f4751078a96e34af578e3fa2920f101ccb3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "PacktPublishing/Serverless-Analytics-with-Amazon-Athena/chapter_9/iam_policy_chapter_9.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5dbd3b0b530fc145fa036f8db678f109d42640ad",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "PaloAltoNetworks/IAM-Deescalate/required_permissions.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9fe3c0ab2b9dfcbc47caf6f9a8ec1ecef76d0496",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Permiso-io-tools/SkyScalpel/Examples/Le\u0308msh_1.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9fe3c0ab2b9dfcbc47caf6f9a8ec1ecef76d0496",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "Permiso-io-tools/SkyScalpel/Examples/Le\u0308msh_3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "eb2516a23cff9d469087e0a9da2cabd28ef7cb9c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "R44MB00/travisAndScons/static/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a7ef86f3ea76c1f450c3cef5ef1056757be1993",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "RPing/Ver.bot/aws/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "65ca5a9d2358f067b6287e8880080670a3463834",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 6,
+      "subject": "RaiGaurav1/connect-halopsa/infrastructure/lambda-role-policy.json",
+      "template_placeholders": [
+        "${AWS::AccountId}",
+        "${AWS::Region}",
+        "${HALO_SECRET_NAME}",
+        "${STACK_NAME}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "1fe8c3d46c00949a5e42bdaeddc5b7dd0a6a549a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "Ranjan3440/Product-Catalog/examples/velero/velero_policy_v2.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "de34d7e23fc136bf98f2d9922e85b1705be8dc4c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "RealHuslen/yellbook/k8s/github-actions-eks-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6385a218d4dc862cf1029ef7a3a6e6db922648b3",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "RekhuGopal/PythonHacks/AWS-OIDC-IAC/IAMTrust.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "770080d8b1152c37baaa3307a34a3d7149207d2f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "RominaElenaMendezEscobar/aws-comprehend-medical/iam/api/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "541fb30393236d908f63c5d63c76af62c62071c3",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "RyCSmith/Bingle-Search-Engine/Indexer/Indexer/lib/aws-java-sdk-1.10.39/samples/AmazonKinesisFirehose/permissionsPolicyDocument.json",
+      "template_placeholders": [
+        "{{KMS_KEY_ARN}}",
+        "{{S3_BUCKET_NAME}}",
+        "{{S3_PREFIX}}",
+        "{{S3_REGION}}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "0262e227a0c2d2bcdf5e31e4b9d1d0a0b4b84d88",
+      "condition_operators": [
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "RyanMillerC/sno-minio-deployment/policies/read-write-users-jwt.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0262e227a0c2d2bcdf5e31e4b9d1d0a0b4b84d88",
+      "condition_operators": [
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "RyanMillerC/sno-minio-deployment/policies/read-write-users.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9cd9aa2684a050cd2b386e549727f89118edc2c8",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "RyotaK-Eng/TasksApp/aws/github-actions-trust-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fa2abe0a1af49819a6604b67165512674eaee6bd",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "SaravanaKrishnan16/RecruitAI-Pro/amazon-q-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "630988faa7ee7f9057d6d75286c07fb81e141ee2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "SashenJayathilaka/Project-Management-App/aws-bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a149a525def31ba0b10448f6baf19c6500373e5d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Smana/terraform-aws-tailscale-subnet-router/iam/assume-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "aa2984895d7458bde7d05f6f8e6ad44ac01aea83",
+      "condition_operators": [
+        "Bool",
+        "Null",
+        "StringEquals",
+        "StringLike",
+        "StringNotEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "Spectertj/devsecops_study_case/infra/s3/bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cc80625bef09ced5c33ed80ee48fee3fceaae0d3",
+      "condition_operators": [
+        "StringEquals",
+        "StringNotEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "TF4-Phase3-TechX/tf4-phase3-repo/docs/aio1/mandate-06/iam/evaluator-standard-candidate.template.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "147c418ef72fd6206af9c4a95e342fa311fc04ff",
+      "condition_operators": [
+        "BoolIfExists"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "TalEliyahu/Startup-AWS-IAM-Roles/Enterprise/forceMfa.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6b4dcde0268bf48cf41b6ddd7f96f2e1e8b099c8",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 1,
+      "subject": "TerraformFoundation/terraform-aws-gitlab-runner/policies/cache.json",
+      "template_placeholders": [
+        "${s3_cache_arn}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "e72357252ca7db016d021ae7d00ca43598add4c1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 12,
+      "subject": "ThreatResponse/mad-king/ComplianceRole1337.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "71bb4347c6eabe2cfbdcb6f36a1b282a7a025ba2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "Tony-Ton3/Plansauce/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8863e36d9a45ddc6fb0124be547fee081af802e7",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "TranChucThien/eks-bottlerocket-snapshot-cache/iam_policy_github_action.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3c722365172421d72a8cc5a43e63bf940be3c774",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "UBC-CIC/Amazon-Location-Service-Demo/location-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0d7d615044ca2352bb7393b9089badf6793f0bc5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "USEPA/webcms/services/minio/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f63017c6a4ff7497c53584f75017edc6aff720c9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "VIDA-NYU/reproserver/aws_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5aab08b583db80bc6e6c6ce2667afa975903d8d1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "VivekVardhanC/apprunner-python-app/apprunner-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d52371c5816e92b7509193703252a9ef49e10e60",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "Vizir/terraform-lambda-es-logs/lambda_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7aea4d1cf7f96ae08120ddb5a28f5ef75e8a702e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "X-oss-byte/aws-lambda-developer-guide/iam-policies/console-dynamodb.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7aea4d1cf7f96ae08120ddb5a28f5ef75e8a702e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "X-oss-byte/aws-lambda-developer-guide/iam-policies/console-s3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "906c24ae5c283e04632419fdb4ea83aef630666c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "YigitCnCelik/serverless-telegram-bot/.chalice/dev-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "96bffacd0ec64243d72414ee55581276b2b034ab",
+      "condition_operators": [
+        "StringEqualsIfExists"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "YosukeKato0902/aws-ecs-sample/policy_app1.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a53a4538f64e0e60fac81339bc94969f4cfe644a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "abhirockzz/streamlit-langchain-chatbot-bedrock-redis-memory/permissions.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c51226ef486bf1da7fcc8c062876f6aa09cf4876",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "acrlabs/simkube/examples/aws/sk_iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "281c4fa20fe8b98ae4455fd92ead2ad7c5e68435",
+      "condition_operators": [
+        "ArnNotEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "act-security-labs/iam-shrink/ziyad.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "540306e2b74cb475077639fab21a2f35b7b272fa",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "adrienkohlbecker/homelab/roles/minio/files/admins.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5a1c7da6d46e33a680050b9a30d5744dd12e413b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "adv4000/s3fs-windows/s3rclone-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "99a369629485c249d466f2151ca8b102840a7189",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "ahouab/eks-blueprints-for-terraform/static/iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e3f78bdd4f8a3828e8c82672720f402c837aee1e",
+      "condition_operators": [
+        "Bool",
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 16,
+      "subject": "ailojay/AWS-ENV/policies/ROSANodePoolManagementPolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "afc2c2aa20c988157be83063a9be1d6897a6c808",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "aleck31/Sandbox-on-EC2/policies/sandbox-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "15be2ef83b4f665e525efd8255cf9c2b1da8a8c2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "alestic/timercheck/.chalice/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ccb33844ed633469814785aaf2e78ecc3d54530b",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 10,
+      "subject": "alliance-genome/agr_pdf_extraction_service/deploy/aws/github-actions-deploy-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6ac9b3ca3a0c0582408f7af965ad1f3d1034fe7d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "aminnasiri/aws-lambda-handler-quarkus/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "eae635d865549b8002a42d051d9af69e8688e129",
+      "condition_operators": [
+        "ForAllValues:StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "amiracle/grand_central/aws_artifacts/IAM_Policy/GCPolicy_Rev2.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "43bb45e0cdf9d3f26d706e316faf48bc4d273ed1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "andrew-templeton/cfn-lambda/lib/lambda.trust.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "036e47be039649a890eb9d22f762e75253f9cb49",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "ansari-project/ansari-backend/aws/service-role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f19a09ad244c97cab8244ee566e991b16f82d457",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "anshthakur0999/algorithm-visualizer/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e51770cdb7479b10c850e1139a9a08494fed75df",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "anugnes/terraform-aws-ecs-scalable-cluster/templates/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "83eadd2c571c968487abd43d2e8423973851837d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "apache/casbin-iam-to-casbin-translator/policy/AWSLambdaExecute.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "83eadd2c571c968487abd43d2e8423973851837d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "apache/casbin-iam-to-casbin-translator/policy/AmazonSSMFullAccess.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "83eadd2c571c968487abd43d2e8423973851837d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "apache/casbin-iam-to-casbin-translator/policy/Billing.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3fda03407a7b03c860146fd39348f82d795ec0b0",
+      "condition_operators": [
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 8,
+      "subject": "appscode/static-assets/files/cluster-api-provider-aws/v1.4.1/AWSIAMManagedPolicyControllersWithS3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b99fd8a920f6fe8c87e9eb116d4d7ad5a9e09736",
+      "condition_operators": [
+        "Null"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "arpcefxl/aws-account-setup-best-practices/03/deny_ec2_launch_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4e47597547e07d98c137d20eb9e24698c6e7f25d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "arpcefxl/aws-event-driven/04/lambda_permissions.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ea96bfe67faa496e101af40da6113940fd525101",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "asquarezone/awsadministration/iam/Sep21/ec2startstop.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ea96bfe67faa496e101af40da6113940fd525101",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "asquarezone/awsadministration/iam/specifics3bucket.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ea96bfe67faa496e101af40da6113940fd525101",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "asquarezone/awsadministration/iam/vpcforjusticeleague.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "367223afb9143c177cbb7f43bb96685c5a10080d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "atlassian/jira-performance-tests/aws-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8936f2f655fcd087ca26e171f2b4814b2e689c02",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "ava-orange-education/Ultimate-Terraform-for-Cloud-Security/Chapter 02/11.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "bf648d9d76b36aacdc0ef8e4d082ebc8bb8a1ba3",
+      "condition_operators": [
+        "ForAnyValue:StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "bedrock101/bedrock-book/chapter2/2-1.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7334a1be34946909df7e1eef6276f6803135410d",
+      "condition_operators": [
+        "IpAddress",
+        "NumericLessThan",
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "bethelhall/fixmypolicy/clouldfix/temp_validation/val-30-fl-repair-llama3.2/policy_20_iter_5.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7334a1be34946909df7e1eef6276f6803135410d",
+      "condition_operators": [
+        "Bool",
+        "IpAddress",
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 20,
+      "subject": "bethelhall/fixmypolicy/clouldfix/temp_validation/val-30-fl-repair/repaired_policy_101_iter_3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7334a1be34946909df7e1eef6276f6803135410d",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 15,
+      "subject": "bethelhall/fixmypolicy/clouldfix/temp_validation/val-50-fl-repair/repaired_policy_104_iter_3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "44527b42450bf6a6e5132e0497fe2533092b2877",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "bimalthanet5/cloud-iam-capstone/policies/real_policy_174.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5b371629e98ea2e18f23c22fa8500360d116192d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "binh234/go-project/go-lambda/trust-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a1f724f87cf09c248587f37cf923fea6bee777af",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "biodatageeks/polars-bio/it/data/policy-priv.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7bac5ca45c2c38d0a882f82d1c18dd515cecab34",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "bkonkle/api-on-vercel/services/api-ping/infra/aws/lambda-access.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "17d06d6c692fe7f1bc4eaf1ec9665bd744706c02",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "bkrubnzi/scripts/lock-the-bucket.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "553b26f7c0dbb96d0cf167f9d29ade447c4d325f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "bootlabstech/terraform-aws-fully-loaded-eks-cluster/min-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "904d93b7e1e8e33d6570540938f0806e13a5b452",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "bradtchapman/psumac2023/aws/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "87b70faec8bb2f5952351d772ba7ed21be8faec1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "builder-magic/timebound-iam/tb-ce-read-only-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f5d9ee600126eeb7d6441e231f5f704fcb4ffde7",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "buildit/bookit-riglet/iam/EcrPolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "da46d1555602fbb49cd0e29f80fdf01bb69594a1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "cakely/vault-runner-setup/superuser-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f54b2e3150c476fd8ac36ad908b4e386ef9c829f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "calloc134/callstack/.devcontainer/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "716ce1dfe1e64b9752df5f880c3055bcd1475d9f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "careerfairsystems/arkad-backend-django/aws/ses-access.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f312d31906cfcd83af10efe043cfb6e23daf8aa9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "chappyasel/thePlug_Backend/iam/LambdAuthCreateUser.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5d05fc0ed6efa96137a995a511237ffbe18f78ae",
+      "condition_operators": [
+        "Null",
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 16,
+      "subject": "chkpwd/iac/terraform/kasten/iam/aws-lbc.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "631c5497789594260960da27798c8e171a1e7de0",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "chuyskywalker/aws-lambda-github-webhook/policy/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8b9c9d2a1a32e1ebeb471c788692faa67c2f3e1b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "cityvizor/cityvizor/minio/policy-cityvizor.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "32d07bea4a59023557ddef88894425c36e340ab2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "claudiajs/example-projects/recursive-invoke/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8eb985db70ebfcfd71b99a13eaaef04f3d5cd89f",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "cloudera-labs/terraform-cdp-modules/modules/terraform-cdp-deploy/examples/ex04-aws-custom-policies/policy_docs/aws-cdp-bucket-access-policy.json",
+      "template_placeholders": [
+        "${ARN_PARTITION}",
+        "${DATALAKE_BUCKET}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "901accec41e8592e7209c215b3a713ce663282cf",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "cloudfoundry-community/s3-cf-service-broker/src/main/resources/broker-user-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "019fa69fc12be12abab6afe9d1d6a90130a47420",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "cloudfoundry/bosh-aws-cpi-release/docs/auditor-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a55b1f5f1c7da0912b49bc82073d0d28a6276ecd",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "cloudfoundry/bosh-linux-stemcell-builder/ci/bosh-os-images_iam.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d043cc37807c0773c0a0cc2ea4a562b44d5d77bc",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "cloudreach/aws-lambda-es-cleanup/json_file/es_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9609032de11bfe3c7b5fec63ce2a1f2e18c0b939",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "colstrom/forge/examples/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e622a1074261905d8ace3b65571d93a6c036ffc4",
+      "condition_operators": [
+        "ForAnyValue:StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "comrade-coop/apocryph/deploy/minio/policies/ethAuth.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dc48c02ed50a523a87166709f6fe361b5c836e3e",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 9,
+      "subject": "cortexlabs/cortex/dev/minimum_aws_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3bf586812d418ffcb4781bd86ebe057ee499e421",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "dLounce/sentinel-procurement/deploy/agentcore/iam/interpreter_execution_role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ae096b06e4844e2de1d6e389e2be71a2d25007c5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "danilop/CloudConf2023-observability-demo/Role/trust.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5c283d20d69598ccda3a36fa180ae4808b0e7d30",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "danilop/serverless-chat/iam/cognito.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c03cfa63b35e711ec3e43ae23597af1ce9e44068",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "daochoam/BTG_Pactual/infra/deploy-user-policy-inline.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "abf488390bf75da8e3be0588d620438a9dcb03f7",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "datarobot-community/ai_engineering/predictor-app/bucket-policy.json",
+      "template_placeholders": [
+        "${predictions_s3_bucket}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "03a60a1ab3c5486cfeead6831c1909810988cbc5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "datawire/blue-green-example/iam/blue/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "03a60a1ab3c5486cfeead6831c1909810988cbc5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "datawire/blue-green-example/iam/blue/role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0e35b5308ead5ba04dae083106110c5e29f42d93",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "dave-malone/aws-kvs-webrtc-demo-for-raspberry-pi/iot/iot-policy-document.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cf7b9c657c847bf47515dbf9149558ab7253ed85",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "dbrijesh/mcpserverguidelines/s3.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5fd2d2ed914ec74a87013e1a92bd7b87921a5461",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "devopsabi/my_work/Kafka-MKS/iam-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9199c37fcd0fec329afcda6116e145bcc3a18eff",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 12,
+      "subject": "devopspolis/secrets-replicator/iam/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9b5846b1157b296c3012f16c817f70ad1929fa6f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "devsuperior/dscatalog-resources/aws/eb-ip-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9b5846b1157b296c3012f16c817f70ad1929fa6f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "devsuperior/dscatalog-resources/aws/eb-ip-trust.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "38bb7bcc18499e8557320afcb1b645bf0ae4114e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "diego7marques/ha-aws-cost/aws-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "602106ef3a86c38f8ff95fb1cdbecb53ce161429",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "djannot/dcos-kubernetes-training/csi-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7b6ab2dfced9626119763c430b93546a19110423",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "dkalouris/sparkpg/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "defdf2bb85673495883941d724828f1948efe01f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "dolguin-/aws101-kubernetes/clase-10/iam/iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fd5ca6defa3d0e24721210252d69469b47950f26",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "dome9/onboarding-scripts/AWS/terraform/readonly-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fa9b8ac45cb00fae81d28c989d5b9c52ae0950d4",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 13,
+      "subject": "dominodatalab/deployer-iam-policies/iam-policy-a.json",
+      "template_placeholders": [
+        "${stage}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "5359cff30a1db31ec5dd2f369c3ca87cc0c3fabf",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "dreaquil/stelligent-pipeline/Chalice/.chalice/policy-dev.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5f6ff6de3bf3a29c0459e7aeec9e1aa3f486920a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "dwmkerr/lex-starter-kit/aws/lambda-policy-doc.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f17fad7f227d4b3bd6f0e217ed3642e37c1fe5fc",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "edmundhung/maildog/docs/maildog-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "02b760a671af7357b394cf442f3b4a13825c1646",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "edsw/ThingStack/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "810613a03b32636e7a647db259a9bc2ef1c50a56",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "edumartinsrib/orquestrador/infra/aws/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c821b6417b11e61c790cf20454682a789e2cec05",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 14,
+      "subject": "eldalland/Cloudsnap/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8ce18fdedc60aefd1076ff22d6cc1cba0099913b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "elifesciences/elife-continuum-documentation/deploy_on_aws/wide-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d7f4766c5fbad53cd32449ff9c557fb750038efa",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "emqx/tf-emqx-performance-test/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b41528c4e07294e0a79869b939f864afd994ab69",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "errm/k8s-iam-policies/master.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b41528c4e07294e0a79869b939f864afd994ab69",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "errm/k8s-iam-policies/node.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ea287f817643a012df0397f99e5f82a0329650a4",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "ethanolivertroy/awesome-grc-ai/scripts/aws-evidence-collector/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cbb99b48ed2e0b58029bf49455aec74007c3fbdc",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "faizsiddiqui/aws-lambda-googlesheet-demo/aws-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ebcd826ee11ecc9e697580714deb25525e58506a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "fcheung/cloudfront-demo/setup/iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "86725dfe12ded82214a21e2e927156f0235754b0",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "fh17488/iot2/sensor/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d533244fc297c4c93c82337bec3a227f2e124a58",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "fillup/terraform-aws-hugo-s3-cloudfront/bucket-policy.json",
+      "template_placeholders": [
+        "${bucket_name}",
+        "${deployment_user_arn}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "7cc8f8e44aff431a5adfa1b3c26fb8de7bde8b19",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "fortunecookiezen/aws-ServiceControlPolicies/PreventVpcPeering.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "01e584eceb5799edbf1210f29d08060634cc796b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "futurice/sns-push-notification-service/iam-example-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5ed8304495ccf15b191183a0964f65d311ecf7f7",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 8,
+      "subject": "gamidirohan/Predictive-Maintenance-using-Amazon-SageMaker/iam/usage.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fbea741cbadf9d91368d5d9ff73d93ac8d781902",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "garutilorenzo/k3s-aws-terraform-cluster/docs/iam-autoscaler-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3caa8cfe2008e6312e923834a9d53b6f6fef12fd",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "gas-buddy/marketing-infrastructure/resources/policies/worker_policy.json",
+      "template_placeholders": [
+        "${AWS_ACCOUNT}",
+        "${CLUSTER_NAME}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "ebac1af6bf6f80cd071bc162e164e201a63b6a2e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "gdmoney/Cisco-CML-on-AWS/role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2f51b9d2ea2e27066a0fdf54080552f7bd52d07c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "gfechio/tiny_infra/aws/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "781dc1eb70404699bdca5d5322a875ded6cc1494",
+      "condition_operators": [
+        "ForAllValues:StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 11,
+      "subject": "gordonchen1989/data-science-on-aws/resources/lab-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "11ceed682125e6aebe0ace5ba56e0a8d77f420bf",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "graymeta/terraform-aws-irisanywhere/admin/adm_role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "873ee6ab76a37219ded3ab2ce26ba537b6992468",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "grycap/marla/example/iam-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3c0eeabbc5f035b09a264c2ee2dfb694c06f9586",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "harvard-cns/cherrypick/cloudbench/apps/role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5341c39c1d0e8dc4edd76188fd2b862147680603",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "hashicorp-education/learn-terraform-console/bucket_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1a0f18e135fd90123deed1d231650f4a8a11d2b5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "hashmapinc/snowflake-healthcheck/terraform/user_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27f68ccd1bb83814c1b284653f2dbfb7e81dc399",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "heldersepu/hs-scripts/TerraForm/roles/bar.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7d3a83b88f70142eb203232fc25c5f012eebb915",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "honeycombio/honeyaws/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7af329a00af3fe8ce99eb8aff75410cc1e5aa925",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "honicky/anndata-duckdb-extension/docs/s3-bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "853a1bc385e9b42057902737981124007be87dc9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "hpcc-systems/HPCC-For-AWS/IAM/EKS.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6b36d4adb98ac72c843a571540b327d4476be3e6",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "hugodlx/Guidance-for-Agentic-Workflows-for-Intelligent-Document-Processing-on-AWS/docs/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "195b247f19b372a3381d2af8e432b41549f7dde0",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "iamfuzz/foxi/iam/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "908ad761cdea56306b096519ad9391db53e9d7dc",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "iamrishabh01/dataengineering-youtube-analysis-project/Youtube-Data-Pipeline/iam_permission/yt-data-pipeline-lambda-access.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d821383a6f6f0652d77cb2c7c2eed96969497062",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "ibm-mas/multicloud-bootstrap/aws/iam/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "182c626193193b196041b18b9974b5b2cbf15c67",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "igushev/fase_lib/tools/sns_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6a4dee372dffb2b54b8e4439b3361cd012217d30",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "imduchy/iam-minify/example-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a84a0ca55cfe406c97dd843376130211c91fcdb6",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "imyoungyang/myAWSStudyBlog/security/inline-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "233e5dd6e17ed042e6225bb329dc018839ecf037",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "in4it/aws-advanced-security-course/iam-boundaries/CompanyBoundary.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "34fdfc219c25d212429bb8b87ddb679b2daf8da3",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 4,
+      "subject": "in4it/ecs-deploy/api/default-templates/ecs-deploy-task.json",
+      "template_placeholders": [
+        "${ACCOUNT_ID}",
+        "${AWS_REGION}",
+        "${ENV}",
+        "${PARAMSTORE_PREFIX}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "34fdfc219c25d212429bb8b87ddb679b2daf8da3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "in4it/ecs-deploy/templates/iam/ecs-ec2-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1b274cdeb936d3621184c6831cac8babf78e8cd6",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "in4it/parameterstore-backup/examples/iam.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b2d179ffb90fda01f91167cafeca81447f450cbc",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "ingenieria-del-software-2/cloudcomputing-demo/02-demo/allow_and_deny.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ff565538e5768e50b1d0df162de45a592db82ff4",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "ishtotheizzo/AME470570_Spring2022/s3Eg/policyEg.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "24e5c1c8cc1527f7ea43ab3203d34463ddd1d532",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "isovalent/terraform-aws-eks/policies/cert-manager.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "24e5c1c8cc1527f7ea43ab3203d34463ddd1d532",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "isovalent/terraform-aws-eks/policies/external-dns.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "68481ed7231648915485fa4694f71f38cf056fc6",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jDmacD/aws-lambda-pillow/aws/iam/ec2Policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "68481ed7231648915485fa4694f71f38cf056fc6",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "jDmacD/aws-lambda-pillow/aws/iam/lambdaPolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "532a347a3b76cdb50b80790d2bd6e426e5e886b1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jakubhajek/ecs-fargate-wordpress-terraform/policies/ssm_read.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cacf8e8aa1cbb59a84fe29dfc5b153bae2a36d01",
+      "condition_operators": [
+        "Null",
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 16,
+      "subject": "jaws-ug-cdk/aws-cdk-for-workshop/packages/aws-cdk-lib/aws-eks/lib/addons/alb-iam_policy-v2.13.0.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e8b46fd4b5b3f001bbfd9e6133938875bb995b07",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jaydonkc/csub-procurement-assistant/infra/public-training-video-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "efa5a2c2445f04b812c56d0c3a38cd29f136ee48",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "jcmturner/awskmsluks/iam/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1dd814140b3ccb1ed2a12b68212db835e3ed6653",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jcowley/elb-instance-reboot/policies/elb-ec2-access.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b520cf9837b3d3d42d2aa83d73cf8216d36c8cca",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "jeremylongshore/tons-of-skills-marketplace/skills/.curated/integrating-secrets-managers/assets/aws_iam_policy_template.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "08aeebaa54b8b0ca05286cf855aaa7607275023c",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "jingyi0605/zhiweijz/docker/config/minio/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "960454d7e619e5b0dad069925d9e3009622e1aa9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jlandowner/kubernetes-route53-sync/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "238b634dc8fdc26456a6c3cd1d98d881181794de",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "jmespath/jmespath-playground/.chalice/policy-dev.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ff2af65e8dd021b8e64c855987ebb39e88e3fc5f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jonrau1/100-Days-of-Cloud/days/day6/day6.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ff2af65e8dd021b8e64c855987ebb39e88e3fc5f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jonrau1/100-Days-of-Cloud/days/day9/day9.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f84a41d4c404aafb1c3506834f15eda6d6721c19",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "joongsim/fitted/github-actions-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cf7a1da70c14e380415fe1929645cd02750c8d6a",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "joshuamyers-dev/limelease-platform/github-actions-trust-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9c671e656d2c761210c5b47ca699ac94bf7df6cf",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 4,
+      "subject": "jpiazza35/repos_de_infra/tarmac/devops_tools/terraform_modules/kms/iam_policies/sqs-kms-policy.json",
+      "template_placeholders": [
+        "${aws_account_id}",
+        "${master_aws_account_id}",
+        "${proxy_dev_aws_account_id}",
+        "${proxy_prod_aws_account_id}",
+        "${proxy_test_aws_account_id}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "4d9f424380c3c9da51a68e5469504d4ac01a93e8",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jtreutel/circleci-runner-terraform/iam/lambda_assume_role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "953ebce3feffea23766c4815b4b251edcf9c372d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "juliensimon/johnnypi/part1/johnnypi-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1999ea866a747251bde48ba70f676a30d0a845b9",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jveres/qrcode-bot/policies/access-dynamodb.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27fbeaf7adb26649868b199e45a4106860d37074",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "jweyrich/cloudfront-invalidate-dist/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "940460e51fbbf517e15b9912be58f6aa40dea13e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "kameshsampath/rosa-fruits-app/.aws/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cc358cc594dd2cd4b1ce470bc5e1530b8c06eee7",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "keesey/phylopic/aws/backup/replication-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ac01d79c7192a9bac38d6ee9e235236fcf5d7a63",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "kevinschoon/mesanine/role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cdc21551989cbef7796a1815abcd0a2ff5915189",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "kisst/aws-managed-policy-tracker/policies/AWSManagementConsoleBasicUserAccess.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cdc21551989cbef7796a1815abcd0a2ff5915189",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "kisst/aws-managed-policy-tracker/policies/AWSTransferConsoleFullAccess.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cdc21551989cbef7796a1815abcd0a2ff5915189",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike",
+        "StringLikeIfExists"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 12,
+      "subject": "kisst/aws-managed-policy-tracker/policies/AmazonInspector2AmiScanServiceRolePolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a3e7a51724893553239f756720083422ab16d24",
+      "condition_operators": [
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "krr3804/tfeks/extra/.app-mesh/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d7f7b8677c953af8c3aff1ba0b20abc7183318eb",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "kubermatic/community-components/examples/amazon-eks-d/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "31a4b7b07b85d4cba137215e8e3f4507f57729ac",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 16,
+      "subject": "kubernetes-sigs/aws-ebs-csi-driver/docs/example-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c1e9ed236ec744ed705203a30082d87ac3bf2000",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "lateralblast/lunar/aws/iam-manager-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "289f4929c7fca10c2b9fa53fab27e8ecfd3a3176",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "lauralesteves/insurance-risk/deploy-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2fbae5247fd6049e6646e74fb20c082f127ac145",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "lightspin-tech/red-bucket/red-bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "935f71c69a23da081d7b020c2ebc4f2a14a63177",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "livestrong-net/text2sqlrag-project/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4572f6abc46260720d7abc659910216114cae808",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 1,
+      "subject": "lmccay/datalake-def/templates/aws/read-only.json",
+      "template_placeholders": [
+        "${storage_location}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "e6c8dc3b4b1625c997859f3247c3d978f5ac2538",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "localstack-samples/sample-ollama-ecs-fargate-alb/aws/ecs-task-exec-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f20e26d45758cfa8d8aa514cdd8472de2a29b0a2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "localstack-samples/sample-serverless-quiz-app/configurations/get_quiz_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2db56601392f4acba9d8ffb86ac867cb25709575",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "lucasdickey/key-to-sleep/aws-bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f22c12313a9ab5c26795228f093b32fe344e16d3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "maradwan/instance-scheduler/app/instance-scheduler-staging-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cea2a10b508dd5b1793f5dd2fbe6adf25d3d60d0",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "marcelloromanelli/slackhr-slash/role.example.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f076f387aef5f99dcfcc8cf9f9c34b9f8201d66d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "max77p/Ansible-AWS-Management/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3403274d6fe1ec4876a5cb9b9c8399ba9f974443",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "mectors/awsiot/src/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e17c43bf246b15a6f865436ca71c92ecc5b38cdb",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "migtools/ocpctl/deploy/iam-policy-tagging.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4b9df2681f503c6b2d9b3ea7e06698556b06cf7a",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "ministryofjustice/hmpps-delius-alfresco-shared-terraform/policies/cloudwatch_logs.json",
+      "template_placeholders": [
+        "${logs_bucket}",
+        "${region}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "4b9df2681f503c6b2d9b3ea7e06698556b06cf7a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "ministryofjustice/hmpps-delius-alfresco-shared-terraform/policies/ecs_assume.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4b9df2681f503c6b2d9b3ea7e06698556b06cf7a",
+      "condition_operators": [
+        "Bool"
+      ],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 17,
+      "subject": "ministryofjustice/hmpps-delius-alfresco-shared-terraform/policies/es_admin_policy.json",
+      "template_placeholders": [
+        "${alf_backups_bucket_arn}",
+        "${alfresco-storage_s3bucket}",
+        "${alfresco_kms_arn}",
+        "${artefacts-s3bucket-arn}",
+        "${config-bucket}",
+        "${db_password_arn}",
+        "${db_user_name_arn}",
+        "${elk_backups_bucket_arn}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "0983f3c703169f1be5f267ba9dcb0f28ce008f13",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "mkbertrand/liber-usualis/nix/bucket-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0983f3c703169f1be5f267ba9dcb0f28ce008f13",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "mkbertrand/liber-usualis/nix/vmimport-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8d7f942b7fab0b4109ec7f901b10cd0833a51b70",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "mlabouardy/alexa-swarm/swarm-lambda/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "c1596b4d1fcbe1274b0f94833e4621f5c61ce2b2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "mlabouardy/komiser/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5ec96d6a1e248b6d91e2678cdf3209de96b53b48",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "mlmaster1995/Chris-Service-Portfolio/Backend-Service-Jenkins-Pipeline/ecr/ansible-limit-access.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "592ff68398bcb8683e5a80027aa5b1ca6d39700c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "mmmorris1975/aws-runas/docs/iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2ebe9632db213c4e716a718343232c5a4896e4ed",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "mnanchev/terraform-aws-cost-explorer-monthly-billing-report/templates/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "661e73823053c1dcbe4b97841fca14e023ade25e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "moabukar/opinionated-terraform/iam-policies/plan-role-inline.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "12b8a56d2286b09977328ab7be4b9c2c31be5ebd",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "msfidelis/aws-turn-off-my-account/policy_example.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "53fb1e9ffebf903358dd7c78e8baae7156928178",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "mtimbs/typescript-serverless/IAM.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "27c59221061ca86967a6f7d36bdf25719f57eada",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "mytrytest/AWS-get_athena_data_by_lambda_method/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "be603e55dd141b431e80468820dc091bd3ea7f51",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "nFwpe6K7a/FNpNUISuY/aws/kisscPolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e4af92202ee960dbd362fed2aa380f2ef9819520",
+      "condition_operators": [
+        "Bool"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "nRFCloud/device-simulator-v2/data/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9c2c869e9172a38937a9ada37acfda7105991c3e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "nand0p/nomadic/nomadic_iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "91d2e60102bdadf346d77b60d90ddaa4a678f037",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "nccgroup/PMapper/required-permissions.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dc15a5648567f3ccbe25da3549146e78060c4dac",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "nealdct/intro-to-cloud-on-aws/aws-iam/sts-assume-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "840c8447589f5f42693e31e9bf812b795aa0f1b3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "niagaros/repo/backend/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cc6dc5c7d853c057c2a21981f29a68a9109e84f3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "nik786/kube-learn/AWS-TRAINING/cw-grafana.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d8b951aec67c01d40b788944ade28b5a2f9fd87f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "nikhil1232/IAM-Flaws/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7a59be2bd867b7d01919a95dee2dd131bdffeda8",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "nmcclain/aws-lambda-forwarder-for-ses/SampleIAMPolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "11d54f5fc62f77e477c6f6d9b99ab8ffca044a5f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "nroduit/viewer-hub/docker/readwrite-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6ecf34f95514e1bec033b159e68dbcf879ef9f98",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 12,
+      "subject": "nyoungstudios/py-lambda-gh-actions/gh-actions-aws-iam.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f2b4255380a9417a9b07f3f3724e896f9a81d9a8",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "opendatacube/datacube-k8s-eks/eks-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "645f6b8dec6b5d7a7cb4d360438abe85b4c432d3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "openshift/external-dns-operator/assets/iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "37cfd54ac419c2b1cbe7b9a0915298c3604b9d03",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "openshift/quay-image-builder/packer_iam.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2c8653484d62dc66ae622dd10164cbde24d1e074",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "outscale/cluster-api-provider-outscale/eim-policy.example.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "31ea71b3cde837239c6e3d645d97be51ec141f21",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "pallad-ts/config/terraform/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d000cc00b5abcb52d1200084e8f49c70f98d1fd5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "pdeolankar/Raspberry-pi-Temperature-sensor-AWS-IoT/allowiotoperations.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9ad50480253b434d1b12b1eafe86ddd64c72c455",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "perfectsense/gyro-aws-provider/examples/ec2/sns-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9ad50480253b434d1b12b1eafe86ddd64c72c455",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "perfectsense/gyro-aws-provider/examples/eks/cni-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9ad50480253b434d1b12b1eafe86ddd64c72c455",
+      "condition_operators": [
+        "ArnEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "perfectsense/gyro-aws-provider/examples/lambda/sqs-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a4c02e83716f3a0d4e4b89b62b9ad115e2bca324",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "piyushdhoka/movinglines/ecs-ssm-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "3e17901a060d4d64388e220eaa736a8930c4f40f",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "platform9/support-locker/pmk/aws-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "26785799a2d0228f8c49e908ee5de9ffb4499d14",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "primeharbor/sensitive_iam_actions/policies/ALL.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "26785799a2d0228f8c49e908ee5de9ffb4499d14",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "primeharbor/sensitive_iam_actions/policies/DataAccess.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "4c7c91a4f1c3ab9a82b2307bcb47284227545023",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "prisma-cloud/IAMFinder/AWS_Policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7950ec317a63137516655b324dd60ab4db0fe477",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "prismskylabs/aws-snapper/iam.policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "efb7e89cdf08c17a19aebf7dd2b08b3db98de39c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "prowler-cloud/py-iam-expand/examples/example_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "43db0e5241e595086ec84dd61ce45543f6a49e08",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "pyrsia/pyrsia/docs/SRE/route53-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0bc697f96206825c9ccc3f217c4517a22923b4ba",
+      "condition_operators": [
+        "BoolIfExists"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "qoomon/aws-ssm-ssh-proxy-command/aws-ssm-ssh-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "dafb618f6e1ddca1760a0ad232babb894234c608",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "quintilesims/slackbot/terraform/user_policy.json",
+      "template_placeholders": [
+        "${dynamodb_table_arn}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "81cc388c01a01ef88f9aa9b741df96d4ac2adfb1",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "rajupollampally/DevSecops/policies/iam_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "cdd496b18f667b1d540e3dd68b1d7167d703708a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "reddygautam98/ClinChat-style-RAG-app/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0da749920ff7d5bbf49714e74543c01415e7627f",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 1,
+      "subject": "renaiss-io/terraform-aws-odoo/iam/bucket_read.json",
+      "template_placeholders": [
+        "${bucket}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "0da749920ff7d5bbf49714e74543c01415e7627f",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 1,
+      "subject": "renaiss-io/terraform-aws-odoo/iam/ecs_update_service.json",
+      "template_placeholders": [
+        "${service}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "0da749920ff7d5bbf49714e74543c01415e7627f",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "renaiss-io/terraform-aws-odoo/iam/iam_pass_role.json",
+      "template_placeholders": [
+        "${arn}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "450ffb505b9f266747dc5159b0215bf4243faef2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "rgparkins/elastic-search-setup/01-trust-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0a0654d46861746782ad045bfdbf2da334c54a3a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "rhasson/athena-graphql/ecs_role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "47d61893b1e3f56d0ec6a928a0e337649288d281",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "richar-gasquet/spatial_web_app/infrastructure/lambda-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "929aa753700bceb61e981a1169123ea7428e61ee",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "rmlowe/aws-serverless-polly/pollyassets/lambdapolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "730fd69fcf57e13f5d7ba990239743e82dc96439",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "road-to-finops/Penny/iam.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "463c56a2540301132371d4156ddd14e6a2f4ecdc",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "rockset/high-frequency-lambda/assume_role_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d38e35f3d9eee944a8b8e088d00e94d1f5723899",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "royhobbstn/map-tiles-s3/s3-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f93ffd03daa86a441f5add2c7cb723c75b98f250",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "rubrikinc/use-case-aws-cloudformation-template-cloudon/cloudout_security_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f93ffd03daa86a441f5add2c7cb723c75b98f250",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "rubrikinc/use-case-aws-cloudformation-template-cloudon/vmimport.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a97be60343376944980dac669ba69a4d8e76d20b",
+      "condition_operators": [
+        "Bool",
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 9,
+      "subject": "rubrikinc/use-case-aws-cloudformation-templates-native-protection/permissions/ec2-protection/basic/2.json",
+      "template_placeholders": [
+        "${user-provided-value}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "cf31047b26b89f9255c074d2520578d4ed17bc57",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "sampalm/AWSinAction/chapter12/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9ce7a5bf434ceadc221fb13a59454bbedc8cc709",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "samuelkhtu/aws-chalice-swagger/.chalice/policy-dev.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "339d5cb294ae7fc3ed1f420eae403935dfd33208",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "sashkachan/github-hugo-lambda/assumerole.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "339d5cb294ae7fc3ed1f420eae403935dfd33208",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "sashkachan/github-hugo-lambda/rolepolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5710263efc2497a0889ac8aafb2e317766a9c4ef",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "sawyerh/lambda-asset-pipeline/resize-s3-image/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "24d8ed4fbf5040f169d3e944f679be4e7583f40c",
+      "condition_operators": [
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "scszcoder/eCan.ai/docs/iam-policy-s3-access.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8180bd0c6608f3e8bcd57c6ee094cff996561969",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "sd031/AI-Powered-AWS-Idle-Resource-Finder/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2ffe5830dd161e2b405313ea62e816320cb3683a",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "sdrdh/guessgame/github-actions-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6132b48c8a03d157beca529a820c1c7056f7b03d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "sebsto/xcodeinstall/iam/ec2-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "2a1674d0959a75af73f09eec4b4dae0b09c0f268",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "serilog-contrib/Serilog.Sinks.AmazonS3/PolicyExample.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "005d1cc11cc90b79281b82ec79726f615b17cc99",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "shalb/terraform-aws-k3s/policies/worker.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "ef2efddd4445597a9ee6799ff4794070637b08c3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "shivam2003-dev/smart-meter-fleet-health-analytics/iam/glue-service-role-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5ddad4bacca95cd1a0329ce46186ae287214db9d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "sirceljm/AWS-SES-simple-mail-forward/mail_forward_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "12fb50939ec3d1f5745297f9835b27eb80816f8e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 8,
+      "subject": "sirirako/fis/PetAdoptions/petsite/iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "db0020f6785fec846523ac6947f90a84d1d3754c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 8,
+      "subject": "spacedan/efcr-analysis/github-actions-iam-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "45922f9808a714384867820c720025ca6e59845c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "spotinst/spotinst-examples/Policies/AWS/Spot-AWS-ReadOnly.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9f2a3070ec9024a66be1b8c25a76f934bc4b2485",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "stelligent/stelligent_commons/iam/lambda_dynamo_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "96fcd5c8b80483c493e20141ff62636aaca1a406",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "stevenctong/rubrik/other/cloudout_aws.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "177c1c605e7d54eeebcd9d84a5c75babca0449df",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "suhas316380/aws-auth-validator-webhook/irsa_setup/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "13ba2e3a26792a03ce7dbdbe910c3673c2930fca",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "synapsestudios/terraform-aws-spinnaker-managed-account/policies/BaseIAMRole.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "13ba2e3a26792a03ce7dbdbe910c3673c2930fca",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "synapsestudios/terraform-aws-spinnaker-managed-account/policies/SpinnakerUserManaged.json",
+      "template_placeholders": [
+        "${spinnaker-auth-role-arn}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "2452e61ba1cf0f734a910162e3c55417231fa221",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "synapsestudios/terraform-aws-spinnaker-managing-account/policies/s3.json",
+      "template_placeholders": [
+        "${s3-bucket-arn}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "387759652920faf93d8e13459750100265326295",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "sysdiglabs/terraform-aws-secure-for-cloud/resources/sfc-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "72ea5a8aeebb3fd87edada4166c1a82c307731e6",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 4,
+      "subject": "t04glovern/aws-esp32-cam/docs/iot-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "15d89f1e150937457de81abe7c4c22b33810a6a8",
+      "condition_operators": [
+        "NotIpAddress"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "taqeeahmed/awslab/lab-015/files/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "39ac3a7ed8c9c9e563d084ba1ed233e198ba875d",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "tayfun/sozluk/lambda_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "34f9dbfff4a4a4c1d407bafc90562693e8a34678",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "techCloudDev/KFinFund/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d18c5e080f8587d805b077655675a90db75210f8",
+      "condition_operators": [
+        "Null",
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 7,
+      "subject": "tenchi-security/camp/policies/AWSCloud9User/v6/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d18c5e080f8587d805b077655675a90db75210f8",
+      "condition_operators": [
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 8,
+      "subject": "tenchi-security/camp/policies/AWSCodeCommitReadOnly/v5/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d18c5e080f8587d805b077655675a90db75210f8",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "tenchi-security/camp/policies/AWSTrustedAdvisorPriorityFullAccess/v1/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d1a18a81ec753256ac3264225a847c682bc15bf3",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "thathardwareguy/Aws-IoT-CLI/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "7436ac7cf7795a2e6c50e27a80d8cec1d920081b",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "tinybirdco/DynamoDBExporter/DDBStreamCDC/lambda_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "fd7b0a684b59008c18a28e2c76a419140308cfcd",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "tinybirdco/aws-s3-lambda/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "5e6acca7764306691e863eda7fee2a6f2ff5aa54",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 13,
+      "subject": "tobiakinlade/attendance-app/github-actions-permissions.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f20aec905d69e09b2e66145046ebac1d73a78218",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 6,
+      "subject": "tobilg/aws-iam-managed-policies/data/json/AWSCodeCommitReadOnly/v3/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f20aec905d69e09b2e66145046ebac1d73a78218",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "tobilg/aws-iam-managed-policies/data/json/AWSProtonFullAccess/v2/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "f20aec905d69e09b2e66145046ebac1d73a78218",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 5,
+      "subject": "tobilg/aws-iam-managed-policies/data/json/AmazonTimestreamInfluxDBFullAccessWithoutMarketplaceAccess/v3/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "a30d69425fd3af63ae887bda536e06004f04eccd",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "torus-digital/torus_cms/copy_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "095110cb9e7df13c167701946f7f441c1acb584e",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "tothenew/pennypincher/docs/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1d560b7aed093e215468a85949fb0d76418c61bb",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 14,
+      "subject": "udondan/iam-floyd/docs/source/_static/managed-policies/AmazonRDSPerformanceInsightsReadOnly.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1d560b7aed093e215468a85949fb0d76418c61bb",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "udondan/iam-floyd/docs/source/_static/managed-policies/DatabaseAdministrator.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "1d560b7aed093e215468a85949fb0d76418c61bb",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 11,
+      "subject": "udondan/iam-floyd/docs/source/_static/managed-policies/ROSASharedVPCEndpointPolicy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "21c5c13b86602f5e9df996c19b7664658cec0cb5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "vendia/examples/terraform/lambda-role.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "0bb855e1bb62b9edfc4255e153e61f2eea89c864",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "vincentclee/aws-iam-policy-generator/files/template.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "51fc5d4ea734c6383ae04f063ad2ce9de5d591ac",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 9,
+      "subject": "vote/fax_gateway/deployment-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "b5b858d23d55861aeafe076669b381aaa6966aa2",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "wakeful/veil/fixtures/EmptyAction.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "6074dd51f613d5ea187b7a514faa464aaaacbd0a",
+      "condition_operators": [
+        "StringEquals",
+        "StringLike"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 3,
+      "subject": "wallentx/bucket-policy-decoder/examples/12_grant_user_access_to_specific_folder.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9a9e58b366387441b25d128405dcfb0c01f0c53c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "widdix/learn-iam-policy/02-s3-prefix/policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "d84fe79866cd595bd9ef733341ee18a4b86c811c",
+      "condition_operators": [
+        "StringEquals"
+      ],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "winglang/examples-baseline/repos/examples/github-action-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "e0716851246245a380495a032b93624c0f47d701",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "xombiemp/ec2-purge-snapshots-lambda/iam_role_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "8f92e0f5522bc1b22536c94c58eaf7604d1d92a5",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "xombiemp/rds-copy-snapshots-lambda/iam_role_policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "9868dc7e3bd773765606e29a01908108c2f94225",
+      "condition_operators": [],
+      "reason": "is a policy schema rather than a policy: it interpolates a template placeholder that is bound when a deployment tool renders it, and no default is given for it",
+      "statements": 2,
+      "subject": "xuwang/aws-terraform/resources/policies/vault_policy.json",
+      "template_placeholders": [
+        "${AWS_ACCOUNT}",
+        "${CLUSTER_NAME}"
+      ],
+      "verdict": "outside"
+    },
+    {
+      "commit": "2430967d4a0ccc0417bbd726405d23e4c5423a4c",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 1,
+      "subject": "zirain/playground/aws/acm-pca-policy.json",
+      "verdict": "inside"
+    },
+    {
+      "commit": "79eea0c6753715f3d962b377321e230bb07853a0",
+      "condition_operators": [],
+      "reason": "every guard matches the request against patterns and literals in the policy",
+      "statements": 2,
+      "subject": "zulily/aws_monitor/deployscripts/s3_access.json",
+      "verdict": "inside"
+    }
+  ],
+  "policies_considered": 400,
+  "policies_unavailable": [],
+  "provenance": "third-party",
+  "repositories": 352,
+  "schema_version": "v1",
+  "share_inside": 0.93
+}

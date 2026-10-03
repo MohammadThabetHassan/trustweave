@@ -1,0 +1,2161 @@
+{
+  "digest": "sha256 of the bytes",
+  "ecosystem": "rego",
+  "examined": 369,
+  "excluded_owner_prefixes": [],
+  "excluded_owners": [
+    "forseti-security",
+    "googlecloudplatform",
+    "instrumenta",
+    "open-policy-agent",
+    "redhat-cop",
+    "styrainc"
+  ],
+  "files": [
+    {
+      "blob_sha1": "bb754c66c567d322cedef67f16b5533804edeed7",
+      "commit": "6363bc384c466412ffc98d6eea0007081adbca95",
+      "path": "DevAge/policy/rego/adsm.rego",
+      "repo": "A-iCan/AiCan_2.0",
+      "sha256": "e10f1455e9b9ac4a545614176cd3c118b1978a4638fe40eb282fcc3fee3947ff"
+    },
+    {
+      "blob_sha1": "2a25f0b89b2ce3a2470f3a0d4a6987e33a52e97d",
+      "commit": "92595034df34c6f8ec70cc10a7b6514bd4101565",
+      "path": "policy/change.rego",
+      "repo": "AAH20/network-change-intelligence-twin",
+      "sha256": "3de6cd0bcd35a4c72d693831e4878bda0f797e68adc192a40fdd4f888b7fa7ea"
+    },
+    {
+      "blob_sha1": "4d4dd98172d5dfdfeeaa0defe16fc9a3ef73fd96",
+      "commit": "478db98121e3c48b8140536d1fa8169008bde59c",
+      "path": "Validations/policies/opa_minimal/security_context_required.rego",
+      "repo": "AHegab/SafeFix-K8s",
+      "sha256": "f0b052c9e410e618358812c970c1eae861612d01825ae54acbbf74359533b0a3"
+    },
+    {
+      "blob_sha1": "a01bf627fa329b450ed55e67ff2ee3e046874f15",
+      "commit": "629fb5d5bdcc73792d3667a4d3473e4316b59450",
+      "path": "policies/typosquat.rego",
+      "repo": "Alivanroy/Typosentinel",
+      "sha256": "6f19ad6a2219f117f528fa39032b1e4c05154d4584ca8fd005ba2453885ae9ad"
+    },
+    {
+      "blob_sha1": "8b7908455626de5dd4aceffdb591a0c5384c6d2c",
+      "commit": "d2951c6026c53f77762b650bfa221e4ca2ecf587",
+      "path": "policy/no-root.rego",
+      "repo": "Anoop1605/secure-devops-pipeline",
+      "sha256": "360e88387a79bf08b3669b08365d01f71e6044cd947c7b5c269d58e1c279bfb5"
+    },
+    {
+      "blob_sha1": "53c6028860bbea60d15a61b53a142ae33777aa84",
+      "commit": "144633b9ee229486ef11d9eeacaa8ae0d9ffd287",
+      "path": "pkg/operator/controllers/guardrails/policies/gktemplates-src/aro-deny-delete-pull-secret/src.rego",
+      "repo": "Azure/ARO-RP",
+      "sha256": "b9c600f1cdc40198d032d01f93bd2163e733afc71f724dd072391cce225053b4"
+    },
+    {
+      "blob_sha1": "3d5a28b95c4fb4b10de0a7e08065e82435ddf1d1",
+      "commit": "a5358555221decd278e3b9bd5a284e9f6cc1e8a1",
+      "path": "policyDefinitions/Kubernetes/enforce-apparmor-profile/rego/src.rego",
+      "repo": "Azure/Community-Policy",
+      "sha256": "559e2cf043b49951cd7671ddb286cc70d0c3fc51f4b39b447b1b060771e088e2"
+    },
+    {
+      "blob_sha1": "7f32cdabae8c60a0239720f812f3e067f5143759",
+      "commit": "d106f8dce117a3d2bf598cdf3a9b2b90faeb0f9d",
+      "path": "src/confcom/samples/aci/duplicated_probes/policy_exclude_default_fragment.rego",
+      "repo": "Azure/azure-cli-extensions",
+      "sha256": "9c3c5752d9b48b751f58a0c6270cdc7206127a0c8f82d9a92956bf96e71cb2b3"
+    },
+    {
+      "blob_sha1": "ff348d8543194b002f45755480807957eb6bf6a7",
+      "commit": "d106f8dce117a3d2bf598cdf3a9b2b90faeb0f9d",
+      "path": "src/confcom/samples/aci/minimal/policy_infrastructure_svn.rego",
+      "repo": "Azure/azure-cli-extensions",
+      "sha256": "32ff8b42bb62081af8dbbdc96c044d532c11cb27a78b35eaa189023648c6e62b"
+    },
+    {
+      "blob_sha1": "cd1b44f3c9a1a726dc756cce19b2632201dc90ad",
+      "commit": "43e6c1cfe8b29cb4f1c733dd50694fdcbf2b6e8b",
+      "path": "policies/base/allow_all.rego",
+      "repo": "Behavry-ai/behavry-proxy",
+      "sha256": "d6632d7a974a0c69526b788db263163ad5355e15bee1cf8332076ac8ae90d916"
+    },
+    {
+      "blob_sha1": "122982d794d042581228e736137808386ce545af",
+      "commit": "fd3a0ec414da5199c363074a441d8d3317a09c59",
+      "path": "opa/policy.rego",
+      "repo": "BilalAlpaslan/gateway-authn-and-authz",
+      "sha256": "5f77eece0756ba0f0af2e9a57dbb122cb39dd41d2a0b8a83a37843cee5298564"
+    },
+    {
+      "blob_sha1": "853bdddac7d0df7ebbc15bb207c2164fea51b606",
+      "commit": "c9be3bfbeb06928140db240a5cd06e8164acd8bf",
+      "path": "policy/CIS.1.2.19.rego",
+      "repo": "BlueBandicoot/k3s-lab",
+      "sha256": "f6dd830c8027e4d5741c5b30c87204ea169a4d9e0be8110bd6cc60da3d3ef7dd"
+    },
+    {
+      "blob_sha1": "1eee99badd8403770d20a2d3c78923fda8e6354f",
+      "commit": "c9be3bfbeb06928140db240a5cd06e8164acd8bf",
+      "path": "policy/CIS.2.2.rego",
+      "repo": "BlueBandicoot/k3s-lab",
+      "sha256": "66c4968f6f4d9eafe52c4d629254333f967c1f043fce8e4627dbfd73c6f7448f"
+    },
+    {
+      "blob_sha1": "1b18aee0683e2e42a83fc30992ec63240ce06095",
+      "commit": "375b3c8c51fd289ef5329d5accd1bbc40a78dc23",
+      "path": "policy/runtime/allow.rego",
+      "repo": "BuildIt-Poland/immutable-web-platform",
+      "sha256": "37e58b72b28b8a593a7e631c0c2636bed669e1f2c3e16a2768b5c855703a5058"
+    },
+    {
+      "blob_sha1": "925992707f77f3cb48b906ebc7cd9c112c8880df",
+      "commit": "8d3056b19f3e684ba37be5f7832efe1fd718c7c5",
+      "path": "e49/pod-env.rego",
+      "repo": "CawaAlreadyTaken/uni.fog_and_cloud_computing",
+      "sha256": "f51279346e466f50c32ca9da137c0e47ae1315f1a085937578f5b9c104cc0d63"
+    },
+    {
+      "blob_sha1": "956193c1cf0de8cc377d9382b717d18c3603f5b5",
+      "commit": "32ecb2817980b72d0466563e2147cba2107d1bd8",
+      "path": "rules/terraform/aws/ebs/ebs_volume_encrypted.rego",
+      "repo": "Cigna/confectionery",
+      "sha256": "aa0b7ed2a203338a84295996fceea229a19108a31789d1dbc3b745a977717698"
+    },
+    {
+      "blob_sha1": "e69180fb800888391cefd511fcb37a69694c4c58",
+      "commit": "32ecb2817980b72d0466563e2147cba2107d1bd8",
+      "path": "rules/terraform/aws/eks/eks_version.rego",
+      "repo": "Cigna/confectionery",
+      "sha256": "54a0a00bc67f3947424d9de61c00687d96e76821030e259bee9f80781d13e018"
+    },
+    {
+      "blob_sha1": "b1958a6f83b176c68bd47da6cbf3bc583e12017c",
+      "commit": "7c7ba41d6a262d3b97de8525f39b32100192f6c5",
+      "path": "security/opa/deny-latest-tag.rego",
+      "repo": "Citadel-Cloud-Management/citadel-saas-factory",
+      "sha256": "866ce8dadee520c30dca1dc0ef4dd1c6f6dbe66115ec0523a55e563611c5e026"
+    },
+    {
+      "blob_sha1": "1e12c490959ca0c1ab33854b60a2e447fbf13dd9",
+      "commit": "4e4e04c646948fef27d3dd65284eeb96531abc26",
+      "path": "infrastructure/policy/opa/terraform.rego",
+      "repo": "Cloud-Byte-Consulting/Catalyst",
+      "sha256": "275ffaab92408397e1fb227dbde0b6a52b09e17b12e90f1dd737dcf51f4409d9"
+    },
+    {
+      "blob_sha1": "20e9689eb3e6b4ae29f7b275cf89aac6b5531c2a",
+      "commit": "a7a448b8797baa2e5c036e2af5052b0bbe61ffc5",
+      "path": "src/policy/rego_core/omni_instruction_tuning_policy.rego",
+      "repo": "Cukurikik/Omni",
+      "sha256": "f18ea706794eb3980d6438c49821c47f02742cac41245dd80c499094978bfa95"
+    },
+    {
+      "blob_sha1": "2ce567d4b714d352a2537da79e3e999ee474b2a4",
+      "commit": "e05b88fd369765d42ef05d4fdf463b5f087eae3d",
+      "path": "devops-challenges/code/q23/policies/s3.rego",
+      "repo": "Deengineers/tech-vault",
+      "sha256": "d118f19e4b681516baa8ff9a07bc2fce1c7e187285330d367e1fea1edca8043a"
+    },
+    {
+      "blob_sha1": "ed189786a553a6f02eeff5e87dbfc0c76b6a71b2",
+      "commit": "f913dffe9abcf8dec1ebc734a7f13bb2c106b05b",
+      "path": "suite-core/simulations/experiments/e2e_orchestration/policy/APP2_fintech/deny_crypto_vulnerabilities.rego",
+      "repo": "DevOpsMadDog/Aldeci.AI",
+      "sha256": "5815cd676263b1fba2c41aeaea6eabe2f53c65594ba63a94cbc4ebc56d845e54"
+    },
+    {
+      "blob_sha1": "4eb0248fd95a53da4d237c7b5a36bc5de103dd2d",
+      "commit": "9e7a19d6b98ff2a82f28a96dd6854cb898520fe2",
+      "path": "docs/sts/putobject.rego",
+      "repo": "DoubleDensity/minio",
+      "sha256": "936cdd930cd4ba8cf0f742bfbea39159ec6ba86c598870f16559079df6fb0e6c"
+    },
+    {
+      "blob_sha1": "072eb41932c01e38b366a9f8ae28da54929a4015",
+      "commit": "6ddfeebdc3d7960a7238fbbe5b8a736ad3b85b15",
+      "path": "validation/metabolights/validation/v2/rules/phase2/violations/phase2_violations.rego",
+      "repo": "EBI-Metabolights/mtbls-validation",
+      "sha256": "7fb5f638bf9020e24bdc45bd61998b44729612365a1c984c474428e5f58cf806"
+    },
+    {
+      "blob_sha1": "4ded9fc787034ece04451791cc5443e9efc3f672",
+      "commit": "c5968c1873817cd1df871fcc2236a6f93e34e5be",
+      "path": "terraform/cd-oci-infrastructure/policy/deny_missing_prevent_destroy.rego",
+      "repo": "ET-sec/cyber-squire1",
+      "sha256": "88fb6f32e72ad13b82d9f8860b38a3da4cd461c772e4cf383115dcd8d2958d9f"
+    },
+    {
+      "blob_sha1": "db95fa2ba4162e981535b1c4ef126bd50a753b0f",
+      "commit": "c6377cad4660e010dc0bb01bb1a5fcf04efa60be",
+      "path": "policy/docker/deny_curl_bashing.rego",
+      "repo": "EmbarkStudios/opa-policies",
+      "sha256": "1f3a80eb10e0825f79f53e093e04b9e4436d4565f3f8b644deebee99ae1faebe"
+    },
+    {
+      "blob_sha1": "9bd18827cdadaa6dca32c0c9826742aa17babaf9",
+      "commit": "cf6e16acba042d5c74868aba320ce0cb3aceaaa4",
+      "path": "security/opa-policies/verification.rego",
+      "repo": "EmploymentVC/EmploymentVC",
+      "sha256": "950acd31115e90cae83dd63ae52ff3a6a05bfca80d6ad8715bfbc3bc4149d083"
+    },
+    {
+      "blob_sha1": "fd9e71e13a17e076bcc046aa0ac76a98d4b6e73a",
+      "commit": "ff2dff69d6e8e4fe41128ee287785a5215c28f54",
+      "path": "policies/network/naming.rego",
+      "repo": "GauravGirase/terraform-golden-modules",
+      "sha256": "0da6abbf3dabb83d7fb551fb6f6ffa53af87c4f0f8899cd7165676b64fdf53c2"
+    },
+    {
+      "blob_sha1": "4557f8c23c266fea3e244b2d3970d3af5f9b8345",
+      "commit": "27799c2c27414a483a4a043b957bfd2997d53231",
+      "path": "reference-implementations/agt/policy/lib/agt_ifc.rego",
+      "repo": "GenAI-Security-Project/agent-control-standard",
+      "sha256": "ae962f763f55fbead332fa77dee7c6ff584e33fb6bb6005c2f7440a8414fca64"
+    },
+    {
+      "blob_sha1": "cb358b5be355ead8c08e4d50e66cb21a66faa554",
+      "commit": "601d403d60e3cabc8a0b55b53d2ff741710df2df",
+      "path": "JDG/rules/p24_innovations_enterprise.rego",
+      "repo": "Gorski-Maciej/NexusAI",
+      "sha256": "38949e546958bb2962c94ee06e586be2f41d5fe780c5015c0071dd2cce5d06f7"
+    },
+    {
+      "blob_sha1": "be60d2d589f68f35ec21a8438bc577bc6474fe00",
+      "commit": "601d403d60e3cabc8a0b55b53d2ff741710df2df",
+      "path": "policies/micro/rodo_aml_bdo_atomic_p15.rego",
+      "repo": "Gorski-Maciej/NexusAI",
+      "sha256": "970671dcdaa95d8a54eca9fd1f6c55aabf3bbb292bb1c88caff49e6599a86c49"
+    },
+    {
+      "blob_sha1": "970ef8617ef4299f44e524d4d8f30411a3bb2b10",
+      "commit": "2f2c2ab9742ba7ad4c3187272b82a7798c0c35b5",
+      "path": "policies/cicd.rego",
+      "repo": "GurdipSCode/devops-policies-pwsh",
+      "sha256": "551cf5b5c113507ef4b9df03825eef6b40286461b2060d993a5d35ee5cec7561"
+    },
+    {
+      "blob_sha1": "ef91dd765a3248d1a4f8412d7ff5f27b33609915",
+      "commit": "a23dafecb506fea6255d4203bdaed4e2008b0303",
+      "path": "policies/ansible/cve-2024-8775-no-log.rego",
+      "repo": "Gurkirxt/devops-project",
+      "sha256": "ff9b32ca60c46b5cf74f1e84e87820c97992f9b16ffa92ac7e8608cc63ad1320"
+    },
+    {
+      "blob_sha1": "d8227ee782775d3f7599ba75c1cedb5b4ef15d3d",
+      "commit": "8ade21c58137d7f10493acc306b73c8221420afd",
+      "path": "engine/legacy/rules-gcp/CIS_GCP_6_3_5.rego",
+      "repo": "Hardhat-Enterprises/AutoAudit",
+      "sha256": "4c25e6a100ffdbd3783ad2b203754b7f62f9cd562e7cdb76acd21374b37f9d93"
+    },
+    {
+      "blob_sha1": "16d42ddede5bdf2a747c1aa47c190c0a67b3ddf1",
+      "commit": "8ade21c58137d7f10493acc306b73c8221420afd",
+      "path": "policy/compose/compose_compliance.rego",
+      "repo": "Hardhat-Enterprises/AutoAudit",
+      "sha256": "75838480fa31991e6f9bebedc914fc561c7b7bb694ad71952b1c954dd84e234e"
+    },
+    {
+      "blob_sha1": "475087e66897ed8f8a0fbedcd4147ea64c122cc1",
+      "commit": "3098546472267752920320dd805cbdf0b3115528",
+      "path": "policies/gcp/Cloud Source Repositories/google_sourcerepo_repository/pubsub_configs.service_account_email.rego",
+      "repo": "Hardhat-Enterprises/Policy-Deployment-Engine",
+      "sha256": "34a4613675bf81bbcdbd4e59a2bba38e6a01c355047e051ea579ee71ae3884fd"
+    },
+    {
+      "blob_sha1": "e2432cf78bd477ef02a88b7f10304bff470499c7",
+      "commit": "3098546472267752920320dd805cbdf0b3115528",
+      "path": "policies/gcp/Cloud Storage/google_storage_object_acl/predefined_acl.rego",
+      "repo": "Hardhat-Enterprises/Policy-Deployment-Engine",
+      "sha256": "c614d2150514eed517613c454cab35e63619b0649b627502022d1bebf47f1dd3"
+    },
+    {
+      "blob_sha1": "9cae8924df3da7f1e263f0e4dc77879e2bbd8876",
+      "commit": "8a621f80cdf7699577335c18ed68c21fe8cd8f13",
+      "path": "resources/ibm_dns_glb_monitor/ibm_dns_glb_monitor_state.rego",
+      "repo": "IBM-Cloud/terraform-opa-ibm",
+      "sha256": "c6d8cb3df8904b3d808a1fa058def979e2e597d4b4621bec7c18e4ba980cb6f9"
+    },
+    {
+      "blob_sha1": "3da4ff87b544e8db6fee63297193497530e48287",
+      "commit": "687685c2f9fa85365f04add10ea7d070596434e7",
+      "path": "openbank-infra/opa/policies/agents.rego",
+      "repo": "JiRaska/open-bank-oss",
+      "sha256": "ebb5ff4ccb3a92be0a244cc6815eaa18d2461e331f9538ac740918658d7c1115"
+    },
+    {
+      "blob_sha1": "badc39cb390f37b1e097ea97a8b9aa2853e4b2ca",
+      "commit": "729503e13a083f11eb4e719f9ef6d8961aa65496",
+      "path": "policies/conftest/no_terminating_allow.rego",
+      "repo": "JimilPrabtani/AWS-WAF-OPS-PLATFORM",
+      "sha256": "ab34e6ae860f6df99684e7ca9dd0ab1786ad412d6e8ea2b619665e67d578af00"
+    },
+    {
+      "blob_sha1": "28a5fee8f67dae52a1f2740db60067f95354db72",
+      "commit": "c83f92832efcaeebd6317eb6df6442173cdccdbf",
+      "path": "infra/security/opa/policies/deny-privileged.rego",
+      "repo": "Jitterx69/inflow-ai",
+      "sha256": "1ea0485f4989a4cf4c2bec45222dd41b82dd4e186de4ff7377c198134a7f9c32"
+    },
+    {
+      "blob_sha1": "3dfdbb1bd90c67130283a12d7878b47338e6b562",
+      "commit": "86c9a3aa4fd050f1744c23c7f846f6f196b27c4a",
+      "path": "policy.rego",
+      "repo": "Kishorgujar/CICD-With-Pac",
+      "sha256": "a4a65db0ab10224528ac87509e0438c016bbb40b1c923b08bbe8806de2c3fb82"
+    },
+    {
+      "blob_sha1": "50f280293deba715c2830d09b632b02376f10280",
+      "commit": "d4bebdce360f09014d62e12fe37916fd4e9bffef",
+      "path": "Rego/Cloud Native/GCP Terraform/gke_no_public_control_plane.rego",
+      "repo": "Loginsoft-LLC/Vulnerability-and-Security-Compliance-Research",
+      "sha256": "235408dc88d522ebf5e3ee9b56537bee1b4b6e5d5880c1d00e61f28be583a607"
+    },
+    {
+      "blob_sha1": "c798e19fd3ed499098ae14938b184cbac69b7a9a",
+      "commit": "238f9662be106adc4ca683cbe1b1b66afc847e7b",
+      "path": "cvat-ai/cvat/v2.55.0/cvat/cvat/apps/access_tokens/rules/access_token_plugin.tasks.rego",
+      "repo": "Loongson-Cloud-Community/docker-library",
+      "sha256": "d037d248595a8e7dd0d958a3a73ed4ae5b116b263ec1713bdd4f9370bea0ac5f"
+    },
+    {
+      "blob_sha1": "4513e888e4a2c93b83625e67cc2b54460340fd06",
+      "commit": "944df1c747f467c7f78dcd57547bbddc86c72b26",
+      "path": "agentpolicy/policies/experimental/principal_shape.rego",
+      "repo": "LuD1161/agentjail",
+      "sha256": "870b0c8e9b5a091ac45472916938648dca7a9ad960be7bee72c1192cf4011fda"
+    },
+    {
+      "blob_sha1": "8a4aec574592de9b290d0bf921650e1e46fb5f61",
+      "commit": "944df1c747f467c7f78dcd57547bbddc86c72b26",
+      "path": "cmd/agentjail/policies/aws_posture.rego",
+      "repo": "LuD1161/agentjail",
+      "sha256": "04dfae8c577c2156fbfa801924e09f4cf026304023cc213575adb127d5a2eb4f"
+    },
+    {
+      "blob_sha1": "66304cb092936956e1966c645b0d98feda50cd59",
+      "commit": "59b6c1750dbf8370d994b586714967c9e1cfce9e",
+      "path": "pam-zero-trust-verification.rego",
+      "repo": "Manjula101/opa-pam-policies",
+      "sha256": "c58e167be081be886993343caaabb36f0472c4902cbcfbed7edeb5b592ae2960"
+    },
+    {
+      "blob_sha1": "214a7e04c9c37d21fd57ba620d3e7051a28492ce",
+      "commit": "31147f0d7da6911e06f2059c3655b49c331a1702",
+      "path": "helm/config/policy.rego",
+      "repo": "MapColonies/mapproxy-deprecated",
+      "sha256": "e24ea9acb9a3a70f29de11d71dfe6784337b073c49f5427a58b00da3228fc910"
+    },
+    {
+      "blob_sha1": "f7220ca34731ada477dd39f211d4c846e6f77188",
+      "commit": "f48541580e665369c69bef0c52a530276d443353",
+      "path": "policies/egress_allowlist.rego",
+      "repo": "Maverick0351a/odin-gateway-starter",
+      "sha256": "26d097722169ab7c89889abc396a0f924e57bb19863a30795c62a1316e3938e3"
+    },
+    {
+      "blob_sha1": "ffde0dd6df9bf5812958c9f20fd1b0def27734f0",
+      "commit": "c9d011755919b19db0f1cff8eea3611423e064d7",
+      "path": "tests/data/open_policy_agent.rego",
+      "repo": "Modelcode-ai/tokei",
+      "sha256": "a9f2a3f53f245fdcee7dac73f2d484fb1498be507b7d85335aaa3b0a42352904"
+    },
+    {
+      "blob_sha1": "422aa1316bac4c4248c6eba5f6a45226640f3ff7",
+      "commit": "ca363092bdf04c9af13b89368548f11d5428585e",
+      "path": "configs/policies/resource_sharing.rego",
+      "repo": "NTARI-RAND/SoHoLINK",
+      "sha256": "961834cfed4512a0ed30b0d6f3e79a050fb289d77d459a9578cee56d03429d3c"
+    },
+    {
+      "blob_sha1": "fcc4e652ba75b3e6ab6cc4794acb21f2c55cc7c6",
+      "commit": "89973702e10a7102b35a88b6ebbbd6d9e04ff603",
+      "path": "cvat-develop/cvat/apps/engine/rules/tasks.rego",
+      "repo": "NiklasWork/wrapping-machine-quality-check-ml",
+      "sha256": "5373acb8a5efd05a258d6058e62de639545126bea06b3d768d00bd59b57f7b49"
+    },
+    {
+      "blob_sha1": "5e76a65b058a7b9383fe9b4847d9efa60c3ab8ca",
+      "commit": "1d45d1f8266de37b200b3670e1604e8d54d728ae",
+      "path": "scripts/s270.rego",
+      "repo": "OpsMx/ssd-policies",
+      "sha256": "8fdd6a30f625a366705f81faf3f84742d30a26a74bbbdf3ea1813f8a9fa4bc3a"
+    },
+    {
+      "blob_sha1": "9f86315f44703944d8610a2bd15f30af09be5159",
+      "commit": "f8ad4b0f361c035173f6632521c20e295baa7822",
+      "path": "chapter11/enforce-ingress/rego/enforceingress.rego",
+      "repo": "PacktPublishing/Kubernetes-An-Enterprise-Guide-Third-Edition",
+      "sha256": "08ec129c884d5ff3b57aa8d494d18aeccacf667537e085a0f17d41c235a41db1"
+    },
+    {
+      "blob_sha1": "aa001107105f2b24555e8627c17d9cd64cf9ad42",
+      "commit": "b472e6b0ebbb504cb0bbcc82694ddde44ec63bf0",
+      "path": "infrastructure/k8s/opa/policies/images.rego",
+      "repo": "PinSpace-Org/GistPin",
+      "sha256": "032b215681615542db9f9ab47cd3d56913a4cacac8faef14f1a7b1448425465a"
+    },
+    {
+      "blob_sha1": "53147ff12f7b6fd5abfd171977ace5e673f38db5",
+      "commit": "b472e6b0ebbb504cb0bbcc82694ddde44ec63bf0",
+      "path": "infrastructure/k8s/opa/policies/secrets.rego",
+      "repo": "PinSpace-Org/GistPin",
+      "sha256": "569029eeaabe56987714eb9c6c8bf1f47853bb8d3e1eb1d36b4c00a03d053bb7"
+    },
+    {
+      "blob_sha1": "e6b76d27efe8fa45d2475f268dccbac07fa44906",
+      "commit": "bb88ece1a43d314bbed166cb6f371ec17ec60eb0",
+      "path": "opa/policy.rego",
+      "repo": "PraneethUpadhya195/banking_zta",
+      "sha256": "fce427b3bdb19889601edc37b2d37c0c240b0bbadd3e321884bd368bfe58cc34"
+    },
+    {
+      "blob_sha1": "fa4c64cc6bcddfce6b3a5595d3b11d5deb4e5d27",
+      "commit": "c31f42daf310234639af7901f9d5146a49977de1",
+      "path": "policies/deny_public_ssh.rego",
+      "repo": "Santixie/AUY1105-grupo-7",
+      "sha256": "5d6083739c02dd0594a12bd816a2f8536f26021da7d1a1cdb4ae1a4503ee1678"
+    },
+    {
+      "blob_sha1": "9a23ab4a278df9680ebb78612b5bd908654dcf66",
+      "commit": "1c7b1f7ff3912fb422b6f5d7f41dee38d660d64c",
+      "path": "security/opa/policies/deny_privileged.rego",
+      "repo": "ShivaSirigadhi1/cloudforge-idp",
+      "sha256": "fcea386bdcf3c2119cb5078e30b36ec4272f1c8a09b01b09b81074aeda84395d"
+    },
+    {
+      "blob_sha1": "b92258cdb994f9833087961d414b67d7012e9547",
+      "commit": "6a543c4b2a1c6c556edf8efd08137bb294664fc7",
+      "path": "opa/examples/rego/policy.rego",
+      "repo": "Sreelal-VU/sample-sonarqube-repo4",
+      "sha256": "5a78898bff047b607969dcf94c6d068c0107e3bbb68e811383c96ab50c2bbe63"
+    },
+    {
+      "blob_sha1": "0a545d1c490620966f23590e06adb177f732c455",
+      "commit": "5a992081bd1e1352787e749bd700a223299f84a5",
+      "path": "opa/policies/example.rego",
+      "repo": "StuAtKong/kongpose",
+      "sha256": "76d74ca24dead3a1f76e4ecc3518ed069d6d1a7ddceec185b44baf6402f00b3c"
+    },
+    {
+      "blob_sha1": "27045044e4863479f421f3d45011f9311ea336b6",
+      "commit": "19e240ae5e80ad3a0687814857b5bfdc2422cdca",
+      "path": "helmcharts/learnbb/charts/registry/configs/opa/main.rego",
+      "repo": "Sunbird-Spark/sunbird-spark-installer",
+      "sha256": "855ea96b5c913c9422c4dff935dde076dddc50b3cce643f96463c568d0265672"
+    },
+    {
+      "blob_sha1": "c18a7579ba9cfbedbdafffeaedeaadddb3b81e13",
+      "commit": "0f62bb0c75e2ff32908e3e48ee68a3d5d236feb0",
+      "path": "policies/required_tags.rego",
+      "repo": "Tharbouch/IaC",
+      "sha256": "df0e46093b292d66d036c5585045daabd00b062caf75b42a8ec7df75ad73cfa2"
+    },
+    {
+      "blob_sha1": "e4b6a8a16ccfcbc81f80c039b69ffd7fd59d90d3",
+      "commit": "961d82c55c2bc87282573f354b68b16d5ee727ad",
+      "path": "backend/app/rules/cloud_aws/security/ebs_volume_unencrypted.rego",
+      "repo": "TheoGoudout/greensecops",
+      "sha256": "dc4550ae8e67a0de1b97ea5665f8f3b0732f4e466dee6c62102e2c441ae966cb"
+    },
+    {
+      "blob_sha1": "9f56c4d45255eb0de54092a5c0ee7eebe071bea3",
+      "commit": "961d82c55c2bc87282573f354b68b16d5ee727ad",
+      "path": "backend/app/rules/container_runtime/reliability/container_pid_explosion.rego",
+      "repo": "TheoGoudout/greensecops",
+      "sha256": "9c0972dbc57b1dbaf5d4e17486ea7904474e90f5ee95a9651c42a78ff0540cd1"
+    },
+    {
+      "blob_sha1": "71873ee65bf4e315d446d0b4f65ae1ec8f551dad",
+      "commit": "ad89da66bbcfe435a23ab1c599ff263ec3ae77d3",
+      "path": "governance_kernel/policies/eu_ai_act.rego",
+      "repo": "VISENDI56/iLuminara-Core",
+      "sha256": "fa763014e39dcd3fc742f01baf038cd4aaf7b9a584a74f8808e84bfd22c8f701"
+    },
+    {
+      "blob_sha1": "fad97dcaefba2f7e41db58a33778b730a903cc59",
+      "commit": "0a3d2d146ce58c5c51f5bd1e0e714c4b2db50b56",
+      "path": "internal/sast/rules/vnx-184.rego",
+      "repo": "Vulnetix/cli",
+      "sha256": "978c4fb1387c2176d3ddc471ffe61fb0eea3fd79726d43a717edc60840e5b119"
+    },
+    {
+      "blob_sha1": "12d65e5361a82910d0822986286eeeeade2d0c32",
+      "commit": "0a3d2d146ce58c5c51f5bd1e0e714c4b2db50b56",
+      "path": "internal/sast/rules/vnx-java-012.rego",
+      "repo": "Vulnetix/cli",
+      "sha256": "008f98bdd3010f604e206e98e0c9ebc692ee0036f19cc84155f78654d0c77519"
+    },
+    {
+      "blob_sha1": "52aa1642357abbf0035d06d89b015b1761e64f65",
+      "commit": "34a42c09329367a9522c2990eed488c79274d5f1",
+      "path": "rules/cfn/cloudtrail/cloudwatch.rego",
+      "repo": "Vulnetix/opa-fugue-regula",
+      "sha256": "b758342678fe2751adaf3897609883aae092964eb5554012fb1146dfe9e0b441"
+    },
+    {
+      "blob_sha1": "b7a0ea1a0aff3a852aaec342f0df4111e1fef8c4",
+      "commit": "97245184101d714384232dfb56d5e56a2b013599",
+      "path": "policy/controller.rego",
+      "repo": "aadriantech/helm-chart-metallb",
+      "sha256": "d764c923b1a762a120612aa1bc54caff8cbc1a3b13e850cfbc0703c1e8fe1649"
+    },
+    {
+      "blob_sha1": "a43587ef105a0792c151f4f59e6adba591b709de",
+      "commit": "99ea7ae1946193a676b32cc7009d330aba444c6d",
+      "path": "max-grant-duration/1d/policy.rego",
+      "repo": "abbeylabs/policy-library",
+      "sha256": "8840fb05f76ee6bbefc9af24095f9b1aa5ad5a0915aba16421850d3589c090be"
+    },
+    {
+      "blob_sha1": "a990a05df2501bb92a8b9184688d0d7d9a8076df",
+      "commit": "4281e3cc4f62d5fae653d75a905bfe45746e556b",
+      "path": "test-data/policies/deploy.rego",
+      "repo": "actions-marketplace-validations/infracloudio_ci-cd-standards-using-opa",
+      "sha256": "f19b766726ed0580a4f06a073c757b60870e7fc8729b04d93a0df09e663c1713"
+    },
+    {
+      "blob_sha1": "6dda74c777b9c8e0a4bd9355ee6086b529d493f9",
+      "commit": "c2985f55834217ed92e6b74899c70a8fe3f8e6c6",
+      "path": "mcp-server-couchbase/docker/policy.rego",
+      "repo": "acuvity/mcp-servers-registry",
+      "sha256": "eb58ba64727372955180dadc3b1dcfb42a403b1b1ec32b186b70538e69d41dfb"
+    },
+    {
+      "blob_sha1": "cfecf7e70f854414f8923f5090a51134b150acfe",
+      "commit": "c2985f55834217ed92e6b74899c70a8fe3f8e6c6",
+      "path": "mcp-server-httpx/docker/policy.rego",
+      "repo": "acuvity/mcp-servers-registry",
+      "sha256": "d8bdab82e4a364e30151e597365fbc55d3521a643296655593a9691c3d228acb"
+    },
+    {
+      "blob_sha1": "f95a00f9f47977bd3d8963c931fe4e2693faeece",
+      "commit": "c2985f55834217ed92e6b74899c70a8fe3f8e6c6",
+      "path": "mcp-server-multiversx/docker/policy.rego",
+      "repo": "acuvity/mcp-servers-registry",
+      "sha256": "4e31024d1336dce6a12aa8c332735aad1be2ba8f5c16b8e2cf90d212ff2a3fa3"
+    },
+    {
+      "blob_sha1": "f947adc93db257d5170c7ae35a0240dcdcbd70be",
+      "commit": "67a60edfb176ead2ebd1827aabe03b6b1e7b320d",
+      "path": "examples/policer-rego/police.rego",
+      "repo": "acuvity/minibridge",
+      "sha256": "1aad0651240af011ca65bf3648a842778144845c50fb12fd7fdd9c0d7eba1059"
+    },
+    {
+      "blob_sha1": "ea0fc74e221e64d701535f790338a4705c66f698",
+      "commit": "e71a8c36dcac0ab4599625f5694a462c7cbf7850",
+      "path": "k8s/layer3/kbs-deny-all.rego",
+      "repo": "adeavid/confidential-ml-distribution",
+      "sha256": "15b28def5cc6ec858c1e6eecd94e300916e3e0ac1792a446ca01f1530496908e"
+    },
+    {
+      "blob_sha1": "544caeeb5877650fe38b0d39b66978cd3b1c2582",
+      "commit": "2f4e4f3a978b158cd324a2803006b86b422bdb36",
+      "path": "deprecated/admission/ingress-host-fqdn.rego",
+      "repo": "adityamillind98/gatekeeper",
+      "sha256": "1d5b1abbdeec351c9dfb93311c021c6181610e786a806b7cef774b66d6f94a68"
+    },
+    {
+      "blob_sha1": "0c31abf83d4ec3ebaf4eb3ef641cd7221c36f2c2",
+      "commit": "da319d49b9e971c52062126401fa85e17f4b8d03",
+      "path": "examples/rego/starter/base.rego",
+      "repo": "afterdarksys/rcdo",
+      "sha256": "5871faa1ae634346da7666c2915b2e19794143bfca7a05dfe87d40e152d28aca"
+    },
+    {
+      "blob_sha1": "7542a3c9aa3d81fe5f3c1c7936292256f3319c12",
+      "commit": "6418b9d0a6229b49f1ede927a84b38939fb1d4af",
+      "path": "test/ut/app/opa/bundle/authz/policy.rego",
+      "repo": "aileron-gateway/aileron-gateway",
+      "sha256": "7cb50eb0914e18740ec87e933efeda2822c231f2f21f5614f948832ecb30b5f9"
+    },
+    {
+      "blob_sha1": "a12c9b7b55616e4f4856548cac0d21bc4b8a64fd",
+      "commit": "1f854114029ac4b8811b98dd6d64695a700f9d56",
+      "path": "07-Healthcare-DevSecOps-Governance/policies/iso27001/readiness.rego",
+      "repo": "ajosianor-source/trading-project-automation",
+      "sha256": "f73d1f442b4eb2039430f2c6a3fa223aa127ccda979964f830e4855a852adbfc"
+    },
+    {
+      "blob_sha1": "841e4b126ceed26f292bd8b326c888ddaf0ca032",
+      "commit": "3700ac60645bb289ec40da86f3459b10c5692791",
+      "path": "helm-charts/guard-agents/policies/resource_policies.rego",
+      "repo": "albinoJimy/Neural-Hive-Mind",
+      "sha256": "52820323012ddfc307af6c45c637ddfa2eb2c4195334560cb9a0261c4144d97e"
+    },
+    {
+      "blob_sha1": "81ee3c2829a3e0c7984830b16be1d242f0b58218",
+      "commit": "3700ac60645bb289ec40da86f3459b10c5692791",
+      "path": "helm-charts/orchestrator-dynamic/policies/rego/orchestrator/sla_enforcement.rego",
+      "repo": "albinoJimy/Neural-Hive-Mind",
+      "sha256": "8d094488008ed6ab8f25affe512e9670102357308d3ae6903ca75e565e7e09c0"
+    },
+    {
+      "blob_sha1": "e5e3cc37bcd19581cdbd427e5f4d6c0fb7b84f99",
+      "commit": "7f45918f7401aaa12e819702bc7087a898a3da1b",
+      "path": "k8s/kustomize/overlays/sandbox/policy.rego",
+      "repo": "alex-y-kozlov-sandbox/opa-envoy-tut",
+      "sha256": "e22d2621bd11ee6abc96fbafcb198cf0a673648a001398bd8d4c57f9b628358c"
+    },
+    {
+      "blob_sha1": "18959f9f6148a26021161598c4d970cbfa768728",
+      "commit": "e2a69f9d76e729db23ef429c9a2d7a7fb8195a4b",
+      "path": "policies/registry.rego",
+      "repo": "alibaba/loongsuite-semantic-conventions-genai",
+      "sha256": "bb487a198c0cf0c331c731e818b9f8409142dd0d6c7ff7c1e71edac6888fd2d1"
+    },
+    {
+      "blob_sha1": "b3e4d5c32e26e8a1631926b0598971c320dab8b8",
+      "commit": "070762b26810e17c39c7416eba571b0f6d01feee",
+      "path": "policies/aliyun/rules/ros/ess-scaling-group-attach-multi-switch.rego",
+      "repo": "aliyun/infraguard",
+      "sha256": "ecd74d176fceab62e7cdae4c312c39cddc1e0aaa01bb588c8d0836efd1096588"
+    },
+    {
+      "blob_sha1": "dc7bd76e58a18812b1d84301d5e10a0cc60b4739",
+      "commit": "070762b26810e17c39c7416eba571b0f6d01feee",
+      "path": "policies/aliyun/rules/ros/kms-key-delete-protection-enabled.rego",
+      "repo": "aliyun/infraguard",
+      "sha256": "fc65d11d121cacf6d33507ac162f2c01dd60afbe8818b464e744bec5c34b6294"
+    },
+    {
+      "blob_sha1": "dca0c2c5c976f6285b7c176ecd25ad914753de91",
+      "commit": "070762b26810e17c39c7416eba571b0f6d01feee",
+      "path": "policies/aliyun/rules/ros/redis-instance-tls-version-check.rego",
+      "repo": "aliyun/infraguard",
+      "sha256": "765a7f401bf0c1d4f9929221802844091de9ff432ca740936eae1d8f049f77e6"
+    },
+    {
+      "blob_sha1": "9b5854335785ceab8d2110a81bcf263e93799a25",
+      "commit": "aa03b3033a0dc4f5ff8438a9ce6971a6fe793990",
+      "path": "content/tsb/assets/howto/s2s-policy.rego",
+      "repo": "alliswellcaondy/cloud-native-library",
+      "sha256": "6b901e5bb8dc6687456b89fe28197f9f38db25fbf894f4a1543df7ee6cd77c17"
+    },
+    {
+      "blob_sha1": "d051775f8ebb1acc5367a66578b62cdc81788414",
+      "commit": "549db80fcb8a1996c0e96c784fe5cd7b23acca70",
+      "path": "security-policies/bundle/compliance/cis_gcp/rules/cis_3_8/test.rego",
+      "repo": "ameytriage/testlea-mirror",
+      "sha256": "9cba27bdde77757dc308059a7ebc3c52545932c2f6a70ea93bcdc5feedeb5fb2"
+    },
+    {
+      "blob_sha1": "19312e5b0d0b12d16593143cc7ec1a02a163a62a",
+      "commit": "76551b7b19ebc667764ec75da14990d0aef8b6e5",
+      "path": "skills/implementing-compliance/examples/opa-policies/encryption.rego",
+      "repo": "ancoleman/ai-design-components",
+      "sha256": "11ea5981ee118538ba141ef5205822b2e377408adeb2da10db634029eefe0009"
+    },
+    {
+      "blob_sha1": "73a09e3661950c4089db5db0c212677fd73ba133",
+      "commit": "c1eec4c426170dc97117a24b0c9643c8cf897942",
+      "path": "policy/exfiltration/policy.rego",
+      "repo": "anderseknert/opa-kasten-example",
+      "sha256": "d3ebb35d9d22995ebe8d165e7a3db1970ddc116b56a8e04c18201e290ac362d1"
+    },
+    {
+      "blob_sha1": "8a517e676c877a573390a24ef6fbd310d33dca19",
+      "commit": "88fe68ac2d29095ffa0853bb08a970e934cce14e",
+      "path": "policies/mcp/unpinned_package.rego",
+      "repo": "andrewblooman/boundary",
+      "sha256": "7a03cf207896bd43c32040d9d28310e4742724d1595a206404e308ed2c65b12d"
+    },
+    {
+      "blob_sha1": "7f1183e30b55bd98f3b11e0cd1196ac30a60ee65",
+      "commit": "0176ee11aaad13258e5fd7a467b0564b923b19be",
+      "path": "pkg/authz/policies/policy_test_deny.rego",
+      "repo": "androvonx95/DEPIN_Network_Mini_Project",
+      "sha256": "0e9536bc510b02eb7f7a2edb9fb96b31ec849140d4d573134946de70df4d2a5b"
+    },
+    {
+      "blob_sha1": "50800aefae654d8f15fa540641e019a438a9a50f",
+      "commit": "ba3e682a6e396e4f1624c6796295b9c7191749c7",
+      "path": "rules/ALI_CLOUD/ALI_CLOUD_RAM Role_202507101903_755145/policy.rego",
+      "repo": "antgroup/CloudRec",
+      "sha256": "3ab397317dc51a4bcfdbcd2a09a1261e39f824ed8c56f1e2931d19b5e0e6dff0"
+    },
+    {
+      "blob_sha1": "d3796f7ecbd970a950fd90345e80a265b1491cc5",
+      "commit": "c9fbd26ce6880ec413cabfdfdd30af634077b134",
+      "path": "examples/hcl2/policy/deny.rego",
+      "repo": "anusmithapatnaik/OPAConftest",
+      "sha256": "4f28a79645413713754aace8d2c7177a9cff2e2405f95daef69ffec2b3b57278"
+    },
+    {
+      "blob_sha1": "29c49a9d66d4f9805b398ec110742e11756e497a",
+      "commit": "4f643a29084cb9b9e8c90e878e03bbe6ac80a5db",
+      "path": "opa/authz/rbac.rego",
+      "repo": "app-sre/qontract-reconcile",
+      "sha256": "a6dc48aabf29a4eae67e2dcba5336060b1d4d638d084cb490d1e2505b8f38644"
+    },
+    {
+      "blob_sha1": "56e9076a404a026bcfd276aa375ecc5341fa8db1",
+      "commit": "e3b4584d3caeb0b4244728a01fca50405101b42c",
+      "path": "darwinOSBits/DarwinInit/Models/PCCRegoPolicy/bundle/policy/main/main.rego",
+      "repo": "apple/security-pcc",
+      "sha256": "90fdf65b6360cef0245953023eb733a9e2c46dc6d3b72d056df30f18953b2f58"
+    },
+    {
+      "blob_sha1": "aa6cb341eec28f3dd332a1c4a31463075ad9db87",
+      "commit": "da4777b4f0fac643b9fe2d3616b2496c36fe9b48",
+      "path": "policy/registry/registry.rego",
+      "repo": "aquaproj/aqua-registry",
+      "sha256": "d70562fb7e9023af25634c7c4ddf2b55223b49546c44d5ffeee17ddd146fa725"
+    },
+    {
+      "blob_sha1": "2b3ed3f389f04d29182287160aea65e4a3d1746d",
+      "commit": "71c05d02845cc2c3a5dfa4fe914a68a052cc88bf",
+      "path": ".regal/rules/custom/invalid-metadata/invalid_metadata.rego",
+      "repo": "aquasecurity/trivy-checks",
+      "sha256": "4f71490f5c2f5f2c4fe29aacc1912c131735b5a6171a0f1781b3a2cd6d699af0"
+    },
+    {
+      "blob_sha1": "17170bf660e120be69f91b8e939a5730c34dc45f",
+      "commit": "14263dd37b3780c7fab9d5d5f2eac8302c44b035",
+      "path": "tests/envtest/testdata/content/policies/kubernetes/policies/general/manage_namespace_secrets.rego",
+      "repo": "aquasecurity/trivy-operator",
+      "sha256": "bcb24d6c0b4c534384d09a11cf6b387799d093da4cd5d75010e0c75f4bf9d425"
+    },
+    {
+      "blob_sha1": "ab3ae903c2f1411a2c884385b4ff6f3bafe9230d",
+      "commit": "295cdbbfece32655f20c8019f602afe5da91cb95",
+      "path": "rbac/default/rbac-example.rego",
+      "repo": "armory-io/policy-engine-examples",
+      "sha256": "1d018bc0cca13bb40d5dd190f36e559ca0a865efe540536a2b2d27f0f0b35fe3"
+    },
+    {
+      "blob_sha1": "965f94321ec504cdddd4d264851e3b7834c76aad",
+      "commit": "17b51c838d1098cf00be90f06767e05411685ea4",
+      "path": "policy/k8s_requiredlabels.rego",
+      "repo": "aserto-demo/policy-gatekeeper",
+      "sha256": "dcc1e3b1a56de432b11e3364007a4469e3a72cd5dd9593fd3bfc15220f63a463"
+    },
+    {
+      "blob_sha1": "d43e6517d30a8e69b92d6e22e34f7f6d2ce6e839",
+      "commit": "d5409c252e8f2e40b10901e8d82d5c368491b470",
+      "path": "examples/middleware/policy/example.POST.api.__asset.rego",
+      "repo": "aserto-dev/go-aserto",
+      "sha256": "681ce111f5fb30a6423a9e3680511be8f96c6d87ca777f7970d736cfc1cb230d"
+    },
+    {
+      "blob_sha1": "4364f99b20b03ec9d360272fb9efd04f5bf8696a",
+      "commit": "8936f2f655fcd087ca26e171f2b4814b2e689c02",
+      "path": "Chapter 05/21.rego",
+      "repo": "ava-orange-education/Ultimate-Terraform-for-Cloud-Security",
+      "sha256": "146306fb00364d019272f34bfb1510b30b364baa46df2724917dbe902760ecab"
+    },
+    {
+      "blob_sha1": "1b6148fae78be03651a6e1f5a05d4f21342906f3",
+      "commit": "ff783d2e9ccb7c8ee7114de684a78c7b92e3b2c2",
+      "path": "src/rego-engine/handwritten/rego/intrinsics/findinmap.rego",
+      "repo": "aws-cloudformation/cloudformation-validate",
+      "sha256": "20d3943993b0a8943b224fead65171adb8bde6f252eef1ac7cddf63caa1460f1"
+    },
+    {
+      "blob_sha1": "78cb8a692e2c21ad9e9a95b380505fb43d6b90bd",
+      "commit": "cffa57e515d54dec65acba1d88ef0facd160c49b",
+      "path": "policy-as-code/OPA/policy/aws/emr/aws-emr-m-3.rego",
+      "repo": "aws-samples/aws-infra-policy-as-code-with-terraform",
+      "sha256": "76fa8175032c34ebdbc3ac21e8bb812d4b43c3d7a8f15484a4f8f173cc358236"
+    },
+    {
+      "blob_sha1": "83a9cabf33c0eca9556868165697f4f5e0098804",
+      "commit": "079aa4939df567519170461b23c0533b99f1f200",
+      "path": "policy/deny-privileged.rego",
+      "repo": "babanomania/The-TODO-Hardening-Initiative",
+      "sha256": "11233d89241452d2e3b919bd69e3d96e81b3b6889a81c31bf64f444c409cc979"
+    },
+    {
+      "blob_sha1": "f6bbad2985120b15d4dfc1120477726830b92ac1",
+      "commit": "d3d71448c2c1c44da8c9be23042055646a417723",
+      "path": "rules/apigatewayv2/pf-apigwv2-access-log-destination-log-group/rule.rego",
+      "repo": "badmintoncryer/cdk-preflight",
+      "sha256": "59113bec14589d64d2fde669724898ee87fb69ecfd746cefe6247d5ea3692712"
+    },
+    {
+      "blob_sha1": "6eb89444f37f708c6473793c909b0139d56c968e",
+      "commit": "d3d71448c2c1c44da8c9be23042055646a417723",
+      "path": "rules/bedrock-agentcore/pf-agentcore-required-union-empty/rule.rego",
+      "repo": "badmintoncryer/cdk-preflight",
+      "sha256": "5fe228eed04ce630c24e534469a80e34370e71493701803e4ff8f3c884861b59"
+    },
+    {
+      "blob_sha1": "9c369f2c97036d8043445444a63d1b8923b0435c",
+      "commit": "d3d71448c2c1c44da8c9be23042055646a417723",
+      "path": "rules/mediaconvert/pf-mediaconvert-pkg-group-container/rule.rego",
+      "repo": "badmintoncryer/cdk-preflight",
+      "sha256": "00169315615146bbad333735ab29ef751e5db5c04fa1ac3568af9621e5c37eed"
+    },
+    {
+      "blob_sha1": "9d1a3e64f0d2371f53ae32e14a136b153934d86d",
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "path": "policy-engine/core/tests/fixtures/opa/verdict.rego",
+      "repo": "baoqger/agt-fork",
+      "sha256": "b69002aaabc3855f3879024d9c493372b9ed0b4d8d7be4f576a4c8bbcd2d1222"
+    },
+    {
+      "blob_sha1": "cec2ca53fe8847ebbd3c8c1509ee467c3529f76b",
+      "commit": "891336d25deb001db2ef055ed8bf0d257de0d8ce",
+      "path": "policy/focus/citation_validation_required.rego",
+      "repo": "bartytime4life/Kansas-Frontier-Matrix",
+      "sha256": "c667aef1c5a82a582005931ff6c5be5e6f531dcb80c24bcbb4d5036c6c907625"
+    },
+    {
+      "blob_sha1": "f5375f590062b437c1fb937f2794ad6a54e74ac8",
+      "commit": "03231b493ce1a4d242e875f32a6f611c786273de",
+      "path": "policies/aws/hipaa/hipaa_roles_leastpriv_aws.rego",
+      "repo": "benjamin-s-hobbs/GRCEportfolio",
+      "sha256": "591a52d29e86d6227beb7fa135daa2aab061c77cc5b42c65145adc7e8bb77643"
+    },
+    {
+      "blob_sha1": "b64b9cabb4675952f77f38be73ceb2d64c9b9ce6",
+      "commit": "e3a40e4b0ecbf5d6f148d949363617d6f430110f",
+      "path": "authz-examples/abac/opa/policy.rego",
+      "repo": "bigwhite/experiments",
+      "sha256": "a93475ba43e55f828868a4170c7c897c400ee321bb2bc8b51f541f6dcaad321a"
+    },
+    {
+      "blob_sha1": "ff3efa95ef3c27e9672ffc2027c202c042fa28c7",
+      "commit": "22e8c9a0766d7dc12313775637746001548f4443",
+      "path": "policies/deny_public_gcs.rego",
+      "repo": "bijualbert/terraform-gcp-vertex-mlops",
+      "sha256": "7a728a776c8ad1ee10355c9fe816d6bd1a171acf4aded0e3532e9e47eeb91871"
+    },
+    {
+      "blob_sha1": "d9e62aea3394b679178115786b87d685af0363ab",
+      "commit": "0ba9fd7cee36d458ffd536baa606a788cf4179bd",
+      "path": "misconf/custom-policy/hcl/policy/full_open.rego",
+      "repo": "brunobotelhobr/My-Vulnerable-Code-Snippets",
+      "sha256": "11b1cd23bdf1210e761544df4b55756d8ce8d76cf27732e5dc75dd07b9665241"
+    },
+    {
+      "blob_sha1": "8a82707c838c3cfc6748dc5c902d153e74eb03b3",
+      "commit": "b6051e8c8c2c1a3ef3e7e6513f7a46689226d6f4",
+      "path": "policy/coderabbit-config.rego",
+      "repo": "button-inc/batten",
+      "sha256": "696cb53f58887c5fe5d1696597ae88d3fbe510decf3c882d3453d5afa8098a02"
+    },
+    {
+      "blob_sha1": "d96cf9360590c15e7b8badd9160acc2b06030700",
+      "commit": "b6051e8c8c2c1a3ef3e7e6513f7a46689226d6f4",
+      "path": "policy/release-provision-parity.rego",
+      "repo": "button-inc/batten",
+      "sha256": "fc86af3a4cbaca6cc0413a805d2f2ab80bc513f0d3f0492b6f82083a384245a4"
+    },
+    {
+      "blob_sha1": "7082b3335c8d65167661fa77f79a8627850e0747",
+      "commit": "b6051e8c8c2c1a3ef3e7e6513f7a46689226d6f4",
+      "path": "policy/workspace-dep-referenced.rego",
+      "repo": "button-inc/batten",
+      "sha256": "be6ca95dc2d67f5b14131e71b0ae31e22147b1561e8a6c9882890016b6f40ebf"
+    },
+    {
+      "blob_sha1": "370078c9508e9831c6402e70495086840b29a0ba",
+      "commit": "7e7e290c305b2abb1ca3117a93fc89cac43e1e29",
+      "path": "data/datasets/spec_bug_fix_kics_extended/cloudformation/aws/kics_cloudformation_aws_elb_sensitive_port_is_exposed_to_entire_network_002/policy.rego",
+      "repo": "caldas479/InfraPaC",
+      "sha256": "0514643a2b2bdcb285d841055c6a09bf046b66e009606696d1b2100c09431113"
+    },
+    {
+      "blob_sha1": "2ab2ac1aef44cb1f4430e780172d599d54083d69",
+      "commit": "7e7e290c305b2abb1ca3117a93fc89cac43e1e29",
+      "path": "examples/s3_versioning.rego",
+      "repo": "caldas479/InfraPaC",
+      "sha256": "0bd577272874c057eb14248222e56d308a0d6f52a4e9734f8a335eae093732eb"
+    },
+    {
+      "blob_sha1": "fa9295d3df002d20fa12225088a19a635f45437a",
+      "commit": "1731ce252295c1910d1b5849e3b1cbb5480df3ad",
+      "path": "policies/data_access.rego",
+      "repo": "camerongable/thesys",
+      "sha256": "39f4369a5348d7eb8e52f2f2d5885ba2206214f8f920a9d530c5f6bb39e5f354"
+    },
+    {
+      "blob_sha1": "51fe5c9ccd142578b3f4716f9b54be5e0831c763",
+      "commit": "cfdddc0e9bbeb434c9bf27b24c8b89d847a7bd93",
+      "path": "internal/checker/terraform/rules/aws/bucket/verify_s3bucket_acl_allows_public_write_access.rego",
+      "repo": "carbonetes/brainiac",
+      "sha256": "2d649f46f1ac81e8f2a03fb948ee3a0b91667ccd9833374284940d445d627116"
+    },
+    {
+      "blob_sha1": "6a283df2960047dd69fae4b9d90d11e64f835b94",
+      "commit": "cfdddc0e9bbeb434c9bf27b24c8b89d847a7bd93",
+      "path": "internal/checker/terraform/rules/aws/verify_securitygroups_ingress_port_3389.rego",
+      "repo": "carbonetes/brainiac",
+      "sha256": "a3af2431eb6ae04fdb8a396f3b8db9511c9ef5979a7a81701bd872a6ebc0fca0"
+    },
+    {
+      "blob_sha1": "ddd080e182d3a885f4b5120ccdb00143f440b651",
+      "commit": "d639d3a29a1d6a819ae3b8253c722f8c44bef5e7",
+      "path": "policies/opa/terraform/provider/aws/module_types/reference/source_policy.rego",
+      "repo": "caylent-solutions/terraform-modules",
+      "sha256": "1b3b634094a3523b178a315e6f2acbf54a828ecd314bcdc1433f50b3aa687c47"
+    },
+    {
+      "blob_sha1": "f6eac77b0457fac73bebff6eff5e8c25ad7659b3",
+      "commit": "d639d3a29a1d6a819ae3b8253c722f8c44bef5e7",
+      "path": "policies/opa/terraform/provider/github/module_types/data/makefile_policy.rego",
+      "repo": "caylent-solutions/terraform-modules",
+      "sha256": "cd08d1b8bcd1cdc70d6e4b598bbc4497d8b4bec50063dc9785e78366f51b52f9"
+    },
+    {
+      "blob_sha1": "aee1449ad6ccaa907aa55e295e89fffa1241e767",
+      "commit": "d639d3a29a1d6a819ae3b8253c722f8c44bef5e7",
+      "path": "policies/opa/terraform/provider/github/module_types/reference/structure_policy.rego",
+      "repo": "caylent-solutions/terraform-modules",
+      "sha256": "dfd7092617ab4a81446be762813eed095d21b64bb11424a49d97c989d39db64f"
+    },
+    {
+      "blob_sha1": "24055e650d8dfb13aaa73f067b28281ee69cef4e",
+      "commit": "9063d900522d427869a0f744b32946b49d719076",
+      "path": "aws_terraform/cloudfront_custom_error_response_starts_with_slash.rego",
+      "repo": "cds-snc/opa_checks",
+      "sha256": "c615fbbd86a65f0554044329775d8ad954255e48e404773e18348bc059777afd"
+    },
+    {
+      "blob_sha1": "af65ff6abaee880151126f992475bb01dfccad20",
+      "commit": "b5b2af53f44eec2f77d01f9bfb0c379700edc68c",
+      "path": "plugins/go/veinmind-iac/rules/common/kubernetes.rego",
+      "repo": "chaitin/veinmind-tools",
+      "sha256": "b42b4ae6466ab30b2a123f7d0c8673f4dd3297bd24ca49da5bfb4301f3525307"
+    },
+    {
+      "blob_sha1": "91698269585151c50fe8357ee4bd25e8c827d08b",
+      "commit": "9bc625507d22c241b62c36e4d4d5746b6d3afee6",
+      "path": "policies/rego/admission.rego",
+      "repo": "cisco-ai-defense/defenseclaw",
+      "sha256": "9dfe95603d4a738909795a4e77eb7315fc114768dee4f87ec9fab7759f8f30d5"
+    },
+    {
+      "blob_sha1": "b3243c27fdc5bf16f57b1c751b40bdbc19c62a78",
+      "commit": "28772a45f439116d1552c75d50be370546fff0a3",
+      "path": "policies/llm/allow_model.rego",
+      "repo": "citadelgrad/llm-governance-gateway",
+      "sha256": "a87350e5660e37d24e5e391c5d0b5301870179cb9675f4bc2ce1436d52bdabad"
+    },
+    {
+      "blob_sha1": "392ffbe4f49af3cd49b6e06bf2b4e06b747ab1ca",
+      "commit": "b3e65d642a0d54b1aec6770992504bd3f8497f78",
+      "path": "gems/gitlab-policy-store/spec/fixtures/rules/calendar_window/rule.rego",
+      "repo": "codertjay/gitlab",
+      "sha256": "aed68305f5da8e924f8f00ee31789610e39891465cebeb3fc093c44233c8d4df"
+    },
+    {
+      "blob_sha1": "1950c073fa59e9dc30094cf1331ab97f780c3d66",
+      "commit": "20ba101f1e3b6e379bb38a868499330ec1a0cf72",
+      "path": "internal/prepack/testdata/multi-platform/ci.rego",
+      "repo": "complytime/complypack",
+      "sha256": "1c4e68c0afaf1a1b3ad26dbd279c3ede5fb39e0e752d53fab927bf7a4fb2d357"
+    },
+    {
+      "blob_sha1": "af5f59d22fc86cde18c265ae9c5234153b597bdb",
+      "commit": "77e1cb996b3a9c5c29b6b072dc037d287e7b9781",
+      "path": "policy/release/olm/olm.rego",
+      "repo": "conforma/policy",
+      "sha256": "36be09b1f3765e30c4807e136f3798c56eef1bd2a25d5002cfd7925a253eb105"
+    },
+    {
+      "blob_sha1": "508f8f36c290abc2468155f9d061305f5e6272a5",
+      "commit": "6d033e66a898abf3b525b84c7b7a6180d80061ba",
+      "path": "kube_scripts/OPA-Testing/gcp/allow-all.rego",
+      "repo": "daltonhahn/anvResearch",
+      "sha256": "9d180dd1a313abb2123705fe5a8477c618c5822502bacbb67fe05aad51523b10"
+    },
+    {
+      "blob_sha1": "2cbc176534f8f21426058c76b8fc8b0e8007abcc",
+      "commit": "bdefea34228f5dc7cd9c29c3724f94cc33d81c9d",
+      "path": "cvat-fork-project/cvat/apps/engine/rules/jobs.rego",
+      "repo": "daniel-git574/cvat-testing",
+      "sha256": "4d402d1c14aee7aa95c2f7d3fd1cd3b0ba66f946e39cc295bce901a28d499d76"
+    },
+    {
+      "blob_sha1": "0adca18d58d1cc642cb99338b2d19ceb2163fa0a",
+      "commit": "ff82fc8fbc9324b0e15e7a3a1d827f4ff195c529",
+      "path": "internal/policy/rego/gateway_access.rego",
+      "repo": "dativo-io/talon",
+      "sha256": "c107028a4eea8ad0b93cdd34564225fbebc3dced8c9b4d56ca940213a3807b62"
+    },
+    {
+      "blob_sha1": "da681c1afb90afa1788690e40f5ea4d75ee15fb8",
+      "commit": "602ffb417575d8ca39c6d3a9d1f3e8bd6e5ac950",
+      "path": "mcp_authz.rego",
+      "repo": "debasisdev/opa-konzept",
+      "sha256": "4d5b3fdb654aa64a846fe87eb049c78aa8b6b6f0db0abc804e73bd5e3fb7c943"
+    },
+    {
+      "blob_sha1": "f086675b6a48f6f4a5f29b125fda3c3c1ee8f68a",
+      "commit": "296aa85fd74e1ce1c68210b29a0789d6ca4e5422",
+      "path": "examples/opa-policies/deny-dangerous-commands.rego",
+      "repo": "declaw-ai/declaw-cli",
+      "sha256": "95da36d70a9cdfa2afdbc06d70ff677a678e29e528895cd783df37d6bf76d167"
+    },
+    {
+      "blob_sha1": "d5c5d68c9adfa272a415f414aac8768c6d01c3c3",
+      "commit": "57aa7e4d80701fe811d09db927ec29e129dc81e1",
+      "path": "demo_policy.rego",
+      "repo": "demis1997/kata2-trustee",
+      "sha256": "ffd8ba53b8f405feedd8a7052ddaab6cf7b75e8eed7257f96e713615b8b4eaf7"
+    },
+    {
+      "blob_sha1": "465d54686c62dc8de14494033ac639b154f23f84",
+      "commit": "c71172d1bafe4f2f6e20602378116f8bf29f1062",
+      "path": "policy/require_selector.rego",
+      "repo": "denniszielke/container_demos",
+      "sha256": "89b82cf18a0248df872cc5967c74785b082d760e0ab0ef385c48ddc84ff6c8b6"
+    },
+    {
+      "blob_sha1": "f1a47dbca766eb35a480cf4820f9a2ad9b47689b",
+      "commit": "b4ab29b27de2d8941f0732faa2cfd5639f29c004",
+      "path": "modules/dethernety-general/data/dethernety-general/data/user-input/policies.rego",
+      "repo": "dether-net/dethernety-oss",
+      "sha256": "85fb297923b154537373840cb0c90b9803769e53fe1697fa02d0d67813135aa0"
+    },
+    {
+      "blob_sha1": "17dd2a9e1bdb7a82cc6806e889b6538719a60cea",
+      "commit": "463423372549956954d7bfdc5f7ac289f22baacd",
+      "path": "rego/ingress_annotations.rego",
+      "repo": "devspace-cloud/devspace-cloud",
+      "sha256": "4ecf76bcdd69bd6e6216bb5c348f462d636a0c4dc1df5dc6d07d45a87c764dd1"
+    },
+    {
+      "blob_sha1": "f330e0de8a8da3f02bdebd54d707d71e0f43a301",
+      "commit": "35739c970d1db2928de02643c29a2c6c667840f5",
+      "path": "policies/kubernetes/rbac_enabled.rego",
+      "repo": "dotnetpower/fdai",
+      "sha256": "e3ea6a90c62a7a44168c44b0f74e5fdde031b8725f3f23a47952f4b1b6cfbb2a"
+    },
+    {
+      "blob_sha1": "c0b5e702f5ebc84c0e9d4b9762ee64b5f853c6ea",
+      "commit": "53b5372b8cad6f61ec8e02b32fb0509e0808ed50",
+      "path": "d2/allow-if-no-cats.rego",
+      "repo": "douglasnaphas/play-rego",
+      "sha256": "5cdf3db7a22a11f110ded86f66400c584ec461590ecd4dee3f434ce1527bc4bf"
+    },
+    {
+      "blob_sha1": "68c62b475848d80439b80633c489b8ebf279ee8f",
+      "commit": "e6ea1820942d1af66bc6b73e0d6891b78739fb4d",
+      "path": "policies/opa/gate/gate_deny_intent.rego",
+      "repo": "drghassen/PFE-MPSSR",
+      "sha256": "811105192175267108c8463f7194572eea2a08bae16ff5b9f90e9dc30b2d7906"
+    },
+    {
+      "blob_sha1": "2034af04403c627b98a0d2db8f447fb3b945a78f",
+      "commit": "792fe9f1063b7aa98b52404270c1d83ee33466ac",
+      "path": "security-policies/bundle/compliance/cis_gcp/rules/cis_2_8/test.rego",
+      "repo": "elastic/cloudbeat",
+      "sha256": "e2bf557afc06fa3ddee63d1db5d7e319aedc59e22ef031b1bb3381871e643a78"
+    },
+    {
+      "blob_sha1": "467a857e462decc2b0b10c4d4767be0cf53d8887",
+      "commit": "792fe9f1063b7aa98b52404270c1d83ee33466ac",
+      "path": "security-policies/bundle/compliance/cis_k8s/rules/cis_1_2_24/test.rego",
+      "repo": "elastic/cloudbeat",
+      "sha256": "beda657ae29b92832db9e5d00b44d13fcca96ced6206c69df8bce574f3f2ed8d"
+    },
+    {
+      "blob_sha1": "7b92056eef73ea56d9a3888742e8cef518b7d0b9",
+      "commit": "f5d147d9bdd0f1cc858f4195f00fe601c07cbe6b",
+      "path": "ec2-kics/assets/queries/azureResourceManager/network_security_group_with_unrestricted_access_to_ssh/query.rego",
+      "repo": "env0/acme-demo",
+      "sha256": "933f0bf62fecbd0181f3a3af3edda1be002e4f4996c72dbdec9d4fb9a28b7500"
+    },
+    {
+      "blob_sha1": "9bef0fa5feb00c96c68995c99697ca9d869d7924",
+      "commit": "4640b662d8bc18922dbc2530c13d0182ce35d18c",
+      "path": "resources-limit/env0.rego",
+      "repo": "env0/approval-policies",
+      "sha256": "7dcaba7a5a328e9fd9c678dd0d4b0e3bea2f6d78dabc8bef99c2a61bb88bbb90"
+    },
+    {
+      "blob_sha1": "bcac878c251e1131988f9c4e8ed25921f354ed47",
+      "commit": "27b94b84f6cf555bfde5817deae323ee8cb00cea",
+      "path": "fixtures/claude/builtins/git_pre_check.rego",
+      "repo": "eqtylab/cupcake",
+      "sha256": "9a69b0f1ea466201b2f30da5a9d8ad83f4d2e0068715beda8e1a18739ae8e1e6"
+    },
+    {
+      "blob_sha1": "cfba615bcf9566ff9d779d08b16cd649e8998abc",
+      "commit": "27b94b84f6cf555bfde5817deae323ee8cb00cea",
+      "path": "fixtures/system/evaluate.rego",
+      "repo": "eqtylab/cupcake",
+      "sha256": "a1220b244f930e3e3ef9db16e82a2ad03727b14c7acebb1d026ca7304a655de7"
+    },
+    {
+      "blob_sha1": "7ada52f298d2790ade81790b52e2ab6e36802655",
+      "commit": "2fb1a58aa7f71394e41624c9745bd9fd61a49a06",
+      "path": "appendix-f/sample01/policies/policy_6.rego",
+      "repo": "esteban-mendoza/microservices-security",
+      "sha256": "1fa8d09e7cdcde0d8d55392316f4ece610756e8faf9969e03f78773331acb9b9"
+    },
+    {
+      "blob_sha1": "ae2b6e5f854f19795b6bd9fcb518d22b78ef912a",
+      "commit": "d1d4dabe3a236154e041625248a877ddd87ddad0",
+      "path": "workflows/cis-benchmark/googlecloud-v1.3.0/iam/service-account-admin-separation/decide.rego",
+      "repo": "flatt-security/shisho-cloud-managed-workflows",
+      "sha256": "4bd108c1273fc7e0c753bad0bb4fe2bb2230bdd851c9821927c09d7830d082d4"
+    },
+    {
+      "blob_sha1": "ba64160fab7b5c678f24e782718b7e7c82deb4a0",
+      "commit": "d1d4dabe3a236154e041625248a877ddd87ddad0",
+      "path": "workflows/csp/aws-fsbp/s3/bucket-public-write-access/decide.rego",
+      "repo": "flatt-security/shisho-cloud-managed-workflows",
+      "sha256": "1c74b6d1397ea974d732882070a4edb316d27f57c72d9cf996726200d3c31b7d"
+    },
+    {
+      "blob_sha1": "26c1cd30d2fd4b54053ddfa4a2ad0f50fac5534b",
+      "commit": "628eb429d112f5421581b2298121c480016f358c",
+      "path": "decision/aws/efs/efs_access_point_user_identity.gen.rego",
+      "repo": "flatt-security/shisho-cloud-rego-libraries",
+      "sha256": "348d95a9883b60860ec4fbc9875ff06f6c45858d5cd4dfd5e28c2e4d0666c5e2"
+    },
+    {
+      "blob_sha1": "d481d4a1a998ab6549f51c7c98d2b0e6bd13de92",
+      "commit": "628eb429d112f5421581b2298121c480016f358c",
+      "path": "decision/googlecloud/sql/sql_instance_accessibility.gen.rego",
+      "repo": "flatt-security/shisho-cloud-rego-libraries",
+      "sha256": "1f939b2aefba486d802dc4cf3f5bfc28d0ed5d8fe5d01602a3d270627a9db540"
+    },
+    {
+      "blob_sha1": "43f3789e6eb2f6d241f685d2bb099e9b6433e04e",
+      "commit": "edd03a30654b21baf68f9a0b0f891a2556cf1bb7",
+      "path": "examples/network-authorization/ble/ble-5.4/policy.rego",
+      "repo": "fmfalgun/Autherization",
+      "sha256": "38decc89721ed8efab88d3c80165d1b8dc8ac2df61d7cbf04dddf837b3c11014"
+    },
+    {
+      "blob_sha1": "9df5b93e17053b7a3b98a2607a586f6a118d585b",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "policies/Open Policy Agent (OPA)/aquasecurity__trivy-checks/no_public_cluster_access_to_cidr.rego",
+      "repo": "foalem/Pac-paper",
+      "sha256": "0365ae42f58c0ad6c01d7d54fa901b014c55db069f654390c2b9f0d4ae2194dc"
+    },
+    {
+      "blob_sha1": "789581ad2291c9b6a45b7a735788407b0cb7b72e",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "policies/Open Policy Agent (OPA)/aquasecurity__trivy-checks/update_instruction_alone.rego",
+      "repo": "foalem/Pac-paper",
+      "sha256": "2a8ba43bdb78d25efc4aa28fb309768a864ef242184d5578f296d1f299c046c7"
+    },
+    {
+      "blob_sha1": "f14295380217b234d5b9bb0dec6110364dd1bd8e",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "policies/Open Policy Agent (OPA)/open-policy-agent__conftest/images.rego",
+      "repo": "foalem/Pac-paper",
+      "sha256": "53aac6878cb3e475a8c1d0106a7acad10d2363cddd149419ded0ac94f06a8194"
+    },
+    {
+      "blob_sha1": "d69780dcd25472c058c38f24baa17c416415f1b7",
+      "commit": "ad43419ba85de1b2af3e15dd66f09bf9121479c2",
+      "path": "tests/golden/repl/debug-cache.rego",
+      "repo": "fugue/fregot",
+      "sha256": "0bae6d04b8c8567e0e25389d7d10f109e8766cba52d01638aaee9c9455619dc0"
+    },
+    {
+      "blob_sha1": "0511731b398a1e40155913dff550d436ccf53a0d",
+      "commit": "9b2d2235bb79937a14eaf8fec0e4fa066a3f7ca7",
+      "path": "opa-k8s-security.rego",
+      "repo": "g33ck0o-coder/devsecops-k8s-demo",
+      "sha256": "93b77a7c7777e395866e06033ea6e6c431a854c001af3f69136ac9853b662f3e"
+    },
+    {
+      "blob_sha1": "02181eddbc4ca29185d3ffc6ee80ae7092331b53",
+      "commit": "831cb881ddff0e6b8f47a2473c10ec224cf940e4",
+      "path": "dockerfile-security.rego",
+      "repo": "gbrindisi/dockerfile-security",
+      "sha256": "31beda20bc67b3548e8d46b3619e33ecf1023b930acf64f6df4532c27e987b99"
+    },
+    {
+      "blob_sha1": "6fa4a0042133e2cd3ad644423931432b31cc2160",
+      "commit": "4e34a7c7d8f0798910d81b0a26b49d2bdb3f73e7",
+      "path": "templates/defaultpolicies/rego/terraform.rego",
+      "repo": "genvaldev/genval",
+      "sha256": "6eb943995bb4f16ab92f5316c2b8e62500329e25f4a01028b622de5ec63cdcfe"
+    },
+    {
+      "blob_sha1": "388b5eefe67c98d766e046cd4314c0c216e33756",
+      "commit": "fb943e4efba61cf7b0a0c56f6648710a7453519b",
+      "path": "policies/secrets_inherit.rego",
+      "repo": "getplumber/plumber",
+      "sha256": "d0d969c823680b386e5582da2e09fb8eadc284fa8aa15ef5247991300dc82f0c"
+    },
+    {
+      "blob_sha1": "9ce8a1b8300329ec5b33dcf5762b06e5c98ca7a1",
+      "commit": "fb943e4efba61cf7b0a0c56f6648710a7453519b",
+      "path": "policies/superfluous_action.rego",
+      "repo": "getplumber/plumber",
+      "sha256": "fc691dce5ab956883bad5fb99570d2bf378f930fd6459c25796b640359eb3469"
+    },
+    {
+      "blob_sha1": "26be57c30f64af1acde6e6f930eae3776502c0e6",
+      "commit": "35f63699e480ce2a0c88c6e4dd285a247aa3a08b",
+      "path": "policies/feedback.rego",
+      "repo": "glenngillen/terraform-demo-opa",
+      "sha256": "c8813c4714ef001a3a6284cd99eea434a12ab4601f47d7e7b321becba307e214"
+    },
+    {
+      "blob_sha1": "ea1696a08077571f88e5b62b93a5e22cf6b5bacd",
+      "commit": "046b6c00727d0b8cd9bc0db79d74c95360767ac1",
+      "path": "gke-policies-v2/policy/control_plane_access.rego",
+      "repo": "google/gke-policy-automation",
+      "sha256": "bf3e285f810efe68f7aa0007549178994044757e225f771858dc23636ca0625e"
+    },
+    {
+      "blob_sha1": "82f173748ed792b56ddbc6a48bbd522217539ab3",
+      "commit": "046b6c00727d0b8cd9bc0db79d74c95360767ac1",
+      "path": "gke-policies-v2/policy/node_pool_disk_encryption.rego",
+      "repo": "google/gke-policy-automation",
+      "sha256": "570c9d09a07d0f70f3f4543d8d2fc5cfeac3e4c328cfb1216f1598d38577d42d"
+    },
+    {
+      "blob_sha1": "dde9fb4115ce9dba974f2afe108a26bba8b679db",
+      "commit": "046b6c00727d0b8cd9bc0db79d74c95360767ac1",
+      "path": "gke-policies/policy/cluster_enable_workload_scanning.rego",
+      "repo": "google/gke-policy-automation",
+      "sha256": "b1515e0ff0cbca5c54bc17e573a3a6ac57fc23255ae51d8b6466ba2b77f11fb2"
+    },
+    {
+      "blob_sha1": "2faf4364bb65130272132ae6bededdf9adf3ff6a",
+      "commit": "20593be4a8354d6d42a7e5ee515199dab7e40daa",
+      "path": "first.rego",
+      "repo": "goutham018/Lambda-s3-sns-dynamodb",
+      "sha256": "8f1d5466ba5466cc81263b586cd74c7fce2a350ed8509af2142eaee33527693d"
+    },
+    {
+      "blob_sha1": "72a2a0437940b707c1d090d3cae552f28d550b0a",
+      "commit": "e05acdce33449b90cc31c3a406e1adea67d9bdb2",
+      "path": "operations/policies/policies_deployment.rego",
+      "repo": "grafana/rollout-operator",
+      "sha256": "0171de171510da664dca67f9fa840c159deb4664d032407f377ca1557df8cc78"
+    },
+    {
+      "blob_sha1": "f7c50def7f10ad8b46374b277fb9e64c47b1a690",
+      "commit": "7f9b6fa66795429d9c2dd0b15fccade6e709fb34",
+      "path": "policies/nist-800-53/pm/pm_9_risk_management_strategy.rego",
+      "repo": "grcwarlock/warlock",
+      "sha256": "55c04f0acd972d5c2fd19f6d6a7f6469c85a5ff8fa130a8d51d1b3633b0a8649"
+    },
+    {
+      "blob_sha1": "0b3a106418b8129108c985184d7aa7fda699df61",
+      "commit": "f2de263333206fb949005ad3896c14e9171e7ef7",
+      "path": "no-latest-image.rego",
+      "repo": "guardon-dev/demo-repository",
+      "sha256": "061650763a0e601cf72a7c2567bbb0118f886f146ff902298f71593760db7452"
+    },
+    {
+      "blob_sha1": "b2df21ae35fbeb49d66540d54ec3e218ae5a4e0f",
+      "commit": "63079cada852be9c1ad969b6f35cc8076b8953cb",
+      "path": "policies/no_public_rds.rego",
+      "repo": "hallllow29/gitops-devsecops-aws",
+      "sha256": "3bf99c03d4617b7f6e4179e5e341823729bcfd6b06f36cbfe4cb7bd1be48fb04"
+    },
+    {
+      "blob_sha1": "b70bb3445bd76a8e3c63ef17c846d1ba66f572fc",
+      "commit": "fd66bb3c6526bdff16873aafa26e3299b59f74c0",
+      "path": "policy_cards/ethics-approval-required/policy.rego",
+      "repo": "hasan7n/tmp-policies",
+      "sha256": "eca150957713e52c1919af68ebbf2b7971020e3744aed68beb9a08cbc2361ff9"
+    },
+    {
+      "blob_sha1": "6cf1a8a1e20b58061dc2ae5313257e662109ea2e",
+      "commit": "234e551c04807cebed75dc037458a85bca8f5475",
+      "path": "policies/gcp.rego",
+      "repo": "higakikeita/tfdrift-falco",
+      "sha256": "4355143dd48dbbc2abbc4e3f7af1cacb81586ab997e3bc6a2d2a7f32a29a53fd"
+    },
+    {
+      "blob_sha1": "eed5350f61913e22f04b07a093b924f27e8f7b1c",
+      "commit": "b8573eead531c68a4e2a551883c3a17828b30826",
+      "path": "policies/resource-limits.rego",
+      "repo": "hoangsonww/PetSwipe-Match-App",
+      "sha256": "8f7c2fc7868e512abb78a6bb25284a078c667a2ad821208e0291cdff8143c580"
+    },
+    {
+      "blob_sha1": "f911db42b332dac2997443197e66b6cdd3e57720",
+      "commit": "9b55a78b160474a66954025fed65e02726dc1e8e",
+      "path": "rego_data/rbac.rego",
+      "repo": "hong3nguyen/rego_git",
+      "sha256": "86c41a2f8887ffc5f7929bfde91ec5b7242af20144efcf78e27675ebdf8022cb"
+    },
+    {
+      "blob_sha1": "3ecbba88dd1469dfe220f869f506769dab54f0a3",
+      "commit": "689ab297e7e8ca08b7d6072e126c186dc51e6f5d",
+      "path": "gitops/policy/rego/deny_deploy.rego",
+      "repo": "iangreen74/radix",
+      "sha256": "26a3a52fd050af1c3687874083c6c4e3936f8fae12c800b9a4e9c424f7de0b8a"
+    },
+    {
+      "blob_sha1": "2f600e183805710e2c3a3a29f44f28ad81119319",
+      "commit": "bf71b4e9833166469c94d6db7a7cd4817694f679",
+      "path": "a2-rules/data_stack/aurora.rego",
+      "repo": "infracourse/iac-grader",
+      "sha256": "346edcc1312390454176c652be4cb950aa242da864ceead9b9893fd4f9dab59f"
+    },
+    {
+      "blob_sha1": "e423deb195866ba76df995213a27bde422ae6917",
+      "commit": "d801bcdcaf509aa7190489f380d9fa2139f8b6ca",
+      "path": "generated_rego/ablation_no_semantic_check/claude-sonnet-4-6/runs/run_001/cwe_284.rego",
+      "repo": "infragov-project/cwe2rego",
+      "sha256": "49620f37b22f3558bc09f52dcfe78936fc283958a49adf2d3bbfd892eeea1318"
+    },
+    {
+      "blob_sha1": "11a6a93dca1df3072366c3ec3062d7e4b47fe32d",
+      "commit": "274d4dd6d41cfff2694a3c4b34c4fe4fb3c3f128",
+      "path": "examples/full-security-stack/policies/rbac.rego",
+      "repo": "innovationmech/swit",
+      "sha256": "cbc7e321de1780234c46742548222aab3631cb68afa7b780511f036b934b6761"
+    },
+    {
+      "blob_sha1": "af8f18545ea2a31587c048e1581380776130a9bd",
+      "commit": "274d4dd6d41cfff2694a3c4b34c4fe4fb3c3f128",
+      "path": "pkg/security/opa/policies/examples/financial_abac.rego",
+      "repo": "innovationmech/swit",
+      "sha256": "5c677f6faa007479288606e55d29b9c63ccdbca8e3a2e2d3e52d7056667c87ae"
+    },
+    {
+      "blob_sha1": "6d066f65ec68a0f8485b29e7825d2f17bd06f53a",
+      "commit": "55317bbbb06db33326e86f49e9514018d6765c25",
+      "path": "examples/compose/policy/deny.rego",
+      "repo": "jackcarterc/conftest",
+      "sha256": "ee816a86e34d0487c34f6842372e2069593cfd347647e4e32748a2bd191c78dc"
+    },
+    {
+      "blob_sha1": "de3cd4abc3a1abd6193e9020f0fee1cdb6f218ad",
+      "commit": "55317bbbb06db33326e86f49e9514018d6765c25",
+      "path": "examples/kubernetes/policy/labels.rego",
+      "repo": "jackcarterc/conftest",
+      "sha256": "b851fc1ea18cfc7ded9f5aca4368e5a686c536c84f752810f8ddc888b398c259"
+    },
+    {
+      "blob_sha1": "d1c916ccfb0a588cf2b1dbb4d23d2cb8a3872867",
+      "commit": "55317bbbb06db33326e86f49e9514018d6765c25",
+      "path": "examples/vcl/policy/deny.rego",
+      "repo": "jackcarterc/conftest",
+      "sha256": "245ed710d09a5b91b97d7f020dcd22f60886e0e17aa5b4e6f0177517be5565d2"
+    },
+    {
+      "blob_sha1": "0392ef986f9d4bf37e1ffcfd1e3130198b2e36d9",
+      "commit": "984d2b0cb6cca012ea7dc347aee5b2185a99475d",
+      "path": "examples/oci-suites/soap-claims-hub/policies/soap_faults.rego",
+      "repo": "jarin-devoss/babelSuite",
+      "sha256": "ae7a214f02928b232779287a672457fca49d3ed97d8377aac451d3341e0969a6"
+    },
+    {
+      "blob_sha1": "f5f6f24ea78480baf3c4efae993c96fe561f9f84",
+      "commit": "0b3cddac1b1f7a4be39ba686170669278c6e5bd3",
+      "path": "bsides-opa-2019/kafka/assets/setup/kafka.rego",
+      "repo": "johnmccabe/katacoda-scenarios",
+      "sha256": "bb9d248ef87e9243497f93e590440550c02c45db3a6485e86d8dd555471ba2b2"
+    },
+    {
+      "blob_sha1": "952be865e300e05b279ed0afeb4d4c6a61504bcf",
+      "commit": "8c0f533df8d19f1ebbb560b31021436c05ff537d",
+      "path": "template/_files/conformance/blast_radius.rego",
+      "repo": "jonathan-kellerai/kellerai-oss-template",
+      "sha256": "38e58d9643a01edd5e258194afb064705254f2ee7b5556fc8cdc05792ea3f48e"
+    },
+    {
+      "blob_sha1": "b6498d29385a127854f2258b0d79a46dba3c3ac5",
+      "commit": "5e92e14751eed87048a8b0fe04dbd8c5144da86a",
+      "path": "rego-filters/Allow-Registry.rego",
+      "repo": "khulnasoft/postee",
+      "sha256": "3f0d983cf20d13f97709676b96150537232df3d60f25e594f1594f0ef4894990"
+    },
+    {
+      "blob_sha1": "6264aad0f14800b94e950a3538e0862a7de60833",
+      "commit": "dd3c0ebe23cc6c1c84e5ef1640595ae314e4ccbf",
+      "path": "checks/cloud/azure/compute/no_secrets_in_custom_data.rego",
+      "repo": "khulnasoft/tunnel-checks",
+      "sha256": "b3fec34a1470530f9781f3dbf874467b2ea09aa1ae09c9f1fcd38f6ac2a22812"
+    },
+    {
+      "blob_sha1": "ac1ef26537a93c37c6fdb0c9123f0292724dae10",
+      "commit": "dd3c0ebe23cc6c1c84e5ef1640595ae314e4ccbf",
+      "path": "checks/cloud/azure/network/disable_rdp_from_internet.rego",
+      "repo": "khulnasoft/tunnel-checks",
+      "sha256": "ffb568f4ab2c5be0217e98663cf2158a27877020ffbec6ed42694cc8133c6b8c"
+    },
+    {
+      "blob_sha1": "96578edb63cc4b31667806cf5bb6f99a515bf3d5",
+      "commit": "4a9139ff5416841dc1e317eef36f4effa17c0cea",
+      "path": "policies/image/required-labels.rego",
+      "repo": "konflux-ci/konflux-test",
+      "sha256": "43da637937ca9c969d6a314235ec7ea0e1e75b5a213379a12b8bd671bd9640a3"
+    },
+    {
+      "blob_sha1": "b41529d49a7685e11ef06ec5a6cc4ec677225523",
+      "commit": "a78801a689b6db4ee4afe4549f1003a4fc06b303",
+      "path": "output/policies/ControllerMissingNamespace/policy.rego",
+      "repo": "kravciak/weave-migration",
+      "sha256": "1aa0f8349bf9047b865ab73346186357b3c452cc34851ea95745628499735687"
+    },
+    {
+      "blob_sha1": "b8090f3ac60b0ded14456cb95951127d55de8246",
+      "commit": "627ebd75e0c92c739de14da80481b7c059e48cf1",
+      "path": "src/cartservice/src/opa-docker-security.rego",
+      "repo": "krish5322/gitops-microservices",
+      "sha256": "6d46464c5e4f5cc829e1ee16629dd5a022849b65773de5b2691ead5c57d1f2e7"
+    },
+    {
+      "blob_sha1": "cc48befecaecc91aca454532c650a91f556106e6",
+      "commit": "572cce426f12290b097b7ab7ebf74dd87f6df3d8",
+      "path": "tools/policy/main.rego",
+      "repo": "kubernetes-native-testbed/kubernetes-native-testbed",
+      "sha256": "cf95d38420f34423dd58c06c0642419d40916370ac757e7fe7e6a5da82be71bd"
+    },
+    {
+      "blob_sha1": "045f18719e41a288cd36ad782c8825c7bfead025",
+      "commit": "e67b7d42a0d9c855b6617a53a56cd1f3f434e63e",
+      "path": "rules/agent-sandbox-egress-policy/raw.rego",
+      "repo": "kubescape/regolibrary",
+      "sha256": "ae51a389bbc1ed8197f968e91ae75a0d55ca3bc06aaa5dbdfe1557bc0a5c6424"
+    },
+    {
+      "blob_sha1": "215896379ab0101ca45db9cb8d5d0e7312f0129d",
+      "commit": "e67b7d42a0d9c855b6617a53a56cd1f3f434e63e",
+      "path": "rules/agent-sandbox-image-registry-allowlist/raw.rego",
+      "repo": "kubescape/regolibrary",
+      "sha256": "05eaa71653adc8b2cc83c6c3855cf84cdce8fa12279a8bf55aaebd1b3858fa9d"
+    },
+    {
+      "blob_sha1": "de0c08b1b7ad310650887218f1234abbc31d06e9",
+      "commit": "e67b7d42a0d9c855b6617a53a56cd1f3f434e63e",
+      "path": "rules/rule-deny-cronjobs/raw.rego",
+      "repo": "kubescape/regolibrary",
+      "sha256": "6241ae7e22850b1fceebe59b2025beaa8b68c1021e3dd2852650b4c98b2b434c"
+    },
+    {
+      "blob_sha1": "b27f8fd4b1d48f1346afeaf441038717d88410fd",
+      "commit": "8b7999f9b7dade0bf08915a0ca6b14f66553cc2d",
+      "path": "policies/ControllerMissingLabelValue/policy.rego",
+      "repo": "kubewarden/policies",
+      "sha256": "0a1342ab8773705dc458e08da9dcb9256b3a02656a52ec1d519edf59a69828e7"
+    },
+    {
+      "blob_sha1": "be149eed39913ab113c809cf6e1301b09a014d76",
+      "commit": "8b7999f9b7dade0bf08915a0ca6b14f66553cc2d",
+      "path": "staging/MYSQLEnforceSkipTzinfoEnvVar/policy.rego",
+      "repo": "kubewarden/policies",
+      "sha256": "bafa39928a98a92837f2184f50021e6495e16a20bb339ae07d34aea32fe207a9"
+    },
+    {
+      "blob_sha1": "f73474ff5508c1cbd3ba34330aa458eb684296ea",
+      "commit": "b7c6662bcedd94c3726c9b5d7510e946d21ff499",
+      "path": "policies/k8s/deny-root-containers.rego",
+      "repo": "kumarrajapuvvalla-bit/ops-platform",
+      "sha256": "6fcead322efd8cd4533e3251a194350e9749fa3f212219f2a09ca3344519ad25"
+    },
+    {
+      "blob_sha1": "413adfbd85b95bfbe013e0bf40fa542c88e8dc9b",
+      "commit": "f77be9db80e7e93c0637264f2e2804418424a522",
+      "path": "authz/opa-bridge/policies/trino/allow_default_access.rego",
+      "repo": "lakekeeper/lakekeeper",
+      "sha256": "5d9d4788903cfcae11171bcc094fa5d237455410e5f94db5f90c387e708a9195"
+    },
+    {
+      "blob_sha1": "6226937466cf886f80d39628aa0496647a621b3d",
+      "commit": "46e9517285d90d8a13b0bead1648a60748396c12",
+      "path": "models/meshery-core/0.7.2/v1.0.0/policies/identify_additions.rego",
+      "repo": "meshery/meshery",
+      "sha256": "99fe193469677abd28cc062f4708042cc477bb7a3aceb0380f042304a66a9267"
+    },
+    {
+      "blob_sha1": "3972b86d5acb0ad6b4472692a23259e6db8a9049",
+      "commit": "c3e8229dfb19c697468cfb790495d7174ef8bc45",
+      "path": "examples/policies/african-regulatory/rego/kdpa-data-protection.rego",
+      "repo": "microsoft/agent-governance-toolkit",
+      "sha256": "8c9267c0d4d19bae230acd791c361973dbe008682847e0da854f91de090fc248"
+    },
+    {
+      "blob_sha1": "d9beb54d664704a312e7b7737d6f9146f39a65c6",
+      "commit": "2350f91cc2a777ce27e9ada2f693a1167d67df72",
+      "path": "policy/chrome.rego",
+      "repo": "mikemol/el-openglo",
+      "sha256": "c3a94951e1cbc9c4a96c1463273caeffd87212007dc7bdc6ba87512dd366e514"
+    },
+    {
+      "blob_sha1": "364d4b37abb405852cacb72aa055308ce6e08827",
+      "commit": "6b3b21a4a5f75dada8d83d60bc7cbeaff7c2c3aa",
+      "path": "policy/key_administration.rego",
+      "repo": "mindclade-old-2/bootstrap",
+      "sha256": "2f389f062ab8a5c4fb902d8520e7d587d2c251d9523d053a62f1213d3d8f9273"
+    },
+    {
+      "blob_sha1": "1c27f79f82be6ff6b7f60572b5a8f1b5b5783d18",
+      "commit": "f8afdcb70e2d55916efa0f46be746b4c939d5b7c",
+      "path": "sample-data/Lab4/conftest-terraform/policy/deny.rego",
+      "repo": "mjbright/opa-rego-scenarios",
+      "sha256": "e0003246e58d4f83bb536501ef310bed511a4e1e296ca4de321d26a486abd85b"
+    },
+    {
+      "blob_sha1": "3063c8eda50c3fe1ba0c93494b47ebf083d177c9",
+      "commit": "d21bc4bc88e8924a218d31351b743ad126d43faa",
+      "path": "policy/main.rego",
+      "repo": "mjlshen/terraform-aws-opa",
+      "sha256": "3275792b5eef2364d54fbbd2db6561c70a0f2d50643fb1646abcd3b86c0ae775"
+    },
+    {
+      "blob_sha1": "cd6c08a0c67fcd9bf1f5aad41968ae273253b85d",
+      "commit": "e6424196bddae875840a49279edd7822d6366b36",
+      "path": "spikes/spine-adopt/artifacts/lowered/r54140f59be3e6e44/policy.rego",
+      "repo": "mmnto-ai/totem",
+      "sha256": "50b64df093db74d3971b0b9e5e89b677a1e7f5974a3215a8fe6df091df7ef4bc"
+    },
+    {
+      "blob_sha1": "5b1aa47f4680e59294d95975792dd7f4bfe2e192",
+      "commit": "e6424196bddae875840a49279edd7822d6366b36",
+      "path": "spikes/spine-adopt/seed/controls/k3/k3-target.policy.rego",
+      "repo": "mmnto-ai/totem",
+      "sha256": "528c8d80ce148a404c2a6ff97fcb6df5b889eeeab83228618b5c455932ee48db"
+    },
+    {
+      "blob_sha1": "0b6ea20798bbb2bfc4a5c3b0d61beda229f65413",
+      "commit": "621c0b79cea7e74d06b6eef529aaa06a59f4c821",
+      "path": "iac/policies/terraform.rego",
+      "repo": "mohibul-xyz/ops-solution",
+      "sha256": "fac66479d14d0d6c8afed546ff110ba0f4ddc86037ec50b309e10b0443d61784"
+    },
+    {
+      "blob_sha1": "4bf4f76ba9013cc0dcc6c5a0169477a1a7f27a2d",
+      "commit": "a329155e1fb6ca09c2e021e24fd07691a126c365",
+      "path": "docs/opa-samples/09-batch-size-limit.rego",
+      "repo": "monch1962/gql-firewall",
+      "sha256": "acf9e1a5ea701669bd4302d6e34d5086e635f06cdabeb19a1e1e5a234946ffe7"
+    },
+    {
+      "blob_sha1": "e338a20ac25ff2e1b8d1101644213a4deed87306",
+      "commit": "a329155e1fb6ca09c2e021e24fd07691a126c365",
+      "path": "docs/opa-samples/21-time-based-access.rego",
+      "repo": "monch1962/gql-firewall",
+      "sha256": "6981eac9dc4667ad985a5883037fb76f89ac3fa9f672b1dd444bf4fe9eeda850"
+    },
+    {
+      "blob_sha1": "fcb36588e7daf652749d491efcdadcc2ee819a7e",
+      "commit": "1aa2fafe034e3152d42ed39b990c97b32f4ef530",
+      "path": "policies/cost.rego",
+      "repo": "morethancertified/gitops-minicamp-2024",
+      "sha256": "eb90646b7e619ac4b7d7584b94352891fb73a47bb08db2b2315cd1c8dae7e893"
+    },
+    {
+      "blob_sha1": "43280fd8e72899498ef9ed85736a19d0bfb61a8a",
+      "commit": "027447d5d74caf9f8c2051b0227eb043e1c7a65e",
+      "path": "policies/3_levels_policy/pass.rego",
+      "repo": "mshytse/base",
+      "sha256": "4664e9d16c8eb64e5642ad62e8b9bf3e24d07e1cb53ed3b45cc8bbdf1be75323"
+    },
+    {
+      "blob_sha1": "aefd7b1deaa26d3fd8558f4f7a8780eeeb191ea8",
+      "commit": "f85db53bd3a5b83e79837ef8b55c7e05adfef245",
+      "path": "opa-go/tests/empty.rego",
+      "repo": "myagley/opa-rs",
+      "sha256": "e7935c6f2fb080d7c608da521de8a3e50a6f0a0408048e06a9e4d8542acbe45e"
+    },
+    {
+      "blob_sha1": "d0a16fc829ec0aaff6a55b7f66e7af84a5acd402",
+      "commit": "574d41e0f8a119e05934f9cffde4965159db04d8",
+      "path": "rego/release.rego",
+      "repo": "mycodexvantaos/mcv",
+      "sha256": "2f66669ce1ebbf0b0678d56d1ac8a9b8e462711f9408144c54428e54a022cdda"
+    },
+    {
+      "blob_sha1": "0f80d6d47d30984e5582d5fbb3447d948438422b",
+      "commit": "6aa1039e8d7e0bde0428ff113ca5d10fce7e5a20",
+      "path": "k8s/envoy-jwt-opa/k8s/backend/config/opa-policy.rego",
+      "repo": "naveensrinivasan/oidc-spire",
+      "sha256": "fe63b7cd56fb44380a27ff44a60ab3ad36f16f8b03c1ce21e283226e3892bfb7"
+    },
+    {
+      "blob_sha1": "13cfe35bf013e85c80280c3609b68e6e14e3a9ba",
+      "commit": "639068d78c4b26ac25fc41a1b099874699ec092d",
+      "path": "rbac.rego",
+      "repo": "neuro-synapse/opal-policy-repo",
+      "sha256": "e6bd7e61e307c32d45aacb7140d13e2e0aee0d89e10d7bf582431a435f9497d1"
+    },
+    {
+      "blob_sha1": "cdfb8d8e903ae0bfc8fe814c5624ec5fe215b6bd",
+      "commit": "9cd2a4a7c14cbd9003e7476f02b6088ac4724107",
+      "path": "policies/allow_all_local.rego",
+      "repo": "nikhiilraj/FlowState",
+      "sha256": "c2bcf31650d05e4b908665303765fcb9cf6f94e2281cc2b2e6add594d81a707f"
+    },
+    {
+      "blob_sha1": "654d76d75231081f138461c20d002803c0711839",
+      "commit": "ff1bddbf7015b49854b3cba5361b012d2c1399d3",
+      "path": "terraform/aws/Amazon DocumentDB/aws_db_instance_encryption_in_transit.rego",
+      "repo": "nonfx/starchitect-cloudguard",
+      "sha256": "2b4e4924a2429fed68209ff00f1db277f80e61b0b8d339e48aaa8d758dab4a52"
+    },
+    {
+      "blob_sha1": "b0ae60ac0548379cc208968467f82a88489e1a8d",
+      "commit": "ff1bddbf7015b49854b3cba5361b012d2c1399d3",
+      "path": "terraform/aws/Amazon Keyspaces (for Apache Cassandra)/aws_keyspaces_vpc_endpoint_security_authentication.rego",
+      "repo": "nonfx/starchitect-cloudguard",
+      "sha256": "a878ad0c1253b2f4879b5372c2a8d4212137c74dd07c2186a6e78be9c2578a41"
+    },
+    {
+      "blob_sha1": "7a813e411220623caba4856832bcf07df23d4a78",
+      "commit": "ff1bddbf7015b49854b3cba5361b012d2c1399d3",
+      "path": "terraform/gcp/Cloud SQL/gcp_sql_server_user_connections.rego",
+      "repo": "nonfx/starchitect-cloudguard",
+      "sha256": "64e079b19efa5710a5dabfa39612432df29a756d72080efa7dcf6fa9bcb779af"
+    },
+    {
+      "blob_sha1": "bff27a52d534824896b53dd34c1ad4b3009a6a7f",
+      "commit": "e5aef07c8f43d2a947ac30a3c81e3bec7eccae34",
+      "path": "gcp/policies/sandbox-limits.rego",
+      "repo": "nuonco/kitchen-sink",
+      "sha256": "c1432ada3d36ca6997ef51d19004e5da9be8a75a1c1d352e174b58b2a92a672f"
+    },
+    {
+      "blob_sha1": "6a0432aa8d0bb61784c0cdeae7a80c30b286e576",
+      "commit": "d57c2785bdb13d18a2334778ab4f650d3d3b756f",
+      "path": "testdata/invalid/opa-deny-all-managed/policies/blocks-all.rego",
+      "repo": "nuonco/nuon-ext-linter",
+      "sha256": "11e445b1697a1af3f29f55f4a15609b280f56a82ffb3dd6e79898ab873c11e7f"
+    },
+    {
+      "blob_sha1": "e67c787c559b988669bf897160555c83213997b1",
+      "commit": "ad0d36e93771f6c64a36e3fd1289aae4ab343931",
+      "path": "crates/weaver_checker/data/policies/invalid_policies.rego",
+      "repo": "open-telemetry/weaver",
+      "sha256": "33cb72b9c3581a5d421dcc6654e67e2f0da53d0a4b1b0173d2ba2382689a2b3d"
+    },
+    {
+      "blob_sha1": "23cada534a3c82d63262464a53d770b7ce276eeb",
+      "commit": "e8044de2435b6ed4b80e87eaf5eae559aa7e69d1",
+      "path": "policy/mapping/ruleset/update.rego",
+      "repo": "openstack-experimental/keystone",
+      "sha256": "9d5f44d242ac19e6212818d93837d16855a919f0a8440dcbbbf0333665f23c77"
+    },
+    {
+      "blob_sha1": "d637a3492f78d784d9addff325a21614170c09e3",
+      "commit": "e8044de2435b6ed4b80e87eaf5eae559aa7e69d1",
+      "path": "policy/oauth2/client/show.rego",
+      "repo": "openstack-experimental/keystone",
+      "sha256": "b89f745dd38889d4a27914b26d5d69e13dc8c305684cbcacf9a30c58d14903f2"
+    },
+    {
+      "blob_sha1": "ccce3bb5111797dffb8979a92822277895058af9",
+      "commit": "e8044de2435b6ed4b80e87eaf5eae559aa7e69d1",
+      "path": "policy/vendordata/create.rego",
+      "repo": "openstack-experimental/keystone",
+      "sha256": "7fbfa0cee04beea8d82fcae9849499b1d7601f9c0c26797da8e4e780c9e22de7"
+    },
+    {
+      "blob_sha1": "7e22b13c8c55769b7d3eb86ff3921de863b19a7d",
+      "commit": "2848eaa9cb2d3e13dc1291d30528feff0cbcc514",
+      "path": "src/main_ucD_3.rego",
+      "repo": "p0tr3c/opa-wasm-bug-reproducer",
+      "sha256": "29264abf6aa67a37f90c2e10f640e8d03dc92c1a66734a83b083251cedb5a5e4"
+    },
+    {
+      "blob_sha1": "4d0003ed154e0f34df6e7d73e52ea85781e8894b",
+      "commit": "439c541fd348f3279ff37c3b2d8162e1875ab420",
+      "path": "examples/misconf/custom-data/policy/custom.rego",
+      "repo": "piyushpurohit23/trivy",
+      "sha256": "ee25745fe6edcd7a9fa4ca48bf739183edb172d2e23bc709ef03a0fcd9ece92f"
+    },
+    {
+      "blob_sha1": "9c7f2b8fe6c959183cf678c1fa812f4d07d30431",
+      "commit": "76901b5726522cf8872fb3f6022d83c40e1ed711",
+      "path": "examples/pod_deny_host_ipc/src.rego",
+      "repo": "plexsystems/konstraint",
+      "sha256": "0bb39bc71bca85aea781af53c5c4ee62823b754c9fa02fdfe45a08c27922a6ed"
+    },
+    {
+      "blob_sha1": "d030e24616fdef6799dd4f6aeebe63974a1eeec5",
+      "commit": "76901b5726522cf8872fb3f6022d83c40e1ed711",
+      "path": "examples/psp_deny_host_pid/src.rego",
+      "repo": "plexsystems/konstraint",
+      "sha256": "0288c8ff6c023ff5f956d39442f52bb0b1b5449541fb3b71062db58bf1f13dde"
+    },
+    {
+      "blob_sha1": "719d0d68d7d4724db3d035c9ef99091761a58e0b",
+      "commit": "76901b5726522cf8872fb3f6022d83c40e1ed711",
+      "path": "examples/psp_deny_privileged/src.rego",
+      "repo": "plexsystems/konstraint",
+      "sha256": "745f063b03ca1a9f2fe98ac5a72de5803d2724ac9c6a5a6167a8f4d2378a2665"
+    },
+    {
+      "blob_sha1": "a3670caaa55638c4907374778a08ae59fef591d1",
+      "commit": "f279427282bc1c6a09f06ec59a7b9e1843b68f43",
+      "path": "aws/cloud/sqs.rego",
+      "repo": "prancer-io/prancer-compliance-test",
+      "sha256": "568e5ff2f5182285d3b44fbf1605a2dda42a0a6190a4ccc0b0c5adb148d1a713"
+    },
+    {
+      "blob_sha1": "4e497791d62b8f58d9e2ba559026831ed619a1ec",
+      "commit": "f279427282bc1c6a09f06ec59a7b9e1843b68f43",
+      "path": "azure/terraform/dbfirewallrules.rego",
+      "repo": "prancer-io/prancer-compliance-test",
+      "sha256": "d784690e35d2686b729f4ad8577f3a2d86daa2dea5c2d95f0c8484f85d548b3f"
+    },
+    {
+      "blob_sha1": "2feee34a07861ced5e8b8d13aea343f801c86601",
+      "commit": "f279427282bc1c6a09f06ec59a7b9e1843b68f43",
+      "path": "google/kcc/ComputeFirewall.rego",
+      "repo": "prancer-io/prancer-compliance-test",
+      "sha256": "dc99b06f7645c18de20f239d0993d07faa84a411a447fee9648d251ed5bf1959"
+    },
+    {
+      "blob_sha1": "8dd0ad2954f7529d7cf104c92c83b7d87fe7a8f4",
+      "commit": "063b1152fa2e9bdcdc2840c5e7ce402d20f81197",
+      "path": "spring-app/cloudfoundry-styra-das/rules.rego",
+      "repo": "pvsone/opa-ext-authz",
+      "sha256": "6e31f11e231ce152b0e48814c14bd5f66209eaa0a0c9ec219eaccc001a2f265d"
+    },
+    {
+      "blob_sha1": "e84a6180361d0761369edce33d7dc8615a12c7c0",
+      "commit": "3efb9355794581f5ac5827d712b89819f4a3179c",
+      "path": "examples/chartjs/policies/fetch.rego",
+      "repo": "r33drichards/mcp-js",
+      "sha256": "16441c3ec076a7ea06c38adc9ff15836d061faedcf5a80072fff9fe8602b05c9"
+    },
+    {
+      "blob_sha1": "fd896c5f2ee0efa7c2f726f71b2ac79e3c675925",
+      "commit": "ae4ee1599a13b829231569b9683db8eea0cd927b",
+      "path": "infra/security/opa-policies/runtime-policy.rego",
+      "repo": "rajim59/SwarmFort",
+      "sha256": "8f4cec4fb2cf7f39ad8e4681ac93831c304cf488f739d13ba264cf26de4d0e40"
+    },
+    {
+      "blob_sha1": "1dd3e82ee733efdc043cdcc6dccbce4c091e644b",
+      "commit": "39e822e5dc6c19adb50bdb123dec6b8b3cba5ca8",
+      "path": "policies/CIS.5.1.3/CIS.5.1.3.rego",
+      "repo": "raspbernetes/k8s-security-policies",
+      "sha256": "a0301ff7d4efabc7d9f1a223a3a5e23cb3990a89c311d02283607877e0227b31"
+    },
+    {
+      "blob_sha1": "4cc3e7c36755b83188695eeee04ee7d4c4000334",
+      "commit": "39e822e5dc6c19adb50bdb123dec6b8b3cba5ca8",
+      "path": "policies/K.SEC.01/K.SEC.01.rego",
+      "repo": "raspbernetes/k8s-security-policies",
+      "sha256": "9112cb07866a2441bdfa7c4e69f005e6ce2578bfd15bb5c69fc0fc298c6c03dd"
+    },
+    {
+      "blob_sha1": "3c65ddf515744ed69cbebf949492ad2720ff9233",
+      "commit": "39e822e5dc6c19adb50bdb123dec6b8b3cba5ca8",
+      "path": "policies/K.SEC.15/K.SEC.15.rego",
+      "repo": "raspbernetes/k8s-security-policies",
+      "sha256": "d5fa8b557ab664c13a1b69153f3b5eb539f154413cdb1231e00e322b960c395d"
+    },
+    {
+      "blob_sha1": "d8d2972a965ae09e0db5241155d927ea2052243c",
+      "commit": "1a95f7ebec5b7cf66945bce764d2fa0d82a9d16e",
+      "path": "config/compliance/policy.rego",
+      "repo": "redhat-data-and-ai/template-ui",
+      "sha256": "5ba86af32398e3901ea041ff58c6c6aa917b03cc90a679ed468d30b5d5cee4d2"
+    },
+    {
+      "blob_sha1": "d8cf1ab64a2615cc86004b2e823a2bd41325557e",
+      "commit": "a8e715a12223f78bccfd271f3bcd0578a96cfa59",
+      "path": "rules/aws/iam.rego",
+      "repo": "ridik-il/xptest",
+      "sha256": "8ecd2e815394f8b4de26373e1b5e7d76391daf22427006b3f7d1abbc3f54e86f"
+    },
+    {
+      "blob_sha1": "f7bdba72c6eaf114cc83fdd46b2dfc424e4dfede",
+      "commit": "9ae097e86010322798aa2456d5e07be261594cc1",
+      "path": "pkg/policy/test/missing_results_return.rego",
+      "repo": "rode/rode",
+      "sha256": "fc5bf1a24cdbbc087a11d1bbfbdd582831477b3ce825f8e80fbe4f1a9c21f9d0"
+    },
+    {
+      "blob_sha1": "954722df979b06f753320a088faa9ec622a1287c",
+      "commit": "bd9e40b5338de529fb114226bd5d575f937e14ae",
+      "path": "internal/provider/data/minimal.rego",
+      "repo": "rode/terraform-provider-rode",
+      "sha256": "6739c2c6f8cee4c76c464ede367cb1cff4f04bb9758f1cb62224631589884467"
+    },
+    {
+      "blob_sha1": "495f3a955025658678996d961baeeaac1474d7ed",
+      "commit": "ac43797130a7fe32fa08ef2cb5612742e1da1b1a",
+      "path": "wiz_rego_policies/pcp-064_vpc_flow_logs_enabled.rego",
+      "repo": "rthexton1964/prisma-to-wiz-dev",
+      "sha256": "a9ceaa32106239bd6f834b28a529ad8c7e55d83875fe273f1f5843d2e68167bc"
+    },
+    {
+      "blob_sha1": "324b32142a74435621442017517cfddd6ba5ec60",
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "path": "policies/fintech/stablecoin_reserve_ratio/policy.rego",
+      "repo": "rulehub/rulehub",
+      "sha256": "10751ee52ad22a45eff05726d4eed32fffad4a1587d71a623a2f551a1752efd5"
+    },
+    {
+      "blob_sha1": "f56ee291821cd2e2b64f10128498cd1c2cd8a967",
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "path": "policies/k8s/require_resources/policy.rego",
+      "repo": "rulehub/rulehub",
+      "sha256": "8422b8f81425e84197da3aa3ef5ee5627e847a601aa7a428cac0d76d8e447efc"
+    },
+    {
+      "blob_sha1": "5ee4d2ffb393660a9294bee3357cf16f4a62055b",
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "path": "policies/medtech/eu_mdr_eudamed_registration/policy.rego",
+      "repo": "rulehub/rulehub",
+      "sha256": "861bfc670254d6247c0bea21264136ef2d9a517e785feec0bd24eef71c5c7e20"
+    },
+    {
+      "blob_sha1": "79391bd3351fe7f67868fccf9f35bb42d08f09d9",
+      "commit": "3f2dae6886f8f1c6b7048590bd05af44e95d06aa",
+      "path": "policy.rego",
+      "repo": "rupacesigdel/ToDoList",
+      "sha256": "68e7543c3efb6fcbd3bf3bd982f548adf430f5ac0a190c3430c141d4de30e2fb"
+    },
+    {
+      "blob_sha1": "33975ce1346fd421a8fae591ce057129ced37941",
+      "commit": "eec9fe4d194893d244a7cd57c2818c2dc2e1d11e",
+      "path": "v1/github/api/signed-commits-range.rego",
+      "repo": "scribe-public/sample-policies",
+      "sha256": "1d5daa14f2ff433781d8de625421db13a7939e056d4a4e620819bdb6da410125"
+    },
+    {
+      "blob_sha1": "8b6150baca9c5beb7482294af946ebde5717656a",
+      "commit": "eec9fe4d194893d244a7cd57c2818c2dc2e1d11e",
+      "path": "v1/github/org/allow-admins.rego",
+      "repo": "scribe-public/sample-policies",
+      "sha256": "ede77ed079bb83945ec5941a52dc3c31a2e31432074da4616a2ceda1220d7e21"
+    },
+    {
+      "blob_sha1": "1e95524895e63640f492ff7ae50305e4b8427828",
+      "commit": "eec9fe4d194893d244a7cd57c2818c2dc2e1d11e",
+      "path": "v2/rules/gitlab/org/allow-token-scopes.rego",
+      "repo": "scribe-public/sample-policies",
+      "sha256": "0213a17745ea094e977889d7be076b3e9d5a86885381b899a010fdf14af34c13"
+    },
+    {
+      "blob_sha1": "6a88cab6c6bbbc390773c58aeda7b9c8b740e382",
+      "commit": "fa0fa3c22e10f99e124ae64711975ccaceeaa005",
+      "path": "roles/opa_policies/files/rego_policy_libraries/benchmarks/cis/amazon_linux_2023/service_validation.rego",
+      "repo": "shadowman-lab/Ansible-Compliance",
+      "sha256": "7300f1a5c42a159b27ef5214ab5f420adecc0fa656e2135821beb5cee88aa956"
+    },
+    {
+      "blob_sha1": "16f8661c5d00f5779fdb637432bc2bef0cd6bbd6",
+      "commit": "fa0fa3c22e10f99e124ae64711975ccaceeaa005",
+      "path": "roles/opa_policies/files/rego_policy_libraries/benchmarks/cis/debian_11/auditd_validation.rego",
+      "repo": "shadowman-lab/Ansible-Compliance",
+      "sha256": "edb28ee6160b38a9c1572c02b1542cb11b79bcb446fb43066698b3a11cb5f0d0"
+    },
+    {
+      "blob_sha1": "e2dbd09ea49bfb4a82592ec632e6adcc88876862",
+      "commit": "3a58ae68679cedb6c68ee6f6890b57760164120a",
+      "path": "policies/lib/helpers.rego",
+      "repo": "shivajichaprana/policy-as-code-framework",
+      "sha256": "e7cab8a8ecbfed889aa37dc59a450ecc63b351bce0d301f44d6ebf8d3f7e2a8e"
+    },
+    {
+      "blob_sha1": "eb311136395d6ad949e5b4dd5e83498191609517",
+      "commit": "2d83bcdceab0bf62ee0c95c9f4ef34c377353265",
+      "path": "pkg/bundle/static/rule.rego",
+      "repo": "simongottschlag/opa-bundle-api",
+      "sha256": "408d1c0d829b5fba50c80206ebc524917fd58ce7707067c5577d56e3e672ebd5"
+    },
+    {
+      "blob_sha1": "a39bbacf9cca05676af0bb4a673fb37ec1564f88",
+      "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
+      "path": "examples/01-simple.rego",
+      "repo": "snyk/policy-engine",
+      "sha256": "2346a67dd298a9c2ea2d5cc11a53f41c8643b378b2eefab57951e7b1067b1e68"
+    },
+    {
+      "blob_sha1": "08d4a5c0025835423e6a3d72f4679dcab2aad121",
+      "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
+      "path": "examples/02-simple-attributes.rego",
+      "repo": "snyk/policy-engine",
+      "sha256": "c18da7709e1ee1b3f62872b3a2a43bab0a50026dfbcc456f1fb3092c6f7c30ac"
+    },
+    {
+      "blob_sha1": "f5146315a0151101211eb5e32c6700b0664227b2",
+      "commit": "c88136a04cd133125a3e59832ec37b9236e09a5c",
+      "path": "examples/11-finding.rego",
+      "repo": "snyk/policy-engine",
+      "sha256": "cc8f5ddaceb4b576953cf5f8b4b9d39e287f62e471b73b8deadcf1a3cecfaa41"
+    },
+    {
+      "blob_sha1": "002a87402aeb4f6b2e1b3b54e6f897d1fef31dc3",
+      "commit": "11f482167ed9a679228aa963c478ea3f3dda2780",
+      "path": "examples/rego-modifier-parity/policy.rego",
+      "repo": "soapbucket/sbproxy",
+      "sha256": "5c459b5cfcca5de5fc149e880f0aebb9264180a7321c9c07c3b649132e6ba7e3"
+    },
+    {
+      "blob_sha1": "da5a8d022efcafd9a7aa8ed947ec0914f7dbf6f2",
+      "commit": "2964d99bf5b2dbba9ffa6d55a618b9cbacde8eca",
+      "path": "all.rego",
+      "repo": "sorokinpf/docker_opa",
+      "sha256": "bb95412c3f8da8b2851558ad4ff66724caa27758bc82a2c81aa82aec2b2aa5fe"
+    },
+    {
+      "blob_sha1": "354034a153a902591fb31d8dc823d99f3a190f11",
+      "commit": "2964d99bf5b2dbba9ffa6d55a618b9cbacde8eca",
+      "path": "part_rego/path.rego",
+      "repo": "sorokinpf/docker_opa",
+      "sha256": "b3be144270c2352a3c80acdc5107f6ebc68a5837702921b811bc990b60d2a459"
+    },
+    {
+      "blob_sha1": "8be310ed516af501519c9448120cc25bb5a4fcf0",
+      "commit": "6ff5edb08bc806f323eff5c48426a7762ef1fee7",
+      "path": "examples/login/access-levels-within-an-organization.rego",
+      "repo": "spacelift-io/spacelift-policies-example-library",
+      "sha256": "a0fad47681d36579d02495a8eb8bf78b696c09e22d31bcfa385831306511e407"
+    },
+    {
+      "blob_sha1": "8a14202fcb8e7fdce22287f2869cddd23dbc3202",
+      "commit": "b8ea22ac1ffd06f54b7ca3026d7b83d599c0d956",
+      "path": "policy/terraform/security.rego",
+      "repo": "stefanutc1/infrastructure",
+      "sha256": "710fad11229b3aa7d1f6418961be19f8e323aa37561826fa582a2eabd443f77a"
+    },
+    {
+      "blob_sha1": "c9984e73f7cfbddbb5f39441811eb7f174002560",
+      "commit": "232d0ce8d1dbc6786aae80c9565beb82781e29d6",
+      "path": "day38-approval-gates/policies/terraform/s3_public.rego",
+      "repo": "sudheeramgothu/90daysofdevops",
+      "sha256": "cecc336c932d529c7b5f20337eb01d04be33255cde45040150006a085f42d994"
+    },
+    {
+      "blob_sha1": "3da1980c954029ab89a9155766b6530ad26201ea",
+      "commit": "8c8ed27975593396f1aff7621140914347f9426f",
+      "path": "aws_rego/elb_checks/no_healthy_targets/no_healthy_targets.rego",
+      "repo": "sudoersllc/opsbox-rego",
+      "sha256": "6eec81daae45592aecf24198eed8a39e000b49b5726972957940752ecdcaef8a"
+    },
+    {
+      "blob_sha1": "e9036c58c12b361eff4e363634884b44b330bffd",
+      "commit": "c77a3b8fdaa1ff46b5afad9f7206478c2378ed4b",
+      "path": "modules/secretsmanager/policy/main.rego",
+      "repo": "swagwatch/AWS-PROJECT-2026-CYCLE-0001-DEV",
+      "sha256": "8f58a80ad5203832d30227c76416b62f70da13f6ac6ec0ebe88ca4cf17becaeb"
+    },
+    {
+      "blob_sha1": "c5e07deca045804368e5ffcbc555c8e91bdf1b22",
+      "commit": "8a9573aa1efafb6c684d2eb400a87d8fc37d5090",
+      "path": "policies/auth/routes/listReactions/findParentsByListReactionId/policy.rego",
+      "repo": "tarcinapp/entity-persistence-gateway-policies",
+      "sha256": "3456d87102dbeb7e89062a5adb84e43026d4f8f4629d4074a90c6c2c36c3433f"
+    },
+    {
+      "blob_sha1": "841d70a3c3530433cd2097a5ef97d3f8af69104d",
+      "commit": "e959bf040b524dbeb96914fea873095f6fa173bf",
+      "path": "clinic-policy.rego",
+      "repo": "tidepool-org/opa",
+      "sha256": "2d188d888b4445bd995f049a5cc3820c76ad5b89843f01cdd6a6c1ab90d7a155"
+    },
+    {
+      "blob_sha1": "6e057a0eaf1426a9183864186de5751a81610151",
+      "commit": "046017a1d2d6f090e7d74a4f7776375e4c20ed8a",
+      "path": "policies/policy-pdb-check.rego",
+      "repo": "tmobile/magtape",
+      "sha256": "512b9de4db66068e79960de96f5a85cebaedff65c3e39fa806de05054e013ca8"
+    },
+    {
+      "blob_sha1": "b2a20e9fc526dd2162ec0171325fae08f5ba3626",
+      "commit": "1e9b32e3cc117f45466fa7fe65604c17c8ee5cb7",
+      "path": "policy/rego/github.rego",
+      "repo": "truckercore/truckercore1",
+      "sha256": "2fa5eb2ee4774e5d41a4ed30a1706694a3c28441bb0ad49f904cade533ea404e"
+    },
+    {
+      "blob_sha1": "908086e774eab5a9ef3f8567cd772a536e36e329",
+      "commit": "06845d597674cbcaf5e22b9aad74d21b571cdd95",
+      "path": "wiz_custom_rules/Storage.C78_denylist/cloud/authorized_region_detection.rego",
+      "repo": "trustoncloud/threatmodel-for-azure-storage",
+      "sha256": "b72f2a4ee1bba2736e2d136a11cbb21bd20c06818765bc22c7b01f70e4c5d3f1"
+    },
+    {
+      "blob_sha1": "90695242eec861129c4e6df7eef72e3c396bd228",
+      "commit": "95f41899861ec7272a086a5cdbba49131088df0a",
+      "path": "wiz_custom_rules/controls/Bigquery.C129/allowlist/bigquery_gemini_enablement.rego",
+      "repo": "trustoncloud/threatmodel-for-google-bigquery",
+      "sha256": "39f55aca77ee2d9f5124436a107bdc5c4785c18c93bd5db65e8981635d17cdda"
+    },
+    {
+      "blob_sha1": "ff514a2855bde17b5c17e651cfa1f117f5730c65",
+      "commit": "95f41899861ec7272a086a5cdbba49131088df0a",
+      "path": "wiz_custom_rules/controls/Bigquery.C129/universal/bigquery_gemini_enablement.rego",
+      "repo": "trustoncloud/threatmodel-for-google-bigquery",
+      "sha256": "6ff81823812e73022ecba65feec7bf04ff9df8ba6caabf880f282cdb265f62de"
+    },
+    {
+      "blob_sha1": "d9f9a6a37b2f84f77e46790c04ccf748589f3eb4",
+      "commit": "4974c869bc2ac197b78fee0a85ba2329fb39e660",
+      "path": "examples/policies/02_deny_destructive.rego",
+      "repo": "try-loopers/loopers-oss",
+      "sha256": "71d19d0c76eb2a54f84812d79ab794f04b016aa1cfcdd5e08cb46221e4e9f861"
+    },
+    {
+      "blob_sha1": "65a6196e057351c29ca33ca0adbcba61d2e8a5d5",
+      "commit": "c1429d2b7b9ef972ce39644f7968e9e44e0ce601",
+      "path": "security/policies/deny-privileged.rego",
+      "repo": "tsprasath/ai-devops",
+      "sha256": "d2945ca197407960d609109d3bf22520a625d3e1a856ff6f5cd1a66c9c3ae151"
+    },
+    {
+      "blob_sha1": "f1967d235dd08c4da1b3766222475087fa8a98ea",
+      "commit": "f7a3b08b3c9b410c85b41aff981c6f6a1ed2fa8f",
+      "path": "examples/eudi-toolkit/demo_files/gdpr_policy.rego",
+      "repo": "vagabond-cloud/Vagabond-Fuse",
+      "sha256": "05be3598fcb4db81442055808051dfda8b28505d9e4a90c47cc20cc24af91d17"
+    },
+    {
+      "blob_sha1": "abb725f312f1d35a5fb0549aa2ee8d5eddbdcb78",
+      "commit": "b7921217985c3f629db8f552e1620d0ebd784fa3",
+      "path": "openapi6/rules/finish.rego",
+      "repo": "valex1984/katacoda-scenarios",
+      "sha256": "a00e44eb98c52a85b9ace60a1bab1e5e3e9a298d3fa68a573a12e173fe539f76"
+    },
+    {
+      "blob_sha1": "54820bfa2ad8a3bb57a42430cc1532fcf44d9d4f",
+      "commit": "a1611201454729da7f12f6dde5dfafc6980cd086",
+      "path": "policies/service/authz/api/capi/invoice_template_access_token.rego",
+      "repo": "valitydev/bouncer-policies",
+      "sha256": "98d6225884ff2d5f1d235fe51372c471c31ab8c6a81575be6ad1c9addd1cf9e6"
+    },
+    {
+      "blob_sha1": "a89a96510a1b7139f1890ba01a531232e46c3105",
+      "commit": "5578a3ca96ee15fead483b8c2a53c14516632da7",
+      "path": ".cupcake/policies/claude/block_ignore_preexisting.rego",
+      "repo": "vasceannie/noteflow",
+      "sha256": "ad47b841d103a727eda11785fd6cd62897428fdba7bcdae81166a9e53c6d95f6"
+    },
+    {
+      "blob_sha1": "f4bc26f53e4d0fb7c926e28030f676ce9c351140",
+      "commit": "f283c4e98e5fe83d6ed3ec655ddc44e6238ad22a",
+      "path": "policies/examples/log-egress.rego",
+      "repo": "vencil/Dynamic-Alerting-Integrations",
+      "sha256": "25bb0311516740dba07e8a17939dccc6fab197ff366f53da915ec148662acd42"
+    },
+    {
+      "blob_sha1": "b92a3c5a0d2ada28cad2b51cc68b0a26ad277b20",
+      "commit": "c7212cabf2eeca707ad8c01ee6b56cf2155548db",
+      "path": "policies/infisical/intent.rego",
+      "repo": "verlyn13/policy-as-code",
+      "sha256": "00732f28b77db5e9e3ba4e5e50aa84b3afbd0cb08bf5090e7da7f874301c3b18"
+    },
+    {
+      "blob_sha1": "6a3c1878a75d7ec66ffa22986170aef1d7f632ae",
+      "commit": "c07abaafaf71b0e754fac12d5199fd7d055b71e4",
+      "path": "src/test/resources/probes/02-object-literal-operand.rego",
+      "repo": "wakaleo/explico",
+      "sha256": "d80e820bec2b81ab9f95723d6abe2ce8a0e051a8282375e0350a4f8fb8548259"
+    },
+    {
+      "blob_sha1": "00df6e8d9ac4b38640580f014a5e3975abd9cfca",
+      "commit": "c07abaafaf71b0e754fac12d5199fd7d055b71e4",
+      "path": "src/test/resources/probes/21-not-over-complete-rule-with-default.rego",
+      "repo": "wakaleo/explico",
+      "sha256": "fc77d89f3827de602aaf9ab130fe528955ed463903e2f0b602804b40dba4e408"
+    },
+    {
+      "blob_sha1": "0eee26911933c7c821b274680c1eb63a9ad62a69",
+      "commit": "c33757323d5dcdac7de4a7ac9393e1932f10c85c",
+      "path": "examples/RBACProhibitVerbsOnResources/policy.rego",
+      "repo": "weaveworks/policy-library",
+      "sha256": "3b048ab6cc5e37c478468439c21e55e88f27344dd7163e66909adf61271fdbb8"
+    },
+    {
+      "blob_sha1": "06a349e542cac5de9734edb9a01020cc2f0c2023",
+      "commit": "c33757323d5dcdac7de4a7ac9393e1932f10c85c",
+      "path": "policies/ControllerImageTag/policy.rego",
+      "repo": "weaveworks/policy-library",
+      "sha256": "51bbfc91ef10eafa6721f48b7a3cce70d44f6aef05641ba5b70f6c8dc80dd2e8"
+    },
+    {
+      "blob_sha1": "fb009ca1e0d1358f067410ffc8d1c2c7b1a5d0ba",
+      "commit": "4a067d20deed0ae0362a4ee1f9865e5af675a79c",
+      "path": "charts/ai-k8s-gateway/agent_actions.rego",
+      "repo": "wejdeneh/ai-k8s-gateway",
+      "sha256": "b24c795bdc755cb3842a8c4817fa593b3ab8515a9473972c2036d4dc5fd105c5"
+    },
+    {
+      "blob_sha1": "49a1a969bc16c8e12067f6a8a60cd2f3dded76d2",
+      "commit": "2bb5ad2bc687c057056fbb9db892c90daf2a05ad",
+      "path": "rego/kubernetes/cis_1_4_2/cis_1_4_2.rego",
+      "repo": "wirelesssecuritylab/ccbr",
+      "sha256": "77892da12443bdeafc06a230ca7244b9065cc71c2b6523cb6997f49417674ba7"
+    },
+    {
+      "blob_sha1": "436d367d9105f122954e2c8877eb61c0c397880b",
+      "commit": "92b9b431c7bf6e2468eec31d7da0313c9366414c",
+      "path": "frameworks/management/csa_ccm/csa_ccm_change_control.rego",
+      "repo": "ynotbhatc/rego_policy_libraries",
+      "sha256": "ab3937ea2535fa6fcb6935fcc03929064a4b6cafb207a91d69336d57679f40dd"
+    },
+    {
+      "blob_sha1": "76351670b20a7e18d8d53fece82f671ef7d91ce7",
+      "commit": "92b9b431c7bf6e2468eec31d7da0313c9366414c",
+      "path": "frameworks/management/csa_ccm/csa_ccm_identity_access.rego",
+      "repo": "ynotbhatc/rego_policy_libraries",
+      "sha256": "64f8d0696b54f3b23c42862c1d2a469719234b162f2c7a96a3b62c574775bc5e"
+    },
+    {
+      "blob_sha1": "7dee08d096e6c7d4fd12f8acaedd6f0d718dd048",
+      "commit": "92b9b431c7bf6e2468eec31d7da0313c9366414c",
+      "path": "frameworks/management/csa_ccm/csa_ccm_incident_management.rego",
+      "repo": "ynotbhatc/rego_policy_libraries",
+      "sha256": "9a13d58fe3d5d8980b353bebac4dad1cce764d969aa8cdcd53a7398c6317c633"
+    },
+    {
+      "blob_sha1": "bf69fea5c541e11a5efee2504d22f5f0138958fe",
+      "commit": "d7d8a46b9143c9c6fa039ea45597f42f8812ee7a",
+      "path": "policy/policy.rego",
+      "repo": "yowainwright/rego-learning",
+      "sha256": "a23aea312edc20adc365cf7b78ac799770bb72ddf1af0a4aa98507c5a6848e23"
+    },
+    {
+      "blob_sha1": "91f441ef095f790c9b227d2e88f2a2951d37c5cd",
+      "commit": "9c2f32820d23e221dfc1f6f218e0f36054e09b8a",
+      "path": "scope2/rbac.rego",
+      "repo": "zsombix/opapoc",
+      "sha256": "7d8173a6bccd13aa5fac01d7e5936b33a6f5c620516d0c918da4b6f9819038a7"
+    }
+  ],
+  "frame": 5274,
+  "frame_owners": 1413,
+  "frame_repositories": 1632,
+  "harvested_at": "2026-10-03T10:05:01+00:00",
+  "how_collected": "GitHub code search, each query split into eight size shards and read to at most 400 results per shard; the pool filtered to a frame and the frame shuffled with the recorded seed and walked under the recorded caps, as scripts/third_party_sample.py states",
+  "owner_cap": 5,
+  "owners": 224,
+  "policies": 300,
+  "pool": 7409,
+  "provenance": "third-party",
+  "queries": [
+    "\"package\" \"deny\" extension:rego",
+    "\"package\" \"violation\" extension:rego",
+    "\"package\" \"allow\" extension:rego"
+  ],
+  "removed_from_pool": {
+    "a Rego test module": 703,
+    "a byte-for-byte copy of a vendor corpus file": 126,
+    "owned by the vendor or a measured corpus's author": 328,
+    "the same content as an earlier file": 978
+  },
+  "repositories": 236,
+  "repository_cap": 3,
+  "schema_version": "v1",
+  "search_total_count_by_query": {
+    "\"package\" \"allow\" extension:rego": 32612,
+    "\"package\" \"deny\" extension:rego": 30920,
+    "\"package\" \"violation\" extension:rego": 16725
+  },
+  "seed": 20261003,
+  "shards": [
+    "size:<300",
+    "size:300..600",
+    "size:600..1000",
+    "size:1000..1500",
+    "size:1500..2500",
+    "size:2500..4000",
+    "size:4000..7000",
+    "size:>7000"
+  ],
+  "skipped": {
+    "declares no package": 1,
+    "its repository already has the cap": 68
+  },
+  "target": 300
+}

@@ -1,0 +1,2862 @@
+{
+  "digest": "sha256 of the bytes",
+  "ecosystem": "cedar",
+  "examined": 875,
+  "excluded_owner_prefixes": [
+    "amazon-",
+    "aws-"
+  ],
+  "excluded_owners": [
+    "amazon-archives",
+    "amzn",
+    "aws",
+    "awsdocs",
+    "awslabs",
+    "cedar-policy"
+  ],
+  "files": [
+    {
+      "blob_sha1": "bac6195081abfe227248ed3bf60c866fa235b08e",
+      "commit": "fccb60a357e3bb340f5e6d138a67abccbdd5ffd6",
+      "path": "schemas/spicedb/examples/contextual-constraints.cedar",
+      "repo": "Aeluin-Technologies/Galadril",
+      "sha256": "7f6d953180d49ab2e7c6ffa0352fcb778d7d237f456bc4cb4bd0eb39d9483680"
+    },
+    {
+      "blob_sha1": "7812de2f41d230ae12f0e7d5821a67e0a8a8c3a9",
+      "commit": "18865ab2137fd99164577b22d58340531e6336c5",
+      "path": "extensions/embeddings/domain.cedar",
+      "repo": "Agentcygroup/tmig-full",
+      "sha256": "0b45894d68b0e334409445ad5a05843de56813ad5742dbb0463b29be4513b030"
+    },
+    {
+      "blob_sha1": "7cd9eff9c7a7aef7a7bac1362ee9ac6cc2016daa",
+      "commit": "18865ab2137fd99164577b22d58340531e6336c5",
+      "path": "policies/boundaries.cedar",
+      "repo": "Agentcygroup/tmig-full",
+      "sha256": "7c432b217317602f19a0cb071d142a4f7c86aef8545ea4024acc7caed1ce2665"
+    },
+    {
+      "blob_sha1": "a05833455565928ee843fec8a35aa3e8cbe8e0d0",
+      "commit": "18865ab2137fd99164577b22d58340531e6336c5",
+      "path": "policy/rules/14-nist-ai-rmf.cedar",
+      "repo": "Agentcygroup/tmig-full",
+      "sha256": "b796c6b34f581bc24fd1eabcee22dc66d6f1744bdb5a50301d3f3534a4fbdd38"
+    },
+    {
+      "blob_sha1": "62afa56c0e33e0af131221790a5c9f131f9df419",
+      "commit": "8646c08dabda6984d27e6f67d282887e9e7694fd",
+      "path": "backend/policies/ai_agent.cedar",
+      "repo": "Ajeetmaurya395/civicsahayak",
+      "sha256": "34b944c27177bf5374f0be8d841c4cb639904c3cf049ae082db154036b5a3287"
+    },
+    {
+      "blob_sha1": "d2390c6425441523943c0450723e87c69c1a01cb",
+      "commit": "8646c08dabda6984d27e6f67d282887e9e7694fd",
+      "path": "backend/policies/citizen.cedar",
+      "repo": "Ajeetmaurya395/civicsahayak",
+      "sha256": "20c741bf7b670bab36fa7cfe10a9e0db16f3b3115b416d0bf22f5c5df05cef65"
+    },
+    {
+      "blob_sha1": "edbca1b6ad70f7b088f92f49a09ce3bbb0e1c6d9",
+      "commit": "ebc99e7823a701d18b14330e232e6058a128479a",
+      "path": "backend/policies/owasp_security.cedar",
+      "repo": "Ajeetmaurya395/paradox",
+      "sha256": "c8033fffe6eee31f2d8f6040e820976c7e7e3664d1c5544fc5dffc1ac9aad798"
+    },
+    {
+      "blob_sha1": "16d32ba5b514d4309ba885f81c2e118a59ec6694",
+      "commit": "42938bdea5c2981493412a858109b2c0e3a0ca84",
+      "path": "backend/policies/forbid-support-delete.cedar",
+      "repo": "Anumehajain78/promptfence",
+      "sha256": "fc4341074b5026ffcbfa309b0eaa7161229085a2e7add7d9b678b62ffb1627ca"
+    },
+    {
+      "blob_sha1": "2fb18e62f5adc68ddc7c619ad3f0b7bd551919c4",
+      "commit": "8c88d6fe49ae4cbc4839bd664cdd8dd7be2ef7a7",
+      "path": "policies/coverage.cedar",
+      "repo": "ArushJain-697/Pratidaava",
+      "sha256": "cd6d1985486910575c4a9cf687a4fa9ef000a25a53ac4f18206b229b3f6be1f3"
+    },
+    {
+      "blob_sha1": "341e4d0abf1ff47a5bd3f215589cfaadf9347ba8",
+      "commit": "45d96f5baf20c6d6dc9a5442be93e23f652e08c9",
+      "path": "policies/foodshield.cedar",
+      "repo": "Bharathhh30/Food-Shield",
+      "sha256": "e5971346099db26b3d77de4346caeeae036fddcc0cc6fa89ed7ed14460b9d8d9"
+    },
+    {
+      "blob_sha1": "38aa5af469903e95abdb7dda285dd0eb7573bb32",
+      "commit": "9b04ea489897b95a6cc905a6a9be7d46beba943e",
+      "path": "packages/permit/policies/default.cedar",
+      "repo": "BigHandsDan/molt",
+      "sha256": "b3a35fb1715a18f4798f1743d47e11b07949a0254aaea2210dff697a69cd34eb"
+    },
+    {
+      "blob_sha1": "0e540c16d5a20f5d228a52a0ea6d0df53e7f1390",
+      "commit": "fef297519c7faef456eec99783c234b8fddc4a1e",
+      "path": "specs/policy-fixtures/badge-family-rbac.cedar",
+      "repo": "BriceKrispies/atlas",
+      "sha256": "174a2f2c24cf96e9ba550df3bec5f4fe80ddf0ff66db3fe7d0de0704d1e2b33d"
+    },
+    {
+      "blob_sha1": "3fd0e494a4ac353b0f86aeb96c536f05d0ee392c",
+      "commit": "fef297519c7faef456eec99783c234b8fddc4a1e",
+      "path": "specs/policy-fixtures/cli/bad-action.cedar",
+      "repo": "BriceKrispies/atlas",
+      "sha256": "ba21d33faba7fad75a68a894710303acff91c561213ea17d29c7da4db6a0d0ae"
+    },
+    {
+      "blob_sha1": "fb11500b40f9d2e421b18903dbdb9f62d495ba12",
+      "commit": "fef297519c7faef456eec99783c234b8fddc4a1e",
+      "path": "specs/policy-fixtures/cli/dsl-expression-default.cedar",
+      "repo": "BriceKrispies/atlas",
+      "sha256": "f649f77b7270a194ffe566026cd22968a614f83a01334f2ad9a9f74864707bc1"
+    },
+    {
+      "blob_sha1": "9f361adf5235ac75d7364a6f2bc2a073db9f26e5",
+      "commit": "d90c699645face75a4f072ffc87c517263cf4c38",
+      "path": "gateway-policy/policies/policies/01-forbid-delete-customer-record.cedar",
+      "repo": "BugHunterX2101/cell-guard",
+      "sha256": "e318b4012b64cd3830e735826245bd738b4b46581028104137f04e8a9c7d1ddf"
+    },
+    {
+      "blob_sha1": "cbece6a94beb8737988f19516088b4887bbbd4e4",
+      "commit": "d90c699645face75a4f072ffc87c517263cf4c38",
+      "path": "gateway-policy/policies/policies/05-permit-wire-transfer-within-threshold.cedar",
+      "repo": "BugHunterX2101/cell-guard",
+      "sha256": "713f6844c976e43ad294735e43b64a495cbfa0238c20a8c90ca39362de61e20c"
+    },
+    {
+      "blob_sha1": "fb29e1552ee5c544f44f22468a50b1a5834c9a3d",
+      "commit": "3501086ef87891256fc46c218f2ca32a1a054610",
+      "path": "fixtures/docvault/docvault_baseline.cedar",
+      "repo": "CSNEHA20/policylab",
+      "sha256": "36ba58d7562090f83ae07bb3bab555b7d5706eb1a4feee51b99147ebcf923334"
+    },
+    {
+      "blob_sha1": "91e8564faf409a5f3afe037be0a40ba146dc12ca",
+      "commit": "3501086ef87891256fc46c218f2ca32a1a054610",
+      "path": "fixtures/docvault/docvault_fixed.cedar",
+      "repo": "CSNEHA20/policylab",
+      "sha256": "c7f5cdca7b91c94912afa5f2e50bd47c15640fefc03ae5af9ae9780b7c451579"
+    },
+    {
+      "blob_sha1": "24016b91622538c21a7890c539e260431415789d",
+      "commit": "3501086ef87891256fc46c218f2ca32a1a054610",
+      "path": "fixtures/valid_policy.cedar",
+      "repo": "CSNEHA20/policylab",
+      "sha256": "eab7ec612425579dda681bf9f135a7879f5180f5f7b5836e1c00b702bd761a41"
+    },
+    {
+      "blob_sha1": "7bb57128e85d738369bf061da45dabfd9e0e3ca9",
+      "commit": "4364484380315b17d9204beb289f111977682270",
+      "path": "harness/openshell-cedar/out/deny.cedar",
+      "repo": "CSOAI-ORG/councilof-ai",
+      "sha256": "224e76363fdb1e67dba6c7ffc62c2281d186c4234d391d7d64c56fcbed0efa1c"
+    },
+    {
+      "blob_sha1": "05cc10ee00be7d8f66df4e00b091c691a4ee7fab",
+      "commit": "4364484380315b17d9204beb289f111977682270",
+      "path": "harness/openshell-cedar/out/unknown-field.cedar",
+      "repo": "CSOAI-ORG/councilof-ai",
+      "sha256": "23137319afe618a9881af3fdc63f31bae8fe7e63bb16be44301a40c837864081"
+    },
+    {
+      "blob_sha1": "b03198bb42f3342fc9bca82e952ed9b044db0a2d",
+      "commit": "4364484380315b17d9204beb289f111977682270",
+      "path": "harness/openshell-cedar/out/unknown-top-level.cedar",
+      "repo": "CSOAI-ORG/councilof-ai",
+      "sha256": "7fdf30ed273ee21959813a9779c2824f04106c198f76d88e7305ad9fab2d80fe"
+    },
+    {
+      "blob_sha1": "b3354ff1cc0027983f2b39037d46bc09fd01cce7",
+      "commit": "444b72ce92bcc65c871271a02a9243328648c2b5",
+      "path": "policy/admin.cedar",
+      "repo": "ChiragAgg5k/sahyog-opal-cedar",
+      "sha256": "d6f44b76c7fa3a8fdc35eb8a02adbc0f0d6cfcdf3e319e74281a009898a7feba"
+    },
+    {
+      "blob_sha1": "c0bfdbc9c6182d1b0df93788fa0178c8911162bb",
+      "commit": "444b72ce92bcc65c871271a02a9243328648c2b5",
+      "path": "policy/user.cedar",
+      "repo": "ChiragAgg5k/sahyog-opal-cedar",
+      "sha256": "656835ac4697741c14fd8756c09b2aba9f1b7c48bf0bbe2b5c6b91846993e9e1"
+    },
+    {
+      "blob_sha1": "c80387e1a682eba1a31aec5f70a2b76d85e9795d",
+      "commit": "5965e812638b03cf56dba0710bbcd347565e3a59",
+      "path": "policies.cedar",
+      "repo": "CosimoMatassini/university-cedar-experience",
+      "sha256": "e43f9ba2964d1b64aa9455976b02cb801e1068f94e53dd50255bb8bcbf479bcb"
+    },
+    {
+      "blob_sha1": "08dfc054fa91b7f0fb9d291299526d5ab5514f94",
+      "commit": "e31539337b26fdcee0bc559a7b2e0dd459da3d52",
+      "path": "taskapp/idp/policies/signed.cedar",
+      "repo": "Dahkenangnon/cedarling-lab",
+      "sha256": "30ee6278d222649e046bc70e81088516929da30f3453c1613b0a1d6597ab2c0c"
+    },
+    {
+      "blob_sha1": "b4b2167eb7bdaca07c33bb350a955ed3b3690376",
+      "commit": "e810703b74ff13beded267ad3297ea3ec86dac07",
+      "path": "examples/docshare/src/main/resources/policies/docshare.cedar",
+      "repo": "DevNico/cedar4s",
+      "sha256": "e63495da81e73b7ba953f00c247fc87af77e3d73505007c79aed5a5e489d17fb"
+    },
+    {
+      "blob_sha1": "20b32cccbf4a05d35ef093222f2eaa3ad51597ac",
+      "commit": "e810703b74ff13beded267ad3297ea3ec86dac07",
+      "path": "modules/bench-integration/src/main/resources/policies/ownership.cedar",
+      "repo": "DevNico/cedar4s",
+      "sha256": "2ff7892dd38d3f882d2a3c92270c60e24a97194d8ceba61f847dd0022939ff29"
+    },
+    {
+      "blob_sha1": "6887236d2bc4923f1b13ff834ace6b6e2b2f927a",
+      "commit": "e810703b74ff13beded267ad3297ea3ec86dac07",
+      "path": "modules/client/src/test/resources/test-policies/ownership.cedar",
+      "repo": "DevNico/cedar4s",
+      "sha256": "f06d44af68afd02d253edc64147e5e803294dc5aa4f59f9798185203a757009b"
+    },
+    {
+      "blob_sha1": "739dbfad55789a1be69345de307f005d25a2ff1e",
+      "commit": "bcc13b144b17a34d7a897d135e1b983cdc6e7553",
+      "path": "terraform/modules/verifiedpermissions/policies/dailypost_mutation.cedar",
+      "repo": "Diekgbbtt/cloud-native-mobile-app",
+      "sha256": "e7691d557323a08d0f3d69d7b5c3dc78da29ede56e233b937516007e62f24db5"
+    },
+    {
+      "blob_sha1": "ccfd775c520a47216596f327ac2612cdbfab892e",
+      "commit": "bcc13b144b17a34d7a897d135e1b983cdc6e7553",
+      "path": "terraform/modules/verifiedpermissions/policies/disabled_users.cedar",
+      "repo": "Diekgbbtt/cloud-native-mobile-app",
+      "sha256": "7b7c2b9c93034537a2dd246d52fa6fbd2a9d8ee97de137120706de21c3e2f576"
+    },
+    {
+      "blob_sha1": "c6f6e1e8dfa54b071660b263949825d14284e108",
+      "commit": "bcc13b144b17a34d7a897d135e1b983cdc6e7553",
+      "path": "terraform/modules/verifiedpermissions/policies/event_create_forbid_global.cedar",
+      "repo": "Diekgbbtt/cloud-native-mobile-app",
+      "sha256": "3b3d404a071b1c90312b9e10f8b3240f3c9bbb614ed0a53f04a0e5b4ea86e5db"
+    },
+    {
+      "blob_sha1": "189a7a2a9003d1d941c4dc87401a0e9ff61c1fbe",
+      "commit": "d364a95ff7e3e5e42ec49dd8614f5206bf592960",
+      "path": "EventPlatformFlask/src/cedar/main.cedar",
+      "repo": "Diekgbbtt/events-platform-webapp",
+      "sha256": "d3df789b51bd5c41b950bcf89dbf6ae405f5a51e1b64257e8555d74654740019"
+    },
+    {
+      "blob_sha1": "06d4a15f61793565fc695bd100084ce2f84f67be",
+      "commit": "5e8d3d6b8c95aec8558d62ab9cc54576ceef25e2",
+      "path": "packages/marty-common/marty_common/cedar/approval_rules.cedar",
+      "repo": "ElevenID/Marty",
+      "sha256": "6db213341d70870715e85b679d4faad2a67a3706dc1561eeb984910bb89fee06"
+    },
+    {
+      "blob_sha1": "a6a5eae8965c251f4dcbebc0e1a64d2b926b929b",
+      "commit": "5e8d3d6b8c95aec8558d62ab9cc54576ceef25e2",
+      "path": "packages/marty-common/marty_common/cedar/credential_verification.cedar",
+      "repo": "ElevenID/Marty",
+      "sha256": "f64cd57d08992219ba212c1182bfec6d83d11730511ba350ce59a903cbc22ec2"
+    },
+    {
+      "blob_sha1": "cd9c430722dd798dcf7ff1b8e8c94254f5c9b5ae",
+      "commit": "d07bde3672594508c51a4d60ae38cc6578c2e28a",
+      "path": "e2e/evolution-breaking/lifecycle.cedar",
+      "repo": "EnzoTironi/OS",
+      "sha256": "3603fa362e4abb6ed9fc15c8f9dc9e5949b925bd1beca266b9f2e7a9cf1aca56"
+    },
+    {
+      "blob_sha1": "4baf93674c69008a573f86034d2f70782d40e52a",
+      "commit": "8496b5d27b8457531013a82c8dafc472e79770d1",
+      "path": "examples/demos/demo2/issuance-policies/issuance.cedar",
+      "repo": "Firma-AI/openfirma",
+      "sha256": "38a9dd6530b41bdef089be953a17381860af61d4c389fd7fecaa759208c50dab"
+    },
+    {
+      "blob_sha1": "44324f8978e3d36dfd472c9f2e8028fd21de86c0",
+      "commit": "8496b5d27b8457531013a82c8dafc472e79770d1",
+      "path": "examples/demos/demo2/policies/policy.cedar",
+      "repo": "Firma-AI/openfirma",
+      "sha256": "7cbb15d4aac85e7f2ef4262143b5d6c501066b17030a9cd7b5da750338c58256"
+    },
+    {
+      "blob_sha1": "355a13d7af4453aef6c34ac5ccc9eb5ed2b87f45",
+      "commit": "8496b5d27b8457531013a82c8dafc472e79770d1",
+      "path": "examples/policies/credential.cedar",
+      "repo": "Firma-AI/openfirma",
+      "sha256": "291b8d89b93bf8cc657fee4b5eb45cc7be3809e90cb7f52819dc6ed38bffa1f1"
+    },
+    {
+      "blob_sha1": "1fca4b985ae62c265e5ac6f59f340497bb229e70",
+      "commit": "807888baa939cfb4ceb48074bb262efc34e2eb83",
+      "path": "admin_ui_2_0/policies/AuditorCanManageDashboard.cedar",
+      "repo": "GluuFederation/GluuFlexAdminUIPolicyStore",
+      "sha256": "4642f1b05db1596d8796633feacd2ff2b8da03cea2e6627e8de2e2a1214ca782"
+    },
+    {
+      "blob_sha1": "56c400798188aaa58dd4648888542f85a4cd5ff2",
+      "commit": "69f7dbfbb0cffaf1a5805d16f74bf402ac575241",
+      "path": "p2-tenantrag/policy-store/policies/server-access.cedar",
+      "repo": "GluuFederation/cedarling-tutorials",
+      "sha256": "f1d4ae85df5ecbcd0cb77940a2cdde6767f9ce8d27b626aa060bc0ecebb8215a"
+    },
+    {
+      "blob_sha1": "e1a73d13800a2e907741a9e022d7f4dec41e432b",
+      "commit": "321b61336eeefe5dcc4eb078d4127cac47d9c164",
+      "path": "policies/example.cedar",
+      "repo": "Govcraft/mail-laser",
+      "sha256": "9dec3dc3aee6da4d0947a99aaff399ea6ed2f5ba09539f83b26168f148104d33"
+    },
+    {
+      "blob_sha1": "1581e9c0fffec7eadc087fa268dedbd761d59096",
+      "commit": "34a14aa9c21dba4c23bf6eb1442e8a8c0f817ca6",
+      "path": "policies/talon.cedar",
+      "repo": "Govcraft/talon",
+      "sha256": "f0afc968ad1f78d3738b8c6b218f2f97a2d693bcfebd2b69a35417df4aede959"
+    },
+    {
+      "blob_sha1": "28987da36f2d467f8c24e0b2aa9b0421c63a0a36",
+      "commit": "88737683652749ea1f2cfbadca758a1369af075d",
+      "path": "policies/permissions.cedar",
+      "repo": "Govcraft/talon-hub",
+      "sha256": "5e3853d8a4bf86d6d3b486de57eef87fb4348168af764faca9166de070b3820d"
+    },
+    {
+      "blob_sha1": "5207bf272c15ebd42f83e9e71046a4d89f0816fb",
+      "commit": "324dc4386c68d7c1f1b7d85c98ee20b91e6f3ada",
+      "path": "memgate/src/memgate/policies/memgate.cedar",
+      "repo": "GusEllerm/memgate",
+      "sha256": "5681ba46a0c746fc364d7a4a178a5bc8ff16a69c0307002d92b9de17f0b0ce1d"
+    },
+    {
+      "blob_sha1": "35af725fd15b77a68bb2fc30b70a398b7232ecd9",
+      "commit": "c060179fc4cc0ee256150d33855cf6770daf9d49",
+      "path": "agent/policies/findings/03-auth.cedar",
+      "repo": "Harish-0412/AWS---Foundations",
+      "sha256": "457bd9608db921745894d22a896034abedcc55a2a12ffb3e4a2e513233bbed36"
+    },
+    {
+      "blob_sha1": "304e69206e2e2cc24ea55d1a42caa0ac23520f30",
+      "commit": "c060179fc4cc0ee256150d33855cf6770daf9d49",
+      "path": "agent/policies/findings/06-compound.cedar",
+      "repo": "Harish-0412/AWS---Foundations",
+      "sha256": "a8b18bdcbc22144784ff784e0fbbd235c6820bb2e48cbd483485c58449741243"
+    },
+    {
+      "blob_sha1": "8cf31030c0d146515404d73a0c9cdaae871559a5",
+      "commit": "c060179fc4cc0ee256150d33855cf6770daf9d49",
+      "path": "agent/policies/remediation.cedar",
+      "repo": "Harish-0412/AWS---Foundations",
+      "sha256": "704a5500e57e8e749201dc30ee92f57d9eec099c38797ea52144ff467a4d3b20"
+    },
+    {
+      "blob_sha1": "9e929c9d83dc0cd6c499fb8f80dd0b2cd5ff854b",
+      "commit": "fa0ad130eb5fed61403922b08dbd66ab5510d6cd",
+      "path": "lexicons/cedar/src/import/testdata/simple.cedar",
+      "repo": "INTENTIUS/chant",
+      "sha256": "16fe43e8cc14c0a71998b34b5f5b7146110139aafd8670d2818d49a4dd82a219"
+    },
+    {
+      "blob_sha1": "516604e8f9de4a249feb824537cb91441e5888cf",
+      "commit": "b6be6f3d9707242dd8bea9dd2e984f7ca1c7e80e",
+      "path": "policies/execute.cedar",
+      "repo": "Iamritupatil/AgentGate",
+      "sha256": "4ed552e2d32b3535ed8e0610f7fd361d89754054c715232b9ea1e2949f05943e"
+    },
+    {
+      "blob_sha1": "5516f4526ebfa00c693b43927627c58cf9a6aaca",
+      "commit": "b6be6f3d9707242dd8bea9dd2e984f7ca1c7e80e",
+      "path": "policies/request_approval.cedar",
+      "repo": "Iamritupatil/AgentGate",
+      "sha256": "c48aa8b99244e1df41413834189ad1e0fde899383c76f68054e39ec708b7b43c"
+    },
+    {
+      "blob_sha1": "8b3cbc91ab74cdeed3de561f243e58916f388339",
+      "commit": "e82f6c2b08c0b49c525197e4293232dbcebb505f",
+      "path": "test/conformance/vectors/bundles/unsupported-algorithm/policies/global/0192f1c2-7a3b-7c4d-8e5f-000000000101.cedar",
+      "repo": "J466Y/WhiteTower",
+      "sha256": "15ab5053f72b33b37a64fdf02a90829da2ccc4bac42accb7a6c6bad44b0017ce"
+    },
+    {
+      "blob_sha1": "eb6300ddd7eea04ab5544c4cb0aeb9d34345c2ff",
+      "commit": "91b37e4d5aa13a0c51b4762bd313bcb2944269b4",
+      "path": "common-sdk/src/authorization-service/authorization-tests/cedar/policies.cedar",
+      "repo": "JCDubs/serverless-cedar-authorisation",
+      "sha256": "92bdb4e0edb1144011e954d3aab43d28eb0dc6cbfe9b7a4b06e52f2691feba00"
+    },
+    {
+      "blob_sha1": "a95f32f28bc5acdaae8379858f5f65fe9440db56",
+      "commit": "1beeacdd623cc6e4904c2ea1d19d08409d88bba0",
+      "path": "governance/policy/cedar/deployment.cedar",
+      "repo": "JKSNS/claude_preflight",
+      "sha256": "b657bde93e8feed2d4cc5304af843b7816f051346a136ee32a4b5b14178a4e7f"
+    },
+    {
+      "blob_sha1": "c29e9f8e4a05a4364ec196b6f25ce006dc1e0d59",
+      "commit": "1beeacdd623cc6e4904c2ea1d19d08409d88bba0",
+      "path": "governance/policy/cedar/shell.cedar",
+      "repo": "JKSNS/claude_preflight",
+      "sha256": "f66d4ebbcafbbac45caea78a4e2e3c7bf1443f73b1c16d66d807bc7ff18e2b05"
+    },
+    {
+      "blob_sha1": "a6a15df4a898b9fde4225d409a34c4d83c169d24",
+      "commit": "1beeacdd623cc6e4904c2ea1d19d08409d88bba0",
+      "path": "governance/policy/cedar/upstream.cedar",
+      "repo": "JKSNS/claude_preflight",
+      "sha256": "dfd2ad8931d8ba3887dcf3b24851a8731335123341e2b9b42fd990234b66d184"
+    },
+    {
+      "blob_sha1": "60698b65b41f3ec01ce3d8fdef3f9886368391f5",
+      "commit": "08b1fdc62bbe49c7e2600b5af6ce592238262c3a",
+      "path": "tarpDemo/policies/cannot_write_if_not_admin.cedar",
+      "repo": "JanssenProject/CedarlingQuickstart",
+      "sha256": "33cf6723ded7a137961121ff27b44b85c50b3b2a9a921bcda52ec1308636a77a"
+    },
+    {
+      "blob_sha1": "0e1c3e9d9e1dbed518de022d8f39765bedc0d747",
+      "commit": "d6089c64257f335fdf9efef4b21a4061b00c845d",
+      "path": "jans-core/cedarling/src/test/resources/test-policy-store/policies/audit/log_bulk_write.cedar",
+      "repo": "JanssenProject/jans",
+      "sha256": "27ce8d0ed0183e4933b087efd0f2d401a2e3441e74285d54cac6e702753d3ab6"
+    },
+    {
+      "blob_sha1": "81788cc8895c2da9b0547f43a4cdabb1ddf0e753",
+      "commit": "d6089c64257f335fdf9efef4b21a4061b00c845d",
+      "path": "jans-lock/lock-server/service/src/main/policy_store/policies/audit/telemetry_bulk_write.cedar",
+      "repo": "JanssenProject/jans",
+      "sha256": "c8e00041cef04d75a4c546b0b66399b9e22b7a041db4be18daccc900d23eaca2"
+    },
+    {
+      "blob_sha1": "393ab56d43768b502d87dbf7fa4d1467c9d57337",
+      "commit": "d6089c64257f335fdf9efef4b21a4061b00c845d",
+      "path": "jans-lock/lock-server/service/src/main/policy_store/policies/policy/policy_get.cedar",
+      "repo": "JanssenProject/jans",
+      "sha256": "1efe3100054d668bac88c50f314f7d38de8427cdcd45ecbec826d09bd471dacd"
+    },
+    {
+      "blob_sha1": "e6057985395755266d9779337509e05db7c1460d",
+      "commit": "610f1f34ab829dbd5f4d6cba62caa030009eb53f",
+      "path": "shared/policies/guardrails/int_002_fk_integrity.cedar",
+      "repo": "JohnChe88/AgentAI-Data-Operation",
+      "sha256": "a96e09f23ea5c732315909a8f43187eda82528434dc4018fab46fe4e67e8d2c0"
+    },
+    {
+      "blob_sha1": "7592544ab123e0bddd5fc34091b81ac9f51086c4",
+      "commit": "610f1f34ab829dbd5f4d6cba62caa030009eb53f",
+      "path": "shared/policies/guardrails/ops_002_encryption_rekeyed.cedar",
+      "repo": "JohnChe88/AgentAI-Data-Operation",
+      "sha256": "f12348319ccc9e0801c769a5adee72b37fbe4cecf260b12d377b2a5e24536ea1"
+    },
+    {
+      "blob_sha1": "52b4c4ef44416e3029c6ef23d5dc14aa2da363cc",
+      "commit": "610f1f34ab829dbd5f4d6cba62caa030009eb53f",
+      "path": "shared/policies/guardrails/sec_003_pii_masking.cedar",
+      "repo": "JohnChe88/AgentAI-Data-Operation",
+      "sha256": "84c578a47d8ec23e01eff8ec84578762bba8150e3869ef9ec13e53d6ca521ba5"
+    },
+    {
+      "blob_sha1": "045a783c46eb5ecc227f96dffd61af7ab26497d4",
+      "commit": "5d10aac667fab7c01776f9383e8e34328f0047e7",
+      "path": "demos/04-hyok-full-stack/config/cedar-policy.cedar",
+      "repo": "KeyRack-io/keyrack",
+      "sha256": "f8b65e5b193a76af37a067c0b07bb29bb9d4507d3faa7af1d9fd2f4d90d46c20"
+    },
+    {
+      "blob_sha1": "ab05ec6e1a236daaf1133b008295ccaac5a4c25f",
+      "commit": "27f3c32ac6fb824cb61f1bd5643d9883ad57f28c",
+      "path": "policies/01-agent-approval-threshold.cedar",
+      "repo": "Lakshmi786/Verisettle",
+      "sha256": "c51ce5758219b9b5da69d22a44a7003ce838534783bed3793bb3103f2f2431a0"
+    },
+    {
+      "blob_sha1": "cd8e2f4bbb774881d0f9600fe883908398c19e08",
+      "commit": "27f3c32ac6fb824cb61f1bd5643d9883ad57f28c",
+      "path": "policies/02-first-seen-vendor-dual-approval.cedar",
+      "repo": "Lakshmi786/Verisettle",
+      "sha256": "beca0e537847bbdfb5d9ec2f57c4a81e250d6fff548eeed5a958c2177dec5987"
+    },
+    {
+      "blob_sha1": "c8b606d6054ef3abed19cbbc40f0d1e452be4ceb",
+      "commit": "27f3c32ac6fb824cb61f1bd5643d9883ad57f28c",
+      "path": "policies/04-tool-allowlist.cedar",
+      "repo": "Lakshmi786/Verisettle",
+      "sha256": "4fe448eaddd9ddaf947bf740e7b231c4a09a6e532e4fbffd2b6862a3d520feea"
+    },
+    {
+      "blob_sha1": "7436102b47fd4a118a6ee13bfd902215a62486d8",
+      "commit": "2bd2c960c6a3370414ee44c92bedf0e8ffaccebc",
+      "path": "public/modules/ace-builds/demo/kitchen-sink/docs/cedar.cedar",
+      "repo": "Letanyan/Genshin_Team_Calc",
+      "sha256": "9f3e180e380df3cd88213b028014041545d95c050096c44744600cbac2924801"
+    },
+    {
+      "blob_sha1": "33b848cd934269d2285b0f2debb26394c5940069",
+      "commit": "a08d0e24d8e1c0929c83bdb87952988309a00040",
+      "path": "governance-commons/policies/agent-trust-decay.cedar",
+      "repo": "MRob87/ai-grounded-you-news",
+      "sha256": "0a1c4059a4074a7b342d74a774e08a58199670fb0e660be00c5698174ce07760"
+    },
+    {
+      "blob_sha1": "e16d7cf87340e6bcd3ea8733002b9366f925f20f",
+      "commit": "a08d0e24d8e1c0929c83bdb87952988309a00040",
+      "path": "governance-commons/policies/no-credential-paths.cedar",
+      "repo": "MRob87/ai-grounded-you-news",
+      "sha256": "83be3c1cd6ba71c49fff6b2c8cb389417100d3ea5685e617fdc5428f7f122557"
+    },
+    {
+      "blob_sha1": "579d27b59427b5e9def69cbb73f017dad295bda9",
+      "commit": "b83ece03c310cc3111b40c496b20047ecd75fea3",
+      "path": "code/policies/ceiling.cedar",
+      "repo": "Marioiubas/sandbox",
+      "sha256": "040cef3afc163029286bdbc1dd378dd43aa7fa3d175ec3518bd52f645d007b64"
+    },
+    {
+      "blob_sha1": "0976962c2bb14fc442aacb31a356b33b749332d2",
+      "commit": "c638026cc48d24e3543699b4d38b2aa887cfbd68",
+      "path": "cedar/policies/canvas_approval_examples.cedar",
+      "repo": "Marty-Protocol/Marty-Protocol",
+      "sha256": "baa93283dc7f9dac556eb19b34072789572de73aab5eda4b29d5a5f327f98934"
+    },
+    {
+      "blob_sha1": "6d459be66f947eb7cd986bd97d5eed2fa8621f09",
+      "commit": "c638026cc48d24e3543699b4d38b2aa887cfbd68",
+      "path": "cedar/policies/credential_verification.cedar",
+      "repo": "Marty-Protocol/Marty-Protocol",
+      "sha256": "15ee9ccf6dfb8d114669c92af2c6b46cecf0a69c9fac8161fb34274e1c74a2f8"
+    },
+    {
+      "blob_sha1": "cb08643d2812c7b93cd715fd8ced8a0e3003d920",
+      "commit": "c638026cc48d24e3543699b4d38b2aa887cfbd68",
+      "path": "cedar/policies/machine_authorization.cedar",
+      "repo": "Marty-Protocol/Marty-Protocol",
+      "sha256": "5c75ad73c398d7e777ee0605684f81b6feaeda874253e7c7a894da4777839c95"
+    },
+    {
+      "blob_sha1": "b4d6cb6c8f6bb255e156bf5aa9598a633c292414",
+      "commit": "7625f2d16b8aff0790b3b2daff12555c075d501a",
+      "path": "policies/agent.cedar",
+      "repo": "MeloveGupta/agent-jail",
+      "sha256": "3ac569049ff50be6f05c94461b16794c9853deec332ec868e70a1915a4844c8c"
+    },
+    {
+      "blob_sha1": "490827b68cdfc8632a5b20261228108455b0691d",
+      "commit": "d248ddcd8e25fda3993aa92d2a739b28e7ba895f",
+      "path": "cedar/policies/certificates.cedar",
+      "repo": "Mohammed-AjmalRais/AWS-Hackthon",
+      "sha256": "bbce2190164152fd50523d59990731b93196a3566dabf557dfb93fff2c58093d"
+    },
+    {
+      "blob_sha1": "d5fdf66a48a1a03f15c91c9443f1ca7939618a85",
+      "commit": "25babc0e31fb7ad0b64d5690b3740d3bc9322d28",
+      "path": "qor/policies/owasp_enforcement.cedar",
+      "repo": "MythologIQ-Labs-LLC/Qor-logic",
+      "sha256": "d423efd81a9fcd44860a6cd2aea3c6d36f3619cf2b3afceae2f849639cb6eeb9"
+    },
+    {
+      "blob_sha1": "d38bd026cf5e0a8868747b76412f4a87c71f4a45",
+      "commit": "2be2d091f0c9319857949bece28695e7a799b761",
+      "path": "policies/policy.cedar",
+      "repo": "Neosofia/authentication",
+      "sha256": "60a67df048a380fbae7e4ed469c21f24e3054ccf5c1da7380f9f827206106f7d"
+    },
+    {
+      "blob_sha1": "9e415f85bbd04fdb3ef5d5a2de5d5936de2843db",
+      "commit": "db095f961bc24f9a40e950a5edccda46f452da8a",
+      "path": "aether-ref/deploy/authz-policy.cedar",
+      "repo": "Obelus-Labs-LLC/Aether",
+      "sha256": "5510adbb0fad11c2cb8b80dc3a27bf855aa506799f58a06ac93b601ea7d4a0be"
+    },
+    {
+      "blob_sha1": "c0b8ecdc9d75074113a3235fa5c2b411b854eec7",
+      "commit": "95c7a923f54d545518774931fba46231a50505dc",
+      "path": "authority/policy.cedar",
+      "repo": "Obrazcoff/quorum-wip",
+      "sha256": "62e2f41803e98a3395c8e76f8efde16271140aa362d1d66b47a7bfde8d6cda5c"
+    },
+    {
+      "blob_sha1": "7dbb7d2bceeef3bb656f089fc349fccce958d309",
+      "commit": "03039c964329dcdf3394fafce8f57a23490d1360",
+      "path": "cedar/policies/owners-manage-members.cedar",
+      "repo": "ParvGoyal08/DoseCircle",
+      "sha256": "01474c7dd4bd4e7f26967759570e422dec1358270d8cbe81f5fb208b4ed5c544"
+    },
+    {
+      "blob_sha1": "063dc75b107b2d6b6688341723b1ebc9db26231d",
+      "commit": "980fc0c561651ba3959144023306532e85e6b9cf",
+      "path": "examples/policy-generation/iam_permissions.cedar",
+      "repo": "PaulDuvall/ai-development-patterns",
+      "sha256": "5a3eaf1635418e4e3df16d11e8abf9fa94213406f083bd9e19182418e56b8533"
+    },
+    {
+      "blob_sha1": "b497930068f150998e5eea40d2c27224e0981a26",
+      "commit": "7dd556f5ae5ecc772ab42d23b7db283d4c107d03",
+      "path": "scenarios/documentsScenario/deny_policy.cedar",
+      "repo": "Pigius/avp-cli",
+      "sha256": "fbeb8de0721f25a982b42b3df116a3f0fc07a5422d9d9646e5003c0d9eadb734"
+    },
+    {
+      "blob_sha1": "f189b738d198133685baf9ec597707e8cd4ff628",
+      "commit": "7dd556f5ae5ecc772ab42d23b7db283d4c107d03",
+      "path": "scenarios/ecommerceCognitoGroupsScenario/allow_policy_1.cedar",
+      "repo": "Pigius/avp-cli",
+      "sha256": "4e6624d0efda43c773bd8b64d13235144704afe53bff242ea2ced930c4c3e60f"
+    },
+    {
+      "blob_sha1": "06368ca14fcf2d9d830eea421353bcc9ad493378",
+      "commit": "eeab1fb0add9bdb55c42cb659deeacdaba4ce416",
+      "path": "terraform/scenarios/documentsScenario/deny_policy.cedar",
+      "repo": "Pigius/awesome-amazon-verified-permissions-and-cedar",
+      "sha256": "358e878f61189aca71d293e16a2b65de2fd39b8792c8c3c1151bac6c02efee5e"
+    },
+    {
+      "blob_sha1": "7e2edff4b80ec73782988c19a180a471145b7e62",
+      "commit": "0a1e1c1063345f3c95b9c24630c6c0033cc487a0",
+      "path": "examples/rbac-document-management/policies/top-secret-forbid.cedar",
+      "repo": "Pigius/cedar-mcp-server",
+      "sha256": "46882610c45709b424f58d99e629c8a9541ff83a44f88f32a8c21b95357b0de6"
+    },
+    {
+      "blob_sha1": "0e3293fd9c1e781fa225f4fc0f7a6cec54231da4",
+      "commit": "31b5259f29ee823ac23f8d7571b818bf5f609c71",
+      "path": "docs/examples/policies/disk-forensics/skill-disk-forensics.cedar",
+      "repo": "QuentinCody/interlinked-cli",
+      "sha256": "09457a4da128fbfacfa2d27d2c8c56443e4846b6e9b71e38b1558a30815c890e"
+    },
+    {
+      "blob_sha1": "d97aa0d386462ba5e9e199c977ba5d99d47f27cb",
+      "commit": "3f483fffd930e675bb4e0d1537e741c592ba76c6",
+      "path": "cedar/policies/airline/permit.cedar",
+      "repo": "Rartemos/tau2-cedar",
+      "sha256": "ebf623efa9f493d9eda20e8afe4fd6b6b0e15cde13eb0344bc11260f7d4cd043"
+    },
+    {
+      "blob_sha1": "8f5061aa6b0cc5da86100d5d49719f0deb43f2c5",
+      "commit": "82b49ee7acdc0aaba4144666e287178a5e0fe5d7",
+      "path": "policies-templates.cedar",
+      "repo": "ReubenKabiti/tinytodo",
+      "sha256": "7457d338af419293f3be3b8c2dc46d3fbf9eb492d465463538fc53af284ff1ab"
+    },
+    {
+      "blob_sha1": "6559df04105e9b2df82faaaca7e79de88f3facdf",
+      "commit": "dbd5fff7fb5686ef39790e3c85152f39cc7cd68b",
+      "path": "examples/app/config/policies/admin.cedar",
+      "repo": "Rubentxu/hodei-verified-permissions",
+      "sha256": "7c0cddd79cf7659ef2045687ba3d8cd843a15c888bed87365b4a0028f8d56efe"
+    },
+    {
+      "blob_sha1": "30778fad3aff7d47bd3ffa754f927c0e59e3c5a7",
+      "commit": "dbd5fff7fb5686ef39790e3c85152f39cc7cd68b",
+      "path": "examples/app/config/policies/vet.cedar",
+      "repo": "Rubentxu/hodei-verified-permissions",
+      "sha256": "2abbee44b5872e79130a55b7cbdf3ff479a3c9d648d66969bc7508ceaf61aebe"
+    },
+    {
+      "blob_sha1": "944317d426149a134f46f19527fd650097f9be4e",
+      "commit": "dbd5fff7fb5686ef39790e3c85152f39cc7cd68b",
+      "path": "examples/policies/allow_admin_full_access.cedar",
+      "repo": "Rubentxu/hodei-verified-permissions",
+      "sha256": "6446d5a6ccca1fb53839cf510dd1575eed646f63c2e28a8be5931414b56e6b8b"
+    },
+    {
+      "blob_sha1": "b598ccf5459490b443c5e412a9fcfeadf7f180ff",
+      "commit": "35aabb37ebdc3f0214c9789e63a6102b46b13051",
+      "path": "policies/v1/authz.cedar",
+      "repo": "Ryanrezzz/Iteration0Sentinel",
+      "sha256": "6bb9c17cbf4556b6671ed5833cb83b9b65cf54bcaeb35bcc82071ea86e1dd05a"
+    },
+    {
+      "blob_sha1": "def6882621092237cc0680257eaaf8553e561b51",
+      "commit": "35aabb37ebdc3f0214c9789e63a6102b46b13051",
+      "path": "policies/v1/decisions.cedar",
+      "repo": "Ryanrezzz/Iteration0Sentinel",
+      "sha256": "a4744debffb4fa697052b623cedda5ada143b6fd6da1b444688e20133ce4ecd8"
+    },
+    {
+      "blob_sha1": "f6380b16eca3247bcc78a33929916108f8dc2696",
+      "commit": "e930122d5bdd0b26ff1f5f171fcdbd2c9ba603f8",
+      "path": "policy.cedar",
+      "repo": "SafetyMP/FidusGate",
+      "sha256": "08123e6492de93d7c9fdafa406aa6c7ef869d669704d87b48ae0d29572c4082a"
+    },
+    {
+      "blob_sha1": "4d62e130d394772830de0fc7fa6c6352de9b2c62",
+      "commit": "10681368e7d7da7d0b51570b7bb8e3555d55e33f",
+      "path": "aws/cedar/policies.cedar",
+      "repo": "Samrudh2006/-OmniRevive-OS",
+      "sha256": "a207d935b0a947f1dd5c20f7c837cca85cd1131074d75a2291e962042d624de3"
+    },
+    {
+      "blob_sha1": "c1405353bc0934539734191ab8aefd70efd72ea7",
+      "commit": "f4d22e59b50f0c48e0cd480fcb4c5fb76894d009",
+      "path": "claude-code-hooks/policies/default.cedar",
+      "repo": "ScopeBlind/examples",
+      "sha256": "7da623d435bc7589276e6a6d2f7fda85e402ffa3313439018abecefb2018e75c"
+    },
+    {
+      "blob_sha1": "57db5af4c225e8454f2ed569170d415f2390604b",
+      "commit": "d7b20db04c97058960c8f03b8f498e0419a77cd7",
+      "path": "backend/layers/common/python/patasetu/policies/contact.cedar",
+      "repo": "ShashankVaish/address-simplfy",
+      "sha256": "5d7a36a61f9ef461e82c66cdbb45a0ee8eb02ce1f88640506acc59eb3e4b5d74"
+    },
+    {
+      "blob_sha1": "7819a0cd264b1108a072e501c350abd6b0b13eaf",
+      "commit": "e9cc7cca4fb038fe96613f9f1926e605b4a03f0e",
+      "path": "policies/r1_s3_public.cedar",
+      "repo": "Shashidhar-Pawadashetti/cedarguard",
+      "sha256": "78e14b9669cb4f3c4f55a1f9a15457345c5d4924b49df0fc27bd0cf7008a48df"
+    },
+    {
+      "blob_sha1": "f30fad78357efddca6cb08b7fac862d497ebe585",
+      "commit": "e9cc7cca4fb038fe96613f9f1926e605b4a03f0e",
+      "path": "policies/r5_no_mfa_condition.cedar",
+      "repo": "Shashidhar-Pawadashetti/cedarguard",
+      "sha256": "6c705fccd92aed9a80be5a52b797b6febb8f5de722e347d7d3388c55ba59f82d"
+    },
+    {
+      "blob_sha1": "60d7915d6c1d98b2af942d727b9db3df1c46808e",
+      "commit": "373a0dfa0886c229e62d1a1424d95b95d21a71db",
+      "path": "policies/case-actions.cedar",
+      "repo": "SiddhanthKapoor/civicproof",
+      "sha256": "7329071a7806839a9ac201df18ba58a6b5f69303b2a0f836727c2677cb08cb6e"
+    },
+    {
+      "blob_sha1": "97100253523a0a1a3ba681fcca64b7eb2a1b8b9e",
+      "commit": "0536d4ad704f1d644b5e0604a2901b752cb0e4e3",
+      "path": "cedar-policies/shiftfair.cedar",
+      "repo": "TSaiPradyumna/ShiftFair-V2",
+      "sha256": "af4d2de20b075fee358ad8f5af1f84bbf98157d74729169c70e4792298731f7a"
+    },
+    {
+      "blob_sha1": "8d6bd57174400575ba15a81baa59cd10a8f90c20",
+      "commit": "f00d9ae729f44eb0f78c013ad6283db6208c2fb7",
+      "path": "app/domains/ingredients/authz/policies.cedar",
+      "repo": "TheFellow/go-modular-monolith",
+      "sha256": "c50ffadfccbcf4978c56049c0b8dd5f23a23922e2e6e28c7716096d731e3122b"
+    },
+    {
+      "blob_sha1": "93d0df3f7cfdfe187cf57c4a0640bc2e5210f2f7",
+      "commit": "f00d9ae729f44eb0f78c013ad6283db6208c2fb7",
+      "path": "app/domains/menus/authz/policies.cedar",
+      "repo": "TheFellow/go-modular-monolith",
+      "sha256": "dc4bd8b57593a5fa318966a7ff44acc48dfdfd8357658eab744ed11204676df8"
+    },
+    {
+      "blob_sha1": "ebc240c988db039929d5a520692c191eaa2faadc",
+      "commit": "f00d9ae729f44eb0f78c013ad6283db6208c2fb7",
+      "path": "app/domains/orders/authz/policies.cedar",
+      "repo": "TheFellow/go-modular-monolith",
+      "sha256": "aa145c1a5fe5891bbec6bbff0b60acf5a313ad04082c1acbedc0e60ea762a46e"
+    },
+    {
+      "blob_sha1": "2ed781c4a01ca94f380050e48abd55db723bf3d4",
+      "commit": "89fec3e7d3ef6a24e3cdd02951cbbb34e031fbf7",
+      "path": "crates/gx-adapter-mcp/tests/fixtures/github-target-a2.cedar",
+      "repo": "TraceFold/tracefold",
+      "sha256": "94c2b16350f64881c1350164fba642b2630051d562d51fa4bb598db10339af1b"
+    },
+    {
+      "blob_sha1": "d30da284715c1663d86f557bb0ee80004d0c21ae",
+      "commit": "89fec3e7d3ef6a24e3cdd02951cbbb34e031fbf7",
+      "path": "crates/gx-adapter-mcp/tests/fixtures/notion-target-a2b.cedar",
+      "repo": "TraceFold/tracefold",
+      "sha256": "1e685dc010b55cfa7f75287e004c46e47f8320182b44a83c1c0ca17457e81bd7"
+    },
+    {
+      "blob_sha1": "a6f66fd8b7d5c300decefa755c644998d4caddf8",
+      "commit": "89fec3e7d3ef6a24e3cdd02951cbbb34e031fbf7",
+      "path": "crates/gx-cli/tests/fixtures/deny-mcp-note.cedar",
+      "repo": "TraceFold/tracefold",
+      "sha256": "999eb75de5143328edc3b20f58806286e07986a4626085670d12e7c19db180ab"
+    },
+    {
+      "blob_sha1": "9d432c06259770bdc00504bc32061a7fe05bae73",
+      "commit": "c20ce34572de732d599106d6f5fad94ac69b92b3",
+      "path": "rsvp/policy-dl/src/test/resources/translation/github/github.cedar",
+      "repo": "UQ-PAC/RSVP",
+      "sha256": "d2087f8c9ff3a6b18e7b115f2c3f442aab49f43b5e45ac7f82f526057602dbf5"
+    },
+    {
+      "blob_sha1": "e099134c431fa7115b4b27baf0cc55164cdaa704",
+      "commit": "c20ce34572de732d599106d6f5fad94ac69b92b3",
+      "path": "rsvp/policy-dl/src/test/resources/translation/petclinic/petclinic.cedar",
+      "repo": "UQ-PAC/RSVP",
+      "sha256": "6dcf7c7789ec6657c2a66a01dc79bcc2eef649184b92e8433a1ea835b640be76"
+    },
+    {
+      "blob_sha1": "adf726b6a79eb4b2e692041b04b137a801aefc6d",
+      "commit": "c20ce34572de732d599106d6f5fad94ac69b92b3",
+      "path": "rsvp/policy-dl/src/test/resources/translation/primitive-types/long-3.cedar",
+      "repo": "UQ-PAC/RSVP",
+      "sha256": "f5fabcf69c01b8b2354d928d62f6739be8e6c9b51ef8514a122ad7bf8710b30b"
+    },
+    {
+      "blob_sha1": "de3b00c7d464bc3ecc62a91896f6a76f2572905d",
+      "commit": "30339e1a392a411ba881e91d1eb12a47d78c1073",
+      "path": "infra/cedar/policies/forbid-raw-values.cedar",
+      "repo": "VineetKamath/trustline",
+      "sha256": "568361b8c8229c0a84bdd2dc36755d1481449037635c2b6c65cec33e6948e443"
+    },
+    {
+      "blob_sha1": "9d7ab9f2efc977a8fd3118ea6a12ee8f559f20c7",
+      "commit": "30339e1a392a411ba881e91d1eb12a47d78c1073",
+      "path": "infra/cedar/policies/forbid-unregistered-verifier.cedar",
+      "repo": "VineetKamath/trustline",
+      "sha256": "d72b2e8363bbd0706638908b5da6322e153d4793c96aee44be2787b04a19556b"
+    },
+    {
+      "blob_sha1": "e839d9c11a9e3a31a4dacf0f8bbff81a5d9929c9",
+      "commit": "1ad34c9b26f12927ea7234ef6c9f213bf7a943db",
+      "path": "cedar-demo-template/policies/03-inactive-deny.cedar",
+      "repo": "Vishallakshmikanthan/cedar-demo-template",
+      "sha256": "f64feee9eb0afa19788ecab31c59a14cfafb88849571fe06992e1b3369244cb9"
+    },
+    {
+      "blob_sha1": "adacd5ed1105273ccf2c14e48832f168ec787513",
+      "commit": "4d768bef4c8d91fcd8638affd5cd69b0ee53af28",
+      "path": "examples/migrations/from-passport-jwt/after/policies/orders.cedar",
+      "repo": "Ziack/s2s-m2m-identity-stack",
+      "sha256": "2e91056f11e7f39bf34d4312f5f774ef2bd3d0cfe02f0b86e0af8fdd4562fd5c"
+    },
+    {
+      "blob_sha1": "9a77884a797853b58e79b6c841b6008c9524add8",
+      "commit": "4d768bef4c8d91fcd8638affd5cd69b0ee53af28",
+      "path": "packages/cedar-policies/policies/accounts.cedar",
+      "repo": "Ziack/s2s-m2m-identity-stack",
+      "sha256": "2d7e29d0091547410017f5bb5a0604806e3a1ae02c2e3e9b4a07f73bc905c467"
+    },
+    {
+      "blob_sha1": "608ba6c984ab002827cd81d25fdac1c3df961fa6",
+      "commit": "4d768bef4c8d91fcd8638affd5cd69b0ee53af28",
+      "path": "packages/cedar-policies/policies/payments.cedar",
+      "repo": "Ziack/s2s-m2m-identity-stack",
+      "sha256": "017d63b6b5b46d2b8c5da2e074b77e6d6864bada65e823fe75b27530ecab5730"
+    },
+    {
+      "blob_sha1": "55fc32cec0e315b371974d75170a4e1d069b92fa",
+      "commit": "dfcafdfbbf2191ee48921207c5c8a8ca77da957b",
+      "path": "infrastructure/cedar/policies/base.cedar",
+      "repo": "Zynapses/Radiant",
+      "sha256": "8d959aab0d210d88e5e8c2d51a6b40deb1e622ed92a51aed1a6e6b49abe64fbb"
+    },
+    {
+      "blob_sha1": "88bc256f92cd1c7ebb085ccb3e077deffc0a3a4b",
+      "commit": "dfcafdfbbf2191ee48921207c5c8a8ca77da957b",
+      "path": "packages/infrastructure/config/cedar/interface-access-policies.cedar",
+      "repo": "Zynapses/Radiant",
+      "sha256": "4b89384e1153b035f0896a72de62b56d192e107dfd45798fba7252816dfd73df"
+    },
+    {
+      "blob_sha1": "85a6417bab6c794f6bad16cccc753e22037df309",
+      "commit": "3a3d19779f79040242ad7db7bd08fd30c0dbd84f",
+      "path": "remediation/reports/P05/cedar/policies/attendance.cedar",
+      "repo": "aadk979/SPOH_2027",
+      "sha256": "283f4897f49b2fea60391f14ca3d006a7706db4ef0f24eee119c77ca82686f15"
+    },
+    {
+      "blob_sha1": "6037f2f50cb7c6b1daf8da08d72ee2c7966132b3",
+      "commit": "3a3d19779f79040242ad7db7bd08fd30c0dbd84f",
+      "path": "remediation/reports/P05/cedar/policies/grants.generated.cedar",
+      "repo": "aadk979/SPOH_2027",
+      "sha256": "a5681ef8559372af9e7d8eb90d8133977abd241b8a28b6fc207b5112d0b5ca97"
+    },
+    {
+      "blob_sha1": "030aef27ed6a2434f2cc9c9ec04cbcd95ec734ab",
+      "commit": "4a8f146cb1ec6b9182da6a9b137974297e254d25",
+      "path": "backend/app/security/policies.cedar",
+      "repo": "aashutoshkumarbhardwaj/AgentGuard",
+      "sha256": "dfa26b99b88e65d44a6d2de245034e9f27a4d805df63c5fad353f400a420ecf7"
+    },
+    {
+      "blob_sha1": "96a5aaae4bfe5bd8ac6c18a93544bd02acd0dc75",
+      "commit": "d6172254bf8a219f34f195e7ffdeb4f7dfd769e6",
+      "path": "crates/yutha-diff/tests/fixtures/tightened.cedar",
+      "repo": "abhinavg6/yutha",
+      "sha256": "f226301ac2faa571cb7444ffe416a24012812f4462ce3157c425d6dec752cacb"
+    },
+    {
+      "blob_sha1": "10e3173cb8d703c1eacb9e218907d29ffa8df35f",
+      "commit": "e4ecaf56b31aeed2e93c91ab0ce26424ae197e54",
+      "path": "cedar/policies/rbac.cedar",
+      "repo": "acgs-ai/enhanced-agent-bus",
+      "sha256": "5e5ebde8918c311a085cbedbf658565e53984af51bdba226fea047e1d940b6ad"
+    },
+    {
+      "blob_sha1": "1a37d2780c1bec907d707b50e454c016b3d97871",
+      "commit": "d822e805b20501a3c2bff89dc1db3e305da546bf",
+      "path": "socratic_dsa/policies/policy.cedar",
+      "repo": "adityagupta708481-cell/SocraticDSA",
+      "sha256": "f03424d11b20364998ceaa3d47a02b2277aa357303db76b0ec45dac3a9e7516c"
+    },
+    {
+      "blob_sha1": "c9d70e2579a7cb5c2d6e261efdb45599a623c5cc",
+      "commit": "34c1df64c9c7bc124a306c7afabfb67ee2d9c781",
+      "path": "policies/cedar/forbid.cedar",
+      "repo": "aeterna-universe/aeterna",
+      "sha256": "142464add784cfc9105a6fd6db46f11752c04ee8154541a6cf4261991800ebc8"
+    },
+    {
+      "blob_sha1": "298f26a79796fc661f454cb3183ecc0b34255cb7",
+      "commit": "0801cd6f48970e1f2c6c5a9fb7b594c990a90577",
+      "path": "examples/financial-services/policy/allow.cedar",
+      "repo": "agentrust-io/integrations",
+      "sha256": "f74cec388dfce4845bb6f3fe7c2cdf1de34419ff443c226761b3cbc6cfd1dd9f"
+    },
+    {
+      "blob_sha1": "160e3c8edf536a6164ced3e814f9befb018015ef",
+      "commit": "0801cd6f48970e1f2c6c5a9fb7b594c990a90577",
+      "path": "examples/healthcare/sg-moh/policy/radiology-sg.cedar",
+      "repo": "agentrust-io/integrations",
+      "sha256": "ddd8a2c2ff4341fb79546ca3ade27978969b0f6d6bdb6b817970ca675ec006c5"
+    },
+    {
+      "blob_sha1": "c6b72c9e2c3fdecbeba3510951065e1c0edebb0d",
+      "commit": "0801cd6f48970e1f2c6c5a9fb7b594c990a90577",
+      "path": "examples/multi-tenant-saas/tenants/metzler-eu/policy/allow.cedar",
+      "repo": "agentrust-io/integrations",
+      "sha256": "065ed3c9260ddf05a992669e91bc624e831b5d1f48c42c26e3da86acf123bdaf"
+    },
+    {
+      "blob_sha1": "2cbe6789bbbfd5aa77f4d0ef85b8b4086141b495",
+      "commit": "f43d1a7b4141783d522eb24ded153ca13bcf76b6",
+      "path": "infra/agentcore/policy/forbid_unknown_elevator.cedar",
+      "repo": "alejandro-publius/agents-for-humans",
+      "sha256": "5acefb31ba4eb3571b6557d1a9a7f33aa1fde4853763a99a364382938cc88d23"
+    },
+    {
+      "blob_sha1": "26f270369ad9e45a14fa865432b5c0dbc071eca1",
+      "commit": "f43d1a7b4141783d522eb24ded153ca13bcf76b6",
+      "path": "infra/agentcore/policy/forbid_unknown_option.cedar",
+      "repo": "alejandro-publius/agents-for-humans",
+      "sha256": "6a816102a682a9f863e448b49af504839f2097bc9f586888c8ad4ce585ebeb4f"
+    },
+    {
+      "blob_sha1": "f4d2a9fee48cbd16932fc784a19f1b64406df614",
+      "commit": "f43d1a7b4141783d522eb24ded153ca13bcf76b6",
+      "path": "infra/agentcore/policy/forbid_unknown_station.cedar",
+      "repo": "alejandro-publius/agents-for-humans",
+      "sha256": "b777da9458b55cf820ede4aa3199037644f1341ad87eeda213f6eb68819d72e4"
+    },
+    {
+      "blob_sha1": "ea05cd55f567c752cb81227f1a73dfe607cd412f",
+      "commit": "ee3cb3a20790dd64458d9039e3325b1986a774f0",
+      "path": "cedar-lean-cli/examples/analyze/sets/tgt2.cedar",
+      "repo": "alpaylan/cedar-etna",
+      "sha256": "3b574b896570e56ae73e68efe62757c86a79d804be92a44e92b25d18a96f6547"
+    },
+    {
+      "blob_sha1": "0f5d65eed6bd6db7d4a62b6875eb8ef22fe5143c",
+      "commit": "ee3cb3a20790dd64458d9039e3325b1986a774f0",
+      "path": "cedar-lean-cli/examples/analyze/view_box/policies6.cedar",
+      "repo": "alpaylan/cedar-etna",
+      "sha256": "20c5314ea95da7772ffc63f9a18e8c7085fa2f96245d0dfe611e88d764d150d0"
+    },
+    {
+      "blob_sha1": "82e511894b14da000b849d1dd946deab8b330719",
+      "commit": "ee3cb3a20790dd64458d9039e3325b1986a774f0",
+      "path": "cedar-lean-cli/examples/analyze/view_box/policies9.cedar",
+      "repo": "alpaylan/cedar-etna",
+      "sha256": "805e55fa7dd9e8004104f7993cbc43f94051b531f4f1f56d6d1c00564baf913b"
+    },
+    {
+      "blob_sha1": "dbf4fc7259003b4f6ea2d1c06c59eb700fd00fc0",
+      "commit": "e6c13bdc88979f2c1577a966ae524e05142ef93a",
+      "path": "backend/infrastructure/cedar/policies.cedar",
+      "repo": "ankan288/SentinalFlow",
+      "sha256": "5a02b41e569718710163f24e6895558bb0729ee348a12528839f16d245e9344f"
+    },
+    {
+      "blob_sha1": "63ee1d4ac0a0d59b3f388122aa0cc752ec6462a3",
+      "commit": "00ffd5ead9a3c4977a3917b004821df34c12bb3a",
+      "path": "cedar/policies/admin-user-management.cedar",
+      "repo": "anthemist/cautious-invention",
+      "sha256": "a97b9529a7d9d403c0530986fbee9feb60ce554d25201adfdf1e7acd37183581"
+    },
+    {
+      "blob_sha1": "5fab54dd37ec0d9e4853d00d45e335e276c16f52",
+      "commit": "52088c179d78e414db1a49e98e4853eaec9a7648",
+      "path": "laws.cedar",
+      "repo": "arcadeai-labs/safe-hands",
+      "sha256": "8b8a3c3b079ab635c80fbb6a221061221214502807ee8168dc1d8c6403df0cd2"
+    },
+    {
+      "blob_sha1": "9a9af71bd713dfa17cbb085c2baaa7e46d2db91f",
+      "commit": "fd0437ec6728eb12d711ceac7ff889446715364f",
+      "path": "policies/procurement-approval-limit.cedar",
+      "repo": "arj-co/secval",
+      "sha256": "5bc3255f171407c57c882d3124b5794e555d6528c9fd1e8e187722e3c4f31157"
+    },
+    {
+      "blob_sha1": "75898ea9fc85571a2f209347a20f90e70f84fa7d",
+      "commit": "b9279fc489c46106f79ca8f6b6c5932e0ce56f23",
+      "path": "backend/guardrail.cedar",
+      "repo": "arushshinde2712-del/AWSrengers-Infinity-Toolbox",
+      "sha256": "822c34a7648c66d7022693719aeaa8a0460f3daa1039daf6075ba21c6f426eb7"
+    },
+    {
+      "blob_sha1": "a85a4bdcbe3463031e84f836515d08fd18c253f8",
+      "commit": "e4044780ed724f5207e297b21a29c628161230a2",
+      "path": "policies/base.cedar",
+      "repo": "aslitaser/infra-sentinel",
+      "sha256": "b703f7be2724952934b247a07aa69778db12017308a3a119b87550d379227a28"
+    },
+    {
+      "blob_sha1": "0a31d23f9cb8f167c1714d1f0c66ff7df11c76c6",
+      "commit": "e4044780ed724f5207e297b21a29c628161230a2",
+      "path": "policies/infra.cedar",
+      "repo": "aslitaser/infra-sentinel",
+      "sha256": "6bf2402c070460d1804e1c4ad6f3b6d2e1c89f8245421fe65e988259ed6384d1"
+    },
+    {
+      "blob_sha1": "b393167af41660f499f4b7d9a629a34f7964cc01",
+      "commit": "ecfcfb097e0d0fd193638652c45913126b552422",
+      "path": "terraform/postern-broker/cedar/starter.cedar",
+      "repo": "atomicgravity/postern",
+      "sha256": "2e0e235a3d93ab82a9bc6ad90a9b3d8ac387a7497d0b6650aab9238f2e0240df"
+    },
+    {
+      "blob_sha1": "95d574e5a6bce24015630c5ee0c1858c8fa8844b",
+      "commit": "9703f549830b5424ec71c770e1b10e01432bfa26",
+      "path": "reva-agentic-sample-policies.cedar",
+      "repo": "babasyed07/docs",
+      "sha256": "4976e379203469c0850bcadaba71735f2f3aa7f333db00bd2612219d89be42eb"
+    },
+    {
+      "blob_sha1": "b28abcc690d794dae44a22ae957105b9d18a8947",
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "path": "examples/cedarling-governed/policy-stores/unsigned/policies/forbid-write.cedar",
+      "repo": "baoqger/agt-fork",
+      "sha256": "6e131dcc2b56880293cd53d06077f2054e41e1b1bfc209e21fc10e28c23dbca5"
+    },
+    {
+      "blob_sha1": "c0a08f10bc8c7e9ba7ed6426663f3e256bb3d458",
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "path": "policy-engine/policy/cedar-lib/content_hash.cedar",
+      "repo": "baoqger/agt-fork",
+      "sha256": "878d8e7827aab87958e336b0fb8bc7d63faf287a46690d1d165681a0ea852e90"
+    },
+    {
+      "blob_sha1": "9fff2847e3e3fad1d93b20d3f6dbdfff34a77d1a",
+      "commit": "aeeb2a4bea22913cefb7111371478dff117d21ff",
+      "path": "policy-engine/policy/cedar-lib/patterns.cedar",
+      "repo": "baoqger/agt-fork",
+      "sha256": "0f652ce764be714b41f971ddaeec95564844f91c971a3f0f244ebe17a6327028"
+    },
+    {
+      "blob_sha1": "d8f965b0ebc23d14206d69afb43e9c0a996a5103",
+      "commit": "67bfa513a38ab583aa15af9a92e21f0f939107a9",
+      "path": "cedar/tenant_isolation.cedar",
+      "repo": "bernard-kavanagh/tidb_agentcore_gateway_mcp_tools",
+      "sha256": "77f997ae179f882511d0f25c2ef9b4bd382a0c9cbc4dcaccde9bf085c89c98e7"
+    },
+    {
+      "blob_sha1": "3ddfb95ae1ed16a32f3932c145e7aaddf98b7489",
+      "commit": "46bbb0bbdf24193a49b7e9c3b488976d09746a62",
+      "path": "policies/group-policy.cedar",
+      "repo": "blaxmankumar/cloud-notes",
+      "sha256": "35fe4a4b9488f8be60d263eac599ec7c68d1e5aec21f184781825fef40011d31"
+    },
+    {
+      "blob_sha1": "b896f993c1fbc13418d906f941ce44fa1336f88f",
+      "commit": "b348bb216b52184f07d1decd2126f51c5901e03c",
+      "path": "src/blind_policy/bundled/policies/us-health.cedar",
+      "repo": "blind-insight/blind-policy",
+      "sha256": "9b0183335cdad5161180729d4efc95a3cae45d38fcbddd0aecc36de950e3f521"
+    },
+    {
+      "blob_sha1": "df0954cd2065301d67c3b9697c4034bfd696079b",
+      "commit": "f4b612d627a0b985d0af6b970dd094ade8ce2316",
+      "path": "examples/cli_example.cedar",
+      "repo": "burdettadam/cedar_py",
+      "sha256": "dc313e48eec65fbeca1842ec4a58b124cf9fafe6c93c181cef8a128a7b338cc3"
+    },
+    {
+      "blob_sha1": "5ebdab6c965a10ba9921cffed6652833f5b17d42",
+      "commit": "f4b612d627a0b985d0af6b970dd094ade8ce2316",
+      "path": "examples/example_policy.cedar",
+      "repo": "burdettadam/cedar_py",
+      "sha256": "91dcd2f617ce87a0b28d5d244934774b62156ad708f09beee0f4ae0a58199c3c"
+    },
+    {
+      "blob_sha1": "6c1c293aeaae729457f91ad4604a3fadf9f25de3",
+      "commit": "5a5b3925e68a34a1e00170d8f606330ff6e612c0",
+      "path": "permissions_tests/admin/admin-role.cedar",
+      "repo": "busyfit-admin/gmv-back-end-v2",
+      "sha256": "647caa3aa9e9acaa209691d121043b51008cd1755b46cb43e3a0d9c58df4e6a4"
+    },
+    {
+      "blob_sha1": "57076afce1f6c5d4b61add3bc44bb5c9b6ed29ba",
+      "commit": "52810c876d5e8f663291242883bbf6c31c0fd011",
+      "path": "packages/policy-engine/policy_packs/confidential-marker-block.cedar",
+      "repo": "cameronwc/sluice-ai",
+      "sha256": "87992a506172d1421d6f52c1dfd79a4193bc2ff11da09873c84884f9aaec8291"
+    },
+    {
+      "blob_sha1": "c5cdc3b9faba14856d5e1bee9e919a07ac34c9e1",
+      "commit": "52810c876d5e8f663291242883bbf6c31c0fd011",
+      "path": "packages/policy-engine/policy_packs/enterprise-account-enforcement.cedar",
+      "repo": "cameronwc/sluice-ai",
+      "sha256": "35eb6e18748002545f607b1b7c9dd9d2b1ce86ed8570030f2c9429def142b678"
+    },
+    {
+      "blob_sha1": "4730fb37ebbbe1dc997699c110a8ec901464f260",
+      "commit": "ca7ae8a6250f2af3623d0c0cad26c9710a6bbc4d",
+      "path": "otel-chdb/grants/examples/policies.cedar",
+      "repo": "casselc/observability",
+      "sha256": "e5b6e14212934746bae09f89a4a1250718c65eb34e1d01efaae14a51a64dc73d"
+    },
+    {
+      "blob_sha1": "a74ec46059041a29d598410ce44fab9b3ae45912",
+      "commit": "ca7ae8a6250f2af3623d0c0cad26c9710a6bbc4d",
+      "path": "otel-chdb/grants/examples/rejected.cedar",
+      "repo": "casselc/observability",
+      "sha256": "a98469374649b1ee1b14d3054bcf718c7674ea5bb9c51de1c95350f18f0be4c3"
+    },
+    {
+      "blob_sha1": "fc947969ca8edc85102363c70b4a3f04382cb03a",
+      "commit": "d92782a7ef1c5b77fa7f5a27db3c5d9eb5f10e08",
+      "path": "policies/readonly.cedar",
+      "repo": "cdupuis/sbx-warden",
+      "sha256": "fc91a8ebb415e9715cbcf8f8015114ae8224639da012bb97e0d64a66983631ac"
+    },
+    {
+      "blob_sha1": "89e3195c7a6b19856bb0201cd2a45a0fefcdb6fc",
+      "commit": "d92782a7ef1c5b77fa7f5a27db3c5d9eb5f10e08",
+      "path": "policies/root.cedar",
+      "repo": "cdupuis/sbx-warden",
+      "sha256": "266705a6331897973e61231197400aa5533d4ad80ebb4a14405e908155d772d5"
+    },
+    {
+      "blob_sha1": "bbf326b49f7380eda840ec44c925ce6c7f2dc3c3",
+      "commit": "d92782a7ef1c5b77fa7f5a27db3c5d9eb5f10e08",
+      "path": "policies/worker.cedar",
+      "repo": "cdupuis/sbx-warden",
+      "sha256": "b35c75502d9aa2d2a811394d41ae9b53f34a5b1c8bb6436f81178f2b4b32cbfc"
+    },
+    {
+      "blob_sha1": "c2a8e835b58b37e65e09fd4e63a5bd856ba58efc",
+      "commit": "841f7414188ddd07e8be932441a75d9bb055acac",
+      "path": "inventory/cedar-policies/signer-alias-canonical.cedar",
+      "repo": "chf3198/megingjord-harness",
+      "sha256": "b25d9645437a1ac79487e146095fb7df206c23837409aff52e05a7bd8be867b0"
+    },
+    {
+      "blob_sha1": "56d8492b21c6c813b57b2704eb23da6be041fa1e",
+      "commit": "a4b9572153b4e6974c1618aed22c9507491b419c",
+      "path": "crates/waygate-authz/tests/fixtures/policies/20-example-mail-admin.cedar",
+      "repo": "chrisbennight/waygate",
+      "sha256": "8e382b63a0815fe3f4c185de7bea947bc6e418f0656e24f68223339b8bfba1c3"
+    },
+    {
+      "blob_sha1": "5e35377a52b39ba04a2d92e142acad809ffc320d",
+      "commit": "a4b9572153b4e6974c1618aed22c9507491b419c",
+      "path": "crates/waygate-authz/tests/fixtures/policies/20-example-security.cedar",
+      "repo": "chrisbennight/waygate",
+      "sha256": "58b1a5e3fce47d9d67614cd9aa48e6043d9de68ae098ac70aed25b4b6916db3f"
+    },
+    {
+      "blob_sha1": "ead2cc415d52d663c4a5deada5aad79d7e54802c",
+      "commit": "a4b9572153b4e6974c1618aed22c9507491b419c",
+      "path": "crates/waygate-authz/tests/fixtures/policies/40-cross-app-access.cedar",
+      "repo": "chrisbennight/waygate",
+      "sha256": "2cabbc90c207c0877bed9e5b11c42ee1efd9f40f70eb11fe0a712c8474d20d71"
+    },
+    {
+      "blob_sha1": "fe1e0801b47e75db6ea3cf3ac52280b1951360f4",
+      "commit": "b047779d84e3ecf6cbb42447e27bcdf6f0a3aa0e",
+      "path": "infra/policy/policy.cedar",
+      "repo": "codeasice/agentcore-presentation",
+      "sha256": "ff74f5cf676546c2cb50094d87248a614137974a547758fbdf80f84c7496ac78"
+    },
+    {
+      "blob_sha1": "18b89efee7928a6c12bcdff095ae948792f2b39a",
+      "commit": "b709090c8a214734acaea91e4bac76b3c161313d",
+      "path": "oncall/04_combine_on_call_with_group_membership.cedar",
+      "repo": "common-fate/cedar-training",
+      "sha256": "ca2604424fe26ab4459cfd44d1b901b7ab60a031dc87569047fe7dac12811375"
+    },
+    {
+      "blob_sha1": "659b593076fc5729a66c4731d389e22e4797436b",
+      "commit": "0790a7584a5a7f719f9aa1bcd2e17768ecb7d154",
+      "path": "testing/valid.cedar",
+      "repo": "common-fate/cedar-validate-action",
+      "sha256": "bea00d9702f68eb07d0e136f8c5811306a2f3b65f08b13d951eff597d8c857af"
+    },
+    {
+      "blob_sha1": "220da1d087e0c73ce8d4c7b6a10d5981b1806e36",
+      "commit": "f8f69c973304dc2ac3311d26fbaa39dbfed6bfa9",
+      "path": "internal/locker/testdata/test-service-policies.cedar",
+      "repo": "complytime-labs/complytime-core",
+      "sha256": "c81e485f88893d191a6a7577fc25e58cd54757b70749d10cdae21bd8666cfc5e"
+    },
+    {
+      "blob_sha1": "fed07f5ec76754d99a5fd04cdb093b1c6e0ab184",
+      "commit": "1f3ed00bbff3ca016c7fcd5c288f0b4e6465c03a",
+      "path": "strands-agent-lab/05-agentcore/cli/07_policy_guardrails/policies/allow_safe_tools.cedar",
+      "repo": "coolchigi/GenAI-Dev",
+      "sha256": "8ddd2f027147316b297b8bfcd834a3fdb809ee531a21d0588b395dd3cd118915"
+    },
+    {
+      "blob_sha1": "3101616ea7aae9407f6fb1f783f666652482315d",
+      "commit": "40df0ccb09e32a479988bba0ba039356feef7fad",
+      "path": "prismpath/comparisons/systems/cedar/generated/sensor_interlock/sensor_interlock.cedar",
+      "repo": "crystal-warden/prism-path",
+      "sha256": "4d18dd9ae535c8b2421e15400b1c9b0b4f4a63f4310a61a65fa87674cca257db"
+    },
+    {
+      "blob_sha1": "e925a09143bb5ec0ee9a46ef687a2d4e27b9273b",
+      "commit": "2b4bbb067e8f9ffb58a08c95999bda2d15b08c3a",
+      "path": "policies/03-payment-execution-exclusive-ledger-write.cedar",
+      "repo": "data-guru0/Financial-Agent-with-AI-Governance",
+      "sha256": "328b8f4350c7a4e077b8b93bd7a3dde9905dbdb72286695a85a2d772c5d36ba6"
+    },
+    {
+      "blob_sha1": "e6b7e21b2a0e6f01ef4d69b72bb9d9ec43400715",
+      "commit": "b8ec5375a13e5052c498d1ce978d74265fd7922a",
+      "path": "cedar-policy-fun/policies/s3_policy.cedar",
+      "repo": "diegopacheco/rust-playground",
+      "sha256": "4080489d85a14c3bb0f6179928262780db00df37e029ee83d0084b53012c43f7"
+    },
+    {
+      "blob_sha1": "3e3349398bd39158995be1c12ae39c2806053974",
+      "commit": "996d756de1013b7ae209a14f566a80375a59f2f0",
+      "path": "dogwood-language/tests/passing/cedar_only/corpus_fuzz/7e4d15157d23d93e3e8cbe51a1ebc797cd9c1bfe.cedar",
+      "repo": "dogwood-policy/dogwood",
+      "sha256": "4a634ee6029410c407e7dc427a0321914a5c9bd0bcfe74369d828ad89562647a"
+    },
+    {
+      "blob_sha1": "e1b41607170ef70ce6524cc53fd3e2d4ef02d367",
+      "commit": "996d756de1013b7ae209a14f566a80375a59f2f0",
+      "path": "dogwood-language/tests/passing/cedar_only/corpus_fuzz/98d341ab6fd66f2c71bb34b015f2ce42a4b59aa8.cedar",
+      "repo": "dogwood-policy/dogwood",
+      "sha256": "b8bea5965a4cda27c448b248e4ac5e6b67b7c6067aa38de002283cfbd66b337e"
+    },
+    {
+      "blob_sha1": "a9ed25eca2e80dea539108266f697f939dc7b9ce",
+      "commit": "996d756de1013b7ae209a14f566a80375a59f2f0",
+      "path": "dogwood-language/tests/passing/cedar_only/corpus_fuzz/b04492e19e02f5a382163795b935c9267b702001.cedar",
+      "repo": "dogwood-policy/dogwood",
+      "sha256": "d9175dc3e519b5c25e09c0072d24bbf1be824d17eaa714dbd9b3c54a59ee3681"
+    },
+    {
+      "blob_sha1": "48fd78803884281cd94b8e34272d7ca881c5b899",
+      "commit": "782154dcbdea22248898c0dbe740f95af4b9547e",
+      "path": "delegated-hr.cedar",
+      "repo": "dome-systems/demo-hr-desk",
+      "sha256": "c0a20c22d5f50524b173a2e8274b1985c2a2f078e5d8529880609e4b69f9610b"
+    },
+    {
+      "blob_sha1": "97c9d31870128516972a5505bce5ce0276299e27",
+      "commit": "782154dcbdea22248898c0dbe740f95af4b9547e",
+      "path": "hr-assistant.cedar",
+      "repo": "dome-systems/demo-hr-desk",
+      "sha256": "d73f91e8586b30e88b58840826db7279142b38c671428c9b4fed463c30ef99d6"
+    },
+    {
+      "blob_sha1": "5e966e3696e8716a202155df19aa542fe90c638f",
+      "commit": "28454592c4849f4c813d265d925d77de462fc383",
+      "path": "policies/cedar/compliance-auditor.cedar",
+      "repo": "donta-dalpoas/AWS-Blue-Team",
+      "sha256": "6bb29e4cc95679e9bec3622d94335a67ef41e54907f6202f06341386c0cd436c"
+    },
+    {
+      "blob_sha1": "70d3df328924dafd48bbdef5b565507fa658ab73",
+      "commit": "28454592c4849f4c813d265d925d77de462fc383",
+      "path": "policies/cedar/executive-summary.cedar",
+      "repo": "donta-dalpoas/AWS-Blue-Team",
+      "sha256": "f886bfb6f40bc569d86e1081bc78390e16a4573afa3257fa0e740c43f92701d8"
+    },
+    {
+      "blob_sha1": "fb12c9581d336dcdeca66d62e7e53efa754d6657",
+      "commit": "74d118ae9e0078d1ac2acbfd0abe983cc5412424",
+      "path": "myStore2/policies/AdminCanManageAuthServerConfiguration.cedar",
+      "repo": "duttarnab/CedarligngUpgradeTest",
+      "sha256": "8dfac3e4f848b9b104d9dee3483921a9d98f2ab5f17965e8f297806586ebfeb5"
+    },
+    {
+      "blob_sha1": "038446bf92fd49c116a9763ef4a516aedab828fc",
+      "commit": "9424cbf250f4641ad12131d2489370ad8b5bcb03",
+      "path": "backend/src/main/resources/cedar/policies/00-citizen-own-household.cedar",
+      "repo": "engnaman7752/Yojna-Sathi",
+      "sha256": "d8a5cebd876f29f3966fc565d0959388c753375067c967f1597d5c03b72b4d45"
+    },
+    {
+      "blob_sha1": "dfbe0e073f49c6eaadee6b7fdd702a64967de127",
+      "commit": "9424cbf250f4641ad12131d2489370ad8b5bcb03",
+      "path": "backend/src/main/resources/cedar/policies/10-operator-registered-with-consent.cedar",
+      "repo": "engnaman7752/Yojna-Sathi",
+      "sha256": "20a91c3a14a4913ddbbbf08828c90d396e13efe59402d1d29666d51893495083"
+    },
+    {
+      "blob_sha1": "18401ed5ee2d1f815894d0c8b38e549d59c95d54",
+      "commit": "9424cbf250f4641ad12131d2489370ad8b5bcb03",
+      "path": "backend/src/main/resources/cedar/policies/50-maker-checker-publish.cedar",
+      "repo": "engnaman7752/Yojna-Sathi",
+      "sha256": "6288dbf8fb189f1230d99c988501525d1c38fa4eca92a4963c8523ed24205133"
+    },
+    {
+      "blob_sha1": "1eb9feefd2c764f26963f1f37fe609ae22425101",
+      "commit": "bc53bb2de8342080af4d2e04f9aa5425ad28e923",
+      "path": "libs/kest-core/python/src/kest/core/policies/bell_lapadula.cedar",
+      "repo": "eterna2/kest",
+      "sha256": "34bc957e10569f96ff23d5cef99e7178472d81294566dbcdba141989abccca71"
+    },
+    {
+      "blob_sha1": "55cd1401a25bfbb5002115801c91f309e5fabfdf",
+      "commit": "bc53bb2de8342080af4d2e04f9aa5425ad28e923",
+      "path": "showcase/kest-lab/cedar/policies/gateway_policy.cedar",
+      "repo": "eterna2/kest",
+      "sha256": "ba9177be79c7feef598ac35ee1d42a8e1a716c792ff80ce523af1e93b5e81b5e"
+    },
+    {
+      "blob_sha1": "8b1110df21f764d3eace419f4e8ad900576c3432",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "data_analysis/policies/Cedar Policy Language (CPL)/cedar-policy__cedar/arith.cedar",
+      "repo": "foalem/Pac-paper",
+      "sha256": "31d1f5cfe4e8fb4ceb3a6258e1f0d5e8a081bcf83e06aecc1e16591c56ce642b"
+    },
+    {
+      "blob_sha1": "771efd7de08a2da560e4335f7c7be3399b1c2f0e",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "data_analysis/policies/Cedar Policy Language (CPL)/cedar-policy__cedar/policies_4.cedar",
+      "repo": "foalem/Pac-paper",
+      "sha256": "2818f416eec496ba837582a669d3a6de849dc901c38f59f6758ec15f088780eb"
+    },
+    {
+      "blob_sha1": "4844d3e4c4229eabaebd1b8ecbfb455e0505bc67",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "data_analysis/policies/Cedar Policy Language (CPL)/celest-dev__celest/cloud.projects.cedar",
+      "repo": "foalem/Pac-paper",
+      "sha256": "a36fa4e23d5a487bdd5fe96ff15a951954ed13c7da4958961d1306c2d895c577"
+    },
+    {
+      "blob_sha1": "3bbf3124309ada807111f2990f826e1b63f1f2d3",
+      "commit": "1b4dcd13dbd71ae5ffc7d4c7b76010ba60ce2860",
+      "path": "amplify/authz/policies/contributor.cedar",
+      "repo": "fossamagna/amplify-verified-permissions-examples",
+      "sha256": "3ffc45c016d503a236881b8157bd6136b2e5d83478afd51acd394153ea0b2395"
+    },
+    {
+      "blob_sha1": "84727429c5c9659b90014034e3c020d1582ee0f9",
+      "commit": "9dbd602408d1dc6dcde3fc4625d6c4b9bbc21741",
+      "path": "policy.cedar",
+      "repo": "getpaidhqco/getpaidhq",
+      "sha256": "5a737d40d85f82002f506a20317b4ebf59b46ac4cb1c1495f28b086c1f9659b4"
+    },
+    {
+      "blob_sha1": "8b7bc9e142bf9bcf6f3add31a53ddb8fa12210c4",
+      "commit": "1be3875d07247990e3849b2f2e623f4cc086e7dc",
+      "path": "policies/email.cedar",
+      "repo": "gitUrLifeTogether/hallmark",
+      "sha256": "4e50980e082cdeadf33341ec3ac800c8503f192828765fe0e640929d4d25a618"
+    },
+    {
+      "blob_sha1": "9aa32ff07a745d89046002228a787abff4e06e8e",
+      "commit": "aecc11a98b2748eeabc73f163f7dc5fa796f53b4",
+      "path": "saturn/mega_policies.cedar",
+      "repo": "gitmono-dev/mega",
+      "sha256": "c4067e0dddfc49e6306b88a8479838eff8f596b9c339b34f3eeb3f6ea335de06"
+    },
+    {
+      "blob_sha1": "b5ce4a8731eaf8af376da2c328a5eb0db880b200",
+      "commit": "8194ab0c30b68ead401dc93be2f7ba3ed42425d0",
+      "path": "security.cedar",
+      "repo": "goraiabhijit/pr-gatekeeper",
+      "sha256": "25e0c15e1d44bc9fe84965544bcfd26ee92efabb9751d8eafe18ca6e1b7040d8"
+    },
+    {
+      "blob_sha1": "6d0dff3eab636e5556e74809e75d0bebe6203a6e",
+      "commit": "e01d4b7e4021ed382f75b6175e2cd74ae1f6c77a",
+      "path": "cedar/02_rbac/policy.cedar",
+      "repo": "goropikari/misc",
+      "sha256": "f3e9f91ff931874e208365b2d8efcf3f8189123e9c92459568d854bc6c33e23d"
+    },
+    {
+      "blob_sha1": "76c31e3267b5ca10c47d101aeb229c5d6b18e439",
+      "commit": "0cfe5046c9efb3a2bcf65d6f23a2d212d4564f3c",
+      "path": "testcases/testcase-25/cedar/policies.cedar",
+      "repo": "gravitational/policy-languages-framework",
+      "sha256": "d161833081d15e5f53b72fb0d30008544ff72946b871d75817bc6716e94ad551"
+    },
+    {
+      "blob_sha1": "9383e1a9b5538373c9d90f51c77b97bac33e9479",
+      "commit": "379cd2d92387b34573e2d5648717a7fb0161f73c",
+      "path": "crates/cli/src/assets/default_policy.cedar",
+      "repo": "guyco3/burr",
+      "sha256": "586f77939352b282e4c56d73b1daa019f47566204438fe927af56b2fb0382765"
+    },
+    {
+      "blob_sha1": "769503c78d69c4a6db381b22df9436a0b63fc2fa",
+      "commit": "872f7410fd132d0a549d25b0ecb6f675ab4daca5",
+      "path": "cedar/JaneVacation.cedar",
+      "repo": "hakanson/that2024",
+      "sha256": "1b9856d5c445e7623aaf19e9754cd529c78d5bec32da4aefec8775cb688498c2"
+    },
+    {
+      "blob_sha1": "b89961c357f2090286b469e5ce2762e6efe27bf9",
+      "commit": "872f7410fd132d0a549d25b0ecb6f675ab4daca5",
+      "path": "cedar/Photo-labels-private.cedar",
+      "repo": "hakanson/that2024",
+      "sha256": "26766904fc9c179eda39fd1f47a61e8e8328174439632c56b4b1a82cd54091f1"
+    },
+    {
+      "blob_sha1": "79ee91ebf6688735a10b0a31f1b9c17ae3e023a9",
+      "commit": "872f7410fd132d0a549d25b0ecb6f675ab4daca5",
+      "path": "cedar/testdata/temppolicies.cedar",
+      "repo": "hakanson/that2024",
+      "sha256": "ae55f4462b1d9b9686a00d3d65b9a61a268a00144ebbcdc6230571202ead2513"
+    },
+    {
+      "blob_sha1": "53f6523868ce52b744f0b2baad84c728fdda3bd5",
+      "commit": "329da62286426cb54d4b981c115311c2f74a6b24",
+      "path": "ally/policy/base.cedar",
+      "repo": "harshendram/firstcommit-hack",
+      "sha256": "10f6633450f394686faf8af33a0443a995a779d4b12617363411e1f9cf4ae9d5"
+    },
+    {
+      "blob_sha1": "984e25f283511cf654bbdc590a23d45846610684",
+      "commit": "c80d0ae0c1c5265cc56ba8fc5dfcc94ce4390cca",
+      "path": "libs/@local/graph/authorization/rust/tests/policies/definitions/permit-instantiate.cedar",
+      "repo": "hashintel/hash",
+      "sha256": "cd8ff2d303e02b96f73b442843b45b82e48086a6af865bf50f7ed22284184ce8"
+    },
+    {
+      "blob_sha1": "5514be940e1ea75556843096f1208f625378bc52",
+      "commit": "f0676d13533c527144883e86dbc8b94b1c092b8c",
+      "path": "upstreams/wshobson-agents/plugins/review-agent-governance/policies/review-agent-governance.cedar",
+      "repo": "hatan4ik/prompts-and-agents",
+      "sha256": "f9bc1fa4741f5727a2604f34612eaf6514357f7b80dba8cc2eb27de1e1eaa4e4"
+    },
+    {
+      "blob_sha1": "d450e4f4b2a22998158cb6ab81da8be0bad930a7",
+      "commit": "e634c199f36e7b0789550d3b87510f574d8466ca",
+      "path": "deploy/cedar-policies/policies.cedar",
+      "repo": "henrikrexed/ChatloopbackOff-Cedar",
+      "sha256": "52cf8d11cb37fff1454f1f876aadbe8e616155860f69ddcebb3ba81da067e3ad"
+    },
+    {
+      "blob_sha1": "ae28af1cba876fd13e73c03538812cfc29492904",
+      "commit": "4d4721990d24fffac4cf40597d300dee3cdc15e3",
+      "path": "experiments/predicate-language/cedar/block.cedar",
+      "repo": "heurema/cak",
+      "sha256": "e02b7061ddfec7f5a19f260497f3498201560b24885c880cb23515cfdf487a25"
+    },
+    {
+      "blob_sha1": "639d7ac2fcf5bc33a19b62096d8cc7210df52dbe",
+      "commit": "4c8fdb09092ef95236f2125f66c6b78230253eff",
+      "path": "cedar-policy-language-in-action/PhotoApp/photoapp.cedar",
+      "repo": "heutelbeck/cedar-benchmarks",
+      "sha256": "e41702f0292bc9ca098185cce3cdb64931bc8623c9eae81325a4d301f31974cd"
+    },
+    {
+      "blob_sha1": "f42feb5d2bb0be41b846712b9f31e9d81786c16b",
+      "commit": "4c8fdb09092ef95236f2125f66c6b78230253eff",
+      "path": "oopsla2024-benchmarks/openfga-examples/gdrive-templates/policies.cedar",
+      "repo": "heutelbeck/cedar-benchmarks",
+      "sha256": "93deecc76f906902eea50f8ab8a17c3cda267ea360ef19a14566c075b634d87d"
+    },
+    {
+      "blob_sha1": "1e7d5514a1d69f1e3dbb7288fbfcdea3041a43b3",
+      "commit": "4c8fdb09092ef95236f2125f66c6b78230253eff",
+      "path": "oopsla2024-benchmarks/openfga-examples/github-templates/policies.cedar",
+      "repo": "heutelbeck/cedar-benchmarks",
+      "sha256": "392218bcb5137f14bdd380f3c4675a8577ef04062bd89e416777291a96fac9f3"
+    },
+    {
+      "blob_sha1": "d8b969b066841af9e57d6b1cab470efb81dea9d8",
+      "commit": "490ea78d38010c2bcb33d0f97d4533dbd3aeb0a6",
+      "path": "recipes/deep-context/policies/00_baseline.cedar",
+      "repo": "highflame-ai/highflame-cookbook",
+      "sha256": "8426a91f188434500d7d390fde21fa98c1fe3989fa47968bfafdf684d8d6258e"
+    },
+    {
+      "blob_sha1": "e27b8901a1d5f13e3797f1bf2be1a10ea0a25dde",
+      "commit": "490ea78d38010c2bcb33d0f97d4533dbd3aeb0a6",
+      "path": "recipes/deep-context/policies/02_session_accumulation.cedar",
+      "repo": "highflame-ai/highflame-cookbook",
+      "sha256": "e5d09f7b146eac4755dedf70819b4a87300f582ad065661b5bcea6d1fa009dc8"
+    },
+    {
+      "blob_sha1": "595cd616079ca4a7ffecbdb2516b903431f7451e",
+      "commit": "490ea78d38010c2bcb33d0f97d4533dbd3aeb0a6",
+      "path": "recipes/deep-context/policies/03_dual_attribution.cedar",
+      "repo": "highflame-ai/highflame-cookbook",
+      "sha256": "5ee7468763c6d1cc559256de97a88e49a9f4cb3bbe1251396f3454c27878d63b"
+    },
+    {
+      "blob_sha1": "a1ce7a1ac03bfab078f17b56a9efc166810893a6",
+      "commit": "cdae4027982e48d11bcd41193b13b56e05a33acc",
+      "path": "docs/treetop/bootstrap.cedar",
+      "repo": "hubuum/hubuum",
+      "sha256": "e622e76f4fe0bf8cc1cfe7bc1207a29fe78639532f275ecc1557f6551e1ed72c"
+    },
+    {
+      "blob_sha1": "e6dbb1b498b1d9dba46f9be0b650d9a19315e7e1",
+      "commit": "cdae4027982e48d11bcd41193b13b56e05a33acc",
+      "path": "docs/treetop/test-fixture.cedar",
+      "repo": "hubuum/hubuum",
+      "sha256": "4152b4809501f25f9165d1abec833b8984896e57f4a375f0052013926bb281d9"
+    },
+    {
+      "blob_sha1": "ec14c7d4583fd1d18f73eb1d84758d36697a9135",
+      "commit": "77a966d4c7565ee9b4080750ac9e105e43c18701",
+      "path": "crates/hirn-engine/src/cedar/default.cedar",
+      "repo": "hupe1980/hirn",
+      "sha256": "aff2595917b44b3c45998a1111818d4ff3e29ae36235c4d240b071075f04d2f1"
+    },
+    {
+      "blob_sha1": "4aa50a2e01cf7f7a30e98bf7b61d270eb17ea4ea",
+      "commit": "06320f820fa3f96b154c6945d77aa215a9a92c36",
+      "path": "services/accountingd/policies/accountingd.cedar",
+      "repo": "hupe1980/mako",
+      "sha256": "40c4cda15a920e676b0430d0d64b58c8d14669e67b8f6cf698907485bc7a4f74"
+    },
+    {
+      "blob_sha1": "2ff1d1fbe0325c17224ce245345a85a133fca9bb",
+      "commit": "06320f820fa3f96b154c6945d77aa215a9a92c36",
+      "path": "services/marktd/policies/marktd.cedar",
+      "repo": "hupe1980/mako",
+      "sha256": "a728317506dc91927773f70636609045b6061017fc11045e0ad0d36c44de98c3"
+    },
+    {
+      "blob_sha1": "abeb2169c808f1a2f1e69d8f36d43032871f6334",
+      "commit": "dee39e78a174480325f47ec39dfe62b4a7a58451",
+      "path": "policy/netra.cedar",
+      "repo": "its-aryansingh/NETRA",
+      "sha256": "5ae98da3086299243f96253eb6aca943a50028b9508fa5055837b6c56083f866"
+    },
+    {
+      "blob_sha1": "c2ebe129844577420fe57178428ba8cf1809dd06",
+      "commit": "ff9b9d1d2b87bda52624bc0417c849c255132dd3",
+      "path": "terraform/modules/agentcore-governance/policies/cedar/tenant-isolation.cedar",
+      "repo": "j3brns/tf-harness-acore",
+      "sha256": "4f8522f33bdf503e5f0b5b2d11f44d56e81485745bbd3889ecf25c2afecfbd1d"
+    },
+    {
+      "blob_sha1": "9e965f9d33d87e5d6e949653847e41fbd858031e",
+      "commit": "7820b0f4975f5667b673b15e5b88ef5d39d2a3dd",
+      "path": "policies/receipt_chain_validity.cedar",
+      "repo": "jagmarques/asqav-cedar-policies",
+      "sha256": "973dcaa024f4118b15b3cfa6c625a6d6ee9daf4d543a47ff10955aba1d5378cc"
+    },
+    {
+      "blob_sha1": "ea806ca1ce031ad991f087dd3a6824121fe143af",
+      "commit": "7820b0f4975f5667b673b15e5b88ef5d39d2a3dd",
+      "path": "policies/receipt_risk_class_ceiling.cedar",
+      "repo": "jagmarques/asqav-cedar-policies",
+      "sha256": "5d7e5f7a82ab6c3c1ec28a9018a025658c84f5f07be175f4d431af8486176835"
+    },
+    {
+      "blob_sha1": "a05b1f1f620c74378f94d8e780ab28aad00dd275",
+      "commit": "cea1cb7371e69d3619509bf8e6a136a7c08d66a3",
+      "path": "agent-coordinator/cedar/default_policies.cedar",
+      "repo": "jankneumann/agentic-coding-tools",
+      "sha256": "ffa197a1a7d9b0e850fb9a3d249813baed41eddde4083bc78f7b5878e1efbb26"
+    },
+    {
+      "blob_sha1": "b788d45e45568a75aea2c4fb7c1d3d7015b611b0",
+      "commit": "594cc073019766a71c90ac871e1218b8f9fbf1c4",
+      "path": "policies/allow-tool-knowledge-search.cedar",
+      "repo": "jaredgrabill/agentic-control-plane",
+      "sha256": "80e4ec7b1278bafdbf341527a84b7c7eaee5921e2b643d0bad9bf9444c6eec73"
+    },
+    {
+      "blob_sha1": "55ab8ac10d2b246b3ea3cb7dd5fb038645fb58b1",
+      "commit": "594cc073019766a71c90ac871e1218b8f9fbf1c4",
+      "path": "policies/allow-tool-netsec-vuln-scan-report.cedar",
+      "repo": "jaredgrabill/agentic-control-plane",
+      "sha256": "a82a27bbbc6eab49a47757c2c31d3c3d41bab2f7c71db346e55e67f262b28334"
+    },
+    {
+      "blob_sha1": "f6526da2e722d9d2d37d6353e7463cb7ba54c42c",
+      "commit": "594cc073019766a71c90ac871e1218b8f9fbf1c4",
+      "path": "policies/gate-tool-itsm-change-submit.cedar",
+      "repo": "jaredgrabill/agentic-control-plane",
+      "sha256": "dd39e8f08970ee74ef9bdf86cfb98e84fa6c40949392e3207fec3d6984acd9d8"
+    },
+    {
+      "blob_sha1": "2bf2ebd0e3ac42199361b9ea0e58d128bb3523fd",
+      "commit": "be89bc8c7596e8fe9439a5b393ffd419cae16579",
+      "path": "policies/agents.cedar",
+      "repo": "jbcallv/sage",
+      "sha256": "ef75bce05943c770f4162afda30bd9fca4f34d33a94715290a0c075299a2782a"
+    },
+    {
+      "blob_sha1": "7ff349397278587dbb42bc59c07acab7069ca3d9",
+      "commit": "9bbed9230e99c73551af5ef2575b41b481653c4d",
+      "path": "onlinestore.cedar",
+      "repo": "jlcanela/Permission",
+      "sha256": "d018b68c290ffdc94542fc7658c56a155e47915c044ae1c0327133c699b4be89"
+    },
+    {
+      "blob_sha1": "599b30f9376822aac824a282d92e7a05250f3815",
+      "commit": "d11935bf8da65c2f0c0423227d5ae03bd3a4a11a",
+      "path": "cedar-policies/projects/policies.cedar",
+      "repo": "jlcanela/project_management_app",
+      "sha256": "305e6558ae4d67af4af27ee0437e3fb1cf0bf6a852d60a605332051508f31e8f"
+    },
+    {
+      "blob_sha1": "efe1a5144f93ca9c17951f5b033825535aa5c50d",
+      "commit": "f0d479bdbe6699e190329566dcf9b8d7e0581fc3",
+      "path": "gavel-v2/gavel/policies/constitution.cedar",
+      "repo": "jlugo63/gavel",
+      "sha256": "1f854e099010074dcc49110f4fa1d6dcba9a0f55e578a25bd4b123518a85a7db"
+    },
+    {
+      "blob_sha1": "4ab353f2107d02aaf1830f653ba5b90d75a58278",
+      "commit": "61946f26b3bc4006531a738279b5c2679fa346c3",
+      "path": "examples/remy-sport-policies/policies/event.cedar",
+      "repo": "joeblew999/cf-connectrpc-middleware",
+      "sha256": "efde96de0adad379cafa24b8da287015147ffa45a637833f772b9e8f615ce0dc"
+    },
+    {
+      "blob_sha1": "1981adba70d0a95b9119fa6e11564dd014ecb138",
+      "commit": "61946f26b3bc4006531a738279b5c2679fa346c3",
+      "path": "examples/remy-sport-policies/policies/platform.cedar",
+      "repo": "joeblew999/cf-connectrpc-middleware",
+      "sha256": "0a6b1a45041ebfe8712278add9720cf659958988d49e54a5da7f51817bc8decd"
+    },
+    {
+      "blob_sha1": "640e261ed1e446f198dc88561f771e2d61f7d764",
+      "commit": "d4957b04e830f926bed55c837af7776c47827ea8",
+      "path": "core/mcp/builtin/harness/cedar/harness_read_default.cedar",
+      "repo": "kameas-ai/kenaz-harness",
+      "sha256": "6e3f9164b0f727dc8cd5de9c32d5ff517906c0da95de9ec1a350db38aa5f7fec"
+    },
+    {
+      "blob_sha1": "ea0954f0e6593efd52465c82e35d60ef3098751e",
+      "commit": "d4957b04e830f926bed55c837af7776c47827ea8",
+      "path": "core/mcp/builtin/harness/cedar/harness_write_onboarding.cedar",
+      "repo": "kameas-ai/kenaz-harness",
+      "sha256": "4ce8e2f90351295336b1b73bcbe4d6b2b3db43ae36519176937ff3cec4305646"
+    },
+    {
+      "blob_sha1": "9cfc0991860ef2466f257a87ef3dc6600b35b6cf",
+      "commit": "d4957b04e830f926bed55c837af7776c47827ea8",
+      "path": "core/rpc/views/agentgraph/cedar/graph_author_permit.cedar",
+      "repo": "kameas-ai/kenaz-harness",
+      "sha256": "3e3a10fe4e7ff95105217dd0f2e7b95eaaf42163a9e1b9316539ecc47eec1023"
+    },
+    {
+      "blob_sha1": "c7f47b9aea87716b3f16a9904b6b30540d24739d",
+      "commit": "3593ffa6d836d9eceae4af9e07c524de84e91283",
+      "path": "security_auditor.cedar",
+      "repo": "kenhuangus/agentctl",
+      "sha256": "6166c621f58e81523352bf67a5a89da284c4f8b464eef43b5aa0a9bf1433a566"
+    },
+    {
+      "blob_sha1": "e212dc961138b832768cd770c32af405efa7ff87",
+      "commit": "d755da1c87278bc0c82e82745efecb89e86f9eb7",
+      "path": "cedar-policy.cedar",
+      "repo": "kenhuangus/mcp-dynamic-policy",
+      "sha256": "64ef6174723c7cff6f36687844980e5025c86459bf68a87c1d161a8609ce0203"
+    },
+    {
+      "blob_sha1": "d6989a60396b7fdee74de6b843893ae75d370288",
+      "commit": "b3268d70830f6b7d7159cf7569cf72916a70742a",
+      "path": "invariants/generic/000_base_permit.cedar",
+      "repo": "lRunel/AWSolotl",
+      "sha256": "874c51099e3710f27da03505da8be1cbca693b3a3e54763ab294ef3b95e1840f"
+    },
+    {
+      "blob_sha1": "9312476645403495d5a06023d5c4b2a6b6cd4fd1",
+      "commit": "b3268d70830f6b7d7159cf7569cf72916a70742a",
+      "path": "invariants/generic/inv06_no_new_iam_access.cedar",
+      "repo": "lRunel/AWSolotl",
+      "sha256": "3bfb8bb6f567e228fef97a5139377e72e42b5be633211eb687c1de0de8656fe8"
+    },
+    {
+      "blob_sha1": "e35f813acb051b0bc411ea0242888f9e010a9958",
+      "commit": "43183b14aef26e9c6d293875b1dd5d69f9ca1e9f",
+      "path": "examples/marketing-pipeline/policies/marketing.cedar",
+      "repo": "lep511/cedar-evaluation-engine",
+      "sha256": "8b65bf287c10664095ecdb522673a6245194d2fb9dd6f800fc296610537a14ea"
+    },
+    {
+      "blob_sha1": "16c1a9ce75f6bb15a796f21c6a12e40f8220e18d",
+      "commit": "487b248ee9ae84c45711bc583694fe77e05afc18",
+      "path": "cedar-auth/policies/file_based_policie.cedar",
+      "repo": "lep511/strands-main-repo",
+      "sha256": "38e5f2581bd309a6eac1d6f97e7963fc15ee348ff298776c96f421fad0ce7132"
+    },
+    {
+      "blob_sha1": "d628772f9e82d534a54d9c893aff47d7d51ebb0a",
+      "commit": "487b248ee9ae84c45711bc583694fe77e05afc18",
+      "path": "workshop/lab02/policies/restricted_geography.cedar",
+      "repo": "lep511/strands-main-repo",
+      "sha256": "5fb25e18727c3ff8701ce1f8539cc00a05c89f79e1284943f76c239ee71057be"
+    },
+    {
+      "blob_sha1": "8c24181c2847be9fa129142ad1887884b66795a0",
+      "commit": "b12f9aa05eec21a81165b48b2c4dddd04636962f",
+      "path": "examples/backends/express/cedar/policies/publisher.cedar",
+      "repo": "lexicone42/l42-cognito-passkey",
+      "sha256": "ad24cf2146dc1d896725963ec44b887ecd4d4b1ab6b19fe93aa64646ecf8ffda"
+    },
+    {
+      "blob_sha1": "4f205a311465a26906cad9e30747288330a533e2",
+      "commit": "b12f9aa05eec21a81165b48b2c4dddd04636962f",
+      "path": "examples/backends/express/cedar/policies/reviewer.cedar",
+      "repo": "lexicone42/l42-cognito-passkey",
+      "sha256": "bdaa097775f2fca6d5d498f190ff601890cd8b1373e613eacb173b45d3f9a4d0"
+    },
+    {
+      "blob_sha1": "d937d510becf1c2ade10c75710d31edf10718c28",
+      "commit": "b12f9aa05eec21a81165b48b2c4dddd04636962f",
+      "path": "rust/cedar/policies/editor.cedar",
+      "repo": "lexicone42/l42-cognito-passkey",
+      "sha256": "be28af67ddd054c922578528122d9b07dda5b5ab8ac7517dfdd6402b67cd158e"
+    },
+    {
+      "blob_sha1": "4cea9497dec00f8cd155eb8d19ad9afa64250883",
+      "commit": "2836719ead5d99f1bf452b7d72056119b6380ab5",
+      "path": "policies/00-baseline.cedar",
+      "repo": "lhaig/sdm-pico-agent-demo",
+      "sha256": "1879e5834dd61fa2097c6000008dd638cca822e14def443b5842d9546fb70c0e"
+    },
+    {
+      "blob_sha1": "b0202588280ef6a39fe10546ce9676d995f244ee",
+      "commit": "2836719ead5d99f1bf452b7d72056119b6380ab5",
+      "path": "policies/20-redact-pii.cedar",
+      "repo": "lhaig/sdm-pico-agent-demo",
+      "sha256": "30955fbb8ab84ea0dc8a4be54d04db0e46bc8c581fc8172f1b643c06fff87eb1"
+    },
+    {
+      "blob_sha1": "514a77fe4c5dfd8d050a87ca8a837e1ed2eeb74c",
+      "commit": "0b0901d89bc5724c94cdf8497cec7255411bdfd8",
+      "path": "policies/p2.cedar",
+      "repo": "llllIIIIllllIIII/carbon-cred-demo",
+      "sha256": "80149d272fc0208958ccb55f574ea768af60f3e9d6f3f3d0166e7b0d98328ed7"
+    },
+    {
+      "blob_sha1": "257441eaf5e6a45a137a8563964809a2233143fd",
+      "commit": "bd4803c9c5e95474c13a79778f1ae8ab91d6f06b",
+      "path": "authorization/policies.cedar",
+      "repo": "lochangowda10/NammaSignal",
+      "sha256": "d854a357a1aa5dc9b3bdd7af1ea1309ed5c87fe18ff4911c0cc75c9c1c454cc8"
+    },
+    {
+      "blob_sha1": "95824aa3355713b2b3d30f7fb9627b3224197d26",
+      "commit": "0a0543be7bce87965a13bdf0af7162363a70f3c5",
+      "path": "enterprise/policy-service/policies.cedar",
+      "repo": "lsendel/rust-security",
+      "sha256": "fa9f6d1e5acad498238902ec41a9df4fd5dbd3a2e7cdb87c88dcb1e4f760c130"
+    },
+    {
+      "blob_sha1": "b5728008c6ad692eb64ac76b5f8546dc7d04d29d",
+      "commit": "4d4d00b6cdf3070a136435025d9a0535baceb43e",
+      "path": "agent/src/jhola/policies/payments.cedar",
+      "repo": "madmecodes/jhola",
+      "sha256": "525dfcbf228da72559ebe4b5dfd7ccaa34e17b4370f7666df8fb825996252d5d"
+    },
+    {
+      "blob_sha1": "599633038b499d85931007794fcde5a85873e05f",
+      "commit": "831905f7196f47530ebe92ff604c765d3b295447",
+      "path": "spikes/adr-0023-authorization/policy.cedar",
+      "repo": "mafifi/drawloom",
+      "sha256": "25adbdd070806fafdcd2e3cdccf39127e58e13579a5898a6eb59c36f464dc963"
+    },
+    {
+      "blob_sha1": "2a32fc4df63df8be9b57b9998f6bc367c968dac8",
+      "commit": "051b7001df7f292c14706058311d86e71bd8ca59",
+      "path": "packages/policy-cedar/examples/demo-domains.cedar",
+      "repo": "marlinspike/TypeSystem",
+      "sha256": "a89e0e16d022abceb067221e30f2b0f4c48a12191f975672f627fc1152b872c1"
+    },
+    {
+      "blob_sha1": "04fc51bfd0640aa1b389edd7ad6d61c4f278b37f",
+      "commit": "4980d739d7721eb1257a400d43af113e32dfd6c6",
+      "path": "services/agent-spine/src/trax_io_spine/guardrail/policies/autonomy_bands.cedar",
+      "repo": "mas5464/aeronta-inventory",
+      "sha256": "31280fe321bd1773f3b2d43cd7d021286f68c152152523ff0e76d09882f78d70"
+    },
+    {
+      "blob_sha1": "a4279ad6e9b9d2d304a559d0ab157db648a3b249",
+      "commit": "611d4271c2e441bc9e2f2718c4006e205ae5d59c",
+      "path": "archive/daemon-v1/policies/default.cedar",
+      "repo": "michaeljboscia/triumvirate",
+      "sha256": "1a9319c6b1c250032859bd503c153e783adbe1a5860dd02103c6c0436f3b19e9"
+    },
+    {
+      "blob_sha1": "d0108962106ca5c48be9ee5f5bbc5ff4c5a3734e",
+      "commit": "dda88fb8294fc236b4f66bdbabe8fbb5a9f98251",
+      "path": "envs/meridian-legal/policies/meridian_v1.cedar",
+      "repo": "micheal-quest1/PACT",
+      "sha256": "8aa4aa4317229cfd08fbb5387692a8368800c1e6b635097261c8992e8776047e"
+    },
+    {
+      "blob_sha1": "14bd712ffacc4f0340095d4e9b666a96ecb64ba3",
+      "commit": "c3e8229dfb19c697468cfb790495d7174ef8bc45",
+      "path": "examples/cedarling-governed/policy-stores/multi-issuer/policies/allow-admin-write.cedar",
+      "repo": "microsoft/agent-governance-toolkit",
+      "sha256": "d67adbd481f74cf29bcabcbd3cf14e65032ea9f9dbb2412cd0a7b7faa440dd43"
+    },
+    {
+      "blob_sha1": "65ef28252aac4eab88d5806c828f7780e292b6ce",
+      "commit": "c3e8229dfb19c697468cfb790495d7174ef8bc45",
+      "path": "examples/cedarling-governed/policy-stores/unsigned/policies/allow-admin-tools.cedar",
+      "repo": "microsoft/agent-governance-toolkit",
+      "sha256": "16ec2f715bc2919d56fd590005eac665ef7ae8608d2b5bde7204a93d6ef38fb1"
+    },
+    {
+      "blob_sha1": "8b2615af115a1f4cca3c092669d3d316c6cff6fb",
+      "commit": "7d791e71c0124a167801175ea07b365d69b5d1a4",
+      "path": "chapter9/01_permit_amount.cedar",
+      "repo": "minorun365/agentcore-book",
+      "sha256": "f0eebc62493036ed1d31fbc60d34fd2aa13f4ff497e81174710367d219c629af"
+    },
+    {
+      "blob_sha1": "2abdc66cf69fb0cdf3e60919d3edda9de6cb0909",
+      "commit": "7d791e71c0124a167801175ea07b365d69b5d1a4",
+      "path": "chapter9/02_permit_department.cedar",
+      "repo": "minorun365/agentcore-book",
+      "sha256": "84cbe59e5cb24c76159aa3bdf96c67a979c94e36b6da949c914d49cc578a73eb"
+    },
+    {
+      "blob_sha1": "55a98c842c32208fa6eb5d0def16e44c3d55754e",
+      "commit": "7d791e71c0124a167801175ea07b365d69b5d1a4",
+      "path": "chapter9/04_permit_pattern_match.cedar",
+      "repo": "minorun365/agentcore-book",
+      "sha256": "a4741eb2c3116a334a19563ddac059f384fe8ed242959b137422d771ecdc91b7"
+    },
+    {
+      "blob_sha1": "1341ff08521a5c434a9af46fa1b311b5252702fe",
+      "commit": "93857d051ea9d3b168795d22e243a2ce778310e1",
+      "path": "policy-store/policies/ci-permit-apply-prod-via-environment.cedar",
+      "repo": "moabu/cedarling-opa-terraform-jwt",
+      "sha256": "d1457b53130717ac51fee86c88b2d1cb769e7fc942906695c1f9921ca5d2e121"
+    },
+    {
+      "blob_sha1": "76b1291a360b321e73bea7a6d610a93ae6fac67f",
+      "commit": "5fc8ad7ebead08f67ff1c5a8119aee4e343d89d7",
+      "path": "docs/evidence/agentcore-refund-policy/continuation-permit.cedar",
+      "repo": "mrwersa/agentmandate",
+      "sha256": "b3d18e7d6f117af264b4a10a4a726961932b363b6c928bf5f502d9b4be4f7c1d"
+    },
+    {
+      "blob_sha1": "e583e5acfdedb3721524eca662566f253f896ade",
+      "commit": "5fc8ad7ebead08f67ff1c5a8119aee4e343d89d7",
+      "path": "docs/evidence/agentcore-refund-policy/principal-continuity-permit.cedar",
+      "repo": "mrwersa/agentmandate",
+      "sha256": "567afddbd8ab86303c8f8d23db3f4c9fa32593302ea12e3c18a98edcb0c958a2"
+    },
+    {
+      "blob_sha1": "8aa43b771a2f0d52681a880ca8da5d4051d99f28",
+      "commit": "563408d38cb26c91e8d2114a46e51aa7bffad7b4",
+      "path": "backend/internal/dispute/authz/policy/guardrails.cedar",
+      "repo": "muneeebnaveeed/thesis-dispute-engine",
+      "sha256": "961661bec476bf59cca44a5e50a10432e63053e7e184306b405022dae6c20cc1"
+    },
+    {
+      "blob_sha1": "6bde5255d8c4d117544f77700302b06e12a4324f",
+      "commit": "8bbb7a221bfbccbd5f2268b16195315575e14d2b",
+      "path": "governance/policies/tool-permissions.cedar",
+      "repo": "navoditk/agentic-pm-lab",
+      "sha256": "67dd98b80f238d4348996d63375fa2694b17d639ecf771b7835d76969c98ecb4"
+    },
+    {
+      "blob_sha1": "950637420e807f0bc85f6f5b44b7df22c921994a",
+      "commit": "f66287d99a923663a334b3009809f050292d9f8c",
+      "path": "os-apps/directed-evolution/policies/directed_evolution.cedar",
+      "repo": "nerdsane/temper",
+      "sha256": "ad4d1a94d7fe5d297776b5ee2c5ee858fa7940fdd7fe5cd50dc42ec816357015"
+    },
+    {
+      "blob_sha1": "dbec5a700dd4b67a748660c171f0f4a88bfb1602",
+      "commit": "f66287d99a923663a334b3009809f050292d9f8c",
+      "path": "reference-apps/crucible/specs/policies/managed_agent.cedar",
+      "repo": "nerdsane/temper",
+      "sha256": "2edafd7510cc8396f379faf10a53390b5d0924a4c20fca1f75f10e7d02743258"
+    },
+    {
+      "blob_sha1": "027ede36dede4f0738735f3e34c2c2a1dea9a5d3",
+      "commit": "f66287d99a923663a334b3009809f050292d9f8c",
+      "path": "reference-apps/crucible/specs/policies/session_resource.cedar",
+      "repo": "nerdsane/temper",
+      "sha256": "fddd4893994df4eba1358c68c839fbcd6bf886155886bd58c5c0eccfd05ac3f2"
+    },
+    {
+      "blob_sha1": "d885d68547dead0d58c08fd62f4f2db3843923d6",
+      "commit": "c8885a9a2336c2bd95175b9fa1a9cced77d403c2",
+      "path": "templates/aws-s3-readonly.cedar",
+      "repo": "ninthwave-io/strait",
+      "sha256": "a31cf5a3e4fd89dc7925ef87238b2b9f84fb569d79cc38ed142b94bd78a5a208"
+    },
+    {
+      "blob_sha1": "9627bf6679092c72ccc1aeb882ef41572512ce73",
+      "commit": "c8885a9a2336c2bd95175b9fa1a9cced77d403c2",
+      "path": "templates/aws-s3-readwrite.cedar",
+      "repo": "ninthwave-io/strait",
+      "sha256": "59d8b07ebbd47dd7245cc1bad02e89203ca399d772b11c8915692da4c00e5c94"
+    },
+    {
+      "blob_sha1": "7e68eb1191cf4184d17e5e383f808d79f14e7e2a",
+      "commit": "c8885a9a2336c2bd95175b9fa1a9cced77d403c2",
+      "path": "templates/container-sandbox.cedar",
+      "repo": "ninthwave-io/strait",
+      "sha256": "f2de155736b3937eacae66c53e9f79625fce2c126ed81c698ee81b8e68e4d174"
+    },
+    {
+      "blob_sha1": "9e3617f6e9a90c1e0c27ec2c7e5bb678518d4450",
+      "commit": "23b11a8c27928e8dea0188253d3674641eb25c4f",
+      "path": "app/src/main/resources/cedar/paediatric-clinic.cedar",
+      "repo": "nunesgh/paediatric-clinic",
+      "sha256": "8f289cfa21e3015c0409d8359dfa2eb25f581d52bef5b7f0531816a498f0c4a4"
+    },
+    {
+      "blob_sha1": "675b264840e16f4fe7a1bb9972cc7012be87b154",
+      "commit": "8877e8336cf0f84bc52e7c92c49002a5cf7f5f66",
+      "path": "policy/store/policies/forbid-critical-restart.cedar",
+      "repo": "nynymike/cedudo",
+      "sha256": "366d08dc9beba6efa3e78a9b5ba48274e52d14b03e4d1382f10312baf2db7a1a"
+    },
+    {
+      "blob_sha1": "2734d3c906d7781818502696cd7cacd5baad81b9",
+      "commit": "f0ce9135e3c42853dac248e543fd7663c421a21d",
+      "path": "multi-issuer-policies.cedar",
+      "repo": "nynymike/kiro-demo",
+      "sha256": "2fe3fe11fb42a5328211d4ea5b7e522e1c62346fb4f8a1aa78e3c1cbee92af13"
+    },
+    {
+      "blob_sha1": "0db25b867c78581f9096e1aa8a1899746a339f7b",
+      "commit": "c6c3ecc37034b17147c73f74fa233fa94fa40f0d",
+      "path": "backend/policies/examples/restricted-media-bucket.cedar",
+      "repo": "oleg-tkachuk/paladin",
+      "sha256": "363b72541e71951e956f5a0c3871bce192a13751292f49fd2e98dae1737910e9"
+    },
+    {
+      "blob_sha1": "faac7ae68e589edd635c43b9088e6ee78d5f03b2",
+      "commit": "c6c3ecc37034b17147c73f74fa233fa94fa40f0d",
+      "path": "backend/policies/examples/scope_enforcement.cedar",
+      "repo": "oleg-tkachuk/paladin",
+      "sha256": "9c3870f729ae70606fe41566065cca5bafa2efde5a7b3212419ea771c3a6a98d"
+    },
+    {
+      "blob_sha1": "7d44cfafd44ab5662a5631019a8fd193babc6c32",
+      "commit": "6e2666d7af05a4c2fe42e315fc1d03bbeb37d83d",
+      "path": "apps/pdp/policies/10-rbac.cedar",
+      "repo": "om423/ai-group-chat",
+      "sha256": "33180e28d0db2cfd1229e9b51a96a40d364c98d31a35a0527ed83c8fd9b73f78"
+    },
+    {
+      "blob_sha1": "20ceb998d9dc3e31e72ca9efcc74d80221333436",
+      "commit": "6e2666d7af05a4c2fe42e315fc1d03bbeb37d83d",
+      "path": "apps/pdp/policies/20-abac.cedar",
+      "repo": "om423/ai-group-chat",
+      "sha256": "63d627ea34162dcdc18ae0207900915b48ac684e27b9e124b4ff1d4338401144"
+    },
+    {
+      "blob_sha1": "3c85be7004c8977a3653dae08a4dc77bf0a49957",
+      "commit": "4dc37d98124d0c0ffbf59fdf73b6dc57a57342a9",
+      "path": "config/policies/demo.cedar",
+      "repo": "open-lakehouse/hydrofoil",
+      "sha256": "1851b0ad5e367879a4f955387236e50bcb3d5210749bd60de1305c8fc3bcee81"
+    },
+    {
+      "blob_sha1": "92894678d45f7811b176514783e37d619a362ce7",
+      "commit": "c6891d553fa1105546668c75b9a0d175bc54f70d",
+      "path": ".cursor/skills/tag-columns/templates/column_mask_by_pii.cedar",
+      "repo": "open-lakehouse/policast",
+      "sha256": "69311df98a94a7877ebb234fdfd5ebe9691d7b39383fa7c0ec090092eac1d8a2"
+    },
+    {
+      "blob_sha1": "ce194b0e8b9c5655e3a8f8719fbee45279fa5c83",
+      "commit": "c6891d553fa1105546668c75b9a0d175bc54f70d",
+      "path": ".cursor/skills/tag-columns/templates/row_filter_by_clinical.cedar",
+      "repo": "open-lakehouse/policast",
+      "sha256": "23fcaa93f3e9e75768f6043f43944749af9790f264b3ab1e6f4570db57fe4b9a"
+    },
+    {
+      "blob_sha1": "868993443a80358a14bf4a8a37aba69150f2872b",
+      "commit": "c6891d553fa1105546668c75b9a0d175bc54f70d",
+      "path": "examples/policies/column_mask.cedar",
+      "repo": "open-lakehouse/policast",
+      "sha256": "856ec6ed1c5fc8cd84fd4b344919cc92b1a9c672d526046a57c0472ea9750fc2"
+    },
+    {
+      "blob_sha1": "f9a3c9d00332546e76f0e2b8a3376b5926a33a79",
+      "commit": "8c7416f4b8c687d31ca4c1fcc5610bfdd1b3cfc4",
+      "path": "cedar/service-eligibility/ew.cedar",
+      "repo": "openinherit/standard",
+      "sha256": "b3203a7e6ca13f3b5c519143e7f690cead19ec1dfbd6ad7d2d9568fb1a4dbc81"
+    },
+    {
+      "blob_sha1": "2c0bf3f1f330720b30c37308a26bebbedf737e09",
+      "commit": "8c7416f4b8c687d31ca4c1fcc5610bfdd1b3cfc4",
+      "path": "tests/cedar/service-eligibility/ew.LEAKY.cedar",
+      "repo": "openinherit/standard",
+      "sha256": "2369621b74c60603f3d30a50bbea20adec553f79f5b089bf00528b072f7abc66"
+    },
+    {
+      "blob_sha1": "9a0093e4ea6b2df0faacd19ff335880ecabd31a0",
+      "commit": "8c7416f4b8c687d31ca4c1fcc5610bfdd1b3cfc4",
+      "path": "tests/cedar/service-eligibility/ew.forbidden.cedar",
+      "repo": "openinherit/standard",
+      "sha256": "cc31646c63b8985103b52076716ba988e26c6605d8af82ebfa863c22a4ac49a0"
+    },
+    {
+      "blob_sha1": "fe3e3f3ac6ce0a7887e9a2e6f4191c7e5ff5980b",
+      "commit": "d4e97813d7cfb9654a3b0be31562bf4ec364eec0",
+      "path": "examples/policies.cedar",
+      "repo": "openkcm/extauthz",
+      "sha256": "c125a5bce3ba25c93d2a6c1f4345be4f5319fd8bb814fa384d7270f87431499d"
+    },
+    {
+      "blob_sha1": "20bbdff1d72686d96715aa95a2b034cbb0f9780d",
+      "commit": "37ea7531df877ae86e08c0c35afdd6f4c2ec52a3",
+      "path": "platform-api/pkg/authz/testdata/policies/07-condition-keys/kubernetes-groups-condition.cedar",
+      "repo": "openshift-online/rosa-hyperfleet-api",
+      "sha256": "0862a6e34acc5c055006530c42e9856e6a21ca48de154dd502ea99fd77fac9ac"
+    },
+    {
+      "blob_sha1": "c6384844e7b705b671df70cb9f52f840938bc8e1",
+      "commit": "37ea7531df877ae86e08c0c35afdd6f4c2ec52a3",
+      "path": "platform-api/pkg/authz/testdata/policies/07-condition-keys/principal-arn-condition.cedar",
+      "repo": "openshift-online/rosa-hyperfleet-api",
+      "sha256": "b3aad7078259d4da0ebc8a0eb43a5a3eeb26817ee6e62c42852a2ad85cf98bef"
+    },
+    {
+      "blob_sha1": "f6ed87739239c3a597120e4aff86e423cb5fcfbd",
+      "commit": "37ea7531df877ae86e08c0c35afdd6f4c2ec52a3",
+      "path": "platform-api/pkg/authz/testdata/policies/08-complex-scenarios/team-lead-namespace-admin.cedar",
+      "repo": "openshift-online/rosa-hyperfleet-api",
+      "sha256": "21179ca12ee9bc04de3d6f94fbc2c5949b674643c7b9cb74ef16be1a304da951"
+    },
+    {
+      "blob_sha1": "9155ba9a62be219d206a58f4fce00d2b32dc48ff",
+      "commit": "0d31fc444bb69a79806b86a28a83188cb265b7bf",
+      "path": "backend/internal/core/authz/cedar/policies/capability_grants.cedar",
+      "repo": "orkestra-cc/orkestra",
+      "sha256": "33086ef525583b1e9c4f50f20dad48b730d9ef05680c7482649ab362b8f1d22a"
+    },
+    {
+      "blob_sha1": "f867055a38355f4ca648d37451caf325eddfbb6e",
+      "commit": "0d31fc444bb69a79806b86a28a83188cb265b7bf",
+      "path": "backend/internal/core/authz/cedar/policies/platform.cedar",
+      "repo": "orkestra-cc/orkestra",
+      "sha256": "868dc342efec39acbabdf71beac61eed56c098c3f8ed26256134058d80691010"
+    },
+    {
+      "blob_sha1": "67a5c1000bf6ca3b43fb26c7d80ca2c498c3e46c",
+      "commit": "0d31fc444bb69a79806b86a28a83188cb265b7bf",
+      "path": "backend/internal/core/authz/cedar/policies/system_actions.cedar",
+      "repo": "orkestra-cc/orkestra",
+      "sha256": "53d352c808abfee71327aac56fe5eea4dd446e4f18ba8e95fbe117d185a1dc7e"
+    },
+    {
+      "blob_sha1": "52bc4a4aab946e697d264c07ed1870eef29d7381",
+      "commit": "517503b9a73e482ad8d04bde19b0af0596098959",
+      "path": "docs/policies/autonomy-ceiling.cedar",
+      "repo": "oyatie/oyatie",
+      "sha256": "0bf92e7c8fd07a467182232b7ebc1c3c84486c54fb219ac124a4029283961271"
+    },
+    {
+      "blob_sha1": "d3f3db7db9c66aaed494fc64fa7988b1edd609b7",
+      "commit": "517503b9a73e482ad8d04bde19b0af0596098959",
+      "path": "iam/core/platform-contracts-kernel/cedar/platform-policies.cedar",
+      "repo": "oyatie/oyatie",
+      "sha256": "17885a3bac562d8d5a223ba122dd44753a63e9113a2cbf042c4aacfbdc5ce153"
+    },
+    {
+      "blob_sha1": "9bec4154135b68830baa8923301b54ffa8798070",
+      "commit": "517503b9a73e482ad8d04bde19b0af0596098959",
+      "path": "intelligence/cedar/cloud-intelligence.cedar",
+      "repo": "oyatie/oyatie",
+      "sha256": "807a626974a17c95d70a9aa2da663fc616e766c7e896e91bb757e717d21f0e29"
+    },
+    {
+      "blob_sha1": "375bf2663fcacc89fd262319541b9981a54e0cf9",
+      "commit": "4244c25e4313a2455b145dbc23cf9fbd6bec5f9e",
+      "path": "biosecurity.cedar",
+      "repo": "pedrambayat/bio-sentry-agent",
+      "sha256": "a8a8032b3ff617d1e473a9d6ca17ce722c74d63172491ad9734f164d615b029c"
+    },
+    {
+      "blob_sha1": "a5ffdc89d6072bd3ece4296c0a658064603190fc",
+      "commit": "d0f39ff18ee0172426b4d389f44816ba2fe727d2",
+      "path": "policy.cedar",
+      "repo": "pegasus102/last_mile_drop",
+      "sha256": "9dc5906c0b7f61c564916345677663e215adf25ad31fa0231cc106d62d700a9e"
+    },
+    {
+      "blob_sha1": "c93c7ad994390fabef8b8ee2a930c9bf7649bca7",
+      "commit": "d6ba2dd3ece0205542cf288dcdfc1d3bbb502cd4",
+      "path": "examples/basics/cedar/documents.cedar",
+      "repo": "permguard/permguard",
+      "sha256": "7c794e6349d8f942d8b853261325ef271ff4468d6ccbcba4678879f5172bb213"
+    },
+    {
+      "blob_sha1": "ef2ab1e5e6b218996fdea4525ded02a7b90cafed",
+      "commit": "d6ba2dd3ece0205542cf288dcdfc1d3bbb502cd4",
+      "path": "examples/release-pipeline/admin-cedar/release-authors.cedar",
+      "repo": "permguard/permguard",
+      "sha256": "4b448f404d09c717d0f16974fca8d124badf3392f0e41c9f3ef8c373c0eb5141"
+    },
+    {
+      "blob_sha1": "50d96a35bb1e5edc987a8e9df61859096c4c7ceb",
+      "commit": "d6ba2dd3ece0205542cf288dcdfc1d3bbb502cd4",
+      "path": "examples/release-pipeline/admin-cedar/rollback-responders.cedar",
+      "repo": "permguard/permguard",
+      "sha256": "b25581915b0db848ee57d57f9798ff665419106401680472025e6f09eb1b72f8"
+    },
+    {
+      "blob_sha1": "ee27ce8bb618a3608841bde631c7604c39aa090f",
+      "commit": "c982b24e38935a3f29eb090b352a87089b56cdee",
+      "path": "scopebench/policy/cedar/policy.cedar",
+      "repo": "petrakol/ScopeBench",
+      "sha256": "878eec22f23c650d5e19c8caf5c773270aabd8c4fedab9fece096c8ec6c0c868"
+    },
+    {
+      "blob_sha1": "d09049ec090376b8ac0c809d18c0f5eeba4f3874",
+      "commit": "65b980e06580fad33418c8a975f2b7db74b260d6",
+      "path": "cedar/policies.cedar",
+      "repo": "pkonnoth/DocuEasy",
+      "sha256": "a54ab90a5136abe0cdda9d2d4ead78e63a415756e535fbb0e03818baa0567256"
+    },
+    {
+      "blob_sha1": "4f8b56f6bf68f0565e4e381335485898d9a590d0",
+      "commit": "afc18cf1682172acb983fe6a285fc872b8b849ae",
+      "path": "policies/examples/compliance/strict-compliance.cedar",
+      "repo": "plexusone/pipelineconductor",
+      "sha256": "d8a8ffab48f1a0c7db203870a93093c29b8554587453b48db7269bf932297168"
+    },
+    {
+      "blob_sha1": "ec3f9fe147d239ef9398b5e0a77f9066806efad2",
+      "commit": "afc18cf1682172acb983fe6a285fc872b8b849ae",
+      "path": "policies/examples/go/dependencies.cedar",
+      "repo": "plexusone/pipelineconductor",
+      "sha256": "d786b5269500bbf8820f7bdb4fb4109de244d054c1ba98b62b047e9c05cc31c4"
+    },
+    {
+      "blob_sha1": "dadb8b021897ae48aa0e4e9e29b4d3be353e2867",
+      "commit": "855387ccb66be24ac242745893f3e303a84a1104",
+      "path": "policies/go/dependency.cedar",
+      "repo": "plexusone/versionconductor",
+      "sha256": "e467a11e30949e55fb8162ce0554681f69d49afe57f26888056009739b37f560"
+    },
+    {
+      "blob_sha1": "099e696185a472d09bbe778671f37634e7276523",
+      "commit": "855387ccb66be24ac242745893f3e303a84a1104",
+      "path": "policies/go/directives.cedar",
+      "repo": "plexusone/versionconductor",
+      "sha256": "94f06802213445b61552b91f8e7d273d259d53e4d792d596b44868afc0bd10a9"
+    },
+    {
+      "blob_sha1": "382fd4a5167a05a0d5e81fdd6aee1c09cd783853",
+      "commit": "855387ccb66be24ac242745893f3e303a84a1104",
+      "path": "policies/go/timing.cedar",
+      "repo": "plexusone/versionconductor",
+      "sha256": "d327a07f1b037e89afd89cd58bbf822606b7a11379d38c4eeac9155271d41b49"
+    },
+    {
+      "blob_sha1": "928527bcc318c36f06e744371fe6bb783fa9d316",
+      "commit": "41759040fc5002fd499d5dc2c47a329812dd8fa4",
+      "path": "policies/rbac.cedar",
+      "repo": "podtan/pdt",
+      "sha256": "2cb3c928fec6779a6eb3f34f4e799263ff4531648d8b59d9fa285321a8f45cd3"
+    },
+    {
+      "blob_sha1": "9a521414529137984179438abf9f786beb8a663a",
+      "commit": "5a11549d232142c6bb908d1fb2def1b545f64d67",
+      "path": "policies/abac.cedar",
+      "repo": "podtan/pep",
+      "sha256": "faed13ee75e96748bf641f6a9f648ac882f2f3dc91bb0be59e0f5e3d4d47e36b"
+    },
+    {
+      "blob_sha1": "b088738f7469ab47061f5aca7cf26d6d7eb27dcb",
+      "commit": "398aff9a713428a80c0f74a7b97256ef75adb828",
+      "path": "aws/cedar/policies.cedar",
+      "repo": "prakhar-bip/Yaduka",
+      "sha256": "30ea472672666ffed6c90366bdae50e1a2b3d35909d2360a5302c4b897fea7a9"
+    },
+    {
+      "blob_sha1": "e446773ec82d9e6b8441df164c31dd2bb829e085",
+      "commit": "d5f67c4ad4882ba101822b5358bed9092fdd6321",
+      "path": "internal/dashboard/policies/dashboard.cedar",
+      "repo": "provabl/attest",
+      "sha256": "90cf2875e890c6b49753fb6a4cbcc549c4b3d5bd05ed2824a809feb0430f0431"
+    },
+    {
+      "blob_sha1": "e161e76e14c334e5a866cc7df96c7a8e8d6a6397",
+      "commit": "c4d609e02c8c3e43fed107773387cab5e54dcd2e",
+      "path": "infra/policies/cedar/psd-agent-governance.cedar",
+      "repo": "psd401/aistudio",
+      "sha256": "3c35713a3b4da043d0eea8cbc24c18850228ae6434b810d8ea1049709078bfb0"
+    },
+    {
+      "blob_sha1": "5337605e40a29d08b85cc1df82ff2bfa59b8ac75",
+      "commit": "2989e76da1d696b6b2b648a90091c1c52063255d",
+      "path": "internal/auth/cedar/builtin_catalog.cedar",
+      "repo": "pyvvo/funcd",
+      "sha256": "8d9d0dc303d6fcef69d0526747ad7c3738b0cc2fefc0d7edc6ffc29331816f2b"
+    },
+    {
+      "blob_sha1": "e13d6cf9bd8d1707179c3e3b326d51aff7361481",
+      "commit": "14ca1a71779d3ca754fbc4991de3138f4e4b406f",
+      "path": "code/authorizer/cedar/policy.cedar",
+      "repo": "qkun-zh/nail",
+      "sha256": "dd4081446aed5173a1a40d410505c2833d588ad1e1c4c1195f29014424273513"
+    },
+    {
+      "blob_sha1": "dc38e7a6812b9e3ceabc409b580d57a45db4ded3",
+      "commit": "73af9845c518796683dfc08437e682c1de42c0c4",
+      "path": "datasets/005-policy-authz/cedar/clinical.cedar",
+      "repo": "quome-cloud/quanchor",
+      "sha256": "92bbb6bada8d740af1f8201229e4c88668a6841067e8a10136497ccaa6357f41"
+    },
+    {
+      "blob_sha1": "0dde88b7c827bb4aaabeb66481e15dbfe48e57fc",
+      "commit": "3f18c3d609f3e3859009a41b6ec29591ae8435a9",
+      "path": ".github/agent-factory/protocols/code-review/scripts/security/policy/cedar/default/00-exfiltration.cedar",
+      "repo": "radinshayanfar/yuanrong-datasystem",
+      "sha256": "ec5f2aaf708267d6a176d38cff975339a6e0063eebbd9e920e2e48be133afe45"
+    },
+    {
+      "blob_sha1": "ee485e20742efbfcf20d2549c1bf0626381a36b8",
+      "commit": "603980b9874f8a2ab2be9f8c5958897726fc87d8",
+      "path": "src/main/webapp/WEB-INF/permission-groups/policies/visual-content-editor.cedar",
+      "repo": "rajkowski/cms-platform",
+      "sha256": "ce2d02da14ead41bd71f547e7e5a48acfc04b611c47a32246cb3a9fd8dde0161"
+    },
+    {
+      "blob_sha1": "065ab6cf5d7ebd70cc0d913d6692c23444fb21a9",
+      "commit": "d03bdc892ed923945c3c129beb0c18bc5efcbda6",
+      "path": "gateway/policies/04-ltm-mcp.cedar",
+      "repo": "ren8k/aws-specialist-agent",
+      "sha256": "ece166e520c9b86f86b4379ebbb3cdfadd4eb540a0250073713df7b9f109e80c"
+    },
+    {
+      "blob_sha1": "fa6707ca014a8507bd3a3c62b27d88e341ac2896",
+      "commit": "d03bdc892ed923945c3c129beb0c18bc5efcbda6",
+      "path": "gateway/policies/06-web-search.cedar",
+      "repo": "ren8k/aws-specialist-agent",
+      "sha256": "1821638ca681725bb3e8a481e3635cdc7bc12619571ac1996a2eda3c379830ac"
+    },
+    {
+      "blob_sha1": "cbe7c374320665d766035afd97bffa0324a50ec1",
+      "commit": "a9bdfd8fa04cfbcac4144687103dfef0b35d5a84",
+      "path": "docs/cedar-sim/audit-policies.cedar",
+      "repo": "ridi-oss/proxy-monster",
+      "sha256": "8f39aec68b2aaa2d145435b31af7c56fa1a0dcb84493393b7916be8325d2d4e6"
+    },
+    {
+      "blob_sha1": "dd0cd786ca0cfdfd6368ea462e87c40b10bc5753",
+      "commit": "a1065da849ebed670738d3251b85b139c1a9da98",
+      "path": "workshop4/phase3/studentservices/policies/permit_all_tools.cedar",
+      "repo": "rwang5688/ai-stack-2026Q2",
+      "sha256": "66d9aa8e37b39b05785fa3b4f9deee21b13fb84814cb030a48ec8b234f9c3638"
+    },
+    {
+      "blob_sha1": "47ff905aa6655af76296f6deae58bb021fe57f8e",
+      "commit": "412f307de09db9b2ba395035459bb3e6165d5739",
+      "path": "examples/policies/no-secret-in-input.cedar",
+      "repo": "rxbynerd/stirrup",
+      "sha256": "cee6dc94af5caa790949965fe9c1127d31eebcca613eadebfa20ba41c92b22d9"
+    },
+    {
+      "blob_sha1": "1fe47a41acee4baebd25d0d5d6e05e8f16bffc6f",
+      "commit": "c716c0d42c1622f10560acb1611329d91c05e28c",
+      "path": "src/orchestrator/policies/deny-network.cedar",
+      "repo": "safe-ai-factory/saifctl",
+      "sha256": "913307d21cf74e89013d55d1826444809741ab03a104236f163f8d3f4b0907c7"
+    },
+    {
+      "blob_sha1": "108188bb53e30a04ef702078bea373631ac77163",
+      "commit": "e6b7e8d3857c307faf86d8f5dd9739b406780464",
+      "path": "apps/platform-app-proxy/policies/cedar/matrix.cedar",
+      "repo": "saluca-labs/pantheon",
+      "sha256": "74ff209be39718a52133f3d1b7c0486de5a5ee7169a100342cd5c7e12e947300"
+    },
+    {
+      "blob_sha1": "04527b53883bc85dd017db92878394fe2b87eccf",
+      "commit": "42a459375093f42f71e08a968b48855011bfbe12",
+      "path": "config/policies/30-execution.cedar",
+      "repo": "sanjucoder-96/AgentSheild",
+      "sha256": "9fd36868856634468e06d7eb93410d3ad24be2b2263079bc18e30c4bf4e7fc95"
+    },
+    {
+      "blob_sha1": "18d08f5fd8fe360ea33109b5e3629f0042d183ea",
+      "commit": "e7c78c291ce0b342df2ce54138b8e46cc9f1539e",
+      "path": "backend/functions/authorizer/cedar/policies.cedar",
+      "repo": "satvikviriyala/ARHV",
+      "sha256": "93e3c043cb82cb4597a59e553708eda5ab5e661411a6e047932a203019d0125c"
+    },
+    {
+      "blob_sha1": "fb838cae9692e0c628fde60e2c0c5e804baa34d3",
+      "commit": "20facabc3da0464e32630fa9a370358f0fcc3e67",
+      "path": "policies/default.cedar",
+      "repo": "scttfrdmn/campus-claws",
+      "sha256": "299e9eb2f9c6f9a670d684ec50ef8b74bd0aeaf4e32a29876af8b15db3677119"
+    },
+    {
+      "blob_sha1": "764971292791956e329b7c5a1b564bf143fa96cf",
+      "commit": "20facabc3da0464e32630fa9a370358f0fcc3e67",
+      "path": "policies/templates/approved-domains-only.cedar",
+      "repo": "scttfrdmn/campus-claws",
+      "sha256": "14615c589a3d365457965c7ef1fc71bb2193923f8e9d5385813ec5105fd41db0"
+    },
+    {
+      "blob_sha1": "87f1121d6796df63ee5673c134bfa437a957dc2c",
+      "commit": "20facabc3da0464e32630fa9a370358f0fcc3e67",
+      "path": "policies/templates/read-only.cedar",
+      "repo": "scttfrdmn/campus-claws",
+      "sha256": "d47b793047bf4239099d4f47620e4146c5f352440e6411ea03daccbcc652cddc"
+    },
+    {
+      "blob_sha1": "e85371a05fa9d3e7b7f36f79524cd39cb4ec7439",
+      "commit": "07511205fa27a33c723323e0df143b1ccff72878",
+      "path": "policy/cedar/iam_resource_policy.cedar",
+      "repo": "shaheerkj/nhi-sentinel",
+      "sha256": "ac041f5e3e87b0e10b5c6fe37003d9f03069e40613fc7c916c5ee555d2a57bc0"
+    },
+    {
+      "blob_sha1": "5628b0a932d57cd9bd4e5cb5850d29f8afba89d7",
+      "commit": "07511205fa27a33c723323e0df143b1ccff72878",
+      "path": "policy/cedar/s3_resource_policy.cedar",
+      "repo": "shaheerkj/nhi-sentinel",
+      "sha256": "27aeafab430f8fd39a05b055fa32ca8e33973355b69c7ba37690dcefaaa54ef3"
+    },
+    {
+      "blob_sha1": "51b3706d2a8cc7934d5890b20ca68315cb2b1cd4",
+      "commit": "20a7df919bd9a1ca76e42609297955fbf88bcfa2",
+      "path": "backend/policies/clearcase.cedar",
+      "repo": "shankywho/ClearCase",
+      "sha256": "0e5f27bf0f880b2b372f7b887e50bd0d8ca60769b37c2f6a7e81991e97cfa902"
+    },
+    {
+      "blob_sha1": "3b9a35a7157c98dc2ba129cb31e9fff8c4f72221",
+      "commit": "69617fe17aa72462631ac7bfa0a628ca0308a719",
+      "path": "backends/servicenow/policy/agent/resolution.cedar",
+      "repo": "shiningcat-labs/usenixsecurity_2027_obpe",
+      "sha256": "7ef0604ce42e8b9f855d92ab0716bb547acd61922dde41d66f8d70673b9bd508"
+    },
+    {
+      "blob_sha1": "ad40b0a467e088b1191424fe7b618084f55ccd9d",
+      "commit": "69617fe17aa72462631ac7bfa0a628ca0308a719",
+      "path": "backends/servicenow/policy/agent/triage.cedar",
+      "repo": "shiningcat-labs/usenixsecurity_2027_obpe",
+      "sha256": "5ccadf8961dc4d0116bf92d2f205658ea210c05042cc54dada124ef951f047c8"
+    },
+    {
+      "blob_sha1": "18f438ab71babc593802703f9a5c83816aa377b6",
+      "commit": "69617fe17aa72462631ac7bfa0a628ca0308a719",
+      "path": "backends/servicenow/policy/ceiling/servicenow-ceiling.cedar",
+      "repo": "shiningcat-labs/usenixsecurity_2027_obpe",
+      "sha256": "02c0cac1cec6e8d4171fb1440121b76e272925a4c287103dea3ff8c08fadadd0"
+    },
+    {
+      "blob_sha1": "355a322ed8177c9371c35867910b6d756ccfc9a7",
+      "commit": "758717a95c629429346db1b588ee1cdaba97cb56",
+      "path": "policies/abac.cedar",
+      "repo": "shoaibakthar/observeid-platform",
+      "sha256": "8cc02a307b1efa499e0e71a5d2ba7170c917e3e8fd880f40d16a9be23215d5f0"
+    },
+    {
+      "blob_sha1": "f391fab7d7567011468d0afdfd041a10625f4c2f",
+      "commit": "758717a95c629429346db1b588ee1cdaba97cb56",
+      "path": "policies/agent.cedar",
+      "repo": "shoaibakthar/observeid-platform",
+      "sha256": "30237425c0de7df305a9d968282612162ef75449887185c8a1d3448f7c12abe9"
+    },
+    {
+      "blob_sha1": "0b4fa039c8cd28af38cd70d9a4aeadb480f46028",
+      "commit": "758717a95c629429346db1b588ee1cdaba97cb56",
+      "path": "policies/rbac.cedar",
+      "repo": "shoaibakthar/observeid-platform",
+      "sha256": "5ab31b3b6d4bf6c154f5e7d32bd75269e6d5c60721cd7792d2b5204ee7f40ef7"
+    },
+    {
+      "blob_sha1": "45f27a07cd4aef190e426d79bde1cd67f37657b7",
+      "commit": "a6511a799e21f078d6bb0d5c37bbe4c6c1b7b738",
+      "path": "policies/app-delegation.cedar",
+      "repo": "shortrib-labs/shortrib-agent",
+      "sha256": "e63a9627d610b94d64cde3021768954af239313c10544132e27fdf359f37d4e9"
+    },
+    {
+      "blob_sha1": "3376e8ffcd2a5362fe3801080f91137e9893206a",
+      "commit": "a6511a799e21f078d6bb0d5c37bbe4c6c1b7b738",
+      "path": "policies/mcp-proxy-access.cedar",
+      "repo": "shortrib-labs/shortrib-agent",
+      "sha256": "8fa6e01300fd751813e0b6e38e7dd08c35782540bdfec5166bec6317f84f6113"
+    },
+    {
+      "blob_sha1": "9bf02175de3e027083a2b5b616459632c9a7784a",
+      "commit": "eb3db3c170a0aec953df471e84cf6aa4272dd843",
+      "path": "firstcommit/policies/shikshamesh.cedar",
+      "repo": "shreesriv12/WeMakeDevs",
+      "sha256": "6959523ec4e49f336fd694c0d0e0ab52809d62d3506b2d84199846e5f7fe5880"
+    },
+    {
+      "blob_sha1": "e89b5248bf1763e6ce6aca3fd8ce300aed62edb1",
+      "commit": "90d2cd95e87d72e7596a744b54594dd97d4a3e7e",
+      "path": "src/permdiff/demo/policy_base/agent.cedar",
+      "repo": "smhasan94/permdiff",
+      "sha256": "9a380d9f35d087fe9981434a71fa9d6f5fc3c5fda054738515d9328c3a2a83de"
+    },
+    {
+      "blob_sha1": "4fbe87a9fe5a99088caada9563cba8274d0bb45d",
+      "commit": "90d2cd95e87d72e7596a744b54594dd97d4a3e7e",
+      "path": "src/permdiff/demo/policy_head/agent.cedar",
+      "repo": "smhasan94/permdiff",
+      "sha256": "e35f4cf150ea03a12db5d29c307982dcce17f532fb78967aedfa605e122b86f4"
+    },
+    {
+      "blob_sha1": "318973053dfa951d4d670b8d7caf32272060e2f2",
+      "commit": "f3141fb7614eaf6878c29af041220204095f1299",
+      "path": ".sondera/policies/cedar/base.cedar",
+      "repo": "sondera-ai/sondera-coding-agent-hooks",
+      "sha256": "877d6d524c6d173dcd62ebebb3209cb7c10e94ad5658e7a6e2fcfc945789500e"
+    },
+    {
+      "blob_sha1": "098486a3f1e198c7a6ae097f637eb5c797eec664",
+      "commit": "f3141fb7614eaf6878c29af041220204095f1299",
+      "path": ".sondera/policies/cedar/forbid-tool-abuse-prompt.cedar",
+      "repo": "sondera-ai/sondera-coding-agent-hooks",
+      "sha256": "32e83686fb250c97d579346851a299f1ffd357338ffe905c8ce8b447ca48d733"
+    },
+    {
+      "blob_sha1": "0942d5967ba9120fa0bf73718a7f240edfd21a2b",
+      "commit": "f3141fb7614eaf6878c29af041220204095f1299",
+      "path": ".sondera/policies/cedar/lol-forbid-read-shell-history.cedar",
+      "repo": "sondera-ai/sondera-coding-agent-hooks",
+      "sha256": "9fc8d3eafb926109171248eed21986eb2f67f64f3bceed1f76c911ffd809aa98"
+    },
+    {
+      "blob_sha1": "79ec099c9853874fbbdeeebd6ac705dd1be718dc",
+      "commit": "6bc6e1729889747cb0ebcb3e9d3736194677164b",
+      "path": "examples/adk/policies/investment_chatbot.cedar",
+      "repo": "sondera-ai/sondera-harness-python",
+      "sha256": "c16931b7a0e445f587f377bf1fbbbde64bfb944d9be391fc2319f41eb4d60d37"
+    },
+    {
+      "blob_sha1": "a1d868026a4d6db8b1c863aceff294e6fb615880",
+      "commit": "6bc6e1729889747cb0ebcb3e9d3736194677164b",
+      "path": "examples/adk/policies/payment_agent.cedar",
+      "repo": "sondera-ai/sondera-harness-python",
+      "sha256": "31e27b18020d45c48337b413f31e7eb161faafe59d58d5283b9edc1377d654b3"
+    },
+    {
+      "blob_sha1": "57a00fa30143e96729d03d008676b1b85f185879",
+      "commit": "04c9c9bbe3b2efd7ca6007b5e6aefb14f56ebc44",
+      "path": "policies/career_agent.cedar",
+      "repo": "souvikDevloper/career-agent",
+      "sha256": "d9f331d557017a43d280d805905e07c5f9b2823bdeeea10667ab2b0918e9706b"
+    },
+    {
+      "blob_sha1": "c3e782b8194b4e739c21a8231c19295a5d689d3f",
+      "commit": "bd13518e0e956f7a57cfd454ca54092dba21cadf",
+      "path": "internal/auth/policies/base.cedar",
+      "repo": "specgraph/specgraph",
+      "sha256": "b5ae9113b5c3872cca98537c1aa540285383733d7447db3efc137f8d1be38271"
+    },
+    {
+      "blob_sha1": "c6dc5e3774dbd8a4e2d1c06a87258ea3082cdbef",
+      "commit": "5c852fe49fa93d38d499a7ef43875be3b91fb581",
+      "path": "authorization/policies/deal-ownership.cedar",
+      "repo": "spiceai/cookbook",
+      "sha256": "947bcccc1fe579ffdc96d2766f9d1b50a6422ac86c3a127be79780c5508a0c48"
+    },
+    {
+      "blob_sha1": "39818ae202cc74c8a60065cfc284f0ae960e95b6",
+      "commit": "5c852fe49fa93d38d499a7ef43875be3b91fb581",
+      "path": "authorization/policies/pii-masking.cedar",
+      "repo": "spiceai/cookbook",
+      "sha256": "6db84240d12c934e7de459011a9d890765637e725686c8278d48df8e0c0f162f"
+    },
+    {
+      "blob_sha1": "8d67371b3d9d71f077107e471c7b74c7512c2eff",
+      "commit": "5c852fe49fa93d38d499a7ef43875be3b91fb581",
+      "path": "authorization/policies/rbac-salaries.cedar",
+      "repo": "spiceai/cookbook",
+      "sha256": "208341d84dcf9778ee90b0948f00d882c521c3b1e85cacb86b0e96f9271844ec"
+    },
+    {
+      "blob_sha1": "c63d519a56399a3e9c51f7db634e3193c76ef40d",
+      "commit": "2eaedb32857207fcef44d135766349a870b3d57b",
+      "path": "src/main/resources/authorization/policies/server-administration.cedar",
+      "repo": "streamarr/streamarr-server",
+      "sha256": "ebce32ab68c94d1b2f1d2b71aedd5823bfcf2d22c785336cff8508383b760130"
+    },
+    {
+      "blob_sha1": "28814e25b98858e46b7c8c3990b6da612e21ea00",
+      "commit": "2eaedb32857207fcef44d135766349a870b3d57b",
+      "path": "src/main/resources/authorization/policies/transfers.cedar",
+      "repo": "streamarr/streamarr-server",
+      "sha256": "adaf3d9de6254abc2a6b05fb60d3a363248874f9a4fd90c6b97b85f6d915dc9b"
+    },
+    {
+      "blob_sha1": "5332496a3107d4325108c0c67e8f441e840a03d3",
+      "commit": "2eaedb32857207fcef44d135766349a870b3d57b",
+      "path": "src/main/resources/authorization/policies/viewing.cedar",
+      "repo": "streamarr/streamarr-server",
+      "sha256": "1f77f074f404d050f71d7d47d28bb9c25b9675efae4a02efd4fc6a29fce3c7c9"
+    },
+    {
+      "blob_sha1": "ee2cb8f98a865a0cb0175ae9925c3b82f7a82750",
+      "commit": "97c9cdee762f7118d7e53210d7af2dea0d5f7ef6",
+      "path": "crates/strobilus/examples/microservices/policy.cedar",
+      "repo": "strobilus-lang/strobilus",
+      "sha256": "cb665d69c3640c9eddc93827d7010cb0da7b3d02ce8da6c85c8e84ce9f6d9b6d"
+    },
+    {
+      "blob_sha1": "1bf5e694365a5c4a53fa9f3dd6093ba5af6ba89e",
+      "commit": "decc2d4fd9699520b3c9c6faf75366c80e7a3ea5",
+      "path": "policies/forbid_connect_bytod.cedar",
+      "repo": "strongdm/policy-of-the-week",
+      "sha256": "fa5e36101fe4957727d09de58613ecb704677cf1ede2ec785dfd6da30a6ba2a1"
+    },
+    {
+      "blob_sha1": "ad1d05b63eb004d4487d257828b913722f0f2e0d",
+      "commit": "decc2d4fd9699520b3c9c6faf75366c80e7a3ea5",
+      "path": "policies/forbid_eks_bytod.cedar",
+      "repo": "strongdm/policy-of-the-week",
+      "sha256": "2109a4e0c30ecedf18032ef0a69bc1b3618fedf874c052d840db747c47fe10aa"
+    },
+    {
+      "blob_sha1": "8df021595b500554a3461b7b1e3015dc77a09d4b",
+      "commit": "decc2d4fd9699520b3c9c6faf75366c80e7a3ea5",
+      "path": "policies/forbid_noneu_gdpr.cedar",
+      "repo": "strongdm/policy-of-the-week",
+      "sha256": "4232af0013e72efb5caca4ebe009525a30e9f386ab6c49415150a11a9770a735"
+    },
+    {
+      "blob_sha1": "5b4846911543af3d37305bfeddb00dab42c795a9",
+      "commit": "c3de317969cb9447fd3e3aabddec71f82292153e",
+      "path": "omnigraph/policies/analytos.cedar",
+      "repo": "surendra902/OMNIGRAPH",
+      "sha256": "4ce8702a4d4982bacfb54e9e002c008825ae90f013663d43e53aa2b4cee1eac7"
+    },
+    {
+      "blob_sha1": "d6eb36be6bfec9f4fffb369b767f9aea8a707e9e",
+      "commit": "bafe769ca65bb38beace8cebaed6fba13839a94f",
+      "path": "cedar-policies/worker-data-access.cedar",
+      "repo": "sushh-05/gigproof",
+      "sha256": "5379c1ca553b7f421ba9f4e81e4ac83e398147da54f88c0ba4419aab4467f687"
+    },
+    {
+      "blob_sha1": "9b550a7724c10f2f67b792d846f6b6f1cc1323ca",
+      "commit": "d0d0e5b0b5218803a43b3fba74fbf818cd65e9f3",
+      "path": "terraform/policies/safety.cedar",
+      "repo": "tarlan-huseynov/agentcore-monorepo",
+      "sha256": "48712a81d241e723140077c637934be37e42d285a3e8a963d5ac84844e18b226"
+    },
+    {
+      "blob_sha1": "0943fb9b0aabb91b2bf35afa6a1f1d5374ef0ecd",
+      "commit": "c6487843f812bf672adbdfb3025e7853a38da687",
+      "path": "CedarFiles/sample.cedar",
+      "repo": "teihyung/Cedar-Policy-Backend",
+      "sha256": "bedc0d1828cca7b0f23689168b93c99636cc401e3d26eacd6f2d8d60a634a843"
+    },
+    {
+      "blob_sha1": "8d7ace25418249d22b09cfdb57e875bd2d026a95",
+      "commit": "c7220bd7584241b3c1a803feb4e24010ef455894",
+      "path": "policy/cedar/tenant_isolation.cedar",
+      "repo": "theofanis-tsakanikas/attestor",
+      "sha256": "6580c894f289ce24fc350505cb7260a534e4dfdcc9a071ddb650aeda9fdd34a4"
+    },
+    {
+      "blob_sha1": "7ff4e1e2846072dee9174bf1ecb1b037a5ba587e",
+      "commit": "635caeda9cb2f5cf911560e38ad9427a442cc181",
+      "path": "policies/s5c_confirm_needs_an_explicit_yes.cedar",
+      "repo": "thphuc06/FairTable",
+      "sha256": "98db6108095c62ef7c00a16cb541ce0a232e2e7f91b468751ef635831a761a33"
+    },
+    {
+      "blob_sha1": "1d2acbf23bd6c554291ca91e75406fbd1a614169",
+      "commit": "34d34f7ab638ca1c737712400f50f6450debe087",
+      "path": "examples/enterprise/policies/mfa-required.cedar",
+      "repo": "thrashr888/agentkernel",
+      "sha256": "f788e6be87dd1261f19a14d1594c9e29ace26cfe5be9d546a98528e722e051b2"
+    },
+    {
+      "blob_sha1": "c79495ce2c23876b43f2e4b72e74a83266fad513",
+      "commit": "34d34f7ab638ca1c737712400f50f6450debe087",
+      "path": "examples/enterprise/policies/rbac.cedar",
+      "repo": "thrashr888/agentkernel",
+      "sha256": "c6c686e3c97c48f52fae53b75ca2300ec4755f355567c311963e778f2895d6cb"
+    },
+    {
+      "blob_sha1": "e41a53c13f48f6c8e77a92877d089ea05d8297cf",
+      "commit": "01d2d89051566622614010b880906dd437b10c49",
+      "path": "policies/cedar/clinejection.cedar",
+      "repo": "tomjwxf/scopeblind-gateway",
+      "sha256": "f400171c27b21c47a081b94bcae83135f1f9715fb6fc7adfb1a3be13af638f55"
+    },
+    {
+      "blob_sha1": "a3de0a53fda1b10d47f6694250fadbe4915cc7eb",
+      "commit": "ddf6bec20c142f308fb456c7f298aa44f9741e8e",
+      "path": "policy.cedar",
+      "repo": "tomkaith13/mongo-cedar",
+      "sha256": "f1e1696b437e9d88bf4f270ed7b7aa504bc615aca6190cf78c3283bace35e2f3"
+    },
+    {
+      "blob_sha1": "9107b5edf99bab33817410b85edfce52648058e4",
+      "commit": "bad6b4426934bd5d073972c88aed56a46f0a3f3a",
+      "path": "testdata/dns.cedar",
+      "repo": "treetop-policy-engine/treetop-client-python",
+      "sha256": "b2cdb9a29a311a109e18a2d5228e49e332fd2448d209592ddad13842f67ea148"
+    },
+    {
+      "blob_sha1": "5e375873a2a69ba431a814d1e84541dfa4955260",
+      "commit": "0a392d41e10c23e7fd9c1cfba4ff1d49d79bcc27",
+      "path": "core/rex-runner/samples/read-file-example/read-file-policy.cedar",
+      "repo": "trusted-remote-execution/trusted-remote-execution",
+      "sha256": "5e5d49ed736b868a4afb9aa82abf0e7e9dd58eff3db3e16d9ad489333cf9b41e"
+    },
+    {
+      "blob_sha1": "de83700b07354da749cf8ba5ada1c801de2457df",
+      "commit": "0a392d41e10c23e7fd9c1cfba4ff1d49d79bcc27",
+      "path": "example/setup/scripts/ssm/readonly.cedar",
+      "repo": "trusted-remote-execution/trusted-remote-execution",
+      "sha256": "6d2abb4299c099ea9fc11c38d374420d40521682746419cd1402bf176e298be7"
+    },
+    {
+      "blob_sha1": "43716319a1bcf86249e1d504160108e327ad23a5",
+      "commit": "c1ce0f60ea3656989adb64a3f57475fe7d131fff",
+      "path": "localdev/mount/e2e.cedar",
+      "repo": "upbound/kubernetes-cedar-authorizer",
+      "sha256": "aff2a1eda1615f0517571158d7bdfde825021398316e6799dfacd02933d16a3b"
+    },
+    {
+      "blob_sha1": "3354a2809847a0702962322dc57cba41c394a341",
+      "commit": "c1ce0f60ea3656989adb64a3f57475fe7d131fff",
+      "path": "src/cedar_authorizer/testfiles/simple.cedar",
+      "repo": "upbound/kubernetes-cedar-authorizer",
+      "sha256": "13c5e36e0a86640ca3c43858866db65dc1cf07d0428f5b46d0a5fda880e9464b"
+    },
+    {
+      "blob_sha1": "3ac30d8d9b7a78fb863d2b693421e0c25bf2e6a6",
+      "commit": "99ee6c7ad28e9a83306d3e17f0ce973a47e4d6b4",
+      "path": "policies/code-execution/code_execution.cedar",
+      "repo": "vectimus/vectimus",
+      "sha256": "6df9cd0d4d2256407b6ed6a2aeb81c9dcf327aacc5496995aefa20c118e50984"
+    },
+    {
+      "blob_sha1": "d2b61d8e2f0c9cb01a2c7dfd3bd527774e3e5a2a",
+      "commit": "99ee6c7ad28e9a83306d3e17f0ce973a47e4d6b4",
+      "path": "policies/database/database.cedar",
+      "repo": "vectimus/vectimus",
+      "sha256": "2658a4a8efb3bbf686d4221620d0bbf4c8f4da07bf3da232f9972002636072e6"
+    },
+    {
+      "blob_sha1": "065c42fe9fd309b338878d5b6f4b7cf79f206b7d",
+      "commit": "99ee6c7ad28e9a83306d3e17f0ce973a47e4d6b4",
+      "path": "policies/infrastructure/infrastructure.cedar",
+      "repo": "vectimus/vectimus",
+      "sha256": "91c3090ca9db44c62159110df182dd42303a09aeb85839971b2c9ddc6c96b5aa"
+    },
+    {
+      "blob_sha1": "cecf10d16ddd4d6f750deae6e509ca84d3354260",
+      "commit": "28dd96537dd8167f6482db9ffcdc6303f16155ee",
+      "path": "paper/artifacts/real-correction-study/fixtures/erdos-264/vela-repository/.vela/authority/policy-material/policies/c997e39a024934e7355f73422ac10f401398e2ff593dc89de6ffe25c97d452ec.cedar",
+      "repo": "vela-science/vela",
+      "sha256": "c997e39a024934e7355f73422ac10f401398e2ff593dc89de6ffe25c97d452ec"
+    },
+    {
+      "blob_sha1": "3e40819ba89d9346031936fae7c6f8adac78d1c8",
+      "commit": "8799bd3a4b93e57a3f03a6a88a5ac06e2079989a",
+      "path": "policies/forbid-eu-staff-on-us-only-tools.cedar",
+      "repo": "vercel-fieldeng/cedar-rule-eve-demos",
+      "sha256": "bcd8382287e92ed449850ccb1e3f227da86a281b57067176ecf7e740c86eaada"
+    },
+    {
+      "blob_sha1": "f1d78337be6d80a0802308bd9ad1331c0d119a2b",
+      "commit": "8799bd3a4b93e57a3f03a6a88a5ac06e2079989a",
+      "path": "policies/forbid-mutations-outside-business-hours.cedar",
+      "repo": "vercel-fieldeng/cedar-rule-eve-demos",
+      "sha256": "f5bf05f5f249055704fa5ebe3ce0dea509a8aca5adbf79f859e1e68a4981368a"
+    },
+    {
+      "blob_sha1": "aee142369aa8e7efde68956de24694f686c529c5",
+      "commit": "8799bd3a4b93e57a3f03a6a88a5ac06e2079989a",
+      "path": "policies/read-access-for-staff.cedar",
+      "repo": "vercel-fieldeng/cedar-rule-eve-demos",
+      "sha256": "7605eb04907350fe5f171fba0b35b9a0e03f41fd4b3c6fc87350e71744113c29"
+    },
+    {
+      "blob_sha1": "a0039ac0789ebfe4cbad800a95e2dca725512cf0",
+      "commit": "cbae1d1decf1b0fab27a14c1c1211901c596aae7",
+      "path": "express-petstore/finish/backend/policies/policy_2.cedar",
+      "repo": "verifiedpermissions/examples",
+      "sha256": "855e27acf134b756cefaf3111354a6d67d0b0af21406ca965f1812f72566947d"
+    },
+    {
+      "blob_sha1": "8ef44c41ed87596e184c290af117eba3dfcce1f9",
+      "commit": "126346db17de9745a92ea5004ae066dbb2b4383b",
+      "path": "otherPart/unnamedProject/src/backend/authorization/cedar/policies.cedar",
+      "repo": "vinaykumar-hash/POP",
+      "sha256": "7cece3c8b44f8ed4362a83b563ff09415cfa51c20b9f714828ad3edcd85c61b9"
+    },
+    {
+      "blob_sha1": "7f9b1c8835e4ff4b6dda0a8332d01f3bef04e423",
+      "commit": "25547a440a3da54c7cafaab8220b69f1703aa06a",
+      "path": "authorisation-v5/policies/agent-can-invoke-reva_demo-get_customer_pii.cedar",
+      "repo": "vpriyathimma/reva-litellm-demo",
+      "sha256": "4e112761424df7ea37e8faa13f9989fdea4559d0eb25648b0e34411c6d69d5d1"
+    },
+    {
+      "blob_sha1": "b04668569da97233979f07e01e204b8c4a024db2",
+      "commit": "25547a440a3da54c7cafaab8220b69f1703aa06a",
+      "path": "authorisation-v5/policies/forbid-chain-depth-over-two.cedar",
+      "repo": "vpriyathimma/reva-litellm-demo",
+      "sha256": "92e63cc26382d556cc5bca8c4cb3cafe060354cd35bb00e0a721bb14fcbc0c64"
+    },
+    {
+      "blob_sha1": "ced80c6630a76ed646e6daa25a27476e516d2bb0",
+      "commit": "25547a440a3da54c7cafaab8220b69f1703aa06a",
+      "path": "authorisation/policies/forbid-finance-off-hours-unless-approved.cedar",
+      "repo": "vpriyathimma/reva-litellm-demo",
+      "sha256": "c4a238671fc5afd3f8b34558993e94861de8d11af72af162f8bb6e39c2b857ba"
+    },
+    {
+      "blob_sha1": "124e7dcd0e5cef00689c9375e6e17684a83791e4",
+      "commit": "439251cb77171814349cf54c45e7949727d12a19",
+      "path": "cedar/api-based-policies.cedar",
+      "repo": "vpriyathimma/securebank-reva",
+      "sha256": "73ea51dcbda468a6877b94653820933ecc458438ca603ae71c0a7e95b32283b5"
+    },
+    {
+      "blob_sha1": "191a65170c82121a121573723e6886ab0e8e7266",
+      "commit": "439251cb77171814349cf54c45e7949727d12a19",
+      "path": "cedar/aws-account-details-policies.cedar",
+      "repo": "vpriyathimma/securebank-reva",
+      "sha256": "1e268f401f640fa05b1a00abe4ac0d7da08c4b005de5520d23b3eb1a30b65037"
+    },
+    {
+      "blob_sha1": "3b3542b581bc5a3774fa83001d54b6f7d3ddf359",
+      "commit": "21d7e217cc4076d5dc8f28dec1420a3260761eb7",
+      "path": "policies/00-guards.cedar",
+      "repo": "wasxy47/mcp-sentinel",
+      "sha256": "117ede14a4669979453603f8828f87b6743a144386a67ef966ccf7cc3fbac072"
+    },
+    {
+      "blob_sha1": "d557707dddebf16b604921e2fef57b98b50a1ee8",
+      "commit": "21d7e217cc4076d5dc8f28dec1420a3260761eb7",
+      "path": "policies/45-shell.cedar",
+      "repo": "wasxy47/mcp-sentinel",
+      "sha256": "3e59bef14344a4a248a8055bc668f4fa5531d690a841dd4a60391557b8a66a59"
+    },
+    {
+      "blob_sha1": "f370ad63b1ddb131d896a8f033dff613238bf46c",
+      "commit": "21d7e217cc4076d5dc8f28dec1420a3260761eb7",
+      "path": "policies/50-governance.cedar",
+      "repo": "wasxy47/mcp-sentinel",
+      "sha256": "4d79d3442280ac093ef9255b6b935d1ec25b2e6cbd48fc122b6285adc3e0bd2f"
+    },
+    {
+      "blob_sha1": "13972b2b8de36d069a42c2c659863e66e2696f38",
+      "commit": "25db2064f89a71676cc582566fffff001e227f36",
+      "path": "crates/karu/examples/cedar-examples/github_example.cedar",
+      "repo": "wellknown-id/karu",
+      "sha256": "317789af4d8bc9cd6eaf15d86011f34e04876affa0745d7b06faec97712f3356"
+    },
+    {
+      "blob_sha1": "013db5fe07fe1462f8eb20816c71521b6ceeb1ce",
+      "commit": "d9e439f21e1aa2f7987063c2b8f18aca75f8aa6a",
+      "path": "crates/policy-engine-wasm/tests/fixtures/default_policies_v2/increase-allowance-cap-warn.cedar",
+      "repo": "woojinnn/dambi",
+      "sha256": "b78917eeaf185db6aef2cbe36caafd38d99c3c8f2d6758f9b835e7cc0b48374b"
+    },
+    {
+      "blob_sha1": "909336c239f39ed4362b87495f573c69dde0fe27",
+      "commit": "d9e439f21e1aa2f7987063c2b8f18aca75f8aa6a",
+      "path": "crates/policy-engine-wasm/tests/fixtures/default_policies_v2/signature-chain-mismatch-permit-warn.cedar",
+      "repo": "woojinnn/dambi",
+      "sha256": "10bdefb5177aadecea13dc3f6eecc9e866a3c813942e449d95a342a081785b10"
+    },
+    {
+      "blob_sha1": "ede648c70b3e8a97c206a925d1ce0e4cad93f742",
+      "commit": "d9e439f21e1aa2f7987063c2b8f18aca75f8aa6a",
+      "path": "crates/policy-engine/tests/fixtures/policy_catalog_v2/wallet/venue-allowlist/interaction-contract-allowlist/policy.cedar",
+      "repo": "woojinnn/dambi",
+      "sha256": "e7f590b62f10e94c9ec355999063d6cd2ef50d832347979fd9939bd4200a12c6"
+    },
+    {
+      "blob_sha1": "d1b1595165b732c5396b45208adb3a7c776df74e",
+      "commit": "be9fd90532d8fb9d868708a43fcb4201a6043f27",
+      "path": "gateway/policies/policy.cedar",
+      "repo": "wreyes321/agente_contratos",
+      "sha256": "872cc3634016e93d28ba7bfcafcee3e9f5798384d00820c5b7fa164c67df9c55"
+    },
+    {
+      "blob_sha1": "6007ef0422ac9b62f70606775ea7aea26c2023c6",
+      "commit": "5ad77b1009ee2fb430423e2cf54b2ad0471681cd",
+      "path": "gateway/policies/agent-team-runtime.cedar",
+      "repo": "yogeshselvarajan/minnal",
+      "sha256": "a66aa0f2ac5793bc3f467a2769a36d661fddf6b691654775db3972a7c3a3b7b7"
+    },
+    {
+      "blob_sha1": "9c7a129f54893359da5bc031cb935d71a88ba6c9",
+      "commit": "06bb484ba6f2d53df992c3f63d4326c5f2b0e358",
+      "path": "conformance/cedar/policies/00-anon.cedar",
+      "repo": "yoshuacas/pgrest-lambda",
+      "sha256": "7388a0b9363a5ea00f825fd604ba3d56c1f6ef92cb306e9936e90e8fac0a6562"
+    },
+    {
+      "blob_sha1": "78e66ffa671963a3c4e21e19f20d834158f40508",
+      "commit": "06bb484ba6f2d53df992c3f63d4326c5f2b0e358",
+      "path": "conformance/fixtures/policies/00-engine-defaults.cedar",
+      "repo": "yoshuacas/pgrest-lambda",
+      "sha256": "0a0827c51d9a74ccc1775481191a82f6ba8fda9d92539f99a1001153de0aea43"
+    },
+    {
+      "blob_sha1": "b87097f24136916a7127f57a8bee7f5eea6c420d",
+      "commit": "fcfad3ca36120896578925f5e50099188342f444",
+      "path": "02/policy.cedar",
+      "repo": "yutaro-sakamoto/learn-cedar",
+      "sha256": "4a7cfd87759f5e9518d7b977760003962ecf0be37199e71e3bc4488dc3ae976a"
+    },
+    {
+      "blob_sha1": "8102f93d4c80dfac19ba254f1488102ab8e14c12",
+      "commit": "fcfad3ca36120896578925f5e50099188342f444",
+      "path": "09/policy.cedar",
+      "repo": "yutaro-sakamoto/learn-cedar",
+      "sha256": "c84f798ad141b3932fb39e1442457855a15357ffd976cfbd80ee11d8e4969847"
+    }
+  ],
+  "frame": 2668,
+  "frame_owners": 430,
+  "frame_repositories": 480,
+  "harvested_at": "2026-10-03T10:17:19+00:00",
+  "how_collected": "GitHub code search, each query split into eight size shards and read to at most 400 results per shard; the pool filtered to a frame and the frame shuffled with the recorded seed and walked under the recorded caps, as scripts/third_party_sample.py states",
+  "owner_cap": 5,
+  "owners": 229,
+  "policies": 400,
+  "pool": 3480,
+  "provenance": "third-party",
+  "queries": [
+    "\"permit\" extension:cedar",
+    "\"forbid\" extension:cedar"
+  ],
+  "removed_from_pool": {
+    "a byte-for-byte copy of a vendor corpus file": 24,
+    "owned by the vendor or a measured corpus's author": 367,
+    "the same content as an earlier file": 421
+  },
+  "repositories": 248,
+  "repository_cap": 3,
+  "schema_version": "v1",
+  "search_total_count_by_query": {
+    "\"forbid\" extension:cedar": 3451,
+    "\"permit\" extension:cedar": 9581
+  },
+  "seed": 20261003,
+  "shards": [
+    "size:<300",
+    "size:300..600",
+    "size:600..1000",
+    "size:1000..1500",
+    "size:1500..2500",
+    "size:2500..4000",
+    "size:4000..7000",
+    "size:>7000"
+  ],
+  "skipped": {
+    "its owner already has the cap": 4,
+    "its repository already has the cap": 470,
+    "states no permit or forbid": 1
+  },
+  "target": 400
+}

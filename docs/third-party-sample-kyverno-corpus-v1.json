@@ -1,0 +1,2858 @@
+{
+  "digest": "sha256 of the bytes",
+  "ecosystem": "kyverno",
+  "examined": 536,
+  "excluded_owner_prefixes": [],
+  "excluded_owners": [
+    "kyverno",
+    "nirmata"
+  ],
+  "files": [
+    {
+      "blob_sha1": "70f861e86415950bfeb5db69114f6c4526e2fa91",
+      "commit": "9a6c9c86692e19fb0fc1d2bdeaf0c642a612d6b8",
+      "path": "charts/htrflow-batch/templates/policies/images-pinned.yaml",
+      "repo": "AI-Riksarkivet/htrflow-batch",
+      "sha256": "14e7d52818d1deaa4811b7a9b7533be78b93e5d166e9b86e04fbea6660c6428a"
+    },
+    {
+      "blob_sha1": "c191e31d40e1e92f7163b0688b89099102c0774c",
+      "commit": "2c0bb6db7d3fa3ecb5fe73dff34dc4a98e60d0b6",
+      "path": "policies/kubernetes/worker-nodes/custom-3.2.9.yaml",
+      "repo": "ATIC-Yugandhar/cis-eks-kyverno",
+      "sha256": "947b7dac74e8167f11d624b327ce41951673369f84693b52c634e4cb5f631bff"
+    },
+    {
+      "blob_sha1": "72b9d90eeeb2669df2d0ddd1ec6cfb71aacb9dda",
+      "commit": "f07d70b9ccf8648c3ba9940a7920d54c5b6fd063",
+      "path": "policies/kyverno/verify-vuln-attestation.yaml",
+      "repo": "Advit105/secure-supply-chain-pipeline",
+      "sha256": "6f407ee0527f7864a0e2562f10f03c41d1ce612667490e65f2a0c28ed723b988"
+    },
+    {
+      "blob_sha1": "411495f41d16ce9634d7ba7dd2fd5016ec7db43b",
+      "commit": "f24fa84a01e770467588bebd185c2f15d69dbbff",
+      "path": "helm/yashigani/templates/admission-policies.yaml",
+      "repo": "Agnostic-Security/yashigani",
+      "sha256": "3cb1f6c74e0814b71fbb88b4a22bf15fcefbef0c5065f002ff10a0f41dbcbb17"
+    },
+    {
+      "blob_sha1": "2137847758c738800e286e421fc1b6c9ffbd2bf3",
+      "commit": "33085bd89bda6d0f0b95a720088eebadec92d62a",
+      "path": "platform/policies/kyverno/require-secure-workloads.yaml",
+      "repo": "AnouarMohamed/Mundia_library",
+      "sha256": "35956d278e19d818a67a535985809f4849a06b345cfddc848df0093884839da3"
+    },
+    {
+      "blob_sha1": "0f6b5e40a96a10ab981295752279c66ad1297493",
+      "commit": "8e92c73706d10db7e9f2da9a85006640ecae2c52",
+      "path": "policy-no-root.yaml",
+      "repo": "AnouarMohamed/gitops-supply-chain-security",
+      "sha256": "3db430258f2b31db6074fd8a217efa05de550e60650e77a57b21a0e9c1bea0f9"
+    },
+    {
+      "blob_sha1": "d3664267bb33a661d9e972fc37c95f27cc01de88",
+      "commit": "6e920ffb9756f334a68ebb8a13e1eaa5527d5621",
+      "path": "k8s/policies/kyverno-policies.yml",
+      "repo": "Apurvbajpai2531/Stockloom",
+      "sha256": "85e7bec8d540cd09f8f3da6edb8e89e02eabe3fdb3bc97b96b21b183eaf4486a"
+    },
+    {
+      "blob_sha1": "95ec5370e7b0d4fc108463521b7e3225d08626bf",
+      "commit": "c87a1e2f2c7297d38c1d4f86dd29e5426891875c",
+      "path": "banking/admission-controller/bankingImagePolicy.yaml",
+      "repo": "Area-51-Devops/k8s-banking-application",
+      "sha256": "f4aad56499af198bd60ca7e53ecf2d859ce1bb4be29f048f0c1dd09ed599800f"
+    },
+    {
+      "blob_sha1": "c14eb32bbd5155977be168d59f042f0e75da5862",
+      "commit": "bcb771e29326321b7be0c4bfe2d2a7c742ac7955",
+      "path": "resource_customizations/kyverno.io/ClusterPolicy/testdata/healthy.yaml",
+      "repo": "Armor-test/argo-cd",
+      "sha256": "a14ef5e7fde02050d1ae8352a6f699d258836307c400884b7a64c1058ad08b64"
+    },
+    {
+      "blob_sha1": "28748d42eb0c74341627b271ce33c4cf90c9528e",
+      "commit": "83ddc95cb158f0b2eeb4598d6a7d0ab09c3cc484",
+      "path": "supply-chain-security/kyverno/clusterpolicy.yaml",
+      "repo": "Arnazz10/forgeseal",
+      "sha256": "7f43e2e79ef59bf6b39bdc14f3b00ec5226da78c3d4dbd61d59f66ceb4b39eea"
+    },
+    {
+      "blob_sha1": "dc7534084b5859f6372857edab3e0bdf4a15fd9a",
+      "commit": "e94c5d66ab32c28fef9acd7ff88f2724ea85b9b5",
+      "path": "kubernetes/argocd/base/kyverno.yaml",
+      "repo": "ArthurVardevanyan/HomeLab",
+      "sha256": "8d8d6875a2147dcb344b16c7e1dd47864f108c7b1e636f92b0e022c60aba7b35"
+    },
+    {
+      "blob_sha1": "8ac004a37390f183e404e33a403ae1a4b4dfffc1",
+      "commit": "e94c5d66ab32c28fef9acd7ff88f2724ea85b9b5",
+      "path": "kubernetes/network-observability/base/kyverno.yaml",
+      "repo": "ArthurVardevanyan/HomeLab",
+      "sha256": "9de1aee3f97f8184acf1b36f61edbba71a37e870516e0d70f73b8a52085e96bc"
+    },
+    {
+      "blob_sha1": "71d0e083f2a7749cb4d5336c0fd36ac6c0927c52",
+      "commit": "e94c5d66ab32c28fef9acd7ff88f2724ea85b9b5",
+      "path": "kubernetes/nmstate/components/openshift/policy.yaml",
+      "repo": "ArthurVardevanyan/HomeLab",
+      "sha256": "4579b0203be847d0ce80f292391a9281b9957cb36e40100b4a1818ddfadc4045"
+    },
+    {
+      "blob_sha1": "57c29323179bf9de93ba6c5c9512152ffed4ad79",
+      "commit": "6107538c4b01b4cc391c2f2ef2c397771cbf9d66",
+      "path": "kyverno_policies/enforce-ressources-limit.yml",
+      "repo": "Assstra/kube_security",
+      "sha256": "491f43f75adaaf67963e14b8fa49401f6893fbd4bb4838c2049da5a183341400"
+    },
+    {
+      "blob_sha1": "f42d7d938e66d29888993d034c5e3b1ecaf04a64",
+      "commit": "6107538c4b01b4cc391c2f2ef2c397771cbf9d66",
+      "path": "kyverno_policies/set-image-pull-policy.yml",
+      "repo": "Assstra/kube_security",
+      "sha256": "19295bfaf08de733c4986d204994d8db23a3e73995c7b77862e42579b6f6dc6c"
+    },
+    {
+      "blob_sha1": "5776a31bb1f5f9975c8a4f9abcea75439769b775",
+      "commit": "7077f7c25bd516dd64506d8753e69316ceb02ba4",
+      "path": "install/kyverno_policies/unsigned/require-signed-images.yaml",
+      "repo": "Avni-Sharma/gitopscon_na_2022_session",
+      "sha256": "fd69ab33cea40107a1ec01de63db754bf7eb5e2c69574903fb986841baf575ac"
+    },
+    {
+      "blob_sha1": "44c91306c51eb9a630eaac08610480dce6373475",
+      "commit": "f97e72a78d155396f06ef84ec091594f69b29d96",
+      "path": "kelompok6-devsecops-future/implementation/kyverno/policies.yaml",
+      "repo": "Ax3lrod/DevOps-Kubernetes-Kelompok6",
+      "sha256": "bf19d75c0df7f2a277c7345cdd81cf3ecc796661a7ef4883a78bf88c1e56c93a"
+    },
+    {
+      "blob_sha1": "fa0c6016666aabea5edc8b47c96be6727d71f358",
+      "commit": "0f55297ad01603b6d7553b87cb5deab65a41f2c3",
+      "path": "generator/templates/manifests/deploykf-core/deploykf-auth/templates/ClusterPolicy--restart-on-secret-updates.yaml",
+      "repo": "Balmine/kubeflow",
+      "sha256": "fa8571c50e9d8386081611680d8d3cb44f448e73839983b9adeb16cf1871b62b"
+    },
+    {
+      "blob_sha1": "3e4c6ec0bd20da621e71412a8e4deaec82673e9c",
+      "commit": "0f55297ad01603b6d7553b87cb5deab65a41f2c3",
+      "path": "generator/templates/manifests/deploykf-dependencies/kyverno/templates/ClusterPolicy-image-pull-secrets.yaml",
+      "repo": "Balmine/kubeflow",
+      "sha256": "37a488aab3c4c532316d8bf1c7c1d6a68957b48d748403be4aaf9e54a0c19c1d"
+    },
+    {
+      "blob_sha1": "b471dff1877651f4c22585f83006f43fd8dfb04a",
+      "commit": "0f55297ad01603b6d7553b87cb5deab65a41f2c3",
+      "path": "generator/templates/manifests/kubeflow-dependencies/kubeflow-argo-workflows/templates/ClusterPolicy-clone-bucket-secret.yaml",
+      "repo": "Balmine/kubeflow",
+      "sha256": "a4b50972a316da1b6b22e01cc93d13fb9c2b862423f9119bd48f1de95e7b11c4"
+    },
+    {
+      "blob_sha1": "1dbadd7babe54a8afe2a19f51df651fee0559830",
+      "commit": "3f9b934fd3bdd5a7bfd7e3140e4326fda49d7a82",
+      "path": "security/network-policies/pod-security-standards.yaml",
+      "repo": "Barrie20/aws-secure-campus-platform",
+      "sha256": "8193d1016c712d1b4bd37afc66a924606051bef78fbb6cd7d297ae960d68c83f"
+    },
+    {
+      "blob_sha1": "a6fd04e1c213e775847723034fd41569c85367d9",
+      "commit": "3f3c9293e2bfbdac38a6867fb53dcb54a67167a6",
+      "path": "common-backup/kyverno/snapshot-cronjob-controller.yaml",
+      "repo": "BeryJu/k8s",
+      "sha256": "1a2c1ad15affe2d4d6a5c0b5b2e40da6651cffd4ee06dad2f14751acdf29d268"
+    },
+    {
+      "blob_sha1": "696a98aac662bd9b72dd417e96b537bbd5bf8de0",
+      "commit": "b2f63cc63ec269b73daf430c6b3fab193aff786e",
+      "path": "multitenancy-benchmarks/require-resource-quota/.chainsaw-test/chainsaw-policy-assert.yaml",
+      "repo": "Chandan-DK/my-tests-vap",
+      "sha256": "d71d627249728a7f3eb85d4ae09e3d02660d55c6532654de8217750e5e3b2f79"
+    },
+    {
+      "blob_sha1": "a874e15a782b6d5ef91c33815fcc6fc5925eb444",
+      "commit": "b2f63cc63ec269b73daf430c6b3fab193aff786e",
+      "path": "pod-security/baseline/disallow-capabilities/e2e/policy-assert.yaml",
+      "repo": "Chandan-DK/my-tests-vap",
+      "sha256": "21c9899802e46701c512bd8f19636e1715672880c2e1b48e6da44e453154834c"
+    },
+    {
+      "blob_sha1": "1ed3e1bc6abc5db579c7ead005af4512adeef1cd",
+      "commit": "b2f63cc63ec269b73daf430c6b3fab193aff786e",
+      "path": "pod-security/baseline/disallow-selinux/disallow-selinux.yaml",
+      "repo": "Chandan-DK/my-tests-vap",
+      "sha256": "45419d3408fd4307023e0ec4143e78f96c101817ad21f8434cd809dd3d3138b6"
+    },
+    {
+      "blob_sha1": "f018ca46a373beac764a4c684a40a476a8461127",
+      "commit": "d0d8dd8f634705cd76a223b580903fa15a54c558",
+      "path": "framework/platform/policy/kyverno/require-resources.yml",
+      "repo": "Cliftonz/akuity-deployment-examples",
+      "sha256": "87e56aa3d8d4a76902fdcf08a7ac94e78e1ee1b52170ab51f523e8eb54bc40a3"
+    },
+    {
+      "blob_sha1": "476bde8ed1c1d7870b5e9a3b7eec55cd7c2ed062",
+      "commit": "bd5dda80bfd282e0f98e221d25da4066b2118500",
+      "path": "k8/kyverno/policies/disallow-priviledge-containers.yaml",
+      "repo": "Coolbreeze151/Kubernetes",
+      "sha256": "a89b84771f821fb45f0b64bff22825c58788fb35568dd8ce44b9373a909b55c0"
+    },
+    {
+      "blob_sha1": "a13cb3ad91b1cb8d3e41c64db194f5852eeabd0b",
+      "commit": "b5d1322e3b20e24a74b35cfb5a4374716be1ec97",
+      "path": "kubernetes/cray-keycloak/templates/ipv6-support.yaml",
+      "repo": "Cray-HPE/cray-keycloak",
+      "sha256": "3599f9e98d371f9a2be25d7088d76b7cf84a5613d5085e4e2852513ae7e7116b"
+    },
+    {
+      "blob_sha1": "de71e563ec4fc635d758f4c007b3cb19b182040b",
+      "commit": "8f01b46a9e84f34b9540cd95f1404502d5de4836",
+      "path": "charts/kyverno-policy/templates/security/pod-sec-ctxt-activemq-artemis-operator.yaml",
+      "repo": "Cray-HPE/cray-kyverno-policies",
+      "sha256": "c41ce51450418e8830994f127eb63ac9cc39cb479890e52dc35ebbd628da5ef8"
+    },
+    {
+      "blob_sha1": "836c764ea8c2878f773d7ab42d5bfe7525dd04b2",
+      "commit": "8f01b46a9e84f34b9540cd95f1404502d5de4836",
+      "path": "charts/kyverno-policy/templates/security/pod-sec-ctxt-sts.yaml",
+      "repo": "Cray-HPE/cray-kyverno-policies",
+      "sha256": "a5e2fc9a65f71f8eeb7083f2e6e8ded2944687d6727b224b7e992790121db34d"
+    },
+    {
+      "blob_sha1": "e611ba363b38c5aa2ee05ea68592551761f73e3e",
+      "commit": "8f01b46a9e84f34b9540cd95f1404502d5de4836",
+      "path": "charts/kyverno-policy/templates/security/validation/validate-pod-sec-ctxt-fas.yaml",
+      "repo": "Cray-HPE/cray-kyverno-policies",
+      "sha256": "b83a9a9368f2e23245ae5d7a9a50d68134af829f4166f4c952ecd99a751da4c3"
+    },
+    {
+      "blob_sha1": "e82e7872e063db900409b60e7bccb3a6f5c47bad",
+      "commit": "db48ff7131ec2d70226d4b2d2c81a03b500cf6d7",
+      "path": "testing/chainsaw/policies/v1.15.1/02-add-imagepullsecrets.yaml",
+      "repo": "CrunchyData/postgres-operator-client",
+      "sha256": "8a47b8d5cd96fc9243d3b7aa425d5962037ca4153286e1f4ba3ab6e1358157ad"
+    },
+    {
+      "blob_sha1": "e304b94fd1db5132662ba50616caca3deb456eaa",
+      "commit": "b9db3d4a27aa5f3cc95643c611dd47e9db5f1881",
+      "path": "platform-apps/charts/kyverno/templates/policy-kargo-project-name-validation-apps-in-any-ns.yaml",
+      "repo": "DanielOlynsma/kubrix-demo",
+      "sha256": "9b5e7bf378420b77c3d5511b3f7d32a0efac93fb7a49d848d86e61bc4f793604"
+    },
+    {
+      "blob_sha1": "4328d10deddce97c63e7e9f6c43c236a4c40f3f0",
+      "commit": "b9db3d4a27aa5f3cc95643c611dd47e9db5f1881",
+      "path": "platform-apps/charts/kyverno/templates/policy-kubevirt-rolebinding.yaml",
+      "repo": "DanielOlynsma/kubrix-demo",
+      "sha256": "59ca5f8989b518079311487d390fea69f334f88894bc644888f93665c7df4653"
+    },
+    {
+      "blob_sha1": "5f1125482771f94e435cde71635e3888b5b07d12",
+      "commit": "3c9dbfda03c42edf2e117b1db4a9d3f7683553d2",
+      "path": "charts/openebs/openebs/templates/kyverno/allow-capabilities.yaml",
+      "repo": "DaoCloud/storage-charts-repackage",
+      "sha256": "1eef6c67bf91e9b459ee77647418d9f40ee152b28ed5c3a1c21c490232eaee6a"
+    },
+    {
+      "blob_sha1": "323ad651b5257d5e26acf0c2adcae7302717073e",
+      "commit": "3c9dbfda03c42edf2e117b1db4a9d3f7683553d2",
+      "path": "charts/openebs/openebs/templates/kyverno/allow-privilege-escalation.yaml",
+      "repo": "DaoCloud/storage-charts-repackage",
+      "sha256": "1763c2e7e9ed30b7225075aa952f3ebf2606fa0f1a9a62678419497ae7f34948"
+    },
+    {
+      "blob_sha1": "d9f24db3cb9b534589855fd5ca540c4dc27e613d",
+      "commit": "cc4c3f74e82a4fc500f392d7b3f4fd9f37c9f237",
+      "path": "gitops/platform/base/kyverno-policies.yaml",
+      "repo": "DevOpsDerek/kind-argocd-platform-lab",
+      "sha256": "84f516a2e3f5153d99185b4d9d054e0e10ea2b7568d6b9392d611c5f7bffaa2b"
+    },
+    {
+      "blob_sha1": "4d01c228e426e8c11099b6c4ee8dedefe9cedee2",
+      "commit": "ce21af98652c979737508292c3a09206070340bd",
+      "path": "charts/events/templates/populate-trigger-clusterpolicy.yaml",
+      "repo": "DiamondLightSource/workflows",
+      "sha256": "ec011286d802ffbb45d8bbabb66f7f1f72536229a54f18ca5e0167ba8152cc97"
+    },
+    {
+      "blob_sha1": "c3d0bd9d7cefac4886888f146683dd29677f18df",
+      "commit": "fcbba6cb39ec37d1c642bef08cd104cf80426c29",
+      "path": "manifests/kyverno/tag-policy.yml",
+      "repo": "Divyansh-arma/k8s-zero-trust",
+      "sha256": "6794a2073db3306a8df53460312905ceb5bedc72a49766c557b5ca562b9ce88d"
+    },
+    {
+      "blob_sha1": "5039444b8aeca92a445162b516b156cb28a2a379",
+      "commit": "ba6df77f65e3de34f899f671bf0088c6e55da810",
+      "path": "chart/templates/disallow-deprecated-apis.yaml",
+      "repo": "DoD-Platform-One/Kyverno-Policies",
+      "sha256": "d0fa40e36f186febfeea09cce33e93e693efaec0fc6de41315ae8683ead70e4a"
+    },
+    {
+      "blob_sha1": "2b48e88dfb9c2eb7c931d89793e6b9beaec43905",
+      "commit": "ba6df77f65e3de34f899f671bf0088c6e55da810",
+      "path": "chart/templates/require-non-root-group.yaml",
+      "repo": "DoD-Platform-One/Kyverno-Policies",
+      "sha256": "a35ed351f916260b363423c4bc4431ef00ec428945ab197030f04eda51d3d2df"
+    },
+    {
+      "blob_sha1": "a3f47112fac06985371f47e995823123f1f358f9",
+      "commit": "9c4ea4d82414042c8be9ddea5a28de07a49d4839",
+      "path": "kyverno/problem-patterns/templates/patterns.yaml",
+      "repo": "Dynatrace/k8s-problem-patterns",
+      "sha256": "0482f3f054f524eefaa979d34c77e56e04c6c646540ad1a7aa635ab771c079f7"
+    },
+    {
+      "blob_sha1": "474d1b82d6da0201d11abe81aa0b8863fa303530",
+      "commit": "fd0ba78c998a4e915295dc030cc4de8369616d3f",
+      "path": "kyverno/policies/restrict-volume-types.yml",
+      "repo": "EUCAIM/k8s-deploy-node",
+      "sha256": "f155cbc50c9ac0c6eb6dea46c6426e435d8cdb44e8aacb15ba18aaa3d909aa04"
+    },
+    {
+      "blob_sha1": "cb7abea10938d701279cfeee06b7ad9783a7400f",
+      "commit": "dd35e4afb108fa542f77c1eca830cc9b7bb0fc97",
+      "path": "clusters/work/infra/config/kyverno/harbor-trivy-securitycontext.yaml",
+      "repo": "EnsarTopal/platform-gitops",
+      "sha256": "a578acc0a728ee869b97bd405ffa5795a206dd3ef60daf61b59f90295dfb74bc"
+    },
+    {
+      "blob_sha1": "224c16e55b05578264be652a810e7daa487e5c69",
+      "commit": "788328bf0ef0f90577fc2a44f9598986c8900a30",
+      "path": "B/B.009/kyverno-{{Yaml,CEL}}/CEL/3.CEL-ClusterPolicy-NoReplicasLess3.yaml",
+      "repo": "Eunryong/_Lecture_k8s_learning.kit",
+      "sha256": "1873a3bf33ce8c4ba74184b2b03d07e20cf0cd45a1f2b9e439474908bc1aaebb"
+    },
+    {
+      "blob_sha1": "3d57c272516bd0cfe7f699f788171a8f8c305122",
+      "commit": "69b38d18f83e4e3fbd86e9ca07452a96b7e93de9",
+      "path": "security/kyverno/disalow-default-ns.yaml",
+      "repo": "FabioBartoli/LINUXtips-PICK",
+      "sha256": "3b917719641f4e704607e69ad1db1ad6945351fd84d10ab37f5a1839ddbbf388"
+    },
+    {
+      "blob_sha1": "2df7d5b011d59f5bd7b8856d72b3507e13c8b351",
+      "commit": "d2dac90c04e0cacbedb1022a92af466a8a03b1de",
+      "path": "examples/06-policy-engines/02-Kyverno/mutate-default-resources.yml",
+      "repo": "FrederiqueRetsema/Kubecon26-example-repo",
+      "sha256": "779b73295ed88a29209fa78bce6232c4d4d1c2ea93983852a5ddc754a4809969"
+    },
+    {
+      "blob_sha1": "cf2689afacb76dad9484f6047bbe916e59490c7a",
+      "commit": "20833561481b65824adeb071c65895daf632f9e0",
+      "path": "Exercise_3_security_department/kyverno-deny-nginx-1.31-conditional.yaml",
+      "repo": "FrederiqueRetsema/kyverno-exercises",
+      "sha256": "434f7eca6ab2425c8550245732ef9762b3564d0919bb7e42dc1438e87503c97e"
+    },
+    {
+      "blob_sha1": "2742b002ded112f286a5fac53fd55cd3d4fe361e",
+      "commit": "e687593255253026a6d3d9d546629e2ccb8e29cb",
+      "path": "charts/geonode/templates/postgres/postgres-securitycontext.yaml",
+      "repo": "GeoNodeUserGroup-DE/geonode-k8s",
+      "sha256": "6e82f369ea6867ccae4d3b1cc5fa1c242c890cafb108c675f18ac7c5811a7094"
+    },
+    {
+      "blob_sha1": "d0e0f280f52e1466a9147cba1c9f78c2004224b7",
+      "commit": "91e0d0d70c7df5ff8876c6056f96b88c0350bd72",
+      "path": "policies/cleanup/cleanup-policies.yaml",
+      "repo": "GurdipSCode/devops-policies-kubernetes",
+      "sha256": "89c43eaeb8132778116ffaf5408ce97716c14c29080a4babbf6773b0ee95912e"
+    },
+    {
+      "blob_sha1": "1f1930369762921f3052d00f5e308c1ebdb95e34",
+      "commit": "91e0d0d70c7df5ff8876c6056f96b88c0350bd72",
+      "path": "policies/monitoring/prometheus-observability-policies.yaml",
+      "repo": "GurdipSCode/devops-policies-kubernetes",
+      "sha256": "f3c4bb77e45373e435912c4853550a75eb192c2b1ab1fa93b68d99cde009c21e"
+    },
+    {
+      "blob_sha1": "1918939a344e772da4364a5bcfa418f899dc8551",
+      "commit": "91e0d0d70c7df5ff8876c6056f96b88c0350bd72",
+      "path": "policies/rbac/rbac-policies.yaml",
+      "repo": "GurdipSCode/devops-policies-kubernetes",
+      "sha256": "2dcb532ea8f1188465a7c09089aed4f5fd6d9e762ba713be2a19bb047b889cb0"
+    },
+    {
+      "blob_sha1": "40366b118b97a595175f2a286e704c7a7c4eb0cb",
+      "commit": "f788abf97da19565d667484b450e6264106b5387",
+      "path": "Helm/helm-rules.yaml",
+      "repo": "GurdipSCode/devops-rules-semgrep",
+      "sha256": "4f393eb58f93dbabf0055f1dd5695cfc6a585b26ae3a2621ff9a9f6337c6a5d5"
+    },
+    {
+      "blob_sha1": "2db188ed43295fb8fb33d28a7fe8c840a48cefa7",
+      "commit": "e45bcc71f9211fb3355e7d0cf9f7365c59fbfe0a",
+      "path": "policies/kyverno/no-root.yaml",
+      "repo": "HalcyonOps/container-hardening-lab",
+      "sha256": "c61ff991316e2cfaa81527d5be7fc50d87f0586ea8678ea8e8946bfccf531546"
+    },
+    {
+      "blob_sha1": "024fb7750318f7db31b10a205f1665ed908486e9",
+      "commit": "edb4268cb24e97b66c570597aa064b03a0148f5d",
+      "path": "policies/require-resource-limits.yml",
+      "repo": "HalcyonOps/go-deploy-lab",
+      "sha256": "88c711b014d37c69fefc8161f6e58da12e03e027b21437dd58842ce002afc57b"
+    },
+    {
+      "blob_sha1": "aa3b52aaa4604281bf655eec27f0056fa2e322ed",
+      "commit": "f84ce362c794b683a8f8e1aa2e8452fa477df28b",
+      "path": "policies/require-scan.yml",
+      "repo": "HalcyonOps/mlops-pipeline-lab",
+      "sha256": "6e02aa5e99ef8927c94db142a1d53851973d371176840665425698e917f5d311"
+    },
+    {
+      "blob_sha1": "34d3f4ea88b548c4070c410f9d0f5cf321040886",
+      "commit": "32103b5ce75806fb0e78b8fb1371d310afc62d4e",
+      "path": "apps/kyverno-policies/base/require-s3-ssl.yaml",
+      "repo": "Haliltarik/argocd-crossplane-kyverno",
+      "sha256": "e2e5979762873891c1f7e2c230af1cb357062b1ce3f9b309b6795020de3942f9"
+    },
+    {
+      "blob_sha1": "b281990e919ed0a6f96983258d301d8b92453141",
+      "commit": "4ccf53cdb9718f201943fe77cab5ea4f20469fbd",
+      "path": "k8s/cost-allocation-labels.yaml",
+      "repo": "Health-watchers/health_watchers",
+      "sha256": "1a3372c5569edd2116e903b92bdada22cde80cfcb44f4affe9afb26ff026e8f0"
+    },
+    {
+      "blob_sha1": "072d54597bcba8e655269718c87b3acc72be4290",
+      "commit": "8a27a484b31f21ec17c5ceaf909ed7d1615a652f",
+      "path": "cloudNativeAalborg/sync-secret/sync-postgres-cluster-secrets.yml",
+      "repo": "JBrejnholt/demos",
+      "sha256": "5fab3c605ec9c68a3ddc3cc2c3fa8b51b0bfcf9f56eab000cb95e6a962f46c6b"
+    },
+    {
+      "blob_sha1": "a35322cf77e137a704c2c404cd51a582e2113c3a",
+      "commit": "8a27a484b31f21ec17c5ceaf909ed7d1615a652f",
+      "path": "cloudNativeCopenhagen/pdb-validation/verify-pdb-configuration.yaml",
+      "repo": "JBrejnholt/demos",
+      "sha256": "b7456a436d52d1d908c55585c166f08285300a0efa4ca289a2b95f6b397f44c9"
+    },
+    {
+      "blob_sha1": "e5425fd8e6c871160692d3f766aa57ff1495710a",
+      "commit": "1370a6610ddd2f7bf452f33ab6b13491127bc242",
+      "path": "kubernetes/day13-kyverno/limit-cpu-policy.yaml",
+      "repo": "JoaoHenrique12/problem_solve",
+      "sha256": "60d83be84bd5feb9b9ec6e8a8551e32ae97743cc60165d5aeb729456989197f2"
+    },
+    {
+      "blob_sha1": "86cd45a1967553951b7643e81d733bc3d240d35f",
+      "commit": "3bde1884a48db2c1e5c512df00cb72f4190c4c16",
+      "path": "P8/charts/politicas/templates/verificar-firma.yaml",
+      "repo": "Joe1172003/Practicas-SA-B-202200271",
+      "sha256": "55831d080fa3608741dc37827b7d961d1e908a95fa796c11016f0e1d96633da8"
+    },
+    {
+      "blob_sha1": "b898012ad57793d745faf2e87e7e373198ba7bd2",
+      "commit": "457077e92a086934234c4572f24f0c09964b7c9a",
+      "path": "docs/infrastructure/policy/kyverno/restrict-agent-egress.yaml",
+      "repo": "JonathanCGill/airuntimesecurity.io",
+      "sha256": "b7a98e0cf9e78494bb570586c87d326c82b84d26aca5e5c4c3e70979f44f430d"
+    },
+    {
+      "blob_sha1": "d0deb55cc0818a556dea844cb9ef3b00cd6af236",
+      "commit": "dc1d3ace9e8ee368739914f4ea1462bc913b4a71",
+      "path": "examples/common/kyverno-remote/.out.yaml",
+      "repo": "JustinKuli/policy-transformer",
+      "sha256": "ab18bc8eff513b30e067089b9edbf119011b9eefa0229f8d8014ba098c9e7abe"
+    },
+    {
+      "blob_sha1": "419fd628bb144010cbab061fc3609dc919083a66",
+      "commit": "dc1d3ace9e8ee368739914f4ea1462bc913b4a71",
+      "path": "examples/config-remote/.out.yaml",
+      "repo": "JustinKuli/policy-transformer",
+      "sha256": "716354e7a7996461cd0804c501cd403c0dc281c0de6b1a8a9ce3c97abb326be0"
+    },
+    {
+      "blob_sha1": "a8a953aeeb45b8bbcdde214177262d7697ea974e",
+      "commit": "2130c190d54780f94e30b11bc4c22a9fc1e27d09",
+      "path": "ansible/playbooks/provision-cluster.yml",
+      "repo": "KDim67/boostflow-thesis",
+      "sha256": "2bf239b52832fbb87f6cc05e3124fb55457c36521b78399baf88bb4a7119db3e"
+    },
+    {
+      "blob_sha1": "13aead61fa16337134cbe84469dc428e83683d17",
+      "commit": "bade8c2841344fe5a69d1beb3af271a46a956dde",
+      "path": "kyverno-demo/demo1-kyverno-dp-policy.yaml",
+      "repo": "MichaelCade/Homelab",
+      "sha256": "c328621ea94688c3a678c711fc6b1b7f25b17a5b627343dd6a4aeae7ebc83ef4"
+    },
+    {
+      "blob_sha1": "44cd2d1cab3baab8a67d2f4f550cda367bb83bfe",
+      "commit": "3b0384ea12f0480dee87b5911d73597f297f2233",
+      "path": "cluster/homelab/configs/kyverno/default-network-policy.yaml",
+      "repo": "Michaelpalacce/HomeLab",
+      "sha256": "b132a2238d52c6e20003e2cf0e037a013af2a15baa5139df532341c5f11d3e4b"
+    },
+    {
+      "blob_sha1": "026c0993f1c9bf67aeae91065fbb79b3d35e32d7",
+      "commit": "3b0384ea12f0480dee87b5911d73597f297f2233",
+      "path": "cluster/homelab/configs/kyverno/restrict-node-port.yaml",
+      "repo": "Michaelpalacce/HomeLab",
+      "sha256": "7a47e8d629a67aa6966115c15a3ba717713b0275e8bde29efd6dfa885e7ced42"
+    },
+    {
+      "blob_sha1": "c7dc9f56bbd3704fa7e4852f7ec85c171dc601b9",
+      "commit": "e771d20c7642586744daa385d9f28b8c2afce2ce",
+      "path": "manifests/deploykf-core/deploykf-auth/templates/dex/ClusterPolicy-clone-minio-openid-secret.yaml",
+      "repo": "MuhamedAyoub/kubeflow_manifests",
+      "sha256": "9f4b8ae675eece70d03a0bb343454c019ca480808e5f49a1d9c71d15a0d4db30"
+    },
+    {
+      "blob_sha1": "3004a4cf095e9823571015f82fe3209cfd4eefd6",
+      "commit": "c0c98ba838835d7a7d960bedb3a4b5fd2162258c",
+      "path": "docs/security/kyverno/kyverno/disable_packages.yaml",
+      "repo": "NVIDIA/nodewright",
+      "sha256": "a9cdab4c5ec37267716ec1d29fa4d686eb15f8afcf63121c79009f542189ef0d"
+    },
+    {
+      "blob_sha1": "5a9c1f298ac26ab9c033f0593ef3450504fc2930",
+      "commit": "7e4fdcc4ea45559959bb20cd388a084d4275e34d",
+      "path": "tekton/config/kyverno-fix-entrypoint-perms.yaml",
+      "repo": "NX211/homelab-infra",
+      "sha256": "782c716df796438ea302c70fb8be49b048c000263b897fc87052adda452e0de7"
+    },
+    {
+      "blob_sha1": "ea89ce95014ed652a49b8bb552d0cdb8ede58dc9",
+      "commit": "2165ac2106b45e791389e1ea44866188eb4d28e5",
+      "path": "examples/kyverno/policies/disallow-node-port.yaml",
+      "repo": "Neutrollized/free-tier-gke",
+      "sha256": "6c05b52660c05ab6c01f950a6aa3a3d13f7e8244f991368d6c85da21d475e456"
+    },
+    {
+      "blob_sha1": "fdfdd1aa306b143c61ea00c2ae7da1b95ae9ebfe",
+      "commit": "2165ac2106b45e791389e1ea44866188eb4d28e5",
+      "path": "examples/kyverno/require-ns-label.yaml",
+      "repo": "Neutrollized/free-tier-gke",
+      "sha256": "4b9888cc43c46d0e22fc0729f423ac83ae254d6ae12d29c4fcea81c2b9e45a08"
+    },
+    {
+      "blob_sha1": "aff186c74e69da94ddcfa16ac46fabba07d9bc9e",
+      "commit": "5318b4ca47bda6e8f746b2a2a596a1de820cf8d8",
+      "path": "video-analytics/k8s/policies/kyverno-policies.yaml",
+      "repo": "Nividhitha99/ENPM818R_Group3",
+      "sha256": "d1d873c48b43cc4ff6ffd58ac58b7456d10a0eddfbb33853d82ce4d025aede87"
+    },
+    {
+      "blob_sha1": "9b31f664ef35c3742af25bec00e73fadcd659ee0",
+      "commit": "4381176e2a733c7950da52eab354a4c6ea3c655f",
+      "path": "cluster/extras/kyverno/policies/best-practices/check-deprecated-apis/check-deprecated-apis.yaml",
+      "repo": "NorskHelsenett/gitOps",
+      "sha256": "8fd5deb6025fc837e7a32f539f0bf7b49a2695e7f29558be89fa093b46087732"
+    },
+    {
+      "blob_sha1": "7c9c234f39e15d3bcf31d29a2499e77028559f89",
+      "commit": "d0f1a7362dba979568a8c2a39e10c70dded58d27",
+      "path": "ch16/code/exclude-services-namespace-policy.yaml",
+      "repo": "PacktPublishing/Mastering-Kubernetes-4th-Edition",
+      "sha256": "443e16656b162ecc5155d949536da702bb3249bdaa6dccebf60fb05cbd8ff3af"
+    },
+    {
+      "blob_sha1": "ad42fa523d22d4c0a1fcf289c94c0bded2308ba1",
+      "commit": "ad41d1936462220b84b987d5998cf159cd792c22",
+      "path": "deploy/platform/kyverno/policies.yaml",
+      "repo": "PatrickKoss/baukit",
+      "sha256": "481e7a030d5751b566f4bd030a00dc61a88f7214fc5b2b96987a688b94bbfee1"
+    },
+    {
+      "blob_sha1": "3a650ca7a4fa954bcda3288ac397460700cc8f22",
+      "commit": "dacf63e8ee6fb4bb1c67b7caabb4c8d862996614",
+      "path": "apps/gcp/cla-assistant/policies.yaml",
+      "repo": "PingCAP-QE/ee-ops",
+      "sha256": "bd92e0a6c5360a6e9ddc6574d2c689db95c116e70ef157d2cf9ce42368f15035"
+    },
+    {
+      "blob_sha1": "bf77b9ae4a7bae4514b36da9bd656432da102192",
+      "commit": "dacf63e8ee6fb4bb1c67b7caabb4c8d862996614",
+      "path": "apps/gcp/jenkins/beta/post/_base/policies/set-pod-compute-class.yaml",
+      "repo": "PingCAP-QE/ee-ops",
+      "sha256": "0e727da4084be3c60edb8db17bed2846e8a8ff5b2fcff6cc343213a047ef553f"
+    },
+    {
+      "blob_sha1": "262a3d3e0c8f9860a62be941a2a4aa4453b20d14",
+      "commit": "dacf63e8ee6fb4bb1c67b7caabb4c8d862996614",
+      "path": "apps/gcp/tekton/configs/policies.yaml",
+      "repo": "PingCAP-QE/ee-ops",
+      "sha256": "be439106a927ba592fa8a7110950d83faafc6f5e41a0ae8cf66bf2ee4291145d"
+    },
+    {
+      "blob_sha1": "f862e3c56ea0c7a37c29068adc1be5b890ed554c",
+      "commit": "611a3f87027eddc361e8e383d514023d2ce9c871",
+      "path": "deploy/policies/kyverno/restrict-data-classification.yaml",
+      "repo": "PlatformRelay/Kaddy",
+      "sha256": "93f840ee207a3798f65003009ca8eec6eb1d5948feed2e6955755596324a11cb"
+    },
+    {
+      "blob_sha1": "4339ae7c79f3521d027638a1c75baf32cec4befe",
+      "commit": "ac79a36c4a2d0bce23f0fd0df5cd4e5e90931b7c",
+      "path": "kubernetes/kyverno-policies/best-practices/require-drop-all/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "repo": "Priceless-P/Devops-Projects",
+      "sha256": "677d705cdeecde0104b8e8b02a91b7d46ab566b736720a02520133b1cb928e8d"
+    },
+    {
+      "blob_sha1": "fa7e963f6efe4271bac2432b638a932842e509d9",
+      "commit": "ac79a36c4a2d0bce23f0fd0df5cd4e5e90931b7c",
+      "path": "kubernetes/kyverno-policies/best-practices/require-labels/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "repo": "Priceless-P/Devops-Projects",
+      "sha256": "3a0e32aabd68ed3fa8f114da6faeeaf854d0cc248da505c4c9d4527744b2a6da"
+    },
+    {
+      "blob_sha1": "4dd4e0f7fa5f0a5a8fbc769c6b485422bdb8ac17",
+      "commit": "ac79a36c4a2d0bce23f0fd0df5cd4e5e90931b7c",
+      "path": "kubernetes/kyverno-policies/best-practices/restrict-node-port/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "repo": "Priceless-P/Devops-Projects",
+      "sha256": "26e2d433309b8195d693474e1b941ffeca540b30931ced28937d8fc75fa17c30"
+    },
+    {
+      "blob_sha1": "02879ace0dc97932d4ed85b34e0f35ec8a84f223",
+      "commit": "64c228d6ac9f7a488f3c833c27f2cbc710c11bda",
+      "path": "rhacm/kyverno/assets/team-validate-ns-schema.yaml",
+      "repo": "RHsyseng/telco-operations",
+      "sha256": "3532a1e709c865b8877d91ddd92086045cd42e4cf1f2cdf0c88ce3083b06df85"
+    },
+    {
+      "blob_sha1": "e437adc030ae2e4c16a1c9b8a8f547517878571e",
+      "commit": "e089b6d75e2a54b09d5ac5a6bc77996f77154631",
+      "path": "charts/kyverno/templates/best_practices/check-deprecated-apis.yaml",
+      "repo": "Rahu2000/charts",
+      "sha256": "bf57e04e69ecb621c5a987df0a1fdcc8696638c78d0034f5f549f507638257f9"
+    },
+    {
+      "blob_sha1": "b3691e199a95a6d8d517581b5561fcdf2f3eb81d",
+      "commit": "6b5c07a23ce9543716688c8b6183e5a38c087a72",
+      "path": "stable/CM-Configuration-Management/policy-kyverno-add-network-policy.yaml",
+      "repo": "RedHatTraining/do480-policy-collection",
+      "sha256": "db2ae69ea3bc31b6fef76fe4b185e6b9a0fd0fc8d2919dc6cd480f7bdd708a19"
+    },
+    {
+      "blob_sha1": "ce78c7a51509b0e499cb309be3c68d88e08d7063",
+      "commit": "9c82d266cdc6bdd277b98db155f3933b06457e23",
+      "path": "k8s/kyverno-policy.yaml",
+      "repo": "ReinaldoSolano/brewery",
+      "sha256": "5c22dd9af002234a4ad25499323b9cd57eb9af9548603ecde4fc4465541bf540"
+    },
+    {
+      "blob_sha1": "5059421c5ad867adc6c56c5948a34e5265ccb05c",
+      "commit": "f00737409a83d5d9a5a9fd86e3f64f583910aab2",
+      "path": "platform/policy/policy/restrict-image-registries.yaml",
+      "repo": "RobertDWhite/whitehouse-rke2",
+      "sha256": "5239f0fe4ebb88900ffc420f7acc752d3db6c6efaef599881f5cec7479dfcdc1"
+    },
+    {
+      "blob_sha1": "92fbf4ae16a5a89362ee92368fb8b80517b4737b",
+      "commit": "3fa860b235d0061aa5f96d2b68c39037e49f9933",
+      "path": "deploy/helm/astonish/templates/openshell/kyverno-cert-bundle-policy.yaml",
+      "repo": "SAP/astonish",
+      "sha256": "444a0ab7caf1c7018b82f2a1e03f2d3cccd345b367bd49af46c18d353dd60af7"
+    },
+    {
+      "blob_sha1": "7ffd9e2453dc9cd2c4bfd6006c143325b16787fc",
+      "commit": "ead33b1775050e628a85e1b951adc747b6f687b6",
+      "path": ".github/policies/kyverno/require-probes.yaml",
+      "repo": "SYSDOSrepo/GitOps-kubernetes",
+      "sha256": "6e4022a1a0c5da50e3e9538b9ee978344e8d369748369ff2445ecb4dd6ef5901"
+    },
+    {
+      "blob_sha1": "9214efab5597b9579c512a6036d141dc6ca0522f",
+      "commit": "234e140efede585e989be6e3020142137e1a9c6c",
+      "path": "kyverno-policies.yaml",
+      "repo": "SaidNajim/KubeForge-IDP",
+      "sha256": "e833d9bc6b86ac67a25257f790fcfe8b254a2ffc81abb2b1c4e16c609f2ec53c"
+    },
+    {
+      "blob_sha1": "73f29bf98e02b6008f8ec0f8313e62fbc7f77296",
+      "commit": "35586326378753022afea0de247d7253d580db56",
+      "path": "chart/templates/update-image-registry.yaml",
+      "repo": "SnekCode/Kyverno-Policies",
+      "sha256": "0a8614e57ad0cbcc76e23d39ae881a1b465ca84a92fe536f409032f6505fac7d"
+    },
+    {
+      "blob_sha1": "7a248b20b5bb7c03272722ddad5443d2442b4b89",
+      "commit": "3be00da2c2756139cfb79f02d58c1501e19e5f76",
+      "path": "config/base/policies/disallow-host-namespaces.yaml",
+      "repo": "SviatoslavShafulin/ultimate-eks-gitops-infra",
+      "sha256": "11dc79ed1c7d3083228e11a4c19c77e6b373fabcf790fa6caef0f9bd46f02ba1"
+    },
+    {
+      "blob_sha1": "4155d42fc8b2bca79f4182089123203c498f53e9",
+      "commit": "3be00da2c2756139cfb79f02d58c1501e19e5f76",
+      "path": "config/test/patch_validation_failure_action.yaml",
+      "repo": "SviatoslavShafulin/ultimate-eks-gitops-infra",
+      "sha256": "287cf1a74b04e587422388c7dd3eeb7c948526c4764836d09cf5b692ff29a437"
+    },
+    {
+      "blob_sha1": "69f29bbdada24d694f8aee6a94696b06ea4142df",
+      "commit": "d65214ea2ed25e95e50b87c998b984330700b4ac",
+      "path": "infrastructure/prod/kyverno/config/require-resource-limits.yaml",
+      "repo": "Team-Ikujo/Goti-k8s",
+      "sha256": "f246bcf3522c22870e3af4be4c710ef42b4daa11e323c428622a368c4b9c7893"
+    },
+    {
+      "blob_sha1": "2dbaad5a83764f66b4d729382db98d62e0ba5546",
+      "commit": "b36530262a20f68245d6b60ad35eecc63aa3c79a",
+      "path": "charts/kyverno/templates/policies/ops/disallow-default-ns.yaml",
+      "repo": "Thakurvaibhav/k8s",
+      "sha256": "7e810b7c6e42811e562dfd962f5db266716f46ad7b747a8e29d509f63f7ee70a"
+    },
+    {
+      "blob_sha1": "fb936ef16d26b291d269df3e67926a2d55b13ae5",
+      "commit": "fb211e6d5d1714accdacb92f18be87031fb11713",
+      "path": "infrastructure/base/kyverno-policies/externalsecret-defaults.yaml",
+      "repo": "TheBranchDriftCatalyst/talos-homelab",
+      "sha256": "b33939dc7efbc4b49012edf2d8c4fe1d5ef6bd3fefb284f810da5563939ea242"
+    },
+    {
+      "blob_sha1": "2ebab3813267c4da3da5b1b54f0efd28aa38922b",
+      "commit": "fb211e6d5d1714accdacb92f18be87031fb11713",
+      "path": "infrastructure/base/kyverno-policies/helmrelease-remediation-defaults.yaml",
+      "repo": "TheBranchDriftCatalyst/talos-homelab",
+      "sha256": "8b5cf828181703fa85ae15b322784997e9db3ddbae8658b7c808b060cfa62495"
+    },
+    {
+      "blob_sha1": "e4803a58f31f3530404ecd5d0f0d385346f51ff1",
+      "commit": "bf8b3e449979149abc823b25e4db4074313c5103",
+      "path": "kubernetes/kyverno-policies/disallow-latest-tag.yaml",
+      "repo": "TheYemi/kubernetes-demo",
+      "sha256": "fa566f4635f46543740547f19af530f12b856a9401856dd5e508e92cea861b3b"
+    },
+    {
+      "blob_sha1": "2df822cfd1396a6b837bf4ddb7cf2d08b0467e1f",
+      "commit": "6423dbf79b4f535ab74892189a0a88defa16886e",
+      "path": "sig-auth/capabilities_exclude_all/enforce-restricted-exclude-all-capabilites-nginx.yml",
+      "repo": "ToLToL/kyverno-extend-pod-security-admission-demo",
+      "sha256": "20e9e13751be37206253d64c0bc58989d671385aa66eef175d272b441bce72b7"
+    },
+    {
+      "blob_sha1": "f41a5ca884968fe48cb017bb3e100f7d02ecf0da",
+      "commit": "2e482921101b91dba079fd26ae84bd39c48cb6b3",
+      "path": "deploy/argocd/kyverno-policy.yaml",
+      "repo": "Toni744/UMG-EKS-Gitops",
+      "sha256": "9e43436dfc05dde540b7a80ecb3f257846f2deabd1c1a062498a2ad2ffef52b6"
+    },
+    {
+      "blob_sha1": "857bb7e512f7e46eadc5855960470417c5f418a3",
+      "commit": "a6a7a79e2fbd022be8285f860b381a71bdbaa25d",
+      "path": "configs/kyverno/policies/podsecurity-subrule-baseline.yml",
+      "repo": "TrueBad0ur/local-raspberry-kube-cluster",
+      "sha256": "9fadbf5cd5104273f006dbdd66eb6420ff87f48bdfb164e7f9e86a0ef0586697"
+    },
+    {
+      "blob_sha1": "81fd1c412bf3d6a30fcf7f06225e65ccece05ca3",
+      "commit": "a6a7a79e2fbd022be8285f860b381a71bdbaa25d",
+      "path": "configs/kyverno/policies/require-requests-limits.yml",
+      "repo": "TrueBad0ur/local-raspberry-kube-cluster",
+      "sha256": "5c1711894906aebc9c8b0dda8390533573f19cb041a607e4e2b06d5972594296"
+    },
+    {
+      "blob_sha1": "50e87b44a648f39f3f0a8a80f2fba2653d15a934",
+      "commit": "6e49fc5eed9eb59c3bd649faf5176f4272ceaae7",
+      "path": "infrastructure/kyverno/policies/enforce-ingress-host-tls-match.yaml",
+      "repo": "USA-RedDragon/home-cluster-flux",
+      "sha256": "90d3a1e888910a6fd57d97c39c2c3d9f5d5f8cb53034021bb088d4bf930464ac"
+    },
+    {
+      "blob_sha1": "9bca2bba61b825dfe09a9ff8ac01deac96b677ce",
+      "commit": "d9c58e372c62a0046691df36a5288c7df6e39cf6",
+      "path": "manifests/kyverno/disallow-unsigned-images.yml",
+      "repo": "WoodenMaiden/reverse-shell",
+      "sha256": "c4d5b2c9b053e0d918c3128ad31bf4f9362acae5a8c318a346099d32e38e10ec"
+    },
+    {
+      "blob_sha1": "50a6b7fc0c367f7e7540820716d24b3c73f1417e",
+      "commit": "9260d455415de7b776bf647076d042812b17b213",
+      "path": "infra/k8s/policies/kyverno/audit/require-workload-controls.yaml",
+      "repo": "YassinoMed/MasterPFE",
+      "sha256": "52fd135c4ada3ce07f4db66f7318bcdc6e6ff4e7a947ba6ccdac1ba44b55aa31"
+    },
+    {
+      "blob_sha1": "01aa1b598d6ca9a86b41572697b3160416e41912",
+      "commit": "fa56c81811efca85bea1fc73472073b069107d17",
+      "path": "argocd/applications/security/kyverno-policies/manifests/policies.yaml",
+      "repo": "Z3ROX-lab/ai-security-platform",
+      "sha256": "a553af4cadf220ee9335646bd94773d45bced571f8d13bcba7f8d5a415096477"
+    },
+    {
+      "blob_sha1": "42ead322c8fe36ea4b55b7f631582987eef1add1",
+      "commit": "fc3627028f87ec4c79a6d9481a9df54b77f9b5e6",
+      "path": "zoo-project-dru/templates/kyverno-zoofpm-protection.yaml",
+      "repo": "ZOO-Project/charts",
+      "sha256": "f48cc73ab164682456cdbbf873f40a58b6b939ca9826723c52e47a3cb250d991"
+    },
+    {
+      "blob_sha1": "9f10c5462dc3ad2598682b718da77ebf8a8a7f72",
+      "commit": "f9f037636591c57d545e844fc3d70c17f5e01636",
+      "path": "roles/5g/core/tasks/main.yml",
+      "repo": "Ziyad-Mabrouk/5g_ansible",
+      "sha256": "917fa21b7cee6cec3b512d959d9612f5205715fb4370851df8627f36a1f424c0"
+    },
+    {
+      "blob_sha1": "9f0264cafeb88e59311604ff34164d50eee5e1f3",
+      "commit": "feb68abe397acc14f32b34984975c48fedba2b33",
+      "path": "packages/kradle/core/examples/policy-kyverno-pr-title.yaml",
+      "repo": "a5c-ai/babysitter",
+      "sha256": "13e689ce1e2fb5abd352382fdfaf6e3da03d1cdeb97d7f21b08fafa28e5c46be"
+    },
+    {
+      "blob_sha1": "e9ef634b31a26113c101ca271ed4644b516b24e9",
+      "commit": "1e319f2759e8b27aeae88b1a4018d5b870994538",
+      "path": "cluster/generated/kyverno/policies/policies.k8s.yaml",
+      "repo": "agentydragon/ducktape",
+      "sha256": "da3bce87cb48590d7b406d4320fd22dfae1602d6a0e0202b895705d3b6dc4c37"
+    },
+    {
+      "blob_sha1": "77f5b001728de356f100d9e72ec70204c39b46af",
+      "commit": "0bf7ff97920052021af7bebdc8eaf5111422cfce",
+      "path": "kubernetes/apps/security/authelia/app/kyverno-policy.yaml",
+      "repo": "ahgraber/homelab-gitops-k3s",
+      "sha256": "1035ea399503c222085dcf5ffbee71163b4c051f328b72b3becc0ce6ef9bee8d"
+    },
+    {
+      "blob_sha1": "00a74840da015880ababceb70ac2bf95df2ee2b5",
+      "commit": "93ad45da9bf6830a30db1ccb75e9ea7f87b15615",
+      "path": "k8s/kyverno-ingress-domain-name-3.yaml",
+      "repo": "ahouab/container.training",
+      "sha256": "488fb85884b98c96597c7f02187abdb48760c38a80d204828201a87f3c7e99a8"
+    },
+    {
+      "blob_sha1": "fe5116ff91d72767caf5f4627ddd820988b28548",
+      "commit": "9d77a01f24daa70614f8abad71b8b2a589b47843",
+      "path": "charts/team-ns/templates/policies/baseline/disallow-host-process.yaml",
+      "repo": "ai-integr8tor/linode-apl-core",
+      "sha256": "4c7c3ba034eebf674c7eead97641abac2d109cc45d82effb4d894d45315a9fad"
+    },
+    {
+      "blob_sha1": "aa0f90e8ce7624b6694257eee1f7f8da7b092a19",
+      "commit": "9d77a01f24daa70614f8abad71b8b2a589b47843",
+      "path": "charts/team-ns/templates/policies/restricted/disallow-capabilities-strict.yaml",
+      "repo": "ai-integr8tor/linode-apl-core",
+      "sha256": "f07c5ce411095a5f08250e09f7e847ba7566a0aae2df3210af9d652031adf4d0"
+    },
+    {
+      "blob_sha1": "b80747466f7e507100ab9e754d9ab1fcebc850b1",
+      "commit": "9d77a01f24daa70614f8abad71b8b2a589b47843",
+      "path": "charts/team-ns/templates/policies/restricted/restrict-volume-types.yaml",
+      "repo": "ai-integr8tor/linode-apl-core",
+      "sha256": "68ff055be18d0e6c2450101d01c1c7a2f13f64ae52f15f5a13e1d61d9ae4f4b8"
+    },
+    {
+      "blob_sha1": "ba8e97775bae0866698e9bfe3812e4b8ac4b4c44",
+      "commit": "2b1d53faf2091f33bd7801af7ea71c8ab482a4ac",
+      "path": "kyverno/policies/require-non-root/.chainsaw/policy-ready.yaml",
+      "repo": "akhan4u/argo-testing",
+      "sha256": "4faa6a45091ba61652bd136c48a0f051559a5c62bb49eb5674f6cf253c2b83b5"
+    },
+    {
+      "blob_sha1": "e8c128da0ebbba37cc8344d3b7834981948820bc",
+      "commit": "92eaeabba098d639bf1de1e98497ac055c48a59f",
+      "path": "kyverno-policies/policies/disallow-latest-tag.yaml",
+      "repo": "akshayraina999/argo-cd",
+      "sha256": "38a72e61625808a30259ae3d9efd2b091717a2e79fcd63e27439b6b28f982c8b"
+    },
+    {
+      "blob_sha1": "6616f5b6edcbc1233d90d758711f8ebe29af342b",
+      "commit": "0d2eb64c80ff2f5b4e0a34cacf0845ce5bec5232",
+      "path": "kubernetes/components/admission-controller/base/clusterpolicy-secrets.yaml",
+      "repo": "alexander-zimmermann/lares",
+      "sha256": "0dc068e651e13f74cfea1debf32fd81c72beede46583177fed8561d3559e4dac"
+    },
+    {
+      "blob_sha1": "0fa7f9af6cc02e9e34d3ad23f409c37066944713",
+      "commit": "7ea6d25a2235db2cccc9fc01c6268f7eabdf79ba",
+      "path": "k8s/base/image-verification.yaml",
+      "repo": "alexbergh/test-hard",
+      "sha256": "cb74c028a290e6e00fc04505922ee46194d4f7857d1937c67e26a4bbdedde434"
+    },
+    {
+      "blob_sha1": "93df5529c2bd354f87e60db7a1a772d75ae622be",
+      "commit": "f67f37c217d67c5ec3d116a12e0b6c19c481b788",
+      "path": "kubernetes/security/kyverno/policies/audit-workload-security.yaml",
+      "repo": "ali-fathi/devops-homelab",
+      "sha256": "5c46e6de88572f19954c96e3c422810838029f3599ed668ecaf6064ec0991945"
+    },
+    {
+      "blob_sha1": "717e7c30114546ba6c446c4c048b6677e0c4c0da",
+      "commit": "e4cfbcd39f89bdef26cd46d11342223ec0d47fe7",
+      "path": "pkg/pkg2/manifests/restrict-images.yaml",
+      "repo": "alvo254/cka-study",
+      "sha256": "db9dccd9998d7e9be5e326053cfb633e01d917f65c7ea17e0bc51e207b67e54a"
+    },
+    {
+      "blob_sha1": "a5bc57ad183e64f2044bce69187e26f2e3b3bcad",
+      "commit": "302d59c0f5aed7a399b9a5c743410ea7a24d2581",
+      "path": "helm/aiwb/templates/kyverno-policies.yaml",
+      "repo": "amd-enterprise-ai/amd-eai-apps",
+      "sha256": "cdc436682a69270ff635932d9b6bfc3870b3c5619f7fb6c9dd1b1367eddb9500"
+    },
+    {
+      "blob_sha1": "09ba936e657fafa8428af55c4577ff07692c6508",
+      "commit": "9406edabd1a4eac349db821d7d6eb2de105870fa",
+      "path": "charts/aks-kyverno-policies/templates/create-limit-ranges.yaml",
+      "repo": "andriktr/helm-charts",
+      "sha256": "180e9c0e0aabfcc911f705e8a55765e4c5d46c16b2c5e4626e0b7484e6914b60"
+    },
+    {
+      "blob_sha1": "d3ae4259a383927274596b2abdd183e5c2e39bcf",
+      "commit": "8c97a283f36d71d93e7c0b13e3c0799023d46039",
+      "path": "flux/system/app-configs/kyverno.yaml",
+      "repo": "anokfireball/homelab-as-code",
+      "sha256": "42f5dfa29044de58533c51994f4df313fc60b746e86332d31a9369f61e4f6f6b"
+    },
+    {
+      "blob_sha1": "6c6056e3764508f1c51176d6b18dcaae04cc074e",
+      "commit": "8e7453b6a75576636c2c1010f1e17f4d6848de93",
+      "path": "POV/Pod-Security-Standards/Audit/baseline/disallow-host-ports.yaml",
+      "repo": "anuddeeph1/POV-policies",
+      "sha256": "adeda090f360f4e3b1f50fa509c35afed56faa6289497fb55d3e8a057ef541da"
+    },
+    {
+      "blob_sha1": "da4389e34ba0c0981b19c33be290137a9141fa1e",
+      "commit": "37793474413a1d428bd5e3158ac01f50597aff2d",
+      "path": "baseline/Audit/restrict-seccomp.yaml",
+      "repo": "anuddeeph1/pss-containername-pol",
+      "sha256": "db7000ee92d3305be47b2c1d943bb9ea73e49c56b324a0b9eb3f070e4361d606"
+    },
+    {
+      "blob_sha1": "30be8b1aae78260cdf76534c43fa9069cb50c1c2",
+      "commit": "37793474413a1d428bd5e3158ac01f50597aff2d",
+      "path": "restricted/Audit/restrict-seccomp-strict.yaml",
+      "repo": "anuddeeph1/pss-containername-pol",
+      "sha256": "fd52bae6fa85202e67fbafd72b8214bbc41f9291266724b7c03f345d26e156ed"
+    },
+    {
+      "blob_sha1": "08083a931252659562603113f6c2ba2a66d671e4",
+      "commit": "ecfd7ddfe9844b5eba100968d5c1b83525a7489e",
+      "path": "03-app-onboarding/application/app-argo/overlays/default/require-image-repo.yaml",
+      "repo": "anyaegbufrancis/openprep",
+      "sha256": "eebfedc037b3c493a87c89aa2f576229ef99d48328df653d271dfb5991971bb6"
+    },
+    {
+      "blob_sha1": "ff2ae047e0f9548ef2cd72097f4e7aebce72cd8e",
+      "commit": "6df8032c53e563cd64eda1667d61e9ee5ac423bb",
+      "path": "policies/disallow-latest-tag.yaml",
+      "repo": "arunvel1988/docker_app_cd",
+      "sha256": "802e2316d93ece1153ce86b200c52f0a0bfd37803a9bba3e588b53320b95505a"
+    },
+    {
+      "blob_sha1": "396f01ccc90b03a2c256eb4311d7b7fbd621ee61",
+      "commit": "f23edfb63ea1daf5fc071327dab860bee1f21023",
+      "path": "chart/kyverno-policies/templates/argocd/applicationset-name-matches-project.yaml",
+      "repo": "ashokjjk/renovate",
+      "sha256": "4eda09176ce4bf41466ce81c67b5de9fda738c0b5f56af5c900c98c3a4cc0fdd"
+    },
+    {
+      "blob_sha1": "0c501ee8b28f45a80b1be3f9a97abbea85ba6376",
+      "commit": "7ddccc257940164b19971330818d03044d17f432",
+      "path": "modules/compute/eks/kyverno-policies/validate/check-deprecated-apis.yaml",
+      "repo": "awslabs/idf-modules",
+      "sha256": "2e145223474c5c9e553df533a48c66ce2e480ca180fa82f60e68c053ee3e399b"
+    },
+    {
+      "blob_sha1": "65516b8550d2a8dc3c0bb9b3ceb1addf4ce54d41",
+      "commit": "ee81f1eeac6525642eaf59db3a111f5b954ffa0f",
+      "path": "policies/kubernetes/mutating-add-quota.yaml",
+      "repo": "back-stack/everything-as-code",
+      "sha256": "2306dbebe48531ffc2ba1e0bb146206196d68c34f032119340a9adcbd5e76916"
+    },
+    {
+      "blob_sha1": "0bf3d929ae43d6d569eb4453d8d70710eb59203e",
+      "commit": "1ca3dca4ea224bd602065cddd7fcb9e3b00e928d",
+      "path": "kyverno/nginx-not-allowed-policy.yaml",
+      "repo": "back-stack/kubecon-na-2025",
+      "sha256": "897cf6dd123f4c6699f616fa14b7d2c868bd3e33c033ec3dd8e251bf126f42d2"
+    },
+    {
+      "blob_sha1": "2961a19fdaa8b1cd3896dfaa2f3901710303018e",
+      "commit": "a8b7071c32621b85e7ffe4e31a3199d20b6ec946",
+      "path": "kyverno/policies/pod-security/restrict-seccomp.yaml",
+      "repo": "back-stack/showcase",
+      "sha256": "6c82c1b427ddbed533450a4a5b1d4f14b5d59f153b71ab796c935fc234b34115"
+    },
+    {
+      "blob_sha1": "ec75b8d61037e314d7270e372985e7c4375110f4",
+      "commit": "a8b7071c32621b85e7ffe4e31a3199d20b6ec946",
+      "path": "kyverno/policies/pod-security/restrict_image_registries.yaml",
+      "repo": "back-stack/showcase",
+      "sha256": "3739703cb1ed1f4e6f09a04f705f5e2424cea54449420a9c02b2a9e7226ea95e"
+    },
+    {
+      "blob_sha1": "24d71beb2a2dbbf89cbcc23b9347fbda7a4b8870",
+      "commit": "06321cb26ae6b98b13cfe89cf562d170f8670744",
+      "path": "infrastructure/kyverno-policies/disallow-privileged-containers.yaml",
+      "repo": "ballafarhad/platform-gitops",
+      "sha256": "fc660df1915ffa06cf504681e1cc6fd6cbf381bc3ad64f9d2dc0273e5fe57472"
+    },
+    {
+      "blob_sha1": "85054a82faaa518106f278d87dd5286fce5e773f",
+      "commit": "f1cdefe0d7990fdc6303ede0a135e35e887d661c",
+      "path": "projects/devsecops/kyverno-policies/policies/require-labels.yaml",
+      "repo": "balleon/portfolio",
+      "sha256": "7613570759ab07f0d2dca8633e4e72a934f3aff191b223909414ce093e562a68"
+    },
+    {
+      "blob_sha1": "337aa8c7158719830f05a5a56e16d530d75ecdae",
+      "commit": "e5b715316d2c11a459d332b30ff87426da41bb0f",
+      "path": "policies/add-security-context.yaml",
+      "repo": "bansikah22/kyverno-demo",
+      "sha256": "c25bcb4ac815ec3fd486b3c6401717d292d294ca112cef0500339e1753852ab2"
+    },
+    {
+      "blob_sha1": "7ff41fc70c5dc0ebb1ca26989f2cca67123a2d52",
+      "commit": "e5b715316d2c11a459d332b30ff87426da41bb0f",
+      "path": "policies/disallow-latest-image-tag.yaml",
+      "repo": "bansikah22/kyverno-demo",
+      "sha256": "1902955a5fa211681e743e635a6929ee7a9c82268e3bd42e479e4f163a21ffba"
+    },
+    {
+      "blob_sha1": "394575d374b0dfcbc7f7381951932efbd03b04e8",
+      "commit": "c8dae6906095a02e58cdeffd2dd233f80f6c6c2c",
+      "path": "policy-kata-fc.yaml",
+      "repo": "basarsubasi/agent-sandbox-playbook",
+      "sha256": "dbe6b80387951cc1b16575483d0672f09b53d8f0b3133d8619ed28e9be4a4ad6"
+    },
+    {
+      "blob_sha1": "7073784442f556c912112f3b65745e8835e06999",
+      "commit": "5dbf81fa81905c10d2e29949b82a9d6cfb748668",
+      "path": "oc/auto-label-opensearch.yaml",
+      "repo": "bcgov/nr-openmetadata",
+      "sha256": "f8a927e183627538563c57091b7f335ca2cb7b6ec23af6946ba516d16ca35ccc"
+    },
+    {
+      "blob_sha1": "84aeb294bcb29a04be0cdf208a211344fc280d55",
+      "commit": "e492b6bd29190669f10959c00512e805f226cdb3",
+      "path": "14-Kyverno/generate-configmap-for-namespace.yaml",
+      "repo": "bebianc/Descomplicando_kubernetes",
+      "sha256": "eeb260c0e51c72e10632eeaa68bb40eff9b217d8a627a4552e5c077d23acf523"
+    },
+    {
+      "blob_sha1": "39b6f07ad075c0d76fc11d8ca6d2fe1e99455ada",
+      "commit": "df193ef59d7e4ae7e59129942c2143856b54ab1d",
+      "path": "infrastructure/policies/kyverno-policies/pss-baseline/restrict-capabilities.yaml",
+      "repo": "blazepower/rishik-homelab-rke2",
+      "sha256": "c2ecef7d0f80677d040cee065794725f870411a2c34e70369237242f3b6c8afc"
+    },
+    {
+      "blob_sha1": "9405151efaa31f69206208bca86107410cb4a54b",
+      "commit": "5eb06e9daf548d2919fc02fce4c685ff7e31dcc9",
+      "path": "app-a/ch06/kyverno/restrict-image-registries.yaml",
+      "repo": "bmuschko/cks-study-guide",
+      "sha256": "90d5f8ccf3308513bd7cdc39ee10c52006724eb5eaddf426a8c59b4f107d1939"
+    },
+    {
+      "blob_sha1": "42b923c8bb305e73f7f62b47474e8a20e48bb290",
+      "commit": "6fb060928f1082a8abbdd9916e9c05a663d16f3c",
+      "path": "day15/add-label-namespace.yaml",
+      "repo": "brunosantostecinf-shell/treinamento_dk8s",
+      "sha256": "aace23f3f7a69994ba7bb43c34f319a183f4261932b7b81d55b218b0edf7df6b"
+    },
+    {
+      "blob_sha1": "96d53d9acc8920b5144e63b3f1e7b84b3559eff9",
+      "commit": "6fb060928f1082a8abbdd9916e9c05a663d16f3c",
+      "path": "day15/exclude-kyverno.yaml",
+      "repo": "brunosantostecinf-shell/treinamento_dk8s",
+      "sha256": "f7b57dcbe6f82f460daf048fe09992223dbe1ad2a3cd11566f95ccb5dd79262c"
+    },
+    {
+      "blob_sha1": "5474740b3683f1a9385d56b1bac7aed97c8abc85",
+      "commit": "8bc2f2845e74ed48b4de3089b402252f31d04fd5",
+      "path": "policygenerator/policy-sets/community/kyverno/multitenancy/input/validateplacement/validateplacementredteam-hub.yml",
+      "repo": "bstrauss84/cluster-management",
+      "sha256": "cd45314a37d1a2a4aa6d450b547f06768e97eacc9aabb0afbd81055fb8ec27f6"
+    },
+    {
+      "blob_sha1": "ffd03ce927489ac850f1ee8cb268bfa4a6f675f0",
+      "commit": "8bc2f2845e74ed48b4de3089b402252f31d04fd5",
+      "path": "policygenerator/policy-sets/community/kyverno/security/input/security-context-contraint/disallow-security-context-constraint-anyuid.yaml",
+      "repo": "bstrauss84/cluster-management",
+      "sha256": "ca487662c872ea0e821c6158c39b17663c2105c548ed9737f81a529cf530e793"
+    },
+    {
+      "blob_sha1": "9df15e22ea92b311838cb3882125b80dabe25cb5",
+      "commit": "1095a2bbc80c79f656c0922bccc4cae621222c49",
+      "path": ".github/policies/disallow-privileged-containers.yaml",
+      "repo": "buildcwnelson/vulnerablemart-api",
+      "sha256": "47bb89179b204be69645f91dbde1e9cfd3097edc4b1045b182ec08b4eceb0eff"
+    },
+    {
+      "blob_sha1": "3a18dbb90357791dd74be58366305b9baf260262",
+      "commit": "fd968edcf883a7d74df352e86c88a4d2788aa3be",
+      "path": "kustomize-units/kyverno-policies/minio-policies/minio-operator-policies/restart-minio-operator-on-cert-renewal.yaml",
+      "repo": "canonical/sylva-core",
+      "sha256": "f6c508ef40a87f7e1ebbd81a4639eb51a64dd2bd49e21ca8d1c3fba47fc60987"
+    },
+    {
+      "blob_sha1": "4295ffad9a93175188e2a47936b376879307e975",
+      "commit": "5878bd6b1e60ae66dc6f2ccc1694d498bf356e45",
+      "path": "kyverno-multitenancy/input/generatePlacementRules/generatePlacementredteam-hub.yaml",
+      "repo": "ch-stark/gatekeeper-kyverno-policyset",
+      "sha256": "14d305e77cbc6648d94387f09548c46c3bcf471e080efcdad57068581e67ac19"
+    },
+    {
+      "blob_sha1": "59a1d8f0af1371676ef287bc85bab29ca1d04efa",
+      "commit": "b05a4d98b195845024e64b639a44a32f346d3110",
+      "path": "policygenerator/kustomize/kyvernopolicies/generate-argocd-permissions-blueteam-spoke.yaml",
+      "repo": "ch-stark/gitops-rbac-example",
+      "sha256": "478fcc958ddc1f19d27bbadf47ad0271f55f194ea9dc173a39ad6de92c4b83b7"
+    },
+    {
+      "blob_sha1": "e459c86ea104dd1daaa0f64244ea7e58cd093aeb",
+      "commit": "b05a4d98b195845024e64b639a44a32f346d3110",
+      "path": "policygenerator/kustomize/kyvernopolicies/generate-argocd-permissions-redteam-spoke.yaml",
+      "repo": "ch-stark/gitops-rbac-example",
+      "sha256": "20f109662de6f9cc25c23811bc2fe8c552c496d74725adf7dc618158fc09ee19"
+    },
+    {
+      "blob_sha1": "996972912a5fc063c6c6d224f555370d60982b3f",
+      "commit": "60a66b1e4c9d19d97285a0244c069f86241efd90",
+      "path": "kyverno-policies/input/deployments/mutate-large-termination-gps.yaml",
+      "repo": "ch-stark/governance-best-practises-for-apps",
+      "sha256": "04551d6a5d0022a11137b4a07524363663a4730814521eb8cebc9a84c8adadfe"
+    },
+    {
+      "blob_sha1": "14fc6c1dcdfd6cf4fc513cb4fe6579c1013f2853",
+      "commit": "e4448ad5f082d0a3dfa21c9b5372ecb43d706a39",
+      "path": "policies/policy-sets/community/kyverno/multitenancy/input/restrictions/restrict-redteam-to-its-placement-hub.yaml",
+      "repo": "ch-stark/policy-collection-consolidation",
+      "sha256": "fb2d9b5863f301bfb4bf2afcd697791ae67dce3bc0262cc9792d9a92d1fa6d65"
+    },
+    {
+      "blob_sha1": "9653d496091bd79590706bada817976136c8acd5",
+      "commit": "f05a7e00e6302dc75ae1abee38d06315cf25bca1",
+      "path": "apps/00-infra/kyverno/base/policies/mutate-sidecar-probes.yaml",
+      "repo": "charchess/vixens",
+      "sha256": "3e5f868867cf80bfcdf4f6794b971fe05e2050e7741f56d0a4f5ce55306bd66d"
+    },
+    {
+      "blob_sha1": "1b9aa8782643c0d47cb13fe2a43c38a7fab75c4b",
+      "commit": "f05a7e00e6302dc75ae1abee38d06315cf25bca1",
+      "path": "apps/00-infra/kyverno/base/policies/sizing-v2-mutate.yaml",
+      "repo": "charchess/vixens",
+      "sha256": "32483af32723239f395896117449191c179b013fb033880e4617377fcfbef3cb"
+    },
+    {
+      "blob_sha1": "b7aa3861c9fc1655ba5eb8f0786750ef36efe884",
+      "commit": "5a93e62853a2443ac107e849d267bcd716199aac",
+      "path": "kubernetes/manifests/network-policies/require-name-label.yaml",
+      "repo": "charley-geoffroy/DeployingHelmMicroservices",
+      "sha256": "97407ba3e6075300d65c19b2ed9e4507a4a9154a528117e1478e0ac84c3c5f26"
+    },
+    {
+      "blob_sha1": "9dd90dda7ff198054fc0f233ce5f1af3a25e7984",
+      "commit": "2df8f96a4d52bfe1bf810f0ae033bfe885f4b331",
+      "path": "baseline/06a-disallow-host-ports-range/cpol.yaml",
+      "repo": "chipzoller/kyverno-pss",
+      "sha256": "7c09aa202b18f1c39e9a001eea171635aace258651a1d3e90e5133cbb280707a"
+    },
+    {
+      "blob_sha1": "4a02fe8f7ecc5a9948a710acf35f5f72e9e74d7d",
+      "commit": "1f0e658add27eb19ce6fca5d3fc0db207b654a24",
+      "path": "ansible/playbooks/files/policies/deny-privilege-escalation.yaml",
+      "repo": "chxmxii/kubegoros",
+      "sha256": "19fc70930e2cbda3dc974adcb195d2cf10c41e6988c07af5e4c9b53c2a5abd73"
+    },
+    {
+      "blob_sha1": "424889d91b0c1e6960e92be7b10991c97f5e1a22",
+      "commit": "1f5bb1ce1fff14a0f86d4c457e9678b1df2eafea",
+      "path": "depricated/taiga/templates/integrations/postgres.yaml",
+      "repo": "clayrisser/charts",
+      "sha256": "6a3702856385e09d2fb02cbe1ad9359fd5cf5ad9b7f3665911ba109c0cfa1527"
+    },
+    {
+      "blob_sha1": "004d59b3be1fad602c10f67f8e914088fff7325a",
+      "commit": "1f5bb1ce1fff14a0f86d4c457e9678b1df2eafea",
+      "path": "stable/keycloak/templates/integrations/smtp.yaml",
+      "repo": "clayrisser/charts",
+      "sha256": "1af28a6462f442ad3e32ad179e68576d86890220ce97c05ee949c753b58519ed"
+    },
+    {
+      "blob_sha1": "5e838bcc756b06b79327395d8f4025335e8114aa",
+      "commit": "1f5bb1ce1fff14a0f86d4c457e9678b1df2eafea",
+      "path": "stable/openldap/templates/patches/phpldapadmin.yaml",
+      "repo": "clayrisser/charts",
+      "sha256": "92b08ecea5581996264544940319c410f2fca39f748457cbc9a35049fa70342b"
+    },
+    {
+      "blob_sha1": "bb1b17ceb47646fcc3d2798afe0e057688484aba",
+      "commit": "39e8797e4e5c073863b01d87e9d9acd40709868f",
+      "path": "hub/k8s/hello-chris/policies/require-signed-image.yaml",
+      "repo": "cnuland/aro-hello-chris-spoke-hub",
+      "sha256": "b571952c9755cc06bc14e088342d9558276bff5b4791e1575cccbeafd3786191"
+    },
+    {
+      "blob_sha1": "e9c399d831b13c8dac0785d7b407ce34834e709b",
+      "commit": "0fd924066e8c6caad6cd8496b03aa63c4a15d178",
+      "path": "test/conformance/chainsaw/exceptions/exclude-volume-types/policy.yaml",
+      "repo": "codacy-open-source-projects-scans/kyverno",
+      "sha256": "7a470bbf541608af829e0f089ac7e8e63056112af359264f8a12d7bd4751ea62"
+    },
+    {
+      "blob_sha1": "7bfadd6806b70829342941d999527729e6b24a34",
+      "commit": "0fd924066e8c6caad6cd8496b03aa63c4a15d178",
+      "path": "test/conformance/chainsaw/generate/validation/policy/cloneList/policy-fail-2.yaml",
+      "repo": "codacy-open-source-projects-scans/kyverno",
+      "sha256": "ef7ad132348ada65ab9def4f58dd2b964ec45ca7fe887f0d89d07a6c8b89a5f3"
+    },
+    {
+      "blob_sha1": "a2d91a776c85beb747929d986dfa1839d422c2aa",
+      "commit": "0fd924066e8c6caad6cd8496b03aa63c4a15d178",
+      "path": "test/conformance/chainsaw/mutate/policy/cornercases/foreach-remove-elements/policy.yaml",
+      "repo": "codacy-open-source-projects-scans/kyverno",
+      "sha256": "4092cbb9318858e21fec2b74e5b8ae8c686f437b762cb0ad32b0982fd37d0bb9"
+    },
+    {
+      "blob_sha1": "98c7fede06ef7bddcc9d2d88385ad2ee12605c6b",
+      "commit": "997423ef345cb4b9750839ad02e2e2abc43f077d",
+      "path": "demos/1-policy-guardrails/policies/require-signed-nonroot.yaml",
+      "repo": "codebytes/container-security",
+      "sha256": "9144419f72890d39ba835e676909900e016214a691deff8ad6e63498fdc788a6"
+    },
+    {
+      "blob_sha1": "57dfc36b0c6f8eff9f342a0e7fb100dcb9fc1623",
+      "commit": "d2486af71d4fb416f00ecbd37f34bd675a15ab8d",
+      "path": "AWS/S3/Policies/s3-bucket-logging-enabled.yaml",
+      "repo": "controlplaneio/collie",
+      "sha256": "ce392052b4222cb0468ac7a85261c3dd9da4260465803ee2eaf10a222489976a"
+    },
+    {
+      "blob_sha1": "2696109ac49f648cda530e3afdb1e6fe6eea2938",
+      "commit": "d2486af71d4fb416f00ecbd37f34bd675a15ab8d",
+      "path": "AWS/S3/Policies/s3-bucket-server-side-encryption-enabled.yaml",
+      "repo": "controlplaneio/collie",
+      "sha256": "2365a12713ea6ab98d3d4e0f0bb5bb3bce09048737fcb8a771357ad3ba6efa61"
+    },
+    {
+      "blob_sha1": "4da70a1a8da77191e638e917da155d516d05f0e1",
+      "commit": "d2486af71d4fb416f00ecbd37f34bd675a15ab8d",
+      "path": "AWS/S3/Policies/s3-version-lifecycle-policy-check.yaml",
+      "repo": "controlplaneio/collie",
+      "sha256": "647eb9aa83b28b3ed354a5b54a6350681c18656450bda10e643b49a00ec3ca73"
+    },
+    {
+      "blob_sha1": "0283bfc26aae30ea8e8c5ada14b4a1bace56b98d",
+      "commit": "90c4602d9a3bee46a34ca338f18b8ceba817b7d2",
+      "path": "ansible/roles/seven-seas/files/manifests/02-kyverno-policies.yaml",
+      "repo": "controlplaneio/simulator",
+      "sha256": "61a87666f269343c12c289b04227da23ae5d60f2555b0c09ec82e220a987f311"
+    },
+    {
+      "blob_sha1": "54ddbe42480aa4839c71d140bf2d2bebd41c3011",
+      "commit": "d93824a122edf7f6b9e86f38430c1bc2e9e3897d",
+      "path": "platform/load-engine/acc/policies/inject-k6-security.yaml",
+      "repo": "dennis3d19/argo-k6-automation",
+      "sha256": "ae5418098456ae804fafeea7c3c5322576d2488e225e2992ba3dafc190af201f"
+    },
+    {
+      "blob_sha1": "5fd3a17b12c27bb5f669955f1567e48034482477",
+      "commit": "af229421da48a82a033006c9d797ab49e3013b13",
+      "path": "k8s/providers/hetzner/infrastructure/cluster-policies/prioritise-hcloud-volume-pods.yaml",
+      "repo": "devantler-tech/platform",
+      "sha256": "5188faacf1c9ecfe519d658c500c42e2f356eda078f06e9bf61f80ebe8cb0a2b"
+    },
+    {
+      "blob_sha1": "33b4785e2a2dfac883e57ceae823d58890812bfb",
+      "commit": "a93f70dc04720284d31bafdd01cfe7cb5bc83b66",
+      "path": "gitops/policies/kyverno/block-docker-quay-registries.yaml",
+      "repo": "devopsabcs-engineering/aks-governance",
+      "sha256": "e4187fae894bb15aca0f280d6484e013970730add6910348ce7bc4f57484c10e"
+    },
+    {
+      "blob_sha1": "5c89de7abba5d7d0820a10972fea4bbc364c9b24",
+      "commit": "27c27b7617d4113cf3213778fd25d1a1eda613ce",
+      "path": "k8s-manifest/065-kyverno-policies-sec.yaml",
+      "repo": "devopstales/k8s_sec_lab",
+      "sha256": "e86581c1ebd1d6b299ab736636d99c62f7205b8cb78b3e89d7489ce6852f85ba"
+    },
+    {
+      "blob_sha1": "3c366f6c7842741d337a6bda6794fc9b5516eb2c",
+      "commit": "27c27b7617d4113cf3213778fd25d1a1eda613ce",
+      "path": "k8s-manifest/074-kyverno-policies-ingress.yaml",
+      "repo": "devopstales/k8s_sec_lab",
+      "sha256": "22995bd1abe6c2993b0bd35c9cc73f7a7962c5465efaf7e9ce417742e7773ce7"
+    },
+    {
+      "blob_sha1": "9efacc14b0b66ee88a57ef659501e9416fca9f63",
+      "commit": "19f42fb4c54ef1337a71dd025121db6820ccb5e4",
+      "path": "day-15/add-label-namespace.yaml",
+      "repo": "diogofiaminghi/LINUXtips-Descomplicando-Kubernetes",
+      "sha256": "dc472218c63d1c89c048eb107bdffa5046c050e578bafe12d425ccacc8cc3281"
+    },
+    {
+      "blob_sha1": "30d2ec7620e30a839df36ed6297268c8d8ac23e1",
+      "commit": "cc6a347bd215d6fa84f3ee2650b72cb6a2edc4fa",
+      "path": "k8s/common/kyverno-policies/baseline-pss.yaml",
+      "repo": "djdtimit/open_source_lakehouse",
+      "sha256": "46fb3b658714363e6c8509e116ccffc972bb36541445c7f67d1786fc30839f3a"
+    },
+    {
+      "blob_sha1": "2cad5ec804628e0ef757453ae9c725c100464e71",
+      "commit": "4b34f2e3e9619ace233aa6ffe5ece7c61916950a",
+      "path": "k3-kyverno-test/kyverno-policy/kyverno-policies.yaml",
+      "repo": "dongdorrong/kubernetes",
+      "sha256": "224bd5c8622f68613af480576790fd8720b9dcdb778f0a2f7e16a6df8d2b665d"
+    },
+    {
+      "blob_sha1": "31635d1ad8840ddb3e70ba40fbad10069e7962ff",
+      "commit": "201cf5592261a1ee2204c5e5f3030ef2a3403935",
+      "path": "k8s/clusters/kclt-01/apps/kyverno/kyverno/policies/sync-rgwuser-secrets.yaml",
+      "repo": "dotfilesh/ops",
+      "sha256": "79faed3f0f1965fc5d132adc6ebee4c32e79199a207d3e5555205dad32e01094"
+    },
+    {
+      "blob_sha1": "32c88dd57b98e199d87abcb50e5521e39ae3d3b1",
+      "commit": "d5cc2249b351f1097f8219f3f0b41208952ca1fc",
+      "path": "kyberno/request_limit.yaml",
+      "repo": "dynatrace-perfclinics/observabilitclinic-unlockk8sPower",
+      "sha256": "6b668242fa2cf5594c5cb2452343478bc7702008e678de0c5837720a6b173528"
+    },
+    {
+      "blob_sha1": "a8bca3b7860d7e85553bbff25e717268baf44ec7",
+      "commit": "4747b2a730e88f8f1b8ed6869a0ce9ceed035c1e",
+      "path": "cases/02-container-security-context/policy.yaml",
+      "repo": "edgarrth/platform-kyverno",
+      "sha256": "ec1aba401cb024ccbca904692020455517457580f9ff3331d8ce33f058a9da98"
+    },
+    {
+      "blob_sha1": "b2069300088b84332c2d91eb28ca3a899a05fe06",
+      "commit": "4747b2a730e88f8f1b8ed6869a0ce9ceed035c1e",
+      "path": "cases/03-run-as-non-root/policy.yaml",
+      "repo": "edgarrth/platform-kyverno",
+      "sha256": "55290b9cb264f307477e660ed31d3101d714a63df1997f6ad42fe282b75baeb5"
+    },
+    {
+      "blob_sha1": "580ae30f82b0f04be8e21dc3a25da2c12603a82c",
+      "commit": "24e48cb524e574338bdbc81f672c979802a00a2e",
+      "path": "infrastructure/kyverno/policies/namespace-isolation.yaml",
+      "repo": "emilcardell/aishipelago",
+      "sha256": "4c747a3d3e52aa569aaf897053395c37149ee1608aa32e518a50b44f57051bb1"
+    },
+    {
+      "blob_sha1": "d25366f0590c834758a4b1d72c1cd0e16ddf671c",
+      "commit": "24e48cb524e574338bdbc81f672c979802a00a2e",
+      "path": "infrastructure/kyverno/policies/validate-appmanifest-claims.yaml",
+      "repo": "emilcardell/aishipelago",
+      "sha256": "128e0009461c1422c864491f3f9159a04e34986ef356cab7250e4abc4682f7f6"
+    },
+    {
+      "blob_sha1": "dba612c534ddc2b91ed22c81e5b95b3bf2233778",
+      "commit": "876000b6b8a4fcebda34482c42bb28d8c3cc7657",
+      "path": "policies/kyverno/pod-security.yaml",
+      "repo": "emiresh/zero-trust-devsecops",
+      "sha256": "a21aeecfa1d5137577b86e1320b8f0fc6541f7478bcfb067fd13edd9ce2762b9"
+    },
+    {
+      "blob_sha1": "5a253eb4521d5f25a48a38b78862346e75c897ee",
+      "commit": "a84d064b230331a29edde2edda6b4081646441fb",
+      "path": "GeneatedManifest/manifests/kubeflow-tools/katib/resources/clone-mysql-secret-clusterpolicy.yaml",
+      "repo": "enaalsharairi/deploykf",
+      "sha256": "7131801d33b0b3cc177f452c9cd3afa1f541e36f4b2a9c960f6e2787c3066f31"
+    },
+    {
+      "blob_sha1": "a2a1c41ee3512a5645155c71f2295814aca9c640",
+      "commit": "dae8fbf15281bee7819a4865697aa9c1043ae8a5",
+      "path": "manifests/bleeding-edge/kyverno/policies/resource-limits.yaml",
+      "repo": "entwinedent/ci_cd_pipeline",
+      "sha256": "f3f22571886f8c5ef0d9341ec210aa20de00238c241144768d1ab63e21a3ccd5"
+    },
+    {
+      "blob_sha1": "0a43bd3368fee945d312c1a6924fd965766faec8",
+      "commit": "4a4af7b8fc7cdb13892be8b6907b6446efc773ae",
+      "path": "base/kyverno-policies/clusterpolicy-generate-namespace-quota.yaml",
+      "repo": "erkules/dufluxdu",
+      "sha256": "a44e6674edc7f2b050ee7d9a497aaa2088d79ffb2e17fd8be1bfc2e55f39e609"
+    },
+    {
+      "blob_sha1": "a5ae954258fa494b3643a5dcf468a908e79fc6b5",
+      "commit": "5b46bc7f8f37fbabdbe338697788278cd44259db",
+      "path": "Kyverno/KyvernoNoCEL/disallow_privileged-richtiger.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "7f64e75673d2674e6d5529c1f7223b967b9468ea908f6c5a37971ed82d0805c7"
+    },
+    {
+      "blob_sha1": "40f280a85c9d6b49bf5ab50e3585f04223a67ce4",
+      "commit": "5b46bc7f8f37fbabdbe338697788278cd44259db",
+      "path": "Kyverno/KyvernoNoCEL/mutate-imagepullpolicy.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "0e3990e34c0a382d9ab376364a801aca54cbb8383b369c2ca153215724603ebb"
+    },
+    {
+      "blob_sha1": "822751f1c95a58d9824a69f06c04d6384ece77d2",
+      "commit": "5b46bc7f8f37fbabdbe338697788278cd44259db",
+      "path": "Kyverno/KyvernoNoCEL/validate_ns_exists4pods.yaml",
+      "repo": "erkules/k8sworkshop",
+      "sha256": "714f14e82fd7199ba2f3edcf3996305ee417f3c7d52a04faec8301830abb878b"
+    },
+    {
+      "blob_sha1": "b4ca12ed26ea53dfffaadbdf2fe2197e234d44ba",
+      "commit": "87b1bb90586a9acf7492b9a25075b78ef951e604",
+      "path": "kyverno/policies/require-probes.yaml",
+      "repo": "fearfactor3/nginx-kustomize-example",
+      "sha256": "0d5207e1294efad08ba0c8aad5037ecb935f47074fe21463c52c4dadb2a07b48"
+    },
+    {
+      "blob_sha1": "dcae1c06725980bec06227996d0c30aa26c12be4",
+      "commit": "99060fdba47252bea2a68d28b6728f48c1b67065",
+      "path": "templates/kyverno-policies_template.yaml",
+      "repo": "fminna/LLM-Helm-Fix",
+      "sha256": "c6363f1c23fc887349a584a546cf111acc4e3706524d82d1c840c8864fd549cd"
+    },
+    {
+      "blob_sha1": "100088d13df03cc7e417075eba729c1b63e32f16",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "data_analysis/policies/Kyverno OSS/kubermatic__kubermatic/restrict-apparmor-profiles.yml",
+      "repo": "foalem/Pac-paper",
+      "sha256": "e2441145ed3691536f2fad3270a3139f46fd45e9798fffe53cf7689b4218ffe1"
+    },
+    {
+      "blob_sha1": "7b0fa06a2e73ccfbb522993d3cb14ee2048a7f1a",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "data_analysis/policies/Kyverno OSS/kyverno__kyverno/chainsaw-step-06-apply-1-1.yaml",
+      "repo": "foalem/Pac-paper",
+      "sha256": "f4e2cf9864aab3ce52859b0d49b2b8264a67936d8cc27c28b71d985a2836e175"
+    },
+    {
+      "blob_sha1": "e4d9a5c2801ef9c1176782dcc57496faff122245",
+      "commit": "431e3da9076548ff7c489c5e99b743f8094c5dfb",
+      "path": "data_analysis/policies/Kyverno OSS/kyverno__kyverno/policy-error.yaml",
+      "repo": "foalem/Pac-paper",
+      "sha256": "a12b3df795701d535e00d8dbb85a2df89128f6d493f2b8d83aefe81aea9c4915"
+    },
+    {
+      "blob_sha1": "40c199e10d4832c4564a9b38747f6202ef1fcc12",
+      "commit": "5c018df635f5a7c474505bcccca15bb09eacbe52",
+      "path": "kyverno/pillar-label-policy.yml",
+      "repo": "frank-segui/crossplane-gh-test",
+      "sha256": "fc83f71ba431e45ee28afce4b1f54300b7bd5882219d653830d8af53466dc539"
+    },
+    {
+      "blob_sha1": "57a0bb1a12e8800c2fc3ef8f1bd6386693043948",
+      "commit": "0ed87e131515c75a41722d24587d08feeed7523b",
+      "path": "12. Kyverno Governance/require-pod-resource-limit.yml",
+      "repo": "fzhussain/K8s-Hand-on",
+      "sha256": "532d3029368fd1edafd8224670340e5288b2eb2130ee41f7a48404eaa3972ecb"
+    },
+    {
+      "blob_sha1": "53db51bdcefffafd407eff31fdfe8d6505414b9e",
+      "commit": "4b72f3e8f4aef814793e5cea4d6120ea5fc184e7",
+      "path": "policies/kyverno/env/dev/patches/require-resources.yaml",
+      "repo": "gabrielldn/secure-gitops-platform",
+      "sha256": "745e732d6970bf6ca5cbb65a6adcd14c879979399976e63264af1b9968c38aec"
+    },
+    {
+      "blob_sha1": "1075b073c2ef52ae2aaf54ebb9416ae31c6aaa76",
+      "commit": "4b72f3e8f4aef814793e5cea4d6120ea5fc184e7",
+      "path": "policies/kyverno/env/homolog/patches/verify-image-attestations.yaml",
+      "repo": "gabrielldn/secure-gitops-platform",
+      "sha256": "ad6c7514f229fde86569359c3cede2a09cf8c9fea66c5800a1ac83ec23f74984"
+    },
+    {
+      "blob_sha1": "c59e501ee2a981df7ae3f84eea7ae0fcfd9c5298",
+      "commit": "49bf22201b6498cb33efd0c41bd42679668edce0",
+      "path": "kyverno/policies/require-resource-limits.yml",
+      "repo": "gadaugherty/vulnbank",
+      "sha256": "8655f1dd84ec25001741d120d6784a1a49dafb35a198f32aec5b94a73fd59d95"
+    },
+    {
+      "blob_sha1": "71b868ff29888ef487b6bf1b1367fcedf6d68297",
+      "commit": "9179ccba32734921ee9a5bddacd25639152b1444",
+      "path": "kyverno_policy/policy-04.yaml",
+      "repo": "gc-ghub/project-kyverno-policy-enforcement",
+      "sha256": "4294613f83237809f5bc315301464af079387080e89b27eda877f3e2d18d7c82"
+    },
+    {
+      "blob_sha1": "515dd599d439147de64dda35f26396b2ba4cbde8",
+      "commit": "6263f366fff09f01d8d99e69a84d340d9c12778f",
+      "path": "kubernetes/kyverno/verify-images-policy.yaml",
+      "repo": "ghantotcon-cpu/cnd-project",
+      "sha256": "e8f6c03aebbcbfdeec2806662239c0fe68fab34278a2f8ae9bd71ac7b791dc7a"
+    },
+    {
+      "blob_sha1": "9d2f2bd4d39549ec6b6e92fe7e235ce487bbc8b3",
+      "commit": "19bc1d55b31da3a447334956b6383366ccff2004",
+      "path": "helm/kyverno-policies/templates/restrict-debug-access/clusterpolicy-block-expired-exceptions.yaml",
+      "repo": "giantswarm/kyverno-policies",
+      "sha256": "e29dfd62000c7fa8b7695e065b216e6f3dbb1cb8ece87cbe0a72349047536a48"
+    },
+    {
+      "blob_sha1": "ad8c8d1ebca4b7a4a8b517c83bac73c5a1ed8040",
+      "commit": "19bc1d55b31da3a447334956b6383366ccff2004",
+      "path": "helm/kyverno-policies/templates/supplemental/require-read-only-root-filesystem.yaml",
+      "repo": "giantswarm/kyverno-policies",
+      "sha256": "c56ef73b3a4dec20e0551a4ac211ee0afd2746db0da92a8ef6e0d5cc33675c95"
+    },
+    {
+      "blob_sha1": "98e337891727ae1ce5b25aed8c21f2d5ba733778",
+      "commit": "7c693c3522cc2e075652b43277928f1964fe5c9a",
+      "path": "helm/kyverno-policies-connectivity/templates/wc-ip/WorkloadClusterIp.yaml",
+      "repo": "giantswarm/kyverno-policies-connectivity",
+      "sha256": "a0d406e7f072887a8c2b7ab31cb9c799cc811f8ef024e4a66d634661c3a86a72"
+    },
+    {
+      "blob_sha1": "3d9846c51020e23ef8a848450ae4e6a0e3ea51a0",
+      "commit": "a7a7aa816df224a806b2cb4715833e47cf66693f",
+      "path": "policies/dx/EnforceGSRegistries.yaml",
+      "repo": "giantswarm/kyverno-policies-dx",
+      "sha256": "0925e6f99fb91f8692d93fb371a5f48a734755472f7581a1985ff4055f7330f6"
+    },
+    {
+      "blob_sha1": "cfb85f147ef8786e222ab83409955f28d3988796",
+      "commit": "996e7b6b03e8fdbbf164c84893cf94cf64217d95",
+      "path": "helm/kyverno-policies-observability/templates/Silence.yaml",
+      "repo": "giantswarm/kyverno-policies-observability",
+      "sha256": "9e2ddfa6f8455a7a9266aca6455f2225a5b9c6c204bfbcf720c89fa86bfeb173"
+    },
+    {
+      "blob_sha1": "f4d9b37698eadbc48342d82883af4ab8a073aea7",
+      "commit": "03e9981b59fcbdeaf56675c293ed53c8a360dc9b",
+      "path": "kyverno-policy.yaml",
+      "repo": "gnunn1/cosign-demo",
+      "sha256": "0542039f231116ef07d1f1e188238dafebed680c3a0a156ebfbe1436a2be913c"
+    },
+    {
+      "blob_sha1": "6bd667a153f5f0bae5d8d4f6d620c528f9c98d91",
+      "commit": "f54e94ffa28b7801429c18523638712ab43f652e",
+      "path": "kubernetes/policy/kyverno/policies-enforce/30-require-seccomp.yaml",
+      "repo": "gr8monk3ys/homelab",
+      "sha256": "10fbb38effab95a68b0affb989137ea9a25aceb968f53a14568962551a747969"
+    },
+    {
+      "blob_sha1": "f39da681a0a84fe5197106e331beadd71e040092",
+      "commit": "cebac120f78facbb478696ff603c96462b9c595a",
+      "path": "manifests/helm/longhorn.yaml",
+      "repo": "greg-hellings/nixos-config",
+      "sha256": "27776f2016af10d6c77a478aa92cbb853e8ecec34ab4559b0bb1f3d4f388081a"
+    },
+    {
+      "blob_sha1": "36cbee5393b1ec2651f05a45fce3236de4278311",
+      "commit": "99a62d174b645398f3cd020588dc27459739812d",
+      "path": "cluster/apps/kyverno/policies/add-external-dns-annotations.yaml",
+      "repo": "h3mmy/bloopySphere",
+      "sha256": "26a52f927eaf8c50fd57d8684891e9b52cbf0f46a2c5b2166b44199cf6ae84ea"
+    },
+    {
+      "blob_sha1": "bfc10e6fbf83912f23d9957e0f62e6a07cb6a65c",
+      "commit": "99a62d174b645398f3cd020588dc27459739812d",
+      "path": "cluster/apps/kyverno/policies/add-ndots.yaml",
+      "repo": "h3mmy/bloopySphere",
+      "sha256": "4c18e2c0c241fee721d8582dae674e189117044bdf23e21e562f115aee4cc49a"
+    },
+    {
+      "blob_sha1": "55ecce0fff91a918f805cfed8d929d8732227b53",
+      "commit": "99a62d174b645398f3cd020588dc27459739812d",
+      "path": "cluster/apps/kyverno/policies/set-traefik-annotations.yaml",
+      "repo": "h3mmy/bloopySphere",
+      "sha256": "82d696647e1e0c5354002a26b5560897021ba0515ba992403eeb4cb471f7d040"
+    },
+    {
+      "blob_sha1": "30c0b795c8f844e5bc6c5880e109c15c42af98e8",
+      "commit": "885c6e5b3f162e96426c61ac87e6f724c53beea5",
+      "path": "base/external/kyverno/policies/common/security/psa.yaml",
+      "repo": "hangx969/local-k8s-platform-tools",
+      "sha256": "42f54e0242ffad283ce853e70238c5ec42a24efc1d83414dcfb27e1f5cbc5897"
+    },
+    {
+      "blob_sha1": "ecbefcd9f8822d60e4fa066080e5d38dcf22c272",
+      "commit": "9b0bdc4ffc63d9d59924beb71ec61e1521778375",
+      "path": ".archive/kubernetes/apps/kyverno/kyverno/policies/apply-ingress-auth-annotations.yaml",
+      "repo": "haraldkoch/kochhaus-home",
+      "sha256": "916d2b88298e601cbeb2a24da02d4c2d95c8ad6cb5e85b9dedde0bbdfdf8237e"
+    },
+    {
+      "blob_sha1": "edbb3e1202101c50532cae3c1f5a4bc301e3eb4c",
+      "commit": "da4ff07cd486b27846d623bff66ad04d3b02731c",
+      "path": "3k-docs/resilience-testing/security/security-templates/manifest/kyverno-policies/allow-host-namespaces-for-litmus-experiments-which-uses-runtime-api.yaml",
+      "repo": "harness/developer-hub",
+      "sha256": "61451777a151e5bdd9a45015af3e5442ba2b542f17002a4cd05991cea7610dfd"
+    },
+    {
+      "blob_sha1": "b129ec25485d0fffce68e11a6c8bf171f6779a1d",
+      "commit": "d6faf0bfb7551f9bf2d47d595745f8b72ef3a12f",
+      "path": "openmetadata/app/utils/kyverno-policy-automation-pods.yaml",
+      "repo": "hellekin08/encore-apps-openmetadata",
+      "sha256": "ca6cbd11474985cad9618319c546f1a9f42787637a82167dfb44e3c5a5286733"
+    },
+    {
+      "blob_sha1": "3f46e95eea4c43aa0c5f4a926bcea07d10773ddc",
+      "commit": "94386f39167b0f0b27c0be6b25d7a6417a4797e4",
+      "path": "src/deploy/kustomize/overlays/backup-exec-restriction/kyverno-backup-exec-restriction.yaml",
+      "repo": "hivecommons/hive",
+      "sha256": "0ca69d32fc343c1f53329722bc13e97e5f0fd13f2594b9a85b7f17165b6f01b2"
+    },
+    {
+      "blob_sha1": "7e8a3d6fba0838b7d60054b8da467e7e0f3a7e58",
+      "commit": "f1c45118ab50ef9b4b3ae53c70b52ecb5f5f5f92",
+      "path": "security/kyverno/policies/baseline-policies.yaml",
+      "repo": "homelabird/homelab",
+      "sha256": "c51c7beb92d665481d3d0ee4577b78e7c9e73bbcb38bb7514ef1252677f16f7e"
+    },
+    {
+      "blob_sha1": "dbe79779f7530616e2d10732f4032c82c2a0e0ea",
+      "commit": "04af169960efa82fbf67e2bab78b10db2b1578ac",
+      "path": "helm/microservices-app/templates/kyverno-policies.yaml",
+      "repo": "hshahar/shahar-sandbox",
+      "sha256": "6cf67fb4a734e7b552b53fb9446549876e08aa143c30a54d1d603e36221d9627"
+    },
+    {
+      "blob_sha1": "a9ba95652ff922eb3276eb3b8cdf15ad797cf88b",
+      "commit": "3d93f0a3c28faebacf936562078f2c84dcd6c460",
+      "path": "guardrails/kyverno/disallow-latest-tag.yaml",
+      "repo": "hugosleao/platform-engineering-reference",
+      "sha256": "10a1fd68f25e40ee483e155dd42f7910a3225942b332355e9c47734571e24f62"
+    },
+    {
+      "blob_sha1": "3ea7ceb60dd66df4451c05eb16bc74a0a7f7e422",
+      "commit": "32c33085058e3556ee86c641bf18297d0b130103",
+      "path": "Security/disallow-privileged.yml",
+      "repo": "humbeatbox/novabank-gitops",
+      "sha256": "49fa519e5a337f18a2c1195fd20b4e6deeb3394b0111a56e0acf4500043b1404"
+    },
+    {
+      "blob_sha1": "5859a6e9d1bf7277c256ef3e24afb84c40e7fea7",
+      "commit": "b68143fbc017de6516b18423049a7eaeda0ea494",
+      "path": "cloud/w10/day-2/policies/verify-image-signature.yaml",
+      "repo": "hunghk43/kimhung-aws-accelerator-p2",
+      "sha256": "d1238cf0b5c1b336f6ef01b7e5ba6bfcac122ab0f0eb7241eb3dfcf2ea08973f"
+    },
+    {
+      "blob_sha1": "0a801db480f4315c0f9dcdaf84917d8a178730c9",
+      "commit": "7b857ae242a7906ddbf65b6fd62cf7b6fbde16d3",
+      "path": "bases/kyverno-best-practices/clusterpolicy-require-run-as-non-root.yaml",
+      "repo": "hwinther/proxmox",
+      "sha256": "0d345fd5ea4e4323cb576b848f3c1c8e1dc0d515fc01a9442897ce87f29fc6a5"
+    },
+    {
+      "blob_sha1": "20c4b1209736b34da9fc5e13737cb5612bd290b1",
+      "commit": "7b857ae242a7906ddbf65b6fd62cf7b6fbde16d3",
+      "path": "clusters/production/apps/postgres-production/kyverno-clusterpolicy-clone-clutterstock-pg-secret.yaml",
+      "repo": "hwinther/proxmox",
+      "sha256": "74e31dddbe4238d10cbf762577e647650d794ba0736aae945a79023002f11696"
+    },
+    {
+      "blob_sha1": "30548aaab6020e0ae01a8c840d749196f0d93243",
+      "commit": "ab222f0c2180b3da3493249f34e0865592f26bcd",
+      "path": "01_K8s_Exercises/task_05_RBAC_and_Security/Exercises/kyverno_exercise/policy_1-resources-limits-requried.yml",
+      "repo": "iamakshu29/Kubernetes-deep-dive-with-projects",
+      "sha256": "9482e81dd02fed61c58714d9a7fdb7ea020033b9ac941b7406c4f5f897059c00"
+    },
+    {
+      "blob_sha1": "718a928366195b8a4c1f58ef4c508233907d2346",
+      "commit": "ab222f0c2180b3da3493249f34e0865592f26bcd",
+      "path": "01_K8s_Exercises/task_05_RBAC_and_Security/Exercises/kyverno_exercise/policy_2-disallow-root-containers.yml",
+      "repo": "iamakshu29/Kubernetes-deep-dive-with-projects",
+      "sha256": "14bc3abd9351742a78fac3cdacf18fd9da3c31564383f5e02eb666a29f5e6743"
+    },
+    {
+      "blob_sha1": "3f848fc03d8258e975d2df97babaa7756e9d310c",
+      "commit": "ab222f0c2180b3da3493249f34e0865592f26bcd",
+      "path": "01_K8s_Exercises/task_10_Project/Project/microservices-demo/helm-chart/templates/policies.yaml",
+      "repo": "iamakshu29/Kubernetes-deep-dive-with-projects",
+      "sha256": "30c5faba6275ca50ba447f03ea81e0eba2a510e9330455761658073f1c8b0e49"
+    },
+    {
+      "blob_sha1": "b4f470471fc50b6de400a52462a3e871e739bef0",
+      "commit": "648b113ec80b7200667a7688cc412fadba03066c",
+      "path": "kyverno/disallow-latest-tag-custom-apps.clusterpolicy.yml",
+      "repo": "iamenr0s/gitops-argocd",
+      "sha256": "7e2dde8163d5e834e6b1a882b5ad32fbd6d3500942e21d67965b1e84fadfb1e1"
+    },
+    {
+      "blob_sha1": "85e538402ef3ec365f5147c48541d495e8b34779",
+      "commit": "265d8aad4123d3b31ab358ff24f55d6dfbe75f9c",
+      "path": "k8s/kyverno/clusterpolicy-image-verify.yaml",
+      "repo": "igorgroz/devseclab",
+      "sha256": "fbdf8652babefc5572e3888a0264b18154733e875fe3ecf9bb828f0fe2cbe851"
+    },
+    {
+      "blob_sha1": "bf53649c83c8b80d394c7788d86cf40b4cf2c2cb",
+      "commit": "5bbb9308ade88bce9b300f7ee310c5d7df1bc43f",
+      "path": "tests/kyverno/test_policies.yaml",
+      "repo": "iits-consulting/charts",
+      "sha256": "6e38644e2fb16a915c95cd8476183180e7a9725cf2a63718431d8b5cba7c3e84"
+    },
+    {
+      "blob_sha1": "17bcceef1939b07c6287495c310bd4a22c7b134a",
+      "commit": "5999185371cf7eb2e327dc0443f3509a671aab23",
+      "path": "kyverno/policies/add-pss-labels.yaml",
+      "repo": "ilpoom-jinro/AWS",
+      "sha256": "6365fa5f0cbec0d688c904ccdb5054df55018859eb20fd78d1b1ef660e03d522"
+    },
+    {
+      "blob_sha1": "86acbef3ecdf96797744bf85ea638f868f3d3edb",
+      "commit": "f26315d173c70d6796f8f6e47e2743811be9f5a8",
+      "path": "xpkg/awg-appdev/apis/Application/composition.yaml",
+      "repo": "in-the-keyhole/awg-appdev-modules",
+      "sha256": "cc3e7ae488e1e234c83dc121d3a523df496e139be5043b8fc77e82df67c4cdf5"
+    },
+    {
+      "blob_sha1": "0dde3ec601609d59249995048151ab75c401fe2e",
+      "commit": "38fa5275be787bb524b4075c4084d9aeb92e5501",
+      "path": "Restart-On-Secret-Configmap-Changes/v1/configmap/cool-cpol-configmap.yaml",
+      "repo": "jamalshahverdiev/kyverno",
+      "sha256": "4c7b7163ff84796e3d945991649c654bbb3c4935edd4041aeeec5f8de82010a9"
+    },
+    {
+      "blob_sha1": "f96f4e1839f51d13d6042aad5db64eb16759fb1e",
+      "commit": "38fa5275be787bb524b4075c4084d9aeb92e5501",
+      "path": "policies/04-replicas-limit.yaml",
+      "repo": "jamalshahverdiev/kyverno",
+      "sha256": "ae53afb3f9c294d0798e95cf961dddee38aeb9bfb360d0e80eaf1978a734c5f0"
+    },
+    {
+      "blob_sha1": "58f0249bb85fe5c25849588e7d96b2e0b27dd1ad",
+      "commit": "38fa5275be787bb524b4075c4084d9aeb92e5501",
+      "path": "policies/09-service-port-validation.yaml",
+      "repo": "jamalshahverdiev/kyverno",
+      "sha256": "92cfc46772761d0acb13c21fbb8b6b0c030b90adf52fa50e6f7da7079e643a73"
+    },
+    {
+      "blob_sha1": "e1df978a1679568c55610b2e3d40d7f7b51b2ee4",
+      "commit": "2c0999c5b06f6a8dad76b05f00b8892001eb1eba",
+      "path": "infrastructure/base/kyverno-policies/check-deprecated-apis-clusterpolicy.yaml",
+      "repo": "jamesdkelly88/kubernetes-lab",
+      "sha256": "70443cac0b68e2cb1e325baf016cda0fefee11693d44a7b819957bb32d46d852"
+    },
+    {
+      "blob_sha1": "725b1bc7b13e47b5977f94adeb6ef28c0961167d",
+      "commit": "c1ac33b4bc331cab3f23c7074531de3a4cc5843a",
+      "path": "tmp/kyverno-policies/disallow-naked-pods.yaml",
+      "repo": "jamie-stinson/helm-system-monorepo",
+      "sha256": "d1242bb0def23b7223163beceab60b96b4aec257ed671b101c157caeed9948fa"
+    },
+    {
+      "blob_sha1": "3b8dcab49dab5e8f9c88233dc10d387002f63d7e",
+      "commit": "c0d191e55b19dee27e6098a966fe0742c95adee1",
+      "path": "policies/kyverno/require-run-as-nonroot.yaml",
+      "repo": "jawsbaek/scp-gitops-sample",
+      "sha256": "6beeb5fbcd03e1c94da0651487e95c72a18f16eb78bcbe4705910c1f6db9e2a4"
+    },
+    {
+      "blob_sha1": "d1438df0944e4da4f6dd0a75224978408d65f5e2",
+      "commit": "4097ed1be307964d31b7cbcbb103d3c063916d84",
+      "path": "rbac-access/templates/kyverno-policies.yaml",
+      "repo": "jeiang/k8s-manifests",
+      "sha256": "6c52fcf3c46fa42d6d6435440d0776255fa8df79df0857b8e902b5ddfb75b0ef"
+    },
+    {
+      "blob_sha1": "cbaf4b95727e6e671883134bc91d883527818bbf",
+      "commit": "f55148ee97f313dca7ad25c4e9f2c8ddb6705787",
+      "path": "charts/finops-policies/templates/block-large-image.yaml",
+      "repo": "jetstack/finops-stack",
+      "sha256": "37deb9a0924a8a48d55bfcef73b25379e36318bb01fa85a8e29bbb12c3790f5b"
+    },
+    {
+      "blob_sha1": "2607fe7572c15207094348b0b2754caf73f4788b",
+      "commit": "b64ed8349ed263827836bdc6cf0c88c429bb26d2",
+      "path": "production/infrastructure/kyverno/restrict-image-registries.yml",
+      "repo": "jlui70/devopsproject-ecommerce-gitops",
+      "sha256": "bc950d9f5af0f88f15f22b1ac62f5449c61fa6d8b866ab0d14cb8f30c1369aaf"
+    },
+    {
+      "blob_sha1": "7050bcfc7ca400d46c453c46a29bb772929c39ff",
+      "commit": "301d23efcb694ee6b6012a8e60fcf0fda2ec9747",
+      "path": "policies/kyverno/disallow-latest.yaml",
+      "repo": "jo114ge/bsides_sofia__detection_policies_2026",
+      "sha256": "1ad2ea32af43d5315b77f4c763a91daa9384c4626686c14f644e48505cd6454d"
+    },
+    {
+      "blob_sha1": "0d4386cfb7bd6bd78d5d78063cfe15617420df29",
+      "commit": "07d699ffb9627f4e7762c0700fba7db482fc9b4d",
+      "path": "projects/platform/kyverno/templates/otel-injection-policy.yaml",
+      "repo": "jomcgi-org/homelab",
+      "sha256": "c6c085d151b4e46b1f2fb53d3ae502b07639bd888b827e2ecf5a1942d28fc5c3"
+    },
+    {
+      "blob_sha1": "ce76d262bf4899edf704db81610c5d456f896bd3",
+      "commit": "9a0d14ea3e5b975f785a8f476ad596974f06379a",
+      "path": "kyverno/registry-allowed.yml",
+      "repo": "jorgetrc/descomplicando_kubernetes",
+      "sha256": "23fc1751a4c3f92acbdde3d16448bb1543594b1638bf769180b0aa70a8251d9d"
+    },
+    {
+      "blob_sha1": "9c60ace7723aed6d4b481ad06f41714afcc3e2af",
+      "commit": "ce593d76169c66aafe571885ce7d6c5d8088fdbb",
+      "path": "apps/kyverno-guardrails/charts/kyverno-guardrails-0.1.0/templates/require-pod-requests-limits.yaml",
+      "repo": "josef-hak/k0rdent-catalog-2",
+      "sha256": "e56c8ae2ef87f0772ff7de6af22c34bf41b45a4985db18ad90c93f24edd233fb"
+    },
+    {
+      "blob_sha1": "26139dbd205076338c3f8800f3856562968510f5",
+      "commit": "ed2707d318e3bd93d0d01bfaf904bd7862b660f0",
+      "path": "kyverno_copy/overlays/policies/drop_all_capabilities.yaml",
+      "repo": "joshua-nable/cluster",
+      "sha256": "00d800524bb47e3a9bd332939e16be18f5ec4701a62cceb01f62b91c50b1efe6"
+    },
+    {
+      "blob_sha1": "a0d411159a454bec49ff008bf58a4c821f62c2e8",
+      "commit": "72bf4f9cd93d2d50d66dedcfb2080a9dc528d2f4",
+      "path": "61.Security/11.kyverno/kyverno/samples/more/require_deployments_have_multiple_replicas.yaml",
+      "repo": "junghoon2/k8s-01",
+      "sha256": "019f445e62416eea9a157c13cc128e124cfed15dfab93fcc86d401080589ec18"
+    },
+    {
+      "blob_sha1": "8e9cdd2807121923db9d1f5f25d07a8825062e05",
+      "commit": "5833cef75de417850858e3e08ad230d5d95a80d0",
+      "path": "registry-policies.yaml",
+      "repo": "jvanzyl/kyverno-registries",
+      "sha256": "42ba23972e1529390dede8964fd9aa8e9fe5019d2cee6433d1064c50c87759c4"
+    },
+    {
+      "blob_sha1": "7343a74b3003b54a4e44819114239e792e59bba2",
+      "commit": "16e0982f3607fd9d97bd62fa7bcfb002351717da",
+      "path": "policies.yaml",
+      "repo": "kamikazechaser/k8s-kyverno-demo",
+      "sha256": "52bbf2906ed3d83c057321776320f20a1d711427fda02e78d0e7d1ae63f5d35d"
+    },
+    {
+      "blob_sha1": "06e5c637459b5394f72b61953a982072f1663801",
+      "commit": "f6402afda44bfaa004bee3f49918d0f243d985c5",
+      "path": "karl/disallow-host-namespaces.yaml",
+      "repo": "karlschriek/kyverno-test",
+      "sha256": "8f5b42113a1d43d46a324eed5a800d727d5b0cc6ab5306216936c72dfeb50c4b"
+    },
+    {
+      "blob_sha1": "c24a2c2c3fe6d088bdac73f9a76e35c9852f8b9a",
+      "commit": "f6402afda44bfaa004bee3f49918d0f243d985c5",
+      "path": "karl/disallow-privileged-containers.yaml",
+      "repo": "karlschriek/kyverno-test",
+      "sha256": "2ccc3351a5353d6c017308ff61cb4816542ab2a9360feb7e7c06c447698f1ba4"
+    },
+    {
+      "blob_sha1": "834bef6bec89831bc292243118d63e05cfbbe48d",
+      "commit": "9d953b0aaf2829d2e7ad6d124e3cfa984bc1cc45",
+      "path": "Kyverno/Task1(Enforcing Resource Limits)/policy.yml",
+      "repo": "khpcoding/Kubernetes-In-Action",
+      "sha256": "85806644de5e4128800189edeb38286ae60e8af0700b6926a00be199a440351e"
+    },
+    {
+      "blob_sha1": "6bf176455c4d6920c47fc4c9ee767f47f68c6a6d",
+      "commit": "838a9e2391e8524e01e49bf454751ab5b49f836c",
+      "path": "scenarios/kyverno-policy-scenario.yaml",
+      "repo": "komodorio/failure-scenarios",
+      "sha256": "6ed7ed80627959a778ea30ab9e8e075049edd428195b440bbec78a42127c3892"
+    },
+    {
+      "blob_sha1": "4fc1851179372f0ea5f31567cff4d710f7555c4d",
+      "commit": "a781e8d0a51fda9ddffd82e155d89ba2beeb26b8",
+      "path": "policies/disallow-latest-tag.yaml",
+      "repo": "krsatyamthakur-droid/kitops-mlops-integration-suite",
+      "sha256": "13d7ad145b725420826c710d0877ae28c43e7b8a1327576e79a48cf3fedf4885"
+    },
+    {
+      "blob_sha1": "40468282cb8262dcf634cfbf74ad0d0771db4350",
+      "commit": "4175e4a0e289279904bd6a091d661403fcc18d44",
+      "path": "kustomize-application-onboarding/platform-components/helm/kyverno-policies/templates/certManager/restrict-issuer.yaml",
+      "repo": "kubara-io/platform-setup-examples",
+      "sha256": "cdad7969fffd69b4207928c6c572e36af946f1ad1f590a2e8aef6b0fc1dbe457"
+    },
+    {
+      "blob_sha1": "b6f84213e499730b919bd92e4dc11f2fbae667ef",
+      "commit": "38005efe72fc72a7bfbe806cedd18cd2b3d681d3",
+      "path": "5gsec/oai-core/kyverno-core-readonly-volume-mounts.yaml",
+      "repo": "kubearmor/policy-templates",
+      "sha256": "1a3980403697d4c05e83a124a6650b3ebbf0b8066d374bf78a0a69debb704434"
+    },
+    {
+      "blob_sha1": "75f18e90044c2631bbd9ec56754a19cb8b6d039d",
+      "commit": "167bc2441f21281dd97f4e4178b3731b75b0f30e",
+      "path": "k8s-cluster-configuration/kustomize/platform/core/components/policies/kyverno/base/policies.yml",
+      "repo": "kubeden/dstack",
+      "sha256": "b24b266c74961a53aa3ed5ce04373defec8389abc893bafcd8cb679020a71949"
+    },
+    {
+      "blob_sha1": "3ad89c94de0fdb03e0244bdddc8f9b615fd14797",
+      "commit": "d7f7b8677c953af8c3aff1ba0b20abc7183318eb",
+      "path": "examples/kubermatic-virtualization/kubev/storage/portworx/kubev-storage-cluster.yaml",
+      "repo": "kubermatic/community-components",
+      "sha256": "caa2135e1f166a6be78ef149541df9d9ff1cfec3ca018f357c6a045f80900c1d"
+    },
+    {
+      "blob_sha1": "d425e9968df1f86c109149a1858e1055feefbf43",
+      "commit": "1dcd4462b04da4946890dfa7916ac6f40c66b74a",
+      "path": "templates/kyverno-policy.yaml",
+      "repo": "l3montree-dev/devguard-helm-chart",
+      "sha256": "9575d2e88f24e27c55b04a8090dcc39e94b59ecb01d35a5a8b3d8f1c43f12046"
+    },
+    {
+      "blob_sha1": "acd1dfc791dd65b1797f6a80160a1368b694efee",
+      "commit": "e6ee0de7dbd6b83f8f23a5f7ede6ad29db555d84",
+      "path": "manifests/policy/disallow-latest-tag-policy.yaml",
+      "repo": "lbogdan/advanced-kubernetes-workshop-2025",
+      "sha256": "30f4998a3646b1f4fe0131250d1fa93f0219828b0e7cb9125b88bac15dae9824"
+    },
+    {
+      "blob_sha1": "ae9fd11be3cbf38925ef9d0b5b35afb7c639e4d9",
+      "commit": "f1d00d28e77f74b9768d2a84ce304aa464815d81",
+      "path": "applications/enterprise-gateway/overlays/kyverno/inject-jeg-env.yaml",
+      "repo": "lehuannhatrang/ml-platform-manifests",
+      "sha256": "53ae915b315cf7aa2590600af57c0f59eb4cc01cdf17b0ffff916a94ceaab8f1"
+    },
+    {
+      "blob_sha1": "7fab4ace31de8d9c33ac804c6adab53128e9e804",
+      "commit": "ca347d9d619fee854368a6abd22e397907a1688f",
+      "path": "chapter-10-securing-kyverno/lab10.2/cpol-disallow-default-namespace.yml",
+      "repo": "lftraining/LFS255-code-public",
+      "sha256": "ac8617764b7de742ef5ccb304b7d5c12e0fc2d1308914dc67e5ec68a0c5e921e"
+    },
+    {
+      "blob_sha1": "efddee81a63d4f99399f0e7b6b42465e9aacbc8e",
+      "commit": "ca347d9d619fee854368a6abd22e397907a1688f",
+      "path": "chapter-11-integration-and-extensibility/lab11.3/kyverno-image-attest.yml",
+      "repo": "lftraining/LFS255-code-public",
+      "sha256": "6b93709aad5b9861109ef26307fb8ff367b1dbc35dfb6696f6d67fa8ad98c9f1"
+    },
+    {
+      "blob_sha1": "a6e919442f29f6c17a3e0458b9e9dc804c6850a1",
+      "commit": "63b1fec233a8be381ce29902bf3cb726aa1a3626",
+      "path": "charts/team-ns/templates/policies/baseline/disallow-capabilities.yaml",
+      "repo": "linode/apl-core",
+      "sha256": "7bbba2ca587d8e70206eac3ab7690999429537d8caab0fee6143b24639f0620f"
+    },
+    {
+      "blob_sha1": "c4e2dd901b3a22ef3ce9730cd790aa0ee4d4f820",
+      "commit": "63b1fec233a8be381ce29902bf3cb726aa1a3626",
+      "path": "charts/team-ns/templates/policies/baseline/disallow-proc-mount.yaml",
+      "repo": "linode/apl-core",
+      "sha256": "137a27d0ce67753459f83c2246405befddcf192f8cc6643f5e9577328416f872"
+    },
+    {
+      "blob_sha1": "7462fe85f0f2667f133087a1823bbae8acc164f2",
+      "commit": "63b1fec233a8be381ce29902bf3cb726aa1a3626",
+      "path": "charts/team-ns/templates/policies/baseline/restrict-apparmor-profiles.yaml",
+      "repo": "linode/apl-core",
+      "sha256": "d33594e3f277f2b87f29b219185ac136da9d8bae88c5274c7194aa7cc647c43a"
+    },
+    {
+      "blob_sha1": "9e839bdc6675ab0a1fa1526341cefa061d52ed1c",
+      "commit": "ed98bc4cd97bbba042e8f70c8b92a58b77c21553",
+      "path": "open-webui/security-policy.yaml",
+      "repo": "linode/apl-examples",
+      "sha256": "f364f1f0eb996bf6bb60ef629580e987d9a04f598c0de9303b749bb503ffa0f6"
+    },
+    {
+      "blob_sha1": "125a4e888531d8767d2f42c413cfceb42bc35fbd",
+      "commit": "adb8074511357bc8ffb69a3c7506c2a50ff28e09",
+      "path": "deploy/k8s/policies/kyverno/require-sovereign-veto-armed.yaml",
+      "repo": "linus10x/finserv-agent-audit",
+      "sha256": "75ad5f8922e66aa36ce383c9e87d4eae10bd1de321bef5b0b90aba29e65af0cc"
+    },
+    {
+      "blob_sha1": "d3666e3206500f801c9fcafc267346936ac5eba1",
+      "commit": "1a313612e61d3941f2daae2433e0b4d3a91d79a7",
+      "path": "core/gitops/kyverno-policies.yaml",
+      "repo": "lloydchang/agentic-reconciliation-engine",
+      "sha256": "e26573f2488105c17534a4bdb669c24f452d23dfff56c4a230d0b4f7124335f6"
+    },
+    {
+      "blob_sha1": "a05781e74123eb233230cba41a9445989fccdfda",
+      "commit": "ba03860697ea881050ed66a4601606261fef11cc",
+      "path": "kubernetes/infrastructure/configs/policies/require-drop-all-capabilities.yaml",
+      "repo": "lucawalz/bedrock",
+      "sha256": "e34d2926fa7c92f408b6e935ae5115da0457c5595fcb41ea24cd2f54f7e8e50a"
+    },
+    {
+      "blob_sha1": "8744ac4925e5acd5771f1d84cfca04502ea12ecb",
+      "commit": "0f1218458ae20d726635c633cdf5d035ce5dcd33",
+      "path": "k8s/mutate-rules.yaml",
+      "repo": "luckymike/consul-review-app-demo",
+      "sha256": "e23dd335415ad655226d6227588c50ca8164a6772770f9df8f13ad0b4dc07c18"
+    },
+    {
+      "blob_sha1": "f5035a653b296ba7b2d85452aa5467111eda723d",
+      "commit": "f84775007debc45a5b0362ed966074dc201090c1",
+      "path": "addon_charts/kyverno-guardrails/templates/g1-disallow-latest-tag.yaml",
+      "repo": "lurodrisilva/plat-eng-baseline-addons",
+      "sha256": "b26710ef50f867016de243c67e533d882e77f7bb99bf11c4984049492cbd1e3e"
+    },
+    {
+      "blob_sha1": "478f41ff184895fd12685dac9406539079b9baaf",
+      "commit": "aaf707282aabdb39d3e6d3f8d48d1a1211b968e9",
+      "path": "infra/k8s/base/kyverno/policies/security-policies.yaml",
+      "repo": "madfam-org/enclii",
+      "sha256": "69ab3cdd513880b9b08b9603082e7b73917f720ab5040a0dc4997704a405a056"
+    },
+    {
+      "blob_sha1": "7d27a9c9418f2a4e996dbc4b5493cd02ee38545f",
+      "commit": "aaf707282aabdb39d3e6d3f8d48d1a1211b968e9",
+      "path": "infra/k8s/production/kyverno-disallow-latest.yaml",
+      "repo": "madfam-org/enclii",
+      "sha256": "04eeffbfeb11551d5a82a7579392581bfded7fbfb26844ff92bf012674b02fce"
+    },
+    {
+      "blob_sha1": "6f1470c6bb76c0768c24e303afa1649522db756c",
+      "commit": "3e0c05df83f6fe15f6ae765a99e7fc71df270e2a",
+      "path": "P8/policies/02-exigir-limites.yaml",
+      "repo": "majosanchez07/Practicas-SA-B-202100265",
+      "sha256": "f8f3d3e2bc0feca05c63cd5a144d10aff1500849e7acc9cb41753e8989f7676e"
+    },
+    {
+      "blob_sha1": "33b623eedca1d72be3c9381e85680a5b117452fa",
+      "commit": "b4dc3cf389314ec596e61032baed565976c93632",
+      "path": "Kind/kubernetes/kyverno/templates/clusterpolicy.yaml",
+      "repo": "marcusmvbs/Kind-argocd_nginx_goapp_prom",
+      "sha256": "ca9a924e0a9735f1bb8b46a291910d7ea584696030eb18aa41ce690d974daba6"
+    },
+    {
+      "blob_sha1": "4a0c8c71e64e28fb88471c5e3fc5b0986a6282d3",
+      "commit": "df50e41ed3c3283c69e346544645e8e078f4ed88",
+      "path": "kyverno/policies/always-pull-image-from-remote-registry.yml",
+      "repo": "mcaniga/thesis-comparison-of-k8s-policy-enforcement-systems",
+      "sha256": "f65960e862b9332bc78d482e87fcd447768cf3f8e0e617051f74a9d6eafab127"
+    },
+    {
+      "blob_sha1": "993332d1b2d94c18a221ff0e6d6439251429d73e",
+      "commit": "df50e41ed3c3283c69e346544645e8e078f4ed88",
+      "path": "kyverno/policies/image-can-be-referenced-only-with-image-digest.yml",
+      "repo": "mcaniga/thesis-comparison-of-k8s-policy-enforcement-systems",
+      "sha256": "46e94f4d6368fea270ce30180ee4168a199ecb41b6adc29ca13a2fcade267705"
+    },
+    {
+      "blob_sha1": "9bbef1d83d8abf5afd75dbbe9874a1f00e0bc1c6",
+      "commit": "df50e41ed3c3283c69e346544645e8e078f4ed88",
+      "path": "kyverno/policies/root-filesystem-is-readonly.yml",
+      "repo": "mcaniga/thesis-comparison-of-k8s-policy-enforcement-systems",
+      "sha256": "f7218a39238fa15198b8602567872a8a90130976230e5e0a448556192fa6d4bc"
+    },
+    {
+      "blob_sha1": "1e54aa653af7937f088486cf514d3e520db0def8",
+      "commit": "74863af38ae4a25d7602e86ac8395d30b485ff36",
+      "path": "cfk-kyverno-pac/pac/topic-validation.yaml",
+      "repo": "mcolomerc/cfk-k3d-labs",
+      "sha256": "ab51f8004ceda03fc0d4ef170029718e3a41951eb60ab557d096bd9be46506e5"
+    },
+    {
+      "blob_sha1": "a48ee43a9433a3083a3052eed8f46453cd9c3783",
+      "commit": "360640cbcb48f47d6eeabe0ac2dd8f764088aca9",
+      "path": "disallow_latest_tag.yaml",
+      "repo": "menzenski/kyverno-mwe",
+      "sha256": "c8fe06bef252a9512fdab4a744994ebb1a351da640d800484c874f14d6e33844"
+    },
+    {
+      "blob_sha1": "8b458c1170e5af1a3c7eeb47c6db3fc169e94380",
+      "commit": "ab399380aa7ce2adf58fddebb490488ada838fef",
+      "path": "day-14/add-label-namespace.yaml",
+      "repo": "mirjahal/Descomplicando_Kubernetes",
+      "sha256": "120b787b2341985ae459c1158d2d35ffb38aeca7ea82f76c2a694de18e6530f5"
+    },
+    {
+      "blob_sha1": "788652ab101cfccc0524c624f984186399105977",
+      "commit": "5dccec50ff0ac732726969f28f278332f5680ecb",
+      "path": "kubernetes/policies/kyverno/team-quota-policy.yaml",
+      "repo": "moatazeldebsy/backstage-platform-template",
+      "sha256": "ee3f8ae3c7a6cfdf956fdf71865d5c0df2a655ccc3d6ded2fbbd6c0014428276"
+    },
+    {
+      "blob_sha1": "dfde0efedd9ad9b2c892b5646f6e500b9cdcdb0c",
+      "commit": "69c9976582b685bc01c4b8138f84a988927d29f0",
+      "path": "policies/custom/require-security-context.yaml",
+      "repo": "morbidsteve/sre-platform",
+      "sha256": "bde2c855ec067d88880a955ccdbe9b87c91141391ba6d3cea16f7d315127145c"
+    },
+    {
+      "blob_sha1": "e376d101a3b9215f143f3f03204414ea1dde0c73",
+      "commit": "0a75ea04b9b7d7ba1c059db41745c366b0f27102",
+      "path": "cluster/apps/system/kyverno/policies/sync-middlewares.yaml",
+      "repo": "mrwulf/home-cluster",
+      "sha256": "1e85382d87cadae403453ebc9177d326f9ea0d8a343e55ac93a38f6eadecfe9d"
+    },
+    {
+      "blob_sha1": "069e1c33d44560627de3728d41bfe52866ed80bb",
+      "commit": "7850b124c521b55aa023a9ac15b95cb801a088af",
+      "path": "kyverno/Validate/Block_Default_Namespace.yml",
+      "repo": "murulii/public",
+      "sha256": "a5b780a1a34d003ad1245b9405985747e0372c6666a036e5b00e610c15b7df8a"
+    },
+    {
+      "blob_sha1": "eee9f96784adfc69bd15658be91a3ed4387e6870",
+      "commit": "7850b124c521b55aa023a9ac15b95cb801a088af",
+      "path": "kyverno/Validate/Disallow_Latest_Tag.yml",
+      "repo": "murulii/public",
+      "sha256": "a001edd2732e2884763874aa293c3343a9d8b71fdd554a52cb636bd54f373166"
+    },
+    {
+      "blob_sha1": "aba0cfc6408cb056a0be63cefdcab5e40eb97c53",
+      "commit": "711d6dd5dacc12c8e85ccc71067bf4f026f778b8",
+      "path": "backend/k8s/enterprise-security-policies.yaml",
+      "repo": "nairamint/AML-Agent",
+      "sha256": "aa194f4c8c8ac3560714d5c8b11e5be3825f1bb0a508907d216f2b000459a2e4"
+    },
+    {
+      "blob_sha1": "1c503dc802f91c1fdeff0a4cfc0edc7b62b999fa",
+      "commit": "1542d008388b506419bea6bb4d5db51eb351b821",
+      "path": "policies/kyverno/best-practices/base/require-labels.yaml",
+      "repo": "nanohype/eks-gitops",
+      "sha256": "84ea17cdf3e4f10e3c732a06e39900e69cdc5fbc356d9e0e4f8417575333ef17"
+    },
+    {
+      "blob_sha1": "45df71267a34f55e6e651bae24867b2699cabfa0",
+      "commit": "1542d008388b506419bea6bb4d5db51eb351b821",
+      "path": "policies/kyverno/supply-chain/base/verify-images.yaml",
+      "repo": "nanohype/eks-gitops",
+      "sha256": "8a819f7ba2cec1576532c8d928b2a5bdf074c3cf919eeda494fad3e698c17043"
+    },
+    {
+      "blob_sha1": "98f4ff47aa419fe973457513cd28021dcec7ce5c",
+      "commit": "2b7db39f9087de043eed2e0c933258f31d1cbbb1",
+      "path": "clusters/cluster-01-k3s/infrastructure/cluster-policies/disable-default-sa-automount.yaml",
+      "repo": "nathansiegfrid/k8s-platform",
+      "sha256": "aa968f0f6589544e9464ea6f91535c68093ec86dec8a418dc0a788d589d67703"
+    },
+    {
+      "blob_sha1": "d2ec0afa377fa707c9bd61904f827cfa9674326b",
+      "commit": "2fb23829ec2d160661023eddcb9043609cc31d56",
+      "path": "kyverno/manifests/limitsrequests.yml",
+      "repo": "netgroup-polito/cloud_programming_labs",
+      "sha256": "3563fa77f00620ab1adfa4c810c25032ccc4b242de20dfa7c39fe08f34125766"
+    },
+    {
+      "blob_sha1": "4b5930b1a2a8f2558d5f7ea9b529a256e5d3d0d4",
+      "commit": "8cf91b1e8e4153cf2655ad15de3dfc028a7af7ca",
+      "path": "infrastructure/kyverno/policies/register-eks-cluster-argocd.yaml",
+      "repo": "nimishmehta8779/idp-gitops",
+      "sha256": "f53a081f9719bc3c75978c8c871498d44c7890b3070f45c797a698a57f7fb7cd"
+    },
+    {
+      "blob_sha1": "d9c1abf833b357355565436ad4b20bde743679ef",
+      "commit": "c7d763238ef27d8d1ef30fa90e2d1c09e6bef90a",
+      "path": "deployments/policies/capabilities.yml",
+      "repo": "nponsard/cybersec-lab",
+      "sha256": "d4c2835a9762a2eac190cc408ed135a46d5f66a4226f0f7eb5d0a803a2cd7198"
+    },
+    {
+      "blob_sha1": "88be1c1199bc35eaf318a47d67884f5668e3f939",
+      "commit": "c7d763238ef27d8d1ef30fa90e2d1c09e6bef90a",
+      "path": "deployments/policies/privesc.yml",
+      "repo": "nponsard/cybersec-lab",
+      "sha256": "cdc95942b85d9fa410f3cae53c5ccd67589bbfedfec06676a7cb693f905fff57"
+    },
+    {
+      "blob_sha1": "132176cfabb7e3f5986161abeec4b06f56ddc449",
+      "commit": "c7d763238ef27d8d1ef30fa90e2d1c09e6bef90a",
+      "path": "deployments/policies/seccomp.yml",
+      "repo": "nponsard/cybersec-lab",
+      "sha256": "7349f5c4257b23bc37794b74026a07fd06e952232a64fe0239a96a2b4fcc5dd5"
+    },
+    {
+      "blob_sha1": "13cf70aaa8971a47929ff417d12a9709c255dec6",
+      "commit": "ddeed09ac9047527d725adbe8054a94fedeb2a6d",
+      "path": "clusters/talos-cluster/apps/kyverno/policies/protect-source-minter.yaml",
+      "repo": "nwarila-platform/talos-cluster",
+      "sha256": "9cfc4bcbca2025ec33c6c313e39807021c94d6d69fad5f291cd0a8e8bfe12e65"
+    },
+    {
+      "blob_sha1": "043c4d7455a9acea4a99b3a72210888ab34bb6af",
+      "commit": "ddeed09ac9047527d725adbe8054a94fedeb2a6d",
+      "path": "clusters/talos-cluster/apps/kyverno/policies/verify-image-signatures-enforced.yaml",
+      "repo": "nwarila-platform/talos-cluster",
+      "sha256": "99624b9c962e9b144dd373bcefac72548b3e91387bdfa8969734650e359f9d3a"
+    },
+    {
+      "blob_sha1": "1766fb533a2072c181d16acca370c9b548956f80",
+      "commit": "2cb61951ec031215f140f55130917e8d4c488f1b",
+      "path": "policies/kyverno/restrict-registries.cluster-policy.yml",
+      "repo": "nzuguem/kubernetes-sandbox-environment",
+      "sha256": "5cd17703f94e30fd49a2fe78c9088fa8008fe672e8f479b0385b11b35258726d"
+    },
+    {
+      "blob_sha1": "2b202103dfd6657b07dcaa6fdee2c565f9b3dbda",
+      "commit": "5d205c029832ab1cc2d44a3c8be466b99faf60c1",
+      "path": "apps/kyverno-policies/manifests/strip-last-applied-configuration-from-secrets.yaml",
+      "repo": "olafkfreund/factory-gitops",
+      "sha256": "d785e8b860bc230db1302770ba36948889c3d149eddedb5bfc89b5c59e34ca87"
+    },
+    {
+      "blob_sha1": "1a9edafdf906665d80d411c413e0965983946acb",
+      "commit": "8f4b4c63de8e3d1bb0b5092e39c76ceff7f302fe",
+      "path": "community/CM-Configuration-Management/policy-create-ns-backup-triliovault-for-kubernetes-templatized.yaml",
+      "repo": "open-cluster-management-io/policy-collection",
+      "sha256": "f8961754589363365813841614a99e2e4eb9aba4007b608f58c96ecbbc8fe121"
+    },
+    {
+      "blob_sha1": "2f9e8cc59964a2098916cbaf10b9c38d0cc535fe",
+      "commit": "8f4b4c63de8e3d1bb0b5092e39c76ceff7f302fe",
+      "path": "policygenerator/policy-sets/community/kyverno/multitenancy/input/disallowplacementrules/disallow-placementRules.yaml",
+      "repo": "open-cluster-management-io/policy-collection",
+      "sha256": "a1573dd248b4a8fefee9e8cbfe67594530fea74e74494e25c554a4192af4e0e3"
+    },
+    {
+      "blob_sha1": "02dca5ba91f7911e58f12f44fde76534323f7cb8",
+      "commit": "8f4b4c63de8e3d1bb0b5092e39c76ceff7f302fe",
+      "path": "policygenerator/policy-sets/community/kyverno/multitenancy/input/preventupdatesappproject/application-prevent-updates-project-all.yaml",
+      "repo": "open-cluster-management-io/policy-collection",
+      "sha256": "6a691d7e99062b533b8c14c57bc92900b8bdd6935943a1ebc187d6304509bf9c"
+    },
+    {
+      "blob_sha1": "8ac32d9ddf4b8562f02e1006d2d8b4cb89d4bbfc",
+      "commit": "569877354c77fa13a0b22b34bc682274871dd088",
+      "path": "applications/base/services/kyverno/default-ruleset/disallow-proc-mount.yaml",
+      "repo": "opencenter-cloud/openCenter-gitops-base",
+      "sha256": "eb0fdbe41950e3629da383f63945442282ea1b470c7c34aab80494194859b4e8"
+    },
+    {
+      "blob_sha1": "4f518c33ef00d50044c1826f16fb0a97c80a13e5",
+      "commit": "10a96d95342ade66d5c6307624584019345026b3",
+      "path": "others/tenant-infrastructure-management/resources/kyverno-policy-config.yaml",
+      "repo": "openkasugai/dci_manager",
+      "sha256": "2c84ba4fda396060cf083ff231d992a14c416c1022956ea1d064e39802dac1b2"
+    },
+    {
+      "blob_sha1": "e905af77b40c4653e55fdc7eceff393cc3a6a393",
+      "commit": "da4d50d72ddb2d803a5daa248a21cf503f1b9499",
+      "path": "test/e2e/mcp/cluster_policy.yaml",
+      "repo": "openmcp-project/service-provider-kyverno",
+      "sha256": "9fadbdeb42b7389fe3687920180e476294fdec2cf63476cce9f8f5695bb12fa2"
+    },
+    {
+      "blob_sha1": "586b35944e46e7b980b93fcd7c161cf3fd140b35",
+      "commit": "21cee9032941db2bd778ee636f4d1c11c7091a16",
+      "path": "kubernetes/apps/security/kyverno/policies/global-ndots.yaml",
+      "repo": "operinko-labs/homeops",
+      "sha256": "b07de04c69c74feb9b0de6172bd55b1c28a05e55ff5210605db8fa59a7062bf1"
+    },
+    {
+      "blob_sha1": "f9c892c88fffcf2bc37c3acabb6ff23dc4561d07",
+      "commit": "5576a25fe39b09ec5bcd3e49eaeb57d633969ec3",
+      "path": "other/exclude_namespaces_dynamically/exclude_namespaces_dynamically.yaml",
+      "repo": "oshi36/kyverno-policies",
+      "sha256": "a0b50e365e0c0ab148a3d22db4284e2c13791a16041d347551476711d4495562"
+    },
+    {
+      "blob_sha1": "a5c7ca0a89e293f75f4edddb9e6d48a3274c74c6",
+      "commit": "704fcc26537dad31fbb71ab0934c38d5986c3ca0",
+      "path": "platform/policies/mandatory-security.yaml",
+      "repo": "paruff/fawkes",
+      "sha256": "62bdde1ee9facb9fc0e1065ab6678d9a15e5a562ff6e531fc33138cecec03d0b"
+    },
+    {
+      "blob_sha1": "28152be0f0dbaf9015672ef43926a4cda41f36f1",
+      "commit": "b8e48e41fa543554b6bac4014636e07fcad4d9ca",
+      "path": "core/kyverno/cpu-limit-guard.yaml",
+      "repo": "patrickjmcd/k8s-argo",
+      "sha256": "abded317915886af36d7bb0e2576443e56b626d76ff9d1cfb7ca636d540b9081"
+    },
+    {
+      "blob_sha1": "15c17e7092fcfbcd82f85b4f856f23889d4e0806",
+      "commit": "aff2189138081def286e132cf2e9a59c5bca03a6",
+      "path": "platform-config/policies/kyverno/disallow-latest-tag.yaml",
+      "repo": "pavestack/pavestack",
+      "sha256": "cc2c9314b3193c6f4ece14582af8b25f272e589e0eb6082e5910876de2d999b1"
+    },
+    {
+      "blob_sha1": "ec9717f64970039827e98baf24c467fb53c135e9",
+      "commit": "2c6f91d651e65bf3b8ee6973fbb7ed8a70a69016",
+      "path": "kyverno/policies/compliance-standards.yaml",
+      "repo": "peopleforrester/2026_Kubecon_Europe_CNCF_Portal_Fatigue_IDP_Tutorial",
+      "sha256": "18908563ae187439d75315e685838811e9cc8ae1e54f3adb98bbad15f1d625c8"
+    },
+    {
+      "blob_sha1": "5d1ec87b3e0aa0f37d27ac6ca840b5061d76abfb",
+      "commit": "bfc2e57001dd976a49433e4f39ad0f53681fdd58",
+      "path": "demo/gitops/manifests/kyverno-policies/require-limits.yaml",
+      "repo": "peopleforrester/LLMday-Texas-2026",
+      "sha256": "a7defe07665ae61193e930c31c387e041c03c0d7c1c5155a9c6d4e73ca88a049"
+    },
+    {
+      "blob_sha1": "f26c7bd065f04ca73ebfae1321d42918eb83bc1c",
+      "commit": "ade63e0ff91edcb449c8a67f091556135fa2bc79",
+      "path": "policies/kyverno/deny-llm-endpoint-bypass.yaml",
+      "repo": "peopleforrester/Unleash_an_Agent_Watch_It_Burn",
+      "sha256": "35368e99c48fd9d8da2bd306d0863f63e463d63e65ccc68838a333433ab1daaf"
+    },
+    {
+      "blob_sha1": "d2694f29f2a9bb9a43b8623d961c255971bcf9bf",
+      "commit": "3aaa9529210bd1ccc699684077d67365b3b46f10",
+      "path": "_cocktails/250213_champs23_3_try3/ap/manifest/restrict_modification.yml",
+      "repo": "pmh-only/cocktail-bar",
+      "sha256": "45a028f27aee9a48a0b19ab9b315ad3049a952aa250a9233a608578f4e59ad71"
+    },
+    {
+      "blob_sha1": "167e2d0149601516cc757dc09c0a90d2afece186",
+      "commit": "6ae8412648972c5dcb073559e8e2dd4737b684f7",
+      "path": "ci/policy-tests/rbac-clusterrolebinding-roleref.yaml",
+      "repo": "ppat/homelab-ops-kubernetes-clusters",
+      "sha256": "e68d33e7f4b4c758ca19669ffe20a360f274a3723ae2b38932a53af72769c13d"
+    },
+    {
+      "blob_sha1": "e2cae1f0b166b2f6621df002aad821676e1199cf",
+      "commit": "68774e22202aec4dcdd736d5683e84d9b5aa9409",
+      "path": "kyverno/policies/replica-count.yml",
+      "repo": "rajkumardubey10/aws-eks-kubernetes-platform",
+      "sha256": "95ea647d608a476b763f208159c9886901b58d7e662b34c9234a931466f18d83"
+    },
+    {
+      "blob_sha1": "6c9f74698636db47d62231122c77a71d3fc6b6c1",
+      "commit": "2aa9baeca547050fcc8753d8e8f9cd6d3d6ba1e6",
+      "path": "03-advanced/26-security-hardening/policies/image-security-policy.yaml",
+      "repo": "ramishtaha/kubernetes-project-learning",
+      "sha256": "e1af364cab26a7a2fefc1eb7fca8fd28e505df4aa3651d2f384f8e6c695c949f"
+    },
+    {
+      "blob_sha1": "97bde11e1ae594ff2cd309e94f728877a94cabe7",
+      "commit": "8f033c81f199503beb5a1f99368eb24c2a26f9b8",
+      "path": "Lesson6/examples/generate-default-network-policy.yaml",
+      "repo": "ravindrasinghh/Kubernetes-Playlist",
+      "sha256": "9edf1ef2bbd8c2077831764ad2ee8b918e66861b7fba250e115e909365b5adfc"
+    },
+    {
+      "blob_sha1": "1048ac0e41a3accc123108c77956e601e0b85426",
+      "commit": "c31efa192d4f041c6e43402955d4c971a1fdde57",
+      "path": "components/policies/base/konflux-rbac/konflux-support-access/.chainsaw-test/chainsaw-assert-clusterpolicy.yaml",
+      "repo": "redhat-appstudio/infra-deployments",
+      "sha256": "33979cd8e7a050af2b9dd038b55b1a60c6fef36b555d8d5b048196e7df9ce2b7"
+    },
+    {
+      "blob_sha1": "68e1fad791574c041d20b5ef13a2c2f90f6c24ea",
+      "commit": "c31efa192d4f041c6e43402955d4c971a1fdde57",
+      "path": "components/policies/rings/ring-0/base/delete-propagate-cost-management-labels.yaml",
+      "repo": "redhat-appstudio/infra-deployments",
+      "sha256": "8ebb533f15c7554c72b223cd54bcfb5cd3688fc62ed9d33c765c08579dc895d2"
+    },
+    {
+      "blob_sha1": "cc8fb94496edcf36afbaf61709bfc0b543649e2e",
+      "commit": "c31efa192d4f041c6e43402955d4c971a1fdde57",
+      "path": "components/policies/rings/ring-0/base/konflux-rbac/restrict-binding-system-authenticated/.chainsaw-test/chainsaw-assert-clusterpolicy.yaml",
+      "repo": "redhat-appstudio/infra-deployments",
+      "sha256": "e019ef66a10c1e3391ac3fb0044b5538aaac99bf56bd780bbc9891609cc4bf3f"
+    },
+    {
+      "blob_sha1": "0f64bd99d404dc82bd98741e6512723c565a69ff",
+      "commit": "5f7094d3d54885b23c00ee8f278b6b339bb506dd",
+      "path": "gitops/per-vcluster-bundle/templates/policies/05-secret-no-pod-mount.yaml",
+      "repo": "ricCap/crossplane-workshop",
+      "sha256": "ead85a3ea04067cbb3dac56a66a41dc490de4992dbb7b5aa857f035d1d67400f"
+    },
+    {
+      "blob_sha1": "347c7bbff416c8cdb1b7096b7758a040ec836321",
+      "commit": "210b512d4f710c30fc415a695513c9427f0c5913",
+      "path": "add-labels-cel/add-labels.yaml",
+      "repo": "rishichirchi/Kyverno-CEL-Policies",
+      "sha256": "021030d3f8e7bcd14a534b844e4f4497f7113b54545bdadfddfadfdd6ad907ad"
+    },
+    {
+      "blob_sha1": "c4b076072bda1299574a2f6cba5c8b80e54abd10",
+      "commit": "78d4fafcd86c10fafbf1cacecf5b422a63a5d861",
+      "path": "components/policy-as-code/base/policies/release-gates.yaml",
+      "repo": "rmallam/RHDH-SM-DevSpaces",
+      "sha256": "050c2c3f77b1b58524b73c23db476bff106e3c6377c802602c101695d82d24b9"
+    },
+    {
+      "blob_sha1": "2c38acb84720ef0b368978bf5188aea3dc62676e",
+      "commit": "c0f25eadff02673a55a206987ea0186da2ec207e",
+      "path": "src/examples/04-image-registry/policy.yaml",
+      "repo": "rodrigorfk/k8s-kyverno-mutating-policies",
+      "sha256": "5443aaa1e0519c6c1f63135a5d9732a9cb1bf80dfeb4d822f591f3bc3a7b9aa1"
+    },
+    {
+      "blob_sha1": "6316635fa732e5f4d4343393a545ec899ffb3c9a",
+      "commit": "d66b0d9244a1eaf4ed270cc90ad738b6e90f8492",
+      "path": "infrastructure/kyverno/templates/prefer-worker-nodes-policy.yaml",
+      "repo": "rogerrum/k8s-gitops",
+      "sha256": "0885679c1b740a9c1f3a310dda8bee20245da54de147aa9d02f07a1ef52db619"
+    },
+    {
+      "blob_sha1": "4e6ab6304cde506437176b36c089a38bd4a22c3c",
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "path": "addons/kyverno/policies/betting-slots_no_losses_disguised_as_wins-policy.yaml",
+      "repo": "rulehub/rulehub",
+      "sha256": "b5547edbba4a41f9a12ab70af96278b924a9273abe15637b92cdf0b2b993771c"
+    },
+    {
+      "blob_sha1": "e4072e9b12528b4793ecdc59e7b085fd956e01d5",
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "path": "addons/kyverno/policies/edtech-in_dpdpa_children_verifiable_consent-policy.yaml",
+      "repo": "rulehub/rulehub",
+      "sha256": "e8923220110357848e2461b63575f35a968687bb1cb23a7feb895da3d34c8303"
+    },
+    {
+      "blob_sha1": "b613931ca5eab52509d15d291e771327905f685e",
+      "commit": "3faf958685da8cf4392aa9bf03f9fdbfefe1ce96",
+      "path": "addons/kyverno/policies/medtech-eu_ivdr_clinical_performance-policy.yaml",
+      "repo": "rulehub/rulehub",
+      "sha256": "df5a14328d9c995d70983cd2e946e0d9dbbc0e5bca700b1cfcfba26fbaef8508"
+    },
+    {
+      "blob_sha1": "7f07515de3a800e331413c8e396a91aff1b4324d",
+      "commit": "2dbff998a078885aa17bb45076e0a85bd37b1a27",
+      "path": "deploy/test-kyverno-mutate-cpol.yaml",
+      "repo": "rurikudo/kyverno-ishield-library-example",
+      "sha256": "5df0439afc4da7286674b097cb0fc74905fb1b1f292a6ae662745245ecc54631"
+    },
+    {
+      "blob_sha1": "6d728a78239242cc345b6cb3d21ea145ceccc51b",
+      "commit": "0ad7c1e68159a9556dae568a3e0cb11b15a18c15",
+      "path": "lab/rgd/metal3-ironic-ha.yml",
+      "repo": "s3rj1k/playground",
+      "sha256": "34453f08afb75bcda6511d834610a15dde13b8be02fbd3e9e26f08bd1fcbf29a"
+    },
+    {
+      "blob_sha1": "95dbea5fafe114f60e454304aa224087098023d5",
+      "commit": "f0a888a0b56b318b403d1c226a8f659020d5e389",
+      "path": "replicas.yaml",
+      "repo": "sagarkakkalasworld/Add-on-session-Kyverno",
+      "sha256": "54bb6bc0da73f400b175b7649736363de3fd6c31e3ab1ad7e889c13cbe9ebaf6"
+    },
+    {
+      "blob_sha1": "364199763c3d44b1acc7de62bbc23a2bbd0247c2",
+      "commit": "3a5d7942e04b54980c8b1eb663a1a90cae5bb560",
+      "path": "k8s/kyverno/policies/pod-security-policy.yml",
+      "repo": "sagarkpanda/otel-labs-platform",
+      "sha256": "5cb6de7a50e719ce7ec42fb3599e1cde3c33e34e37320e093839be961bc69691"
+    },
+    {
+      "blob_sha1": "a48ed3f135d55205fef349cb65bb4e8cb12023ee",
+      "commit": "3a5d7942e04b54980c8b1eb663a1a90cae5bb560",
+      "path": "k8s/kyverno/policies/tag-policy.yml",
+      "repo": "sagarkpanda/otel-labs-platform",
+      "sha256": "d53d65d602467ce67bc0644d7e08dfac79b7e1416add24a2c611fd427ace59a6"
+    },
+    {
+      "blob_sha1": "7192f4fe895806343bc9dac48ef80c47a223b6e3",
+      "commit": "3a5d7942e04b54980c8b1eb663a1a90cae5bb560",
+      "path": "k8s/kyverno/policies/trusted-registry-policy.yml",
+      "repo": "sagarkpanda/otel-labs-platform",
+      "sha256": "ab08b12827302c71506d7903843315cbcde2f51b92a1e5748241f233d337692a"
+    },
+    {
+      "blob_sha1": "7b4d66677d961c12bd4069630ed306d015a3d143",
+      "commit": "6056a9597887e715f72416b07ca5c96bf858e1a8",
+      "path": ".archive/base/kyverno/policies/apply-ingress-auth-annotations.yaml",
+      "repo": "samip5/k8s-cluster",
+      "sha256": "0134da2c9a0da375fe154f3d59327741737d7ceacf07da499c6aebed82ee419b"
+    },
+    {
+      "blob_sha1": "c7724e28c43db3139383c3bdeb87c4fdbd29d4f4",
+      "commit": "b7fab30f7c6411017eb3829fa3dd68ebf11ea201",
+      "path": "services/volsync/policy.yaml",
+      "repo": "sanisoclem/gitops-platform",
+      "sha256": "4c4852128149bb6b93257a2526e9c83982932fb3e7f8fc9fb298e4dd5a57d029"
+    },
+    {
+      "blob_sha1": "2caf64bb6d90fd71c5afc74208b9716d086c93af",
+      "commit": "0ee95ca13ff31fff9ac01de967ed5130834c63a2",
+      "path": "pre_commit_hooks/kubernetes/kyverno/kyverno_test/tests/assets/policy-name-mismatch/config/policies/enforce-limits.yaml",
+      "repo": "saritasa-nest/saritasa-pre-commit-hooks",
+      "sha256": "cc1f9e4279d035fe09e0ebdc65d3cc1a7fdf38158c5b7ffec5f447f5f1dd76ac"
+    },
+    {
+      "blob_sha1": "ec8b4345170d27214cf7c38186f4f2dcdcb9e367",
+      "commit": "86d32f35a6d50ddc051039ce3daa6aae6fbde6be",
+      "path": "week8/kyverno/sync-docker-regcred.yaml",
+      "repo": "sawyer523/geektime-devops",
+      "sha256": "67f8a0fbf03dc500dba9016f7d92d89a79ea44d7f17137b32cd5f400dfff895f"
+    },
+    {
+      "blob_sha1": "792b2f168e931462a4c7f0ff1fd576a1ee8b3020",
+      "commit": "28bfca229dbfe4d33313c60d3bbddb05c1e95856",
+      "path": "k8s/platform/kyverno/03-restrict-image-registries.yaml",
+      "repo": "scottypate/sloss-arcade",
+      "sha256": "cd277cf5bfb38b8afe9afff28ce0d7f1b4165a7bc237b6bf501cd32c1ddc10bb"
+    },
+    {
+      "blob_sha1": "69a2c4dd582723efcb24d12965a363544d52d0d5",
+      "commit": "bf91d27bf998b5ffcf6a74660fce7d8ab6f85a26",
+      "path": "Kyverno-policies/restrict-image-registry/clusterpolicy.yml",
+      "repo": "shaikhuzair2096/DEVOPS-Projects",
+      "sha256": "97ec6b101eb7cecfc0851e222caba556ae3ed0d56e81ae51f9d05d2914d6dc28"
+    },
+    {
+      "blob_sha1": "2064f2b4d2ea579717858486723b913d700feffd",
+      "commit": "b32fe8f946188f0b1b6c05fffdaf616002af5643",
+      "path": "2_infrastructure/k8s/kyverno/kyverno-policies.yaml",
+      "repo": "shouryahere/HRS",
+      "sha256": "459e131c6a434da2fe8cdf6bcc389adbd04d5cca4a85f3f638a87aab1dad6a5a"
+    },
+    {
+      "blob_sha1": "ac40ea1cab52f6590b2f920d3c6c64ce8e6bb2ec",
+      "commit": "39dab5114eeb04d01adfddd0cdefe5b98ca629eb",
+      "path": "kyverno-policy.yml",
+      "repo": "siddharthpatel1993/dcp_devsecops",
+      "sha256": "5f89939e2505e0dbf7ba9bef346fa5936b40549657a5a13f716e651fee6c0017"
+    },
+    {
+      "blob_sha1": "63d4710b87bcb2b153d201f0346d59b86aa28844",
+      "commit": "c162093eda695eecfafe474a5b82d21de517131f",
+      "path": "katalog/kyverno/policies/collection/disallow-privilege-escalation.yaml",
+      "repo": "sighupio/module-policy",
+      "sha256": "a2dcb80cf753e99759b1cbe98ee46829e5b4e15e83f438c76064d1d18f7ed25a"
+    },
+    {
+      "blob_sha1": "ddf9c435f0eea8d23e350b795b2d08082d02aae3",
+      "commit": "c162093eda695eecfafe474a5b82d21de517131f",
+      "path": "katalog/kyverno/policies/collection/require-probes.yaml",
+      "repo": "sighupio/module-policy",
+      "sha256": "19ee37198398155fe56393939411c4d7ba0882649f71232d404b9af8836e2f25"
+    },
+    {
+      "blob_sha1": "f5088a42dc1f19df3362dfcbb773cb6f723163a4",
+      "commit": "d897d0c3d5c6a9e3dbdf976f0d31e8f21d3c8a5d",
+      "path": "sources/airm/0.1.0/charts/airm-dispatcher/templates/airm-cluster-policies.yaml",
+      "repo": "silogen/cluster-forge",
+      "sha256": "51e4e3adc0d79e03e12a25dcc1a2c4e2bf14340e44fc5c55a53d043774728d89"
+    },
+    {
+      "blob_sha1": "f06c4c4efea92bde0475e38369325c478fc7cc2a",
+      "commit": "19274b784bf43cf607a5b611ea8eaa566f10db51",
+      "path": "src/infra/argocd/components/parca/kustomize/gpu-policy.yaml",
+      "repo": "simonepri/openplex",
+      "sha256": "14be92c9ba313f3448da1d7dab1ac9632d2ef93069d02ee339bf88180eb92401"
+    },
+    {
+      "blob_sha1": "0233a0840d35dadc69c26dbc109ccdcd90a87aab",
+      "commit": "19274b784bf43cf607a5b611ea8eaa566f10db51",
+      "path": "src/infra/argocd/components/signoz/kustomize/pvc-autoresize-policy.yaml",
+      "repo": "simonepri/openplex",
+      "sha256": "b8903f0f3a5101b57fd242aff793343ec8d2fcfa98a8490a244cb0288f44d7bb"
+    },
+    {
+      "blob_sha1": "d9f1c2993da9d1323ca8bdeabf86357c94e38287",
+      "commit": "19274b784bf43cf607a5b611ea8eaa566f10db51",
+      "path": "src/infra/argocd/components/tailscale_access/helm/templates/router-policy.yaml",
+      "repo": "simonepri/openplex",
+      "sha256": "4d936585b692639d1f2e94ab75e8c2032a9ee540b1f339f378b5b2929be3c055"
+    },
+    {
+      "blob_sha1": "7e9dce1eaddea1bcd12e2c28b3281ba778dc96f4",
+      "commit": "75e47c9a3cbf7debe05537ec7d3d158573295a47",
+      "path": "charts/kyverno/templates/clusterPolicy.yaml",
+      "repo": "sinanmohd/tcs-infra",
+      "sha256": "7203db60e4013d75ae7b724a2421fce576fda6e042ced55671bc6c3fbf91bad4"
+    },
+    {
+      "blob_sha1": "f328265a408010fb19543fbb92fee0c74715fa70",
+      "commit": "54ed391efb0b973c762e3299ea492e21ce88ad09",
+      "path": "deploy/policies/kyverno/clusterpolicy-cve-threshold.yaml",
+      "repo": "sinhnguyen1411/stock-trading-be",
+      "sha256": "857787ff6c574f6d66d2fc3ebaf375a410a338601edf4383d460f4d809ae6ab4"
+    },
+    {
+      "blob_sha1": "59b9c5e6655b231e00d3b8689a15cbc062799757",
+      "commit": "cc3db662b1024ad100c1700ea5b88b4de9109068",
+      "path": "helm-charts/tailscale-operator/templates/exit-guard-policy.yaml",
+      "repo": "siutsin/otaru",
+      "sha256": "46395a80ff9213940fe94151c4e67481d1263f2c5465cec7be805818ff3ee4d6"
+    },
+    {
+      "blob_sha1": "f75d74010a385accb923736f6e3b3c90db60801e",
+      "commit": "0641c2f162cfbe9ccb04518aabf003fb86213f05",
+      "path": "charts/platform-tenant/templates/components/kyverno/policy-metadata.yaml",
+      "repo": "skyfjell/charts",
+      "sha256": "f1872d971742aa4b72098ed6698cea5409918194451b61cf1e0cfd5eb8d80ea7"
+    },
+    {
+      "blob_sha1": "71cfaed1c60e64aff7ebefa103e25c1d896e9c69",
+      "commit": "eaf58ea720459fd702c675c4a3a7e66dd65014bd",
+      "path": "vcluster--supercdms/mutate-supercdms-securitycontext.yaml",
+      "repo": "slaclab/slac-kyverno-policies",
+      "sha256": "c6874242e3ff022dfcf7497fd8b9d447a50a51d2f47d379e561928c05cc1f773"
+    },
+    {
+      "blob_sha1": "9b57bbdcda5e8a3138a7d60886eeb12dfad1bb29",
+      "commit": "6bda7b7a2bec300b599f60c01ffba57705cd68f8",
+      "path": "kubernetes/apps/monitoring/kyverno/policies/check-deprecated-apis.yaml",
+      "repo": "snoopy82481/home-cluster",
+      "sha256": "38ac4bc8b514097cded5892f9fac5b4ade6ff8d8d4c0208e4c29a3069001abb8"
+    },
+    {
+      "blob_sha1": "b28d761da4a05f60a9583e734bb79b36ec9e6ebe",
+      "commit": "509124e79870be3e6c0ec5bfc2ed5c9de2c6dfee",
+      "path": "cluster/gitops/data/temporal/backend/s3/build-archival-vars-policy.yaml",
+      "repo": "solidDoWant/infra-mk3",
+      "sha256": "b9942885ecaf469e8f32dec9811a61e30142aea6ed2ccc31aa2c324cc79f42ce"
+    },
+    {
+      "blob_sha1": "60feecbd82dee895fd1d1ee122acd5a2ebdd8437",
+      "commit": "509124e79870be3e6c0ec5bfc2ed5c9de2c6dfee",
+      "path": "cluster/gitops/tug2/insurgency/stats-api/pull-credentials-policy.yaml",
+      "repo": "solidDoWant/infra-mk3",
+      "sha256": "80dce9f24f66c3382ae6233eeaf3eeedc454e8851d8ea63a253f2086de795a33"
+    },
+    {
+      "blob_sha1": "e141ae66e18df57598502e0d1a1b2822b4ca729e",
+      "commit": "e59737136e4447f830894afc29e3d81afa06ef9a",
+      "path": "frontend/packages/react-form-wizard/wizards/Policy/stable/CM-Configuration-Management/policy-kyverno-add-quota.yaml",
+      "repo": "stolostron/console",
+      "sha256": "5a6166687da3243bc6f2d22fae4cafc3d318980a0ea86e513eb8fa379bddd0b6"
+    },
+    {
+      "blob_sha1": "0a2f4df2e37d4439c630fb6c3b1cd3beb329da09",
+      "commit": "e5d423cb3754f554173c6c4be4520b57b7963458",
+      "path": "manifests/security/image-verification-policy.yaml",
+      "repo": "streamspace-dev/streamspace",
+      "sha256": "baef36e95e5196708b3c775dd5cf1e92a151dec5b5b9b1ae9a9e5b19fc736302"
+    },
+    {
+      "blob_sha1": "dedd9e446035d1073dd1e08a68bed9c4c9cdc5d8",
+      "commit": "ae8e3eaeafbe40a0b27aaa6603a6d28d945de14f",
+      "path": "check-resource-configuration/.chainsaw-test/chainsaw-step-01-assert-1.yaml",
+      "repo": "swastik959/kyverno-policies",
+      "sha256": "8a891ced6c024bb39e50150b5448887aba734a556fa205236b2d9c60af797287"
+    },
+    {
+      "blob_sha1": "587a6a238727d0261c5d5f38cb63f73ce72536ad",
+      "commit": "f1876174c86442279104fb7c540c2714ca0c732a",
+      "path": "deploy/kyverno/policies/operational-policies.yaml",
+      "repo": "synaptent/aragora",
+      "sha256": "57289a3d7e11ac09defaad0e5be6e78432510a133e630d8a3f0dc2b80fc4d634"
+    },
+    {
+      "blob_sha1": "f6ec14b9d3f1638972f4c3318d0dd9ca4a1de65f",
+      "commit": "e1e20fecf43588d89e536ed4879edcb3b45f4acc",
+      "path": "manifests/extensions/supply-chain/image-sign-policy-sample.yaml",
+      "repo": "taigamiura/kind-study",
+      "sha256": "d1d3dd9317ebcf670b0269ad13fd36ae1e14bbcf8cd464bb47ecfebe8bf5bfbd"
+    },
+    {
+      "blob_sha1": "044e7085f2d6810f4f6eda99aac710c23a4ff2c8",
+      "commit": "63b1dcecfd915865fede491cf9eff634dddb48d2",
+      "path": "platform/security/base/clusterpolicy-security-baseline.yaml",
+      "repo": "taleblou/Secure-Multi-Tenant-AI-Data-Platform-on-Kubernetes",
+      "sha256": "2297e2334502fc278a2d6bbaa497193260dd3469cf1cbc439ae1d41af0105fe2"
+    },
+    {
+      "blob_sha1": "de24449da4e7460212b77c1f3ea2d5fcf441e70e",
+      "commit": "122f7a68c3461ac0f329c988289770a9d2a8c46d",
+      "path": "charts/pgroles-operator/files/kyverno-plan-decision.yaml",
+      "repo": "thepartly/pgroles",
+      "sha256": "f4d1f0f6e9f8ea297c93407723f64687a82b9f732b668a5adc59f085a4b8a18f"
+    },
+    {
+      "blob_sha1": "d3d50653aea161d43da16315068957e7e1d1c50f",
+      "commit": "122f7a68c3461ac0f329c988289770a9d2a8c46d",
+      "path": "k8s/security/ephemeral-access-kyverno.yaml",
+      "repo": "thepartly/pgroles",
+      "sha256": "8e759875e721bdad824c231ebbdbf8f85aa9b77bfe04e531179146cf6803dfca"
+    },
+    {
+      "blob_sha1": "e131f29d82c1cf29905e9c0e2d4b9cf25780d1b1",
+      "commit": "da040c815f4af3a7c11cda27cdd3b8782c2a4023",
+      "path": "kyverno/manifests/check-deprecated-apis.yaml",
+      "repo": "thev1ndu/2take1",
+      "sha256": "35541879b98322c0298be2cae822d22388886987a6848755c2250b3024538fba"
+    },
+    {
+      "blob_sha1": "1b5938185e67606b1d2edfc583554cfd84461431",
+      "commit": "b021e213d68ff2bea87d072ba093eaa96146f3bb",
+      "path": "k8s/kyverno/policies/require-resource-limits.yaml",
+      "repo": "timkamba2002/financeguard-devsecops-capstone",
+      "sha256": "afe34c13ab6b9d256491253bf2f3335eaaed483d735ac5005853ef92e2f391ac"
+    },
+    {
+      "blob_sha1": "f3b59ccc3d6d730e069d38fbe9c579736acfcaa6",
+      "commit": "c93fc4b5da075e490c1acc5e06aa2c83c60eddff",
+      "path": "agentic-verdict-hitl-kind/yaml/kyverno/20-verdict-hitl.yaml",
+      "repo": "tjorourke/solo-labs",
+      "sha256": "63ad3878d6f082948f3099da34dd54fe7de96a8e7c27eeae6b0153591107ec84"
+    },
+    {
+      "blob_sha1": "b393eedc0d88b7dd011f1885a191df6255f1a15a",
+      "commit": "c93fc4b5da075e490c1acc5e06aa2c83c60eddff",
+      "path": "agentregistry-agentcore-kind/deploy/yaml/kyverno/inject-agent-model-key.yaml",
+      "repo": "tjorourke/solo-labs",
+      "sha256": "cd60247824969b9ca50e0799c2e557c2a4a5e32e9e6eff9e5854ab4bdb747424"
+    },
+    {
+      "blob_sha1": "fcbe052297b789a4291001e5a01fe859f225c661",
+      "commit": "d62a303114d2010099d0363ce48168d38318a958",
+      "path": "pc-proxy-injection.yaml",
+      "repo": "toaksoy/ckf-examples",
+      "sha256": "a4161b8fc7ce26bfe68ce45d1d2e3d716bca9f9bc530cf3f6723b8405596f29c"
+    },
+    {
+      "blob_sha1": "b145d648558942694ade540ab97e3968f3ab5aa3",
+      "commit": "7b41a34ba65d45844cfb4ef6cef3c9bcf6b5fc6c",
+      "path": "infrastructure/kyverno-policies/policy.yaml",
+      "repo": "tuckermclean/k3s-lab",
+      "sha256": "5edd99432ee4a15e031b39417af942fbd165bfae06cb619143d2e15a1418d825"
+    },
+    {
+      "blob_sha1": "2bf903cb4d161b2566b68c8347e374001aec7806",
+      "commit": "29e3ad81c1e2adc7a17ed5f554a1298915a8b30c",
+      "path": ".github/workflows/security-policy.yaml",
+      "repo": "valdo766hi/devsecops-cicd-ssdf-slsa-evaluation",
+      "sha256": "5f0b99bf0fab3d4d78b49e112602f77a4668b48338f5be1a887baaea90616fc9"
+    },
+    {
+      "blob_sha1": "3e3963b5671d687f4622b2d6a640fa10a0759a43",
+      "commit": "a1118c59b5cb351f29edcfc160ce65548adc763f",
+      "path": "examples/policies/enforce-database-regional-deployment.yaml",
+      "repo": "vfarcic/dot-ai",
+      "sha256": "512168ee228ab4eb0aee1805eb5e2787864769b8c6e64990e9fbf0a6515266cf"
+    },
+    {
+      "blob_sha1": "9d8807db23bc3912d1fd7aa0a2e223f507ca584b",
+      "commit": "e5d10a8eb4ef87a77ffd6f105d33bc2bf57ce028",
+      "path": "iac/demo/kyvernocon/mistake3_bad_patching.yaml",
+      "repo": "vinod827/cloudkit-lab",
+      "sha256": "e68c117e1a6c42a578438628319681d94fd197d4ad7ed9a0b1dc2d1411aef51c"
+    },
+    {
+      "blob_sha1": "1d2dee1765cf3bd1be1a2c3feb2eb2936bf66973",
+      "commit": "e5d10a8eb4ef87a77ffd6f105d33bc2bf57ce028",
+      "path": "iac/demo/kyvernocon/solution3_bad_patching.yaml",
+      "repo": "vinod827/cloudkit-lab",
+      "sha256": "d43c4b94e90793d3652c967a5bced8bcfdc0d623b7eab6ffd210e0ba20ae2c4b"
+    },
+    {
+      "blob_sha1": "4f4ae9255f697ad793010f41a07d8af9a0cd8896",
+      "commit": "7a849a4443557c022ebe7a376b3b9a394e63b9c2",
+      "path": "finops/policies/gpu-approval-gate.yaml",
+      "repo": "vivek-doshi/devops-playbook",
+      "sha256": "20e8e48e03fa47f18a594ed7c8e7b191e3cf8d0934a5dfd4e6821a6aa502079d"
+    },
+    {
+      "blob_sha1": "18699ac91620cc77fffceab3cdd936bf6c25d42b",
+      "commit": "cd5b51137bfc7bb8e5131010cc6d7c02d4a538fb",
+      "path": "Infrastructure_as_Code/Modules/kyverno-policies/overlays/audit-only/audit-only.yaml",
+      "repo": "vivsoftorg/PlatformOne-BOA",
+      "sha256": "6040950482da1f4bf136c1adb5ac5508def2decd448f231e1055f7c778cf6fe2"
+    },
+    {
+      "blob_sha1": "c9da91c1a0101ac95185fbf544e723644c8b487b",
+      "commit": "cd5b51137bfc7bb8e5131010cc6d7c02d4a538fb",
+      "path": "Security/Security_Stack/kyverno-policies/chart/templates/restrict-capabilities.yaml",
+      "repo": "vivsoftorg/PlatformOne-BOA",
+      "sha256": "10aff3ca232ae60c5daefd628e3b9b35b7b5b6c26ddab732715ab8f8578a40cb"
+    },
+    {
+      "blob_sha1": "5403a7f0489cf0f9c8108f12b98ced28aba738d7",
+      "commit": "0e302afc87997bee8312cc7da25b76815ea01b0c",
+      "path": "TKG Customization/tkg/providers/ytt/04_user_customizations/kyverno-enforce-policies.yaml",
+      "repo": "vrabbi/tkg-resources",
+      "sha256": "66f4cff62a198afd384323ce743a334c1ba7df43db075aae2c9b9eebbf1380dd"
+    },
+    {
+      "blob_sha1": "c0a451d7c89dd410ace62bc659d2f1371a653388",
+      "commit": "20d5c935107497f3c66174888a0d5149aac62ca8",
+      "path": "addons/kyverno/base/clusterpolicy-app-scheduling.yaml",
+      "repo": "waxsd100/k8s-platform",
+      "sha256": "40c5155499f750c5697dd5500a932ce7df34f9c023d70654a6a04225866431ad"
+    },
+    {
+      "blob_sha1": "002f1c5826839a2be7c4cce0781d09575c7189e8",
+      "commit": "20d5c935107497f3c66174888a0d5149aac62ca8",
+      "path": "addons/kyverno/base/clusterpolicy-headlamp-backup-ops.yaml",
+      "repo": "waxsd100/k8s-platform",
+      "sha256": "e4125e3879398dc92ae7413f5d3e433fe7f2943e65ae10902f0e24964618fc7a"
+    },
+    {
+      "blob_sha1": "655912ca7f0342052e877aa2d7c1cbdf8119da1f",
+      "commit": "01114137b9013234b37ca4dbf4ddaff70847e35d",
+      "path": "kubernetes/apps/kyverno/policies/app/cert-manager-governance.yaml",
+      "repo": "webgrip/homelab-cluster",
+      "sha256": "50f3bbccfe978667c60747d3950205fc52b857b3e4039da75835a028aedd21c1"
+    },
+    {
+      "blob_sha1": "c75cc24e1a3e2bae6802758c02b456ef3cbf6df0",
+      "commit": "01114137b9013234b37ca4dbf4ddaff70847e35d",
+      "path": "kubernetes/apps/kyverno/policies/app/exception-governance.yaml",
+      "repo": "webgrip/homelab-cluster",
+      "sha256": "6f68a61b4d652ef62d58b2ca3291907bf2cfc84c57b2c018cd9d386c193285bb"
+    },
+    {
+      "blob_sha1": "18df470dbd3f802998902488e39ce078ffb765a8",
+      "commit": "01114137b9013234b37ca4dbf4ddaff70847e35d",
+      "path": "kubernetes/apps/kyverno/policies/app/workload-hardening-audit.yaml",
+      "repo": "webgrip/homelab-cluster",
+      "sha256": "a8d8c81fa879291c34aedf9abda519b1fa2aaf5a8cf680c260b69d33da66834e"
+    },
+    {
+      "blob_sha1": "0f18272113915167f70b55b16d43234f465e6e85",
+      "commit": "d8de2c533da5a95983fb8e977c17520bf6ff1ab0",
+      "path": "kyverno/policy/require-drop-cap-net-raw.yaml",
+      "repo": "whchoi98/myeks",
+      "sha256": "d7463ea035958a2bcf718a8a8120eae3053fdce67cd09135b3859a6ba5230106"
+    },
+    {
+      "blob_sha1": "4a3c2d8a33c4abd7b5bafd855c87d3594bf1706a",
+      "commit": "8d182f1ed29353d155eacfec79dff66e4c4e3dea",
+      "path": "manifestos_giropops_senhas/policies_kyverno.yaml",
+      "repo": "willbossle/LINUXtips-PICK",
+      "sha256": "9e8dffc429a306a642acb985d7c9642122960b017c136fe1533df3ebf2871a78"
+    },
+    {
+      "blob_sha1": "1da5ea336d90f6944b8c1a76599a9f7ea40f9241",
+      "commit": "94a8438918bb4b2c02041ad1a497511ae7dd9e0a",
+      "path": "charts/require-encrypted-aws-lb/templates/policy.yaml",
+      "repo": "williamsbobby1423/kyverno-helm-templates",
+      "sha256": "51436493c930fb49e78a2b9dc723944c11f394dfadf7171de122445a243369ec"
+    },
+    {
+      "blob_sha1": "60207be10e6f8cba8550ecec4a3938dc40a44e38",
+      "commit": "28d6c895bf72cb09df8d29bc457b493908bf7c24",
+      "path": "platform/kyverno/_resource-configs/sync-image-pull-secrets.yaml",
+      "repo": "wolfganghuse/nai-llm-fleet-infra",
+      "sha256": "f6df578b96f83f362728bfd27a11cf7e76b5853d8dd4a1973d49fed0b8b46fc3"
+    },
+    {
+      "blob_sha1": "efac48abc55d6c6436a94b6e0c5bb454e059d539",
+      "commit": "04d05a44b3335ad49eb81befd519c6be2de704a9",
+      "path": "k8s-security/kyverno/verify-cosign.yml",
+      "repo": "youssefzaoujal/securePay",
+      "sha256": "ec979b50bd69a46d456c6d0afe9b1bd7812aa4f57649017a06791ef56554bd4e"
+    },
+    {
+      "blob_sha1": "f2c3b921574cfe9287398e130102e56a5c4e0dd6",
+      "commit": "59525cc9bd65ffce07926d5d0fef235b1f0eb3de",
+      "path": "flux/platform/kyverno/policies/require-kata-for-privileged.yaml",
+      "repo": "yyewolf/infra",
+      "sha256": "7e81fbd7ff09f1910feccd99a94c9ae1d1c5180df74a07f620ac1d94df231561"
+    },
+    {
+      "blob_sha1": "85a51352f14f2088cb9b2f7547394cfdbccbce84",
+      "commit": "7dc15d9ca1474b7b3052c5bb449f7cd90798532e",
+      "path": "platform/policies/kyverno/enforce/bigbang/disallow-deprecated-apis.yaml",
+      "repo": "zavestudios/gitops",
+      "sha256": "b675217797e4dea657f3fa71000a972248b40984ee72dd717bf1342eaef1fd5d"
+    },
+    {
+      "blob_sha1": "4901fa2a4d8f51a80f6e51900b6d15087f072a66",
+      "commit": "31256ba6106075c8b28f8fd999fb682444a0dc90",
+      "path": "test/cli/test/context-entries/policies.yaml",
+      "repo": "zurrehma/kyverno",
+      "sha256": "d619300ae88ab3ad53cb52c358d461817cb4126b86de02b61c8bb905f48a6515"
+    }
+  ],
+  "frame": 3079,
+  "frame_owners": 1045,
+  "frame_repositories": 1143,
+  "harvested_at": "2026-10-03T09:52:36+00:00",
+  "how_collected": "GitHub code search, each query split into eight size shards and read to at most 400 results per shard; the pool filtered to a frame and the frame shuffled with the recorded seed and walked under the recorded caps, as scripts/third_party_sample.py states",
+  "owner_cap": 5,
+  "owners": 293,
+  "policies": 400,
+  "pool": 4644,
+  "provenance": "third-party",
+  "queries": [
+    "\"kyverno.io/v1\" \"kind: ClusterPolicy\" extension:yaml",
+    "\"kyverno.io/v1\" \"kind: ClusterPolicy\" extension:yml",
+    "\"kyverno.io/v1\" \"kind: Policy\" extension:yaml"
+  ],
+  "removed_from_pool": {
+    "a byte-for-byte copy of a vendor corpus file": 94,
+    "already in the 49 third-party Kyverno policies": 44,
+    "owned by the vendor or a measured corpus's author": 568,
+    "the same content as an earlier file": 859
+  },
+  "repositories": 313,
+  "repository_cap": 3,
+  "schema_version": "v1",
+  "search_total_count_by_query": {
+    "\"kyverno.io/v1\" \"kind: ClusterPolicy\" extension:yaml": 14540,
+    "\"kyverno.io/v1\" \"kind: ClusterPolicy\" extension:yml": 374,
+    "\"kyverno.io/v1\" \"kind: Policy\" extension:yaml": 1166
+  },
+  "seed": 20261003,
+  "shards": [
+    "size:<300",
+    "size:300..600",
+    "size:600..1000",
+    "size:1000..1500",
+    "size:1500..2500",
+    "size:2500..4000",
+    "size:4000..7000",
+    "size:>7000"
+  ],
+  "skipped": {
+    "declares no kyverno.io ClusterPolicy or Policy": 44,
+    "its owner already has the cap": 2,
+    "its repository already has the cap": 90
+  },
+  "target": 400
+}
