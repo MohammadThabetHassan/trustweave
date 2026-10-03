@@ -25,11 +25,26 @@ All notable changes to TrustWeave are documented in this file. The project follo
   three files per repository and five per owner, and every kept file verified against the git
   blob hash the search reported. Each manifest pins its files by repository, path, commit and
   the SHA-256 of their bytes. 1,500 files from 1,149 repositories: over the files that are
-  policies, Kyverno 78.9% inside (vendor 86.9%), Rego 74.7% (79.7%), IAM 100.0% (100.0%),
+  policies, Kyverno 78.9% inside (vendor 86.9%), Rego 74.1% (79.7%), IAM 100.0% (100.0%),
   Cedar 97.4% (100.0%); 101 are policy schemas -- Helm charts, deployment placeholders and
-  templates -- where the vendor Kyverno, IAM and Cedar corpora hold none; and all 220
+  templates -- where the vendor Kyverno, IAM and Cedar corpora hold none; and all 222
   exclusions fall in the three rows of the exclusion taxonomy.
   `docs/third-party-sample-summary-v1.json` puts each sample beside its vendor row.
+- `scripts/cedar_exact_study.py` replicates the suite-strategy study on real Cedar policy,
+  under `docs/EXACT_EVALUATION_PROTOCOL_CEDAR.md` (hash fixed in the script), with every
+  decision and every atom value made by the Cedar engine through `cedarpy` (not a package
+  dependency; its tests skip without it). Of the outside-the-vendor Cedar sample, 200 files
+  are exact-eligible; 19 fail the adversarial completeness check and are excluded, 28 are over
+  the cell cap. On the 96 with a condition, one witness per quotient class detects 99.3% of
+  live mutants in expectation, a random suite of the same size 90.5%, the decision proxy 28.5%
+  (`docs/cedar-suite-strategy-study-v1.json`, deviations recorded in it). Of 43 real
+  earlier-version edits, 24 change a decision and 21 of those weaken one
+  (`docs/cedar-real-edits-v1.json`).
+- `third_party_sample.py oracle-rego` checks the sampled Rego modules against `opa deps`, each
+  compiled with its whole repository: 150 agree, the 6 that do not all share their package with
+  other files (the engine answers for a package, the adapter for a file), and for 144 the
+  engine cannot compile the repository at all
+  (`docs/third-party-sample-rego-oracle-v1.json`).
 - `proofs/lean` mechanises the core results in Lean 4 with Mathlib: the finite quotient and
   its |V|^n bound for any combining function, the exact kill criterion, coverage of the common
   refinement deciding the score, the semantic-mutant equivalence, the general achievability
@@ -239,6 +254,11 @@ All notable changes to TrustWeave are documented in this file. The project follo
   records how each failed fetch failed; `--revalidate` regenerates
   `docs/third-party-kyverno-revalidation-v1.json`, which now verifies all 49 and keeps the
   superseded run on record. New manifests hash the bytes rather than decoded text.
+- The Rego adapter took a name under a declared package for bundle code even when it was no
+  rule of that package -- `data.config.soft_fail` beside a `config` package -- although its own
+  rule resolution said such a path is a data document. It now reads it as one, as `opa deps`
+  does. Every vendor Rego verdict is unchanged; two sampled third-party verdicts moved from
+  inside to outside.
 - `exclusion_taxonomy.py` matched "reaches outside" before "not a function of its arguments",
   so a policy reaching a clock or network read through a library rule was counted as a lookup
   rather than as evaluation-time state. No vendor artifact hits that order -- the vendor

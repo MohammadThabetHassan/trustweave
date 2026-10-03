@@ -34,6 +34,7 @@ import importlib.util
 import json
 import os
 import re
+import statistics
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -1169,6 +1170,213 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _review_claims(docs)
     claims += _third_party_claims(docs)
     claims += _summary_claims(docs)
+    claims += _cedar_claims(docs)
+    claims += _sample_oracle_claims(docs)
+    return claims
+
+
+def _sample_oracle_claims(docs: Path) -> list[Claim]:
+    """The sampled Rego modules against the engine's own dependency analysis."""
+
+    oracle = _load(docs, "third-party-sample-rego-oracle-v1")
+    # "all 6 are modules whose package other files of the repository share"
+    assert oracle["disagreeing_modules_whose_package_is_shared"] == oracle["disagreements"]
+    return [
+        (
+            rf"we put the ({_GROUPED}) sampled modules to the same check",
+            (_grouped(oracle["modules"]),),
+            "sample oracle: modules checked",
+        ),
+        (
+            rf"Of the ({_GROUPED}), ({_GROUPED}) agree with the engine and ({_GROUPED}) do not, "
+            rf"and all ({_GROUPED}) are modules whose package other files of the repository share",
+            (
+                _grouped(oracle["modules"]),
+                _grouped(oracle["agreements"]),
+                _grouped(oracle["disagreements"]),
+                _grouped(oracle["disagreements"]),
+            ),
+            "sample oracle: agreement, and why the rest disagree",
+        ),
+        (
+            rf"For the other ({_GROUPED}) modules the engine could not compile the repository",
+            (_grouped(oracle["engine_could_not_load"]),),
+            "sample oracle: modules the engine could not compile",
+        ),
+    ]
+
+
+def _cedar_claims(docs: Path) -> list[Claim]:
+    """The replication on real Cedar policies, and the real edits beside it."""
+
+    cedar = _load(docs, "cedar-suite-strategy-study-v1")
+    edits = _load(docs, "cedar-real-edits-v1")
+    generated = _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]
+    population, statuses = cedar["population"], cedar["file_statuses"]
+    primary = cedar["analyses"]["primary: files with a condition"]
+    secondary = cedar["analyses"]["secondary: every eligible file"]
+    scores = primary["mean_expected_score"]
+    first, second = primary["hypotheses"]["H1"], primary["hypotheses"]["H2"]
+    floor = round(1 / (1 + cedar["resamples"]), 4)
+    for analysis in (primary, secondary):
+        assert all(h["p_value"] == floor for h in analysis["hypotheses"].values())
+    ranked = [
+        sorted(a["mean_expected_score"], key=a["mean_expected_score"].get)
+        for a in (primary, secondary)
+    ]
+    assert ranked[0] == ranked[1], ranked
+    decision_sizes = sorted(
+        entry["decision_range"]
+        for entry in cedar["files"].values()
+        if entry["status"] == "scored" and entry.get("with_condition") and entry["expected_score"]
+    )
+    decision_median = str(int(statistics.median(decision_sizes)))
+    sizes = {name: str(int(size)) for name, size in primary["median_suite_size"].items()}
+    weakening_within_changes = all(
+        pair["changes_a_decision"] for pair in edits["pairs"] if pair.get("weakens_a_decision")
+    )
+    assert weakening_within_changes
+
+    def interval(hypothesis: dict[str, Any]) -> tuple[str, str, str]:
+        low, high = hypothesis["bootstrap_95"]
+        return (f"{hypothesis['mean_difference']:.3f}", f"{low:.3f}", f"{high:.3f}")
+
+    rows = (
+        ("one witness per decision", "decision", decision_median),
+        ("random, as many cells as decisions", "random_decision", decision_median),
+        ("random, as many cells as quotient classes", "random_quotient", sizes["quotient"]),
+        ("one witness per quotient class", "quotient", sizes["quotient"]),
+        ("one witness per refinement cell", "refinement", sizes["refinement"]),
+    )
+    # Anchored on the row's end, because the same labels open the rows of the first table.
+    claims: list[Claim] = [
+        (
+            rf"{re.escape(label)} & ({_GROUPED}) & (\d+\.\d)\\% \\\\",
+            (size, _pct(scores[strategy])),
+            f"cedar replication: {strategy} row",
+        )
+        for label, strategy, size in rows
+    ]
+    claims += [
+        (
+            rf"Of its ({_GROUPED}) files judged inside, ({_GROUPED}) parse under Cedar 4\.12\.1 "
+            rf"and ({_GROUPED}) are exact-eligible",
+            (
+                _grouped(population["judged inside"]),
+                _grouped(population["judged inside"] - population["Cedar does not parse it"]),
+                _grouped(population["exact-eligible"]),
+            ),
+            "cedar replication: the population",
+        ),
+        (
+            rf"of which ({_GROUPED}) exceed the cap of ({_GROUPED}) cells",
+            (_grouped(statuses["over the cell cap"]), _grouped(cedar["max_cells"])),
+            "cedar replication: files over the cap",
+        ),
+        (
+            rf"For each file, ({_GROUPED}) requests drawn",
+            (_grouped(cedar["fuzz_requests_per_file"]),),
+            "cedar replication: the completeness check's draws",
+        ),
+        (
+            rf"and ({_GROUPED}) files failed and are excluded by name",
+            (_grouped(statuses["missing cells"]),),
+            "cedar replication: files failing completeness",
+        ),
+        (
+            rf"Of the rest, ({_GROUPED}) have at least one condition and form the primary analysis",
+            (_grouped(primary["files_scored"]),),
+            "cedar replication: the primary analysis",
+        ),
+        (
+            r"Covering the quotient detects (\d+\.\d)\\% of the live mutants in expectation and a "
+            r"random suite of the same size (\d+\.\d)\\%, a paired difference of (\d\.\d+) with a "
+            r"95\\% bootstrap interval of \$\[(\d\.\d+), (\d\.\d+)\]\$, higher on "
+            rf"({_GROUPED}) of the ({_GROUPED}) files and lower on ({_GROUPED})",
+            (
+                _pct(scores["quotient"]),
+                _pct(scores["random_quotient"]),
+                *interval(first),
+                _grouped(first["wins"]),
+                _grouped(first["policies"]),
+                _grouped(first["losses"]),
+            ),
+            "cedar replication: H1",
+        ),
+        (
+            r"Against the decision proxy, at (\d+\.\d)\\%, the difference is (\d\.\d+) "
+            r"\$\[(\d\.\d+), (\d\.\d+)\]\$, higher on "
+            rf"({_GROUPED}) files and lower on (none|{_GROUPED})",
+            (
+                _pct(scores["decision"]),
+                *interval(second),
+                _grouped(second["wins"]),
+                "none" if second["losses"] == 0 else _grouped(second["losses"]),
+            ),
+            "cedar replication: H2",
+        ),
+        (
+            rf"the secondary analysis over all ({_GROUPED}) scored files",
+            (_grouped(secondary["files_scored"]),),
+            "cedar replication: the secondary analysis",
+        ),
+        (
+            rf"a median of ({_GROUPED}) refinement cells against ({_GROUPED})",
+            (sizes["refinement"], str(int(generated["median_suite_size"]["refinement"]))),
+            "cedar replication: real policy is coarser than generated",
+        ),
+        (
+            rf"Of the ({_GROUPED}) earlier-version pairs whose two versions are both eligible and "
+            rf"under the cap, ({_GROUPED}) change a decision, and ({_GROUPED}) of those "
+            rf"({_GROUPED}) weaken one",
+            (
+                _grouped(edits["pairs_measured"]),
+                _grouped(edits["change_a_decision"]),
+                _grouped(edits["weaken_a_decision"]),
+                _grouped(edits["change_a_decision"]),
+            ),
+            "cedar real edits: what they do",
+        ),
+        (
+            rf"would have caught those ({_GROUPED}) in expectation (\d+\.\d)\\% of the time, and "
+            r"the decision proxy (\d+\.\d)\\%",
+            (
+                _grouped(edits["change_a_decision"]),
+                _pct(edits["mean_detection_of_decision_changes"]["quotient"]),
+                _pct(edits["mean_detection_of_decision_changes"]["decision"]),
+            ),
+            "cedar real edits: what a suite of the earlier version catches",
+        ),
+        (
+            rf"Replicated on ({_GROUPED}) real Cedar policy files written outside the vendor and "
+            r"decided by the Cedar engine, the figures are (\d+\.\d)\\%, (\d+\.\d)\\% and "
+            r"(\d+\.\d)\\%",
+            (
+                _grouped(primary["files_scored"]),
+                _pct(scores["quotient"]),
+                _pct(scores["random_quotient"]),
+                _pct(scores["decision"]),
+            ),
+            "abstract: the Cedar replication",
+        ),
+        (
+            r"replicated on real Cedar policy under a second protocol and the Cedar engine, "
+            r"(\d+\.\d)\\% against (\d+\.\d)\\% and (\d+\.\d)\\%",
+            (_pct(scores["quotient"]), _pct(scores["random_quotient"]), _pct(scores["decision"])),
+            "contributions: the Cedar replication",
+        ),
+        (
+            r"on real Cedar policy, decided by its engine, (\d+\.\d)\\% where the proxy detects "
+            r"(\d+\.\d)\\%",
+            (_pct(scores["quotient"]), _pct(scores["decision"])),
+            "conclusion: the Cedar replication",
+        ),
+        (
+            rf"failed the completeness check on ({_GROUPED}) files",
+            (_grouped(statuses["missing cells"]),),
+            "threats: Cedar files failing completeness",
+        ),
+    ]
     return claims
 
 
