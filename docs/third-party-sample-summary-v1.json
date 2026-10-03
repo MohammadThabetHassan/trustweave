@@ -158,7 +158,7 @@
         "reaches outside through ibmcloud.state.get_resources, which reads a data document the bundle does not define": 1,
         "reaches outside through lib.rule_data.get, which reads a data document the bundle does not define": 1,
         "reaches outside through policies.util.common.originalRecord.is_active, which calls a builtin whose result is not a function of its arguments": 1,
-        "reads a data document the bundle does not define": 37,
+        "reads a data document the bundle does not define": 39,
         "reads a document the host injects": 2
       },
       "repositories": 236,
@@ -167,19 +167,19 @@
         "exclusions_by_kind": {
           "not a policy": 7,
           "reads evaluation-time state": 18,
-          "the subject does not determine the guard": 41
+          "the subject does not determine the guard": 43
         },
-        "inside": 219,
-        "outside": 66,
+        "inside": 217,
+        "outside": 68,
         "policies": 293,
-        "resting_on_an_undefined_data_document": 41,
+        "resting_on_an_undefined_data_document": 43,
         "schemas": 7,
         "schemas_outside_a_constraint_context": 0,
-        "share_inside": 0.73,
-        "share_inside_of_policies": 0.74744,
+        "share_inside": 0.723333,
+        "share_inside_of_policies": 0.740614,
         "share_inside_of_policies_wilson_95": [
-          0.694708,
-          0.793768
+          0.687543,
+          0.787458
         ],
         "undetermined": 15
       },
@@ -202,7 +202,7 @@
       }
     }
   },
-  "exclusions": 220,
+  "exclusions": 222,
   "exclusions_unclassified": 0,
   "measured": 1500,
   "repositories": 1149,

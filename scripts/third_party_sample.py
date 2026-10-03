@@ -580,6 +580,132 @@ def measure_rego(corpus: dict[str, Any], work: Path, workers: int = 8) -> dict[s
 
 
 # ---------------------------------------------------------------------------------------
+# oracle-rego: the sampled Rego modules against the engine's own dependency analysis
+# ---------------------------------------------------------------------------------------
+
+_ORACLE: Any = None
+_PACKAGE_LINE = re.compile(r"^\s*package\s+([\w.]+)", re.MULTILINE)
+
+
+def _declared_package(path: Path) -> str:
+    found = _PACKAGE_LINE.search(path.read_text(encoding="utf-8", errors="ignore"))
+    return found.group(1) if found else ""
+
+
+def _oracle_repository(
+    task: tuple[str, str, list[dict[str, str]], Path, frozenset[str]],
+) -> list[dict[str, Any]]:
+    """`opa deps` on each sampled module, compiled with its repository's whole bundle.
+
+    The same comparison `oracle_rego.py` makes for the vendor corpora, restricted to the
+    sampled modules: the adapter's verdict, from syntax, against what the engine's compiler
+    says the module's package depends on. One process judges one repository at a time,
+    because the adapter keeps the bundle's rule graph in module-level tables.
+    """
+
+    global _ORACLE
+    if _ORACLE is None:
+        _ORACLE = _load("oracle_rego")
+    rego = _ORACLE.rego
+    repository, commit, entries, work, nondeterministic = task
+    into = work / "bundles" / repository.replace("/", "__") / commit[:12]
+    rego.discover(into)
+    declared = set(rego._DECLARED_PACKAGES)
+    bundle_path = work / "oracle" / f"{repository.replace('/', '__')}-{commit[:12]}.tar.gz"
+    bundle_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        _ORACLE.build_bundle(into, bundle_path)
+    except subprocess.TimeoutExpired:
+        return [
+            {
+                "subject": f"{repository}/{entry['path']}",
+                "package": "",
+                "adapter": {"kind": "not compared"},
+                "engine": {"error": "opa build did not finish within its time limit"},
+                "agree": None,
+            }
+            for entry in entries
+        ]
+    results: list[dict[str, Any]] = []
+    for entry in entries:
+        text = (into / entry["path"]).read_text(encoding="utf-8")
+        outcome = rego.classify(text)
+        ast = rego.parse(text)
+        package = rego.package_of(ast) if ast else ""
+        record: dict[str, Any] = {
+            "subject": f"{repository}/{entry['path']}",
+            "package": package,
+            "adapter": _ORACLE.adapter_view(outcome),
+            # `opa deps` answers for a package, and a Conftest repository often puts many files
+            # in one (`package main`); the adapter judges the file. Recorded so a disagreement
+            # can be told apart from a difference in what the two are judging.
+            "files_sharing_its_package": sum(
+                1
+                for other in into.rglob("*.rego")
+                if ".git" not in other.parts
+                and not other.name.endswith("_test.rego")
+                and other != into / entry["path"]
+                and _declared_package(other) == package
+            ),
+        }
+        try:
+            dependencies = _ORACLE.dependencies(bundle_path, package)
+        except subprocess.TimeoutExpired:
+            # The engine did not answer within the oracle's budget: no verdict either way.
+            dependencies = "opa deps did not finish within its time limit"
+        if isinstance(dependencies, str):
+            record["engine"] = {"error": dependencies}
+            record["agree"] = None
+        else:
+            base, virtual = dependencies
+            record["engine"] = _ORACLE.engine_view(
+                base, virtual, declared, text, nondeterministic, package
+            )
+            record["agree"] = _ORACLE.agree(record["adapter"], record["engine"])
+        results.append(record)
+    return results
+
+
+def oracle_rego(corpus: dict[str, Any], work: Path, workers: int = 8) -> dict[str, Any]:
+    oracle = _load("oracle_rego")
+    nondeterministic = oracle.engine_nondeterministic_builtins()
+    by_repository: dict[tuple[str, str], list[dict[str, str]]] = {}
+    for entry in corpus["files"]:
+        by_repository.setdefault((entry["repo"], entry["commit"]), []).append(entry)
+    tasks = [
+        (repository, commit, entries, work, nondeterministic)
+        for (repository, commit), entries in sorted(by_repository.items())
+    ]
+    modules: list[dict[str, Any]] = []
+    with concurrent.futures.ProcessPoolExecutor(workers) as pool:
+        for judged in pool.map(_oracle_repository, tasks):
+            modules.extend(judged)
+    modules.sort(key=lambda entry: entry["subject"])
+    unloaded = sum(1 for entry in modules if entry["agree"] is None)
+    return {
+        "schema_version": "v1",
+        "what_this_is": (
+            "every sampled third-party Rego module's adapter verdict against `opa deps` on "
+            "the package, compiled with the module's whole repository at the pinned commit"
+        ),
+        "modules": len(modules),
+        "engine_could_not_load": unloaded,
+        "agreements": sum(1 for entry in modules if entry["agree"] is True),
+        "disagreements": sum(1 for entry in modules if entry["agree"] is False),
+        "disagreeing_modules": [entry for entry in modules if entry["agree"] is False],
+        "disagreeing_modules_whose_package_is_shared": sum(
+            1 for e in modules if e["agree"] is False and e.get("files_sharing_its_package")
+        ),
+        "could_not_load": [
+            {"subject": entry["subject"], "error": entry["engine"]["error"][-200:]}
+            for entry in modules
+            if entry["agree"] is None
+        ],
+        "by_adapter_kind": dict(sorted(Counter(e["adapter"]["kind"] for e in modules).items())),
+    }
+
+
+# ---------------------------------------------------------------------------------------
 # summarise
 # ---------------------------------------------------------------------------------------
 
@@ -726,6 +852,10 @@ def main(argv: list[str] | None = None) -> int:
     rego_command.add_argument("--json", type=Path, required=True)
     summary_command = commands.add_parser("summarise")
     summary_command.add_argument("--json", type=Path, required=True)
+    oracle_command = commands.add_parser("oracle-rego")
+    oracle_command.add_argument("--corpus", type=Path, required=True)
+    oracle_command.add_argument("--work", type=Path, required=True)
+    oracle_command.add_argument("--json", type=Path, required=True)
     arguments = parser.parse_args(argv)
 
     if arguments.command == "harvest":
@@ -733,6 +863,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if arguments.command == "summarise":
         findings = summarise()
+    elif arguments.command == "oracle-rego":
+        corpus = json.loads(arguments.corpus.read_text("utf-8"))
+        findings = oracle_rego(corpus, arguments.work)
     elif arguments.command == "select":
         findings = manifest(
             arguments.ecosystem, arguments.work, arguments.corpora, TARGETS[arguments.ecosystem]
