@@ -18,6 +18,10 @@ That Cedar comes out entirely inside is not a surprise about this corpus. Cedar 
 to admit automated reasoning -- it ships an SMT-based analysis tool -- and the fragment is
 one statement of what that design buys.
 
+The one way out is a template. `?principal` and `?resource` are slots bound when a template
+is linked, so until then a template determines no decision function: it is a policy schema,
+for the same reason an Azure definition with an undefaulted parameter is one.
+
 **What the published row measures, and what it does not.** `discover` walks the 22
 hand-written `.cedar` files the corpus tracks. The same commit also ships
 `corpus-tests.tar.gz`, holding a further 7,497 `.cedar` policies, and until now nothing in
@@ -39,7 +43,7 @@ import tarfile
 import tempfile
 from pathlib import Path
 
-from fragment_membership import INSIDE, UNDETERMINED, Verdict
+from fragment_membership import INSIDE, OUTSIDE, UNDETERMINED, Verdict
 
 ECOSYSTEM = "cedar"
 
@@ -75,10 +79,22 @@ POLICY_KEYWORD = re.compile(r"\b(?:permit|forbid)\s*\(")
 # URL in a string deleted the rest of the physical line -- taking any unrecognised call after
 # it with it, and turning a policy that should be refused into a confident `inside`.
 COMMENT = re.compile(r'("(?:[^"\\]|\\.)*")|//[^\n]*')
+STRING = re.compile(r'"(?:[^"\\]|\\.)*"')
+# An annotation is metadata the evaluator ignores -- `@id("p1")`, `@advice("...")`, or a bare
+# `@key` -- and its parenthesised value reads like a call to a function named after the key.
+# Until annotations were removed before calls were read, 564 of the 956 policies this adapter
+# declined in the Cedar archive were declined for an annotation key, not an operator.
+ANNOTATION = re.compile(r'@\w+(?:\s*\(\s*""\s*\))?')
+# A template leaves its principal or resource as a slot that is bound only when the template
+# is linked, so until then it determines no decision function: a policy schema.
+TEMPLATE_SLOT = re.compile(r"\?(?:principal|resource)\b")
 METHOD_CALL = re.compile(r"\.(\w+)\s*\(")
 FREE_CALL = re.compile(r"(?<![.\w])(\w+)\s*\(")
-# `permit`, `forbid`, `if`, `when` and `unless` are syntax rather than calls.
-SYNTAX = frozenset({"permit", "forbid", "if", "when", "unless"})
+# Keywords and operators are syntax rather than calls, including where a parenthesised
+# operand follows them: `principal in (Group::"admins")`, `if (a) then (b) else (c)`.
+SYNTAX = frozenset(
+    {"permit", "forbid", "if", "then", "else", "when", "unless", "in", "like", "has", "is"}
+)
 
 
 def discover(root: Path) -> list[tuple[str, Path]]:
@@ -154,14 +170,34 @@ def archive_provenance(root: Path) -> list[dict[str, object]]:
     return entries
 
 
+def _code(text: str) -> str:
+    """The policy text a call can occur in: no comments, string contents or annotations.
+
+    A call is read from code. The text of a string literal is data, and the regexes below
+    found calls in it -- a fuzzed entity identifier like `"yyy(..."` declined a policy for
+    calling `yyy`.
+    """
+
+    return ANNOTATION.sub("", STRING.sub('""', _without_comments(text)))
+
+
 def classify(text: str) -> Verdict:
-    body = _without_comments(text)
+    body = _code(text)
     if not POLICY_KEYWORD.search(body):
         return Verdict(UNDETERMINED, "contains no permit or forbid statement")
 
     methods = sorted(set(METHOD_CALL.findall(body)))
     constructors = sorted(name for name in set(FREE_CALL.findall(body)) if name not in SYNTAX)
     detail = {"method_calls": methods, "constructors": constructors}
+
+    slots = sorted(set(TEMPLATE_SLOT.findall(body)))
+    if slots:
+        return Verdict(
+            OUTSIDE,
+            "is a policy schema rather than a policy: a template whose slots are bound only "
+            "when it is linked",
+            {**detail, "template_slots": slots},
+        )
 
     unrecognised = sorted(
         (set(methods) - FINITELY_REFINING_CALLS)

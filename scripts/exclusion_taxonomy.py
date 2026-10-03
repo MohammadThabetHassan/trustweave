@@ -73,6 +73,10 @@ CORPORA: tuple[tuple[str, str], ...] = (
 # exhaustive, and a claim like that is only worth making if its instrument can refute it.
 KINDS: dict[str, tuple[str, ...]] = {
     "not a policy": ("policy schema",),
+    # Checked before the lookups: "reaches outside through a rule, which calls a builtin whose
+    # result is not a function of its arguments" names its cause in the second clause, and
+    # matching "reaches outside" first filed a clock read as a lookup.
+    "reads evaluation-time state": ("reads the clock", "not a function of its arguments"),
     "the subject does not determine the guard": (
         "the host injects",
         "context entry fetches",
@@ -87,7 +91,6 @@ KINDS: dict[str, tuple[str, ...]] = {
         "reads outside the policy",
         "reads something outside the admission request",
     ),
-    "reads evaluation-time state": ("reads the clock", "not a function of its arguments"),
 }
 
 

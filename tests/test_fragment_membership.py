@@ -2307,7 +2307,7 @@ def test_the_cedar_archive_row_is_measured_and_kept_out_of_the_published_row() -
     assert published["policies_considered"] == 22
     assert archive["corpus_scope"] == "archive"
     assert archive["policies_considered"] == 7497
-    assert archive["counts"] == {"inside": 6541, "outside": 0, "undetermined": 956}
+    assert archive["counts"] == {"inside": 7192, "outside": 0, "undetermined": 305}
     assert archive["corpus"][0]["commit"] == published["corpus"][0]["commit"]
     (source,) = archive["archives"]
     assert source["archive"] == "corpus-tests.tar.gz"
@@ -2316,6 +2316,65 @@ def test_the_cedar_archive_row_is_measured_and_kept_out_of_the_published_row() -
     # The claim the archive refutes: the OLD draft said the refusal path "is exercised on
     # synthetic inputs because the corpus never triggers it".
     assert archive["counts"]["undetermined"] > 0
+    # And the refusals it does record are refusals of operators. 651 more were once recorded
+    # for an annotation key, a keyword before a parenthesis, or the text of a string literal.
+    declined = {
+        name
+        for entry in archive["policies"]
+        if entry["verdict"] == core.UNDETERMINED
+        for name in entry["unrecognised"]
+    }
+    assert declined <= {
+        "isEmpty",
+        "offset",
+        "durationSince",
+        "toDate",
+        "toTime",
+        "toDays",
+        "toHours",
+        "toMinutes",
+        "toSeconds",
+        "toMilliseconds",
+    }, declined
+
+
+@pytest.mark.parametrize(
+    "policy",
+    [
+        '@id("p1")\npermit(principal, action, resource);',
+        '@advice("call support(now)")\nforbid(principal, action, resource);',
+        'permit(principal in (Group::"admins"), action, resource);',
+        "permit(principal, action, resource)\nwhen { if context.a then (true) else (false) };",
+        'permit(principal == User::"yyy(evil)", action, resource);',
+    ],
+)
+def test_cedar_reads_calls_from_code_and_nothing_else(policy: str) -> None:
+    """An annotation, a keyword before a parenthesis and a string's text are not calls."""
+
+    verdict = cedar.classify(policy)
+
+    assert verdict.verdict == core.INSIDE, verdict
+    assert verdict.detail["constructors"] == []
+
+
+def test_a_cedar_operator_the_adapter_does_not_judge_is_still_declined() -> None:
+    verdict = cedar.classify(
+        'permit(principal, action, resource) when { context.when.toTime() < duration("9h") };'
+    )
+
+    assert verdict.verdict == core.UNDETERMINED
+    assert verdict.detail["unrecognised"] == ["toTime"]
+
+
+def test_a_cedar_template_is_a_policy_schema() -> None:
+    """A template's slots are bound only when it is linked; until then it decides nothing."""
+
+    verdict = cedar.classify("permit(principal == ?principal, action, resource in ?resource);")
+
+    assert verdict.verdict == core.OUTSIDE
+    assert "policy schema" in verdict.reason
+    assert verdict.detail["template_slots"] == ["?principal", "?resource"]
+    assert taxonomy.classify(verdict.reason) == "not a policy"
 
 
 def test_an_archive_walk_is_asked_for_and_never_substituted() -> None:
@@ -2325,3 +2384,100 @@ def test_an_archive_walk_is_asked_for_and_never_substituted() -> None:
     assert core.discovery_for(cedar, wide=False, archive=True) is cedar.discover_archive
     with pytest.raises(SystemExit, match="no archive"):
         core.discovery_for(iam, wide=False, archive=True)
+
+
+def _iam_policy(resource: str, condition: dict | None = None) -> str:
+    statement: dict = {"Effect": "Allow", "Action": "s3:GetObject", "Resource": resource}
+    if condition is not None:
+        statement["Condition"] = condition
+    return json.dumps({"Version": "2012-10-17", "Statement": [statement]})
+
+
+@pytest.mark.parametrize(
+    "resource",
+    [
+        "arn:aws:s3:::${var.bucket}/*",
+        "arn:aws:s3:::${bucket_name}/*",
+        "arn:aws:s3:::${AWS::AccountId}-logs/*",
+        "arn:aws:s3:::{{ bucket }}/*",
+    ],
+)
+def test_an_iam_template_placeholder_makes_a_policy_schema(resource: str) -> None:
+    """A placeholder a deployment tool fills is bound when it renders, not by the request."""
+
+    verdict = iam.classify(_iam_policy(resource))
+
+    assert verdict.verdict == core.OUTSIDE
+    assert "policy schema" in verdict.reason
+    assert taxonomy.classify(verdict.reason) == "not a policy"
+    assert verdict.detail["template_placeholders"]
+
+
+@pytest.mark.parametrize(
+    "resource",
+    [
+        "arn:aws:s3:::home/${aws:username}/*",
+        "arn:aws:s3:::${aws:PrincipalTag/team}/*",
+        "arn:aws:s3:::literal-${*}-star",
+        "arn:aws:s3:::<BUCKET_NAME>/*",
+    ],
+)
+def test_iam_policy_variables_and_literals_stay_inside(resource: str) -> None:
+    """IAM's own variables are attributes of the request; angle brackets are literals."""
+
+    verdict = iam.classify(_iam_policy(resource))
+
+    assert verdict.verdict == core.INSIDE, verdict
+    assert "template_placeholders" not in verdict.detail
+
+
+def test_an_iam_policy_reading_the_clock_and_a_placeholder_names_the_clock() -> None:
+    """The verdict names what survives rendering; the taxonomy still counts the schema."""
+
+    verdict = iam.classify(
+        _iam_policy(
+            "arn:aws:s3:::${var.bucket}/*",
+            {"DateLessThan": {"aws:CurrentTime": "2030-01-01T00:00:00Z"}},
+        )
+    )
+
+    assert verdict.verdict == core.OUTSIDE
+    assert "reads the clock" in verdict.reason
+    assert taxonomy.kind_of({"reason": verdict.reason, **verdict.detail}) == "not a policy"
+
+
+@pytest.mark.parametrize(
+    "template",
+    [
+        "{{- if .Values.enforce }}\napiVersion: kyverno.io/v1\nkind: ClusterPolicy\n{{- end }}",
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: {{ .Values.name }}\n",
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n"
+        '  name: {{ include "chart.name" . }}\n',
+    ],
+)
+def test_a_helm_template_of_a_kyverno_policy_is_a_policy_schema(template: str) -> None:
+    verdict = kyverno.classify(template)
+
+    assert verdict.verdict == core.OUTSIDE
+    assert "policy schema" in verdict.reason
+    assert taxonomy.classify(verdict.reason) == "not a policy"
+
+
+def test_kyverno_variables_are_not_mistaken_for_helm() -> None:
+    policy = (
+        "apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: require-labels\n"
+        "spec:\n  rules:\n  - name: check\n    validate:\n"
+        '      message: "{{ request.object.metadata.name }} needs a team label"\n'
+        "      pattern:\n        metadata:\n          labels:\n            team: '?*'\n"
+    )
+
+    assert kyverno.classify(policy).verdict == core.INSIDE
+
+
+def test_a_kyverno_file_that_does_not_parse_is_not_judged_inside() -> None:
+    """Every check reads the text with patterns, so an unparseable file used to pass them all."""
+
+    verdict = kyverno.classify("apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nspec: [unclosed\n")
+
+    assert verdict.verdict == core.UNDETERMINED
+    assert verdict.reason == "does not parse as YAML"
