@@ -12,6 +12,8 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+from fractions import Fraction
+from itertools import combinations
 from pathlib import Path
 from types import ModuleType
 
@@ -67,6 +69,43 @@ class TestSamplingError:
 
         assert comparison.sampling_error(killed, 4)["share_off_by_over_10_points"] > 0.9
 
+    @pytest.mark.parametrize("hits", range(11))
+    def test_the_hypergeometric_rows_agree_with_enumerating_every_sample(self, hits: int) -> None:
+        """The closed form is checked against the definition it replaces, sample by sample.
+
+        An earlier version enumerated samples up to a cap and simulated above it. The
+        hypergeometric sum must give what enumerating every sample gives, at every size.
+        """
+
+        killed = [True] * hits + [False] * (10 - hits)
+        exact = Fraction(hits, 10)
+        for size in range(1, 10):
+            # Exact arithmetic on both sides: in floating point 0.4 - 0.3 exceeds 0.10, so a
+            # sample exactly ten points off would be counted as more than ten points off.
+            errors = [
+                abs(Fraction(sum(sample), size) - exact) for sample in combinations(killed, size)
+            ]
+            row = comparison.sampling_error(killed, size)
+
+            assert row["method"] == f"exact over {len(errors)} samples"
+            assert row["mean_absolute_error"] == round(float(sum(errors) / len(errors)), 4)
+            assert row["worst_absolute_error"] == round(float(max(errors)), 4)
+            assert row["share_off_by_over_10_points"] == round(
+                sum(1 for error in errors if error > Fraction(1, 10)) / len(errors), 4
+            )
+
+    def test_mirror_image_kill_sets_have_identical_errors(self) -> None:
+        """Fourteen kills of 22 and eight of 22 are the same distribution reflected.
+
+        The simulated rows reported them differently in the fourth decimal, which is the
+        noise a closed form does not have.
+        """
+
+        for size in comparison.SAMPLE_SIZES:
+            assert comparison.sampling_error(
+                [True] * 14 + [False] * 8, size
+            ) == comparison.sampling_error([True] * 8 + [False] * 14, size)
+
 
 class TestRecordedComparison:
     def test_the_equivalent_share_is_the_one_the_theory_quotes(self, findings: dict) -> None:
@@ -104,6 +143,28 @@ class TestRecordedComparison:
             entry["exact_score"] for entry in findings["suites"]
         ]
         assert fresh["equivalent_share"] == findings["equivalent_share"]
+        assert [entry["sampling"] for entry in fresh["suites"]] == [
+            entry["sampling"] for entry in findings["suites"]
+        ]
+
+    def test_no_recorded_row_is_simulated(self, findings: dict) -> None:
+        """Every row smaller than the whole set is exact; none carries a seed or a draw count."""
+
+        for entry in findings["suites"]:
+            for row in entry["sampling"]:
+                if row["sample_size"] < entry["mutants_live"]:
+                    assert row["method"].startswith("exact over "), row
+
+    def test_the_worst_sample_of_eight_is_the_one_that_kills_nothing(self, findings: dict) -> None:
+        """The figure the simulation missed: probability 1 in 319,770, error 14/22."""
+
+        default = next(
+            entry for entry in findings["suites"] if entry["suite"].startswith("default")
+        )
+        row = next(row for row in default["sampling"] if row["sample_size"] == 8)
+
+        assert row["method"] == "exact over 319770 samples"
+        assert row["worst_absolute_error"] == round(14 / 22, 4)
 
 
 def test_an_inconsistent_suite_is_refused_by_the_estimator_too(tmp_path: Path) -> None:
