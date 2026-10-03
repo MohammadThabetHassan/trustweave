@@ -1,0 +1,831 @@
+{
+  "descriptive_additions": [
+    "decision_edits_by_direction: added after the run, to check the two sentences of the paper that say which decision edits raise no signal; it is a count, not a test"
+  ],
+  "deviations": [],
+  "operator_sets": {
+    "A": {
+      "decision_edits_by_direction": {
+        "default_decision to allow": {
+          "signalled": 199,
+          "silent": 0
+        },
+        "default_decision to anything but allow": {
+          "signalled": 0,
+          "silent": 401
+        },
+        "flip_decision to a more permissive decision": {
+          "signalled": 711,
+          "silent": 0
+        },
+        "flip_decision to a stricter decision": {
+          "signalled": 0,
+          "silent": 691
+        }
+      },
+      "exact_table_cells_per_change_median": 864.0,
+      "exact_table_cells_per_policy_median": 576.0,
+      "generated": {
+        "change": {
+          "changes": 7400,
+          "positives": 5516,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 588,
+              "suite_decision_recall": 0.917565,
+              "trustweave_diff_recall": 0.331633
+            },
+            "delete_rule": {
+              "positives": 509,
+              "suite_decision_recall": 0.646755,
+              "trustweave_diff_recall": 1.0
+            },
+            "flip_decision": {
+              "positives": 1284,
+              "suite_decision_recall": 0.561115,
+              "trustweave_diff_recall": 0.503894
+            },
+            "narrow_action": {
+              "positives": 919,
+              "suite_decision_recall": 0.236414,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_trust": {
+              "positives": 623,
+              "suite_decision_recall": 0.288943,
+              "trustweave_diff_recall": 1.0
+            },
+            "swap_rules": {
+              "positives": 143,
+              "suite_decision_recall": 0.153346,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_action": {
+              "positives": 845,
+              "suite_decision_recall": 0.086835,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_trust": {
+              "positives": 605,
+              "suite_decision_recall": 0.117435,
+              "trustweave_diff_recall": 1.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 3363.173586,
+              "precision": 1.0,
+              "recall": 0.390288
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 373.915989,
+              "precision": 1.0,
+              "recall": 0.932212
+            },
+            "text_diff": {
+              "false_alarms": 1884,
+              "missed": 0,
+              "precision": 0.745405,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 1658,
+              "missed": 1030,
+              "precision": 0.730143,
+              "recall": 0.81327
+            }
+          }
+        },
+        "weakening": {
+          "changes": 7400,
+          "positives": 2912,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 294,
+              "suite_decision_recall": 0.911203,
+              "trustweave_diff_recall": 0.663265
+            },
+            "delete_rule": {
+              "positives": 273,
+              "suite_decision_recall": 0.580983,
+              "trustweave_diff_recall": 0.0
+            },
+            "flip_decision": {
+              "positives": 647,
+              "suite_decision_recall": 0.551942,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_action": {
+              "positives": 505,
+              "suite_decision_recall": 0.210482,
+              "trustweave_diff_recall": 0.0
+            },
+            "narrow_trust": {
+              "positives": 327,
+              "suite_decision_recall": 0.271079,
+              "trustweave_diff_recall": 0.0
+            },
+            "swap_rules": {
+              "positives": 76,
+              "suite_decision_recall": 0.134765,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_action": {
+              "positives": 472,
+              "suite_decision_recall": 0.07916,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_trust": {
+              "positives": 318,
+              "suite_decision_recall": 0.089761,
+              "trustweave_diff_recall": 0.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 1857.305694,
+              "precision": 1.0,
+              "recall": 0.362189
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 205.339311,
+              "precision": 1.0,
+              "recall": 0.929485
+            },
+            "text_diff": {
+              "false_alarms": 4488,
+              "missed": 0,
+              "precision": 0.393514,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 68,
+              "missed": 2070,
+              "precision": 0.925275,
+              "recall": 0.289148
+            }
+          }
+        }
+      },
+      "reference_policy": {
+        "cells_per_change": 12,
+        "change": {
+          "changes": 38,
+          "positives": 22,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 2,
+              "suite_decision_recall": 0.7,
+              "trustweave_diff_recall": 0.5
+            },
+            "delete_rule": {
+              "positives": 2,
+              "suite_decision_recall": 1.0,
+              "trustweave_diff_recall": 1.0
+            },
+            "flip_decision": {
+              "positives": 8,
+              "suite_decision_recall": 0.575,
+              "trustweave_diff_recall": 0.625
+            },
+            "widen_action": {
+              "positives": 6,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_trust": {
+              "positives": 4,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 1.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 13.0,
+              "precision": 1.0,
+              "recall": 0.409091
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 0.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "text_diff": {
+              "false_alarms": 16,
+              "missed": 0,
+              "precision": 0.578947,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 13,
+              "missed": 4,
+              "precision": 0.580645,
+              "recall": 0.818182
+            }
+          }
+        },
+        "weakening": {
+          "changes": 38,
+          "positives": 17,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 2,
+              "suite_decision_recall": 0.7,
+              "trustweave_diff_recall": 0.5
+            },
+            "flip_decision": {
+              "positives": 5,
+              "suite_decision_recall": 0.32,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_action": {
+              "positives": 6,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_trust": {
+              "positives": 4,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 0.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 13.0,
+              "precision": 1.0,
+              "recall": 0.235294
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 0.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "text_diff": {
+              "false_alarms": 21,
+              "missed": 0,
+              "precision": 0.447368,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 0,
+              "missed": 11,
+              "precision": 1.0,
+              "recall": 0.352941
+            }
+          }
+        }
+      },
+      "signals_emitted": {
+        "TW-DIFF-005": 199,
+        "TW-DIFF-008": 711,
+        "TW-DIFF-011": 5234
+      }
+    },
+    "B": {
+      "decision_edits_by_direction": {
+        "default_decision to allow": {
+          "signalled": 199,
+          "silent": 0
+        },
+        "default_decision to anything but allow": {
+          "signalled": 0,
+          "silent": 401
+        },
+        "flip_decision to a more permissive decision": {
+          "signalled": 711,
+          "silent": 0
+        },
+        "flip_decision to a stricter decision": {
+          "signalled": 0,
+          "silent": 691
+        }
+      },
+      "exact_table_cells_per_change_median": 1152.0,
+      "exact_table_cells_per_policy_median": 576.0,
+      "generated": {
+        "change": {
+          "changes": 10818,
+          "positives": 7771,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 588,
+              "suite_decision_recall": 0.917565,
+              "trustweave_diff_recall": 0.331633
+            },
+            "delete_rule": {
+              "positives": 509,
+              "suite_decision_recall": 0.646755,
+              "trustweave_diff_recall": 1.0
+            },
+            "drop_purpose_tags": {
+              "positives": 157,
+              "suite_decision_recall": 0.114994,
+              "trustweave_diff_recall": 1.0
+            },
+            "drop_source_data_classification_at_least": {
+              "positives": 53,
+              "suite_decision_recall": 0.105045,
+              "trustweave_diff_recall": 1.0
+            },
+            "drop_source_data_classification_at_most": {
+              "positives": 32,
+              "suite_decision_recall": 0.0931,
+              "trustweave_diff_recall": 1.0
+            },
+            "drop_source_data_classifications": {
+              "positives": 157,
+              "suite_decision_recall": 0.149562,
+              "trustweave_diff_recall": 1.0
+            },
+            "drop_source_identifiers": {
+              "positives": 122,
+              "suite_decision_recall": 0.152737,
+              "trustweave_diff_recall": 1.0
+            },
+            "drop_tool_capabilities": {
+              "positives": 166,
+              "suite_decision_recall": 0.121396,
+              "trustweave_diff_recall": 1.0
+            },
+            "drop_tool_identifiers": {
+              "positives": 122,
+              "suite_decision_recall": 0.157694,
+              "trustweave_diff_recall": 1.0
+            },
+            "flip_decision": {
+              "positives": 1284,
+              "suite_decision_recall": 0.561115,
+              "trustweave_diff_recall": 0.503894
+            },
+            "narrow_action": {
+              "positives": 919,
+              "suite_decision_recall": 0.236414,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_purpose_tags": {
+              "positives": 66,
+              "suite_decision_recall": 0.205101,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_source_data_classifications": {
+              "positives": 217,
+              "suite_decision_recall": 0.244497,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_source_identifiers": {
+              "positives": 83,
+              "suite_decision_recall": 0.348034,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_tool_capabilities": {
+              "positives": 145,
+              "suite_decision_recall": 0.171058,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_tool_identifiers": {
+              "positives": 63,
+              "suite_decision_recall": 0.358222,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_trust": {
+              "positives": 623,
+              "suite_decision_recall": 0.288943,
+              "trustweave_diff_recall": 1.0
+            },
+            "shift_source_data_classification_at_least": {
+              "positives": 201,
+              "suite_decision_recall": 0.269106,
+              "trustweave_diff_recall": 1.0
+            },
+            "shift_source_data_classification_at_most": {
+              "positives": 148,
+              "suite_decision_recall": 0.239542,
+              "trustweave_diff_recall": 1.0
+            },
+            "swap_rules": {
+              "positives": 143,
+              "suite_decision_recall": 0.153346,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_action": {
+              "positives": 845,
+              "suite_decision_recall": 0.086835,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_purpose_tags": {
+              "positives": 46,
+              "suite_decision_recall": 0.084558,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_source_data_classifications": {
+              "positives": 315,
+              "suite_decision_recall": 0.047383,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_source_identifiers": {
+              "positives": 25,
+              "suite_decision_recall": 0.078129,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_tool_capabilities": {
+              "positives": 101,
+              "suite_decision_recall": 0.08992,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_tool_identifiers": {
+              "positives": 36,
+              "suite_decision_recall": 0.069236,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_trust": {
+              "positives": 605,
+              "suite_decision_recall": 0.117435,
+              "trustweave_diff_recall": 1.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 5245.330931,
+              "precision": 1.0,
+              "recall": 0.325012
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 606.724125,
+              "precision": 1.0,
+              "recall": 0.921925
+            },
+            "text_diff": {
+              "false_alarms": 3047,
+              "missed": 0,
+              "precision": 0.71834,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 2821,
+              "missed": 1030,
+              "precision": 0.704978,
+              "recall": 0.867456
+            }
+          }
+        },
+        "weakening": {
+          "changes": 10818,
+          "positives": 4111,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 294,
+              "suite_decision_recall": 0.911203,
+              "trustweave_diff_recall": 0.663265
+            },
+            "delete_rule": {
+              "positives": 273,
+              "suite_decision_recall": 0.580983,
+              "trustweave_diff_recall": 0.0
+            },
+            "drop_purpose_tags": {
+              "positives": 81,
+              "suite_decision_recall": 0.091735,
+              "trustweave_diff_recall": 0.0
+            },
+            "drop_source_data_classification_at_least": {
+              "positives": 28,
+              "suite_decision_recall": 0.075717,
+              "trustweave_diff_recall": 0.0
+            },
+            "drop_source_data_classification_at_most": {
+              "positives": 20,
+              "suite_decision_recall": 0.0671,
+              "trustweave_diff_recall": 0.0
+            },
+            "drop_source_data_classifications": {
+              "positives": 87,
+              "suite_decision_recall": 0.16057,
+              "trustweave_diff_recall": 0.0
+            },
+            "drop_source_identifiers": {
+              "positives": 67,
+              "suite_decision_recall": 0.15399,
+              "trustweave_diff_recall": 0.0
+            },
+            "drop_tool_capabilities": {
+              "positives": 90,
+              "suite_decision_recall": 0.093888,
+              "trustweave_diff_recall": 0.0
+            },
+            "drop_tool_identifiers": {
+              "positives": 70,
+              "suite_decision_recall": 0.15057,
+              "trustweave_diff_recall": 0.0
+            },
+            "flip_decision": {
+              "positives": 647,
+              "suite_decision_recall": 0.551942,
+              "trustweave_diff_recall": 1.0
+            },
+            "narrow_action": {
+              "positives": 505,
+              "suite_decision_recall": 0.210482,
+              "trustweave_diff_recall": 0.0
+            },
+            "narrow_purpose_tags": {
+              "positives": 34,
+              "suite_decision_recall": 0.179558,
+              "trustweave_diff_recall": 0.0
+            },
+            "narrow_source_data_classifications": {
+              "positives": 99,
+              "suite_decision_recall": 0.188898,
+              "trustweave_diff_recall": 0.0
+            },
+            "narrow_source_identifiers": {
+              "positives": 40,
+              "suite_decision_recall": 0.339903,
+              "trustweave_diff_recall": 0.0
+            },
+            "narrow_tool_capabilities": {
+              "positives": 77,
+              "suite_decision_recall": 0.132519,
+              "trustweave_diff_recall": 0.0
+            },
+            "narrow_tool_identifiers": {
+              "positives": 35,
+              "suite_decision_recall": 0.328977,
+              "trustweave_diff_recall": 0.0
+            },
+            "narrow_trust": {
+              "positives": 327,
+              "suite_decision_recall": 0.271079,
+              "trustweave_diff_recall": 0.0
+            },
+            "shift_source_data_classification_at_least": {
+              "positives": 109,
+              "suite_decision_recall": 0.247076,
+              "trustweave_diff_recall": 0.0
+            },
+            "shift_source_data_classification_at_most": {
+              "positives": 78,
+              "suite_decision_recall": 0.198921,
+              "trustweave_diff_recall": 0.0
+            },
+            "swap_rules": {
+              "positives": 76,
+              "suite_decision_recall": 0.134765,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_action": {
+              "positives": 472,
+              "suite_decision_recall": 0.07916,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_purpose_tags": {
+              "positives": 22,
+              "suite_decision_recall": 0.069862,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_source_data_classifications": {
+              "positives": 176,
+              "suite_decision_recall": 0.047594,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_source_identifiers": {
+              "positives": 11,
+              "suite_decision_recall": 0.083268,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_tool_capabilities": {
+              "positives": 56,
+              "suite_decision_recall": 0.069968,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_tool_identifiers": {
+              "positives": 19,
+              "suite_decision_recall": 0.093981,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_trust": {
+              "positives": 318,
+              "suite_decision_recall": 0.089761,
+              "trustweave_diff_recall": 0.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 2883.035747,
+              "precision": 1.0,
+              "recall": 0.298702
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 328.542079,
+              "precision": 1.0,
+              "recall": 0.920082
+            },
+            "text_diff": {
+              "false_alarms": 6707,
+              "missed": 0,
+              "precision": 0.380015,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 68,
+              "missed": 3269,
+              "precision": 0.925275,
+              "recall": 0.204816
+            }
+          }
+        }
+      },
+      "reference_policy": {
+        "cells_per_change": 12,
+        "change": {
+          "changes": 38,
+          "positives": 22,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 2,
+              "suite_decision_recall": 0.7,
+              "trustweave_diff_recall": 0.5
+            },
+            "delete_rule": {
+              "positives": 2,
+              "suite_decision_recall": 1.0,
+              "trustweave_diff_recall": 1.0
+            },
+            "flip_decision": {
+              "positives": 8,
+              "suite_decision_recall": 0.575,
+              "trustweave_diff_recall": 0.625
+            },
+            "widen_action": {
+              "positives": 6,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_trust": {
+              "positives": 4,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 1.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 13.0,
+              "precision": 1.0,
+              "recall": 0.409091
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 0.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "text_diff": {
+              "false_alarms": 16,
+              "missed": 0,
+              "precision": 0.578947,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 13,
+              "missed": 4,
+              "precision": 0.580645,
+              "recall": 0.818182
+            }
+          }
+        },
+        "weakening": {
+          "changes": 38,
+          "positives": 17,
+          "recall_by_operator": {
+            "default_decision": {
+              "positives": 2,
+              "suite_decision_recall": 0.7,
+              "trustweave_diff_recall": 0.5
+            },
+            "flip_decision": {
+              "positives": 5,
+              "suite_decision_recall": 0.32,
+              "trustweave_diff_recall": 1.0
+            },
+            "widen_action": {
+              "positives": 6,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 0.0
+            },
+            "widen_trust": {
+              "positives": 4,
+              "suite_decision_recall": 0.1,
+              "trustweave_diff_recall": 0.0
+            }
+          },
+          "reviewers": {
+            "exact_table": {
+              "false_alarms": 0,
+              "missed": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "suite_decision": {
+              "false_alarms": 0,
+              "missed": 13.0,
+              "precision": 1.0,
+              "recall": 0.235294
+            },
+            "suite_quotient": {
+              "false_alarms": 0,
+              "missed": 0.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "text_diff": {
+              "false_alarms": 21,
+              "missed": 0,
+              "precision": 0.447368,
+              "recall": 1.0
+            },
+            "trustweave_diff": {
+              "false_alarms": 0,
+              "missed": 11,
+              "precision": 1.0,
+              "recall": 0.352941
+            }
+          }
+        }
+      },
+      "signals_emitted": {
+        "TW-DIFF-005": 199,
+        "TW-DIFF-008": 711,
+        "TW-DIFF-011": 8652
+      }
+    }
+  },
+  "permissiveness": [
+    "deny",
+    "require_approval",
+    "allow"
+  ],
+  "protocol_sha256": "e1baa3b2e529d5d8ba00771fa7f8807158d00281ce4c95217455d7f613c324c9",
+  "schema_version": "v1",
+  "weakening_signals": [
+    "TW-DIFF-004",
+    "TW-DIFF-005",
+    "TW-DIFF-006",
+    "TW-DIFF-007",
+    "TW-DIFF-008",
+    "TW-DIFF-009"
+  ]
+}
