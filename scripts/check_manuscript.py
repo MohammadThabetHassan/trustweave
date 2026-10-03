@@ -1494,7 +1494,6 @@ def _summary_claims(docs: Path) -> list[Claim]:
     summary = _load(docs, "third-party-sample-summary-v1")
     scores = suites["mean_expected_score"]
     weakenings = _pct(review["weakening"]["reviewers"]["trustweave_diff"]["recall"])
-    schemas = sum(row["sample"]["schemas"] for row in summary["ecosystems"].values())
     assert len(summary["ecosystems"]) == 4
     # "parameterisation appears in all four": every sample holds at least one schema.
     assert all(row["sample"]["schemas"] for row in summary["ecosystems"].values())
@@ -1997,23 +1996,86 @@ TAXONOMY_FIGURE_BANDS = (
 )
 
 
-def _plots(tex: str, label: str) -> list[list[tuple[str, str]]]:
-    """Every `\addplot coordinates {...}` series of the figure carrying `label`."""
+PAYOFF_FIGURE_ORDER = ("decision", "random_decision", "random_quotient", "quotient", "refinement")
+# The graphical abstract draws three of those strategies, best first.
+ABSTRACT_FIGURE_ORDER = ("quotient", "random_quotient", "decision")
 
-    end = tex.find(r"\label{" + label + "}")
-    if end < 0:
-        return []
-    start = tex.rfind(r"\begin{figure}", 0, end)
-    block = tex[start:end]
-    series = []
-    for body in re.findall(r"\\addplot[^{]*coordinates\s*\{([^}]*)\}", block):
-        series.append(re.findall(r"\(([-\d.e+]+)\s*,\s*([-\d.e+]+)\)", body))
-    return series
+
+def _axes(tex: str, name: str) -> list[list[list[tuple[str, str]]]]:
+    """The `\addplot coordinates {...}` series of every pgfplots axis named `name`.
+
+    A data figure is found by the axis it draws (`\begin{axis}[name=...]`) rather than by its
+    figure label, because a paper with a condensed version and an extended one carries the same
+    figure twice, sometimes as one panel of a larger figure, and every copy has to agree with the
+    artifact, not only the first.
+    """
+
+    found = []
+    for match in re.finditer(r"\\begin\{axis\}\[", tex):
+        start, depth, index = match.end(), 0, match.end()
+        while index < len(tex):
+            char = tex[index]
+            if char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+            elif char == "]" and depth == 0:
+                break
+            index += 1
+        options = tex[start:index]
+        if not re.search(r"(?:^|,)\s*name\s*=\s*" + re.escape(name) + r"\s*(?:,|$)", options):
+            continue
+        end = tex.find(r"\end{axis}", index)
+        body = tex[index:end]
+        found.append(
+            [
+                re.findall(r"\(([-\d.e+]+)\s*,\s*([-\d.e+]+)\)", series)
+                for series in re.findall(r"\\addplot[^{]*coordinates\s*\{([^}]*)\}", body)
+            ]
+        )
+    return found
+
+
+def _compare_figure(
+    tex: str, name: str, what: str, bands: tuple[str, ...], expected: list[list[tuple[str, str]]]
+) -> list[str]:
+    problems: list[str] = []
+    copies = _axes(tex, name)
+    if not copies:
+        return [f"the {what} figure states no data, or its axis is no longer named {name}"]
+    for number, plotted in enumerate(copies, start=1):
+        where = f"{what} figure" if len(copies) == 1 else f"{what} figure (copy {number})"
+        for band, want, got in zip(bands, expected, plotted, strict=False):
+            if want != got:
+                problems.append(
+                    f"{where}, {band!r} series: the manuscript plots "
+                    f"{[value for value, _ in got]} where the artifact gives "
+                    f"{[value for value, _ in want]}"
+                )
+        if len(plotted) != len(expected):
+            problems.append(
+                f"the {where} plots {len(plotted)} series where the artifact has {len(expected)}"
+            )
+    return problems
+
+
+PAYOFF_SERIES = ("generated policies", "real Cedar policies")
+
+
+def _payoff_series(docs: Path, order: tuple[str, ...]) -> list[list[tuple[str, str]]]:
+    # The payoff figure plots the two suite-strategy tables on one scale: the generated policies
+    # under the paper's operators, and the primary analysis of the real Cedar policies.
+    generated = _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]["mean_expected_score"]
+    cedar = _load(docs, "cedar-suite-strategy-study-v1")["analyses"][
+        "primary: files with a condition"
+    ]["mean_expected_score"]
+    return [
+        [(_pct(scores[strategy]), str(index)) for index, strategy in enumerate(order)]
+        for scores in (generated, cedar)
+    ]
 
 
 def figure_findings(tex: str, docs: Path) -> list[str]:
-    problems: list[str] = []
-
     taxonomy = _load(docs, "exclusion-taxonomy-v1")
     rows = {row["corpus"]: row for row in taxonomy["rows"]}
     expected: list[list[tuple[str, str]]] = []
@@ -2028,26 +2090,34 @@ def figure_findings(tex: str, docs: Path) -> list[str]:
                 value = row["exclusions_by_kind"].get(band, 0)
             series.append((f"{100 * value / total:.1f}", str(index)))
         expected.append(series)
+    problems = _compare_figure(tex, "taxonomy", "taxonomy", TAXONOMY_FIGURE_BANDS, expected)
 
-    plotted = _plots(tex, "fig:taxonomy")
-    if not plotted:
-        problems.append("the taxonomy figure states no data, or its label has moved")
-    elif plotted != expected:
-        for band, want, got in zip(TAXONOMY_FIGURE_BANDS, expected, plotted, strict=False):
-            if want != got:
-                problems.append(
-                    f"taxonomy figure, {band!r} band: the manuscript plots "
-                    f"{[value for value, _ in got]} where the artifact gives "
-                    f"{[value for value, _ in want]}"
-                )
-        if len(plotted) != len(expected):
-            problems.append(
-                f"the taxonomy figure plots {len(plotted)} bands where the taxonomy has "
-                f"{len(expected)}"
-            )
+    problems += _compare_figure(
+        tex, "payoff", "payoff", PAYOFF_SERIES, _payoff_series(docs, PAYOFF_FIGURE_ORDER)
+    )
 
     # `fig:cost` is not checked, for the reason recorded beside the withdrawn cost claims.
     return problems
+
+
+def abstract_findings(paper: Path, docs: Path) -> list[str]:
+    """The graphical abstract beside the manuscript, when there is one.
+
+    A journal that asks for a graphical table-of-contents entry prints it on its contents
+    page, away from the paper, so a number that drifts there is read without the table that
+    would contradict it. Its bars are three of the payoff figure's, in the order it draws them.
+    """
+
+    figure = paper.with_name("graphical-abstract.tex")
+    if not figure.is_file():
+        return []
+    return _compare_figure(
+        figure.read_text(encoding="utf-8"),
+        "abstract",
+        "graphical abstract",
+        PAYOFF_SERIES,
+        _payoff_series(docs, ABSTRACT_FIGURE_ORDER),
+    )
 
 
 def with_supplement(tex: str, paper: Path) -> str:
@@ -2079,6 +2149,7 @@ def check(paper: Path, docs: Path) -> list[str]:
     problems += decomposition_findings(flat, docs)
     problems += corpus_findings(bib, docs)
     problems += figure_findings(tex, docs)
+    problems += abstract_findings(paper, docs)
     return problems
 
 

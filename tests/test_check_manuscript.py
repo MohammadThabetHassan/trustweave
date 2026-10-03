@@ -91,9 +91,9 @@ def workspace(tmp_path: Path) -> Path:
     paper_directory.mkdir()
     shutil.copy(PAPER, paper_directory / "main.tex")
     shutil.copy(PAPER.parent / "refs.bib", paper_directory / "refs.bib")
-    supplement = PAPER.parent / "supplement.tex"
-    if supplement.is_file():
-        shutil.copy(supplement, paper_directory / "supplement.tex")
+    for companion in ("supplement.tex", "graphical-abstract.tex"):
+        if (PAPER.parent / companion).is_file():
+            shutil.copy(PAPER.parent / companion, paper_directory / companion)
     documents = tmp_path / "docs"
     documents.mkdir()
     for artifact in DOCS.glob("*.json"):
@@ -158,7 +158,9 @@ def test_a_figure_changed_in_the_supplement_is_caught(workspace: Path) -> None:
         pytest.skip("the manuscript is not split into a main file and a supplement")
     text = supplement.read_text(encoding="utf-8")
     assert "reproduces all 7 of them" in text
-    supplement.write_text(text.replace("reproduces all 7 of them", "reproduces all 6 of them"), "utf-8")
+    supplement.write_text(
+        text.replace("reproduces all 7 of them", "reproduces all 6 of them"), "utf-8"
+    )
 
     problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
 
@@ -287,11 +289,11 @@ def test_a_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Pat
 
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    series = re.search(r"\\addplot coordinates \{\(([\d.]+),0\)", text)
+    series = re.search(r"\\addplot\[tw inside\] coordinates \{\(([\d.]+),0\)", text)
     assert series, "the taxonomy figure no longer plots a first coordinate"
     perturbed = text.replace(
-        f"\\addplot coordinates {{({series.group(1)},0)",
-        f"\\addplot coordinates {{({float(series.group(1)) - 1.1:.1f},0)",
+        f"\\addplot[tw inside] coordinates {{({series.group(1)},0)",
+        f"\\addplot[tw inside] coordinates {{({float(series.group(1)) - 1.1:.1f},0)",
         1,
     )
     paper.write_text(perturbed, encoding="utf-8")
@@ -301,12 +303,57 @@ def test_a_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Pat
     assert any("taxonomy figure" in problem for problem in problems), problems
 
 
-def test_a_figure_whose_label_moves_is_reported_rather_than_skipped(workspace: Path) -> None:
+def test_a_payoff_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Path) -> None:
+    """The payoff figure restates two pinned tables on one scale, so it is pinned too."""
+
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    series = re.search(r"\\addplot\[tw cedar\] coordinates \{\(([\d.]+),0\)", text)
+    assert series, "the payoff figure no longer plots a first Cedar coordinate"
+    perturbed = text.replace(
+        f"\\addplot[tw cedar] coordinates {{({series.group(1)},0)",
+        f"\\addplot[tw cedar] coordinates {{({float(series.group(1)) + 2.0:.1f},0)",
+        1,
+    )
+    paper.write_text(perturbed, encoding="utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+
+    assert any("payoff figure" in problem for problem in problems), problems
+
+
+def test_a_graphical_abstract_whose_bars_drift_from_their_artifact_is_caught(
+    workspace: Path,
+) -> None:
+    """The table-of-contents figure is read apart from the paper, so it is pinned too."""
+
+    figure = workspace / "paper" / "graphical-abstract.tex"
+    if not figure.is_file():
+        pytest.skip("the manuscript has no graphical abstract beside it")
+    text = figure.read_text(encoding="utf-8")
+    series = re.search(r"\\addplot\[[^]{]*\] coordinates \{\(([\d.]+),0\)", text)
+    assert series, "the graphical abstract no longer plots a first coordinate"
+    start, end = series.span(1)
+    figure.write_text(text[:start] + f"{float(series.group(1)) - 3.0:.1f}" + text[end:], "utf-8")
+
+    problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
+
+    assert any("graphical abstract figure" in problem for problem in problems), problems
+
+
+def test_a_figure_whose_axis_is_renamed_is_reported_rather_than_skipped(workspace: Path) -> None:
     """A guard that quietly finds nothing to check is worse than no guard."""
 
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    paper.write_text(text.replace("\\label{fig:taxonomy}", "\\label{fig:elsewhere}"), "utf-8")
+    assert "name=taxonomy" in text
+    paper.write_text(text.replace("name=taxonomy", "name=elsewhere"), "utf-8")
+    supplement = workspace / "paper" / "supplement.tex"
+    if supplement.is_file():
+        supplement.write_text(
+            supplement.read_text(encoding="utf-8").replace("name=taxonomy", "name=elsewhere"),
+            "utf-8",
+        )
 
     problems = checker.check(paper, workspace / "docs")
 
