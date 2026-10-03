@@ -18,17 +18,17 @@
           "worst_absolute_error": 0.6364
         },
         {
-          "mean_absolute_error": 0.1081,
-          "method": "sampled, 20000 draws, seed 0",
+          "mean_absolute_error": 0.1076,
+          "method": "exact over 319770 samples",
           "sample_size": 8,
-          "share_off_by_over_10_points": 0.6516,
-          "worst_absolute_error": 0.5114
+          "share_off_by_over_10_points": 0.6494,
+          "worst_absolute_error": 0.6364
         },
         {
-          "mean_absolute_error": 0.0793,
-          "method": "sampled, 20000 draws, seed 0",
+          "mean_absolute_error": 0.0788,
+          "method": "exact over 646646 samples",
           "sample_size": 12,
-          "share_off_by_over_10_points": 0.3841,
+          "share_off_by_over_10_points": 0.3777,
           "worst_absolute_error": 0.3636
         },
         {
@@ -65,17 +65,17 @@
           "worst_absolute_error": 0.6364
         },
         {
-          "mean_absolute_error": 0.1078,
-          "method": "sampled, 20000 draws, seed 0",
+          "mean_absolute_error": 0.1076,
+          "method": "exact over 319770 samples",
           "sample_size": 8,
-          "share_off_by_over_10_points": 0.6501,
-          "worst_absolute_error": 0.5114
+          "share_off_by_over_10_points": 0.6494,
+          "worst_absolute_error": 0.6364
         },
         {
-          "mean_absolute_error": 0.0794,
-          "method": "sampled, 20000 draws, seed 0",
+          "mean_absolute_error": 0.0788,
+          "method": "exact over 646646 samples",
           "sample_size": 12,
-          "share_off_by_over_10_points": 0.3819,
+          "share_off_by_over_10_points": 0.3777,
           "worst_absolute_error": 0.3636
         },
         {
@@ -113,14 +113,14 @@
         },
         {
           "mean_absolute_error": 0.0,
-          "method": "sampled, 20000 draws, seed 0",
+          "method": "exact over 319770 samples",
           "sample_size": 8,
           "share_off_by_over_10_points": 0.0,
           "worst_absolute_error": 0.0
         },
         {
           "mean_absolute_error": 0.0,
-          "method": "sampled, 20000 draws, seed 0",
+          "method": "exact over 646646 samples",
           "sample_size": 12,
           "share_off_by_over_10_points": 0.0,
           "worst_absolute_error": 0.0

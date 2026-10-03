@@ -17,6 +17,12 @@ pipeline does, and the error is the equivalent share.
 and extrapolates. Here the true kill set is known, so the sampling error is not simulated
 but computed: over every sample of size k, the mean absolute error and the worst case.
 
+The number of killed mutants in a uniform sample drawn without replacement is
+hypergeometric, so every one of those figures follows exactly from its probability mass, at
+every sample size, with no enumeration cap and no seed. An earlier version enumerated
+samples up to 200,000 combinations and simulated above that, and its simulated rows
+recorded the worst draw seen as the worst case.
+
 Usage:
     python scripts/estimator_comparison.py --policy P --scenarios S [S ...] [--json out]
 """
@@ -25,19 +31,16 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
-import itertools
 import json
-import statistics
+import math
 import sys
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_SIZES = (4, 8, 12, 16, 20)
-# Above this many combinations the exact sampling distribution is estimated instead, with a
-# fixed seed, because enumerating every sample of every size is exponential.
-MAX_EXACT_SAMPLES = 200_000
-SAMPLED_DRAWS = 20_000
+TEN_POINTS = Fraction(1, 10)
 
 
 def _harness() -> Any:
@@ -94,34 +97,29 @@ def sampling_error(killed: list[bool], size: int) -> dict[str, Any]:
     total = len(killed)
     if size >= total:
         return {"sample_size": size, "note": "sample is the whole set", "mean_absolute_error": 0.0}
-    exact = sum(killed) / total
-    combinations = 1
-    for index in range(size):
-        combinations = combinations * (total - index) // (index + 1)
+    hits = sum(killed)
+    exact = Fraction(hits, total)
+    combinations = math.comb(total, size)
 
-    errors: list[float] = []
-    if combinations <= MAX_EXACT_SAMPLES:
-        method = f"exact over {combinations} samples"
-        for sample in itertools.combinations(killed, size):
-            errors.append(abs(sum(sample) / size - exact))
-    else:
-        import random
-
-        method = f"sampled, {SAMPLED_DRAWS} draws, seed 0"
-        generator = random.Random(0)
-        indices = list(range(total))
-        for _ in range(SAMPLED_DRAWS):
-            generator.shuffle(indices)
-            chosen = [killed[index] for index in indices[:size]]
-            errors.append(abs(sum(chosen) / size - exact))
+    # A sample holding x killed mutants occurs in C(hits, x) * C(total - hits, size - x) of
+    # the C(total, size) equally likely samples, and scores x / size. Summing over the
+    # support of x is the same as summing over every sample, in exact arithmetic.
+    mean = Fraction(0)
+    beyond_ten_points = Fraction(0)
+    worst = Fraction(0)
+    for x in range(max(0, size - (total - hits)), min(size, hits) + 1):
+        weight = Fraction(math.comb(hits, x) * math.comb(total - hits, size - x), combinations)
+        error = abs(Fraction(x, size) - exact)
+        mean += weight * error
+        if error > TEN_POINTS:
+            beyond_ten_points += weight
+        worst = max(worst, error)
     return {
         "sample_size": size,
-        "method": method,
-        "mean_absolute_error": round(statistics.fmean(errors), 4),
-        "worst_absolute_error": round(max(errors), 4),
-        "share_off_by_over_10_points": round(
-            sum(1 for error in errors if error > 0.10) / len(errors), 4
-        ),
+        "method": f"exact over {combinations} samples",
+        "mean_absolute_error": round(float(mean), 4),
+        "worst_absolute_error": round(float(worst), 4),
+        "share_off_by_over_10_points": round(float(beyond_ten_points), 4),
     }
 
 
