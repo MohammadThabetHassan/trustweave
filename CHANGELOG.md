@@ -6,6 +6,38 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Added
 
+- `scripts/exact_evaluation_study.py` runs two studies that use exact equivalence as ground
+  truth, under `docs/EXACT_EVALUATION_PROTOCOL.md`, which was written before either ran and
+  whose SHA-256 the script fixes and refuses to run without. On 300 generated policies,
+  recorded in `docs/generated-policy-sample-v1.json`, `docs/suite-strategy-study-v1.json`
+  scores five suite strategies by their exact expected mutation score -- every detection
+  probability in closed form, none sampled: one witness per quotient class detects 91.0% of
+  live mutants in expectation, a random suite of the same size 78.9%, the decision-coverage
+  proxy 44.4%, and the common refinement 100%, on every policy. `docs/review-signal-study-v1.json`
+  scores the diff's own review signals against the same ground truth over 7,400 proposed
+  changes: they route 81.3% of semantic changes to review, raise 1,658 alarms on edits that
+  change no decision, and name 28.9% of weakenings as weakenings. A decision flipped to a
+  stricter one (691 edits) and a default changed to anything but `allow` (401) raise no
+  signal at all.
+- `scripts/third_party_sample.py` draws, pins and measures samples of policy written outside
+  the vendors in four ecosystems: code search sharded by file size, vendor owners, forks,
+  byte-for-byte vendor copies, repeats and the earlier 49 removed, a seeded walk under caps of
+  three files per repository and five per owner, and every kept file verified against the git
+  blob hash the search reported. Each manifest pins its files by repository, path, commit and
+  the SHA-256 of their bytes. 1,500 files from 1,149 repositories: over the files that are
+  policies, Kyverno 78.9% inside (vendor 86.9%), Rego 74.7% (79.7%), IAM 100.0% (100.0%),
+  Cedar 97.4% (100.0%); 101 are policy schemas -- Helm charts, deployment placeholders and
+  templates -- where the vendor Kyverno, IAM and Cedar corpora hold none; and all 220
+  exclusions fall in the three rows of the exclusion taxonomy.
+  `docs/third-party-sample-summary-v1.json` puts each sample beside its vendor row.
+- `proofs/lean` mechanises the core results in Lean 4 with Mathlib: the finite quotient and
+  its |V|^n bound for any combining function, the exact kill criterion, coverage of the common
+  refinement deciding the score, the semantic-mutant equivalence, the general achievability
+  lemma, the prefix bound, and undecidability by reduction from Mathlib's halting problem.
+  An audit file fails the build if any theorem depends on an axiom beyond Lean's standard
+  three. Formalising found three statements of the write-up imprecise; each counterexample is
+  a theorem in the development.
+
 - `scripts/oracle_kyverno.py` and `docs/oracle-kyverno-v1.json` check the Kyverno membership
   adapter against the engine that runs the policies, the behavioural check the write-up had
   listed as unbuilt. Every one of the 237 measured policies has its own suite run under the
@@ -182,6 +214,38 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
+- The Cedar adapter read calls from annotations, string literals and keywords, so 651 of the
+  956 policies it declined in the Cedar archive were declined for an annotation key such as
+  `@id("p1")`, a keyword before a parenthesis such as `in (`, or the text of a string --
+  none of them an operator. It now reads calls from code only: the archive measures 7,192
+  inside and 305 undetermined, every refusal an operator it does not judge (`isEmpty` and the
+  datetime and duration methods). A template, whose `?principal` or `?resource` slot is bound
+  when it is linked, is now a policy schema. The 22-file Cedar row is byte-identical.
+- The IAM adapter called a document with a template placeholder -- Terraform's
+  `${var.bucket}`, CloudFormation's `${AWS::AccountId}`, `{{ ... }}` -- inside; it is a policy
+  schema until a tool renders it. IAM's own policy variables (`${aws:username}` and kin) and
+  angle-bracket placeholders stay literals. The Kyverno adapter called a Helm-templated policy
+  and a file that does not parse inside, because its checks are patterns over text that such
+  a file matches none of; the first is now a schema and the second undetermined. Every vendor
+  artifact either adapter writes is byte-identical after the change.
+- `estimator_comparison.py` enumerated samples up to 200,000 combinations and simulated
+  above that, so its rows at k = 8 and 12 were Monte Carlo and the `worst` field there held
+  the worst draw taken (0.5114 at k = 8, against an exact 0.6364). It now sums the
+  hypergeometric mass: every row is exact, agrees with exhaustive enumeration, and the three
+  formerly exact rows are unchanged.
+- `measure_third_party_policies.py` fetched without `--fail` or retries and counted every
+  failed request as a file that no longer exists, which is how a re-fetch of the 49
+  third-party Kyverno files came to report 18 gone. It now fails on HTTP errors, retries, and
+  records how each failed fetch failed; `--revalidate` regenerates
+  `docs/third-party-kyverno-revalidation-v1.json`, which now verifies all 49 and keeps the
+  superseded run on record. New manifests hash the bytes rather than decoded text.
+- `exclusion_taxonomy.py` matched "reaches outside" before "not a function of its arguments",
+  so a policy reaching a clock or network read through a library rule was counted as a lookup
+  rather than as evaluation-time state. No vendor artifact hits that order -- the vendor
+  taxonomy is byte-identical -- but three third-party Rego modules do.
+- `check_manuscript.py` pins the Cedar archive figures, which the manuscript quoted in four
+  places and nothing checked, the sampling-error paragraph, the Kyverno mutation cap, and the
+  two studies above.
 - The Kyverno adapter left two base-directory policies undetermined that read only the
   request: a parenthesised JMESPath expression opened with the bracket and produced an
   empty variable root, and `regex_replace_all` -- a string filter total on its arguments --

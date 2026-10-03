@@ -127,6 +127,50 @@ python scripts/verify_witness_space.py --json docs/witness-space-verification-v1
 `oracle_rego.py` needs `opa` on `PATH`; `oracle_kyverno.py` needs `kyverno` on `PATH` and
 the corpus checkout `docs/fragment-membership-kyverno-wide-v1.json` records.
 
+The sampling-error rows of `docs/estimator-comparison-v1.json` are exact at every sample
+size: the script sums the hypergeometric mass rather than enumerating or simulating samples.
+
+```bash
+python scripts/estimator_comparison.py --policy policies/default-policy.json \
+  --scenarios scenarios/default-scenarios.json scenarios/adversarial-scenarios.json \
+  scenarios/coverage-matrix-scenarios.json --json docs/estimator-comparison-v1.json
+```
+
+### 4a. The two studies that use exact equivalence as ground truth
+
+Both run under [`EXACT_EVALUATION_PROTOCOL.md`](EXACT_EVALUATION_PROTOCOL.md), whose hash the
+script fixes and checks; they need no corpus and no network.
+
+```bash
+python scripts/exact_evaluation_study.py sample --json docs/generated-policy-sample-v1.json
+python scripts/exact_evaluation_study.py suites \
+  --sample docs/generated-policy-sample-v1.json --json docs/suite-strategy-study-v1.json
+python scripts/exact_evaluation_study.py review \
+  --sample docs/generated-policy-sample-v1.json --json docs/review-signal-study-v1.json
+```
+
+### 4b. The samples of policy written outside the vendors
+
+Drawing a sample needs GitHub code search and is not repeatable, which is why nothing
+depends on repeating it: each manifest pins every file by repository, path, commit and the
+SHA-256 of its bytes. Measuring re-fetches exactly those files and refuses any that changed.
+
+```bash
+# measure a pinned sample (Kyverno, IAM and Cedar are judged one file at a time)
+python scripts/measure_third_party_policies.py \
+  --corpus docs/third-party-sample-kyverno-corpus-v1.json \
+  --json docs/third-party-sample-kyverno-membership-v1.json
+# Rego is judged with each repository's whole bundle, checked out at the pinned commit
+python scripts/third_party_sample.py measure-rego \
+  --corpus docs/third-party-sample-rego-corpus-v1.json --work /tmp/rego-bundles \
+  --json docs/third-party-sample-rego-membership-v1.json
+# the table beside the vendor rows
+python scripts/third_party_sample.py summarise --json docs/third-party-sample-summary-v1.json
+# re-fetch the original 49 and say how any failure failed
+python scripts/measure_third_party_policies.py --revalidate \
+  --json docs/third-party-kyverno-revalidation-v1.json
+```
+
 ### 5. The whole gate
 
 ```bash
@@ -146,10 +190,12 @@ python scripts/mutation_gate.py --help   # the survivor gate CI gives its own jo
   authors supplied removed (`docs/oracle-kyverno-v1.json`). Cedar ships a command-line
   evaluator that could support the same check; that is future work, not an impossibility,
   and the write-up says so.
-- **The third-party Kyverno corpus decays.** Its 49 files were sha256-verified when
-  collected; re-fetching them later found 18 no longer available, from repositories renamed,
-  deleted, or rewritten. `docs/third-party-kyverno-revalidation-v1.json` records that, and
-  the measurement rests on the verification done at collection time.
+- **A third-party corpus can decay.** Its files live in repositories nobody here controls.
+  An earlier re-fetch of the 49 Kyverno files reported 18 gone; it counted every failed
+  request as a missing file, and a re-fetch with retries verified all 49
+  (`docs/third-party-kyverno-revalidation-v1.json` records both runs). Every sample
+  manifest can be re-checked the same way, and a file that has gone is reported with how its
+  fetch failed rather than silently dropped.
 - **57 Azure definitions are declined rather than judged.** They name a Gatekeeper
   ConstraintTemplate at an HTTPS URL, so their guard is a Rego program the definition does not
   contain, and an offline procedure has nothing to read. The URL is recorded in the artifact,
