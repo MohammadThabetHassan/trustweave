@@ -1,0 +1,21 @@
+name = "TrustweaveLean"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["TrustweaveLean"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+# The Mathlib header linter asks for a Mathlib-style copyright block; these files are not
+# part of Mathlib, so that one style check is switched off.
+weak.linter.style.header = false
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.34.1"
+
+[[lean_lib]]
+name = "TrustweaveLean"
