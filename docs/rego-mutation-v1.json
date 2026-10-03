@@ -4,20 +4,18 @@
   "shared_libraries": 42,
   "policies_scored": 48,
   "policies_skipped": [],
-  "mutants_applied": 625,
-  "mutants_killed": 475,
-  "overall_mutation_score": 0.76,
+  "mutants_applied": 558,
+  "mutants_killed": 472,
+  "overall_mutation_score": 0.8459,
   "detail": [
     {
       "policy": "allow-privilege-escalation",
-      "mutants_applied": 8,
+      "mutants_applied": 7,
       "mutants_unparsed": 0,
       "killed": 7,
-      "survived": 1,
-      "mutation_score": 0.875,
-      "survivors": [
-        "L13:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "allowedrepos",
@@ -43,15 +41,14 @@
     },
     {
       "policy": "apparmor",
-      "mutants_applied": 11,
+      "mutants_applied": 10,
       "mutants_unparsed": 0,
       "killed": 8,
-      "survived": 3,
-      "mutation_score": 0.7273,
+      "survived": 2,
+      "mutation_score": 0.8,
       "survivors": [
         "L46:==->!=",
-        "L51:==->!=",
-        "L9:drop-not"
+        "L51:==->!="
       ]
     },
     {
@@ -65,78 +62,63 @@
     },
     {
       "policy": "block-endpoint-edit-default-role",
-      "mutants_applied": 8,
+      "mutants_applied": 5,
       "mutants_unparsed": 0,
       "killed": 5,
-      "survived": 3,
-      "mutation_score": 0.625,
-      "survivors": [
-        "L6:<-><=",
-        "L6:drop-not",
-        "L6:false->true"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "block-loadbalancer-services",
-      "mutants_applied": 3,
+      "mutants_applied": 2,
       "mutants_unparsed": 0,
       "killed": 2,
-      "survived": 1,
-      "mutation_score": 0.6667,
-      "survivors": [
-        "L6:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "block-nodeport-services",
-      "mutants_applied": 3,
+      "mutants_applied": 2,
       "mutants_unparsed": 0,
       "killed": 2,
-      "survived": 1,
-      "mutation_score": 0.6667,
-      "survivors": [
-        "L6:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "block-wildcard-ingress",
-      "mutants_applied": 5,
+      "mutants_applied": 4,
       "mutants_unparsed": 0,
       "killed": 4,
-      "survived": 1,
-      "mutation_score": 0.8,
-      "survivors": [
-        "L16:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "capabilities",
-      "mutants_applied": 23,
+      "mutants_applied": 20,
       "mutants_unparsed": 0,
       "killed": 15,
-      "survived": 8,
-      "mutation_score": 0.6522,
+      "survived": 5,
+      "mutation_score": 0.75,
       "survivors": [
-        "L21:drop-not",
-        "L37:drop-not",
         "L41:drop-not",
         "L43:drop-not",
         "L49:drop-not",
         "L51:drop-not",
-        "L53:drop-not",
         "L77:false->true"
       ]
     },
     {
       "policy": "containerlimits",
-      "mutants_applied": 50,
+      "mutants_applied": 48,
       "mutants_unparsed": 0,
       "killed": 40,
-      "survived": 10,
-      "mutation_score": 0.8,
+      "survived": 8,
+      "mutation_score": 0.8333,
       "survivors": [
-        "L144:drop-not",
-        "L152:drop-not",
         "L157:drop-not",
         "L203:>->>=",
         "L32:true->false",
@@ -149,14 +131,12 @@
     },
     {
       "policy": "containerrequests",
-      "mutants_applied": 47,
+      "mutants_applied": 45,
       "mutants_unparsed": 0,
       "killed": 37,
-      "survived": 10,
-      "mutation_score": 0.7872,
+      "survived": 8,
+      "mutation_score": 0.8222,
       "survivors": [
-        "L143:drop-not",
-        "L151:drop-not",
         "L156:drop-not",
         "L200:>->>=",
         "L32:true->false",
@@ -169,17 +149,13 @@
     },
     {
       "policy": "containerresourceratios",
-      "mutants_applied": 59,
+      "mutants_applied": 55,
       "mutants_unparsed": 0,
       "killed": 38,
-      "survived": 21,
-      "mutation_score": 0.6441,
+      "survived": 17,
+      "mutation_score": 0.6909,
       "survivors": [
         "L103:>->>=",
-        "L150:drop-not",
-        "L158:drop-not",
-        "L166:drop-not",
-        "L174:drop-not",
         "L179:drop-not",
         "L39:true->false",
         "L42:true->false",
@@ -194,31 +170,27 @@
         "L77:true->false",
         "L80:true->false",
         "L89:>->>=",
-        "L96:>->>="
+        "L96:>->>=",
+        "L9:true->false"
       ]
     },
     {
       "policy": "containerresources",
-      "mutants_applied": 6,
+      "mutants_applied": 4,
       "mutants_unparsed": 0,
       "killed": 4,
-      "survived": 2,
-      "mutation_score": 0.6667,
-      "survivors": [
-        "L20:drop-not",
-        "L30:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "disallowanonymous",
-      "mutants_applied": 6,
+      "mutants_applied": 5,
       "mutants_unparsed": 0,
       "killed": 5,
-      "survived": 1,
-      "mutation_score": 0.8333,
-      "survivors": [
-        "L32:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "disallowedtags",
@@ -231,25 +203,22 @@
     },
     {
       "policy": "disallowinteractive",
-      "mutants_applied": 9,
+      "mutants_applied": 8,
       "mutants_unparsed": 0,
       "killed": 8,
-      "survived": 1,
-      "mutation_score": 0.8889,
-      "survivors": [
-        "L9:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "ephemeralstoragelimit",
-      "mutants_applied": 41,
+      "mutants_applied": 40,
       "mutants_unparsed": 0,
       "killed": 22,
-      "survived": 19,
-      "mutation_score": 0.5366,
+      "survived": 18,
+      "mutation_score": 0.55,
       "survivors": [
         "L10:true->false",
-        "L134:drop-not",
         "L139:drop-not",
         "L14:true->false",
         "L165:>->>=",
@@ -280,36 +249,30 @@
     },
     {
       "policy": "flexvolume-drivers",
-      "mutants_applied": 5,
+      "mutants_applied": 4,
       "mutants_unparsed": 0,
       "killed": 4,
-      "survived": 1,
-      "mutation_score": 0.8,
-      "survivors": [
-        "L11:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "forbidden-sysctls",
-      "mutants_applied": 11,
+      "mutants_applied": 9,
       "mutants_unparsed": 0,
       "killed": 9,
-      "survived": 2,
-      "mutation_score": 0.8182,
-      "survivors": [
-        "L12:drop-not",
-        "L21:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "fsgroup",
-      "mutants_applied": 15,
+      "mutants_applied": 14,
       "mutants_unparsed": 0,
       "killed": 11,
-      "survived": 4,
-      "mutation_score": 0.7333,
+      "survived": 3,
+      "mutation_score": 0.7857,
       "survivors": [
-        "L11:drop-not",
         "L22:>->>=",
         "L40:>->>=",
         "L45:<=-><"
@@ -317,49 +280,43 @@
     },
     {
       "policy": "horizontalpodautoscaler",
-      "mutants_applied": 12,
+      "mutants_applied": 10,
       "mutants_unparsed": 0,
       "killed": 9,
-      "survived": 3,
-      "mutation_score": 0.75,
+      "survived": 1,
+      "mutation_score": 0.9,
       "survivors": [
-        "L26:drop-not",
-        "L30:>->>=",
-        "L8:drop-not"
+        "L30:>->>="
       ]
     },
     {
       "policy": "host-filesystem",
-      "mutants_applied": 18,
+      "mutants_applied": 17,
       "mutants_unparsed": 0,
       "killed": 16,
-      "survived": 2,
-      "mutation_score": 0.8889,
+      "survived": 1,
+      "mutation_score": 0.9412,
       "survivors": [
-        "L12:drop-not",
         "L77:<-><="
       ]
     },
     {
       "policy": "host-namespaces",
-      "mutants_applied": 2,
+      "mutants_applied": 1,
       "mutants_unparsed": 0,
       "killed": 1,
-      "survived": 1,
-      "mutation_score": 0.5,
-      "survivors": [
-        "L10:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "host-network-ports",
-      "mutants_applied": 8,
+      "mutants_applied": 7,
       "mutants_unparsed": 0,
       "killed": 4,
-      "survived": 4,
-      "mutation_score": 0.5,
+      "survived": 3,
+      "mutation_score": 0.5714,
       "survivors": [
-        "L11:drop-not",
         "L21:<-><=",
         "L26:>->>=",
         "L41:drop-not"
@@ -380,28 +337,22 @@
     },
     {
       "policy": "host-process",
-      "mutants_applied": 10,
+      "mutants_applied": 7,
       "mutants_unparsed": 0,
       "killed": 7,
-      "survived": 3,
-      "mutation_score": 0.7,
-      "survivors": [
-        "L12:drop-not",
-        "L22:drop-not",
-        "L22:true->false"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "httpsonly",
-      "mutants_applied": 17,
+      "mutants_applied": 13,
       "mutants_unparsed": 0,
-      "killed": 14,
-      "survived": 3,
-      "mutation_score": 0.8235,
+      "killed": 12,
+      "survived": 1,
+      "mutation_score": 0.9231,
       "survivors": [
-        "L18:false->true",
-        "L23:>->>=",
-        "L9:false->true"
+        "L23:>->>="
       ]
     },
     {
@@ -418,44 +369,39 @@
     },
     {
       "policy": "noupdateserviceaccount",
-      "mutants_applied": 18,
+      "mutants_applied": 17,
       "mutants_unparsed": 0,
-      "killed": 18,
+      "killed": 17,
       "survived": 0,
       "mutation_score": 1.0,
       "survivors": []
     },
     {
       "policy": "poddisruptionbudget",
-      "mutants_applied": 9,
+      "mutants_applied": 8,
       "mutants_unparsed": 0,
       "killed": 8,
-      "survived": 1,
-      "mutation_score": 0.8889,
-      "survivors": [
-        "L39:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "privileged-containers",
-      "mutants_applied": 3,
+      "mutants_applied": 2,
       "mutants_unparsed": 0,
       "killed": 2,
-      "survived": 1,
-      "mutation_score": 0.6667,
-      "survivors": [
-        "L13:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "proc-mount",
-      "mutants_applied": 15,
+      "mutants_applied": 14,
       "mutants_unparsed": 0,
       "killed": 13,
-      "survived": 2,
-      "mutation_score": 0.8667,
+      "survived": 1,
+      "mutation_score": 0.9286,
       "survivors": [
-        "L14:drop-not",
         "L35:!=->=="
       ]
     },
@@ -470,37 +416,32 @@
     },
     {
       "policy": "replicalimits",
-      "mutants_applied": 5,
+      "mutants_applied": 4,
       "mutants_unparsed": 0,
       "killed": 3,
-      "survived": 2,
-      "mutation_score": 0.6,
+      "survived": 1,
+      "mutation_score": 0.75,
       "survivors": [
-        "L14:>->>=",
-        "L9:drop-not"
+        "L14:>->>="
       ]
     },
     {
       "policy": "requiredannotations",
-      "mutants_applied": 5,
+      "mutants_applied": 4,
       "mutants_unparsed": 0,
       "killed": 4,
-      "survived": 1,
-      "mutation_score": 0.8,
-      "survivors": [
-        "L17:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "requiredlabels",
-      "mutants_applied": 6,
+      "mutants_applied": 5,
       "mutants_unparsed": 0,
       "killed": 5,
-      "survived": 1,
-      "mutation_score": 0.8333,
-      "survivors": [
-        "L25:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "requiredprobes",
@@ -513,66 +454,46 @@
     },
     {
       "policy": "seccomp",
-      "mutants_applied": 31,
+      "mutants_applied": 29,
       "mutants_unparsed": 0,
       "killed": 25,
-      "survived": 6,
-      "mutation_score": 0.8065,
+      "survived": 4,
+      "mutation_score": 0.8621,
       "survivors": [
-        "L102:drop-not",
         "L138:==->!=",
         "L141:==->!=",
-        "L20:drop-not",
         "L28:==->!=",
         "L32:==->!="
       ]
     },
     {
       "policy": "seccompv2",
-      "mutants_applied": 21,
+      "mutants_applied": 18,
       "mutants_unparsed": 0,
       "killed": 18,
-      "survived": 3,
-      "mutation_score": 0.8571,
-      "survivors": [
-        "L17:drop-not",
-        "L22:drop-not",
-        "L88:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "selinux",
-      "mutants_applied": 10,
+      "mutants_applied": 8,
       "mutants_unparsed": 0,
       "killed": 8,
-      "survived": 2,
-      "mutation_score": 0.8,
-      "survivors": [
-        "L13:drop-not",
-        "L24:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "storageclass",
-      "mutants_applied": 27,
+      "mutants_applied": 16,
       "mutants_unparsed": 0,
       "killed": 14,
-      "survived": 13,
-      "mutation_score": 0.5185,
+      "survived": 2,
+      "mutation_score": 0.875,
       "survivors": [
-        "L104:drop-not",
-        "L110:drop-not",
-        "L15:drop-not",
-        "L33:drop-not",
         "L35:==->!=",
-        "L40:drop-not",
-        "L42:!=->==",
-        "L49:drop-not",
-        "L57:drop-not",
-        "L63:drop-not",
-        "L76:drop-not",
-        "L86:drop-not",
-        "L94:drop-not"
+        "L42:!=->=="
       ]
     },
     {
@@ -595,14 +516,12 @@
     },
     {
       "policy": "users",
-      "mutants_applied": 22,
+      "mutants_applied": 21,
       "mutants_unparsed": 0,
       "killed": 21,
-      "survived": 1,
-      "mutation_score": 0.9545,
-      "survivors": [
-        "L47:!=->=="
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     },
     {
       "policy": "verifydeprecatedapi",
@@ -620,14 +539,12 @@
     },
     {
       "policy": "volumes",
-      "mutants_applied": 6,
+      "mutants_applied": 5,
       "mutants_unparsed": 0,
       "killed": 5,
-      "survived": 1,
-      "mutation_score": 0.8333,
-      "survivors": [
-        "L12:drop-not"
-      ]
+      "survived": 0,
+      "mutation_score": 1.0,
+      "survivors": []
     }
   ],
   "predictive_validity": {
@@ -640,7 +557,7 @@
     },
     "covered": {
       "count": 47,
-      "min_mutation_score": 0.5,
+      "min_mutation_score": 0.55,
       "max_mutation_score": 1.0
     },
     "flagged_suites_rank_lowest": true,
@@ -649,7 +566,7 @@
       {
         "policy": "allow-privilege-escalation",
         "blind": false,
-        "mutation_score": 0.875
+        "mutation_score": 1.0
       },
       {
         "policy": "allowedrepos",
@@ -664,7 +581,7 @@
       {
         "policy": "apparmor",
         "blind": false,
-        "mutation_score": 0.7273
+        "mutation_score": 0.8
       },
       {
         "policy": "automount-serviceaccount-token",
@@ -674,52 +591,52 @@
       {
         "policy": "block-endpoint-edit-default-role",
         "blind": false,
-        "mutation_score": 0.625
+        "mutation_score": 1.0
       },
       {
         "policy": "block-loadbalancer-services",
         "blind": false,
-        "mutation_score": 0.6667
+        "mutation_score": 1.0
       },
       {
         "policy": "block-nodeport-services",
         "blind": false,
-        "mutation_score": 0.6667
+        "mutation_score": 1.0
       },
       {
         "policy": "block-wildcard-ingress",
         "blind": false,
-        "mutation_score": 0.8
+        "mutation_score": 1.0
       },
       {
         "policy": "capabilities",
         "blind": false,
-        "mutation_score": 0.6522
+        "mutation_score": 0.75
       },
       {
         "policy": "containerlimits",
         "blind": false,
-        "mutation_score": 0.8
+        "mutation_score": 0.8333
       },
       {
         "policy": "containerrequests",
         "blind": false,
-        "mutation_score": 0.7872
+        "mutation_score": 0.8222
       },
       {
         "policy": "containerresourceratios",
         "blind": false,
-        "mutation_score": 0.6441
+        "mutation_score": 0.6909
       },
       {
         "policy": "containerresources",
         "blind": false,
-        "mutation_score": 0.6667
+        "mutation_score": 1.0
       },
       {
         "policy": "disallowanonymous",
         "blind": false,
-        "mutation_score": 0.8333
+        "mutation_score": 1.0
       },
       {
         "policy": "disallowedtags",
@@ -729,12 +646,12 @@
       {
         "policy": "disallowinteractive",
         "blind": false,
-        "mutation_score": 0.8889
+        "mutation_score": 1.0
       },
       {
         "policy": "ephemeralstoragelimit",
         "blind": false,
-        "mutation_score": 0.5366
+        "mutation_score": 0.55
       },
       {
         "policy": "externalip",
@@ -744,37 +661,37 @@
       {
         "policy": "flexvolume-drivers",
         "blind": false,
-        "mutation_score": 0.8
+        "mutation_score": 1.0
       },
       {
         "policy": "forbidden-sysctls",
         "blind": false,
-        "mutation_score": 0.8182
+        "mutation_score": 1.0
       },
       {
         "policy": "fsgroup",
         "blind": false,
-        "mutation_score": 0.7333
+        "mutation_score": 0.7857
       },
       {
         "policy": "horizontalpodautoscaler",
         "blind": false,
-        "mutation_score": 0.75
+        "mutation_score": 0.9
       },
       {
         "policy": "host-filesystem",
         "blind": false,
-        "mutation_score": 0.8889
+        "mutation_score": 0.9412
       },
       {
         "policy": "host-namespaces",
         "blind": false,
-        "mutation_score": 0.5
+        "mutation_score": 1.0
       },
       {
         "policy": "host-network-ports",
         "blind": false,
-        "mutation_score": 0.5
+        "mutation_score": 0.5714
       },
       {
         "policy": "host-probes-lifecycle",
@@ -784,12 +701,12 @@
       {
         "policy": "host-process",
         "blind": false,
-        "mutation_score": 0.7
+        "mutation_score": 1.0
       },
       {
         "policy": "httpsonly",
         "blind": false,
-        "mutation_score": 0.8235
+        "mutation_score": 0.9231
       },
       {
         "policy": "imagedigests",
@@ -804,17 +721,17 @@
       {
         "policy": "poddisruptionbudget",
         "blind": false,
-        "mutation_score": 0.8889
+        "mutation_score": 1.0
       },
       {
         "policy": "privileged-containers",
         "blind": false,
-        "mutation_score": 0.6667
+        "mutation_score": 1.0
       },
       {
         "policy": "proc-mount",
         "blind": false,
-        "mutation_score": 0.8667
+        "mutation_score": 0.9286
       },
       {
         "policy": "read-only-root-filesystem",
@@ -824,17 +741,17 @@
       {
         "policy": "replicalimits",
         "blind": false,
-        "mutation_score": 0.6
+        "mutation_score": 0.75
       },
       {
         "policy": "requiredannotations",
         "blind": false,
-        "mutation_score": 0.8
+        "mutation_score": 1.0
       },
       {
         "policy": "requiredlabels",
         "blind": false,
-        "mutation_score": 0.8333
+        "mutation_score": 1.0
       },
       {
         "policy": "requiredprobes",
@@ -844,22 +761,22 @@
       {
         "policy": "seccomp",
         "blind": false,
-        "mutation_score": 0.8065
+        "mutation_score": 0.8621
       },
       {
         "policy": "seccompv2",
         "blind": false,
-        "mutation_score": 0.8571
+        "mutation_score": 1.0
       },
       {
         "policy": "selinux",
         "blind": false,
-        "mutation_score": 0.8
+        "mutation_score": 1.0
       },
       {
         "policy": "storageclass",
         "blind": false,
-        "mutation_score": 0.5185
+        "mutation_score": 0.875
       },
       {
         "policy": "uniqueingresshost",
@@ -874,7 +791,7 @@
       {
         "policy": "users",
         "blind": false,
-        "mutation_score": 0.9545
+        "mutation_score": 1.0
       },
       {
         "policy": "verifydeprecatedapi",
@@ -884,7 +801,7 @@
       {
         "policy": "volumes",
         "blind": false,
-        "mutation_score": 0.8333
+        "mutation_score": 1.0
       }
     ]
   }

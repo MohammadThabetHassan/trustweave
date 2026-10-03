@@ -229,6 +229,11 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ### Fixed
 
+- `docs/rego-mutation-v1.json` was stale: it predated the fix that stopped `rego_mutation.py`
+  mutating operators inside string literals (67 such mutants, mostly `sprintf` format text),
+  so it reported 625 mutants and a 0.76 score where the current code produces 558 and 0.85.
+  Regenerated from the pinned corpus, and `docs/SUITE_COVERAGE_STUDY.md` updated to match; the
+  decision-blindness prediction is unchanged (the one blind suite still scores lowest, p = 0.021).
 - The Cedar adapter read calls from annotations, string literals and keywords, so 651 of the
   956 policies it declined in the Cedar archive were declined for an annotation key such as
   `@id("p1")`, a keyword before a parenthesis such as `in (`, or the text of a string --
