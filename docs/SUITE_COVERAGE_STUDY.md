@@ -133,14 +133,14 @@ empirical: when it calls a suite blind, does that suite actually miss more fault
 `scripts/rego_mutation.py` answers it directly. It mutates each Gatekeeper policy with
 single syntax-preserving edits -- flipping a comparison, dropping a negation, flipping a
 boolean -- and runs that policy's own suite against every mutant. 48 of 49 policies scored,
-625 mutants applied, 475 killed, an overall mutation score of 0.76.
+558 mutants applied, 472 killed, an overall mutation score of 0.85.
 
 Joined against the decision-coverage verdict for the same policies:
 
 | | Policies | Mutation score |
 |---|---|---|
 | Decision-blind | 1 | 0.00 |
-| Decision-covered | 47 | 0.50 - 1.00 (median 0.80) |
+| Decision-covered | 47 | 0.55 - 1.00 (median 1.00) |
 
 **The one suite the measure flagged catches none of its four mutants, and is the only zero
 in the corpus.** Under the null hypothesis that blindness is unrelated to detection, the
@@ -148,9 +148,9 @@ chance that the flagged suite lands lowest of 48 is 1/48, p = 0.021. So the meas
 prediction on this corpus was correct, and correct at conventional significance.
 
 That is a narrow claim and the second half of the table is why. Decision coverage here is
-*saturated*: 47 of 48 suites achieve it, while their mutation scores range from 0.50 to
-1.00. The measure is silent about every suite in that range, including several that miss
-half their mutants. In a binary decision domain it makes almost no predictions -- so it
+*saturated*: 47 of 48 suites achieve it, while their mutation scores range from 0.55 to
+1.00. The measure is silent about every suite in that range, including some that miss a
+quarter or more of their mutants. In a binary decision domain it makes almost no predictions -- so it
 cannot substitute for mutation testing there, and a project running both would learn almost
 nothing from the first.
 
@@ -161,7 +161,7 @@ measure earns its keep as the decision structure grows, and this corpus is the w
 to see that happen.
 
 Two limits are worth stating plainly, and both are consequences of leaving the fragment.
-Survivors cannot be separated from equivalent mutants, so 0.76 is a lower bound on suite
+Survivors cannot be separated from equivalent mutants, so 0.85 is a lower bound on suite
 quality rather than an exact figure -- which is precisely what the fragment buys and Rego
 does not. And the operator set is syntactic, so the number measures these suites against
 these edits, not against all faults.
