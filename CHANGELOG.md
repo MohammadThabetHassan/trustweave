@@ -40,6 +40,16 @@ All notable changes to TrustWeave are documented in this file. The project follo
   (`docs/cedar-suite-strategy-study-v1.json`, deviations recorded in it). Of 43 real
   earlier-version edits, 24 change a decision and 21 of those weaken one
   (`docs/cedar-real-edits-v1.json`).
+- `scripts/rego_suite_study.py` and `scripts/rego_source_mutation.py` measure what a real
+  policy suite's line coverage is worth, under `docs/SUITE_ADEQUACY_PROTOCOL_REGO.md` (hash
+  fixed in the script): on the 49 OPA Gatekeeper modules that ship an author-written suite, the
+  line coverage `opa test --coverage` reports against the fraction of the module's mutants the
+  same suite kills, every number from the engine. The suites reach 93.8% mean line coverage but
+  kill 70.6% of mutants, a 23.2-point gap concentrated in value-level faults
+  (`docs/rego-suite-adequacy-v1.json`). `rego_source_mutation.py` locates each edit through
+  `opa parse`, a distinct and richer operator set than `rego_mutation.py`'s fixed-text one
+  (it adds deleted rules, dropped conditions and replaced literals, and never edits inside a
+  string literal); the two studies measure different things and are reported separately.
 - `third_party_sample.py oracle-rego` checks the sampled Rego modules against `opa deps`, each
   compiled with its whole repository: 150 agree, the 6 that do not all share their package with
   other files (the engine answers for a package, the adapter for a file), and for 144 the
