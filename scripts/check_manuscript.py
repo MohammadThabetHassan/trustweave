@@ -1897,13 +1897,18 @@ def decomposition_findings(flat: str, docs: Path) -> list[str]:
             "the manuscript no longer decomposes the equivalent mutants by mechanism; "
             "the pattern that pinned that decomposition matches nothing"
         ]
-    if sum(counts) != equivalent:
-        return [
-            f"the worked example's mechanisms account for {sum(counts)} equivalent mutants "
-            f"({' + '.join(str(count) for count in counts)}) where the artifact reports "
-            f"{equivalent}"
-        ]
-    return []
+    # A paper split in two may state the decomposition in both files; every statement must
+    # carry the same counts, and one copy must sum to the artifact's figure.
+    for length in range(1, len(counts) + 1):
+        if len(counts) % length == 0 and counts == counts[:length] * (len(counts) // length):
+            if sum(counts[:length]) == equivalent:
+                return []
+            break
+    return [
+        f"the worked example's mechanisms account for {sum(counts)} equivalent mutants "
+        f"({' + '.join(str(count) for count in counts)}) where the artifact reports "
+        f"{equivalent}"
+    ]
 
 
 def corpus_findings(bib: str, docs: Path) -> list[str]:
