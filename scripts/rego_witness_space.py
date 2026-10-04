@@ -191,6 +191,12 @@ class Analyzer:
         self.hints: dict[tuple[Any, ...], set[tuple[Any, ...]]] = defaultdict(set)
         self.read: set[tuple[Any, ...]] = set()
         self.links: set[frozenset[tuple[Any, ...]]] = set()
+        # The guards themselves, for the quotient: each path's atoms with their operator and the
+        # order of their operands, and the paths whose atoms no expression here can restate
+        # (an unmodelled builtin, or a comparison with another path), which the quotient then
+        # never merges. Nothing the witness space is built from reads these.
+        self.atoms: dict[tuple[Any, ...], set[tuple[Any, ...]]] = defaultdict(set)
+        self.unmerged: set[tuple[Any, ...]] = set()
         self._memo: dict[Any, frozenset[Any]] = {}
         self._stack: list[Any] = []
 
@@ -345,14 +351,61 @@ class Analyzer:
         for item in value:
             if isinstance(item, Path):
                 self._hint(item, ("truthy",))
+                self._atom(item, ("truthy",))
             elif isinstance(item, Derived):
                 for path in item.paths:
                     self._hint(path, ("truthy",))
+                    self._unmerge(path)
 
     def _compare(self, op: str, a: frozenset[Any], b: frozenset[Any]) -> None:
         for x, y in itertools.product(a, b):
             self._compare_one(op, x, y)
             self._compare_one(op, y, x)
+            self._atom_pair(op, x, y)
+
+    _MIRROR = {"lt": "gt", "lte": "gte", "gt": "lt", "gte": "lte", "equal": "equal", "neq": "neq"}
+
+    def _atom_pair(self, op: str, x: Any, y: Any) -> None:
+        """The atom `x op y`, kept on the path it reads with the operand order it has."""
+
+        op = "equal" if op in ("eq", "equal") else op
+        if isinstance(y, Path | Derived) and isinstance(x, Const):
+            x, y, op = y, x, self._MIRROR.get(op, op)
+        if isinstance(x, Coll):
+            for element in x.elements:
+                self._atom_pair(op, element, y)
+            return
+        if isinstance(y, Coll):
+            for element in y.elements:
+                self._atom_pair(op, x, element)
+            return
+        if isinstance(x, Path) and isinstance(y, Const):
+            self._atom(x, ("cmp", op, y.text))
+        elif isinstance(x, Derived) and isinstance(y, Const):
+            for path in x.paths:
+                if x.kind == "count" and isinstance(y.value, (int, float)):
+                    self._atom(path, ("size", op, y.text))
+                elif x.kind in ("lower", "upper") and isinstance(y.value, str):
+                    self._atom(path, ("case", x.kind, op, y.text))
+                else:
+                    self._unmerge(path)
+        elif isinstance(x, KeyOf):
+            self._unmerge(x.path)
+        else:
+            for item in (x, y):
+                if isinstance(item, Path):
+                    self._unmerge(item)
+                elif isinstance(item, Derived):
+                    for path in item.paths:
+                        self._unmerge(path)
+
+    def _atom(self, path: Path, atom: tuple[Any, ...]) -> None:
+        if path.segs and path.segs[0] == "review":
+            self.atoms[path.segs].add(atom)
+
+    def _unmerge(self, path: Path) -> None:
+        if path.segs and path.segs[0] == "review":
+            self.unmerged.add(path.segs)
 
     def _compare_one(self, op: str, x: Any, y: Any) -> None:
         if isinstance(x, Path) and isinstance(y, Const):
@@ -651,6 +704,9 @@ class Analyzer:
             for p in _consts(pattern):
                 for path in _paths(subject):
                     self._hint(path, ("glob" if name == "glob.match" else "regex", p))
+                    self._atom(path, ("glob" if name == "glob.match" else "regex", json.dumps(p)))
+            for path in _paths(pattern):
+                self._unmerge(path)
             return frozenset({const(True), const(False)})
         if name in _PURE_STRING and all(all(isinstance(i, Const) for i in av) and av for av in avs):
             results = set()
@@ -673,12 +729,14 @@ class Analyzer:
         ):
             for path in _paths(avs[0]):
                 self._hint(path, ("type", name))
+                self._atom(path, ("type", name))
             return frozenset({const(True), const(False)})
         paths = frozenset().union(*map(_paths, avs)) if avs else frozenset()
         consts = [c for av in avs for c in av if isinstance(c, Const)]
         for path in paths:
             for c in consts:
                 self._hint(path, ("opaque", c.text))
+            self._unmerge(path)
         return frozenset({Derived("opaque", paths)})
 
     def _flatten(self, av: frozenset[Any]) -> frozenset[Any]:
@@ -708,6 +766,15 @@ class Analyzer:
         return frozenset(out)
 
     def _affix(self, kind: str, subject: frozenset[Any], base: frozenset[Any]) -> None:
+        for item in subject:
+            for value in _consts(base):
+                if isinstance(value, str) and isinstance(item, Path):
+                    self._atom(item, ("affix", kind, json.dumps(value)))
+            if not isinstance(item, Path | Const):
+                for path in _paths(frozenset({item})):
+                    self._unmerge(path)
+        for path in _paths(base):
+            self._unmerge(path)
         for path in _paths(subject):
             for value in _consts(base):
                 if isinstance(value, str):
