@@ -1352,6 +1352,12 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
             "rego exact study: the gaps a realistic review exposes",
         ),
         (
+            r"each of the (\d+) gaps it reports is also killed by a review shaped like the "
+            r"authors' own",
+            (str(realism["gaps"]),),
+            "rego exact study: the realistic gaps, as the threats restate them",
+        ),
+        (
             rf"\\texttt\{{host-filesystem\}} at ({_GROUPED})",
             (_grouped(over_cap[0][0]),),
             "rego exact study: the smallest space over the cap",
