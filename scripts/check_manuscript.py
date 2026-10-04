@@ -2747,8 +2747,8 @@ def _shipped_claims(docs: Path) -> list[Claim]:
             "shipped Constraints: the modules that gain a setting",
         ),
         (
-            r"They hold (\d+) of the (\d+) equivalents that depend on parameters; the other (\d+) "
-            r"are in modules whose only shipped Constraint has no parameters",
+            r"They hold (\d+) of the (\d+) equivalents in modules that read parameters; the other "
+            r"(\d+) are in modules whose only shipped Constraint has no parameters",
             (
                 str(head["in_modules_with_a_new_setting"]),
                 str(head["parameter_relative"]),
