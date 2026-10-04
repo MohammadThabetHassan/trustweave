@@ -58,9 +58,9 @@ def test_affixes_get_a_value_on_each_side_of_the_operator() -> None:
 
 
 def test_every_alternative_of_a_pattern_gets_a_matching_sample() -> None:
-    pattern = "^(extensions|networking.k8s.io)/"
+    pattern = r"^(extensions|networking\.k8s\.io)/"
     samples = space.regex_samples(pattern)
-    assert len(samples) == 2
+    assert sorted(samples) == ["extensions/", "networking.k8s.io/"]
     assert all(re.match(pattern, sample) for sample in samples)
 
 

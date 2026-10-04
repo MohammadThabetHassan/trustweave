@@ -1,0 +1,2093 @@
+{
+ "schema_version": "v1",
+ "population_kind": "inside",
+ "protocol_sha256": "afe5723345f67b5d79506ac3543f8e8f495fc6101c5901611375212e32246a91",
+ "engine": "opa 1.20.2",
+ "seed": 20261004,
+ "resamples": 10000,
+ "max_cells": 250000,
+ "draws": 200,
+ "corpus": {
+  "name": "gatekeeper-library",
+  "commit": "e034212e94e666ab3ba69108d96222bffc8ef671"
+ },
+ "development_module": "src/general/httpsonly/src.rego",
+ "population": {
+  "modules": 18,
+  "excluded: an object with 376704 states": 1,
+  "excluded: an object with 671061125 states": 1,
+  "excluded: an object with 971524540 states": 1,
+  "excluded: missing cell": 1,
+  "measured": 14
+ },
+ "headline": {
+  "modules": 13,
+  "mutants": 328,
+  "stillborn": 16,
+  "killed": 247,
+  "killed_stillborn": 16,
+  "suite_equivalent": 54,
+  "distinguishable": 258,
+  "killed_through_decision": 231,
+  "killed_without_a_decision_change": 0,
+  "survivors_suite_study": 81,
+  "survivors_equivalent": 54,
+  "survivors_stillborn": 0,
+  "survivors_real": 27,
+  "share_of_survivors_equivalent": 0.6667,
+  "pooled_raw_score": 0.753,
+  "pooled_exact_score": 0.8953,
+  "mean_raw_score": 0.7447,
+  "mean_exact_score": 0.8982,
+  "mean_difference": 0.1535,
+  "difference_bootstrap_95": [
+   0.1236,
+   0.1805
+  ],
+  "closing_the_gaps_holds_everywhere": true
+ },
+ "with_development_module": {
+  "modules": 14,
+  "mutants": 386,
+  "stillborn": 19,
+  "killed": 294,
+  "killed_stillborn": 19,
+  "suite_equivalent": 60,
+  "distinguishable": 307,
+  "killed_through_decision": 274,
+  "killed_without_a_decision_change": 1,
+  "survivors_suite_study": 92,
+  "survivors_equivalent": 59,
+  "survivors_stillborn": 0,
+  "survivors_real": 33,
+  "share_of_survivors_equivalent": 0.6413,
+  "pooled_raw_score": 0.7617,
+  "pooled_exact_score": 0.8925,
+  "mean_raw_score": 0.7494,
+  "mean_exact_score": 0.8968,
+  "mean_difference": 0.1474,
+  "difference_bootstrap_95": [
+   0.1179,
+   0.1755
+  ],
+  "closing_the_gaps_holds_everywhere": true
+ },
+ "modules": {
+  "src/general/automount-serviceaccount-token/src.rego": {
+   "subject": "src/general/automount-serviceaccount-token/src.rego",
+   "development": false,
+   "authors_inputs": 4,
+   "instantiations": [
+    "absent"
+   ],
+   "mutants": 24,
+   "killed": 18,
+   "stillborn": 3,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 3080,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 21,
+   "suite_equivalent": 2,
+   "distinguishable": 19,
+   "killed_through_decision": 15,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 3,
+   "raw_score": 0.75,
+   "exact_score": 0.7895,
+   "survivors": [
+    {
+     "mutant": 13,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "automountServiceAccountToken": false,
+         "containers": [
+          {
+           "volumeMounts": [
+            {
+             "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+           ]
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 16,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {}
+       }
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 18,
+     "operator": "change a string literal",
+     "detail": "change a string literal",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "tw-mutant": "tw-fresh",
+         "containers": [
+          {
+           "volumeMounts": [
+            {
+             "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+           ]
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 21,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "initContainers": [
+          {
+           "volumeMounts": [
+            {
+             "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+           ]
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 4,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 2
+   },
+   "survivors_suite_study": 6
+  },
+  "src/general/block-endpoint-edit-default-role/src.rego": {
+   "subject": "src/general/block-endpoint-edit-default-role/src.rego",
+   "development": false,
+   "authors_inputs": 5,
+   "instantiations": [
+    "absent"
+   ],
+   "mutants": 31,
+   "killed": 28,
+   "stillborn": 6,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 1,
+     "operator": "flip a comparison",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "rbac.authorization.kubernetes.io/autoupdate": "false"
+         },
+         "name": "system:aggregate-to-edit"
+        },
+        "rules": [
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "pods",
+           "endpoints"
+          ],
+          "verbs": [
+           "patch"
+          ]
+         },
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "services"
+          ],
+          "verbs": [
+           "delete"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "mutant": 2,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "metadata": {},
+         "rules": [
+          {
+           "verbs": [
+            false
+           ]
+          }
+         ]
+        },
+        "rules": [
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "pods",
+           "endpoints"
+          ],
+          "verbs": [
+           "patch"
+          ]
+         },
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "services"
+          ],
+          "verbs": [
+           "delete"
+          ]
+         }
+        ],
+        "tw-extra": "tw-x"
+       }
+      }
+     }
+    },
+    {
+     "mutant": 3,
+     "operator": "negate a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "rbac.authorization.kubernetes.io/autoupdate": "false"
+         },
+         "name": "system:aggregate-to-edit"
+        },
+        "rules": [
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "pods",
+           "endpoints"
+          ],
+          "verbs": [
+           "patch"
+          ]
+         },
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "services"
+          ],
+          "verbs": [
+           "delete"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "mutant": 7,
+     "operator": "change a string literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "rbac.authorization.kubernetes.io/autoupdate": "false"
+         },
+         "name": "system:aggregate-to-edit"
+        },
+        "rules": [
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "pods",
+           "endpoints"
+          ],
+          "verbs": [
+           "patch"
+          ]
+         },
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "services"
+          ],
+          "verbs": [
+           "delete"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "mutant": 10,
+     "operator": "flip a comparison",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "rbac.authorization.kubernetes.io/autoupdate": "false"
+         },
+         "name": "system:aggregate-to-edit"
+        },
+        "rules": [
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "pods"
+          ],
+          "verbs": [
+           "create"
+          ]
+         },
+         {
+          "apiGroups": [
+           ""
+          ],
+          "resources": [
+           "services"
+          ],
+          "verbs": [
+           "delete"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 91,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 5,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/block-loadbalancer-services/src.rego": {
+   "subject": "src/general/block-loadbalancer-services/src.rego",
+   "development": false,
+   "authors_inputs": 2,
+   "instantiations": [
+    "absent"
+   ],
+   "mutants": 11,
+   "killed": 8,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 42,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 11,
+   "suite_equivalent": 2,
+   "distinguishable": 9,
+   "killed_through_decision": 8,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.7273,
+   "exact_score": 0.8889,
+   "survivors": [
+    {
+     "mutant": 2,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "type": "LoadBalancer"
+        }
+       }
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 2
+   },
+   "survivors_suite_study": 3
+  },
+  "src/general/block-nodeport-services/src.rego": {
+   "subject": "src/general/block-nodeport-services/src.rego",
+   "development": false,
+   "authors_inputs": 2,
+   "instantiations": [
+    "absent"
+   ],
+   "mutants": 11,
+   "killed": 8,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 42,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 11,
+   "suite_equivalent": 2,
+   "distinguishable": 9,
+   "killed_through_decision": 8,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.7273,
+   "exact_score": 0.8889,
+   "survivors": [
+    {
+     "mutant": 2,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "type": "NodePort"
+        }
+       }
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 2
+   },
+   "survivors_suite_study": 3
+  },
+  "src/general/block-wildcard-ingress/src.rego": {
+   "subject": "src/general/block-wildcard-ingress/src.rego",
+   "development": false,
+   "authors_inputs": 4,
+   "instantiations": [
+    "absent"
+   ],
+   "mutants": 22,
+   "killed": 19,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 276,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 22,
+   "suite_equivalent": 2,
+   "distinguishable": 20,
+   "killed_through_decision": 19,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.8636,
+   "exact_score": 0.95,
+   "survivors": [
+    {
+     "mutant": 13,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "rules": [
+          {}
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 2
+   },
+   "survivors_suite_study": 3
+  },
+  "src/general/disallowanonymous/src.rego": {
+   "subject": "src/general/disallowanonymous/src.rego",
+   "development": false,
+   "authors_inputs": 43,
+   "instantiations": [
+    {
+     "allowedRoles": [
+      "role-2"
+     ]
+    },
+    {
+     "allowedRoles": [
+      "role-1"
+     ]
+    },
+    {
+     "allowedRoles": [
+      "role-1",
+      "role-2"
+     ]
+    },
+    "absent",
+    {
+     "allowedRoles": [
+      "role-1",
+      "role-3"
+     ]
+    },
+    {
+     "allowedRoles": [],
+     "disallowAuthenticated": false
+    },
+    {
+     "allowedRoles": []
+    },
+    {
+     "allowedRoles": [],
+     "disallowAuthenticated": true
+    }
+   ],
+   "mutants": 34,
+   "killed": 27,
+   "stillborn": 6,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "allowedRoles": [
+       "role-2"
+      ]
+     },
+     "cells": 325,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 10,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedRoles": [
+       "role-1"
+      ]
+     },
+     "cells": 325,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 14,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedRoles": [
+       "role-1",
+       "role-2"
+      ]
+     },
+     "cells": 379,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": "absent",
+     "cells": 163,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedRoles": [
+       "role-1",
+       "role-3"
+      ]
+     },
+     "cells": 379,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedRoles": [],
+      "disallowAuthenticated": false
+     },
+     "cells": 163,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedRoles": []
+     },
+     "cells": 163,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedRoles": [],
+      "disallowAuthenticated": true
+     },
+     "cells": 163,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 28,
+   "suite_equivalent": 5,
+   "distinguishable": 23,
+   "killed_through_decision": 21,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 6,
+   "raw_score": 0.7941,
+   "exact_score": 0.913,
+   "survivors": [
+    {
+     "mutant": 11,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "kind": "tw-fresh",
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "subjects": [
+         {
+          "name": "system:authenticated"
+         }
+        ]
+       }
+      },
+      "parameters": {
+       "allowedRoles": [],
+       "disallowAuthenticated": true
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 15,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "kind": "tw-fresh",
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "roleRef": {}
+       }
+      },
+      "parameters": {
+       "allowedRoles": [],
+       "disallowAuthenticated": true
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 5
+   },
+   "survivors_suite_study": 7
+  },
+  "src/general/disallowinteractive/src.rego": {
+   "subject": "src/general/disallowinteractive/src.rego",
+   "development": false,
+   "authors_inputs": 9,
+   "instantiations": [
+    "absent",
+    {
+     "exemptImages": [
+      "one/*"
+     ]
+    },
+    {
+     "exemptImages": [
+      "one/*",
+      "two/*",
+      "three/*"
+     ]
+    }
+   ],
+   "mutants": 31,
+   "killed": 25,
+   "stillborn": 1,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 1734,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "one/*"
+      ]
+     },
+     "cells": 6054,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "one/*",
+       "two/*",
+       "three/*"
+      ]
+     },
+     "cells": 11238,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 30,
+   "suite_equivalent": 5,
+   "distinguishable": 25,
+   "killed_through_decision": 24,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 1,
+   "raw_score": 0.8065,
+   "exact_score": 0.96,
+   "survivors": [
+    {
+     "mutant": 25,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "tw-fresh",
+           "name": "tw-fresh",
+           "tty": true
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 3,
+    "drop a condition": 2
+   },
+   "survivors_suite_study": 6
+  },
+  "src/general/httpsonly/src.rego": {
+   "subject": "src/general/httpsonly/src.rego",
+   "development": true,
+   "authors_inputs": 12,
+   "instantiations": [
+    "absent",
+    {
+     "tlsOptional": true
+    }
+   ],
+   "mutants": 58,
+   "killed": 47,
+   "stillborn": 3,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 43726,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 7,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "tlsOptional": true
+     },
+     "cells": 43726,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 5,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 55,
+   "suite_equivalent": 6,
+   "distinguishable": 49,
+   "killed_through_decision": 43,
+   "killed_without_a_decision_change": 1,
+   "killed_stillborn": 3,
+   "raw_score": 0.8103,
+   "exact_score": 0.8776,
+   "survivors": [
+    {
+     "mutant": 2,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "extensions/",
+        "metadata": {
+         "name": "tw-fresh"
+        }
+       }
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 4,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "kind": "Ingress",
+        "metadata": {
+         "name": "tw-fresh"
+        }
+       }
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 16,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "extensions/",
+        "metadata": {
+         "name": "tw-fresh"
+        }
+       }
+      },
+      "parameters": {
+       "tlsOptional": true
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 18,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "kind": "Ingress",
+        "metadata": {
+         "name": "tw-fresh"
+        }
+       }
+      },
+      "parameters": {
+       "tlsOptional": true
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 32,
+     "operator": "change a comparison",
+     "detail": "change a comparison's strictness",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "extensions/",
+        "kind": "Ingress",
+        "metadata": {
+         "annotations": {
+          "kubernetes.io/ingress.allow-http": "false"
+         },
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "tls": []
+        }
+       }
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 33,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "extensions/",
+        "kind": "Ingress",
+        "metadata": {
+         "annotations": {
+          "kubernetes.io/ingress.allow-http": "false"
+         },
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "tls": []
+        }
+       }
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 6,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 4,
+    "drop a condition": 2
+   },
+   "survivors_suite_study": 11
+  },
+  "src/general/imagedigests/src.rego": {
+   "subject": "src/general/imagedigests/src.rego",
+   "development": false,
+   "authors_inputs": 16,
+   "instantiations": [
+    "absent",
+    {
+     "exemptImages": [
+      "denied/*"
+     ]
+    }
+   ],
+   "mutants": 24,
+   "killed": 12,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 60,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 14,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "denied/*"
+      ]
+     },
+     "cells": 84,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 24,
+   "suite_equivalent": 6,
+   "distinguishable": 18,
+   "killed_through_decision": 12,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.5,
+   "exact_score": 0.6667,
+   "survivors": [
+    {
+     "mutant": 16,
+     "operator": "delete a rule",
+     "detail": "remove rule violation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "tw-mutant",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 17,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "denied/*",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "exemptImages": [
+        "denied/*"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 18,
+     "operator": "remove a negation",
+     "detail": "remove a negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "tw-mutant",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 19,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "@0+a:A",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 20,
+     "operator": "remove a negation",
+     "detail": "remove a negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "@0+a:A",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 22,
+     "operator": "change a string literal",
+     "detail": "change a string literal",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "@0+a:A",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 6,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 6
+   },
+   "survivors_suite_study": 12
+  },
+  "src/general/noupdateserviceaccount/src.rego": {
+   "subject": "src/general/noupdateserviceaccount/src.rego",
+   "development": false,
+   "authors_inputs": 15,
+   "instantiations": [
+    {},
+    {
+     "allowedGroups": [],
+     "allowedUsers": [
+      "myuser"
+     ]
+    },
+    {
+     "allowedGroups": [
+      "mygroup"
+     ],
+     "allowedUsers": []
+    }
+   ],
+   "mutants": 84,
+   "killed": 74,
+   "stillborn": 3,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 671061125 states",
+   "instantiation_failed": {}
+  },
+  "src/pod-security-policy/allow-privilege-escalation/src.rego": {
+   "subject": "src/pod-security-policy/allow-privilege-escalation/src.rego",
+   "development": false,
+   "authors_inputs": 9,
+   "instantiations": [
+    "absent",
+    {
+     "exemptImages": [
+      "one/*"
+     ]
+    },
+    {
+     "exemptImages": [
+      "one/*",
+      "two/*",
+      "three/*"
+     ]
+    }
+   ],
+   "mutants": 26,
+   "killed": 20,
+   "stillborn": 1,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 2430,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "one/*"
+      ]
+     },
+     "cells": 8430,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "one/*",
+       "two/*",
+       "three/*"
+      ]
+     },
+     "cells": 15630,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 25,
+   "suite_equivalent": 5,
+   "distinguishable": 20,
+   "killed_through_decision": 19,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 1,
+   "raw_score": 0.7692,
+   "exact_score": 0.95,
+   "survivors": [
+    {
+     "mutant": 21,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 3,
+    "delete a rule": 1,
+    "drop a condition": 1
+   },
+   "survivors_suite_study": 6
+  },
+  "src/pod-security-policy/host-filesystem/src.rego": {
+   "subject": "src/pod-security-policy/host-filesystem/src.rego",
+   "development": false,
+   "authors_inputs": 25,
+   "instantiations": [
+    {
+     "allowedHostPaths": [
+      {
+       "pathPrefix": "/tmp",
+       "readOnly": true
+      }
+     ]
+    },
+    {
+     "allowedHostPaths": []
+    },
+    "absent",
+    {
+     "allowedHostPaths": [
+      {
+       "pathPrefix": "/foo"
+      }
+     ]
+    },
+    {
+     "allowedHostPaths": [
+      {
+       "pathPrefix": "/tmp"
+      },
+      {
+       "pathPrefix": "/foo"
+      }
+     ]
+    },
+    null,
+    {
+     "allowedHostPaths": [
+      {
+       "pathPrefix": "/foo",
+       "readOnly": true
+      }
+     ]
+    },
+    {
+     "allowedHostPaths": [
+      {
+       "pathPrefix": "/tmp",
+       "readOnly": true
+      },
+      {
+       "pathPrefix": "/foo"
+      }
+     ]
+    }
+   ],
+   "mutants": 85,
+   "killed": 75,
+   "stillborn": 11,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 376704 states",
+   "instantiation_failed": {
+    "allowedHostPaths": [
+     {
+      "pathPrefix": "/tmp",
+      "readOnly": true
+     }
+    ]
+   }
+  },
+  "src/pod-security-policy/host-namespaces/src.rego": {
+   "subject": "src/pod-security-policy/host-namespaces/src.rego",
+   "development": false,
+   "authors_inputs": 5,
+   "instantiations": [
+    "absent"
+   ],
+   "mutants": 14,
+   "killed": 11,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 260,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 5,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 14,
+   "suite_equivalent": 3,
+   "distinguishable": 11,
+   "killed_through_decision": 11,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.7857,
+   "exact_score": 1.0,
+   "survivors": [],
+   "closing_the_gaps": {
+    "tests_added": 0,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 3
+   },
+   "survivors_suite_study": 3
+  },
+  "src/pod-security-policy/host-probes-lifecycle/src.rego": {
+   "subject": "src/pod-security-policy/host-probes-lifecycle/src.rego",
+   "development": false,
+   "authors_inputs": 14,
+   "instantiations": [
+    {
+     "exemptImages": [
+      "safeimages.com/*"
+     ]
+    },
+    "absent"
+   ],
+   "mutants": 56,
+   "killed": 25,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 971524540 states",
+   "instantiation_failed": {
+    "exemptImages": [
+     "safeimages.com/*"
+    ]
+   }
+  },
+  "src/pod-security-policy/host-process/src.rego": {
+   "subject": "src/pod-security-policy/host-process/src.rego",
+   "development": false,
+   "authors_inputs": 10,
+   "instantiations": [
+    "absent",
+    {
+     "exemptImages": [
+      "safeimages.com/*"
+     ]
+    }
+   ],
+   "mutants": 25,
+   "killed": 18,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 12020,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 8,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "safeimages.com/*"
+      ]
+     },
+     "cells": 40820,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 25,
+   "suite_equivalent": 6,
+   "distinguishable": 19,
+   "killed_through_decision": 18,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.72,
+   "exact_score": 0.9474,
+   "survivors": [
+    {
+     "mutant": 1,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "windowsOptions": {
+           "hostProcess": true
+          }
+         }
+        }
+       },
+       "operation": "UPDATE"
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 6
+   },
+   "survivors_suite_study": 7
+  },
+  "src/pod-security-policy/privileged-containers/src.rego": {
+   "subject": "src/pod-security-policy/privileged-containers/src.rego",
+   "development": false,
+   "authors_inputs": 7,
+   "instantiations": [
+    "absent",
+    {
+     "exemptImages": [
+      "nginx"
+     ]
+    }
+   ],
+   "mutants": 13,
+   "killed": 9,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 330,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "nginx"
+      ]
+     },
+     "cells": 930,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 13,
+   "suite_equivalent": 3,
+   "distinguishable": 10,
+   "killed_through_decision": 9,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.6923,
+   "exact_score": 0.9,
+   "survivors": [
+    {
+     "mutant": 12,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "name": "tw-fresh",
+           "securityContext": {
+            "privileged": true
+           }
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 3
+   },
+   "survivors_suite_study": 4
+  },
+  "src/pod-security-policy/proc-mount/src.rego": {
+   "subject": "src/pod-security-policy/proc-mount/src.rego",
+   "development": false,
+   "authors_inputs": 14,
+   "instantiations": [
+    {
+     "procMount": "Default"
+    },
+    null,
+    {
+     "procMount": "Unmasked"
+    },
+    {
+     "procMount": "default"
+    },
+    {
+     "exemptImages": [
+      "nginx"
+     ],
+     "procMount": "Default"
+    },
+    "absent",
+    {
+     "procMount": "invalid"
+    }
+   ],
+   "mutants": 67,
+   "killed": 52,
+   "stillborn": 4,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "procMount": "Default"
+     },
+     "cells": 510,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": null,
+     "cells": 510,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "procMount": "Unmasked"
+     },
+     "cells": 510,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "procMount": "default"
+     },
+     "cells": 510,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "nginx"
+      ],
+      "procMount": "Default"
+     },
+     "cells": 1470,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": "absent",
+     "cells": 510,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "procMount": "invalid"
+     },
+     "cells": 510,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 63,
+   "suite_equivalent": 8,
+   "distinguishable": 55,
+   "killed_through_decision": 48,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 4,
+   "raw_score": 0.7761,
+   "exact_score": 0.8727,
+   "survivors": [
+    {
+     "mutant": 30,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "initContainers": [
+          {
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "procMount": "Default"
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 32,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "name": "tw-fresh",
+           "securityContext": {
+            "procMount": {}
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "procMount": "Default"
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 33,
+     "operator": "flip a comparison",
+     "detail": "flip a comparison to its negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "name": "tw-fresh",
+           "securityContext": {
+            "procMount": {}
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "procMount": "Default"
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 34,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "procMount": "Default"
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 35,
+     "operator": "negate a condition",
+     "detail": "negate a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "name": "tw-fresh",
+           "securityContext": {
+            "procMount": {}
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "procMount": "Default"
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 46,
+     "operator": "delete a rule",
+     "detail": "remove rule get_allowed_proc_mount",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "containers": [
+          {
+           "name": "tw-fresh",
+           "securityContext": {
+            "procMount": {}
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "procMount": "invalid"
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 48,
+     "operator": "negate a condition",
+     "detail": "negate a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "containers": [
+          {
+           "name": "tw-fresh",
+           "securityContext": {
+            "procMount": {}
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "procMount": "invalid"
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 7,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 4,
+    "drop a condition": 2,
+    "delete a rule": 2
+   },
+   "survivors_suite_study": 15
+  },
+  "src/pod-security-policy/read-only-root-filesystem/src.rego": {
+   "subject": "src/pod-security-policy/read-only-root-filesystem/src.rego",
+   "development": false,
+   "authors_inputs": 6,
+   "instantiations": [
+    "absent",
+    {
+     "exemptImages": [
+      "nginx"
+     ]
+    }
+   ],
+   "mutants": 26,
+   "killed": 20,
+   "stillborn": 1,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": "absent",
+     "cells": 2430,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 5,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "nginx"
+      ]
+     },
+     "cells": 7230,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 25,
+   "suite_equivalent": 5,
+   "distinguishable": 20,
+   "killed_through_decision": 19,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 1,
+   "raw_score": 0.7692,
+   "exact_score": 0.95,
+   "survivors": [
+    {
+     "mutant": 21,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 3,
+    "delete a rule": 1,
+    "drop a condition": 1
+   },
+   "survivors_suite_study": 6
+  }
+ }
+}

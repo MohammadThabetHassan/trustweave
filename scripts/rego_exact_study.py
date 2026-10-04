@@ -606,6 +606,75 @@ def aggregate(group: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
     }
 
 
+def _census_module(task: tuple[str, str, list[str], str]) -> dict[str, Any]:
+    subject, source, lib_paths, opa = task
+    mutation = _load("rego_source_mutation")
+    libs = [Path(p) for p in lib_paths]
+    found = mutation.mutants(source)
+    stillborn = sum(not compiles(opa, m.source, libs) for m in found)
+    return {"subject": subject, "mutants": len(found), "stillborn": stillborn}
+
+
+def stillborn_census(corpus: Path, workers: int) -> dict[str, Any]:
+    """How many of the suite study's kills are mutants that do not compile.
+
+    The suite study (`scripts/rego_suite_study.py`) counts a mutant as killed when its suite
+    does not pass, and a mutant the engine cannot compile never lets a suite pass, so every
+    stillborn mutant is among its kills. This counts them per module -- every mutant of every
+    module the suite study measured -- and restates its kill rate over the mutants that load.
+    It is a correction of that study's figure, not part of the pre-registered exact study.
+    """
+
+    suite = _load("rego_suite_study")
+    opa = suite._opa()
+    libs = [str(p) for p in suite._lib_dirs(corpus)]
+    records = json.loads(SUITE_ARTIFACT.read_text(encoding="utf-8"))["modules"]
+    subjects = sorted(s for s, r in records.items() if r.get("status") == "measured")
+    tasks = [(s, (corpus / s).read_text("utf-8"), libs, opa) for s in subjects]
+    rows: dict[str, dict[str, Any]] = {}
+    context = multiprocessing.get_context("spawn")
+    with concurrent.futures.ProcessPoolExecutor(workers, mp_context=context) as pool:
+        for row in pool.map(_census_module, tasks):
+            reference = records[row["subject"]]
+            if row["mutants"] != reference["mutants"]:
+                raise SystemExit(f"{row['subject']}: the mutants no longer match the suite study")
+            killed = reference["killed"]
+            row["killed"] = killed
+            row["raw_score"] = reference["mutation_score"]
+            loading = row["mutants"] - row["stillborn"]
+            row["score_over_mutants_that_load"] = (
+                round((killed - row["stillborn"]) / loading, 4) if loading else None
+            )
+            row["coverage"] = reference["coverage"]
+            rows[row["subject"]] = row
+
+    def summary(group: list[dict[str, Any]]) -> dict[str, Any]:
+        loading = [r for r in group if r["score_over_mutants_that_load"] is not None]
+        gaps = [r["coverage"] / 100 - r["score_over_mutants_that_load"] for r in loading]
+        return {
+            "modules": len(group),
+            "mutants": sum(r["mutants"] for r in group),
+            "stillborn": sum(r["stillborn"] for r in group),
+            "killed": sum(r["killed"] for r in group),
+            "mean_raw_score": round(statistics.fmean(r["raw_score"] for r in group), 4),
+            "mean_score_over_mutants_that_load": round(
+                statistics.fmean(r["score_over_mutants_that_load"] for r in loading), 4
+            ),
+            "mean_coverage_gap_over_mutants_that_load": round(statistics.fmean(gaps), 4),
+        }
+
+    headline = [r for s, r in rows.items() if s != DEVELOPMENT]
+    return {
+        "schema_version": "v1",
+        "engine": suite._engine_version(),
+        "corpus": {"name": corpus.name, "commit": suite._git_commit(corpus)},
+        "development_module": DEVELOPMENT,
+        "headline": summary(headline),
+        "with_development_module": summary(list(rows.values())),
+        "modules": rows,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -615,8 +684,15 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--only", nargs="*", default=None)
     run.add_argument("--population", choices=("inside", "schemas"), default="inside")
     run.add_argument("--json", type=Path, default=None)
+    census = sub.add_parser("stillborn", help="count the suite study's kills that do not compile")
+    census.add_argument("--corpus", type=Path, required=True)
+    census.add_argument("--workers", type=int, default=6)
+    census.add_argument("--json", type=Path, default=None)
     args = parser.parse_args(argv)
-    findings = study(args.corpus, args.workers, args.only, args.population)
+    if args.command == "stillborn":
+        findings = stillborn_census(args.corpus, args.workers)
+    else:
+        findings = study(args.corpus, args.workers, args.only, args.population)
     text = json.dumps(findings, indent=1)
     if args.json:
         args.json.write_text(text + "\n", encoding="utf-8")
