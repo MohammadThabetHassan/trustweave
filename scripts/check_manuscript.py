@@ -1249,6 +1249,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _criteria_claims(docs)
     claims += _census_claims(docs)
     claims += _shipped_claims(docs)
+    claims += _minimal_claims(docs)
     return claims
 
 
@@ -2790,6 +2791,155 @@ def _shipped_claims(docs: Path) -> list[Claim]:
     return claims
 
 
+def _minimal_claims(docs: Path) -> list[Claim]:
+    """The payoff studies' and the criteria study's suites, over subsumption-minimal mutants."""
+
+    study = _load(docs, "minimal-mutant-study-v1")
+    assert study["deviations"] == []
+    g, c = study["populations"]["generated"], study["populations"]["cedar"]
+    for population in (g, c):
+        # Over every live mutant the three earlier studies come back exactly.
+        assert all(population["reproduced"].values())
+        assert all(v["p_value_holm"] < 0.05 for v in population["hypotheses"].values())
+    gm, cm = g["minimal"]["payoff"], c["minimal"]["payoff"]
+    ga, ca = g["all_mutants"]["payoff"], c["all_mutants"]["payoff"]
+    holm = max(v["p_value_holm"] for p in (g, c) for v in p["hypotheses"].values())
+
+    def points(value: float) -> str:
+        return f"{100 * value:.1f}"
+
+    claims: list[Claim] = [
+        (
+            r"over the subsumption-minimal set, which the fragment makes exact, the quotient "
+            r"detects (\d+\.\d)\\% of generated faults where a random suite of its size detects "
+            r"(\d+\.\d)\\%",
+            (_pct(gm["quotient"]), _pct(gm["random_quotient"])),
+            "minimal mutants: the full version's threats",
+        ),
+        (
+            rf"The 300 generated policies hold ({_GROUPED}) live mutants and ({_GROUPED}) minimal "
+            rf"ones, a median of (\d+) per policy; the 96 Cedar files hold ({_GROUPED}) and "
+            rf"({_GROUPED})",
+            (
+                _grouped(g["live_mutants"]),
+                _grouped(g["minimal_mutants"]),
+                f"{g['minimal_set_size']['median']:.0f}",
+                _grouped(c["live_mutants"]),
+                _grouped(c["minimal_mutants"]),
+            ),
+            "minimal mutants: the redundancy",
+        ),
+        (
+            r"it detects (\d+\.\d)\\% of minimal mutants \((\d+\.\d)\\% of all\), a random suite "
+            r"of its size (\d+\.\d)\\% \((\d+\.\d)\\%\), and the decision proxy (\d+\.\d)\\% "
+            r"\((\d+\.\d)\\%\)",
+            (
+                _pct(gm["quotient"]),
+                _pct(ga["quotient"]),
+                _pct(gm["random_quotient"]),
+                _pct(ga["random_quotient"]),
+                _pct(gm["decision"]),
+                _pct(ga["decision"]),
+            ),
+            "minimal mutants: the generated policies",
+        ),
+        (
+            r"On Cedar, (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%, against (\d+\.\d)\\%, "
+            r"(\d+\.\d)\\% and (\d+\.\d)\\% over all mutants",
+            (
+                _pct(cm["quotient"]),
+                _pct(cm["random_quotient"]),
+                _pct(cm["decision"]),
+                _pct(ca["quotient"]),
+                _pct(ca["random_quotient"]),
+                _pct(ca["decision"]),
+            ),
+            "minimal mutants: Cedar",
+        ),
+        (
+            r"over minimal mutants on both populations \(one-sided Holm-adjusted \$p\$ at most "
+            r"(\d\.\d+)\)",
+            (f"{holm:.4f}",),
+            "minimal mutants: the hypotheses",
+        ),
+        (
+            r"over random suites of its size it is (\d+\.\d) points on the generated policies and "
+            r"(\d+\.\d) on Cedar, against (\d+\.\d) and (\d+\.\d) over all mutants",
+            (
+                points(g["hypotheses"]["H1m"]["mean_difference"]),
+                points(c["hypotheses"]["H1m"]["mean_difference"]),
+                points(ga["quotient"] - ga["random_quotient"]),
+                points(ca["quotient"] - ca["random_quotient"]),
+            ),
+            "minimal mutants: the lead over random suites",
+        ),
+        (
+            r"Per policy, it falls below a random suite of its size on (\d+) of the 300 generated "
+            r"policies and (\d+) of the 96 Cedar files, against (\d+) and (\d+) over all mutants",
+            (
+                str(g["hypotheses"]["H1m"]["lower"]),
+                str(c["hypotheses"]["H1m"]["lower"]),
+                # Over all mutants, from the two payoff artifacts the study reproduces.
+                str(
+                    _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]["hypotheses"][
+                        "H1"
+                    ]["losses"]
+                ),
+                str(
+                    _load(docs, "cedar-suite-strategy-study-v1")["analyses"][
+                        "primary: files with a condition"
+                    ]["hypotheses"]["H1"]["losses"]
+                ),
+            ),
+            "minimal mutants: per-policy losses to random suites",
+        ),
+        (
+            r"certain detection, the share every choice of witnesses detects, is (\d+\.\d)\\% on "
+            r"the generated policies and (\d+\.\d)\\% on Cedar",
+            (
+                _pct(g["minimal"]["certain_detection_mean"]),
+                _pct(c["minimal"]["certain_detection_mean"]),
+            ),
+            "minimal mutants: certain detection",
+        ),
+    ]
+    rows = (
+        ("payoff", "quotient", "One witness per quotient class"),
+        ("payoff", "random_quotient", "Random, the quotient's size"),
+        ("payoff", "decision", "Decision proxy"),
+        ("payoff", "random_decision", "Random, the proxy's size"),
+        ("criteria", "mcdc", "MC/DC over each rule's atoms"),
+        ("criteria", "three_wise", "Three-wise"),
+        ("criteria", "decision", "Decision coverage"),
+        ("criteria", "rule", "Rule coverage"),
+        ("criteria", "pairwise", "Pairwise"),
+        ("criteria", "base_choice", "Base choice"),
+        ("criteria", "each_choice", "Each choice"),
+    )
+
+    def cell(population: dict, which: str, source: str, name: str) -> str:
+        block = population["all_mutants"] if which == "all" else population["minimal"]
+        values = block["payoff"] if source == "payoff" else block["criteria_mean_score"]
+        return _pct(values[name]) if name in values else "---"
+
+    for source, name, label in rows:
+        claims.append(
+            (
+                re.escape(label)
+                + r" & (\d+\.\d|---) & (\d+\.\d|---) & (\d+\.\d|---) & (\d+\.\d|---) \\\\"
+                + r"(?=(?:(?!\\label\{tab:).)*\\label\{tab:minimal\})",
+                (
+                    cell(g, "all", source, name),
+                    cell(g, "minimal", source, name),
+                    cell(c, "all", source, name),
+                    cell(c, "minimal", source, name),
+                ),
+                f"minimal mutants table: {label}",
+            )
+        )
+    return claims
+
+
 def _half_up(value: float, places: str) -> str:
     return str(Decimal(str(value)).quantize(Decimal(places), rounding=ROUND_HALF_UP))
 
@@ -2986,7 +3136,11 @@ def _xacml_criteria_claims(docs: Path) -> list[Claim]:
     for label, key, random_key in rows:
         claims.append(
             (
-                re.escape(label) + r" & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) \\\\",
+                # Scoped to its own table, whose label precedes the rows: the minimal-mutant
+                # table has a row of the same name.
+                r"\\label\{tab:xacmlcriteria\}(?:(?!\\end\{table\}).)*?"
+                + re.escape(label)
+                + r" & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) \\\\",
                 (
                     pct(mean[key]),
                     pct(mean[random_key]),
