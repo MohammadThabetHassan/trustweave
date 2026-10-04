@@ -36,6 +36,8 @@ import os
 import re
 import statistics
 from collections import Counter
+from decimal import ROUND_HALF_UP, Decimal
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
@@ -96,6 +98,19 @@ def _grouped(value: int) -> str:
 
 def _pct(value: float) -> str:
     return f"{value * 100:.1f}"
+
+
+def _share(numerator: int, denominator: int) -> str:
+    """A percentage of two counts, rounded once and half up, as a reader dividing them would.
+
+    An artifact's stored score is already rounded, and rounding it again can move the last
+    digit (15/19 is 78.9%, its stored 0.7895 prints 79.0), so a table of counts is checked
+    against the counts.
+    """
+
+    value = Fraction(100 * numerator, denominator)
+    exact = Decimal(value.numerator) / Decimal(value.denominator)
+    return str(exact.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
 
 
 _WORDS = (
@@ -716,6 +731,14 @@ def numeric_claims(docs: Path) -> list[Claim]:
     azure_total = rows["Azure Policy"]["policies_considered"]
     xacml_total = rows["XACML"]["policies_considered"]
 
+    # "would be wrong by about half": expressiveness is about half of the exclusions.
+    assert 0.4 < lookups / exclusions < 0.6, lookups / exclusions
+    expressive_peak = max(
+        row["exclusions_by_kind"].get("the subject does not determine the guard", 0)
+        / row["policies_considered"]
+        for row in taxonomy["rows"]
+    )
+
     def share(part: int) -> str:
         return f"{100 * part / exclusions:.1f}"
 
@@ -749,6 +772,16 @@ def numeric_claims(docs: Path) -> list[Claim]:
                 _word(network_readers(docs)),
             ),
             "taxonomy: the composition of the evaluation-time row",
+        ),
+        (
+            rf"Table~\\ref\{{tab:membership\}}'s ({_GROUPED}) exclusions as",
+            (_grouped(exclusions),),
+            "taxonomy: the exclusions a careless reading would call expressiveness",
+        ),
+        (
+            r"in no corpus does it (reach a quarter)",
+            ("reach a quarter" if expressive_peak < 0.25 else "no longer under a quarter",),
+            "taxonomy: the expressiveness band's largest share of a corpus",
         ),
         (
             r"(\d+)\\% of exclusions are artifacts that are not yet policies",
@@ -1233,9 +1266,28 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
     assert head["closing_the_gaps_holds_everywhere"]
     assert head["killed_without_a_decision_change"] == 0
     assert realism["killed_by_a_review_like_the_authors"] == realism["gaps"]
+    distinguishable, killed = head["distinguishable"], head["killed_through_decision"]
+    relative = head["suite_equivalent"] - outright
+    worst = _share(killed, distinguishable + relative)
     claims: list[Claim] = [
         (
-            r"Two thirds of the mutants those suites miss are equivalent: the suites are "
+            r"(\d+\.\d)\\% if every equivalent in a module that reads parameters could be "
+            r"separated by a setting no test uses",
+            (worst,),
+            "rego exact study: the score if the parameter-relative equivalents were separable",
+        ),
+        (
+            r"The other (\d+) equivalents are in modules that read parameters",
+            (str(relative),),
+            "rego exact study: the equivalents relative to the tested settings",
+        ),
+        (
+            r"so the range is \$\[(\d+\.\d), (\d+\.\d)\]\$",
+            (worst, _share(killed, distinguishable)),
+            "rego exact study: the range of the exact score",
+        ),
+        (
+            r"two thirds of what the suites miss is equivalent: the suites are "
             r"(\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
             (_pct(head["pooled_exact_score"]), _pct(head["pooled_raw_score"])),
             "rego exact study: the abstract",
@@ -1400,8 +1452,8 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
                     str(record["suite_equivalent"]),
                     str(record["distinguishable"]),
                     str(record["killed_through_decision"]),
-                    _pct(record["raw_score"]),
-                    _pct(record["exact_score"]),
+                    _share(record["killed"], record["mutants"]),
+                    _share(record["killed_through_decision"], record["distinguishable"]),
                     str(len(record["survivors"])),
                 ),
                 f"rego exact study: the row for {subject.split('/')[-2]}",
@@ -1456,12 +1508,22 @@ def _rego_schemas_claims(docs: Path) -> list[Claim]:
         if record.get("status") == "measured" and subject != artifact["development_module"]
     ]
     weakest = measured[min(both)[1]]
+    # "none outright": every schema reads its parameters, so no equivalent holds without them.
+    assert not any(record["instantiations"] == ["absent"] for record in measured.values())
+    compiling = head["mutants"] - head["stillborn"]
+    killed_compiling = head["killed"] - head["killed_stillborn"]
+    worst = _share(
+        head["killed_through_decision"], head["distinguishable"] + head["suite_equivalent"]
+    )
+    # "the raw rate over the mutants that compile"
+    assert worst == _share(killed_compiling, compiling), (worst, killed_compiling, compiling)
     names = {26: "Twenty-six"}
     low, high = head["difference_bootstrap_95"]
     claims: list[Claim] = [
         (
             r"on the (\d+) of (\d+) whose witness spaces pass, (\d+) of the (\d+) survivors are "
-            r"equivalent, and the suites are (\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
+            r"equivalent under them, none outright, and the suites are (\d+\.\d)\\% adequate, not "
+            r"(\d+\.\d)\\%",
             (
                 str(head["modules"]),
                 str(population["modules"]),
@@ -1525,6 +1587,12 @@ def _rego_schemas_claims(docs: Path) -> list[Claim]:
             "rego schemas: the weakest suite of either population",
         ),
         (
+            r"so all (\d+) equivalents hold only under the settings the suites test: were each "
+            r"separable by another setting, the score would be (\d+\.\d)\\%",
+            (str(head["suite_equivalent"]), worst),
+            "rego schemas: the score if every equivalent were separable",
+        ),
+        (
             rf"([A-Z][a-z]+) schemas over the cell cap and ({_WORD_PATTERN}) failing the "
             r"completeness check",
             (_word(over_cap).capitalize(), _word(missing)),
@@ -1559,8 +1627,8 @@ def _rego_schemas_claims(docs: Path) -> list[Claim]:
                     str(record["suite_equivalent"]),
                     str(record["distinguishable"]),
                     str(record["killed_through_decision"]),
-                    _pct(record["raw_score"]),
-                    _pct(record["exact_score"]),
+                    _share(record["killed"], record["mutants"]),
+                    _share(record["killed_through_decision"], record["distinguishable"]),
                     str(len(record["survivors"])),
                 ),
                 f"rego schemas: the row for {subject.split('/')[-2]}",
@@ -2075,7 +2143,7 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar real edits: what a suite of the earlier version catches",
         ),
         (
-            rf"On ({_GROUPED}) real Cedar files written outside the vendor, decided by the Cedar "
+            rf"On ({_GROUPED}) real Cedar files written outside the vendor, decided by its "
             r"engine, the figures are (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
             (
                 _grouped(primary["files_scored"]),
@@ -2119,7 +2187,7 @@ def _summary_claims(docs: Path) -> list[Claim]:
     assert all(row["sample"]["schemas"] for row in summary["ecosystems"].values())
     return [
         (
-            rf"on ({_GROUPED}) generated policies, a suite with one witness per quotient class "
+            rf"on ({_GROUPED}) generated policies, one witness per quotient class "
             r"detects (\d+\.\d)\\% of seeded faults in expectation, against (\d+\.\d)\\% for a "
             r"random suite of the same size and (\d+\.\d)\\% for a decision-coverage proxy",
             (
@@ -2131,8 +2199,8 @@ def _summary_claims(docs: Path) -> list[Claim]:
             "abstract: the suite strategies",
         ),
         (
-            rf"({_GROUPED}) files sampled from ({_GROUPED}) repositories outside the vendors agree",
-            (_grouped(summary["sampled"]), _grouped(summary["repositories"])),
+            rf"({_GROUPED}) files sampled outside the vendors sit at or below their shares",
+            (_grouped(summary["sampled"]),),
             "abstract: the third-party samples",
         ),
         (
