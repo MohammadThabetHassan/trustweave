@@ -135,15 +135,28 @@ def test_a_figure_changed_in_one_section_only_is_caught(workspace: Path) -> None
 
     problems = checker.check(paper, workspace / "docs")
 
-    assert any("policies inside" in problem for problem in problems), problems
+    assert any("artifacts inside" in problem for problem in problems), problems
+
+
+def _holding(workspace: Path, phrase: str) -> Path:
+    """The file of the split manuscript that states `phrase`: material moves between them."""
+
+    for name in ("main.tex", "supplement.tex"):
+        candidate = workspace / "paper" / name
+        if candidate.is_file() and phrase in candidate.read_text(encoding="utf-8"):
+            return candidate
+    raise AssertionError(f"neither file of the manuscript states {phrase!r}")
 
 
 def test_an_edited_phrasing_fails_rather_than_passing_silently(
     workspace: Path,
 ) -> None:
     paper = workspace / "paper" / "main.tex"
-    text = paper.read_text(encoding="utf-8")
-    paper.write_text(text.replace("flags all 88 subjects", "flags every subject"), encoding="utf-8")
+    holder = _holding(workspace, "flags all 88 subjects")
+    text = holder.read_text(encoding="utf-8")
+    holder.write_text(
+        text.replace("flags all 88 subjects", "flags every subject"), encoding="utf-8"
+    )
 
     problems = checker.check(paper, workspace / "docs")
     assert any("no longer states" in problem for problem in problems), problems
@@ -223,9 +236,10 @@ def test_a_decomposition_that_no_longer_sums_is_caught(workspace: Path) -> None:
 
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    counts = [int(found) for found in checker.MECHANISM_COUNT.findall(checker.flatten(text))]
+    whole = checker.with_supplement(text, paper)
+    counts = [int(found) for found in checker.MECHANISM_COUNT.findall(checker.flatten(whole))]
     assert len(counts) >= 2, "the worked example must decompose the equivalent mutants"
-    first = counts[0]
+    first = [int(found) for found in checker.MECHANISM_COUNT.findall(checker.flatten(text))][0]
     paper.write_text(
         text.replace(f"({first} mutants)", f"({first - 1} mutants)", 1), encoding="utf-8"
     )
@@ -242,10 +256,17 @@ def test_a_removed_decomposition_is_caught_rather_than_passing(workspace: Path) 
     import re
 
     paper = workspace / "paper" / "main.tex"
-    text = paper.read_text(encoding="utf-8")
-    all_gone = re.sub(r" is unobservable\} \(\d+ mutants\)", "}", text)
-    assert not checker.MECHANISM_COUNT.findall(checker.flatten(all_gone))
-    paper.write_text(all_gone, encoding="utf-8")
+    for name in ("main.tex", "supplement.tex"):
+        part = workspace / "paper" / name
+        if not part.is_file():
+            continue
+        all_gone = re.sub(
+            r"\s+is\s+unobservable(\}?)\s+\(\d+\s+mutants\)",
+            r"\1",
+            part.read_text(encoding="utf-8"),
+        )
+        assert not checker.MECHANISM_COUNT.findall(checker.flatten(all_gone))
+        part.write_text(all_gone, encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
 
@@ -313,7 +334,8 @@ def test_a_payoff_figure_whose_series_drifts_from_its_artifact_is_caught(
     """The payoff figure restates three pinned tables on one scale, so it is pinned too."""
 
     paper = workspace / "paper" / "main.tex"
-    text = paper.read_text(encoding="utf-8")
+    holder = _holding(workspace, "\\begin{axis}[name=payoff")
+    text = holder.read_text(encoding="utf-8")
     series = re.search(rf"\\addplot\[tw {population}\] coordinates \{{\(([\d.]+),0\)", text)
     assert series, f"the payoff figure no longer plots a first {population} coordinate"
     perturbed = text.replace(
@@ -321,7 +343,7 @@ def test_a_payoff_figure_whose_series_drifts_from_its_artifact_is_caught(
         f"\\addplot[tw {population}] coordinates {{({float(series.group(1)) + 2.0:.1f},0)",
         1,
     )
-    paper.write_text(perturbed, encoding="utf-8")
+    holder.write_text(perturbed, encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
 

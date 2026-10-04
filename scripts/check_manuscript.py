@@ -281,8 +281,8 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "sampling: the suite the paragraph samples",
         ),
         (
-            r"non-equivalent mutants is off by (\d\.\d+) on average",
-            (f"{rows[4]['mean_absolute_error']:.2f}",),
+            r"non-equivalent mutants is off by (\d+) points on average",
+            (f"{100 * rows[4]['mean_absolute_error']:.0f}",),
             "sampling: mean error of a sample of four",
         ),
         (
@@ -301,9 +301,9 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "sampling: the first sample size never ten points off",
         ),
         (
-            rf"The worst sample of eight is off by (\d\.\d+): it kills none of the eight, "
+            rf"The worst sample of eight is off by (\d+\.\d) points: it kills none of the eight, "
             rf"occurs with probability \$1/({_GROUPED})\$",
-            (f"{rows[8]['worst_absolute_error']:.4f}", _samples(8)),
+            (f"{100 * rows[8]['worst_absolute_error']:.1f}", _samples(8)),
             "sampling: the exact worst case of a sample of eight",
         ),
         (
@@ -445,8 +445,8 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "rego: schemas that are also reported under a stronger reason",
         ),
         (
-            r"(\d+) of the (\d+) modules in the\s*four-corpus Rego row are third-party "
-            r"--- (\d+) from the Red Hat Community of Practice and (\d+) from",
+            r"(\d+) of the (\d+) four-corpus Rego modules \((\d+) from the Red Hat Community of "
+            r"Practice, (\d+) from Instrumenta\)",
             (
                 str(rego_third_party),
                 str(rego["policies_considered"]),
@@ -731,33 +731,36 @@ def numeric_claims(docs: Path) -> list[Claim]:
     azure_total = rows["Azure Policy"]["policies_considered"]
     xacml_total = rows["XACML"]["policies_considered"]
 
-    # "would be wrong by about half": expressiveness is about half of the exclusions.
-    assert 0.4 < lookups / exclusions < 0.6, lookups / exclusions
-    expressive_peak = max(
-        row["exclusions_by_kind"].get("the subject does not determine the guard", 0)
-        / row["policies_considered"]
-        for row in taxonomy["rows"]
-    )
-
-    def share(part: int) -> str:
-        return f"{100 * part / exclusions:.1f}"
+    crossed = _load(docs, "exclusion-crosstab-v1")
+    combination = crossed["combinations"]
+    subject_only = combination["the subject does not determine the guard"]
+    subject_schema = combination["not a policy + the subject does not determine the guard"]
+    clock_only = combination["reads evaluation-time state"]
+    clock_schema = combination["not a policy + reads evaluation-time state"]
+    schema_only = crossed["schema_only"]
+    assert crossed["exclusions"] == exclusions and crossed["schemas"] == schemas
+    assert subject_only == lookups and clock_only == evaluation_time
+    surviving = crossed["guard_not_a_function_of_the_request"]
 
     claims += [
         (
-            rf"a schema awaiting parameters & ({_GROUPED}) & (\d+\.\d)\\%",
-            (_grouped(schemas), share(schemas)),
-            "taxonomy: schemas",
+            rf"A guard the subject does not determine & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED})",
+            (
+                _grouped(subject_only),
+                _grouped(subject_schema),
+                _grouped(subject_only + subject_schema),
+            ),
+            "cross-tabulation: a guard the subject does not determine",
         ),
         (
-            rf"subject does not determine the guard & ({_GROUPED}) & (\d+\.\d)\\%",
-            (_grouped(lookups), share(lookups)),
-            "taxonomy: lookups",
+            rf"A guard reading evaluation-time state & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED})",
+            (_grouped(clock_only), _grouped(clock_schema), _grouped(clock_only + clock_schema)),
+            "cross-tabulation: evaluation-time state",
         ),
         (
-            rf"A guard reads state that exists only at evaluation time & ({_GROUPED}) & "
-            r"(\d+\.\d)\\%",
-            (_grouped(evaluation_time), share(evaluation_time)),
-            "taxonomy: evaluation-time state",
+            rf"Nothing but its missing parameters & --- & ({_GROUPED}) & ({_GROUPED})",
+            (_grouped(schema_only), _grouped(schema_only)),
+            "cross-tabulation: schemas and nothing else",
         ),
         (
             r"The (\d+) undetermined verdicts are Azure Policy definitions",
@@ -774,49 +777,70 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "taxonomy: the composition of the evaluation-time row",
         ),
         (
-            rf"Table~\\ref\{{tab:membership\}}'s ({_GROUPED}) exclusions as",
-            (_grouped(exclusions),),
-            "taxonomy: the exclusions a careless reading would call expressiveness",
-        ),
-        (
-            r"in no corpus does it (reach a quarter)",
-            ("reach a quarter" if expressive_peak < 0.25 else "no longer under a quarter",),
-            "taxonomy: the expressiveness band's largest share of a corpus",
-        ),
-        (
-            r"(\d+)\\% of exclusions are artifacts that are not yet policies",
+            r"A schema-first count calls (\d+)\\% of\s*the exclusions schemas",
             (str(round(100 * schemas / exclusions)),),
-            "taxonomy: schema share restated in prose",
+            "taxonomy: the schema-first share, restated as such",
         ),
         (
-            rf"eight corpora, ({_GROUPED}) of the ({_GROUPED}) that are policies meet it "
+            rf"eight corpora, our procedure places ({_GROUPED}) of ({_GROUPED}) artifacts inside "
             rf"\((\d+\.\d)\\%\)",
-            (_grouped(inside), _grouped(policies), _pct(inside / policies)),
-            "abstract: corpus size, policies inside",
+            (_grouped(inside), _grouped(artifacts), _pct(inside / artifacts)),
+            "abstract: corpus size, artifacts inside",
         ),
         (
-            rf"met by ({_GROUPED}) of the ({_GROUPED}) published policies",
-            (_grouped(inside), _grouped(policies)),
-            "conclusion: policies inside",
+            rf"finds (?:that condition )?in ({_GROUPED}) of the ({_GROUPED})\s*published artifacts",
+            (_grouped(inside), _grouped(artifacts)),
+            "conclusion: artifacts inside",
         ),
         (
-            r"(\d+)\\% is not policy that is too expressive",
-            (str(round(100 * schemas / exclusions)),),
-            "conclusion: schema share",
+            rf"Total exclusions & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED})",
+            (_grouped(exclusions - schemas), _grouped(schemas), _grouped(exclusions)),
+            "cross-tabulation: the totals",
         ),
         (
-            rf"Total exclusions & ({_GROUPED}) & 100\.0\\%",
-            (_grouped(exclusions),),
-            "taxonomy: total exclusions",
+            rf"({_GROUPED}) of (?:them|the {_GROUPED}), (\d+\.\d)\\%, have a guard the "
+            r"request\s*does "
+            r"not determine",
+            (_grouped(surviving), _pct(surviving / exclusions)),
+            "exclusions whose guard the request does not determine",
         ),
         (
-            rf"the ({_GROUPED}) exclusions across six languages",
-            (_grouped(exclusions),),
-            "taxonomy: total restated in prose",
+            r"have a guard the request\s*does not determine, among them (\d+) of the (\d+) schemas",
+            (str(subject_schema + clock_schema), str(schemas)),
+            "schemas that stay outside whatever their parameters",
         ),
         (
-            rf"artifacts that are policies\}} & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & "
-            rf"(\d+) & (\d+\.\d)\\%",
+            r"[Oo]nly (\d+)\s*are schemas that their\s*missing parameters alone keep out",
+            (str(schema_only),),
+            "schemas their missing parameters alone keep out",
+        ),
+        (
+            r"(\w+) in ten,?\s*(?:exclusions|have a guard)",
+            (_word(round(10 * surviving / exclusions)),),
+            "the share of exclusions a guard the request does not determine accounts for",
+        ),
+        (
+            rf"({_GROUPED}) of the ({_GROUPED}), nine in ten, have a guard the request does not "
+            rf"determine, ({_GROUPED}) schemas among them",
+            (_grouped(surviving), _grouped(exclusions), _grouped(subject_schema + clock_schema)),
+            "cross-tabulation: its caption",
+        ),
+        (
+            rf"less schema-only artifacts\}} & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & "
+            r"(\d+) & "
+            r"(\d+\.\d)\\%",
+            (
+                _grouped(artifacts - schema_only),
+                _grouped(inside),
+                _grouped(exclusions - schema_only),
+                str(undetermined),
+                _pct(inside / (artifacts - schema_only)),
+            ),
+            "membership table: less the schema-only artifacts",
+        ),
+        (
+            rf"less every schema\}} & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & (\d+) & "
+            r"(\d+\.\d)\\%",
             (
                 _grouped(policies),
                 _grouped(inside),
@@ -824,26 +848,27 @@ def numeric_claims(docs: Path) -> list[Claim]:
                 str(undetermined),
                 _pct(inside / policies),
             ),
-            "membership table: the policies row",
+            "membership table: less every schema",
         ),
         (
-            rf"policy schemas, not policies\}} & ({_GROUPED}) &",
-            (_grouped(schemas),),
-            "membership table: the schemas row",
+            rf"the ({_GROUPED}) exclusions across six languages",
+            (_grouped(exclusions),),
+            "taxonomy: total restated in prose",
         ),
         # The contributions list restates the headline in a different phrasing, which is how
         # it came to disagree with the abstract while every pin still passed: the pin
         # anchored on the abstract's wording and never reached this sentence.
         (
             rf"eight corpora: ({_GROUPED}) artifacts, (\d+) of which it declines to judge,\s*"
-            rf"of which ({_GROUPED}) of the ({_GROUPED}) that are policies lie inside",
-            (_grouped(artifacts), str(undetermined), _grouped(inside), _grouped(policies)),
-            "contributions: corpus, refusals, inside and policies",
+            rf"and ({_GROUPED}) inside",
+            (_grouped(artifacts), str(undetermined), _grouped(inside)),
+            "contributions: corpus, refusals and inside",
         ),
         (
-            rf"every one of the ({_GROUPED}) artifacts outside the fragment",
-            (_grouped(exclusions),),
-            "contributions: exclusions restated",
+            rf"of the ({_GROUPED}) artifacts outside the fragment,\s*({_GROUPED}) have a guard the "
+            rf"request does not determine, and the other ({_GROUPED})",
+            (_grouped(exclusions), _grouped(surviving), _grouped(schema_only)),
+            "contributions: the exclusions crossed",
         ),
         (
             rf"none of these ({_GROUPED}) exclusions refutes it",
@@ -1220,6 +1245,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _rego_real_faults_claims(docs)
     claims += _cedar_symcc_claims(docs)
     claims += _xacml_criteria_claims(docs)
+    claims += _round2_claims(docs)
     return claims
 
 
@@ -1290,13 +1316,12 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
             "rego exact study: the range of the exact score",
         ),
         (
-            r"two thirds of what the suites miss is equivalent: the suites are "
-            r"(\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
-            (_pct(head["pooled_exact_score"]), _pct(head["pooled_raw_score"])),
+            r"the suites are between (\d+\.\d)\\% and (\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
+            (worst, _pct(head["pooled_exact_score"]), _pct(head["pooled_raw_score"])),
             "rego exact study: the abstract",
         ),
         (
-            r"but by (\d+\.\d) against exact adequacy on the (\d+) suites a further protocol "
+            r"and by (\d+\.\d) against exact\s+adequacy on the (\d+) suites a further protocol "
             r"decides",
             (_pct(coverage - exact_mean), str(head["modules"])),
             "rego exact study: the contribution",
@@ -1691,8 +1716,7 @@ def _rego_real_faults_claims(docs: Path) -> list[Claim]:
 
     claims: list[Claim] = [
         (
-            r"On (\d+) real faults that the maintainers of two Rego libraries fixed, the figures "
-            r"are "
+            r"On (\d+) real faults fixed by two Rego libraries' maintainers, "
             r"(\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
             (
                 str(head["faults"]),
@@ -1837,7 +1861,7 @@ def _rego_real_faults_claims(docs: Path) -> list[Claim]:
         (
             r"The quotient beats random testing by (\d\.\d+) \$\[(\d\.\d+), (\d\.\d+)\]\$, higher "
             r"on (\d+) "
-            r"faults, tied on (\d+) and lower on (\d+) \(\$p = (0\.\d+)\$\)",
+            r"faults, tied on (\d+) and lower on (\d+) \(\$p = (0\.\d+)\$[;)]",
             (
                 *interval(h1),
                 str(h1["wins"]),
@@ -2041,6 +2065,281 @@ def _cedar_symcc_claims(docs: Path) -> list[Claim]:
             "cedar symcc: the live mutants in neither class",
         ),
     ]
+
+
+def _round2_claims(docs: Path) -> list[Claim]:
+    """The second review round: re-analyses of artifacts the studies had already written."""
+
+    analyses = _load(docs, "review-round-analyses-v1")
+    families = analyses["guard_families"]
+    rows = families["by_language"]
+    azure, xacml, iam = rows["Azure Policy"], rows["XACML"], rows["AWS IAM"]
+    unrecorded = families["rego_and_kyverno_inside_unrecorded"]
+    cedar = families["cedar_inside_by_design"]
+    literal = families["literal_operand_where_recorded"]
+    operand_free = (
+        azure["operand-free"]
+        + xacml["operand-free"]
+        + iam["operand-free"]
+        + iam["pattern, literal by construction"]
+        + cedar
+    )
+    line = analyses["line_coverage"]
+    clustered = analyses["clustered"]
+    rego_c = clustered["rego_payoff_by_module"]
+    commit_c = clustered["real_faults_by_commit"]
+    module_c = clustered["real_faults_by_module"]
+    sensitivity = analyses["real_faults_no_change_sensitivity"]
+    shares = analyses["equivalent_shares"]
+    mcdc = _load(docs, "xacml-criteria-study-v1")["hypotheses"]["H1"]["MCDC"]
+
+    # Every clustered interval stays above zero: the sentence that says so is checked here.
+    for block in (rego_c, commit_c, module_c):
+        for name in ("H1", "H2"):
+            assert block[name]["cluster_bootstrap_95"][0] > 0, (name, block)
+
+    def interval(entry: dict) -> tuple[str, str]:
+        low, high = entry["cluster_bootstrap_95"]
+        return f"{low:.3f}", f"{high:.3f}"
+
+    def p(entry: dict) -> str:
+        return f"{entry['cluster_sign_flip_p']:.4f}"
+
+    population_shares = [
+        shares[label]["share"]
+        for label in (
+            "generated (300)",
+            "Cedar with an author schema (71)",
+            "Gatekeeper, decided (13)",
+            "XACML benchmark (11)",
+        )
+    ]
+    claims: list[Claim] = [
+        (
+            rf"({_GROUPED}) inside verdicts use\s*only families",
+            (_grouped(operand_free),),
+            "families: verdicts on families decidable whatever their operands",
+        ),
+        (
+            r"(\d+) in Azure Policy and XACML use",
+            (str(literal),),
+            "families: verdicts on a family that needs a literal operand",
+        ),
+        (
+            r"the (\d+)\s*Rego and\s*Kyverno verdicts record no family per call",
+            (str(unrecorded),),
+            "families: verdicts that record no family",
+        ),
+        (
+            r"for those (\d+) the share inside is an upper bound",
+            (str(literal + unrecorded),),
+            "families: the verdicts whose argument is not checked",
+        ),
+        (
+            rf"and ({_GROUPED}) inside \(Section~\\ref\{{sec:membership\}}\), ({_GROUPED}) of them "
+            r"through guard families",
+            (
+                _grouped(operand_free + literal + unrecorded),
+                _grouped(operand_free),
+            ),
+            "contributions: inside verdicts by family",
+        ),
+        (
+            rf"Total & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) \\\\",
+            (
+                _grouped(operand_free + literal + unrecorded),
+                _grouped(operand_free),
+                _grouped(literal),
+                _grouped(unrecorded),
+            ),
+            "families: the table's totals",
+        ),
+        (
+            r"Kendall's \$\\tau = (0\.\d+)\$(?:, | \()\$p = (0\.\d+)\$",
+            (
+                f"{line['kill_rate']['kendall_tau_b']:.2f}",
+                f"{line['kill_rate']['permutation_p_two_sided']:.4f}",
+            ),
+            "line coverage tracks the kill rate",
+        ),
+        (
+            r"weak and not significant \(\$\\tau = (0\.\d+)\$, \$p = (0\.\d+)\$\)",
+            (
+                f"{line['exact_score']['kendall_tau_b']:.2f}",
+                f"{line['exact_score']['permutation_p_two_sided']:.2f}",
+            ),
+            "line coverage against the exact score",
+        ),
+        (
+            r"or \$\[(\d\.\d+), (\d\.\d+)\]\$ resampling the (\d+) modules rather than the "
+            r"(\d+) policies",
+            (*interval(rego_c["H1"]), str(rego_c["clusters"]), str(rego_c["units"])),
+            "rego payoff: H1 resampled by module",
+        ),
+        (
+            r"with an exact\s*module-level sign-flip \$p = (0\.\d+)\$",
+            (p(rego_c["H1"]),),
+            "rego payoff: H1's module-level sign-flip",
+        ),
+        (
+            r"[Tt]he (\d+) Rego policies share (\d+) modules and the (\d+)\s*faults (\d+) "
+            r"commits; resampled by module and by commit, every interval stays above zero",
+            (
+                str(rego_c["units"]),
+                str(rego_c["clusters"]),
+                str(commit_c["units"]),
+                str(commit_c["clusters"]),
+            ),
+            "threats: the clusters",
+        ),
+        (
+            r"edge over random testing is (0\.\d+)\s*\$\[(0\.\d+), (0\.\d+)\]\$ by module \(exact "
+            r"sign-flip \$p = (0\.\d+)\$\); on the faults it is (0\.\d+)\s*\$\[(0\.\d+), "
+            r"(0\.\d+)\]\$ by commit \(\$p = (0\.\d+)\$\) and \$\[(0\.\d+), (0\.\d+)\]\$ by "
+            r"module \(\$p = (0\.\d+)\$\)",
+            (
+                f"{rego_c['H1']['mean_difference']:.3f}",
+                *interval(rego_c["H1"]),
+                p(rego_c["H1"]),
+                f"{commit_c['H1']['mean_difference']:.3f}",
+                *interval(commit_c["H1"]),
+                p(commit_c["H1"]),
+                *interval(module_c["H1"]),
+                p(module_c["H1"]),
+            ),
+            "threats: the clustered intervals",
+        ),
+        (
+            r"or (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\% counting as unexposed the two "
+            r"fixes",
+            tuple(
+                _pct(sensitivity["mean_exposure_counting_them_as_unexposed"][s])
+                for s in ("quotient", "random_quotient", "decision")
+            ),
+            "real faults: counting the two unchanged fixes as unexposed",
+        ),
+        (
+            r"(\d+\.\d)\\% of generated policies' mutants are\s*equivalent, (\d+\.\d)\\% of those "
+            r"of the Cedar files with an author schema, (\d+\.\d)\\% on the decided\s*Gatekeeper "
+            r"modules \((\d+\.\d)\\% outright\) and (\d+\.\d)\\% on Xu et al.'s XACML benchmark",
+            (
+                _pct(shares["generated (300)"]["share"]),
+                _pct(shares["Cedar with an author schema (71)"]["share"]),
+                _pct(shares["Gatekeeper, decided (13)"]["share"]),
+                _pct(shares["Gatekeeper, decided (13)"]["outright_share"]),
+                _pct(shares["XACML benchmark (11)"]["share"]),
+            ),
+            "equivalent shares beyond the reference policy",
+        ),
+        (
+            r"worth (\d+) percentage points on one\s*small policy, and (\d+) to (\d+) on the "
+            r"populations we scored",
+            (
+                str(round(100 * shares["reference policy"]["share"])),
+                str(round(100 * min(population_shares))),
+                str(round(100 * max(population_shares))),
+            ),
+            "conclusion: what decidability is worth",
+        ),
+        (
+            r"Median sizes are (\d+) tests\s*for the proxy and (\d+), (\d+) and (\d+) for the "
+            r"quotient",
+            _median_sizes(docs),
+            "the payoff figure's median suite sizes",
+        ),
+        (
+            r"the shipped suite's exact (\d+\.\d)\\% reads as (\d+\.\d)\\%, and a coverage\s*"
+            r"matrix witnessing every cell, complete by Corollary~\\ref\{cor:score\}, as "
+            r"(\d+\.\d)\\%",
+            _price_rows(docs),
+            "the price of undecided equivalence, in prose",
+        ),
+        (
+            r"Of its (\d+) files judged inside, (\d+)\s*parse under the",
+            _cedar_funnel(docs)[:2],
+            "cedar: inside and parsed",
+        ),
+        (
+            rf"(\d+) exceed the cap of ({_GROUPED}) cells",
+            _cedar_funnel(docs)[2:4],
+            "cedar: over the cap",
+        ),
+        (
+            r"failed (?:its|the) completeness check on (\d+)",
+            _cedar_funnel(docs)[4:5],
+            "cedar: failing the completeness check",
+        ),
+    ]
+    claims.append(
+        (
+            r"comes within (\d+\.\d)\s*points (?:of the quotient )?with a (\w+) of (?:the|its) "
+            r"requests",
+            (f"{100 * mcdc['mean_difference']:.1f}", _ordinal_fraction(docs)),
+            "xacml: MC/DC against the quotient, in brief",
+        )
+    )
+    return claims
+
+
+def _ordinal_fraction(docs: Path) -> str:
+    """How many times MC/DC's requests the quotient's are, as a fraction word (16 -> sixteenth).
+
+    Like for like, as the shared sentence is: both sizes over the policies where XPA built an
+    MC/DC suite.
+    """
+
+    study = _load(docs, "xacml-criteria-study-v1")
+    paired = [r for r in study["policies"] if r["suites"]["MCDC"]["status"] == "generated"]
+    quotient = sum(r["quotient_classes"] for r in paired) / len(paired)
+    mcdc = study["summary"]["mean_suite_size"]["MCDC"]
+    ordinals = {14: "fourteenth", 15: "fifteenth", 16: "sixteenth", 17: "seventeenth"}
+    return ordinals[round(quotient / mcdc)]
+
+
+def _median_sizes(docs: Path) -> tuple[str, str, str, str]:
+    generated = _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]["median_suite_size"]
+    cedar = _load(docs, "cedar-suite-strategy-study-v1")["analyses"][
+        "primary: files with a condition"
+    ]["median_suite_size"]
+    rego = _load(docs, "rego-suite-strategy-study-v1")
+    classes = [
+        policy["quotient_classes"]
+        for module in rego["modules"].values()
+        if not module["development"]
+        for policy in module["policies"]
+        if policy["status"] == "scored"
+    ]
+    return (
+        str(int(generated["decision"])),
+        str(int(generated["quotient"])),
+        str(int(cedar["quotient"])),
+        str(int(statistics.median(classes))),
+    )
+
+
+def _price_rows(docs: Path) -> tuple[str, str, str]:
+    estimator = _load(docs, "estimator-comparison-v1")
+    suites = {entry["suite"]: entry for entry in estimator["suites"]}
+    default = suites["default-scenarios.json"]
+    matrix = suites["coverage-matrix-scenarios.json"]
+    return (
+        _pct(default["exact_score"]),
+        _pct(default["score_without_equivalence_detection"]),
+        _pct(matrix["score_without_equivalence_detection"]),
+    )
+
+
+def _cedar_funnel(docs: Path) -> tuple[str, str, str, str, str]:
+    study = _load(docs, "cedar-suite-strategy-study-v1")
+    population = study["population"]
+    statuses = study["file_statuses"]
+    return (
+        str(population["judged inside"]),
+        str(population["judged inside"] - population["Cedar does not parse it"]),
+        str(statuses.get("over the cell cap", statuses.get("over the cap", 0))),
+        _grouped(study["max_cells"]),
+        str(statuses["missing cells"]),
+    )
 
 
 def _half_up(value: float, places: str) -> str:
@@ -2332,11 +2631,10 @@ def _rego_payoff_claims(docs: Path) -> list[Claim]:
     with_development = study["with_development_module"]["mean_expected_score"]
     return [
         (
-            r"on (\d+) Gatekeeper Rego modules under the (\d+) parameter settings their suites "
+            r"on (\d+) Gatekeeper Rego modules under the settings their suites "
             r"test, (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
             (
                 str(exact["headline"]["modules"]),
-                str(head["policies"]),
                 _pct(scores["quotient"]),
                 _pct(scores["random_quotient"]),
                 _pct(scores["decision"]),
@@ -2501,9 +2799,15 @@ def _rego_suite_claims(docs: Path) -> list[Claim]:
 
     return [
         (
-            rf"on the ({_GROUPED}) Gatekeeper modules\s+that ship an author-written suite",
+            rf"on the ({_GROUPED}) Gatekeeper modules\s+that ship an author-written suite, one of",
             (_grouped(suite["population"]["modules_with_a_suite_and_a_decision"]),),
             "rego suite study: the population",
+        ),
+        (
+            r"(\d+) (?:Gatekeeper modules that ship an author-written suite, besides|modules "
+            r"outside) the one the harness was built on",
+            (_grouped(suite["population"]["modules_with_a_suite_and_a_decision"] - 1),),
+            "rego suite study: the population without the development module",
         ),
         (
             r"a mean of (\d+\.\d)\\% line coverage",
@@ -2758,7 +3062,7 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar real edits: what a suite of the earlier version catches",
         ),
         (
-            rf"On ({_GROUPED}) real Cedar files, decided by their engine, (\d+\.\d)\\%, "
+            rf"On ({_GROUPED}) real Cedar files, (\d+\.\d)\\%, "
             r"(\d+\.\d)\\% and (\d+\.\d)\\%",
             (
                 _grouped(primary["files_scored"]),
@@ -2802,21 +3106,19 @@ def _summary_claims(docs: Path) -> list[Claim]:
     assert all(row["sample"]["schemas"] for row in summary["ecosystems"].values())
     return [
         (
-            rf"on ({_GROUPED}) generated policies, one witness per quotient class "
-            r"detects (\d+\.\d)\\% of seeded faults in expectation, against (\d+\.\d)\\% for a "
-            r"random suite of the same size and (\d+\.\d)\\% for a decision-coverage proxy",
+            rf"on ({_GROUPED}) generated policies, one witness per quotient class detects\s*"
+            r"(\d+\.\d)\\% of seeded faults with a median of (\d+) tests, a random suite of the "
+            r"same "
+            r"size (\d+\.\d)\\%, and our\s*(\w+)-test decision proxy (\d+\.\d)\\%",
             (
                 _grouped(suites["policies_scored"]),
                 _pct(scores["quotient"]),
+                str(int(suites["median_suite_size"]["quotient"])),
                 _pct(scores["random_quotient"]),
+                _word(int(suites["median_suite_size"]["decision"])),
                 _pct(scores["decision"]),
             ),
             "abstract: the suite strategies",
-        ),
-        (
-            rf"({_GROUPED}) files sampled outside the vendors sit at or below their shares",
-            (_grouped(summary["sampled"]),),
-            "abstract: the third-party samples",
         ),
         (
             r"it detects (\d+\.\d)\\% of seeded faults in expectation where the proxy detects "
@@ -2832,8 +3134,8 @@ def _summary_claims(docs: Path) -> list[Claim]:
         (
             rf"({_GROUPED}) files from ({_GROUPED}) repositories in four languages, drawn by a "
             rf"recorded procedure and pinned file by file\. Each sits at or below its vendor's "
-            rf"share, parameterisation appears in all four, and the exclusion taxonomy holds on "
-            rf"every one of their ({_GROUPED}) exclusions",
+            rf"share, parameterisation appears in all four, and every one of their ({_GROUPED}) "
+            rf"exclusions falls under the same three reasons",
             (
                 _grouped(summary["sampled"]),
                 _grouped(summary["repositories"]),
@@ -2950,8 +3252,8 @@ def _third_party_claims(docs: Path) -> list[Claim]:
             "third-party sample: each share against its vendor",
         ),
         (
-            rf"every one of the ({_GROUPED}) exclusions in these samples falls in one of its "
-            r"three rows",
+            rf"every one of the ({_GROUPED}) exclusions in\s*these samples falls under the same "
+            r"three reasons",
             (_grouped(summary["exclusions"]),),
             "third-party sample: the taxonomy holds",
         ),
@@ -3132,7 +3434,7 @@ def _payoff_claims(docs: Path) -> list[Claim]:
             "suite strategies: H1, the quotient against random at equal size",
         ),
         (
-            r"Against the decision-coverage proxy the difference is (\d\.\d+) "
+            r"Against the\s*decision proxy the difference is (\d\.\d+) "
             r"\$\[(\d\.\d+), (\d\.\d+)\]\$, higher on "
             rf"({_GROUPED}) policies and lower on (none|{_GROUPED})",
             (
@@ -3165,7 +3467,7 @@ def _payoff_claims(docs: Path) -> list[Claim]:
         ),
         (
             r"detects (\d+\.\d)\\% of seeded faults in expectation, against (\d+\.\d)\\% for a "
-            r"random suite of the same size and (\d+\.\d)\\% for the decision-coverage proxy, "
+            r"random suite of the same size and (\d+\.\d)\\% for our decision proxy, "
             rf"across ({_GROUPED}) generated policies",
             (
                 _pct(paper["mean_expected_score"]["quotient"]),
@@ -3381,20 +3683,27 @@ def _payoff_series(
     ]
 
 
+# The taxonomy figure places each exclusion by the obstruction that would survive supplying its
+# parameters, and as a schema only when nothing else keeps it out: the bands of
+# `exclusion_taxonomy.crosstab`, rounded so that every bar sums to exactly 100.0.
+TAXONOMY_CROSSTAB_BANDS = {
+    "inside": "inside",
+    "not a policy": "schema only",
+    "the subject does not determine the guard": "subject",
+    "reads evaluation-time state": "evaluation time",
+    "undetermined": "undetermined",
+}
+
+
 def figure_findings(tex: str, docs: Path) -> list[str]:
-    taxonomy = _load(docs, "exclusion-taxonomy-v1")
-    rows = {row["corpus"]: row for row in taxonomy["rows"]}
+    crossed = _load(docs, "exclusion-crosstab-v1")
+    rows = {row["corpus"]: row for row in crossed["rows"]}
     expected: list[list[tuple[str, str]]] = []
     for band in TAXONOMY_FIGURE_BANDS:
         series = []
         for index, corpus in enumerate(TAXONOMY_FIGURE_ORDER):
-            row = rows[corpus]
-            total = row["policies_considered"]
-            if band in ("inside", "undetermined"):
-                value = row[band]
-            else:
-                value = row["exclusions_by_kind"].get(band, 0)
-            series.append((f"{100 * value / total:.1f}", str(index)))
+            value = rows[corpus]["band_shares"][TAXONOMY_CROSSTAB_BANDS[band]]
+            series.append((f"{value:.1f}", str(index)))
         expected.append(series)
     problems = _compare_figure(tex, "taxonomy", "taxonomy", TAXONOMY_FIGURE_BANDS, expected)
 
