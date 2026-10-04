@@ -1246,6 +1246,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _cedar_symcc_claims(docs)
     claims += _xacml_criteria_claims(docs)
     claims += _round2_claims(docs)
+    claims += _criteria_claims(docs)
     return claims
 
 
@@ -2354,6 +2355,179 @@ def _cedar_funnel(docs: Path) -> tuple[str, str, str, str, str]:
         _grouped(study["max_cells"]),
         str(statuses["missing cells"]),
     )
+
+
+def _criteria_claims(docs: Path) -> list[Claim]:
+    """Established criteria against the quotient, on the generated and Cedar populations."""
+
+    study = _load(docs, "combination-criteria-study-v1")
+    assert study["deviations"] == []
+    g = study["populations"]["generated"]
+    c = study["populations"]["cedar"]
+    assert g["policies_scored"] == 300 and c["policies_scored"] == 96
+    # The quotient's figures must reproduce the payoff studies', or the instrument scored
+    # something else.
+    payoff = _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]["mean_expected_score"]
+    cedar = _load(docs, "cedar-suite-strategy-study-v1")["analyses"][
+        "primary: files with a condition"
+    ]["mean_expected_score"]
+    assert _pct(g["mean_score"]["quotient"]) == _pct(payoff["quotient"])
+    assert _pct(g["mean_random_score"]["quotient"]) == _pct(payoff["random_quotient"])
+    assert _pct(c["mean_score"]["quotient"]) == _pct(cedar["quotient"])
+    assert _pct(c["mean_random_score"]["quotient"]) == _pct(cedar["random_quotient"])
+    gh, ch = g["hypotheses"], c["hypotheses"]
+    assert all(v["p_value_holm"] < 0.05 for k, v in {**gh, **ch}.items() if k.startswith("Q_"))
+    assert gh["R_base_choice"]["mean_difference"] < 0 and ch["R_base_choice"]["mean_difference"] < 0
+
+    def whole(value: float) -> str:
+        return _half_up(value, "1")
+
+    def tenth(value: float) -> str:
+        return _half_up(value, "0.1")
+
+    xacml = _load(docs, "xacml-criteria-study-v1")["summary"]
+    quotient_gain = g["mean_score"]["quotient"] - g["mean_random_score"]["quotient"]
+    claims: list[Claim] = [
+        (
+            r"MC/DC detects (\d+\.\d)\\% of generated faults with a median of (\d+) tests",
+            (_pct(g["mean_score"]["mcdc"]), whole(g["median_size"]["mcdc"])),
+            "criteria: MC/DC in the abstract, the contributions and the conclusion",
+        ),
+        (
+            r"and (\d+\.\d)\\% on Xu et al.'s XACML benchmark with (\d+)",
+            (_pct(xacml["mean_over_policies"]["MCDC"]), whole(xacml["mean_suite_size"]["MCDC"])),
+            "criteria: MC/DC on XACML in the abstract",
+        ),
+        (
+            r"on the generated policies MC/DC detects (\d+\.\d)\\% with a median of (\d+) tests "
+            r"and three-wise coverage (\d+\.\d)\\% with (\d+), against the quotient's "
+            r"(\d+\.\d)\\% with (\d+), and on Cedar three-wise coverage detects (\d+\.\d)\\% with "
+            r"(\d+) against (\d+\.\d)\\% with (\d+)",
+            (
+                _pct(g["mean_score"]["mcdc"]),
+                whole(g["median_size"]["mcdc"]),
+                _pct(g["mean_score"]["three_wise"]),
+                whole(g["median_size"]["three_wise"]),
+                _pct(g["mean_score"]["quotient"]),
+                whole(g["median_size"]["quotient"]),
+                _pct(c["mean_score"]["three_wise"]),
+                whole(c["median_size"]["three_wise"]),
+                _pct(c["mean_score"]["quotient"]),
+                whole(c["median_size"]["quotient"]),
+            ),
+            "criteria: the payoff sections' sentence",
+        ),
+        (
+            r"(\d+\.\d)\\% of the live mutants of the generated policies, and (\d+\.\d)\\% of "
+            r"Cedar's, are detected whichever witness each class contributes",
+            (_pct(g["certain_detection_mean"]), _pct(c["certain_detection_mean"])),
+            "criteria: certain detection under the quotient",
+        ),
+        (
+            r"(\d+) rule-coverage, (\d+) decision-coverage and\s*(\d+) MC/DC requirements are "
+            r"satisfied by no cell",
+            tuple(str(g["infeasible_requirements"][k]) for k in ("rule", "decision", "mcdc")),
+            "criteria: infeasible requirements",
+        ),
+        (
+            r"one-sided Holm-adjusted \$p\$ at\s*most (\d\.\d+) and (\d\.\d+)",
+            (
+                f"{max(v['p_value_holm'] for k, v in gh.items() if k.startswith('Q_')):.4f}",
+                f"{max(v['p_value_holm'] for k, v in ch.items() if k.startswith('Q_')):.4f}",
+            ),
+            "criteria: the quotient beats every criterion",
+        ),
+        (
+            r"MC/DC\s*detects (\d+\.\d)\\% with (\d+\.\d) tests on average and three-wise "
+            r"coverage\s*(\d+\.\d)\\% with (\d+\.\d), where the quotient detects\s*(\d+\.\d)\\% "
+            r"with (\d+\.\d) \((\d+) at the median\)",
+            (
+                _pct(g["mean_score"]["mcdc"]),
+                tenth(g["mean_size"]["mcdc"]),
+                _pct(g["mean_score"]["three_wise"]),
+                tenth(g["mean_size"]["three_wise"]),
+                _pct(g["mean_score"]["quotient"]),
+                tenth(g["mean_size"]["quotient"]),
+                whole(g["median_size"]["quotient"]),
+            ),
+            "criteria: the generated policies in the supplement",
+        ),
+        (
+            r"three-wise coverage detects (\d+\.\d)\\% with (\d+\.\d)\s*and pairwise "
+            r"(\d+\.\d)\\% with (\d+\.\d), against\s*(\d+\.\d)\\% with (\d+\.\d) \((\d+) at the "
+            r"median\)",
+            (
+                _pct(c["mean_score"]["three_wise"]),
+                tenth(c["mean_size"]["three_wise"]),
+                _pct(c["mean_score"]["pairwise"]),
+                tenth(c["mean_size"]["pairwise"]),
+                _pct(c["mean_score"]["quotient"]),
+                tenth(c["mean_size"]["quotient"]),
+                whole(c["median_size"]["quotient"]),
+            ),
+            "criteria: Cedar in the supplement",
+        ),
+        (
+            r"MC/DC gains (\d\.\d+), decision coverage\s*(\d\.\d+) and rule coverage "
+            r"(\d\.\d+),\s*where the quotient gains (\d\.\d+)",
+            (
+                f"{gh['R_mcdc']['mean_difference']:.3f}",
+                f"{gh['R_decision']['mean_difference']:.3f}",
+                f"{gh['R_rule']['mean_difference']:.3f}",
+                f"{quotient_gain:.3f}",
+            ),
+            "criteria: gains over random suites of the same size",
+        ),
+        (
+            r"size on both populations \(\$(-\d\.\d+)\$ and\s*\$(-\d\.\d+)\$\)",
+            (
+                f"{gh['R_base_choice']['mean_difference']:.3f}",
+                f"{ch['R_base_choice']['mean_difference']:.3f}",
+            ),
+            "criteria: base choice against random",
+        ),
+        (
+            r"contributes is (\d+\.\d)\\% on the\s*generated policies and (\d+\.\d)\\% on Cedar",
+            (_pct(g["certain_detection_mean"]), _pct(c["certain_detection_mean"])),
+            "criteria: certain detection in the supplement",
+        ),
+    ]
+    labels = {
+        "quotient": "One witness per quotient class",
+        "mcdc": "MC/DC over each rule's atoms",
+        "three_wise": "Three-wise",
+        "decision": "Decision coverage",
+        "rule": "Rule coverage",
+        "pairwise": "Pairwise",
+        "base_choice": "Base choice",
+        "each_choice": "Each choice",
+    }
+    for population, table in ((g, "generated"), (c, "cedar")):
+        for name, label in labels.items():
+            if name not in population["mean_score"]:
+                continue
+            values = [
+                tenth(population["mean_size"][name]),
+                tenth(population["median_size"][name]),
+                _pct(population["mean_score"][name]),
+                _pct(population["mean_random_score"][name]),
+            ]
+            pattern = rf"{re.escape(label)} & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) & "
+            if name == "quotient":
+                pattern += "---"
+            else:
+                q = population["hypotheses"][f"Q_{name}"]
+                pattern += r"(\d\.\d+) \$\[(\d\.\d+), (\d\.\d+)\]\$"
+                values += [
+                    f"{q['mean_difference']:.3f}",
+                    f"{q['bootstrap_95'][0]:.3f}",
+                    f"{q['bootstrap_95'][1]:.3f}",
+                ]
+            # The two tables share row labels, so a row is tied to its own table: the next
+            # criteria-table label after it must be this table's.
+            pattern += r"(?=(?:(?!\\label\{tab:criteria).)*\\label\{tab:criteria" + table + r"\})"
+            claims.append((pattern, tuple(values), f"criteria table ({table}): {label}"))
+    return claims
 
 
 def _half_up(value: float, places: str) -> str:
