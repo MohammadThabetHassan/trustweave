@@ -1,0 +1,5058 @@
+{
+ "schema_version": "v1",
+ "protocol_sha256": "70ac8bd427979ccf9a701d6d5b7844d5998dd7937dbcc174ba53a619e8fac73f",
+ "seed": 20261004,
+ "kyverno_version": "1.19.1",
+ "corpus": {
+  "remote": "https://github.com/kyverno/policies.git",
+  "commit": "ef9843f08d25b3555fe69616f8612c9f915af5d4"
+ },
+ "deviations": [],
+ "population": {
+  "inside_policies_considered": 206,
+  "meeting_conditions_1_to_4": 86,
+  "development": [
+   "disallow-privileged-containers",
+   "require-labels",
+   "restrict-nodeport"
+  ],
+  "scored": 44,
+  "excluded_by_reason": {
+   "1: not a ClusterPolicy": [
+    "allowed-image-repos",
+    "check-ingress-nginx-controller-version-and-annotation-policy",
+    "inject-kata-cc-runtime",
+    "validate-initdata-configmap"
+   ],
+   "1: the manifest names several policy files": [
+    "adding-capabilities-strict",
+    "check-fsgroup",
+    "check-supplementalgroups"
+   ],
+   "2: a rule that is not a pattern or deny validate rule": [
+    "add-ambient-mode-namespace",
+    "add-apparmor-annotations",
+    "add-capabilities",
+    "add-castai-removal-disabled",
+    "add-certificates-volume",
+    "add-default-resources",
+    "add-default-securitycontext",
+    "add-env-vars-from-cm",
+    "add-external-secret-prefix",
+    "add-image-as-env-var",
+    "add-imagepullsecrets",
+    "add-imagepullsecrets-for-containers-and-initcontainers",
+    "add-karpenter-daemonset-priority-class",
+    "add-karpenter-donot-evict",
+    "add-labels",
+    "add-ndots",
+    "add-networkpolicy",
+    "add-node-affinity",
+    "add-nodeselector",
+    "add-ns-quota",
+    "add-pod-proxies",
+    "add-psa-labels",
+    "add-runtimeclassname",
+    "add-safe-to-evict",
+    "add-tolerations",
+    "add-ttl-jobs",
+    "add-volume",
+    "always-pull-images",
+    "apply-pss-restricted-profile",
+    "appproject-clusterresourceblacklist",
+    "block-tekton-task-runs",
+    "create-default-pdb",
+    "disable-automountserviceaccounttoken",
+    "disallow-capabilities-strict",
+    "disallow-helm-tiller",
+    "disallow-latest-tag",
+    "disallow-security-context-constraint-anyuid",
+    "drop-all-capabilities",
+    "drop-cap-net-raw",
+    "enable-kubecost-continuous-rightsizing",
+    "enforce-resources-as-ratio",
+    "ensure-readonly-hostpath",
+    "inject-sidecar",
+    "insert-pod-antiaffinity",
+    "k10-data-protection-by-label",
+    "k10-policy-hourly-rpo",
+    "k10-validate-ns-by-preset-label",
+    "k6t-add-services",
+    "kasten-minimum-retention",
+    "limit-hostpath-vols",
+    "log4shell-mitigation",
+    "mutate-termination-grace-period-seconds",
+    "podsecurity-subrule-baseline",
+    "podsecurity-subrule-restricted",
+    "podsecurity-subrule-restricted-capabilities",
+    "podsecurity-subrule-restricted-seccomp",
+    "prepend-registry",
+    "psp-restrict-adding-capabilities",
+    "remove-hostpath-volumes",
+    "remove-serviceaccount-token",
+    "replace-image-registry",
+    "require-emptydir-requests-and-limits",
+    "require-pod-probes",
+    "require-qos-guaranteed",
+    "restrict-clusterrole-csr",
+    "restrict-clusterrole-mutating-validating-admission-webhooks",
+    "restrict-deprecated-registry",
+    "restrict-escalation-verbs-roles",
+    "restrict-ingress-wildcard",
+    "restrict-virtual-service-wildcard",
+    "set-karpenter-non-cpu-limits",
+    "spread-pods"
+   ],
+   "3: a condition the witness space does not model": [
+    "allowed-annotations",
+    "allowed-label-changes",
+    "block-velero-restore",
+    "cert-manager-limit-dnsnames",
+    "cert-manager-limit-duration",
+    "check-routes",
+    "check-sa",
+    "deny-commands-in-exec-probe",
+    "disallow-capabilities",
+    "disallow-empty-ingress-host",
+    "disallow-host-ports-range",
+    "disallow-jenkins-pipeline-strategy",
+    "disallow-self-provisioner-binding",
+    "enforce-etcd-encryption",
+    "ingress-host-match-tls",
+    "kasten-3-2-1-backup-policy",
+    "limit-containers-per-pod",
+    "memory-requests-equal-limits",
+    "metadata-match-regex",
+    "prevent-bare-pods",
+    "require-imagepullsecrets",
+    "require-ingress-https",
+    "require-qos-burstable",
+    "require-reasonable-pdbs",
+    "restrict-annotations",
+    "restrict-automount-sa-token",
+    "restrict-clusterrole-nodesproxy",
+    "restrict-ingress-paths",
+    "restrict-jobs",
+    "restrict-networkpolicy-empty-podselector",
+    "restrict-secret-role-verbs",
+    "restrict-volume-types",
+    "restrict-wildcard-resources",
+    "restrict-wildcard-verbs",
+    "team-validate-ns-name",
+    "topologyspreadconstraints-policy",
+    "validate-cron-schedule",
+    "validate-probes"
+   ],
+   "3: a variable in a pattern value": [
+    "applicationset-name-matches-project"
+   ],
+   "4: a selector other than kinds, names, namespaces and operations": [
+    "kasten-data-protection-by-label",
+    "limit-configmap-for-sa"
+   ],
+   "5: no mutants": [
+    "block-ephemeral-containers",
+    "cert-manager-restrict-issuer",
+    "check-serviceaccount-secrets",
+    "deny-secret-service-account-token-type",
+    "disallow-default-namespace",
+    "disallow-deprecated-apis",
+    "docker-socket-check",
+    "enforce-ambient-mode-namespace",
+    "enforce-min-tls-version",
+    "enforce-sidecar-injection-namespace",
+    "imagepullpolicy-always",
+    "k6t-enforce-instancetype",
+    "kasten-immutable-location-profile",
+    "kasten-validate-ns-by-preset-label",
+    "no-loadbalancer-service",
+    "no-localhost-service",
+    "readwriteonce-pod",
+    "require-linkerd-mesh-injection",
+    "restrict-binding-clusteradmin",
+    "restrict-binding-system-groups",
+    "restrict-external-ips",
+    "restrict-ingress-classes",
+    "restrict-ingress-defaultbackend",
+    "restrict-service-port-range",
+    "restrict-storageclass",
+    "validate-userid-groupid-fsgroup",
+    "verify-flux-sources",
+    "verify-git-repositories"
+   ],
+   "a kind with neither a suite resource nor a core API version": [
+    "check-deprecated-apis"
+   ],
+   "over the cell cap": [
+    "disallow-selinux",
+    "no-secrets",
+    "require-cpu-limits",
+    "require-non-root-groups",
+    "require-requests-limits",
+    "require-run-as-non-root-user",
+    "require-run-as-nonroot",
+    "restrict-seccomp",
+    "restrict-seccomp-strict",
+    "restrict-secrets-by-name"
+   ]
+  }
+ },
+ "results": {
+  "policies": 44,
+  "pooled": {
+   "mutants": 129,
+   "stillborn": 0,
+   "killed": 95,
+   "survived": 34,
+   "equivalent": 2,
+   "equivalent_survivors": 2,
+   "killed_but_equivalent": 0,
+   "distinguishable": 127,
+   "killed_distinguishable": 95,
+   "real": 32
+  },
+  "pooled_scores": {
+   "raw": 0.736434,
+   "exact": 0.748031,
+   "share_of_survivors_equivalent": 0.058824
+  },
+  "mean_over_policies": {
+   "policies_with_both_scores": 44,
+   "raw": 0.790634,
+   "exact": 0.807679,
+   "difference": 0.017045,
+   "bootstrap_95": [
+    0.0,
+    0.045455
+   ]
+  },
+  "by_family": {
+   "anchor": {
+    "mutants": 88,
+    "killed_distinguishable": 72,
+    "real": 16
+   },
+   "boolean": {
+    "mutants": 2,
+    "killed_distinguishable": 2
+   },
+   "condition operator": {
+    "mutants": 9,
+    "killed_distinguishable": 9
+   },
+   "expression operator": {
+    "mutants": 9,
+    "equivalent": 1,
+    "killed_distinguishable": 8
+   },
+   "threshold": {
+    "mutants": 2,
+    "killed_distinguishable": 2
+   },
+   "weakening": {
+    "mutants": 19,
+    "real": 16,
+    "equivalent": 1,
+    "killed_distinguishable": 2
+   }
+  }
+ },
+ "development_results": {
+  "policies": 3,
+  "pooled": {
+   "mutants": 10,
+   "stillborn": 0,
+   "killed": 7,
+   "survived": 3,
+   "equivalent": 0,
+   "equivalent_survivors": 0,
+   "killed_but_equivalent": 0,
+   "distinguishable": 10,
+   "killed_distinguishable": 7,
+   "real": 3
+  },
+  "pooled_scores": {
+   "raw": 0.7,
+   "exact": 0.7,
+   "share_of_survivors_equivalent": 0.0
+  },
+  "mean_over_policies": {
+   "policies_with_both_scores": 3,
+   "raw": 0.583333,
+   "exact": 0.583333,
+   "difference": 0.0,
+   "bootstrap_95": [
+    0.0,
+    0.0
+   ]
+  },
+  "by_family": {
+   "anchor": {
+    "mutants": 9,
+    "killed_distinguishable": 7,
+    "real": 2
+   },
+   "weakening": {
+    "mutants": 1,
+    "real": 1
+   }
+  }
+ },
+ "closing_the_gaps": {
+  "policies_with_gaps": 11,
+  "tests_added": 32,
+  "gaps_not_expressible": 0,
+  "exceptions": {}
+ },
+ "policies": {
+  "add-psa-namespace-reporting": {
+   "policy": "add-psa-namespace-reporting",
+   "file": "psa/add-psa-namespace-reporting/add-psa-namespace-reporting.yaml",
+   "rules": [
+    "check-namespace-labels"
+   ],
+   "reads_operation": false,
+   "cells": 8,
+   "cells_with_a_result": 8,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L39:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-namespace-labels",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "labels": {
+         "pod-security.kubernetes.io/*": ""
+        },
+        "name": "tw-0-5"
+       },
+       "apiVersion": "v1",
+       "kind": "Namespace"
+      },
+      "policy": {
+       "check-namespace-labels": "fail"
+      },
+      "mutant": {
+       "check-namespace-labels": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "exceptions": []
+   }
+  },
+  "application-field-validation": {
+   "policy": "application-field-validation",
+   "file": "argo/application-field-validation/application-field-validation.yaml",
+   "rules": [
+    "source-path-chart",
+    "destination-server-name"
+   ],
+   "reads_operation": false,
+   "cells": 102,
+   "cells_with_a_result": 102,
+   "unloadable_cells": 0,
+   "check_inputs": 403,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 3,
+   "mutants": [
+    {
+     "mutant": "L33:'?*'->'*'",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "source-path-chart",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "source": {
+         "path": ""
+        }
+       },
+       "apiVersion": "argoproj.io/v1alpha1",
+       "kind": "Application",
+       "metadata": {
+        "name": "tw-0-6",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "source-path-chart": "fail",
+       "destination-server-name": "fail"
+      },
+      "mutant": {
+       "source-path-chart": "pass",
+       "destination-server-name": "fail"
+      }
+     }
+    },
+    {
+     "mutant": "L38:'?*'->'*'",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "source-path-chart",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "source": {
+         "chart": ""
+        }
+       },
+       "apiVersion": "argoproj.io/v1alpha1",
+       "kind": "Application",
+       "metadata": {
+        "name": "tw-0-30",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "source-path-chart": "fail",
+       "destination-server-name": "fail"
+      },
+      "mutant": {
+       "source-path-chart": "pass",
+       "destination-server-name": "fail"
+      }
+     }
+    },
+    {
+     "mutant": "L51:'?*'->'*'",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "destination-server-name",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "destination": {
+         "server": ""
+        }
+       },
+       "apiVersion": "argoproj.io/v1alpha1",
+       "kind": "Application",
+       "metadata": {
+        "name": "tw-1-57",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "source-path-chart": "fail",
+       "destination-server-name": "fail"
+      },
+      "mutant": {
+       "source-path-chart": "fail",
+       "destination-server-name": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L56:'?*'->'*'",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "destination-server-name",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "destination": {
+         "name": ""
+        }
+       },
+       "apiVersion": "argoproj.io/v1alpha1",
+       "kind": "Application",
+       "metadata": {
+        "name": "tw-1-81",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "source-path-chart": "fail",
+       "destination-server-name": "fail"
+      },
+      "mutant": {
+       "source-path-chart": "fail",
+       "destination-server-name": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 4,
+    "exceptions": []
+   }
+  },
+  "application-prevent-default-project": {
+   "policy": "application-prevent-default-project",
+   "file": "argo/application-prevent-default-project/application-prevent-default-project.yaml",
+   "rules": [
+    "default-project"
+   ],
+   "reads_operation": true,
+   "cells": 30,
+   "cells_with_a_result": 30,
+   "unloadable_cells": 0,
+   "check_inputs": 2010,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L27:||->&&",
+     "family": "expression operator",
+     "status": "survived",
+     "equivalent": true
+    },
+    {
+     "mutant": "L28:NotEquals->Equals",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "default-project",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "argoproj.io/v1alpha1",
+       "kind": "Application",
+       "metadata": {
+        "name": "tw-0-0",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "default-project": "fail"
+      },
+      "mutant": {
+       "default-project": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "block-ephemeral-containers": {
+   "policy": "block-ephemeral-containers",
+   "file": "other/block-ephemeral-containers/block-ephemeral-containers.yaml",
+   "excluded": "5: no mutants"
+  },
+  "cert-manager-restrict-issuer": {
+   "policy": "cert-manager-restrict-issuer",
+   "file": "cert-manager/restrict-issuer/restrict-issuer.yaml",
+   "excluded": "5: no mutants"
+  },
+  "check-deprecated-apis": {
+   "policy": "check-deprecated-apis",
+   "file": "best-practices/check-deprecated-apis/check-deprecated-apis.yaml",
+   "excluded": "a kind with neither a suite resource nor a core API version"
+  },
+  "check-env-vars": {
+   "policy": "check-env-vars",
+   "file": "other/check-env-vars/check-env-vars.yaml",
+   "rules": [
+    "check-disable-opa"
+   ],
+   "reads_operation": false,
+   "cells": 111,
+   "cells_with_a_result": 111,
+   "unloadable_cells": 0,
+   "check_inputs": 403,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 3,
+   "mutants": [
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-disable-opa",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "check-disable-opa": "fail"
+      },
+      "mutant": {
+       "check-disable-opa": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "check-serviceaccount-secrets": {
+   "policy": "check-serviceaccount-secrets",
+   "file": "other/check-serviceaccount-secrets/check-serviceaccount-secrets.yaml",
+   "excluded": "5: no mutants"
+  },
+  "deny-secret-service-account-token-type": {
+   "policy": "deny-secret-service-account-token-type",
+   "file": "other/deny-secret-service-account-token-type/deny-secret-service-account-token-type.yaml",
+   "excluded": "5: no mutants"
+  },
+  "deployment-has-multiple-replicas": {
+   "policy": "deployment-has-multiple-replicas",
+   "file": "other/require-deployments-have-multiple-replicas/require-deployments-have-multiple-replicas.yaml",
+   "rules": [
+    "deployment-has-multiple-replicas"
+   ],
+   "reads_operation": false,
+   "cells": 7,
+   "cells_with_a_result": 7,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L29:\">->\"<",
+     "family": "threshold",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "deployment-has-multiple-replicas",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "apps/v1",
+       "kind": "Deployment",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "deployment-has-multiple-replicas": "fail"
+      },
+      "mutant": {
+       "deployment-has-multiple-replicas": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "disallow-container-sock-mounts": {
+   "policy": "disallow-container-sock-mounts",
+   "file": "best-practices/disallow-cri-sock-mount/disallow-cri-sock-mount.yaml",
+   "rules": [
+    "validate-docker-sock-mount",
+    "validate-containerd-sock-mount",
+    "validate-crio-sock-mount",
+    "validate-dockerd-sock-mount"
+   ],
+   "reads_operation": false,
+   "cells": 36,
+   "cells_with_a_result": 36,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "skip",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "volumes": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "skip",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L45:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "skip",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L46:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "volumes": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "skip",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L58:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "skip",
+       "validate-dockerd-sock-mount": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L59:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "volumes": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "skip",
+       "validate-dockerd-sock-mount": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L71:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L72:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-docker-sock-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "volumes": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "pass"
+      },
+      "mutant": {
+       "validate-docker-sock-mount": "pass",
+       "validate-containerd-sock-mount": "pass",
+       "validate-crio-sock-mount": "pass",
+       "validate-dockerd-sock-mount": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 6,
+    "exceptions": []
+   }
+  },
+  "disallow-default-namespace": {
+   "policy": "disallow-default-namespace",
+   "file": "best-practices/disallow-default-namespace/disallow-default-namespace.yaml",
+   "excluded": "5: no mutants"
+  },
+  "disallow-deprecated-apis": {
+   "policy": "disallow-deprecated-apis",
+   "file": "openshift/disallow-deprecated-apis/disallow-deprecated-apis.yaml",
+   "excluded": "5: no mutants"
+  },
+  "disallow-host-namespaces": {
+   "policy": "disallow-host-namespaces",
+   "file": "pod-security/baseline/disallow-host-namespaces/disallow-host-namespaces.yaml",
+   "rules": [
+    "host-namespaces"
+   ],
+   "reads_operation": false,
+   "cells": 126,
+   "cells_with_a_result": 126,
+   "unloadable_cells": 0,
+   "check_inputs": 427,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 27,
+   "mutants": [
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-namespaces",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-namespaces": "pass"
+      },
+      "mutant": {
+       "host-namespaces": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-namespaces",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-namespaces": "pass"
+      },
+      "mutant": {
+       "host-namespaces": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L35:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-namespaces",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-namespaces": "pass"
+      },
+      "mutant": {
+       "host-namespaces": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "disallow-host-path": {
+   "policy": "disallow-host-path",
+   "file": "pod-security/baseline/disallow-host-path/disallow-host-path.yaml",
+   "rules": [
+    "host-path"
+   ],
+   "reads_operation": false,
+   "cells": 8,
+   "cells_with_a_result": 8,
+   "unloadable_cells": 0,
+   "check_inputs": 412,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 12,
+   "mutants": [
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-path",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-path": "pass"
+      },
+      "mutant": {
+       "host-path": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "disallow-host-ports": {
+   "policy": "disallow-host-ports",
+   "file": "pod-security/baseline/disallow-host-ports/disallow-host-ports.yaml",
+   "rules": [
+    "host-ports-none"
+   ],
+   "reads_operation": false,
+   "cells": 1001,
+   "cells_with_a_result": 1001,
+   "unloadable_cells": 0,
+   "check_inputs": 460,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 60,
+   "mutants": [
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-ports-none": "fail"
+      },
+      "mutant": {
+       "host-ports-none": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-21"
+       }
+      },
+      "policy": {
+       "host-ports-none": "fail"
+      },
+      "mutant": {
+       "host-ports-none": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L35:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "ports": [
+           {}
+          ]
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-41"
+       }
+      },
+      "policy": {
+       "host-ports-none": "fail"
+      },
+      "mutant": {
+       "host-ports-none": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L36:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-ports-none": "fail"
+      },
+      "mutant": {
+       "host-ports-none": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L37:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "host-ports-none": "fail"
+      },
+      "mutant": {
+       "host-ports-none": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L38:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {
+          "ports": [
+           {}
+          ]
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-5"
+       }
+      },
+      "policy": {
+       "host-ports-none": "fail"
+      },
+      "mutant": {
+       "host-ports-none": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L40:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-201"
+       }
+      },
+      "policy": {
+       "host-ports-none": "pass"
+      },
+      "mutant": {
+       "host-ports-none": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L41:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-ports-none",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "ports": [
+           {}
+          ]
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-401"
+       }
+      },
+      "policy": {
+       "host-ports-none": "pass"
+      },
+      "mutant": {
+       "host-ports-none": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "exceptions": []
+   }
+  },
+  "disallow-host-process": {
+   "policy": "disallow-host-process",
+   "file": "pod-security/baseline/disallow-host-process/disallow-host-process.yaml",
+   "rules": [
+    "host-process-containers"
+   ],
+   "reads_operation": false,
+   "cells": 730,
+   "cells_with_a_result": 730,
+   "unloadable_cells": 0,
+   "check_inputs": 433,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 33,
+   "mutants": [
+    {
+     "mutant": "L35:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L36:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-19"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L37:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-28"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L38:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "securityContext": {
+           "windowsOptions": {}
+          }
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-37"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L39:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L40:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L41:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-4"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L42:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {
+          "securityContext": {
+           "windowsOptions": {}
+          }
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-5"
+       }
+      },
+      "policy": {
+       "host-process-containers": "fail"
+      },
+      "mutant": {
+       "host-process-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L44:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-163"
+       }
+      },
+      "policy": {
+       "host-process-containers": "pass"
+      },
+      "mutant": {
+       "host-process-containers": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L45:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-244"
+       }
+      },
+      "policy": {
+       "host-process-containers": "pass"
+      },
+      "mutant": {
+       "host-process-containers": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L46:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "host-process-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "securityContext": {
+           "windowsOptions": {}
+          }
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-325"
+       }
+      },
+      "policy": {
+       "host-process-containers": "pass"
+      },
+      "mutant": {
+       "host-process-containers": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 6,
+    "exceptions": []
+   }
+  },
+  "disallow-ingress-nginx-custom-snippets": {
+   "policy": "disallow-ingress-nginx-custom-snippets",
+   "file": "nginx-ingress/disallow-ingress-nginx-custom-snippets/disallow-ingress-nginx-custom-snippets.yaml",
+   "rules": [
+    "check-config-map",
+    "check-ingress-annotations"
+   ],
+   "reads_operation": false,
+   "cells": 14,
+   "cells_with_a_result": 14,
+   "unloadable_cells": 0,
+   "check_inputs": 406,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 6,
+   "mutants": [
+    {
+     "mutant": "L30:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-config-map",
+      "operation": null,
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "ConfigMap",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "check-config-map": "pass"
+      },
+      "mutant": {
+       "check-config-map": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-config-map",
+      "operation": null,
+      "resource": {
+       "data": {},
+       "apiVersion": "v1",
+       "kind": "ConfigMap",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "check-config-map": "pass"
+      },
+      "mutant": {
+       "check-config-map": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L42:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-ingress-annotations",
+      "operation": null,
+      "resource": {
+       "apiVersion": "networking.k8s.io/v1",
+       "kind": "Ingress",
+       "metadata": {
+        "name": "tw-1-6"
+       }
+      },
+      "policy": {
+       "check-ingress-annotations": "pass"
+      },
+      "mutant": {
+       "check-ingress-annotations": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L43:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": true
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "disallow-privilege-escalation": {
+   "policy": "disallow-privilege-escalation",
+   "file": "pod-security/restricted/disallow-privilege-escalation/disallow-privilege-escalation.yaml",
+   "rules": [
+    "privilege-escalation"
+   ],
+   "reads_operation": false,
+   "cells": 513,
+   "cells_with_a_result": 513,
+   "unloadable_cells": 0,
+   "check_inputs": 433,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 33,
+   "mutants": [
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privilege-escalation",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "privilege-escalation": "fail"
+      },
+      "mutant": {
+       "privilege-escalation": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L37:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privilege-escalation",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "privilege-escalation": "fail"
+      },
+      "mutant": {
+       "privilege-escalation": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "disallow-privileged-containers": {
+   "policy": "disallow-privileged-containers",
+   "file": "pod-security/baseline/disallow-privileged-containers/disallow-privileged-containers.yaml",
+   "rules": [
+    "privileged-containers"
+   ],
+   "reads_operation": false,
+   "cells": 513,
+   "cells_with_a_result": 513,
+   "unloadable_cells": 0,
+   "check_inputs": 433,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 33,
+   "mutants": [
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "privileged-containers": "fail"
+      },
+      "mutant": {
+       "privileged-containers": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-17"
+       }
+      },
+      "policy": {
+       "privileged-containers": "fail"
+      },
+      "mutant": {
+       "privileged-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-25"
+       }
+      },
+      "policy": {
+       "privileged-containers": "fail"
+      },
+      "mutant": {
+       "privileged-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "privileged-containers": "fail"
+      },
+      "mutant": {
+       "privileged-containers": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L35:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "privileged-containers": "fail"
+      },
+      "mutant": {
+       "privileged-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L36:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-4"
+       }
+      },
+      "policy": {
+       "privileged-containers": "fail"
+      },
+      "mutant": {
+       "privileged-containers": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L38:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-129"
+       }
+      },
+      "policy": {
+       "privileged-containers": "pass"
+      },
+      "mutant": {
+       "privileged-containers": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L39:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "privileged-containers",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-193"
+       }
+      },
+      "policy": {
+       "privileged-containers": "pass"
+      },
+      "mutant": {
+       "privileged-containers": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "exceptions": []
+   }
+  },
+  "disallow-proc-mount": {
+   "policy": "disallow-proc-mount",
+   "file": "pod-security/baseline/disallow-proc-mount/disallow-proc-mount.yaml",
+   "rules": [
+    "check-proc-mount"
+   ],
+   "reads_operation": false,
+   "cells": 513,
+   "cells_with_a_result": 513,
+   "unloadable_cells": 0,
+   "check_inputs": 433,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 33,
+   "mutants": [
+    {
+     "mutant": "L35:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "fail"
+      },
+      "mutant": {
+       "check-proc-mount": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L36:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-17"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "fail"
+      },
+      "mutant": {
+       "check-proc-mount": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L37:=(->(",
+     "family": "anchor",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-25"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "fail"
+      },
+      "mutant": {
+       "check-proc-mount": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L38:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "fail"
+      },
+      "mutant": {
+       "check-proc-mount": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L39:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "fail"
+      },
+      "mutant": {
+       "check-proc-mount": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L40:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "initContainers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-4"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "fail"
+      },
+      "mutant": {
+       "check-proc-mount": "error"
+      }
+     }
+    },
+    {
+     "mutant": "L42:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-129"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "pass"
+      },
+      "mutant": {
+       "check-proc-mount": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L43:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-proc-mount",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "securityContext": {}
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-193"
+       }
+      },
+      "policy": {
+       "check-proc-mount": "pass"
+      },
+      "mutant": {
+       "check-proc-mount": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "exceptions": []
+   }
+  },
+  "disallow-selinux": {
+   "policy": "disallow-selinux",
+   "file": "pod-security/baseline/disallow-selinux/disallow-selinux.yaml",
+   "excluded": "over the cell cap"
+  },
+  "docker-socket-check": {
+   "policy": "docker-socket-check",
+   "file": "other/docker-socket-requires-label/docker-socket-requires-label.yaml",
+   "excluded": "5: no mutants"
+  },
+  "enforce-ambient-mode-namespace": {
+   "policy": "enforce-ambient-mode-namespace",
+   "file": "istio/enforce-ambient-mode-namespace/enforce-ambient-mode-namespace.yaml",
+   "excluded": "5: no mutants"
+  },
+  "enforce-min-tls-version": {
+   "policy": "enforce-min-tls-version",
+   "file": "consul/enforce-min-tls-version/enforce-min-tls-version.yaml",
+   "excluded": "5: no mutants"
+  },
+  "enforce-sidecar-injection-namespace": {
+   "policy": "enforce-sidecar-injection-namespace",
+   "file": "istio/enforce-sidecar-injection-namespace/enforce-sidecar-injection-namespace.yaml",
+   "excluded": "5: no mutants"
+  },
+  "enforce-strict-mtls": {
+   "policy": "enforce-strict-mtls",
+   "file": "istio/enforce-strict-mtls/enforce-strict-mtls.yaml",
+   "rules": [
+    "validate-mtls"
+   ],
+   "reads_operation": false,
+   "cells": 9,
+   "cells_with_a_result": 9,
+   "unloadable_cells": 0,
+   "check_inputs": 408,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 8,
+   "mutants": [
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-mtls",
+      "operation": null,
+      "resource": {
+       "apiVersion": "security.istio.io/v1beta1",
+       "kind": "PeerAuthentication",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "validate-mtls": "pass"
+      },
+      "mutant": {
+       "validate-mtls": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-mtls",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "security.istio.io/v1beta1",
+       "kind": "PeerAuthentication",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-mtls": "pass"
+      },
+      "mutant": {
+       "validate-mtls": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L35:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-mtls",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "mtls": {}
+       },
+       "apiVersion": "security.istio.io/v1beta1",
+       "kind": "PeerAuthentication",
+       "metadata": {
+        "name": "tw-0-2"
+       }
+      },
+      "policy": {
+       "validate-mtls": "pass"
+      },
+      "mutant": {
+       "validate-mtls": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "enforce-tls-hosts-host-subnets": {
+   "policy": "enforce-tls-hosts-host-subnets",
+   "file": "istio/enforce-tls-hosts-host-subnets/enforce-tls-hosts-host-subnets.yaml",
+   "rules": [
+    "destrule"
+   ],
+   "reads_operation": false,
+   "cells": 8,
+   "cells_with_a_result": 8,
+   "unloadable_cells": 0,
+   "check_inputs": 407,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 7,
+   "mutants": [
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "destrule",
+      "operation": null,
+      "resource": {
+       "apiVersion": "networking.istio.io/v1alpha3",
+       "kind": "DestinationRule",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "destrule": "pass"
+      },
+      "mutant": {
+       "destrule": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "destrule",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "networking.istio.io/v1alpha3",
+       "kind": "DestinationRule",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "destrule": "pass"
+      },
+      "mutant": {
+       "destrule": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "destrule",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "trafficPolicy": {}
+       },
+       "apiVersion": "networking.istio.io/v1alpha3",
+       "kind": "DestinationRule",
+       "metadata": {
+        "name": "tw-0-2"
+       }
+      },
+      "policy": {
+       "destrule": "pass"
+      },
+      "mutant": {
+       "destrule": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "destrule",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "trafficPolicy": {
+         "tls": {}
+        }
+       },
+       "apiVersion": "networking.istio.io/v1alpha3",
+       "kind": "DestinationRule",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "destrule": "pass"
+      },
+      "mutant": {
+       "destrule": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "forbid-cpu-limits": {
+   "policy": "forbid-cpu-limits",
+   "file": "other/forbid-cpu-limits/forbid-cpu-limits.yaml",
+   "rules": [
+    "check-cpu-limits"
+   ],
+   "reads_operation": false,
+   "cells": 27,
+   "cells_with_a_result": 27,
+   "unloadable_cells": 0,
+   "check_inputs": 404,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 4,
+   "mutants": [
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-cpu-limits",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "name": ""
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-9"
+       }
+      },
+      "policy": {
+       "check-cpu-limits": "pass"
+      },
+      "mutant": {
+       "check-cpu-limits": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-cpu-limits",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "name": "",
+          "resources": {
+           "limits": {
+            "cpu": null
+           }
+          }
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-12"
+       }
+      },
+      "policy": {
+       "check-cpu-limits": "fail"
+      },
+      "mutant": {
+       "check-cpu-limits": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "imagepullpolicy-always": {
+   "policy": "imagepullpolicy-always",
+   "file": "other/imagepullpolicy-always/imagepullpolicy-always.yaml",
+   "excluded": "5: no mutants"
+  },
+  "k6t-enforce-instancetype": {
+   "policy": "k6t-enforce-instancetype",
+   "file": "kubevirt/enforce-instancetype/enforce-instancetype.yaml",
+   "excluded": "5: no mutants"
+  },
+  "kasten-immutable-location-profile": {
+   "policy": "kasten-immutable-location-profile",
+   "file": "kasten/kasten-immutable-location-profile/kasten-immutable-location-profile.yaml",
+   "excluded": "5: no mutants"
+  },
+  "kasten-validate-ns-by-preset-label": {
+   "policy": "kasten-validate-ns-by-preset-label",
+   "file": "kasten/kasten-validate-ns-by-preset-label/kasten-validate-ns-by-preset-label.yaml",
+   "excluded": "5: no mutants"
+  },
+  "limit-hostpath-type-pv": {
+   "policy": "limit-hostpath-type-pv",
+   "file": "other/limit-hostpath-type-pv/limit-hostpath-type-pv.yaml",
+   "rules": [
+    "limit-hostpath-type-pv-to-slash-data"
+   ],
+   "reads_operation": true,
+   "cells": 40,
+   "cells_with_a_result": 40,
+   "unloadable_cells": 0,
+   "check_inputs": 2010,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L28:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "limit-hostpath-type-pv-to-slash-data",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "PersistentVolume",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "limit-hostpath-type-pv-to-slash-data": "fail"
+      },
+      "mutant": {
+       "limit-hostpath-type-pv-to-slash-data": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L29:AnyIn->AnyNotIn",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "limit-hostpath-type-pv-to-slash-data",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "PersistentVolume",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "limit-hostpath-type-pv-to-slash-data": "fail"
+      },
+      "mutant": {
+       "limit-hostpath-type-pv-to-slash-data": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L37:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "limit-hostpath-type-pv-to-slash-data",
+      "operation": "CREATE",
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "PersistentVolume",
+       "metadata": {
+        "name": "tw-0-5"
+       }
+      },
+      "policy": {
+       "limit-hostpath-type-pv-to-slash-data": "pass"
+      },
+      "mutant": {
+       "limit-hostpath-type-pv-to-slash-data": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "nfs-subdir-external-provisioner-storage-path": {
+   "policy": "nfs-subdir-external-provisioner-storage-path",
+   "file": "other/nfs-subdir-external-provisioner-storage-path/nfs-subdir-external-provisioner-storage-path.yaml",
+   "rules": [
+    "enforce-storage-path"
+   ],
+   "reads_operation": true,
+   "cells": 240,
+   "cells_with_a_result": 240,
+   "unloadable_cells": 0,
+   "check_inputs": 2015,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 3,
+   "mutants": [
+    {
+     "mutant": "L31:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "enforce-storage-path",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "PersistentVolumeClaim",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "enforce-storage-path": "fail"
+      },
+      "mutant": {
+       "enforce-storage-path": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L32:AnyIn->AnyNotIn",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "enforce-storage-path",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "PersistentVolumeClaim",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "enforce-storage-path": "fail"
+      },
+      "mutant": {
+       "enforce-storage-path": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L40:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "enforce-storage-path",
+      "operation": "CREATE",
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "PersistentVolumeClaim",
+       "metadata": {
+        "name": "tw-0-5"
+       }
+      },
+      "policy": {
+       "enforce-storage-path": "pass"
+      },
+      "mutant": {
+       "enforce-storage-path": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L41:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "enforce-storage-path",
+      "operation": "CREATE",
+      "resource": {
+       "metadata": {
+        "annotations": {
+         "nfs.io/storage-path": ""
+        },
+        "name": "tw-0-155"
+       },
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "PersistentVolumeClaim"
+      },
+      "policy": {
+       "enforce-storage-path": "fail"
+      },
+      "mutant": {
+       "enforce-storage-path": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L41:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "enforce-storage-path",
+      "operation": "CREATE",
+      "resource": {
+       "metadata": {
+        "annotations": {},
+        "name": "tw-0-65"
+       },
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "PersistentVolumeClaim"
+      },
+      "policy": {
+       "enforce-storage-path": "pass"
+      },
+      "mutant": {
+       "enforce-storage-path": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "no-loadbalancer-service": {
+   "policy": "no-loadbalancer-service",
+   "file": "other/restrict-loadbalancer/restrict-loadbalancer.yaml",
+   "excluded": "5: no mutants"
+  },
+  "no-localhost-service": {
+   "policy": "no-localhost-service",
+   "file": "other/disallow-localhost-services/disallow-localhost-services.yaml",
+   "excluded": "5: no mutants"
+  },
+  "no-secrets": {
+   "policy": "no-secrets",
+   "file": "other/disallow-all-secrets/disallow-all-secrets.yaml",
+   "excluded": "over the cell cap"
+  },
+  "pdb-maxunavailable": {
+   "policy": "pdb-maxunavailable",
+   "file": "other/pdb-maxunavailable/pdb-maxunavailable.yaml",
+   "rules": [
+    "pdb-maxunavailable"
+   ],
+   "reads_operation": false,
+   "cells": 7,
+   "cells_with_a_result": 7,
+   "unloadable_cells": 0,
+   "check_inputs": 404,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 4,
+   "mutants": [
+    {
+     "mutant": "L30:\">->\"<",
+     "family": "threshold",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pdb-maxunavailable",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "maxUnavailable": -1
+       },
+       "apiVersion": "policy/v1",
+       "kind": "PodDisruptionBudget",
+       "metadata": {
+        "name": "tw-0-2",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "pdb-maxunavailable": "fail"
+      },
+      "mutant": {
+       "pdb-maxunavailable": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L30:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pdb-maxunavailable",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "policy/v1",
+       "kind": "PodDisruptionBudget",
+       "metadata": {
+        "name": "tw-0-1",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "pdb-maxunavailable": "pass"
+      },
+      "mutant": {
+       "pdb-maxunavailable": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "pod-lifetime": {
+   "policy": "pod-lifetime",
+   "file": "other/enforce-pod-duration/enforce-pod-duration.yaml",
+   "rules": [
+    "pods-lifetime"
+   ],
+   "reads_operation": false,
+   "cells": 11,
+   "cells_with_a_result": 11,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L29:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pods-lifetime",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "annotations": {
+         "pod.kubernetes.io/lifetime": "9h"
+        },
+        "name": "tw-0-5",
+        "namespace": "default"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "pods-lifetime": "fail"
+      },
+      "mutant": {
+       "pods-lifetime": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L30:GreaterThan->LessThanOrEquals",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pods-lifetime",
+      "operation": null,
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "pods-lifetime": "pass"
+      },
+      "mutant": {
+       "pods-lifetime": "fail"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "prevent-cr8escape": {
+   "policy": "prevent-cr8escape",
+   "file": "other/prevent-cr8escape/prevent-cr8escape.yaml",
+   "rules": [
+    "restrict-sysctls-cr8escape"
+   ],
+   "reads_operation": false,
+   "cells": 12,
+   "cells_with_a_result": 12,
+   "unloadable_cells": 0,
+   "check_inputs": 403,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 3,
+   "mutants": [
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-sysctls-cr8escape",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "restrict-sysctls-cr8escape": "pass"
+      },
+      "mutant": {
+       "restrict-sysctls-cr8escape": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-sysctls-cr8escape",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "securityContext": {}
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-2"
+       }
+      },
+      "policy": {
+       "restrict-sysctls-cr8escape": "pass"
+      },
+      "mutant": {
+       "restrict-sysctls-cr8escape": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-sysctls-cr8escape",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "securityContext": {
+         "sysctls": [
+          {}
+         ]
+        }
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-4"
+       }
+      },
+      "policy": {
+       "restrict-sysctls-cr8escape": "pass"
+      },
+      "mutant": {
+       "restrict-sysctls-cr8escape": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "prevent-disabling-injection-pods": {
+   "policy": "prevent-disabling-injection-pods",
+   "file": "istio/prevent-disabling-injection-pods/prevent-disabling-injection-pods.yaml",
+   "rules": [
+    "prohibit-inject-annotation"
+   ],
+   "reads_operation": false,
+   "cells": 7,
+   "cells_with_a_result": 7,
+   "unloadable_cells": 0,
+   "check_inputs": 412,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 12,
+   "mutants": [
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "prohibit-inject-annotation",
+      "operation": null,
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "prohibit-inject-annotation": "pass"
+      },
+      "mutant": {
+       "prohibit-inject-annotation": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L33:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "prohibit-inject-annotation",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "annotations": {},
+        "name": "tw-0-2"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "prohibit-inject-annotation": "pass"
+      },
+      "mutant": {
+       "prohibit-inject-annotation": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "prevent-linkerd-pod-injection-override": {
+   "policy": "prevent-linkerd-pod-injection-override",
+   "file": "linkerd/prevent-linkerd-pod-injection-override/prevent-linkerd-pod-injection-override.yaml",
+   "rules": [
+    "pod-injection-override"
+   ],
+   "reads_operation": false,
+   "cells": 7,
+   "cells_with_a_result": 7,
+   "unloadable_cells": 0,
+   "check_inputs": 409,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 9,
+   "mutants": [
+    {
+     "mutant": "L29:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pod-injection-override",
+      "operation": null,
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "pod-injection-override": "pass"
+      },
+      "mutant": {
+       "pod-injection-override": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L30:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pod-injection-override",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "annotations": {},
+        "name": "tw-0-2"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "pod-injection-override": "pass"
+      },
+      "mutant": {
+       "pod-injection-override": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "prevent-linkerd-port-skipping": {
+   "policy": "prevent-linkerd-port-skipping",
+   "file": "linkerd/prevent-linkerd-port-skipping/prevent-linkerd-port-skipping.yaml",
+   "rules": [
+    "pod-prevent-port-skipping"
+   ],
+   "reads_operation": false,
+   "cells": 27,
+   "cells_with_a_result": 27,
+   "unloadable_cells": 0,
+   "check_inputs": 415,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 15,
+   "mutants": [
+    {
+     "mutant": "L29:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pod-prevent-port-skipping",
+      "operation": null,
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "pod-prevent-port-skipping": "pass"
+      },
+      "mutant": {
+       "pod-prevent-port-skipping": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "psp-check-supplemental-groups": {
+   "policy": "psp-check-supplemental-groups",
+   "file": "psp-migration/check-supplemental-groups/check-supplemental-groups.yaml",
+   "rules": [
+    "supplementalgroup-ranges"
+   ],
+   "reads_operation": true,
+   "cells": 85,
+   "cells_with_a_result": 85,
+   "unloadable_cells": 0,
+   "check_inputs": 2010,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L30:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "supplementalgroup-ranges",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "supplementalgroup-ranges": "fail"
+      },
+      "mutant": {
+       "supplementalgroup-ranges": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L31:AnyIn->AnyNotIn",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "supplementalgroup-ranges",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "supplementalgroup-ranges": "fail"
+      },
+      "mutant": {
+       "supplementalgroup-ranges": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L39:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "supplementalgroup-ranges",
+      "operation": "CREATE",
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-5"
+       }
+      },
+      "policy": {
+       "supplementalgroup-ranges": "pass"
+      },
+      "mutant": {
+       "supplementalgroup-ranges": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L40:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "supplementalgroup-ranges",
+      "operation": "CREATE",
+      "resource": {
+       "spec": {
+        "securityContext": {}
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-10"
+       }
+      },
+      "policy": {
+       "supplementalgroup-ranges": "pass"
+      },
+      "mutant": {
+       "supplementalgroup-ranges": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "readwriteonce-pod": {
+   "policy": "readwriteonce-pod",
+   "file": "other/enforce-readwriteonce-pod/enforce-readwriteonce-pod.yaml",
+   "excluded": "5: no mutants"
+  },
+  "require-annotations": {
+   "policy": "require-annotations",
+   "file": "other/require-annotations/require-annotations.yaml",
+   "rules": [
+    "check-for-annotation"
+   ],
+   "reads_operation": false,
+   "cells": 8,
+   "cells_with_a_result": 8,
+   "unloadable_cells": 0,
+   "check_inputs": 407,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 7,
+   "mutants": [
+    {
+     "mutant": "L30:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-for-annotation",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "annotations": {
+         "corp.org/department": ""
+        },
+        "name": "tw-0-5"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "check-for-annotation": "fail"
+      },
+      "mutant": {
+       "check-for-annotation": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "require-container-port-names": {
+   "policy": "require-container-port-names",
+   "file": "other/require-container-port-names/require-container-port-names.yaml",
+   "rules": [
+    "port-name"
+   ],
+   "reads_operation": false,
+   "cells": 27,
+   "cells_with_a_result": 27,
+   "unloadable_cells": 0,
+   "check_inputs": 409,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 9,
+   "mutants": [
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "port-name",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "port-name": "fail"
+      },
+      "mutant": {
+       "port-name": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "require-cpu-limits": {
+   "policy": "require-cpu-limits",
+   "file": "other/require-cpu-limits/require-cpu-limits.yaml",
+   "excluded": "over the cell cap"
+  },
+  "require-encryption-aws-loadbalancers": {
+   "policy": "require-encryption-aws-loadbalancers",
+   "file": "aws/require-encryption-aws-loadbalancers/require-encryption-aws-loadbalancers.yaml",
+   "rules": [
+    "aws-loadbalancer-has-ssl-cert"
+   ],
+   "reads_operation": false,
+   "cells": 48,
+   "cells_with_a_result": 48,
+   "unloadable_cells": 0,
+   "check_inputs": 403,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 3,
+   "mutants": [
+    {
+     "mutant": "L33:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "aws-loadbalancer-has-ssl-cert",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "annotations": {
+         "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": ""
+        },
+        "name": "tw-0-32"
+       },
+       "spec": {
+        "type": "LoadBalancer"
+       },
+       "apiVersion": "v1",
+       "kind": "Service"
+      },
+      "policy": {
+       "aws-loadbalancer-has-ssl-cert": "fail"
+      },
+      "mutant": {
+       "aws-loadbalancer-has-ssl-cert": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "exceptions": []
+   }
+  },
+  "require-image-checksum": {
+   "policy": "require-image-checksum",
+   "file": "other/require-image-checksum/require-image-checksum.yaml",
+   "rules": [
+    "require-image-checksum"
+   ],
+   "reads_operation": false,
+   "cells": 513,
+   "cells_with_a_result": 513,
+   "unloadable_cells": 0,
+   "check_inputs": 404,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 4,
+   "mutants": [
+    {
+     "mutant": "L29:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "require-image-checksum",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "require-image-checksum": "fail"
+      },
+      "mutant": {
+       "require-image-checksum": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "require-image-checksum",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "require-image-checksum": "fail"
+      },
+      "mutant": {
+       "require-image-checksum": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "require-kubecost-labels": {
+   "policy": "require-kubecost-labels",
+   "file": "kubecost/require-kubecost-labels/require-kubecost-labels.yaml",
+   "rules": [
+    "require-labels"
+   ],
+   "reads_operation": false,
+   "cells": 7778,
+   "cells_with_a_result": 7778,
+   "unloadable_cells": 0,
+   "check_inputs": 406,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 6,
+   "mutants": [
+    {
+     "mutant": "L34:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "require-labels",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "labels": {
+         "app": "a",
+         "department": "a",
+         "env": "a",
+         "owner": "",
+         "team": "a"
+        },
+        "name": "tw-0-1569"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "require-labels": "fail"
+      },
+      "mutant": {
+       "require-labels": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L35:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "require-labels",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "labels": {
+         "app": "a",
+         "department": "a",
+         "env": "a",
+         "owner": "a",
+         "team": ""
+        },
+        "name": "tw-0-1559"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "require-labels": "fail"
+      },
+      "mutant": {
+       "require-labels": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L36:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "require-labels",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "labels": {
+         "app": "a",
+         "department": "",
+         "env": "a",
+         "owner": "a",
+         "team": "a"
+        },
+        "name": "tw-0-1989"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "require-labels": "fail"
+      },
+      "mutant": {
+       "require-labels": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L37:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "require-labels",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "labels": {
+         "app": "",
+         "department": "a",
+         "env": "a",
+         "owner": "a",
+         "team": "a"
+        },
+        "name": "tw-0-4149"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "require-labels": "fail"
+      },
+      "mutant": {
+       "require-labels": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L38:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "require-labels",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "labels": {
+         "app": "a",
+         "department": "a",
+         "env": "",
+         "owner": "a",
+         "team": "a"
+        },
+        "name": "tw-0-1629"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "require-labels": "fail"
+      },
+      "mutant": {
+       "require-labels": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 5,
+    "exceptions": []
+   }
+  },
+  "require-labels": {
+   "policy": "require-labels",
+   "file": "best-practices/require-labels/require-labels.yaml",
+   "rules": [
+    "check-for-labels"
+   ],
+   "reads_operation": false,
+   "cells": 8,
+   "cells_with_a_result": 8,
+   "unloadable_cells": 0,
+   "check_inputs": 404,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 4,
+   "mutants": [
+    {
+     "mutant": "L31:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-for-labels",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "labels": {
+         "app.kubernetes.io/name": ""
+        },
+        "name": "tw-0-5"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "check-for-labels": "fail"
+      },
+      "mutant": {
+       "check-for-labels": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "exceptions": []
+   }
+  },
+  "require-linkerd-mesh-injection": {
+   "policy": "require-linkerd-mesh-injection",
+   "file": "linkerd/require-linkerd-mesh-injection/require-linkerd-mesh-injection.yaml",
+   "excluded": "5: no mutants"
+  },
+  "require-non-root-groups": {
+   "policy": "require-non-root-groups",
+   "file": "other/require-non-root-groups/require-non-root-groups.yaml",
+   "excluded": "over the cell cap"
+  },
+  "require-pod-priorityclassname": {
+   "policy": "require-pod-priorityclassname",
+   "file": "other/require-pod-priorityclassname/require-pod-priorityclassname.yaml",
+   "rules": [
+    "check-priorityclassname"
+   ],
+   "reads_operation": false,
+   "cells": 7,
+   "cells_with_a_result": 7,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L31:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-priorityclassname",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "priorityClassName": ""
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-4"
+       }
+      },
+      "policy": {
+       "check-priorityclassname": "fail"
+      },
+      "mutant": {
+       "check-priorityclassname": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "exceptions": []
+   }
+  },
+  "require-requests-limits": {
+   "policy": "require-requests-limits",
+   "file": "best-practices/require-pod-requests-limits/require-pod-requests-limits.yaml",
+   "excluded": "over the cell cap"
+  },
+  "require-ro-rootfs": {
+   "policy": "require-ro-rootfs",
+   "file": "best-practices/require-ro-rootfs/require-ro-rootfs.yaml",
+   "rules": [
+    "validate-readOnlyRootFilesystem"
+   ],
+   "reads_operation": false,
+   "cells": 9,
+   "cells_with_a_result": 9,
+   "unloadable_cells": 0,
+   "check_inputs": 405,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 5,
+   "mutants": [
+    {
+     "mutant": "L33:true->false",
+     "family": "boolean",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-readOnlyRootFilesystem",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "securityContext": {
+           "readOnlyRootFilesystem": true
+          }
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-5"
+       }
+      },
+      "policy": {
+       "validate-readOnlyRootFilesystem": "pass"
+      },
+      "mutant": {
+       "validate-readOnlyRootFilesystem": "fail"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "require-run-as-non-root-user": {
+   "policy": "require-run-as-non-root-user",
+   "file": "pod-security/restricted/require-run-as-non-root-user/require-run-as-non-root-user.yaml",
+   "excluded": "over the cell cap"
+  },
+  "require-run-as-nonroot": {
+   "policy": "require-run-as-nonroot",
+   "file": "pod-security/restricted/require-run-as-nonroot/require-run-as-nonroot.yaml",
+   "excluded": "over the cell cap"
+  },
+  "require-storageclass": {
+   "policy": "require-storageclass",
+   "file": "other/require-storageclass/require-storageclass.yaml",
+   "rules": [
+    "pvc-storageclass",
+    "ss-storageclass"
+   ],
+   "reads_operation": false,
+   "cells": 17,
+   "cells_with_a_result": 17,
+   "unloadable_cells": 0,
+   "check_inputs": 405,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 5,
+   "mutants": [
+    {
+     "mutant": "L30:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "pvc-storageclass",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "storageClassName": ""
+       },
+       "apiVersion": "v1",
+       "kind": "PersistentVolumeClaim",
+       "metadata": {
+        "name": "tw-0-4"
+       }
+      },
+      "policy": {
+       "pvc-storageclass": "fail"
+      },
+      "mutant": {
+       "pvc-storageclass": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L41:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "ss-storageclass",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "apps/v1",
+       "kind": "StatefulSet",
+       "metadata": {
+        "name": "tw-1-8"
+       }
+      },
+      "policy": {
+       "ss-storageclass": "pass"
+      },
+      "mutant": {
+       "ss-storageclass": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L43:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "ss-storageclass",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "volumeClaimTemplates": [
+         {
+          "spec": {
+           "storageClassName": ""
+          }
+         }
+        ]
+       },
+       "apiVersion": "apps/v1",
+       "kind": "StatefulSet",
+       "metadata": {
+        "name": "tw-1-14"
+       }
+      },
+      "policy": {
+       "ss-storageclass": "fail"
+      },
+      "mutant": {
+       "ss-storageclass": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "exceptions": []
+   }
+  },
+  "require-tekton-bundle": {
+   "policy": "require-tekton-bundle",
+   "file": "tekton/require-tekton-bundle/require-tekton-bundle.yaml",
+   "rules": [
+    "check-bundle-pipelinerun",
+    "check-bundle-taskrun"
+   ],
+   "reads_operation": false,
+   "cells": 16,
+   "cells_with_a_result": 16,
+   "unloadable_cells": 0,
+   "check_inputs": 405,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 5,
+   "mutants": [
+    {
+     "mutant": "L30:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-bundle-pipelinerun",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "pipelineRef": {
+         "bundle": ""
+        }
+       },
+       "apiVersion": "tekton.dev/v1",
+       "kind": "PipelineRun",
+       "metadata": {
+        "name": "tw-0-5"
+       }
+      },
+      "policy": {
+       "check-bundle-pipelinerun": "fail"
+      },
+      "mutant": {
+       "check-bundle-pipelinerun": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L42:\"?*\"->\"*\"",
+     "family": "weakening",
+     "status": "survived",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-bundle-taskrun",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "taskRef": {
+         "bundle": ""
+        }
+       },
+       "apiVersion": "tekton.dev/v1",
+       "kind": "TaskRun",
+       "metadata": {
+        "name": "tw-1-13"
+       }
+      },
+      "policy": {
+       "check-bundle-taskrun": "fail"
+      },
+      "mutant": {
+       "check-bundle-taskrun": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0,
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "exceptions": []
+   }
+  },
+  "require-tekton-namespace-pipelinerun": {
+   "policy": "require-tekton-namespace-pipelinerun",
+   "file": "tekton/require-tekton-namespace-pipelinerun/require-tekton-namespace-pipelinerun.yaml",
+   "rules": [
+    "check-pipelinerun-namespace"
+   ],
+   "reads_operation": true,
+   "cells": 30,
+   "cells_with_a_result": 30,
+   "unloadable_cells": 0,
+   "check_inputs": 2010,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L27:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-pipelinerun-namespace",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "tekton.dev/v1",
+       "kind": "PipelineRun",
+       "metadata": {
+        "name": "tw-0-0",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "check-pipelinerun-namespace": "fail"
+      },
+      "mutant": {
+       "check-pipelinerun-namespace": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L28:Equals->NotEquals",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-pipelinerun-namespace",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "tekton.dev/v1",
+       "kind": "PipelineRun",
+       "metadata": {
+        "name": "tw-0-0",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "check-pipelinerun-namespace": "fail"
+      },
+      "mutant": {
+       "check-pipelinerun-namespace": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-apparmor-profiles": {
+   "policy": "restrict-apparmor-profiles",
+   "file": "pod-security/baseline/restrict-apparmor-profiles/restrict-apparmor-profiles.yaml",
+   "rules": [
+    "app-armor"
+   ],
+   "reads_operation": false,
+   "cells": 10,
+   "cells_with_a_result": 10,
+   "unloadable_cells": 0,
+   "check_inputs": 412,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 12,
+   "mutants": [
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "app-armor",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "annotations": {
+         "container.apparmor.security.beta.kubernetes.io/*": "runtime/defaultx"
+        },
+        "name": "tw-0-4"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "app-armor": "fail"
+      },
+      "mutant": {
+       "app-armor": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L35:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "app-armor",
+      "operation": null,
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "app-armor": "pass"
+      },
+      "mutant": {
+       "app-armor": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L36:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "app-armor",
+      "operation": null,
+      "resource": {
+       "metadata": {
+        "annotations": {},
+        "name": "tw-0-2"
+       },
+       "apiVersion": "v1",
+       "kind": "Pod"
+      },
+      "policy": {
+       "app-armor": "pass"
+      },
+      "mutant": {
+       "app-armor": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-binding-clusteradmin": {
+   "policy": "restrict-binding-clusteradmin",
+   "file": "other/restrict-binding-clusteradmin/restrict-binding-clusteradmin.yaml",
+   "excluded": "5: no mutants"
+  },
+  "restrict-binding-system-groups": {
+   "policy": "restrict-binding-system-groups",
+   "file": "other/restrict-binding-system-groups/restrict-binding-system-groups.yaml",
+   "excluded": "5: no mutants"
+  },
+  "restrict-controlplane-scheduling": {
+   "policy": "restrict-controlplane-scheduling",
+   "file": "other/restrict-controlplane-scheduling/restrict-controlplane-scheduling.yaml",
+   "rules": [
+    "restrict-controlplane-scheduling-master",
+    "restrict-controlplane-scheduling-control-plane"
+   ],
+   "reads_operation": false,
+   "cells": 16,
+   "cells_with_a_result": 16,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L30:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-controlplane-scheduling-master",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "restrict-controlplane-scheduling-master": "pass",
+       "restrict-controlplane-scheduling-control-plane": "pass"
+      },
+      "mutant": {
+       "restrict-controlplane-scheduling-master": "skip",
+       "restrict-controlplane-scheduling-control-plane": "pass"
+      }
+     }
+    },
+    {
+     "mutant": "L42:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-controlplane-scheduling-master",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "restrict-controlplane-scheduling-master": "pass",
+       "restrict-controlplane-scheduling-control-plane": "pass"
+      },
+      "mutant": {
+       "restrict-controlplane-scheduling-master": "pass",
+       "restrict-controlplane-scheduling-control-plane": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-external-ips": {
+   "policy": "restrict-external-ips",
+   "file": "best-practices/restrict-service-external-ips/restrict-service-external-ips.yaml",
+   "excluded": "5: no mutants"
+  },
+  "restrict-image-registries": {
+   "policy": "restrict-image-registries",
+   "file": "best-practices/restrict-image-registries/restrict-image-registries.yaml",
+   "rules": [
+    "validate-registries"
+   ],
+   "reads_operation": false,
+   "cells": 1332,
+   "cells_with_a_result": 1332,
+   "unloadable_cells": 0,
+   "check_inputs": 407,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 7,
+   "mutants": [
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-registries",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-registries": "fail"
+      },
+      "mutant": {
+       "validate-registries": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L34:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-registries",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-registries": "fail"
+      },
+      "mutant": {
+       "validate-registries": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-ingress-classes": {
+   "policy": "restrict-ingress-classes",
+   "file": "other/restrict-ingress-classes/restrict-ingress-classes.yaml",
+   "excluded": "5: no mutants"
+  },
+  "restrict-ingress-defaultbackend": {
+   "policy": "restrict-ingress-defaultbackend",
+   "file": "other/restrict-ingress-defaultbackend/restrict-ingress-defaultbackend.yaml",
+   "excluded": "5: no mutants"
+  },
+  "restrict-node-affinity": {
+   "policy": "restrict-node-affinity",
+   "file": "other/restrict-node-affinity/restrict-node-affinity.yaml",
+   "rules": [
+    "check-nodeaffinity"
+   ],
+   "reads_operation": false,
+   "cells": 7,
+   "cells_with_a_result": 7,
+   "unloadable_cells": 0,
+   "check_inputs": 404,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 4,
+   "mutants": [
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-nodeaffinity",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "check-nodeaffinity": "pass"
+      },
+      "mutant": {
+       "check-nodeaffinity": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-node-selection": {
+   "policy": "restrict-node-selection",
+   "file": "other/restrict-node-selection/restrict-node-selection.yaml",
+   "rules": [
+    "restrict-nodeselector",
+    "restrict-nodename"
+   ],
+   "reads_operation": true,
+   "cells": 60,
+   "cells_with_a_result": 60,
+   "unloadable_cells": 0,
+   "check_inputs": 2010,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L30:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-nodeselector",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "restrict-nodeselector": "fail",
+       "restrict-nodename": "fail"
+      },
+      "mutant": {
+       "restrict-nodeselector": "skip",
+       "restrict-nodename": "fail"
+      }
+     }
+    },
+    {
+     "mutant": "L31:Equals->NotEquals",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-nodeselector",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "restrict-nodeselector": "fail",
+       "restrict-nodename": "fail"
+      },
+      "mutant": {
+       "restrict-nodeselector": "skip",
+       "restrict-nodename": "fail"
+      }
+     }
+    },
+    {
+     "mutant": "L46:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-nodeselector",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "restrict-nodeselector": "fail",
+       "restrict-nodename": "fail"
+      },
+      "mutant": {
+       "restrict-nodeselector": "fail",
+       "restrict-nodename": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L47:Equals->NotEquals",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "restrict-nodeselector",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0"
+       }
+      },
+      "policy": {
+       "restrict-nodeselector": "fail",
+       "restrict-nodename": "fail"
+      },
+      "mutant": {
+       "restrict-nodeselector": "fail",
+       "restrict-nodename": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-nodeport": {
+   "policy": "restrict-nodeport",
+   "file": "best-practices/restrict-node-port/restrict-node-port.yaml",
+   "rules": [
+    "validate-nodeport"
+   ],
+   "reads_operation": false,
+   "cells": 6,
+   "cells_with_a_result": 6,
+   "unloadable_cells": 0,
+   "check_inputs": 403,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 3,
+   "mutants": [
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-nodeport",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Service",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-nodeport": "pass"
+      },
+      "mutant": {
+       "validate-nodeport": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-runtimeclass": {
+   "policy": "restrict-runtimeclass",
+   "file": "psp-migration/restrict-runtimeClassName/restrict-runtimeClassName.yaml",
+   "rules": [
+    "prodclass-or-expclass"
+   ],
+   "reads_operation": true,
+   "cells": 40,
+   "cells_with_a_result": 40,
+   "unloadable_cells": 0,
+   "check_inputs": 2020,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 4,
+   "mutants": [
+    {
+     "mutant": "L30:||->&&",
+     "family": "expression operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "prodclass-or-expclass",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "prodclass-or-expclass": "pass"
+      },
+      "mutant": {
+       "prodclass-or-expclass": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L31:Equals->NotEquals",
+     "family": "condition operator",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "prodclass-or-expclass",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "prodclass-or-expclass": "pass"
+      },
+      "mutant": {
+       "prodclass-or-expclass": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L36:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "prodclass-or-expclass",
+      "operation": "CREATE",
+      "resource": {
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-0",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "prodclass-or-expclass": "pass"
+      },
+      "mutant": {
+       "prodclass-or-expclass": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L37:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "prodclass-or-expclass",
+      "operation": "CREATE",
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-5",
+        "namespace": "default"
+       }
+      },
+      "policy": {
+       "prodclass-or-expclass": "pass"
+      },
+      "mutant": {
+       "prodclass-or-expclass": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-sa-automount-sa-token": {
+   "policy": "restrict-sa-automount-sa-token",
+   "file": "other/restrict-sa-automount-sa-token/restrict-sa-automount-sa-token.yaml",
+   "rules": [
+    "validate-sa-automountServiceAccountToken"
+   ],
+   "reads_operation": false,
+   "cells": 5,
+   "cells_with_a_result": 5,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L31:false->true",
+     "family": "boolean",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "validate-sa-automountServiceAccountToken",
+      "operation": null,
+      "resource": {
+       "automountServiceAccountToken": true,
+       "apiVersion": "v1",
+       "kind": "ServiceAccount",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "validate-sa-automountServiceAccountToken": "fail"
+      },
+      "mutant": {
+       "validate-sa-automountServiceAccountToken": "pass"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "restrict-seccomp": {
+   "policy": "restrict-seccomp",
+   "file": "pod-security/baseline/restrict-seccomp/restrict-seccomp.yaml",
+   "excluded": "over the cell cap"
+  },
+  "restrict-seccomp-strict": {
+   "policy": "restrict-seccomp-strict",
+   "file": "pod-security/restricted/restrict-seccomp-strict/restrict-seccomp-strict.yaml",
+   "excluded": "over the cell cap"
+  },
+  "restrict-secrets-by-name": {
+   "policy": "restrict-secrets-by-name",
+   "file": "other/restrict-secrets-by-name/restrict-secrets-by-name.yaml",
+   "excluded": "over the cell cap"
+  },
+  "restrict-service-port-range": {
+   "policy": "restrict-service-port-range",
+   "file": "other/restrict-service-port-range/restrict-service-port-range.yaml",
+   "excluded": "5: no mutants"
+  },
+  "restrict-storageclass": {
+   "policy": "restrict-storageclass",
+   "file": "other/restrict-storageclass/restrict-storageclass.yaml",
+   "excluded": "5: no mutants"
+  },
+  "restrict-sysctls": {
+   "policy": "restrict-sysctls",
+   "file": "pod-security/baseline/restrict-sysctls/restrict-sysctls.yaml",
+   "rules": [
+    "check-sysctls"
+   ],
+   "reads_operation": false,
+   "cells": 17,
+   "cells_with_a_result": 17,
+   "unloadable_cells": 0,
+   "check_inputs": 427,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 27,
+   "mutants": [
+    {
+     "mutant": "L38:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-sysctls",
+      "operation": null,
+      "resource": {
+       "spec": {},
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-1"
+       }
+      },
+      "policy": {
+       "check-sysctls": "pass"
+      },
+      "mutant": {
+       "check-sysctls": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L39:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-sysctls",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "securityContext": {}
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-2"
+       }
+      },
+      "policy": {
+       "check-sysctls": "pass"
+      },
+      "mutant": {
+       "check-sysctls": "skip"
+      }
+     }
+    },
+    {
+     "mutant": "L40:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "check-sysctls",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "securityContext": {
+         "sysctls": [
+          {}
+         ]
+        }
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-4"
+       }
+      },
+      "policy": {
+       "check-sysctls": "pass"
+      },
+      "mutant": {
+       "check-sysctls": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "secrets-not-from-env-vars": {
+   "policy": "secrets-not-from-env-vars",
+   "file": "other/disallow-secrets-from-env-vars/disallow-secrets-from-env-vars.yaml",
+   "rules": [
+    "secrets-not-from-env-vars",
+    "secrets-not-from-envfrom"
+   ],
+   "reads_operation": false,
+   "cells": 66,
+   "cells_with_a_result": 66,
+   "unloadable_cells": 0,
+   "check_inputs": 402,
+   "unloadable_check_inputs": 0,
+   "authors_resources": 2,
+   "mutants": [
+    {
+     "mutant": "L31:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "secrets-not-from-env-vars",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "secrets-not-from-env-vars": "fail",
+       "secrets-not-from-envfrom": "fail"
+      },
+      "mutant": {
+       "secrets-not-from-env-vars": "skip",
+       "secrets-not-from-envfrom": "fail"
+      }
+     }
+    },
+    {
+     "mutant": "L32:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "secrets-not-from-env-vars",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {
+          "env": [
+           {}
+          ]
+         }
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-11"
+       }
+      },
+      "policy": {
+       "secrets-not-from-env-vars": "fail",
+       "secrets-not-from-envfrom": "fail"
+      },
+      "mutant": {
+       "secrets-not-from-env-vars": "skip",
+       "secrets-not-from-envfrom": "fail"
+      }
+     }
+    },
+    {
+     "mutant": "L46:=(->(",
+     "family": "anchor",
+     "status": "killed",
+     "equivalent": false,
+     "separating_cell": {
+      "rule": "secrets-not-from-env-vars",
+      "operation": null,
+      "resource": {
+       "spec": {
+        "containers": [
+         {}
+        ]
+       },
+       "apiVersion": "v1",
+       "kind": "Pod",
+       "metadata": {
+        "name": "tw-0-3"
+       }
+      },
+      "policy": {
+       "secrets-not-from-env-vars": "fail",
+       "secrets-not-from-envfrom": "fail"
+      },
+      "mutant": {
+       "secrets-not-from-env-vars": "fail",
+       "secrets-not-from-envfrom": "skip"
+      }
+     }
+    }
+   ],
+   "gaps_not_expressible": 0
+  },
+  "validate-userid-groupid-fsgroup": {
+   "policy": "validate-userid-groupid-fsgroup",
+   "file": "other/restrict-usergroup-fsgroup-id/restrict-usergroup-fsgroup-id.yaml",
+   "excluded": "5: no mutants"
+  },
+  "verify-flux-sources": {
+   "policy": "verify-flux-sources",
+   "file": "flux/verify-flux-sources/verify-flux-sources.yaml",
+   "excluded": "5: no mutants"
+  },
+  "verify-git-repositories": {
+   "policy": "verify-git-repositories",
+   "file": "flux/verify-git-repositories/verify-git-repositories.yaml",
+   "excluded": "5: no mutants"
+  }
+ }
+}
