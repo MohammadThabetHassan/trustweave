@@ -23,6 +23,7 @@ import concurrent.futures
 import hashlib
 import importlib.util
 import json
+import multiprocessing
 import random
 import re
 import statistics
@@ -525,9 +526,19 @@ def study(
         test = module.with_name(module.name.replace(".rego", "_test.rego"))
         tasks.append((subject, module.read_text("utf-8"), str(test), [str(p) for p in libs], opa))
     records: dict[str, dict[str, Any]] = {}
-    with concurrent.futures.ProcessPoolExecutor(workers) as pool:
-        for record in pool.map(study_module, tasks):
+    # Spawned, not forked: a fork taken while the executor's own threads hold a lock leaves the
+    # workers waiting on it for ever, which is what the first run of this study did.
+    context = multiprocessing.get_context("spawn")
+    with concurrent.futures.ProcessPoolExecutor(workers, mp_context=context) as pool:
+        pending = {pool.submit(study_module, task): task[0] for task in tasks}
+        for future in concurrent.futures.as_completed(pending):
+            record = future.result()
             records[record["subject"]] = record
+            print(
+                f"{len(records)}/{len(tasks)} {record['subject']}: {record.get('status')}",
+                file=sys.stderr,
+                flush=True,
+            )
     measured = {s: r for s, r in records.items() if r.get("status") == "measured"}
     headline = {s: r for s, r in measured.items() if s != DEVELOPMENT}
     statuses = Counter(r.get("status") for r in records.values())
