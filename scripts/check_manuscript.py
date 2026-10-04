@@ -1240,7 +1240,8 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
             "rego exact study: the abstract",
         ),
         (
-            r"but by (\d+\.\d) against exact adequacy on the (\d+) suites a further protocol decides",
+            r"but by (\d+\.\d) against exact adequacy on the (\d+) suites a further protocol "
+            r"decides",
             (_pct(coverage - exact_mean), str(head["modules"])),
             "rego exact study: the contribution",
         ),
