@@ -501,7 +501,15 @@ REGO_LITERAL_ARGUMENT = {
 REGO_ONE_LITERAL = frozenset({"mul", "div", "rem"})
 REGO_DEBUG = frozenset({"print", "trace"})
 REGO_SCALARS = frozenset({"string", "number", "boolean", "null"})
-PARAMETER_HELPERS = ("get_constraint_params", "get_default")
+# Config Validator's helper that returns a Constraint's parameters, whatever it is handed.
+PARAMETER_FETCHERS = ("get_constraint_params",)
+# `object.get` and Config Validator's `get_default` read one key of their first operand, with a
+# default: a parameter read when that operand is the parameters, or `input` and the key one of
+# these.
+PARAMETER_KEYS = frozenset({"parameters", "constraint"})
+MEMBERSHIP = frozenset({"internal.member_2", "internal.member_3"})
+
+Placed = tuple[dict[str, Any], str, dict[str, list[str]]]
 
 
 def _vars_in(node: Any) -> set[str]:
@@ -517,25 +525,91 @@ def _vars_in(node: Any) -> set[str]:
     return found
 
 
+def _output_vars(rule: dict[str, Any]) -> set[str]:
+    """The names a rule's head outputs: its key, its value, and its reference past the name.
+
+    A function's arguments are inputs, so a call on one of them is a guard, not output.
+    """
+
+    head = rule.get("head") or {}
+    return _vars_in([head.get("key"), head.get("value"), (head.get("ref") or [])[1:]])
+
+
 def _operator_name(term: dict[str, Any]) -> str:
     rego = _load("fragment_membership_rego")
     return ".".join(name for name in rego._tokens(term) if name)
 
 
-class RegoRule:
-    """One rule's guard calls, with the operand kinds the protocol needs."""
+def _is_input(term: dict[str, Any]) -> bool:
+    if term.get("type") == "var":
+        return term.get("value") == "input"
+    if term.get("type") == "ref":
+        return _load("fragment_membership_rego")._tokens(term) == ["input"]
+    return False
 
-    def __init__(self, rule: dict[str, Any], builtins: frozenset[str]) -> None:
+
+def _calls_in(node: Any) -> Iterator[tuple[dict[str, Any], list[dict[str, Any]]]]:
+    """Every call under `node`, as (operator, operands), each before the calls nested in it.
+
+    A call is an expression made of an operator and its operands -- `startswith(x, "a")`,
+    `x := y` -- or a call term inside another term, `count(split(x, "/"))`. The walk enters
+    comprehensions, `every` bodies and `with` values, so a call is found wherever it stands.
+    """
+
+    if isinstance(node, list):
+        for item in node:
+            yield from _calls_in(item)
+        return
+    if not isinstance(node, dict):
+        return
+    terms = node.get("terms")
+    if isinstance(terms, list) and terms and terms[0].get("type") == "ref":
+        yield terms[0], terms[1:]
+        for key, value in node.items():
+            yield from _calls_in(terms[1:] if key == "terms" else value)
+        return
+    if node.get("type") == "call":
+        value = node.get("value") or []
+        if value:
+            yield value[0], value[1:]
+            yield from _calls_in(value[1:])
+        return
+    for value in node.values():
+        yield from _calls_in(value)
+
+
+class RegoRule:
+    """One rule's guard calls, with the operand kinds the protocol needs.
+
+    `literal_arguments` and `follow` belong to the post-hoc reading (`rego_census`): the rule's
+    own arguments found literal at every call, and that reading's two other steps. Both are off
+    in the census the protocol fixes.
+    """
+
+    def __init__(
+        self,
+        rule: dict[str, Any],
+        builtins: frozenset[str],
+        *,
+        literal_arguments: frozenset[str] = frozenset(),
+        follow: bool = False,
+    ) -> None:
         self.rule = rule
         self.builtins = builtins
+        self.follow = follow
         self.body = list(rule.get("body") or [])
-        self.literal_vars: set[str] = set()
+        self.literal_vars: set[str] = set(literal_arguments)
         self.parameter_vars: set[str] = set()
         self._bindings()
 
     def _bindings(self) -> None:
         for expression in self.body:
             terms = expression.get("terms")
+            if isinstance(terms, dict):
+                # `some x in xs` and `some k, v in xs` bind their names to members of `xs`.
+                for symbol in terms.get("symbols") or []:
+                    self._bind_members(symbol)
+                continue
             if not isinstance(terms, list) or not terms:
                 continue
             name = _operator_name(terms[0]) if terms[0].get("type") == "ref" else ""
@@ -543,15 +617,34 @@ class RegoRule:
                 left, right = terms[1], terms[2]
                 if left.get("type") == "var":
                     kind = self.kind(right)
-                    if kind == LITERAL and right.get("type") in REGO_SCALARS:
+                    if kind == LITERAL and (self.follow or right.get("type") in REGO_SCALARS):
                         self.literal_vars.add(left["value"])
                     elif self._is_parameters(right):
                         self.parameter_vars.add(left["value"])
-            elif name.endswith(PARAMETER_HELPERS) and terms[-1].get("type") == "var":
-                self.parameter_vars.add(terms[-1]["value"])
+            elif len(terms) > 2 and terms[-1].get("type") == "var":
+                # v0's output argument: `lib.get_constraint_params(constraint, params)`.
+                if self._is_parameters({"type": "call", "value": terms[:-1]}):
+                    self.parameter_vars.add(terms[-1]["value"])
+
+    def _bind_members(self, symbol: dict[str, Any]) -> None:
+        value = symbol.get("value") if symbol.get("type") == "call" else None
+        if not isinstance(value, list) or len(value) < 3:
+            return
+        if _operator_name(value[0]) not in MEMBERSHIP:
+            return
+        *names, collection = value[1:]
+        if self._is_parameters(collection):
+            bound = self.parameter_vars
+        elif self.follow and self.kind(collection) == LITERAL:
+            bound = self.literal_vars
+        else:
+            return
+        bound.update(name["value"] for name in names if name.get("type") == "var")
 
     def _is_parameters(self, term: dict[str, Any]) -> bool:
         rego = _load("fragment_membership_rego")
+        if term.get("type") == "var":
+            return term.get("value") in self.parameter_vars
         if term.get("type") == "ref":
             tokens = rego._tokens(term)
             if tokens[:2] == ["input", "parameters"] or tokens[:2] == ["input", "constraint"]:
@@ -559,7 +652,16 @@ class RegoRule:
             return bool(tokens) and tokens[0] in self.parameter_vars
         if term.get("type") == "call":
             value = term.get("value") or []
-            return bool(value) and _operator_name(value[0]).endswith(PARAMETER_HELPERS)
+            if not value:
+                return False
+            name = _operator_name(value[0])
+            if name.endswith(PARAMETER_FETCHERS):
+                return True
+            if (name == "object.get" or name.endswith("get_default")) and len(value) >= 3:
+                container, key = value[1], value[2]
+                if _is_input(container):
+                    return key.get("type") == "string" and key.get("value") in PARAMETER_KEYS
+                return self._is_parameters(container)
         return False
 
     def kind(self, term: dict[str, Any]) -> str:
@@ -589,7 +691,23 @@ class RegoRule:
                 return READ
             if tokens and tokens[0] in self.literal_vars:
                 return LITERAL
+            parts = term.get("value") or []
+            if self.follow and parts and parts[0].get("type") != "var":
+                # A member of a literal collection, or of a call's literal result.
+                return self.kind(parts[0])
             return COMPUTED
+        if kind == "call":
+            if self._is_parameters(term):
+                return LITERAL
+            value = term.get("value") or []
+            name = _operator_name(value[0]) if value else ""
+            if (
+                self.follow
+                and name in self.builtins
+                and name not in rego.nondeterministic_builtins()
+                and all(self.kind(argument) == LITERAL for argument in value[1:])
+            ):
+                return LITERAL
         return COMPUTED
 
     def _output_only(self, index: int, expression: dict[str, Any], head_vars: set[str]) -> bool:
@@ -603,36 +721,19 @@ class RegoRule:
         others = [e for i, e in enumerate(self.body) if i != index]
         return target["value"] not in _vars_in(others)
 
-    def issues(self) -> list[str]:
-        head_vars = _vars_in(self.rule.get("head") or {})
+    def issues(self, *, head: bool = False) -> list[str]:
+        """The uncertified calls of the body, and of the head's value when `head` is set."""
+
+        head_vars = _output_vars(self.rule)
         found: list[str] = []
-
-        def check(term: dict[str, Any]) -> None:
-            if term.get("type") == "call":
-                value = term.get("value") or []
-                if value:
-                    self._check_call(_operator_name(value[0]), value[1:], found)
-                for item in value[1:]:
-                    check(item)
-                return
-            for item in term.values() if isinstance(term, dict) else []:
-                if isinstance(item, dict):
-                    check(item)
-                elif isinstance(item, list):
-                    for element in item:
-                        if isinstance(element, dict):
-                            check(element)
-
         for index, expression in enumerate(self.body):
             if self._output_only(index, expression, head_vars):
                 continue
-            terms = expression.get("terms")
-            if isinstance(terms, list) and terms and terms[0].get("type") == "ref":
-                self._check_call(_operator_name(terms[0]), terms[1:], found)
-                for term in terms[1:]:
-                    check(term)
-            elif isinstance(terms, dict):
-                check(terms)
+            for operator, arguments in _calls_in(expression):
+                self._check_call(_operator_name(operator), arguments, found)
+        if head:
+            for operator, arguments in _calls_in((self.rule.get("head") or {}).get("value")):
+                self._check_call(_operator_name(operator), arguments, found)
         return found
 
     def _check_call(self, name: str, arguments: list[dict[str, Any]], found: list[str]) -> None:
@@ -654,59 +755,226 @@ class RegoRule:
         found.append(name)
 
 
-def rego_census(root: Path, inside: set[str]) -> dict[str, list[str]]:
-    """Every inside module's uncertified calls, over the rules its own rules reach."""
+def _rule_name(rule: dict[str, Any]) -> str:
+    rego = _load("fragment_membership_rego")
+    head = rule.get("head") or {}
+    name = head.get("name") or ""
+    if not name:
+        tokens = [t for t in rego._tokens({"type": "ref", "value": head.get("ref") or []}) if t]
+        name = tokens[0] if tokens else ""
+    return str(name)
+
+
+def _branches(rule: dict[str, Any]) -> Iterator[dict[str, Any]]:
+    """A rule and each of its `else` branches, every one a body and a head of its own."""
+
+    branch: Any = rule
+    while isinstance(branch, dict):
+        yield branch
+        branch = branch.get("else")
+
+
+def _call_targets(
+    operator: dict[str, Any], package: str, aliases: dict[str, list[str]]
+) -> set[tuple[str, str]]:
+    """The rules a call's operator names, resolved as the adapter resolves a reference."""
 
     rego = _load("fragment_membership_rego")
-    discovered = rego.discover(root)  # fills the package tables the resolution reads
-    builtins = rego.builtins()
-    index: dict[tuple[str, str], list[tuple[dict[str, Any], str, dict[str, list[str]]]]] = {}
-    asts: dict[str, dict[str, Any]] = {}
+    if operator.get("type") != "ref":
+        return set()
+    path = rego._tokens(operator)
+    if not path or path[0] is None:
+        return set()
+    first = path[0]
+    if first == "data":
+        return set(rego._resolve_rules(path[1:]))
+    if first in aliases:
+        target = aliases[first]
+        if target and target[0] == "data":
+            return set(rego._resolve_rules([*target[1:], *path[1:]]))
+        return set()
+    if first in rego._PACKAGE_RULES.get(package, set()):
+        return {(package, first)}
+    return set()
+
+
+def _view(
+    branch: dict[str, Any], builtins: frozenset[str], positions: frozenset[int], follow: bool
+) -> RegoRule:
+    formals = (branch.get("head") or {}).get("args") or []
+    names = frozenset(
+        formals[p]["value"]
+        for p in positions
+        if p < len(formals) and formals[p].get("type") == "var"
+    )
+    return RegoRule(branch, builtins, literal_arguments=names, follow=follow)
+
+
+def _call_sites(
+    reached: list[Placed],
+    builtins: frozenset[str],
+    literal: dict[tuple[str, str], frozenset[int]],
+    follow: bool,
+) -> Iterator[tuple[tuple[str, str], list[dict[str, Any]], RegoRule, bool]]:
+    """Every call of a rule among the reached ones: target, operands, caller, and whether the
+    call builds output only. A call in a head's value is never counted as output."""
+
+    for rule, package, aliases in reached:
+        positions = literal.get((package, _rule_name(rule)), frozenset())
+        for branch in _branches(rule):
+            view = _view(branch, builtins, positions, follow)
+            head_vars = _output_vars(branch)
+            for index, expression in enumerate(view.body):
+                output = view._output_only(index, expression, head_vars)
+                for operator, arguments in _calls_in(expression):
+                    for target in _call_targets(operator, package, aliases):
+                        yield target, arguments, view, output
+            for operator, arguments in _calls_in((branch.get("head") or {}).get("value")):
+                for target in _call_targets(operator, package, aliases):
+                    yield target, arguments, view, False
+
+
+def _literal_arguments(
+    reached: list[Placed], builtins: frozenset[str]
+) -> dict[tuple[str, str], frozenset[int]]:
+    """Post hoc: each function's argument positions that every reached call fills with a literal.
+
+    A fixpoint from none: an argument found literal can make a call inside that function pass a
+    literal on, so the sets only grow, and stop.
+    """
+
+    literal: dict[tuple[str, str], frozenset[int]] = {}
+    while True:
+        filled: dict[tuple[str, str, int], bool] = {}
+        for target, arguments, caller, _ in _call_sites(reached, builtins, literal, True):
+            for position, argument in enumerate(arguments):
+                slot = (*target, position)
+                filled[slot] = filled.get(slot, True) and caller.kind(argument) == LITERAL
+        found: dict[tuple[str, str], set[int]] = {}
+        for (package, name, position), is_literal in filled.items():
+            if is_literal:
+                found.setdefault((package, name), set()).add(position)
+        grown = {key: frozenset(value) for key, value in found.items()}
+        if grown == literal:
+            return literal
+        literal = grown
+
+
+def _output_functions(
+    reached: list[Placed],
+    builtins: frozenset[str],
+    literal: dict[tuple[str, str], frozenset[int]],
+    follow: bool,
+) -> set[tuple[str, str]]:
+    """Functions every reached call of which builds output -- a message -- and nothing else."""
+
+    output: dict[tuple[str, str], bool] = {}
+    for target, _, _, is_output in _call_sites(reached, builtins, literal, follow):
+        output[target] = output.get(target, True) and is_output
+    return {target for target, flag in output.items() if flag}
+
+
+def _rego_issues(reached: list[Placed], builtins: frozenset[str], follow: bool) -> list[str]:
+    literal = _literal_arguments(reached, builtins) if follow else {}
+    output = _output_functions(reached, builtins, literal, follow)
+    issues: list[str] = []
+    for rule, package, _ in reached:
+        key = (package, _rule_name(rule))
+        # A function's head is its value, so it is read like a body -- unless every call of
+        # the function builds a message, the protocol's output.
+        read_head = not ((rule.get("head") or {}).get("args") and key in output)
+        for branch in _branches(rule):
+            view = _view(branch, builtins, literal.get(key, frozenset()), follow)
+            issues.extend(view.issues(head=read_head))
+    return issues
+
+
+def _rego_modules(root: Path) -> tuple[dict[tuple[str, str], list[Placed]], dict[str, Any]]:
+    """Every rule of the corpus by (package, name), and every module's AST by its path."""
+
+    rego = _load("fragment_membership_rego")
+    index: dict[tuple[str, str], list[Placed]] = {}
+    modules: dict[str, Any] = {}
     for path in sorted(root.rglob("*.rego")):
         if ".git" in path.parts:
             continue
         ast = rego.parse(path.read_text(encoding="utf-8", errors="ignore"))
+        modules[path.relative_to(root).as_posix()] = ast
         if ast is None:
             continue
-        asts[path.relative_to(root).as_posix()] = ast
         package = rego.package_of(ast)
         aliases = rego._alias_map(ast)
         for rule in ast.get("rules") or []:
-            name = ((rule.get("head") or {}).get("name")) or ""
-            if not name:
-                tokens = [
-                    t
-                    for t in rego._tokens(
-                        {"type": "ref", "value": (rule.get("head") or {}).get("ref") or []}
-                    )
-                    if t
-                ]
-                name = tokens[0] if tokens else ""
-            index.setdefault((package, name), []).append((rule, package, aliases))
+            index.setdefault((package, _rule_name(rule)), []).append((rule, package, aliases))
+    return index, modules
 
-    results: dict[str, list[str]] = {}
-    for subject, _ in discovered:
-        if subject not in inside:
+
+def _reached(ast: dict[str, Any], index: dict[tuple[str, str], list[Placed]]) -> list[Placed]:
+    """The rules the adapter's propagation reaches from a module's own rules, `else` included."""
+
+    rego = _load("fragment_membership_rego")
+    package = rego.package_of(ast)
+    aliases = rego._alias_map(ast)
+    frontier: list[Placed] = [(rule, package, aliases) for rule in ast.get("rules") or []]
+    seen: set[int] = set()
+    reached: list[Placed] = []
+    while frontier:
+        rule, rule_package, rule_aliases = frontier.pop()
+        if id(rule) in seen:
             continue
-        ast = asts.get(subject)
-        if ast is None:
-            results[subject] = ["module does not parse"]
-            continue
-        package = rego.package_of(ast)
-        aliases = rego._alias_map(ast)
-        frontier = [(rule, package, aliases) for rule in ast.get("rules") or []]
-        seen: set[int] = set()
-        issues: list[str] = []
-        while frontier:
-            rule, rule_package, rule_aliases = frontier.pop()
-            if id(rule) in seen:
-                continue
-            seen.add(id(rule))
-            issues.extend(RegoRule(rule, builtins).issues())
-            for target in rego.referenced_rules(rule, rule_package, rule_aliases):
+        seen.add(id(rule))
+        reached.append((rule, rule_package, rule_aliases))
+        for branch in _branches(rule):
+            for target in rego.referenced_rules(branch, rule_package, rule_aliases):
                 frontier.extend(index.get(target, []))
-        results[subject] = issues
-    return results
+    return reached
+
+
+def relative_subject(subject: str, root: Path, modules: dict[str, Any]) -> str | None:
+    """The path under `root` that an artifact's subject names, or None.
+
+    An artifact names a module by its path under the directory it was measured from. The
+    Google library was measured from the directory holding its checkout, so its subjects carry
+    the checkout's name -- `policy-library/lib/util.rego` -- where the census reads from the
+    checkout itself.
+    """
+
+    if subject in modules:
+        return subject
+    prefix = f"{root.name}/"
+    if subject.startswith(prefix) and subject[len(prefix) :] in modules:
+        return subject[len(prefix) :]
+    return None
+
+
+def rego_census(root: Path, inside: set[str]) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """Every inside module's uncertified calls over the rules its own rules reach: under the
+    protocol, and under the post-hoc reading.
+
+    The post-hoc reading, which the protocol does not fix, adds three steps: a function's
+    argument counts as a literal when every call the module reaches fills it with one; a
+    variable bound to any literal term, a member of a literal collection included, counts as a
+    literal; and a call of a deterministic builtin whose operands are all literals counts as one.
+    """
+
+    rego = _load("fragment_membership_rego")
+    rego.discover(root)  # fills the package tables the resolution reads
+    builtins = rego.builtins()
+    index, modules = _rego_modules(root)
+    protocol: dict[str, list[str]] = {}
+    post_hoc: dict[str, list[str]] = {}
+    for subject in sorted(inside):
+        relative = relative_subject(subject, root, modules)
+        if relative is None:
+            continue  # the census reports it as not recovered
+        ast = modules[relative]
+        if ast is None:
+            protocol[subject] = post_hoc[subject] = ["module does not parse"]
+            continue
+        reached = _reached(ast, index)
+        protocol[subject] = _rego_issues(reached, builtins, follow=False)
+        post_hoc[subject] = _rego_issues(reached, builtins, follow=True)
+    return protocol, post_hoc
 
 
 # --- the census --------------------------------------------------------------------------------
@@ -717,6 +985,60 @@ CERTIFIERS: dict[str, Callable[[str], list[str]]] = {
     "iam": certify_iam,
     "kyverno": certify_kyverno,
 }
+
+# What the instrument committed with the protocol (e50eb04) certified on its first run, before
+# the corrections below. Kept so the effect of each correction can be seen.
+FIRST_RUN = {
+    "instrument": "e50eb04",
+    "certified": 4984,
+    "certified_per_corpus": {
+        "AWS IAM": 1635,
+        "Azure Policy": 2119,
+        "XACML": 952,
+        "Kyverno (vendor)": 176,
+        "Rego (four corpora)": 49,
+        "Rego (GCP library)": 0,
+        "Kyverno (third-party)": 31,
+        "Cedar": 22,
+    },
+}
+
+# Corrections made after the first run. None changes the protocol's rule; each makes the
+# instrument read what the protocol says it reads.
+IMPLEMENTATION_NOTES = (
+    "Third-party Kyverno files are fetched and checked against their recorded digests as the "
+    "measurement checked them, with line endings normalised before hashing. The first run "
+    "hashed the raw bytes and so reported two files with Windows line endings as not recovered.",
+    "A Rego subject is looked up under the directory its artifact was measured from, and the "
+    "Google library's subjects carry the checkout's name. The first run looked them up under the "
+    "checkout and recovered none of the library's 54 inside modules. A corpus now counts as "
+    "reproduced only when every subject gets the verdict its artifact records, not merely the "
+    "same counts, which would have caught this.",
+    'The parameters read as object.get(input, "parameters", d), a key of them read with '
+    "object.get or Config Validator's get_default, a name bound to them, and a name bound by "
+    "`some ... in` over them are parameter reads, as the protocol's parameter rule says; the "
+    "first run recognised only the reference forms. It also counted get_default as a parameter "
+    "read whatever it read, which would let a request read pass as a literal; it is now one only "
+    "on the parameters.",
+    "Every call of a reached rule is read: in its else branches, inside comprehensions, every "
+    "bodies and with values, and in its head's value, except the head of a function every "
+    "reached call of which only builds a message, the protocol's output. The first run read a "
+    "rule's body expressions and the calls nested in them, but not a call standing as an "
+    "expression inside a comprehension or every body, nor else branches, with values or heads.",
+    "A function's arguments are inputs, not output. The first run counted them among the names "
+    "a head outputs, so it skipped, as building output, a call whose last operand was one of "
+    "the function's arguments used nowhere else in its body -- `startswith(value, prefix)` in a "
+    "helper -- and certified what it had not read.",
+)
+
+POST_HOC_READING = (
+    "Rego only, and not fixed before the run: added after the first run showed that most "
+    "uncertified Rego modules hand a parameter or a literal to a helper function. Three readings "
+    "the protocol does not make: a function's argument counts as a literal when every call the "
+    "module reaches fills it with one; a variable bound to any literal term, a member of a "
+    "literal collection included, counts as a literal; and a call of a deterministic builtin "
+    "whose operands are all literals counts as one."
+)
 
 
 def _reproduce(stem: str, artifact: dict[str, Any], corpora: Path) -> tuple[Path, dict[str, Any]]:
@@ -731,37 +1053,70 @@ def _reproduce(stem: str, artifact: dict[str, Any], corpora: Path) -> tuple[Path
     return root, fresh
 
 
+def reproduced(artifact: dict[str, Any], fresh: dict[str, Any], root: Path) -> bool:
+    """Whether re-measuring gives every subject the verdict the artifact records.
+
+    The counts alone are not enough: they agreed for the Google library while every subject
+    was named differently, from the directory above the checkout.
+    """
+
+    recorded = {entry["subject"]: entry["verdict"] for entry in artifact["policies"]}
+    measured = {entry["subject"]: entry["verdict"] for entry in fresh["policies"]}
+    if measured != recorded:
+        measured = {f"{root.name}/{subject}": verdict for subject, verdict in measured.items()}
+    return fresh["counts"] == artifact["counts"] and measured == recorded
+
+
+def _summary(issues_of: dict[str, list[str]]) -> dict[str, Any]:
+    certified = sum(1 for issues in issues_of.values() if not issues)
+    families = Counter(issue for issues in issues_of.values() for issue in set(issues))
+    return {
+        "certified": certified,
+        "uncertified": len(issues_of) - certified,
+        "not_recovered": sum(
+            1 for issues in issues_of.values() if issues == ["text not recovered"]
+        ),
+        "uncertified_families": dict(families.most_common()),
+    }
+
+
+def _first_calls(issues_of: dict[str, list[str]]) -> dict[str, str]:
+    return {subject: issues[0] for subject, issues in sorted(issues_of.items()) if issues}
+
+
 def census(corpora: Path) -> dict[str, Any]:
     require_protocol()
     taxonomy = _load("exclusion_taxonomy")
     measure = _load("measure_third_party_policies")
     rows: list[dict[str, Any]] = []
+    post_hoc_rows: list[dict[str, Any]] = []
     uncertified_by_subject: dict[str, dict[str, str]] = {}
+    post_hoc_by_subject: dict[str, dict[str, str]] = {}
     for label, stem in taxonomy.CORPORA:
         artifact = json.loads((DOCS / f"{stem}.json").read_text("utf-8"))
         ecosystem = artifact["ecosystem"]
         inside = {e["subject"] for e in artifact["policies"] if e["verdict"] == "inside"}
         row: dict[str, Any] = {"corpus": label, "artifact": stem, "inside": len(inside)}
         issues_of: dict[str, list[str]] = {}
+        followed: dict[str, list[str]] | None = None
         if ecosystem == "cedar":
             row["argument"] = "the designers' sound and complete logical encoding"
             issues_of = {subject: [] for subject in inside}
         elif artifact.get("corpus_scope") == "third-party":
             files = json.loads((DOCS / "third-party-kyverno-corpus-v1.json").read_text("utf-8"))
+            method = files.get("digest", measure.TEXT_DIGEST)
             for entry in files["files"]:
                 subject = f"{entry['repo']}/{entry['path']}"
                 if subject not in inside:
                     continue
-                content, _ = measure.fetch_bytes(entry)
-                if content is None or hashlib.sha256(content).hexdigest() != entry["sha256"]:
-                    issues_of[subject] = ["text not recovered"]
-                    continue
-                issues_of[subject] = certify_kyverno(content.decode("utf-8", "replace"))
+                text, _ = measure.fetch_verified(entry, method)
+                if text is not None:
+                    issues_of[subject] = certify_kyverno(text)
         else:
             root, fresh = _reproduce(stem, artifact, corpora)
-            row["reproduced"] = fresh["counts"] == artifact["counts"]
+            row["reproduced"] = reproduced(artifact, fresh, root)
             if ecosystem == "rego":
-                issues_of = rego_census(root, inside)
+                issues_of, followed = rego_census(root, inside)
             else:
                 membership = _load("verify_corpus_provenance")._membership()
                 adapter = membership.load_adapter(ecosystem)
@@ -776,27 +1131,24 @@ def census(corpora: Path) -> dict[str, Any]:
                         issues_of[subject] = CERTIFIERS[ecosystem](text)
                     except (ElementTree.ParseError, yaml.YAMLError) as error:
                         issues_of[subject] = [f"does not parse: {type(error).__name__}"]
-        missing = sorted(inside - set(issues_of))
-        for subject in missing:
+        for subject in sorted(inside - set(issues_of)):
             issues_of[subject] = ["text not recovered"]
-        certified = sorted(s for s, issues in issues_of.items() if not issues)
-        families = Counter(issue for issues in issues_of.values() for issue in set(issues))
-        row.update(
-            {
-                "certified": len(certified),
-                "uncertified": len(issues_of) - len(certified),
-                "not_recovered": sum(
-                    1 for issues in issues_of.values() if issues == ["text not recovered"]
-                ),
-                "uncertified_families": dict(families.most_common()),
-            }
-        )
+        row.update(_summary(issues_of))
         rows.append(row)
-        uncertified_by_subject[stem] = {
-            subject: issues[0] for subject, issues in sorted(issues_of.items()) if issues
-        }
+        uncertified_by_subject[stem] = _first_calls(issues_of)
+        if followed is not None:
+            for subject in sorted(inside - set(followed)):
+                followed[subject] = ["text not recovered"]
+            post_hoc_rows.append(
+                {"corpus": label, "artifact": stem, "inside": len(inside), **_summary(followed)}
+            )
+            post_hoc_by_subject[stem] = _first_calls(followed)
     inside_total = sum(row["inside"] for row in rows)
     certified_total = sum(row["certified"] for row in rows)
+    followed_stems = {row["artifact"] for row in post_hoc_rows}
+    post_hoc_total = sum(row["certified"] for row in post_hoc_rows) + sum(
+        row["certified"] for row in rows if row["artifact"] not in followed_stems
+    )
     return {
         "schema_version": "v1",
         "protocol_sha256": PROTOCOL_SHA256,
@@ -807,6 +1159,16 @@ def census(corpora: Path) -> dict[str, Any]:
         "every_corpus_reproduced": all(row.get("reproduced", True) for row in rows),
         "first_uncertified_call": uncertified_by_subject,
         "deviations": [],
+        "implementation_notes": list(IMPLEMENTATION_NOTES),
+        "first_run": FIRST_RUN,
+        "post_hoc": {
+            "fixed_before_the_run": False,
+            "what": POST_HOC_READING,
+            "rows": post_hoc_rows,
+            "certified": post_hoc_total,
+            "share_certified_of_inside": round(post_hoc_total / inside_total, 4),
+            "first_uncertified_call": post_hoc_by_subject,
+        },
     }
 
 
@@ -824,7 +1186,10 @@ def main(argv: list[str] | None = None) -> int:
             f"{row['corpus']:24s} inside {row['inside']:5d}  certified {row['certified']:5d}  "
             f"reproduced {row.get('reproduced', '-')}"
         )
+    for row in findings["post_hoc"]["rows"]:
+        print(f"{row['corpus']:24s} post hoc: certified {row['certified']:5d}")
     print(f"certified {findings['certified']} of {findings['inside']} inside verdicts")
+    print(f"post hoc: certified {findings['post_hoc']['certified']} of {findings['inside']}")
     return 0
 
 

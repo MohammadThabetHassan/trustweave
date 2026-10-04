@@ -164,3 +164,161 @@ def test_rego_calls_by_their_operands() -> None:
   regex.match(input.review.object.spec.pattern, "abc")
 }"""
     assert issues(pattern) == ["regex.match"]
+
+
+@pytest.mark.skipif(shutil.which("opa") is None, reason="opa is not on PATH")
+def test_rego_parameter_reads_in_every_spelling_and_only_those() -> None:
+    rego = _load("fragment_membership_rego")
+    builtins = rego.builtins()
+
+    def issues(body: str) -> list[str]:
+        ast = rego.parse(f"package p\n\nimport future.keywords.in\n\n{body}\n")
+        assert ast is not None, body
+        return [i for rule in ast["rules"] for i in census.RegoRule(rule, builtins).issues()]
+
+    name = "input.review.object.metadata.name"
+    through_object_get = f"""violation[{{"msg": "x"}}] {{
+  prefixes := object.get(object.get(input, "parameters", {{}}), "prefixes", [])
+  prefix := prefixes[_]
+  not startswith({name}, prefix)
+}}"""
+    assert issues(through_object_get) == []
+    member = f"""violation[{{"msg": "x"}}] {{
+  some prefix in input.parameters.prefixes
+  not startswith({name}, prefix)
+}}"""
+    assert issues(member) == []
+    defaulted = f"""deny[{{"msg": "x"}}] {{
+  params := input.parameters
+  prefix := lib.get_default(params, "prefix", "")
+  startswith({name}, prefix)
+}}"""
+    assert issues(defaulted) == []
+    # get_default on the request is a read of the request, not of the parameters.
+    from_request = f"""deny[{{"msg": "x"}}] {{
+  prefix := lib.get_default(input.review.object.metadata, "prefix", "")
+  startswith({name}, prefix)
+}}"""
+    assert issues(from_request) == ["startswith"]
+
+
+@pytest.mark.skipif(shutil.which("opa") is None, reason="opa is not on PATH")
+def test_rego_calls_inside_comprehensions_are_read() -> None:
+    rego = _load("fragment_membership_rego")
+    ast = rego.parse(
+        """package p
+
+violation[{"msg": "x"}] {
+  bad := [c | c := input.review.object.spec.containers[_]; startswith(c.image, c.name)]
+  count(bad) > 0
+}
+"""
+    )
+    assert ast is not None
+    rule = census.RegoRule(ast["rules"][0], rego.builtins())
+    assert rule.issues() == ["startswith"]
+
+
+@pytest.mark.skipif(shutil.which("opa") is None, reason="opa is not on PATH")
+def test_the_census_reads_helpers_and_follows_arguments_only_post_hoc(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "lib.rego").write_text(
+        """package lib
+
+has_prefix(value, prefix) {
+  startswith(value, prefix)
+}
+
+checked(value) = true {
+  startswith(value, "a")
+} else = false {
+  startswith(value, input.review.object.kind)
+}
+
+format(msg) = {"msg": sprintf("denied: %v", [msg])}
+""",
+        encoding="utf-8",
+    )
+    (root / "helper.rego").write_text(
+        """package helper
+
+import data.lib
+
+violation[{"msg": "x"}] {
+  lib.has_prefix(input.review.object.metadata.name, "kube-")
+}
+""",
+        encoding="utf-8",
+    )
+    (root / "branch.rego").write_text(
+        """package branch
+
+import data.lib
+
+violation[{"msg": "x"}] {
+  lib.checked(input.review.object.metadata.name)
+}
+""",
+        encoding="utf-8",
+    )
+    (root / "message.rego").write_text(
+        """package message
+
+import data.lib
+
+violation[result] {
+  input.review.object.kind == "Pod"
+  result := lib.format("pods are not allowed")
+}
+""",
+        encoding="utf-8",
+    )
+    inside = {"repo/helper.rego", "repo/branch.rego", "repo/message.rego"}
+    protocol, post_hoc = census.rego_census(root, inside)
+    # Under the protocol a function's argument is a local variable, so the helper's pattern is
+    # computed; only the post-hoc reading follows it to the literal at its call.
+    assert protocol["repo/helper.rego"] == ["startswith"]
+    assert post_hoc["repo/helper.rego"] == []
+    # An else branch is read, and its pattern is a read of the request either way.
+    assert protocol["repo/branch.rego"] == ["startswith"]
+    assert post_hoc["repo/branch.rego"] == ["startswith"]
+    # A function called only to build the message is output, head and all.
+    assert protocol["repo/message.rego"] == []
+
+
+def test_a_subject_is_found_under_the_directory_it_was_measured_from() -> None:
+    root = Path("corpora") / "policy-library"
+    modules = {"lib/util.rego": {}}
+    assert census.relative_subject("policy-library/lib/util.rego", root, modules) == (
+        "lib/util.rego"
+    )
+    assert census.relative_subject("lib/util.rego", root, modules) == "lib/util.rego"
+    assert census.relative_subject("other/lib/util.rego", root, modules) is None
+
+
+def test_reproduction_compares_every_subject_not_just_the_counts() -> None:
+    root = Path("corpora") / "policy-library"
+    recorded = {
+        "counts": {"inside": 1, "outside": 1},
+        "policies": [
+            {"subject": "policy-library/a.rego", "verdict": "inside"},
+            {"subject": "policy-library/b.rego", "verdict": "outside"},
+        ],
+    }
+    same = {
+        "counts": {"inside": 1, "outside": 1},
+        "policies": [
+            {"subject": "a.rego", "verdict": "inside"},
+            {"subject": "b.rego", "verdict": "outside"},
+        ],
+    }
+    swapped = {
+        "counts": {"inside": 1, "outside": 1},
+        "policies": [
+            {"subject": "a.rego", "verdict": "outside"},
+            {"subject": "b.rego", "verdict": "inside"},
+        ],
+    }
+    assert census.reproduced(recorded, same, root)
+    assert not census.reproduced(recorded, swapped, root)
