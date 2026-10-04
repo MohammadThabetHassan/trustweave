@@ -2302,13 +2302,27 @@ def _median_sizes(docs: Path) -> tuple[str, str, str, str]:
         "primary: files with a condition"
     ]["median_suite_size"]
     rego = _load(docs, "rego-suite-strategy-study-v1")
-    classes = [
-        policy["quotient_classes"]
+    scored = [
+        policy
         for module in rego["modules"].values()
         if not module["development"]
         for policy in module["policies"]
         if policy["status"] == "scored"
     ]
+    classes = [policy["quotient_classes"] for policy in scored]
+    # The caption gives one proxy size for all three populations, so all three must have it.
+    files = _load(docs, "cedar-suite-strategy-study-v1")["files"]
+    primary = [
+        entry
+        for entry in (files.values() if isinstance(files, dict) else files)
+        if entry.get("status") == "scored"
+        and entry.get("with_condition")
+        and entry.get("mutants", {}).get("live", 0) > 0
+    ]
+    assert len(primary) == 96, len(primary)
+    proxy = generated["decision"]
+    assert statistics.median(entry["decision_range"] for entry in primary) == proxy
+    assert statistics.median(policy["decision_classes"] for policy in scored) == proxy
     return (
         str(int(generated["decision"])),
         str(int(generated["quotient"])),
