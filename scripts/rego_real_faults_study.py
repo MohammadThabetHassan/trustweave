@@ -804,7 +804,7 @@ def study(corpora: Path, workers: int, only: list[int] | None) -> dict[str, Any]
     return {
         "schema_version": "v1",
         "protocol_sha256": protocol_sha256,
-        "engine": f"opa {suite._engine_version()}",
+        "engine": suite._engine_version(),
         "seed": SEED,
         "resamples": RESAMPLES,
         "max_cells": MAX_CELLS,
