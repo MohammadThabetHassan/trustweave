@@ -2561,9 +2561,10 @@ def _census_claims(docs: Path) -> list[Claim]:
     assert all(rows[c]["certified"] == before[c] for c in rows if c not in rose | set(rego))
     claims: list[Claim] = [
         (
-            rf"reads every guard call of every inside artifact and certifies ({_GROUPED}) of the "
-            rf"({_GROUPED}) inside verdicts call by call",
-            (_grouped(certified), _grouped(inside)),
+            rf"census fixed before it read the corpora certifies ({_GROUPED}) of the "
+            rf"({_GROUPED}) inside verdicts, Cedar's (\d+) on its designers' encoding and "
+            r"the rest call by call",
+            (_grouped(certified), _grouped(inside), str(rows["Cedar"]["inside"])),
             "census: the shared sentence of both main texts",
         ),
         (
@@ -2573,8 +2574,8 @@ def _census_claims(docs: Path) -> list[Claim]:
         ),
         (
             rf"and ({_GROUPED}) inside \(Section~\\ref\{{sec:membership\}}\), ({_GROUPED}) of them "
-            r"certified call by call",
-            (_grouped(inside), _grouped(certified)),
+            r"certified, Cedar's (\d+) by design and the rest call by call",
+            (_grouped(inside), _grouped(certified), str(rows["Cedar"]["inside"])),
             "contributions: inside verdicts certified call by call",
         ),
         (
@@ -2584,9 +2585,14 @@ def _census_claims(docs: Path) -> list[Claim]:
             "census: the post-hoc reading in the full version",
         ),
         (
-            rf"({_GROUPED}) of the ({_GROUPED}) inside verdicts \((\d+\.\d)\\%\) are certified "
-            r"call by call",
-            (_grouped(certified), _grouped(inside), _share(certified, inside)),
+            rf"({_GROUPED}) of the ({_GROUPED}) inside verdicts \((\d+\.\d)\\%\) are "
+            r"certified, Cedar's (\d+) by design and the rest call by call",
+            (
+                _grouped(certified),
+                _grouped(inside),
+                _share(certified, inside),
+                str(rows["Cedar"]["inside"]),
+            ),
             "census: the supplement's result",
         ),
         (
