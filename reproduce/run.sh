@@ -24,10 +24,12 @@ corpora="${CORPORA:-/corpora}"
 case "$mode" in
   verify)
     echo "== tools"
-    opa version | head -1
-    kyverno version 2>/dev/null | head -1 || true
+    # `sed -n 1p` rather than `head -1`: head exits after one line, the tool can then be
+    # killed by SIGPIPE mid-write, and pipefail turns that race into a failed run (exit 141).
+    opa version | sed -n 1p
+    kyverno version 2>/dev/null | sed -n 1p || true
     cedar --version
-    cvc5 --version | head -1
+    cvc5 --version | sed -n 1p
     python -c 'from importlib.metadata import version; print("cedarpy", version("cedarpy"), "z3", version("z3-solver"))'
     echo "== every pre-registered artifact names a protocol the repository holds"
     python scripts/check_protocols.py
