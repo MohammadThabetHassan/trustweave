@@ -782,7 +782,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "taxonomy: the schema-first share, restated as such",
         ),
         (
-            rf"eight corpora, our procedure places ({_GROUPED}) of ({_GROUPED}) artifacts inside "
+            rf"eight corpora, ({_GROUPED}) of ({_GROUPED}) artifacts are inside "
             rf"\((\d+\.\d)\\%\)",
             (_grouped(inside), _grouped(artifacts), _pct(inside / artifacts)),
             "abstract: corpus size, artifacts inside",
@@ -1248,6 +1248,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _round2_claims(docs)
     claims += _criteria_claims(docs)
     claims += _census_claims(docs)
+    claims += _shipped_claims(docs)
     return claims
 
 
@@ -1316,11 +1317,6 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
             r"so the range is \$\[(\d+\.\d), (\d+\.\d)\]\$",
             (worst, _share(killed, distinguishable)),
             "rego exact study: the range of the exact score",
-        ),
-        (
-            r"the suites are between (\d+\.\d)\\% and (\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
-            (worst, _pct(head["pooled_exact_score"]), _pct(head["pooled_raw_score"])),
-            "rego exact study: the abstract",
         ),
         (
             r"and by (\d+\.\d) against exact\s+adequacy on the (\d+) suites a further protocol "
@@ -2693,6 +2689,104 @@ def _census_claims(docs: Path) -> list[Claim]:
             "census table: the totals",
         )
     )
+    return claims
+
+
+def _shipped_claims(docs: Path) -> list[Claim]:
+    """The exact study's equivalents, decided again under every Constraint the library ships."""
+
+    study = _load(docs, "rego-shipped-constraints-v1")
+    exact = _load(docs, "rego-exact-adequacy-v1")["headline"]
+    head = study["headline"]
+    assert study["deviations"] == [] and study["every_module_reproduces"]
+    assert study["shipped_constraints_match_the_protocol"]
+    assert head["undecided"] == [] and head["not_reproduced"] == []
+    # The tested settings are the exact study's, so its pooled figures come back.
+    assert head["distinguishable_tested"] == exact["distinguishable"]
+    assert head["killed_through_decision"] == exact["killed_through_decision"]
+    assert head["equivalents_tested"] == exact["suite_equivalent"]
+    assert head["pooled_exact_score_tested"] == exact["pooled_exact_score"]
+    # A separated equivalent is never killed (no suite kills a mutant without a decision
+    # change), so a shipped Constraint can only lower the score, within the tested range.
+    assert exact["killed_without_a_decision_change"] == 0
+    assert head["newly_separated_killed_by_the_suite"] == 0
+    worst, tested = head["worst_case_tested"], head["pooled_exact_score_tested"]
+    shipped = head["pooled_exact_score_shipped"]
+    assert worst <= shipped <= tested
+    # "No Constraint the library ships separates one" and "none separates an equivalent".
+    assert head["newly_separated"] == 0
+    modules = {s: r for s, r in study["modules"].items() if not r["development"]}
+    gaining = {s: r for s, r in modules.items() if any(row["new"] for row in r["shipped"])}
+    other = head["parameter_relative"] - head["in_modules_with_a_new_setting"]
+    words = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven"}
+
+    def tt(name: str) -> str:
+        return "\\texttt{" + name.replace("-", "\\allowbreak-").replace("_", "\\_") + "}"
+
+    claims: list[Claim] = [
+        (
+            r"the suites are (\d+\.\d)\\% adequate under every shipped Constraint too, not "
+            r"(\d+\.\d)\\%",
+            (_pct(shipped), _pct(exact["pooled_raw_score"])),
+            "shipped Constraints: the abstract",
+        ),
+        (
+            r"None of the (\d+) is separated by a Constraint the library ships, (\d+) of them "
+            r"under a setting no test uses, so under the library's own Constraints the score is "
+            r"(\d+\.\d)\\%",
+            (
+                str(head["parameter_relative"]),
+                str(head["in_modules_with_a_new_setting"]),
+                _pct(shipped),
+            ),
+            "shipped Constraints: the full version",
+        ),
+        (
+            r"(\w+) of the (\d+) modules gain a setting no test uses",
+            (words[len(gaining)], str(head["modules"])),
+            "shipped Constraints: the modules that gain a setting",
+        ),
+        (
+            r"They hold (\d+) of the (\d+) equivalents that depend on parameters; the other (\d+) "
+            r"are in modules whose only shipped Constraint has no parameters",
+            (
+                str(head["in_modules_with_a_new_setting"]),
+                str(head["parameter_relative"]),
+                str(other),
+            ),
+            "shipped Constraints: the equivalents a new setting reaches",
+        ),
+        (
+            r"All (\d+) equivalents therefore hold under every Constraint the library ships, and "
+            r"the exact score there is (\d+\.\d)\\%",
+            (str(head["equivalents_tested"]), _pct(shipped)),
+            "shipped Constraints: the score in the supplement",
+        ),
+        (
+            r"The worst case, (\d+\.\d)\\%, remains the bound",
+            (_pct(worst),),
+            "shipped Constraints: the worst case",
+        ),
+    ]
+    for subject, record in sorted(gaining.items()):
+        for row in record["shipped"]:
+            if not row["new"]:
+                continue
+            claims.append(
+                (
+                    re.escape(f"{tt(subject.split('/')[-2])} & {tt(row['constraint'])} & ")
+                    + rf"({_GROUPED}) & (\d+) of (\d+) & (\d+) of (\d+) \\\\"
+                    + r"(?=(?:(?!\\label\{tab:).)*\\label\{tab:shipped\})",
+                    (
+                        _grouped(row["cells"]),
+                        str(row["separates_any"]),
+                        str(record["distinguishable"]),
+                        str(len(row["separates_equivalents"])),
+                        str(record["suite_equivalent"]),
+                    ),
+                    f"shipped Constraints table: {row['constraint']}",
+                )
+            )
     return claims
 
 
