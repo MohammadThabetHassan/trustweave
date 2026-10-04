@@ -113,22 +113,26 @@ def population(kind: str = "inside") -> list[str]:
 def _instrumented(opa: str, source: str) -> str:
     """The module with a print of its input at the start of every `violation` body."""
 
-    done = subprocess.run(
-        [
-            opa,
-            "parse",
-            "--format",
-            "json",
-            "--json-include",
-            "locations",
-            "--v0-compatible",
-            "/dev/stdin",
-        ],
-        input=source,
-        capture_output=True,
-        text=True,
-        timeout=60,
-    )
+    # From a file rather than /dev/stdin, which not every platform has; only rows and columns
+    # are read from the locations, and they are the same.
+    with tempfile.TemporaryDirectory() as directory:
+        module = Path(directory) / "module.rego"
+        module.write_text(source, encoding="utf-8", newline="\n")
+        done = subprocess.run(
+            [
+                opa,
+                "parse",
+                "--format",
+                "json",
+                "--json-include",
+                "locations",
+                "--v0-compatible",
+                str(module),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
     ast = json.loads(done.stdout)
     lines = source.split("\n")
     spots = []

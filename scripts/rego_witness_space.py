@@ -15,8 +15,10 @@ from __future__ import annotations
 
 import itertools
 import json
+import pathlib
 import random
 import subprocess
+import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
@@ -112,13 +114,16 @@ def _consts(av: frozenset[Any]) -> list[Any]:
 
 
 def opa_parse(opa: str, source: str) -> dict[str, Any]:
-    done = subprocess.run(
-        [opa, "parse", "--format", "json", "--v0-compatible", "/dev/stdin"],
-        input=source,
-        capture_output=True,
-        text=True,
-        timeout=60,
-    )
+    # From a file rather than /dev/stdin, which not every platform has; the tree is the same.
+    with tempfile.TemporaryDirectory() as directory:
+        module = pathlib.Path(directory) / "module.rego"
+        module.write_text(source, encoding="utf-8", newline="\n")
+        done = subprocess.run(
+            [opa, "parse", "--format", "json", "--v0-compatible", str(module)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
     if done.returncode != 0:
         raise Unsupported(f"opa parse failed: {done.stderr.strip()[:200]}")
     return json.loads(done.stdout)
