@@ -1247,6 +1247,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _xacml_criteria_claims(docs)
     claims += _round2_claims(docs)
     claims += _criteria_claims(docs)
+    claims += _census_claims(docs)
     return claims
 
 
@@ -2132,21 +2133,9 @@ def _round2_claims(docs: Path) -> list[Claim]:
             "families: verdicts that record no family",
         ),
         (
-            r"for those (\d+) the share inside is an upper bound",
-            (str(literal + unrecorded),),
-            "families: the verdicts whose argument is not checked",
-        ),
-        (
-            rf"and ({_GROUPED}) inside \(Section~\\ref\{{sec:membership\}}\), ({_GROUPED}) of them "
-            r"through guard families",
-            (
-                _grouped(operand_free + literal + unrecorded),
-                _grouped(operand_free),
-            ),
-            "contributions: inside verdicts by family",
-        ),
-        (
-            rf"Total & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) \\\\",
+            # Tied to its own table: the census table's total row has the same shape.
+            rf"Total & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) \\\\"
+            r"(?=(?:(?!\\label\{tab:).)*\\label\{tab:families\})",
             (
                 _grouped(operand_free + literal + unrecorded),
                 _grouped(operand_free),
@@ -2527,6 +2516,177 @@ def _criteria_claims(docs: Path) -> list[Claim]:
             # criteria-table label after it must be this table's.
             pattern += r"(?=(?:(?!\\label\{tab:criteria).)*\\label\{tab:criteria" + table + r"\})"
             claims.append((pattern, tuple(values), f"criteria table ({table}): {label}"))
+    return claims
+
+
+def _census_claims(docs: Path) -> list[Claim]:
+    """The census that certifies the inside verdicts call by call, and its post-hoc reading."""
+
+    census = _load(docs, "guard-certification-v1")
+    assert census["deviations"] == [] and census["every_corpus_reproduced"]
+    assert all(row["not_recovered"] == 0 for row in census["rows"])
+    rows = {row["corpus"]: row for row in census["rows"]}
+    post = {row["corpus"]: row for row in census["post_hoc"]["rows"]}
+    inside, certified = census["inside"], census["certified"]
+    # The census read the verdicts the membership artifacts record, corpus by corpus.
+    for row in census["rows"]:
+        recorded = _load(docs, row["artifact"])["policies"]
+        assert row["inside"] == sum(1 for entry in recorded if entry["verdict"] == "inside")
+    uncertified = inside - certified
+    rego = ("Rego (four corpora)", "Rego (GCP library)")
+    kyverno = ("Kyverno (vendor)", "Kyverno (third-party)")
+    rego_inside = sum(rows[c]["inside"] for c in rego)
+    rego_certified = sum(rows[c]["certified"] for c in rego)
+    rego_post = sum(post[c]["certified"] for c in rego)
+    iam, azure, xacml = rows["AWS IAM"], rows["Azure Policy"], rows["XACML"]
+    azure_families = azure["uncertified_families"]
+    patterns = (
+        azure_families["like with a non-literal operand"]
+        + azure_families["contains with a non-literal operand"]
+    )
+    two_fields = azure_families["template expression reading two fields"]
+    assert patterns + two_fields == azure["uncertified"]
+    assert iam["uncertified_families"] == {
+        "a pattern with two policy variables": iam["uncertified"]
+    }
+    assert xacml["uncertified"] == 1 and xacml["uncertified_families"] == {"map": 1}
+    re_match = sum(row["uncertified_families"].get("re_match", 0) for row in post.values())
+    # What the corrections changed: only the Google library and the recovered third-party
+    # Kyverno files rose, and the four Rego corpora lost one module.
+    before = census["first_run"]["certified_per_corpus"]
+    rose = {c for c, row in rows.items() if row["certified"] > before[c]}
+    assert rose == {"Rego (GCP library)", "Kyverno (third-party)"}, rose
+    assert before["Rego (GCP library)"] == 0
+    assert before["Rego (four corpora)"] - rows["Rego (four corpora)"]["certified"] == 1
+    assert all(rows[c]["certified"] == before[c] for c in rows if c not in rose | set(rego))
+    claims: list[Claim] = [
+        (
+            rf"reads every guard call of every inside artifact and certifies ({_GROUPED}) of the "
+            rf"({_GROUPED}) inside verdicts call by call",
+            (_grouped(certified), _grouped(inside)),
+            "census: the shared sentence of both main texts",
+        ),
+        (
+            r"for the (\d+) it leaves uncertified, (\d+) of them in Rego",
+            (str(uncertified), str(rego_inside - rego_certified)),
+            "census: the uncertified verdicts, in the main texts",
+        ),
+        (
+            rf"and ({_GROUPED}) inside \(Section~\\ref\{{sec:membership\}}\), ({_GROUPED}) of them "
+            r"certified call by call",
+            (_grouped(inside), _grouped(certified)),
+            "contributions: inside verdicts certified call by call",
+        ),
+        (
+            r"reading that follows such arguments to their calls certifies (\d+) of the (\d+) Rego "
+            r"modules, against (\d+) under the protocol",
+            (str(rego_post), str(rego_inside), str(rego_certified)),
+            "census: the post-hoc reading in the full version",
+        ),
+        (
+            rf"({_GROUPED}) of the ({_GROUPED}) inside verdicts \((\d+\.\d)\\%\) are certified "
+            r"call by call",
+            (_grouped(certified), _grouped(inside), _share(certified, inside)),
+            "census: the supplement's result",
+        ),
+        (
+            r"Cedar's (\d+) files rest on its designers' encoding",
+            (str(rows["Cedar"]["inside"]),),
+            "census: Cedar by design",
+        ),
+        (
+            r"The (\d+) uncertified IAM policies write two policy variables",
+            (str(iam["uncertified"]),),
+            "census: IAM",
+        ),
+        (
+            r"Of the (\d+) Azure Policy definitions, (\d+) match a pattern that is not a literal "
+            r"and (\d+) use a template expression that reads two fields",
+            (str(azure["uncertified"]), str(patterns), str(two_fields)),
+            "census: Azure Policy",
+        ),
+        (
+            r"Kyverno's (\d+) use a JMESPath or CEL function",
+            (str(sum(rows[c]["uncertified"] for c in kyverno)),),
+            "census: Kyverno",
+        ),
+        (
+            r"Rego is the exception: (\d+) of its (\d+) inside modules are certified",
+            (str(rego_certified), str(rego_inside)),
+            "census: Rego under the protocol",
+        ),
+        (
+            r"the older name of \\texttt\{regex\.match\}, in (\d+) of them",
+            (str(re_match),),
+            "census: Rego modules calling re_match",
+        ),
+        (
+            rf"For the ({_GROUPED}) the census leaves uncertified",
+            (_grouped(uncertified),),
+            "census: the uncertified verdicts, in the supplement",
+        ),
+        (
+            rf"It certifies (\d+) of the (\d+) Rego modules, against (\d+) under the protocol, "
+            rf"and ({_GROUPED}) of the ({_GROUPED}) verdicts in all",
+            (
+                str(rego_post),
+                str(rego_inside),
+                str(rego_certified),
+                _grouped(census["post_hoc"]["certified"]),
+                _grouped(inside),
+            ),
+            "census: the post-hoc reading in the supplement",
+        ),
+        (
+            rf"certified ({_GROUPED}) verdicts on its first run",
+            (_grouped(census["first_run"]["certified"]),),
+            "census: the first run",
+        ),
+        (
+            r"none of its (\d+) modules had been read",
+            (str(rows["Rego (GCP library)"]["inside"]),),
+            "census: the Google library on the first run",
+        ),
+    ]
+    labels = {
+        "AWS IAM": "AWS IAM",
+        "Azure Policy": "Azure Policy",
+        "XACML": "XACML",
+        "Cedar": "Cedar",
+        "Kyverno (vendor)": "Kyverno, vendor",
+        "Kyverno (third-party)": "Kyverno, third-party",
+        "Rego (four corpora)": "Rego, four corpora",
+        "Rego (GCP library)": "Rego, Google library",
+    }
+    for corpus, label in labels.items():
+        row = rows[corpus]
+        followed = _grouped(post[corpus]["certified"]) if corpus in post else "---"
+        claims.append(
+            (
+                rf"{re.escape(label)} & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & "
+                rf"({_GROUPED}|---) \\\\(?=(?:(?!\\label\{{tab:).)*\\label\{{tab:census\}})",
+                (
+                    _grouped(row["inside"]),
+                    _grouped(row["certified"]),
+                    _grouped(row["uncertified"]),
+                    followed,
+                ),
+                f"census table: {label}",
+            )
+        )
+    claims.append(
+        (
+            rf"Total & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) \\\\"
+            r"(?=(?:(?!\\label\{tab:).)*\\label\{tab:census\})",
+            (
+                _grouped(inside),
+                _grouped(certified),
+                _grouped(uncertified),
+                _grouped(census["post_hoc"]["certified"]),
+            ),
+            "census table: the totals",
+        )
+    )
     return claims
 
 
