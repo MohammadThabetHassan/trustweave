@@ -91,6 +91,18 @@ REPRODUCED = (
     "killed_without_a_decision_change",
 )
 
+# What changed after the first population run, kept so the record is whole. None changes the
+# protocol: it fixes the settings and their cells, not the order they are read in.
+NOTES = (
+    "The first population run compared each module's tested settings with the committed record "
+    "as an ordered list. OPA's test runner prints a suite's inputs in an order that differs from "
+    "run to run, and the settings are read in that order, so four modules -- disallowanonymous, "
+    "disallowinteractive, proc-mount and the development module -- failed the gate on order "
+    "alone, with every count, every survivor and every setting's cells the same. The gate now "
+    "compares each setting's cells whatever the order. That run separated no equivalent under "
+    "any shipped Constraint in any module.",
+)
+
 
 def protocol_digest(path: Path = PROTOCOL) -> str:
     return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
@@ -302,15 +314,22 @@ def settle(task: tuple[str, str, str, list[str], str, list[tuple[str, str]]]) ->
             "now": survivors,
             "committed": [s["mutant"] for s in committed.get("survivors", [])],
         }
-    if record["tested_settings"] != committed.get("instantiations"):
-        differences["settings"] = {
-            "now": record["tested_settings"],
-            "committed": committed.get("instantiations"),
+
+    # Each setting with its cells, whatever the order: the engine's test runner prints the
+    # suite's inputs in an order that differs from run to run, and the settings are read in
+    # the order they are printed.
+    def by_setting(rows: list[dict[str, Any]]) -> dict[str, int]:
+        return {
+            "absent"
+            if row["parameters"] == "absent"
+            else json.dumps(row["parameters"], sort_keys=True): row["cells"]
+            for row in rows
         }
-    cells_now = [row["cells"] for row in checked]
-    cells_then = [row["cells"] for row in committed.get("instantiations_checked", [])]
-    if cells_now != cells_then:
-        differences["cells"] = {"now": cells_now, "committed": cells_then}
+
+    cells_now = by_setting(checked)
+    cells_then = by_setting(committed.get("instantiations_checked", []))
+    if cells_now != cells_then or len(checked) != len(committed.get("instantiations", [])):
+        differences["settings_and_cells"] = {"now": cells_now, "committed": cells_then}
     if any(row["missing_cells"] for row in checked):
         differences["missing_cells"] = [row["missing_cells"] for row in checked]
     record["reproduces"] = None if record.get("no_committed_record") else not differences
@@ -487,6 +506,7 @@ def study(corpus: Path, workers: int, only: list[str] | None) -> dict[str, Any]:
         "headline": headline(records) if not only else None,
         "modules": dict(sorted(records.items())),
         "deviations": [],
+        "notes": list(NOTES),
     }
 
 
