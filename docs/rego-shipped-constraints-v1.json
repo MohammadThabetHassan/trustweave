@@ -1,0 +1,1294 @@
+{
+  "corpus": {
+    "commit": "e034212e94e666ab3ba69108d96222bffc8ef671",
+    "name": "gatekeeper-library"
+  },
+  "development_module": "src/general/httpsonly/src.rego",
+  "deviations": [],
+  "draws": 200,
+  "engine": "opa 1.20.2",
+  "every_module_reproduces": true,
+  "headline": {
+    "distinguishable_tested": 258,
+    "equivalents_tested": 54,
+    "equivalents_under_every_shipped_constraint": 54,
+    "in_modules_with_a_new_setting": 26,
+    "killed_through_decision": 231,
+    "modules": 13,
+    "newly_separated": 0,
+    "newly_separated_killed_by_the_suite": 0,
+    "not_reproduced": [],
+    "parameter_relative": 43,
+    "pooled_exact_score_shipped": 0.8953,
+    "pooled_exact_score_shipped_undecided_left_out": 0.8953,
+    "pooled_exact_score_tested": 0.8953,
+    "reproduced": 13,
+    "undecided": [],
+    "worst_case_tested": 0.7674
+  },
+  "max_cells": 250000,
+  "modules": {
+    "src/general/automount-serviceaccount-token/src.rego": {
+      "development": false,
+      "distinguishable": 19,
+      "equivalents_tested": [
+        5,
+        6
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        5,
+        6
+      ],
+      "killed": 18,
+      "killed_through_decision": 15,
+      "killed_without_a_decision_change": 0,
+      "live": 21,
+      "mutants": 24,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "automount-serviceaccount-token",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 3,
+      "subject": "src/general/automount-serviceaccount-token/src.rego",
+      "suite_equivalent": 2,
+      "survivors": [
+        13,
+        16,
+        18,
+        21
+      ],
+      "tested_settings": [
+        "absent"
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 4,
+          "cells": 3080,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/general/block-loadbalancer-services/src.rego": {
+      "development": false,
+      "distinguishable": 9,
+      "equivalents_tested": [
+        7,
+        10
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        7,
+        10
+      ],
+      "killed": 8,
+      "killed_through_decision": 8,
+      "killed_without_a_decision_change": 0,
+      "live": 11,
+      "mutants": 11,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "block-load-balancer",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 0,
+      "subject": "src/general/block-loadbalancer-services/src.rego",
+      "suite_equivalent": 2,
+      "survivors": [
+        2
+      ],
+      "tested_settings": [
+        "absent"
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 2,
+          "cells": 42,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/general/block-nodeport-services/src.rego": {
+      "development": false,
+      "distinguishable": 9,
+      "equivalents_tested": [
+        7,
+        10
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        7,
+        10
+      ],
+      "killed": 8,
+      "killed_through_decision": 8,
+      "killed_without_a_decision_change": 0,
+      "live": 11,
+      "mutants": 11,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "block-node-port",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 0,
+      "subject": "src/general/block-nodeport-services/src.rego",
+      "suite_equivalent": 2,
+      "survivors": [
+        2
+      ],
+      "tested_settings": [
+        "absent"
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 2,
+          "cells": 42,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/general/block-wildcard-ingress/src.rego": {
+      "development": false,
+      "distinguishable": 20,
+      "equivalents_tested": [
+        17,
+        21
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        17,
+        21
+      ],
+      "killed": 19,
+      "killed_through_decision": 19,
+      "killed_without_a_decision_change": 0,
+      "live": 22,
+      "mutants": 22,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "block-wildcard-ingress",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 0,
+      "subject": "src/general/block-wildcard-ingress/src.rego",
+      "suite_equivalent": 2,
+      "survivors": [
+        13
+      ],
+      "tested_settings": [
+        "absent"
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 4,
+          "cells": 276,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/general/disallowanonymous/src.rego": {
+      "development": false,
+      "distinguishable": 23,
+      "equivalents_tested": [
+        5,
+        17,
+        18,
+        19,
+        33
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        5,
+        17,
+        18,
+        19,
+        33
+      ],
+      "killed": 27,
+      "killed_through_decision": 21,
+      "killed_without_a_decision_change": 0,
+      "live": 28,
+      "mutants": 34,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 15,
+          "cells": 325,
+          "cells_where_the_module_errors": 0,
+          "constraint": "no-anonymous-bindings",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "allowedRoles": [
+              "cluster-role-1"
+            ]
+          },
+          "separates_any": 16,
+          "separates_equivalents": [],
+          "status": "decided"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 15,
+          "cells": 163,
+          "cells_where_the_module_errors": 0,
+          "constraint": "no-authenticated",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "disallowAuthenticated": true
+          },
+          "separates_any": 18,
+          "separates_equivalents": [],
+          "status": "decided"
+        }
+      ],
+      "stillborn": 6,
+      "subject": "src/general/disallowanonymous/src.rego",
+      "suite_equivalent": 5,
+      "survivors": [
+        11,
+        15
+      ],
+      "tested_settings": [
+        {
+          "allowedRoles": [
+            "role-1",
+            "role-2"
+          ]
+        },
+        {
+          "allowedRoles": [
+            "role-2"
+          ]
+        },
+        {
+          "allowedRoles": [
+            "role-1"
+          ]
+        },
+        {
+          "allowedRoles": [
+            "role-1",
+            "role-3"
+          ]
+        },
+        "absent",
+        {
+          "allowedRoles": [],
+          "disallowAuthenticated": true
+        },
+        {
+          "allowedRoles": [],
+          "disallowAuthenticated": false
+        },
+        {
+          "allowedRoles": []
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 379,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "allowedRoles": [
+              "role-1",
+              "role-2"
+            ]
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 10,
+          "cells": 325,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "allowedRoles": [
+              "role-2"
+            ]
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 14,
+          "cells": 325,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "allowedRoles": [
+              "role-1"
+            ]
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 379,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "allowedRoles": [
+              "role-1",
+              "role-3"
+            ]
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 4,
+          "cells": 163,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 163,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "allowedRoles": [],
+            "disallowAuthenticated": true
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 163,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "allowedRoles": [],
+            "disallowAuthenticated": false
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 163,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "allowedRoles": []
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/general/disallowinteractive/src.rego": {
+      "development": false,
+      "distinguishable": 25,
+      "equivalents_tested": [
+        5,
+        6,
+        7,
+        12,
+        20
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        5,
+        6,
+        7,
+        12,
+        20
+      ],
+      "killed": 25,
+      "killed_through_decision": 24,
+      "killed_without_a_decision_change": 0,
+      "live": 30,
+      "mutants": 31,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "no-interactive-containers",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 1,
+      "subject": "src/general/disallowinteractive/src.rego",
+      "suite_equivalent": 5,
+      "survivors": [
+        25
+      ],
+      "tested_settings": [
+        {
+          "exemptImages": [
+            "one/*"
+          ]
+        },
+        "absent",
+        {
+          "exemptImages": [
+            "one/*",
+            "two/*",
+            "three/*"
+          ]
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 2,
+          "cells": 6054,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "one/*"
+            ]
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 1734,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 11238,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "one/*",
+              "two/*",
+              "three/*"
+            ]
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/general/httpsonly/src.rego": {
+      "development": true,
+      "distinguishable": 49,
+      "equivalents_tested": [
+        10,
+        13,
+        22,
+        24,
+        27,
+        29
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        10,
+        13,
+        22,
+        24,
+        27,
+        29
+      ],
+      "killed": 47,
+      "killed_through_decision": 43,
+      "killed_without_a_decision_change": 1,
+      "live": 55,
+      "mutants": 58,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "ingress-https-only",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        },
+        {
+          "constraint": "ingress-https-only-tls-optional",
+          "new": false,
+          "parameters": {
+            "tlsOptional": true
+          },
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 3,
+      "subject": "src/general/httpsonly/src.rego",
+      "suite_equivalent": 6,
+      "survivors": [
+        2,
+        4,
+        16,
+        18,
+        32,
+        33
+      ],
+      "tested_settings": [
+        "absent",
+        {
+          "tlsOptional": true
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 7,
+          "cells": 43726,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 5,
+          "cells": 43726,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "tlsOptional": true
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/general/imagedigests/src.rego": {
+      "development": false,
+      "distinguishable": 18,
+      "equivalents_tested": [
+        5,
+        7,
+        13,
+        15,
+        21,
+        23
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        5,
+        7,
+        13,
+        15,
+        21,
+        23
+      ],
+      "killed": 12,
+      "killed_through_decision": 12,
+      "killed_without_a_decision_change": 0,
+      "live": 24,
+      "mutants": 24,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "container-image-must-have-digest",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 0,
+      "subject": "src/general/imagedigests/src.rego",
+      "suite_equivalent": 6,
+      "survivors": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        22
+      ],
+      "tested_settings": [
+        "absent",
+        {
+          "exemptImages": [
+            "denied/*"
+          ]
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 14,
+          "cells": 60,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 2,
+          "cells": 84,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "denied/*"
+            ]
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/pod-security-policy/allow-privilege-escalation/src.rego": {
+      "development": false,
+      "distinguishable": 20,
+      "equivalents_tested": [
+        7,
+        8,
+        9,
+        10,
+        23
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        7,
+        8,
+        9,
+        10,
+        23
+      ],
+      "killed": 20,
+      "killed_through_decision": 19,
+      "killed_without_a_decision_change": 0,
+      "live": 25,
+      "mutants": 26,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 8430,
+          "cells_where_the_module_errors": 0,
+          "constraint": "psp-allow-privilege-escalation-container",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "exemptImages": [
+              "safeimages.com/*"
+            ]
+          },
+          "separates_any": 20,
+          "separates_equivalents": [],
+          "status": "decided"
+        }
+      ],
+      "stillborn": 1,
+      "subject": "src/pod-security-policy/allow-privilege-escalation/src.rego",
+      "suite_equivalent": 5,
+      "survivors": [
+        21
+      ],
+      "tested_settings": [
+        "absent",
+        {
+          "exemptImages": [
+            "one/*"
+          ]
+        },
+        {
+          "exemptImages": [
+            "one/*",
+            "two/*",
+            "three/*"
+          ]
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 2430,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 2,
+          "cells": 8430,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "one/*"
+            ]
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 15630,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "one/*",
+              "two/*",
+              "three/*"
+            ]
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/pod-security-policy/host-namespaces/src.rego": {
+      "development": false,
+      "distinguishable": 11,
+      "equivalents_tested": [
+        5,
+        6,
+        7
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        5,
+        6,
+        7
+      ],
+      "killed": 11,
+      "killed_through_decision": 11,
+      "killed_without_a_decision_change": 0,
+      "live": 14,
+      "mutants": 14,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "psp-host-namespace",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 0,
+      "subject": "src/pod-security-policy/host-namespaces/src.rego",
+      "suite_equivalent": 3,
+      "survivors": [],
+      "tested_settings": [
+        "absent"
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 5,
+          "cells": 260,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/pod-security-policy/host-process/src.rego": {
+      "development": false,
+      "distinguishable": 19,
+      "equivalents_tested": [
+        6,
+        7,
+        9,
+        18,
+        19,
+        21
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        6,
+        7,
+        9,
+        18,
+        19,
+        21
+      ],
+      "killed": 18,
+      "killed_through_decision": 18,
+      "killed_without_a_decision_change": 0,
+      "live": 25,
+      "mutants": 25,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "constraint": "psp-host-process",
+          "new": false,
+          "parameters": "absent",
+          "status": "a tested setting"
+        }
+      ],
+      "stillborn": 0,
+      "subject": "src/pod-security-policy/host-process/src.rego",
+      "suite_equivalent": 6,
+      "survivors": [
+        1
+      ],
+      "tested_settings": [
+        "absent",
+        {
+          "exemptImages": [
+            "safeimages.com/*"
+          ]
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 8,
+          "cells": 12020,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 2,
+          "cells": 40820,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "safeimages.com/*"
+            ]
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/pod-security-policy/privileged-containers/src.rego": {
+      "development": false,
+      "distinguishable": 10,
+      "equivalents_tested": [
+        7,
+        8,
+        9
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        7,
+        8,
+        9
+      ],
+      "killed": 9,
+      "killed_through_decision": 9,
+      "killed_without_a_decision_change": 0,
+      "live": 13,
+      "mutants": 13,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 1080,
+          "cells_where_the_module_errors": 0,
+          "constraint": "psp-privileged-container",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "exemptImages": [
+              "safeimages.com/*"
+            ]
+          },
+          "separates_any": 10,
+          "separates_equivalents": [],
+          "status": "decided"
+        }
+      ],
+      "stillborn": 0,
+      "subject": "src/pod-security-policy/privileged-containers/src.rego",
+      "suite_equivalent": 3,
+      "survivors": [
+        12
+      ],
+      "tested_settings": [
+        "absent",
+        {
+          "exemptImages": [
+            "nginx"
+          ]
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 330,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 930,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "nginx"
+            ]
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/pod-security-policy/proc-mount/src.rego": {
+      "development": false,
+      "distinguishable": 55,
+      "equivalents_tested": [
+        7,
+        8,
+        9,
+        12,
+        36,
+        47,
+        57,
+        61
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        7,
+        8,
+        9,
+        12,
+        36,
+        47,
+        57,
+        61
+      ],
+      "killed": 52,
+      "killed_through_decision": 48,
+      "killed_without_a_decision_change": 0,
+      "live": 63,
+      "mutants": 67,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 1710,
+          "cells_where_the_module_errors": 0,
+          "constraint": "psp-proc-mount",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "exemptImages": [
+              "safeimages.com/*"
+            ],
+            "procMount": "Default"
+          },
+          "separates_any": 32,
+          "separates_equivalents": [],
+          "status": "decided"
+        }
+      ],
+      "stillborn": 4,
+      "subject": "src/pod-security-policy/proc-mount/src.rego",
+      "suite_equivalent": 8,
+      "survivors": [
+        30,
+        32,
+        33,
+        34,
+        35,
+        46,
+        48
+      ],
+      "tested_settings": [
+        null,
+        {
+          "procMount": "Unmasked"
+        },
+        {
+          "procMount": "Default"
+        },
+        {
+          "procMount": "invalid"
+        },
+        {
+          "exemptImages": [
+            "nginx"
+          ],
+          "procMount": "Default"
+        },
+        "absent",
+        {
+          "procMount": "default"
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 510,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": null
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 3,
+          "cells": 510,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "procMount": "Unmasked"
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 6,
+          "cells": 510,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "procMount": "Default"
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 510,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "procMount": "invalid"
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 1470,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "nginx"
+            ],
+            "procMount": "Default"
+          }
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 510,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 510,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "procMount": "default"
+          }
+        }
+      ],
+      "undecided_under": []
+    },
+    "src/pod-security-policy/read-only-root-filesystem/src.rego": {
+      "development": false,
+      "distinguishable": 20,
+      "equivalents_tested": [
+        7,
+        8,
+        9,
+        10,
+        23
+      ],
+      "equivalents_under_every_shipped_constraint": [
+        7,
+        8,
+        9,
+        10,
+        23
+      ],
+      "killed": 20,
+      "killed_through_decision": 19,
+      "killed_without_a_decision_change": 0,
+      "live": 25,
+      "mutants": 26,
+      "newly_separated": [],
+      "reproduces": true,
+      "reproduction_differences": {},
+      "shipped": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 5,
+          "cells": 8430,
+          "cells_where_the_module_errors": 0,
+          "constraint": "full_wildcard",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "exemptImages": [
+              "*"
+            ]
+          },
+          "separates_any": 20,
+          "separates_equivalents": [],
+          "status": "decided"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 5,
+          "cells": 7230,
+          "cells_where_the_module_errors": 0,
+          "constraint": "psp-readonlyrootfilesystem",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "exemptImages": [
+              "specialprogram"
+            ]
+          },
+          "separates_any": 20,
+          "separates_equivalents": [],
+          "status": "decided"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 5,
+          "cells": 8430,
+          "cells_where_the_module_errors": 0,
+          "constraint": "wildcard-prefix",
+          "drawn": 200,
+          "new": true,
+          "parameters": {
+            "exemptImages": [
+              "safe-images.com/*"
+            ]
+          },
+          "separates_any": 20,
+          "separates_equivalents": [],
+          "status": "decided"
+        }
+      ],
+      "stillborn": 1,
+      "subject": "src/pod-security-policy/read-only-root-filesystem/src.rego",
+      "suite_equivalent": 5,
+      "survivors": [
+        21
+      ],
+      "tested_settings": [
+        "absent",
+        {
+          "exemptImages": [
+            "nginx"
+          ]
+        }
+      ],
+      "tested_settings_checked": [
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 5,
+          "cells": 2430,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": "absent"
+        },
+        {
+          "authors_drawn": 200,
+          "authors_reviews": 1,
+          "cells": 7230,
+          "cells_where_the_module_errors": 0,
+          "drawn": 200,
+          "missing_cells": 0,
+          "parameters": {
+            "exemptImages": [
+              "nginx"
+            ]
+          }
+        }
+      ],
+      "undecided_under": []
+    }
+  },
+  "notes": [
+    "The first population run compared each module's tested settings with the committed record as an ordered list. OPA's test runner prints a suite's inputs in an order that differs from run to run, and the settings are read in that order, so four modules -- disallowanonymous, disallowinteractive, proc-mount and the development module -- failed the gate on order alone, with every count, every survivor and every setting's cells the same. The gate now compares each setting's cells whatever the order. That run separated no equivalent under any shipped Constraint in any module."
+  ],
+  "protocol_sha256": "0ef10f141e18c19a88eb85c17aa3685c69353b536c2449bd0bf031991b306016",
+  "schema_version": "v1",
+  "seed": 20261004,
+  "shipped_constraints_match_the_protocol": true
+}

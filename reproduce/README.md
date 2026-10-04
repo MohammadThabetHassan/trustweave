@@ -117,6 +117,7 @@ are pre-registered.
 | `rego-exact-adequacy-v1` | `python scripts/rego_exact_study.py study --corpus <GK> --json ...` | OPA; hours |
 | `rego-exact-adequacy-schemas-v1` | `python scripts/rego_exact_study.py study --corpus <GK> --population schemas --json ...` | OPA; hours |
 | `rego-exact-gaps-v1` | `python scripts/rego_exact_study.py gaps --corpus <GK> --artifact docs/rego-exact-adequacy-v1.json --json ...` | OPA |
+| `rego-shipped-constraints-v1` | `python scripts/rego_shipped_constraints_study.py study --corpus <GK> --workers 6 --json ...` | OPA; under an hour |
 | `rego-suite-stillborn-v1` | `python scripts/rego_exact_study.py stillborn --corpus <GK> --json ...` | OPA |
 | `rego-suite-strategy-study-v1` | `python scripts/rego_payoff_study.py study --corpus <GK> --json ...` | OPA; hours |
 | `rego-real-faults-v1` | `python scripts/rego_real_faults_study.py study --corpora R --workers 6 --json ...` | OPA, full histories (below); hours |
