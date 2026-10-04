@@ -1219,6 +1219,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _rego_schemas_claims(docs)
     claims += _rego_real_faults_claims(docs)
     claims += _cedar_symcc_claims(docs)
+    claims += _xacml_criteria_claims(docs)
     return claims
 
 
@@ -2040,6 +2041,201 @@ def _cedar_symcc_claims(docs: Path) -> list[Claim]:
             "cedar symcc: the live mutants in neither class",
         ),
     ]
+
+
+def _half_up(value: float, places: str) -> str:
+    return str(Decimal(str(value)).quantize(Decimal(places), rounding=ROUND_HALF_UP))
+
+
+def _xacml_criteria_claims(docs: Path) -> list[Claim]:
+    """Xu et al.'s criteria and the quotient, on Xu et al.'s own benchmark.
+
+    The main texts share one sentence, and it states both halves of the result -- complete
+    detection, at a size MC/DC does not need -- so neither can be quoted without the other. What
+    the prose rests on and does not print is asserted: every policy scored, none unrunnable, no
+    missing cell, the quotient at exactly 100%, and an oracle without a disagreement.
+    """
+
+    study = _load(docs, "xacml-criteria-study-v1")
+    summary, hypotheses, policies = study["summary"], study["hypotheses"], study["policies"]
+    assert summary["statuses"] == {"scored": len(policies)}
+    assert summary["mutants"]["unrunnable"] == 0
+    assert all(not r["missing_cells_for"] and r["requests_in_no_class"] == 0 for r in policies)
+    assert study["oracle"]["disagree"] == 0
+    mean, pooled, size = (
+        summary["mean_over_policies"],
+        summary["pooled_over_mutants"],
+        summary["mean_suite_size"],
+    )
+    assert mean["quotient"] == 1.0 and pooled["quotient"] == 1.0
+
+    def pct(value: float) -> str:
+        exact = Decimal(str(value)) * 100
+        return str(exact.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
+
+    def whole(value: float) -> str:
+        return _half_up(value, "1")
+
+    live = summary["mutants"]["live"]
+    equivalent = summary["mutants"]["equivalent"]
+    merged = sorted(
+        (r for r in policies if r["quotient_classes"] < r["cells"]), key=lambda r: r["policy"]
+    )
+    h1, h2 = hypotheses["H1"], hypotheses["H2"]
+    mc = h1["MCDC"]
+    others = [h1[c] for c in ("RC", "DC", "NE-DC", "PC", "PD-PC")]
+    assert len({v["holm_p"] for v in others}) == 1
+    above = [h2[c] for c in ("RC", "DC", "NE-DC")]
+    assert all(v["holm_p"] >= 0.05 and v["mean_difference"] > 0 for v in above)
+    assert all(h2[c]["holm_p"] >= 0.05 for c in ("PC", "PD-PC"))
+    assert h2["MCDC"]["holm_p"] == h2["NE-MCDC"]["holm_p"]
+    big = sum(
+        1
+        for r in policies
+        if r["policy"] in ("itrust3.xml", "pluto3.xml")
+        for m in r["scored"]
+        if m["status"] == "live"
+    )
+    rows = [
+        ("One witness per quotient class", "quotient", "random_quotient"),
+        ("MC/DC (XPA)$^{a}$", "MCDC", "random_MCDC"),
+        ("MC/DC without errors (XPA)$^{a}$", "NE-MCDC", "random_NE-MCDC"),
+        ("Decision coverage (XPA)", "DC", "random_DC"),
+        ("Decision coverage without errors (XPA)", "NE-DC", "random_NE-DC"),
+        ("Rule coverage (XPA)", "RC", "random_RC"),
+        ("Rule-pair coverage (XPA)", "PC", "random_PC"),
+        ("Permit--deny rule pairs (XPA)", "PD-PC", "random_PD-PC"),
+        ("One witness per decision (the proxy)", "decision", "random_decision"),
+    ]
+    claims: list[Claim] = [
+        (
+            r"[Oo]n Xu et al.'s own benchmark the quotient detects every live mutant with (\d+) "
+            r"requests on average, where their MC/DC detects (\d+\.\d)\\% with (\d+)",
+            (whole(size["quotient"]), pct(mean["MCDC"]), whole(size["MCDC"])),
+            "xacml criteria: both halves, as both main texts state them",
+        ),
+        (
+            r"agrees with all (\d+) of Balana's own conformance cases",
+            (str(study["oracle"]["agree"]),),
+            "xacml criteria: the engine oracle",
+        ),
+        (
+            r"Of XPA's (\d+) benchmark policies, (\d+) are inside the fragment",
+            (
+                str(len(study["population"]["eligible"]) + len(study["population"]["excluded"])),
+                str(len(study["population"]["eligible"])),
+            ),
+            "xacml criteria: the population",
+        ),
+        (
+            rf"XPA's operators make ({_GROUPED}) mutants: ({_GROUPED}) live and (\d+) equivalent, "
+            r"(\d+) of the latter",
+            (
+                _grouped(live + equivalent),
+                _grouped(live),
+                str(equivalent),
+                str(summary["equivalent_by_operator"]["ANR"]),
+            ),
+            "xacml criteria: the mutants",
+        ),
+        (
+            r"in (\d+) of the 11 policies; only the three kmarket policies merge cells, (\d+) into "
+            r"(\d+), (\d+) into (\d+) and (\d+) into (\d+)",
+            (
+                str(sum(1 for r in policies if r["quotient_classes"] == r["cells"])),
+                *(str(v) for r in merged for v in (r["cells"], r["quotient_classes"])),
+            ),
+            "xacml criteria: where the quotient is the refinement",
+        ),
+        (
+            r"Its completeness therefore costs (\d+) requests on average, where MC/DC, the "
+            r"strongest of Xu et al.'s criteria, detects (\d+\.\d)\\% with (\d+)",
+            (whole(size["quotient"]), pct(mean["MCDC"]), whole(size["MCDC"])),
+            "xacml criteria: both halves, in the supporting information",
+        ),
+        (
+            r"MC/DC by (\d+\.\d) points \[(\d+\.\d), (\d+\.\d)\], (\d+) wins and (\d+) ties over "
+            r"(\d+) policies \(Holm \$p = ([\d.]+)\$\)",
+            (
+                pct(mc["mean_difference"]),
+                pct(mc["bootstrap_95"][0]),
+                pct(mc["bootstrap_95"][1]),
+                str(mc["wins"]),
+                str(mc["ties"]),
+                str(mc["policies"]),
+                str(mc["holm_p"]),
+            ),
+            "xacml criteria: H1 against MC/DC",
+        ),
+        (
+            r"the rule, decision and pair criteria by (\d+\.\d) to (\d+\.\d) points \(Holm "
+            r"\$p = ([\d.]+)\$ each\)",
+            (
+                pct(min(v["mean_difference"] for v in others)),
+                pct(max(v["mean_difference"] for v in others)),
+                str(others[0]["holm_p"]),
+            ),
+            "xacml criteria: H1 against the other criteria",
+        ),
+        (
+            r"by (\d+\.\d) and (\d+\.\d) points \(Holm \$p = ([\d.]+)\$\); rule and decision",
+            (
+                pct(h2["MCDC"]["mean_difference"]),
+                pct(h2["NE-MCDC"]["mean_difference"]),
+                str(h2["MCDC"]["holm_p"]),
+            ),
+            "xacml criteria: H2 for MC/DC",
+        ),
+        (
+            r"after Holm's correction \(\$p\$ from ([\d.]+) to ([\d.]+)\)",
+            (str(min(v["holm_p"] for v in above)), str(max(v["holm_p"] for v in above))),
+            "xacml criteria: H2 for rule and decision coverage",
+        ),
+        (
+            r"A random suite as large as the quotient detects (\d+\.\d)\\%, so the quotient's edge "
+            r"over random testing at equal size is (\d+\.\d) points",
+            (pct(mean["random_quotient"]), pct(mean["quotient"] - mean["random_quotient"])),
+            "xacml criteria: the quotient against random testing, described",
+        ),
+        (
+            r"Xu et al.'s decision coverage, which detects (\d+\.\d)\\% with (\d+) requests, is "
+            r"not the paper's decision proxy, which detects (\d+\.\d)\\% with (\d+)",
+            (pct(mean["DC"]), whole(size["DC"]), pct(mean["decision"]), whole(size["decision"])),
+            "xacml criteria: their decision coverage and the paper's proxy",
+        ),
+        (
+            rf"which hold ({_GROUPED}) of the ({_GROUPED}) live mutants, and by one operator, "
+            r"RPTE, with (\d+)",
+            (_grouped(big), _grouped(live), str(summary["live_by_operator"]["RPTE"])),
+            "xacml criteria: what dominates the pooled column",
+        ),
+        (
+            r"one of the (\d+) equivalent mutants is separated by a request that gives an "
+            r"attribute several values",
+            (str(equivalent),),
+            "xacml criteria: the bag check",
+        ),
+        (
+            r"a first run stopped on the (\d+) such mutants",
+            (str(sum(len(r["targets_restored"]) for r in policies)),),
+            "xacml criteria: the deviation",
+        ),
+    ]
+    assert summary["bag_check"]["equivalent_mutants_a_bag_request_separates"] == 1
+    for label, key, random_key in rows:
+        claims.append(
+            (
+                re.escape(label) + r" & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) & (\d+\.\d) \\\\",
+                (
+                    pct(mean[key]),
+                    pct(mean[random_key]),
+                    pct(pooled[key]),
+                    _half_up(size[key], "0.1"),
+                ),
+                f"xacml criteria: the table's row for {key}",
+            )
+        )
+    return claims
 
 
 def _rego_payoff_claims(docs: Path) -> list[Claim]:
