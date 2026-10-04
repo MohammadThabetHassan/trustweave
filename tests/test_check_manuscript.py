@@ -98,6 +98,9 @@ def workspace(tmp_path: Path) -> Path:
     documents.mkdir()
     for artifact in DOCS.glob("*.json"):
         shutil.copy(artifact, documents / artifact.name)
+    # Protocols too: the real-faults claims are read against the protocol's frozen table.
+    for protocol in DOCS.glob("*PROTOCOL*.md"):
+        shutil.copy(protocol, documents / protocol.name)
     return tmp_path
 
 

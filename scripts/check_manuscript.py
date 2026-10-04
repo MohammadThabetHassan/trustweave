@@ -789,9 +789,9 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "taxonomy: schema share restated in prose",
         ),
         (
-            rf"eight corpora \(({_GROUPED}) artifacts\), ({_GROUPED}) of the ({_GROUPED}) that "
-            rf"are policies meet it \((\d+\.\d)\\%\)",
-            (_grouped(artifacts), _grouped(inside), _grouped(policies), _pct(inside / policies)),
+            rf"eight corpora, ({_GROUPED}) of the ({_GROUPED}) that are policies meet it "
+            rf"\((\d+\.\d)\\%\)",
+            (_grouped(inside), _grouped(policies), _pct(inside / policies)),
             "abstract: corpus size, policies inside",
         ),
         (
@@ -1217,6 +1217,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _rego_exact_claims(docs)
     claims += _rego_payoff_claims(docs)
     claims += _rego_schemas_claims(docs)
+    claims += _rego_real_faults_claims(docs)
     return claims
 
 
@@ -1637,6 +1638,253 @@ def _rego_schemas_claims(docs: Path) -> list[Claim]:
     return claims
 
 
+def _rego_real_faults_claims(docs: Path) -> list[Claim]:
+    """The real faults in two Rego libraries' histories, exposed by the suite strategies.
+
+    The candidate counts are read from the protocol's own table, which its hash fixed before the
+    study ran; everything else from the artifact. The two main texts share the sentence that
+    states the result, so one pin reaches both.
+    """
+
+    study = _load(docs, "rego-real-faults-v1")
+    protocol = (docs / "REAL_FAULTS_PROTOCOL_REGO.md").read_text(encoding="utf-8")
+    table = re.findall(
+        r"^\| \d+ \| (\w+) \| `[0-9a-f]+` \| `[^`]+` \| (behaviour fix|excluded) \|",
+        protocol,
+        flags=re.M,
+    )
+    fixes = [corpus for corpus, klass in table if klass == "behaviour fix"]
+    studied = [corpus for corpus in fixes if corpus in ("gatekeeper", "gcp")]
+    head, h1, h2 = (
+        study["headline"],
+        study["headline"]["comparisons"]["H1"],
+        study["headline"]["comparisons"]["H2"],
+    )
+    faults = study["faults"]
+    pooled = [r for r in faults if not r.get("development")]
+    scored = [r for r in pooled if r.get("status") == "scored"]
+    development = [r for r in faults if r.get("development")]
+    assert len(scored) == head["faults"] and len(pooled) == study["population"]
+    assert all(
+        r.get("status") == "scored" and r["quotient_exposes_with_certainty"] for r in development
+    )
+    new_field = [r for r in scored if r["fix_reads_paths_the_policy_does_not"]]
+    by_chance = [r for r in new_field if not r["quotient_exposes_with_certainty"]]
+    # "and it is so in every fault whose fix reads only what the policy in use already read"
+    assert all(r["difference_is_a_union_of_classes"] for r in scored if r not in new_field)
+    assert h2["losses"] == 0
+    mean = head["mean_exposure"]
+
+    def numbers(status: str) -> str:
+        found = sorted(
+            r["number"]
+            for r in pooled
+            if r.get("status", "").startswith(status) or status in r.get("status", "")
+        )
+        return ", ".join(f"\\#{n}" for n in found)
+
+    def interval(hypothesis: dict[str, Any]) -> tuple[str, str, str]:
+        low, high = hypothesis["bootstrap_95"]
+        return (f"{hypothesis['mean_difference']:.3f}", f"{low:.3f}", f"{high:.3f}")
+
+    claims: list[Claim] = [
+        (
+            r"On (\d+) real faults that the maintainers of two Rego libraries fixed, the figures "
+            r"are "
+            r"(\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
+            (
+                str(head["faults"]),
+                _pct(mean["quotient"]),
+                _pct(mean["random_quotient"]),
+                _pct(mean["decision"]),
+            ),
+            "real faults: the abstract",
+        ),
+        (
+            r"[Oo]n (\d+) behaviour fixes the maintainers of the Gatekeeper and Config Validator "
+            r"libraries made to their own policies",
+            (str(head["faults"]),),
+            "real faults: the population, as both main texts state it",
+        ),
+        (
+            r"one witness per class exposes (\d+\.\d)\\% in expectation, a random suite of that "
+            r"size "
+            r"(\d+\.\d)\\% and the proxy (\d+\.\d)\\%",
+            (_pct(mean["quotient"]), _pct(mean["random_quotient"]), _pct(mean["decision"])),
+            "real faults: the result, as both main texts state it",
+        ),
+        (
+            r"In (\d+) of the (\d+), the difference is a union of the old policy's classes",
+            (str(head["difference_is_a_union_of_classes"]), str(head["faults"])),
+            "real faults: the unions, in the main text",
+        ),
+        (
+            r"(\d+) of the (\d+) fixes that read a field the old policy never read are exposed "
+            r"only "
+            r"by chance",
+            (str(len(by_chance)), str(len(new_field))),
+            "real faults: the fixes the quotient exposes only by chance",
+        ),
+        (
+            r"on (\d+) real faults that the maintainers of two Rego libraries fixed, (\d+\.\d)\\% "
+            r"against (\d+\.\d)\\% and (\d+\.\d)\\%",
+            (
+                str(head["faults"]),
+                _pct(mean["quotient"]),
+                _pct(mean["random_quotient"]),
+                _pct(mean["decision"]),
+            ),
+            "real faults: the contribution",
+        ),
+        (
+            r"and on (\d+) real faults that the maintainers of two Rego libraries fixed, "
+            r"(\d+\.\d)\\% "
+            r"where the proxy detects (\d+\.\d)\\%",
+            (str(head["faults"]), _pct(mean["quotient"]), _pct(mean["decision"])),
+            "real faults: the conclusion",
+        ),
+        (
+            r"(\d+) module changes in all once Red Hat's library is counted",
+            (str(len(table)),),
+            "real faults: the candidates",
+        ),
+        (
+            r"(\d+) are behaviour fixes and (\d+) are messages",
+            (str(len(fixes)), str(len(table) - len(fixes))),
+            "real faults: the classification",
+        ),
+        (
+            r"The (\d+) behaviour fixes in the two libraries whose suites run under",
+            (str(len(studied)),),
+            "real faults: the population",
+        ),
+        (
+            r"Red Hat's (\d+) are tested through conftest",
+            (str(len(fixes) - len(studied)),),
+            "real faults: the corpus left out",
+        ),
+        (
+            r"Of the (\d+) faults outside the two development ones, (\d+) are scored",
+            (str(len(pooled)), str(len(scored))),
+            "real faults: how many are scored",
+        ),
+        (
+            r"reads \\texttt\{data\.inventory\}\s*\(([^)]*)\) and one because it reads the clock\s*"
+            r"\(([^)]*)\)",
+            (numbers("data.inventory"), numbers("time.now_ns")),
+            "real faults: the faults outside the fragment",
+        ),
+        (
+            r"found an input no cell covers "
+            r"\(([^)]*)\); one exceeds the cap \(([^)]*)\); one fix does "
+            r"not\s*compile under OPA 1\.20\.2 \(([^)]*)\)",
+            (
+                numbers("excluded: missing cell"),
+                numbers("excluded: an object with"),
+                numbers("does not compile"),
+            ),
+            "real faults: the other exclusions",
+        ),
+        (
+            r"under the settings the suites test "
+            r"\(([^)]*)\), in \\#(\d+) because its suites supply no "
+            r"input",
+            (
+                numbers("no decision change"),
+                str(
+                    next(
+                        r["number"]
+                        for r in pooled
+                        if r.get("status", "").startswith("no decision")
+                        and r.get("authors_inputs") == 0
+                    )
+                ),
+            ),
+            "real faults: no decision change",
+        ),
+        (
+            r"The difference set is a union of the policy's own quotient classes in (\d+) of the "
+            r"(\d+)",
+            (str(head["difference_is_a_union_of_classes"]), str(head["faults"])),
+            "real faults: the unions, in the supporting information",
+        ),
+        (
+            r"(\d+) of those (\d+) are exposed only by chance, between (\d+\.\d)\\% and "
+            r"(\d+\.\d)\\% of "
+            r"the time",
+            (
+                str(len(by_chance)),
+                str(len(new_field)),
+                _pct(min(r["exposure"]["quotient"] for r in by_chance)),
+                _pct(max(r["exposure"]["quotient"] for r in by_chance)),
+            ),
+            "real faults: how often the quotient finds a new field's fix",
+        ),
+        (
+            r"In expectation one witness per class exposes (\d+\.\d)\\%, a random suite of the "
+            r"same size "
+            r"(\d+\.\d)\\%, the decision proxy (\d+\.\d)\\%, and a random suite of the proxy's "
+            r"size "
+            r"(\d+\.\d)\\%",
+            tuple(
+                _pct(mean[s])
+                for s in ("quotient", "random_quotient", "decision", "random_decision")
+            ),
+            "real faults: the means",
+        ),
+        (
+            r"The quotient beats random testing by (\d\.\d+) \$\[(\d\.\d+), (\d\.\d+)\]\$, higher "
+            r"on (\d+) "
+            r"faults, tied on (\d+) and lower on (\d+) \(\$p = (0\.\d+)\$\)",
+            (
+                *interval(h1),
+                str(h1["wins"]),
+                str(h1["ties"]),
+                str(h1["losses"]),
+                f"{h1['p_value']:.4f}",
+            ),
+            "real faults: H1",
+        ),
+        (
+            r"and the proxy by (\d\.\d+) \$\[(\d\.\d+), (\d\.\d+)\]\$, higher on (\d+) and lower "
+            r"on none "
+            r"\(\$p = (0\.\d+)\$; Holm (0\.\d+)\)",
+            (*interval(h2), str(h2["wins"]), f"{h2['p_value']:.4f}", f"{h2['p_value_holm']:.4f}"),
+            "real faults: H2",
+        ),
+    ]
+    for record in scored:
+        settings = record["per_setting"]
+        kind = (
+            "union"
+            if record["difference_is_a_union_of_classes"]
+            else ("contains" if record["quotient_exposes_with_certainty"] else "splits")
+        )
+        claims.append(
+            (
+                rf"(?<![\d.]){record['number']} & (GK|CV) & \\texttt\{{[^}}]*\}} & (\d+) & "
+                rf"({_GROUPED}) & "
+                rf"({_GROUPED}) & (\d+) & (union|contains|splits) & (yes|) ?& (\d+\.\d) & "
+                rf"(\d+\.\d) & "
+                r"(\d+\.\d) \\\\",
+                (
+                    "GK" if record["corpus"] == "gatekeeper" else "CV",
+                    str(len(settings)),
+                    _grouped(sum(s["cells"] for s in settings)),
+                    _grouped(sum(s["quotient_classes"] for s in settings)),
+                    str(sum(s["difference_cells"] for s in settings)),
+                    kind,
+                    "yes" if record["fix_reads_paths_the_policy_does_not"] else "",
+                    _pct(record["exposure"]["quotient"]),
+                    _pct(record["exposure"]["random_quotient"]),
+                    _pct(record["exposure"]["decision"]),
+                ),
+                f"real faults: the row for #{record['number']}",
+            )
+        )
+    return claims
+
+
 def _rego_payoff_claims(docs: Path) -> list[Claim]:
     """The suite-strategy study replicated on real Rego policies, every decision OPA's.
 
@@ -1718,7 +1966,7 @@ def _rego_payoff_claims(docs: Path) -> list[Claim]:
     return [
         (
             r"on (\d+) Gatekeeper Rego modules under the (\d+) parameter settings their suites "
-            r"test, decided by the Open Policy Agent, (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
+            r"test, (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
             (
                 str(exact["headline"]["modules"]),
                 str(head["policies"]),
@@ -2143,8 +2391,8 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar real edits: what a suite of the earlier version catches",
         ),
         (
-            rf"On ({_GROUPED}) real Cedar files written outside the vendor, decided by its "
-            r"engine, the figures are (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
+            rf"On ({_GROUPED}) real Cedar files, decided by their engine, (\d+\.\d)\\%, "
+            r"(\d+\.\d)\\% and (\d+\.\d)\\%",
             (
                 _grouped(primary["files_scored"]),
                 _pct(scores["quotient"]),
