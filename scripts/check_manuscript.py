@@ -1182,6 +1182,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _sample_oracle_claims(docs)
     claims += _rego_suite_claims(docs)
     claims += _rego_exact_claims(docs)
+    claims += _rego_payoff_claims(docs)
     return claims
 
 
@@ -1233,13 +1234,9 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
     assert realism["killed_by_a_review_like_the_authors"] == realism["gaps"]
     claims: list[Claim] = [
         (
-            r"Of the mutants that (\d+) author-written Rego suites miss, two thirds are "
-            r"equivalent: the suites are (\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
-            (
-                str(head["modules"]),
-                _pct(head["pooled_exact_score"]),
-                _pct(head["pooled_raw_score"]),
-            ),
+            r"Two thirds of the mutants those suites miss are equivalent: the suites are "
+            r"(\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
+            (_pct(head["pooled_exact_score"]), _pct(head["pooled_raw_score"])),
             "rego exact study: the abstract",
         ),
         (
@@ -1427,6 +1424,242 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
         )
     )
     return claims
+
+
+def _rego_payoff_claims(docs: Path) -> list[Claim]:
+    """The suite-strategy study replicated on real Rego policies, every decision OPA's.
+
+    The 10-page article restates the result in the full version's own phrases, so each pin below
+    reaches both texts; the abstract, the conclusion and the threats are shared word for word.
+    """
+
+    study = _load(docs, "rego-suite-strategy-study-v1")
+    exact = _load(docs, "rego-exact-adequacy-v1")
+    generated = _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]["hypotheses"]
+    cedar = _load(docs, "cedar-suite-strategy-study-v1")["analyses"][
+        "primary: files with a condition"
+    ]["hypotheses"]
+    head, by_module = study["headline"], study["by_module"]
+    development = study["development_module"]
+    policies = [
+        (subject, policy)
+        for subject, record in study["modules"].items()
+        if subject != development
+        for policy in record["policies"]
+    ]
+    scores = head["mean_expected_score"]
+    first, second, third = (head["comparisons"][name] for name in ("H1", "H2", "H3"))
+
+    # The population is the exact study's measured modules, and every policy in it was scored:
+    # the decision constant on every class and no path left unmerged.
+    assert study["witness_spaces"] == "rego-exact-adequacy-v1.json"
+    modules = {subject for subject, _ in policies}
+    assert len(modules) == by_module["policies"] == exact["headline"]["modules"]
+    assert len(policies) == head["policies"]
+    assert all(policy["status"] == "scored" for _, policy in policies)
+    assert all(policy["unmerged_paths"] == 0 for _, policy in policies)
+    # "All three comparisons reach the permutation floor", the module reading a single Holm p.
+    floor = round(1 / (1 + study["resamples"]), 4)
+    assert all(h["p_value"] == floor for h in head["comparisons"].values())
+    holm = {h["p_value_holm"] for h in by_module["comparisons"].values()}
+    assert len(holm) == 1, holm
+    # "the ordering is the same" by module; the proxy's gap lies between the other populations'.
+    ranked = [
+        sorted(r["mean_expected_score"], key=r["mean_expected_score"].get)
+        for r in (head, by_module)
+    ]
+    assert ranked[0] == ranked[1], ranked
+    assert (
+        generated["H2"]["mean_difference"]
+        < second["mean_difference"]
+        < cedar["H2"]["mean_difference"]
+    )
+    # "falls short of the quotient on every policy"
+    assert second["wins"] == second["policies"]
+    # "The two losses are one module ... under two of its settings"
+    losses = [
+        subject.split("/")[-2]
+        for subject, policy in policies
+        if policy["expected_score"]["quotient"] < policy["expected_score"]["random_quotient"]
+    ]
+    assert len(losses) == first["losses"] and len(set(losses)) == 1, losses
+
+    def median(key: str) -> str:
+        value = statistics.median(policy[key] for _, policy in policies)
+        assert value == int(value), (key, value)
+        return _grouped(int(value))
+
+    def interval(hypothesis: dict[str, Any]) -> tuple[str, str, str]:
+        low, high = hypothesis["bootstrap_95"]
+        return (f"{hypothesis['mean_difference']:.3f}", f"{low:.3f}", f"{high:.3f}")
+
+    def row(means: dict[str, float]) -> tuple[str, ...]:
+        return tuple(_pct(means[strategy]) for strategy in PAYOFF_FIGURE_ORDER)
+
+    live = [policy["live_mutants"] for _, policy in policies]
+    lowest = min(policy["expected_score"]["quotient"] for _, policy in policies)
+    decisions, classes, cells = (
+        median("decision_classes"),
+        median("quotient_classes"),
+        median("cells"),
+    )
+    with_development = study["with_development_module"]["mean_expected_score"]
+    return [
+        (
+            r"on (\d+) Gatekeeper Rego modules under the (\d+) parameter settings their suites "
+            r"test, decided by the Open Policy Agent, (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
+            (
+                str(exact["headline"]["modules"]),
+                str(head["policies"]),
+                _pct(scores["quotient"]),
+                _pct(scores["random_quotient"]),
+                _pct(scores["decision"]),
+            ),
+            "rego payoff: the abstract",
+        ),
+        (
+            r"(\d+) Gatekeeper Rego modules under the (\d+) parameter settings their suites test,",
+            (str(exact["headline"]["modules"]), str(head["policies"])),
+            "rego payoff: the population, as the abstract and the 10-page article put it",
+        ),
+        (
+            r"on real Rego under a protocol of its own and the Open Policy Agent \(OPA\), "
+            r"(\d+\.\d)\\% against (\d+\.\d)\\% and (\d+\.\d)\\%",
+            (_pct(scores["quotient"]), _pct(scores["random_quotient"]), _pct(scores["decision"])),
+            "rego payoff: the contribution",
+        ),
+        (
+            r"so the (\d+) modules whose spaces pass give (\d+) policies",
+            (str(exact["headline"]["modules"]), str(head["policies"])),
+            "rego payoff: modules and policies",
+        ),
+        (
+            r"OPA (\d+\.\d+\.\d+), run with",
+            (study["engine"].removeprefix("opa "),),
+            "rego payoff: the engine",
+        ),
+        (
+            r"and on all (\d+) policies it is, with no path left unmerged",
+            (str(head["policies"]),),
+            "rego payoff: the constancy check",
+        ),
+        (
+            r"of which each policy has between (\d+) and (\d+)\s+live",
+            (str(min(live)), str(max(live))),
+            "rego payoff: live mutants per policy",
+        ),
+        (
+            rf"Median size & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & ({_GROUPED}) & "
+            rf"({_GROUPED}) \\\\",
+            (decisions, decisions, classes, classes, cells),
+            "rego payoff: the table's sizes",
+        ),
+        (
+            r"(\d+) policies & (\d+\.\d)\\% & (\d+\.\d)\\% & (\d+\.\d)\\% & (\d+\.\d)\\% & "
+            r"(\d+\.\d)\\% \\\\",
+            (str(head["policies"]), *row(scores)),
+            "rego payoff: the table, by policy",
+        ),
+        (
+            r"(\d+) modules, averaged & (\d+\.\d)\\% & (\d+\.\d)\\% & (\d+\.\d)\\% & "
+            r"(\d+\.\d)\\% & (\d+\.\d)\\% \\\\",
+            (str(by_module["policies"]), *row(by_module["mean_expected_score"])),
+            "rego payoff: the table, by module",
+        ),
+        (
+            r"on the (\d+) policies of (\d+) Gatekeeper library modules",
+            (str(head["policies"]), str(by_module["policies"])),
+            "rego payoff: the table's caption",
+        ),
+        (
+            r"one witness per class detects (\d+\.\d)\\% of the live mutants in expectation",
+            (_pct(scores["quotient"]),),
+            "rego payoff: the quotient",
+        ),
+        (
+            r"and no policy falls below (\d+\.\d)\\%",
+            (f"{int(lowest * 1000) / 10:.1f}",),
+            "rego payoff: the lowest quotient score",
+        ),
+        (
+            r"[Aa] random suite of as many cells comes close, at (\d+\.\d)\\%",
+            (_pct(scores["random_quotient"]),),
+            "rego payoff: random at the quotient's size",
+        ),
+        (
+            rf"at a median of ({_GROUPED}) classes in ({_GROUPED}) cells",
+            (classes, cells),
+            "rego payoff: the sizes that make the random suite large",
+        ),
+        (
+            r"paired advantage (?:over it is|of) (\d\.\d+)\s+\$\[(\d\.\d+), (\d\.\d+)\]\$",
+            interval(first),
+            "rego payoff: H1",
+        ),
+        (
+            r"higher on (\d+) of the (\d+) policies, tied on (\d+) and lower on (\d+)",
+            tuple(str(first[key]) for key in ("wins", "policies", "ties", "losses")),
+            "rego payoff: H1, policy by policy",
+        ),
+        (
+            r"decision proxy, at (\d+\.\d)\\%, falls short of the quotient on every policy",
+            (_pct(scores["decision"]),),
+            "rego payoff: the proxy",
+        ),
+        (
+            r"falls short of the quotient on every policy, by (\d\.\d+) "
+            r"\$\[(\d\.\d+), (\d\.\d+)\]\$",
+            interval(second),
+            "rego payoff: H2",
+        ),
+        (
+            r"beats random suites of its own size by (\d\.\d+) \$\[(\d\.\d+), (\d\.\d+)\]\$",
+            interval(third),
+            "rego payoff: H3",
+        ),
+        (
+            rf"The ({_WORD_PATTERN}) losses are one module, \\texttt\{{(\w+)\}}, under "
+            rf"({_WORD_PATTERN}) of its settings",
+            (_word(first["losses"]), losses[0], _word(len(losses))),
+            "rego payoff: where random testing wins",
+        ),
+        (
+            r"each comparison holds at Holm-adjusted \$p = (0\.\d+)\$",
+            (f"{holm.pop():.4f}",),
+            "rego payoff: the module reading",
+        ),
+        (
+            r"which the protocol reports apart, gives (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
+            (
+                _pct(with_development["quotient"]),
+                _pct(with_development["random_quotient"]),
+                _pct(with_development["decision"]),
+            ),
+            "rego payoff: with the development module",
+        ),
+        (
+            r"(\d+) real Rego policies,? decided by OPA",
+            (str(head["policies"]),),
+            "rego payoff: the figure's legend and caption",
+        ),
+        (
+            r"(\d+) (?:Rego )?modules of one library",
+            (str(by_module["policies"]),),
+            "rego payoff: the threats",
+        ),
+        (
+            r"is small, (\d\.\d) points with an interval of \$\[(\d\.\d), (\d\.\d)\]\$",
+            tuple(
+                f"{100 * value:.1f}" for value in (first["mean_difference"], *first["bootstrap_95"])
+            ),
+            "rego payoff: the threats, in points",
+        ),
+        (
+            r"on real Rego, decided by OPA, (\d+\.\d)\\% where the proxy detects (\d+\.\d)\\%",
+            (_pct(scores["quotient"]), _pct(scores["decision"])),
+            "rego payoff: the conclusion",
+        ),
+    ]
 
 
 def _rego_suite_claims(docs: Path) -> list[Claim]:
@@ -1699,9 +1932,8 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar real edits: what a suite of the earlier version catches",
         ),
         (
-            rf"Replicated on ({_GROUPED}) real Cedar policy files written outside the vendor and "
-            r"decided by the Cedar engine, the figures are (\d+\.\d)\\%, (\d+\.\d)\\% and "
-            r"(\d+\.\d)\\%",
+            rf"On ({_GROUPED}) real Cedar files written outside the vendor, decided by the Cedar "
+            r"engine, the figures are (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
             (
                 _grouped(primary["files_scored"]),
                 _pct(scores["quotient"]),
@@ -1756,8 +1988,7 @@ def _summary_claims(docs: Path) -> list[Claim]:
             "abstract: the suite strategies",
         ),
         (
-            rf"a seeded sample of ({_GROUPED}) files from ({_GROUPED}) repositories outside the "
-            rf"vendors agrees",
+            rf"({_GROUPED}) files sampled from ({_GROUPED}) repositories outside the vendors agree",
             (_grouped(summary["sampled"]), _grouped(summary["repositories"])),
             "abstract: the third-party samples",
         ),
@@ -2304,19 +2535,23 @@ def _compare_figure(
     return problems
 
 
-PAYOFF_SERIES = ("generated policies", "real Cedar policies")
+PAYOFF_SERIES = ("generated policies", "real Cedar policies", "real Rego policies")
 
 
-def _payoff_series(docs: Path, order: tuple[str, ...]) -> list[list[tuple[str, str]]]:
-    # The payoff figure plots the two suite-strategy tables on one scale: the generated policies
-    # under the paper's operators, and the primary analysis of the real Cedar policies.
+def _payoff_series(
+    docs: Path, order: tuple[str, ...], populations: int = 3
+) -> list[list[tuple[str, str]]]:
+    # The payoff figure plots the suite-strategy studies on one scale: the generated policies
+    # under the paper's operators, the primary analysis of the real Cedar policies, and the real
+    # Rego policies. The graphical abstract draws the first two.
     generated = _load(docs, "suite-strategy-study-v1")["operator_sets"]["A"]["mean_expected_score"]
     cedar = _load(docs, "cedar-suite-strategy-study-v1")["analyses"][
         "primary: files with a condition"
     ]["mean_expected_score"]
+    rego = _load(docs, "rego-suite-strategy-study-v1")["headline"]["mean_expected_score"]
     return [
         [(_pct(scores[strategy]), str(index)) for index, strategy in enumerate(order)]
-        for scores in (generated, cedar)
+        for scores in (generated, cedar, rego)[:populations]
     ]
 
 
@@ -2360,8 +2595,8 @@ def abstract_findings(paper: Path, docs: Path) -> list[str]:
         figure.read_text(encoding="utf-8"),
         "abstract",
         "graphical abstract",
-        PAYOFF_SERIES,
-        _payoff_series(docs, ABSTRACT_FIGURE_ORDER),
+        PAYOFF_SERIES[:2],
+        _payoff_series(docs, ABSTRACT_FIGURE_ORDER, populations=2),
     )
 
 

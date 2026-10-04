@@ -303,16 +303,19 @@ def test_a_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Pat
     assert any("taxonomy figure" in problem for problem in problems), problems
 
 
-def test_a_payoff_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Path) -> None:
-    """The payoff figure restates two pinned tables on one scale, so it is pinned too."""
+@pytest.mark.parametrize("population", ["cedar", "rego"])
+def test_a_payoff_figure_whose_series_drifts_from_its_artifact_is_caught(
+    workspace: Path, population: str
+) -> None:
+    """The payoff figure restates three pinned tables on one scale, so it is pinned too."""
 
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    series = re.search(r"\\addplot\[tw cedar\] coordinates \{\(([\d.]+),0\)", text)
-    assert series, "the payoff figure no longer plots a first Cedar coordinate"
+    series = re.search(rf"\\addplot\[tw {population}\] coordinates \{{\(([\d.]+),0\)", text)
+    assert series, f"the payoff figure no longer plots a first {population} coordinate"
     perturbed = text.replace(
-        f"\\addplot[tw cedar] coordinates {{({series.group(1)},0)",
-        f"\\addplot[tw cedar] coordinates {{({float(series.group(1)) + 2.0:.1f},0)",
+        f"\\addplot[tw {population}] coordinates {{({series.group(1)},0)",
+        f"\\addplot[tw {population}] coordinates {{({float(series.group(1)) + 2.0:.1f},0)",
         1,
     )
     paper.write_text(perturbed, encoding="utf-8")
@@ -320,6 +323,21 @@ def test_a_payoff_figure_whose_series_drifts_from_its_artifact_is_caught(workspa
     problems = checker.check(paper, workspace / "docs")
 
     assert any("payoff figure" in problem for problem in problems), problems
+
+
+def test_a_rego_payoff_score_that_drifts_from_its_artifact_is_caught(workspace: Path) -> None:
+    """The Rego replication's table is read across, so its rows are pinned by their own shape."""
+
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    row = re.search(r"\d+ policies & ([\d.]+)\\%", text)
+    assert row, "the Rego payoff table no longer has its row by policy"
+    start, end = row.span(1)
+    paper.write_text(text[:start] + f"{float(row.group(1)) + 0.1:.1f}" + text[end:], "utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+
+    assert any("rego payoff: the table, by policy" in problem for problem in problems), problems
 
 
 def test_a_graphical_abstract_whose_bars_drift_from_their_artifact_is_caught(
