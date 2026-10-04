@@ -1218,6 +1218,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _rego_payoff_claims(docs)
     claims += _rego_schemas_claims(docs)
     claims += _rego_real_faults_claims(docs)
+    claims += _cedar_symcc_claims(docs)
     return claims
 
 
@@ -1883,6 +1884,162 @@ def _rego_real_faults_claims(docs: Path) -> list[Claim]:
             )
         )
     return claims
+
+
+def _cedar_symcc_claims(docs: Path) -> list[Claim]:
+    """SymCC's check of the Cedar replication's verdicts, under the files' own schemas.
+
+    The main texts share the sentence that states the result. What the prose rests on and
+    does not print -- no verdict refuted, every control verified, every counterexample
+    confirmed by the engine -- is asserted, so the sentence cannot outlive its evidence.
+    """
+
+    study = _load(docs, "cedar-symcc-crosscheck-v1")
+    listed = _load(docs, "cedar-schema-candidates-v1")["summary"]
+    files = study["files"]
+    primary, secondary = study["summary"]["primary"], study["summary"]["secondary"]
+    assert study["summary"]["files"] == {"checked": len(files)}
+    assert all(set(r["control"]) == {"verified"} for r in files)
+    assert primary["classes"]["refuted"] == 0 and not primary["refutations"]
+    assert not primary["with_a_counterexample_the_engine_did_not_confirm"]
+    assert set(secondary["counterexamples"]) == {"confirmed"}
+    mutants = [m for r in files for m in r["mutants"]]
+    equivalent = [m for m in mutants if m["study"] == "equivalent"]
+    live = [m for m in mutants if m["study"] == "live"]
+    assert all(m["study"] == "live" for m in mutants if m["counterexamples"])
+    classes, live_classes = primary["classes"], secondary["classes"]
+    every = classes["not refuted, every environment verified"]
+    partly, nowhere = classes["not refuted, partly checked"], classes["unchecked"]
+    untyped = [m for m in equivalent if m["class"] != "not refuted, every environment verified"]
+    # "mutants the schema's type checker rejects in some environment"
+    assert all(set(m["results"]) <= {"verified", "mutant does not compile"} for m in untyped)
+    widen = sum(1 for m in untyped if m["operator"].startswith("widen_"))
+    cut = sum(1 for m in untyped if m["operator"].startswith("keep_"))
+    assert widen + cut == len(untyped)
+    schema_equivalent = live_classes["equivalent under the schema"]
+    neither = len(live) - live_classes["live under the schema"] - schema_equivalent
+    # "The other ... live mutants are verified wherever they are well typed"
+    assert live_classes["equivalent where checked"] == neither
+    widened = sum(
+        n
+        for operator, n in secondary["equivalent_under_the_schema_by_operator"].items()
+        if operator.startswith("widen_")
+    )
+    selves = sum(1 for m in mutants for c in m["counterexamples"] if c.get("principal_is_resource"))
+    first = re.search(r"Its (\d+) such counterexamples", study["deviations"][0])
+    assert first is not None
+    found = listed["schema found"]
+    return [
+        (
+            r"on (\d+) (?:Cedar )?files whose authors wrote a schema",
+            (str(len(files)),),
+            "cedar symcc: the files checked, as both main texts state it",
+        ),
+        (
+            r"finds no request the schema admits that separates any of the (\d+) mutants the "
+            r"study calls equivalent",
+            (str(len(equivalent)),),
+            "cedar symcc: no equivalent verdict refuted, as both main texts state it",
+        ),
+        (
+            r"and verifies (\d+) of them in every request environment \(",
+            (str(every),),
+            "cedar symcc: verified in every environment, in the main text",
+        ),
+        (
+            r"For each of the (\d+) files the replication scored",
+            (str(listed["files"]),),
+            "cedar symcc: the files the replication scored",
+        ),
+        (
+            rf"({_GROUPED}) files in (\d+) repositories have one \((\d+) in the file's own "
+            rf"directory, (\d+) in an ancestor and (\d+) elsewhere in the repository\), with "
+            rf"({_GROUPED}) request environments",
+            (
+                _grouped(listed["with a schema"]),
+                str(listed["repositories with a schema"]),
+                str(found["same directory"]),
+                str(found["ancestor"]),
+                str(found["elsewhere"]),
+                _grouped(listed["environments"]),
+            ),
+            "cedar symcc: the files with an author's schema, and where it was found",
+        ),
+        (
+            r"the other (\d+) hold (\d+) equivalent and (\d+) live verdicts",
+            (str(len(files)), str(len(equivalent)), str(len(live))),
+            "cedar symcc: the population",
+        ),
+        (
+            r"and all (\d+) reproduced the counts it recorded",
+            (str(len(files)),),
+            "cedar symcc: verdicts reproduced before they were checked",
+        ),
+        (
+            r"Equivalent & (\d+) \\\\ \\quad refuted & (\d+) \\\\ \\quad verified in every request "
+            r"environment & (\d+) \\\\ \\quad verified wherever it is well typed & (\d+) \\\\ "
+            r"\\quad well typed in no environment & (\d+) \\\\ Live & (\d+) \\\\ \\quad confirmed "
+            r"live & (\d+) \\\\ \\quad equivalent in every request environment & (\d+) \\\\ "
+            r"\\quad neither & (\d+)",
+            (
+                str(len(equivalent)),
+                str(classes["refuted"]),
+                str(every),
+                str(partly),
+                str(nowhere),
+                str(len(live)),
+                str(live_classes["live under the schema"]),
+                str(schema_equivalent),
+                str(neither),
+            ),
+            "cedar symcc: the table",
+        ),
+        (
+            r"it verifies (\d+) of them in every request environment\. The other (\d+) are "
+            r"mutants the schema's type checker rejects in some environment --- (\d+) widen a "
+            r"policy's scope to principals or actions its condition cannot be typed for, and "
+            r"(\d+) cut a conjunction",
+            (str(every), str(len(untyped)), str(widen), str(cut)),
+            "cedar symcc: the verdicts not verified everywhere, and why",
+        ),
+        (
+            r"it verifies (\d+) of them wherever they compile, and the remaining (\d+) compile "
+            r"nowhere",
+            (str(partly), str(nowhere)),
+            "cedar symcc: verified where well typed, and well typed nowhere",
+        ),
+        (
+            r"all (\d+) of them, every one against a live mutant, separate the mutant",
+            (str(secondary["counterexamples"]["confirmed"]),),
+            "cedar symcc: counterexamples the engine confirms",
+        ),
+        (
+            r"Of those requests, (\d+) name one entity as both principal and resource",
+            (str(selves),),
+            "cedar symcc: counterexamples whose principal is the resource",
+        ),
+        (
+            r"and (\d+) counterexamples went unreplayed",
+            (first.group(1),),
+            "cedar symcc: the first run's deviation",
+        ),
+        (
+            r"Of the (\d+) live mutants, (\d+) \((\d+\.\d)\\%\) are equivalent under their "
+            r"authors' schema",
+            (str(len(live)), str(schema_equivalent), _share(schema_equivalent, len(live))),
+            "cedar symcc: live mutants equivalent under the schema",
+        ),
+        (
+            r"These include (\d+) that widen a policy's scope",
+            (str(widened),),
+            "cedar symcc: the schema-equivalent mutants that widen a scope",
+        ),
+        (
+            r"The other (\d+) live mutants are verified wherever they are well typed",
+            (str(neither),),
+            "cedar symcc: the live mutants in neither class",
+        ),
+    ]
 
 
 def _rego_payoff_claims(docs: Path) -> list[Claim]:
