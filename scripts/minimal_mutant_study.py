@@ -40,7 +40,10 @@ IMPLEMENTATION_NOTES = (
     'studies\' strategies, where "decision" names the decision proxy, so its Q_decision^m '
     "tested the quotient against the proxy a second time, and the per-policy record let the "
     "proxy's score overwrite decision coverage's. Each strategy is now named with the study it "
-    "comes from. Every other figure of that run is the same as this one's.",
+    "comes from, and a criterion is compared with the quotient's score from the same study, "
+    "both at six decimals, so a tie is a tie: the first run took the quotient's exact score and "
+    "counted rounding differences as wins and losses (8 of MC/DC's 300 comparisons as losses). "
+    "Every mean, interval and p value other than Q_decision^m's is the same as in that run.",
 )
 
 if str(ROOT / "scripts") not in sys.path:
