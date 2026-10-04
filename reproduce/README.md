@@ -69,6 +69,8 @@ unit test recomputes most of them and compares with the committed file.
 | Artifact | Command |
 |---|---|
 | `exclusion-taxonomy-v1` | `python scripts/exclusion_taxonomy.py --json docs/exclusion-taxonomy-v1.json` |
+| `exclusion-crosstab-v1` | `python scripts/exclusion_taxonomy.py --crosstab-json docs/exclusion-crosstab-v1.json` |
+| `review-round-analyses-v1` | `python scripts/review_round_analyses.py --json docs/review-round-analyses-v1.json` (post hoc, not pre-registered) |
 | `third-party-sample-summary-v1` | `python scripts/third_party_sample.py summarise --json docs/third-party-sample-summary-v1.json` |
 | `decision-threshold-analysis-v1` | `python scripts/decision_threshold_analysis.py --json docs/decision-threshold-analysis-v1.json` |
 | `decision-trend-test-v1` | `python scripts/decision_trend_test.py --json docs/decision-trend-test-v1.json` |

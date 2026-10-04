@@ -1,0 +1,254 @@
+{
+  "clustered": {
+    "real_faults_by_commit": {
+      "H1": {
+        "cluster_bootstrap_95": [
+          0.028397,
+          0.18143
+        ],
+        "cluster_sign_flip_p": 0.003204,
+        "clusters_higher": 13,
+        "clusters_lower": 2,
+        "mean_difference": 0.101583,
+        "strategies": [
+          "quotient",
+          "random_quotient"
+        ]
+      },
+      "H2": {
+        "cluster_bootstrap_95": [
+          0.40801,
+          0.770442
+        ],
+        "cluster_sign_flip_p": 3.1e-05,
+        "clusters_higher": 15,
+        "clusters_lower": 0,
+        "mean_difference": 0.600918,
+        "strategies": [
+          "quotient",
+          "decision"
+        ]
+      },
+      "clusters": 18,
+      "units": 20
+    },
+    "real_faults_by_module": {
+      "H1": {
+        "cluster_bootstrap_95": [
+          0.041947,
+          0.162674
+        ],
+        "cluster_sign_flip_p": 0.000549,
+        "clusters_higher": 13,
+        "clusters_lower": 1,
+        "mean_difference": 0.101583,
+        "strategies": [
+          "quotient",
+          "random_quotient"
+        ]
+      },
+      "H2": {
+        "cluster_bootstrap_95": [
+          0.42196,
+          0.749078
+        ],
+        "cluster_sign_flip_p": 6.1e-05,
+        "clusters_higher": 14,
+        "clusters_lower": 0,
+        "mean_difference": 0.600918,
+        "strategies": [
+          "quotient",
+          "decision"
+        ]
+      },
+      "clusters": 17,
+      "units": 20
+    },
+    "rego_payoff_by_module": {
+      "H1": {
+        "cluster_bootstrap_95": [
+          0.007843,
+          0.046142
+        ],
+        "cluster_sign_flip_p": 0.000244,
+        "clusters_higher": 12,
+        "clusters_lower": 0,
+        "mean_difference": 0.022221,
+        "strategies": [
+          "quotient",
+          "random_quotient"
+        ]
+      },
+      "H2": {
+        "cluster_bootstrap_95": [
+          0.493273,
+          0.631916
+        ],
+        "cluster_sign_flip_p": 0.000122,
+        "clusters_higher": 13,
+        "clusters_lower": 0,
+        "mean_difference": 0.57333,
+        "strategies": [
+          "quotient",
+          "decision"
+        ]
+      },
+      "clusters": 13,
+      "units": 34
+    }
+  },
+  "equivalent_shares": {
+    "Cedar with an author schema (71)": {
+      "equivalent": 173,
+      "mutants": 1003,
+      "share": 0.1725
+    },
+    "Gatekeeper, decided (13)": {
+      "equivalent": 54,
+      "mutants": 312,
+      "outright": 11,
+      "outright_share": 0.0353,
+      "share": 0.1731
+    },
+    "XACML benchmark (11)": {
+      "equivalent": 279,
+      "mutants": 2287,
+      "share": 0.122
+    },
+    "generated (300)": {
+      "equivalent": 1884,
+      "mutants": 7400,
+      "share": 0.2546
+    },
+    "reference policy": {
+      "equivalent": 16,
+      "mutants": 38,
+      "share": 0.4211
+    }
+  },
+  "guard_families": {
+    "by_language": {
+      "AWS IAM": {
+        "families": {
+          "ArnLike": 83,
+          "ArnLikeIfExists": 2,
+          "ArnNotLike": 4,
+          "ForAllValues:StringLike": 34,
+          "ForAllValues:StringLikeIfExists": 1,
+          "ForAllValues:StringNotLike": 3,
+          "ForAnyValue:StringLike": 21,
+          "ForAnyValue:StringLikeIfExists": 1,
+          "StringLike": 309,
+          "StringLikeIfExists": 17,
+          "StringNotLike": 3,
+          "StringNotLikeIfExists": 1
+        },
+        "operand-free": 1278,
+        "pattern, literal by construction": 373
+      },
+      "Azure Policy": {
+        "families": {
+          "array": 1,
+          "concat": 16,
+          "contains": 5,
+          "createArray": 1,
+          "createObject": 2,
+          "first": 2,
+          "int": 3,
+          "intersection": 4,
+          "ipRangeContains": 1,
+          "last": 3,
+          "like": 31,
+          "match": 3,
+          "notlike": 10,
+          "notmatch": 1,
+          "replace": 2,
+          "split": 19,
+          "union": 1
+        },
+        "literal-operand": 65,
+        "operand-free": 2072
+      },
+      "XACML": {
+        "families": {
+          "anyURI-contains": 3,
+          "anyURI-ends-with": 2,
+          "anyURI-starts-with": 2,
+          "anyURI-substring": 3,
+          "date-add-yearMonthDuration": 2,
+          "date-subtract-yearMonthDuration": 2,
+          "dateTime-add-dayTimeDuration": 2,
+          "dateTime-add-yearMonthDuration": 2,
+          "dateTime-subtract-dayTimeDuration": 2,
+          "dateTime-subtract-yearMonthDuration": 2,
+          "double-divide": 2,
+          "double-multiply": 2,
+          "integer-divide": 2,
+          "integer-mod": 2,
+          "integer-multiply": 2,
+          "map": 3,
+          "rfc822Name-match": 4,
+          "string-contains": 2,
+          "string-ends-with": 2,
+          "string-regexp-match": 31,
+          "string-starts-with": 2,
+          "string-substring": 4,
+          "x500Name-match": 4
+        },
+        "literal-operand": 83,
+        "operand-free": 870
+      }
+    },
+    "cedar_inside_by_design": 22,
+    "iam_patterns_literal_by_construction": 373,
+    "literal_operand_where_recorded": 148,
+    "recorded_inside": 4741,
+    "rego_and_kyverno_inside_unrecorded": 412
+  },
+  "line_coverage": {
+    "exact_score": {
+      "coverage_minus_exact": 0.0534,
+      "coverage_minus_raw": 0.2069,
+      "kendall_tau_b": 0.3126,
+      "mean_exact_score": 0.8982,
+      "mean_line_coverage": 0.9516,
+      "mean_raw_score": 0.7447,
+      "modules": 13,
+      "permutation_p_two_sided": 0.1776,
+      "range_of_exact_scores": [
+        0.6667,
+        1.0
+      ],
+      "range_of_line_coverage": [
+        0.7333,
+        1.0
+      ]
+    },
+    "kill_rate": {
+      "kendall_tau_b": 0.5129,
+      "mean_kill_rate": 0.706,
+      "mean_line_coverage": 0.9384,
+      "modules": 48,
+      "permutation_p_two_sided": 0.0001
+    }
+  },
+  "real_faults_no_change_sensitivity": {
+    "H1_mean_difference": 0.092348,
+    "H2_mean_difference": 0.546289,
+    "faults": 22,
+    "mean_exposure_counting_them_as_unexposed": {
+      "decision": 0.325088,
+      "quotient": 0.871377,
+      "random_decision": 0.106424,
+      "random_quotient": 0.779029,
+      "refinement": 0.909091
+    },
+    "reported_not_scored": [
+      11,
+      52
+    ]
+  },
+  "resamples": 10000,
+  "schema_version": "v1",
+  "seed": 20261004
+}
