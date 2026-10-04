@@ -1263,7 +1263,7 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
             "rego suite study: the kill rate over the mutants that load",
         ),
         (
-            r"(\d+) of these (\d+) modules are inside it",
+            r"(\d+) of these (\d+) modules are inside (?:it|the fragment)",
             (
                 str(exact["population"]["modules"]),
                 str(suite["population"]["modules_with_a_suite_and_a_decision"]),
@@ -1303,6 +1303,18 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
                 _pct(head["pooled_raw_score"]),
             ),
             "rego exact study: the pooled exact score",
+        ),
+        (
+            r"\((\d+\.\d)\\% over the (\d+) that compile, so the whole gain is the equivalent "
+            r"mutants\)",
+            (
+                _pct(
+                    (head["killed"] - head["killed_stillborn"])
+                    / (head["mutants"] - head["stillborn"])
+                ),
+                str(head["mutants"] - head["stillborn"]),
+            ),
+            "rego exact study: the raw score over the mutants that compile",
         ),
         (
             r"and (\d+\.\d)\\% against (\d+\.\d)\\% in the mean, a difference of (\d+\.\d) points "
