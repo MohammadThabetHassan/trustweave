@@ -123,6 +123,7 @@ are pre-registered.
 | `rego-real-faults-v1` | `python scripts/rego_real_faults_study.py study --corpora R --workers 6 --json ...` | OPA, full histories (below); hours |
 | `cedar-suite-strategy-study-v1` | `python scripts/cedar_exact_study.py study --cache DIR --json ...` | `cedarpy`; network once |
 | `combination-criteria-study-v1` | `python scripts/combination_criteria_study.py study --cache DIR --workers 6 --json ...` | `cedarpy`; the Cedar cache above; hours |
+| `minimal-mutant-study-v1` | `python scripts/minimal_mutant_study.py study --cache DIR --workers 6 --json ...` | `cedarpy`; the Cedar cache above; under an hour |
 | `cedar-real-edits-v1` | `python scripts/cedar_exact_study.py edits --cache DIR --history HISTORY.json --json ...` | `cedarpy`; the history (below) |
 | `cedar-schema-candidates-v1` | `python scripts/cedar_schema_candidates.py --cedar cedar --cache DIR --json ...` | the Cedar CLI; network once |
 | `cedar-symcc-crosscheck-v1` | `run.sh symcc`, or `python scripts/cedar_symcc_crosscheck.py study --cedar cedar --cvc5 cvc5 --cache DIR --workers 8 --partial P.jsonl --json ...` | the Cedar CLI, cvc5, `cedarpy`; network once |
