@@ -27,6 +27,7 @@ binary against its release's published SHA-256:
 | `cedar-policy-cli`, experimental build | 4.12.0 | the SymCC check (`cedar symcc`) |
 | cvc5, static build | 1.3.1 | the solver SymCC calls |
 | `z3-solver` | from the `dev` extra | the solver check of the witness construction |
+| A JDK | the distribution's default | builds and runs XPA and the Balana harness for the XACML comparison |
 
 `reproduce/run.sh` is the image's entry point. It has four modes:
 
@@ -36,6 +37,7 @@ binary against its release's published SHA-256:
 | `corpora` | clones every corpus the membership artifacts name, at the recorded commit, into `$CORPORA` (default `/corpora`) | yes | about 1 GB |
 | `membership` | re-measures every whole-corpus artifact and diffs the counts (`scripts/verify_corpus_provenance.py`) | none after `corpora` | about an hour |
 | `symcc` | re-runs SymCC's check of the Cedar verdicts and prints its summary beside the committed one | once, for the files and schemas | under an hour on eight cores |
+| `xacml` | fetches XPA, Balana's conformance cases and Z3 4.6.0 at their pinned versions, builds them, re-runs the comparison with Xu et al.'s criteria and prints its summary beside the committed one | once, for the tools | well under an hour |
 
 Mount a volume to keep the corpora between runs:
 
@@ -119,6 +121,7 @@ are pre-registered.
 | `cedar-real-edits-v1` | `python scripts/cedar_exact_study.py edits --cache DIR --history HISTORY.json --json ...` | `cedarpy`; the history (below) |
 | `cedar-schema-candidates-v1` | `python scripts/cedar_schema_candidates.py --cedar cedar --cache DIR --json ...` | the Cedar CLI; network once |
 | `cedar-symcc-crosscheck-v1` | `run.sh symcc`, or `python scripts/cedar_symcc_crosscheck.py study --cedar cedar --cvc5 cvc5 --cache DIR --workers 8 --partial P.jsonl --json ...` | the Cedar CLI, cvc5, `cedarpy`; network once |
+| `xacml-criteria-study-v1` | `run.sh xacml`, or `python scripts/xacml_criteria_study.py setup --tools DIR` then `study --tools DIR --json ...` | a JDK; `setup` fetches the rest; network once |
 
 The real-faults study reads two repositories with their full history, because every fault is
 read at its fix commit and at the commit's parent. It expects them at `R/rego/gatekeeper-library`

@@ -15,6 +15,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates curl xz-utils unzip \
+        default-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
 
 ARG OPA_VERSION=1.20.2

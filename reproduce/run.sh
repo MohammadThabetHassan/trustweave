@@ -10,6 +10,9 @@
 #   symcc       re-run SymCC's check of the Cedar exact study's equivalence verdicts and
 #               print its summary beside the committed one (network once, for the files and
 #               schemas; under an hour on eight cores)
+#   xacml       re-run the comparison with Xu et al.'s criteria: fetch XPA, Balana's
+#               conformance cases and Z3 4.6.0 at their pinned versions, build, run, and print
+#               the summary beside the committed one (network once)
 #
 # The other pre-registered studies run for hours each; reproduce/README.md gives their
 # commands.
@@ -33,7 +36,8 @@ case "$mode" in
       tests/test_rego_witness_space.py tests/test_rego_payoff_study.py \
       tests/test_rego_real_faults_study.py tests/test_exact_evaluation_study.py \
       tests/test_cedar_exact_study.py tests/test_cedar_schema_candidates.py \
-      tests/test_cedar_symcc_crosscheck.py tests/test_check_manuscript.py \
+      tests/test_cedar_symcc_crosscheck.py tests/test_xacml_criteria_study.py \
+      tests/test_check_manuscript.py \
       tests/test_reproduce_protocols.py
     echo "== the witness construction, against the solver"
     python scripts/verify_witness_space.py
@@ -61,8 +65,25 @@ for part in ("files", "primary", "secondary"):
         print(json.dumps({"fresh": fresh[part], "committed": committed[part]}, indent=1))
 PY
     ;;
+  xacml)
+    out="${OUT:-/tmp/xacml}"
+    mkdir -p "$out"
+    python scripts/xacml_criteria_study.py setup --tools "$out/tools"
+    python scripts/xacml_criteria_study.py study --tools "$out/tools" \
+      --workers "${WORKERS:-4}" --json "$out/xacml-criteria-study-v1.json"
+    python - "$out/xacml-criteria-study-v1.json" <<'PY'
+import json, sys
+fresh = json.load(open(sys.argv[1], encoding="utf-8"))
+committed = json.load(open("docs/xacml-criteria-study-v1.json", encoding="utf-8"))
+for part in ("oracle", "summary", "hypotheses"):
+    same = fresh[part] == committed[part]
+    print(f"{part}: {'the same as committed' if same else 'DIFFERS from committed'}")
+    if not same:
+        print(json.dumps({"fresh": fresh[part], "committed": committed[part]}, indent=1))
+PY
+    ;;
   *)
-    echo "unknown mode: $mode (verify, corpora, membership or symcc)" >&2
+    echo "unknown mode: $mode (verify, corpora, membership, symcc or xacml)" >&2
     exit 2
     ;;
 esac
