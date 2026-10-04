@@ -97,6 +97,7 @@ membership` re-runs all of them and diffs the counts.
 | `third-party-kyverno-revalidation-v1` | `python scripts/measure_third_party_policies.py --revalidate --json ...` |
 | `corpus-provenance-verification-v1` | `python scripts/verify_corpus_provenance.py --corpora <C> --json ...` |
 | `azure-initiative-bindings-v1` | `python scripts/azure_initiative_bindings.py --corpus <C>/fragment-membership-azure-wide-v1/azure-policy --json ...` |
+| `guard-certification-v1` | `python scripts/guard_certification.py --corpora <C> --json ...` (pre-registered; OPA; re-measures every corpus first and fetches the third-party Kyverno files) |
 
 **Oracles.** Each checks an adapter or an engine against another reading of the same policies.
 
@@ -120,6 +121,7 @@ are pre-registered.
 | `rego-suite-strategy-study-v1` | `python scripts/rego_payoff_study.py study --corpus <GK> --json ...` | OPA; hours |
 | `rego-real-faults-v1` | `python scripts/rego_real_faults_study.py study --corpora R --workers 6 --json ...` | OPA, full histories (below); hours |
 | `cedar-suite-strategy-study-v1` | `python scripts/cedar_exact_study.py study --cache DIR --json ...` | `cedarpy`; network once |
+| `combination-criteria-study-v1` | `python scripts/combination_criteria_study.py study --cache DIR --workers 6 --json ...` | `cedarpy`; the Cedar cache above; hours |
 | `cedar-real-edits-v1` | `python scripts/cedar_exact_study.py edits --cache DIR --history HISTORY.json --json ...` | `cedarpy`; the history (below) |
 | `cedar-schema-candidates-v1` | `python scripts/cedar_schema_candidates.py --cedar cedar --cache DIR --json ...` | the Cedar CLI; network once |
 | `cedar-symcc-crosscheck-v1` | `run.sh symcc`, or `python scripts/cedar_symcc_crosscheck.py study --cedar cedar --cvc5 cvc5 --cache DIR --workers 8 --partial P.jsonl --json ...` | the Cedar CLI, cvc5, `cedarpy`; network once |

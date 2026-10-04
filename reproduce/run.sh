@@ -40,6 +40,7 @@ case "$mode" in
       tests/test_cedar_exact_study.py tests/test_cedar_schema_candidates.py \
       tests/test_cedar_symcc_crosscheck.py tests/test_xacml_criteria_study.py \
       tests/test_review_round_analyses.py tests/test_check_manuscript.py \
+      tests/test_combination_criteria_study.py tests/test_guard_certification.py \
       tests/test_reproduce_protocols.py
     echo "== the witness construction, against the solver"
     python scripts/verify_witness_space.py
