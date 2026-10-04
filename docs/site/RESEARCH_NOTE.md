@@ -1,49 +1,40 @@
 # Where the research write-ups are
 
-This repository holds the instruments and the evidence. It does not hold the write-ups.
+This repository holds the research instruments and their results. The papers written from them
+will appear here once they are published: a journal treats a full text that is already posted in
+a public repository as prior publication.
 
-`docs/*.json` in the repository carries the measured results — fragment membership across six policy
-languages, the estimator comparison, the threshold and trend analyses, the solver
-certificate — and `scripts/` carries the code that produced each one. Every figure is
-reproducible from what is here: point an adapter at the corpus commit its artifact records
-and you get the same numbers.
+## What is here
 
-The prose that explains those numbers is kept outside the repository until the work is
-submitted. A journal, and the similarity check it runs, treats a publicly posted full text
-as prior dissemination, and a public repository is publicly posted. That applies to the
-manuscript and equally to the long-form development it was written from, so the theory
-write-up, the suite-coverage study, the readiness assessment and the prospectus all live
-beside it rather than here.
+- `docs/*.json`: every measurement artifact, including fragment membership across six policy
+  languages, the estimator comparison, the threshold and trend analyses and the solver
+  certificate. Each artifact records the corpus commit it read.
+- `scripts/`: the code that produced each artifact, such as `scripts/fragment_membership*.py` and
+  `scripts/policy_mutation.py`.
+- `scripts/oracle_rego.py` and `scripts/interpreter_oracle.py`, which check two instruments
+  against an independent reference: the Rego adapter against OPA's own dependency analysis, and
+  the decision map against the shipped engine. Each needs its subject present (for the first,
+  `opa` on the path and the pinned corpora) and writes an artifact under `docs/` that lists what
+  it found.
+- The engineering documents that describe the tool itself.
 
-Nothing is hidden by this and nothing is lost. The artifacts are the claims; the write-ups
-argue about them. A reader who wants the argument before publication should ask the authors
-for it.
+Every figure can be reproduced from these files: run an adapter against the corpus commit its
+artifact records and the same numbers come back.
+[Reproducing the study](https://github.com/MohammadThabetHassan/trustweave/blob/main/docs/REPRODUCING_THE_STUDY.md)
+maps each artifact to the command that writes it.
 
-## Running the checks that need them
+## Checks that read the write-ups
 
-Two guards read the theory write-up, because a hand-copied table in a proof document is a
-claim like any other and should not go unchecked. They follow it through an environment
-variable and skip when it is absent:
+Two checks compare the write-ups with the artifacts, so that a table copied into a proof or a
+paper cannot drift from the data. They find the documents through environment variables and skip
+when those are unset:
 
 ```
 TRUSTWEAVE_RESEARCH_DIR=/path/to/write-ups pytest tests/test_decision_class_theory.py
 TRUSTWEAVE_PAPER=/path/to/main.tex python scripts/check_manuscript.py
 ```
 
-Without those set, both report that they have nothing to check and pass. A checkout without
-the write-ups is not a checkout with wrong ones.
+## Citing results before publication
 
-## What stays here
-
-- `scripts/fragment_membership*.py`, `scripts/policy_mutation.py` and the rest of the
-  measurement code.
-- `scripts/oracle_rego.py` and `scripts/interpreter_oracle.py`, which check those two
-  instruments against something other than their authors' reading of them: the Rego
-  adapter against OPA's own dependency analysis, and the decision map against the engine
-  that ships. Each needs its subject present — `opa` on the path and the pinned corpora for
-  the first — and each writes an artifact under `docs/` that lists what it found.
-- `docs/*.json` — every artifact, each recording the corpus commit it read.
-- The engineering documents that describe the tool rather than the research.
-
-Cite the artifacts if you need a figure before the paper appears. They are the primary
-record, and the write-ups quote them rather than the other way round.
+Cite the artifacts: they are the primary record, and the write-ups quote them. To read a write-up
+before it is published, contact the authors.

@@ -5,8 +5,8 @@
 <h1 align="center">TrustWeave</h1>
 
 <p align="center">
-  <strong>Review your AI agent's security configuration before you deploy it.</strong><br>
-  Local, deterministic, and fast — no agent runs, no network calls, no data leaves your machine.
+  <strong>Static security review for AI-agent configurations.</strong><br>
+  Local and deterministic: no agent execution, no network calls, no data leaves your machine.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="#try-it-in-two-minutes">Try it</a> ·
-  <a href="#why">Why</a> ·
+  <a href="#what-it-does">What it does</a> ·
   <a href="docs/site/INTEGRATIONS.md">Integration routes</a> ·
   <a href="docs/CLI_REFERENCE.md">CLI reference</a> ·
   <a href="docs/site/CURRENT_EVIDENCE.md">Current evidence</a> ·
@@ -29,13 +29,18 @@
 
 ---
 
+TrustWeave reads what an agent declares, namely its input sources, its tools and the policy
+between them, and reports every path by which untrusted input can reach a privileged action. It
+reviews declarations rather than a running deployment, and it produces evidence for a human
+reviewer: enforcement stays with your runtime.
+
 ## Try it in two minutes
 
 ```bash
 python -m pip install --upgrade trustweave
 ```
 
-Point `scan` at a declared agent manifest and a policy:
+Scan a declared agent manifest against a policy:
 
 ```bash
 git clone https://github.com/MohammadThabetHassan/trustweave.git
@@ -48,7 +53,7 @@ trustweave scan \
   --output-dir artifacts
 ```
 
-You get a decision for every declared trust-boundary path — which sources may use which tools, and under what conditions:
+Every declared trust-boundary path receives a decision:
 
 | Source | Trust | Tool | Decision |
 |---|---|---|---|
@@ -57,7 +62,11 @@ You get a decision for every declared trust-boundary path — which sources may 
 | customer_request | trusted | lookup_customer_record | **deny** |
 | knowledge_base_document | untrusted | send_mock_email | **deny** |
 
-Then check the policy against synthetic scenarios, and produce a report a human reviewer can actually read. Three suites ship with the project — the boundary regressions used below, 25 attack-shaped adversarial patterns, and a 12-case matrix covering every trust/action combination including the flows that must stay permitted. The [scenario catalogue](scenarios/README.md) tables each case, what it targets, and the rule that decides it.
+Next, replay synthetic scenarios against the policy, attest the results and write the review
+report. Three suites ship with the project: boundary regressions, 25 adversarial patterns, and a
+12-case matrix that covers every trust and action combination, including the flows that must stay
+permitted. The [scenario catalogue](scenarios/README.md) lists each case, what it targets and the
+rule that decides it.
 
 ```bash
 trustweave test \
@@ -68,32 +77,39 @@ trustweave test \
 trustweave attest --source-revision local --output-dir artifacts
 trustweave report --output-dir artifacts
 
-# Confirm the evidence files haven't changed since the attestation:
+# Check that the evidence files are unchanged since the attestation:
 trustweave verify \
   --attestation artifacts/attestation.json \
   --bundle artifacts/agent-security-bundle.json \
   --test-results artifacts/security-test-results.json
 ```
 
-The example uses only checked-in local files. Inspect any command with `trustweave --help` or `python -m trustweave --help`. For a more involved walkthrough, see the [research-assistant demo](demo/research-assistant/) or the [step-by-step guide](docs/site/WALKTHROUGH.md).
+The example uses only checked-in files. Every command documents itself through
+`trustweave --help` or `python -m trustweave --help`. For a longer example, see the
+[research-assistant demo](demo/research-assistant/) or the [walkthrough](docs/site/WALKTHROUGH.md).
 
-Bundles follow the `trustweave.dev/bundle/v1alpha2` contract, and risk decisions use stable `trustweave/fingerprint/v4` identities. Passing bundle and test-result paths to `verify` checks those exact local bytes; with only an attestation, `verify` checks only the statement’s internal consistency.
+Bundles follow the `trustweave.dev/bundle/v1alpha2` contract, and risk decisions carry stable
+`trustweave/fingerprint/v4` identities. Given bundle and test-result paths, `verify` checks those
+exact bytes; given only an attestation, it checks only the statement’s internal consistency.
 
-## Why
+## What it does
 
-A config change can open a new sensitive path — an untrusted source reaching an external tool — without touching application code. TrustWeave catches that at review time:
+A configuration change can open a sensitive path, such as an untrusted source reaching an
+external tool, without any change to application code. TrustWeave finds such paths at review time.
 
-- **`scan`** maps every declared flow (source → tool → action) and applies your policy deterministically.
-- **`diff`** shows exactly what a candidate config changes versus your baseline.
-- **`discover`** (on `main`, not yet released: it is in the unpublished `0.3.1` source candidate, not in the published `0.3.0` package, so install from source as shown above to use it) parses local Python source to list the tools an agent can reach, proposes an action class for each with the evidence behind it, and reports what the manifest does not declare.
-- **`test`** replays safe synthetic scenarios so policy regressions fail in CI, not in production.
-- **`trace-review`** and **`mcp-profile-check`** flag where recorded metadata drifts from the declaration.
-
-TrustWeave reviews *declarations*—manifests, policies, and saved snapshots—not a live deployment. It produces stable evidence for a human reviewer; the final judgment stays with you.
+- **`scan`** maps every declared flow from source to tool to action and applies the policy.
+- **`diff`** shows what a candidate configuration changes against a baseline.
+- **`discover`** reads local Python source, lists the tools an agent can reach, proposes an
+  action class for each with the evidence behind it, and reports what the manifest leaves
+  undeclared. It is on `main` but not yet released; install from source to use it.
+- **`test`** replays synthetic scenarios, so a policy regression fails in CI instead of in
+  production.
+- **`trace-review`** and **`mcp-profile-check`** report where recorded metadata has drifted from
+  the declaration.
 
 ## How the local evidence workflow fits together
 
-The workflow turns declared local files and previously saved metadata into review artifacts. It is an evidence path, not an enforcement path; the final review decision remains human-owned.
+The workflow turns declared files and previously saved metadata into review artifacts.
 
 ```mermaid
 flowchart LR
@@ -125,31 +141,37 @@ flowchart LR
     RK --> SA["Local SARIF and CI summary"]
 ```
 
-The diagram separates evidence production from enforcement. For example, `require_approval` records the policy outcome and any declared approval bindings; the surrounding workflow—not TrustWeave—implements the actual approval.
+TrustWeave produces evidence and does not enforce it. A `require_approval` decision, for example,
+records the outcome and any declared approval bindings; the surrounding system implements the
+approval itself.
 
 ### Example policy decision matrix
 
-The quickstart's shipped support-agent policy is ordered: the **first matching rule wins**, and an unmatched declared path receives the explicit `default_decision`. The matrix shows why each example flow is permitted, requires review, or is denied.
+The quickstart policy is ordered: the **first matching rule wins**, and a declared path that no
+rule matches receives the policy's `default_decision`, here `deny`.
 
-| Declared source → tool | Matching rule or fallback | Deterministic decision | Review meaning | Why it is safe to state |
+| Declared path | Decided by | Decision | Finding | Reason |
 | --- | --- | --- | --- | --- |
-| `customer_request` (trusted) → `search_knowledge_base` (read) | `TW-001` | **allow** | Informational local finding | The declared path matches the read-only rule. This describes the manifest and policy; it does not execute a search. |
-| `customer_request` (trusted) → `lookup_customer_record` (sensitive) | Explicit default: `deny` | **deny** | High-severity local finding | No earlier rule permits this sensitive path, so the policy fails closed. |
-| `customer_record` (conditional) → `send_mock_email` (external) | `TW-002` | **require_approval** | Medium-severity local finding | The policy records a human-review requirement and declared approval bindings; TrustWeave does not implement the approval itself. |
-| `knowledge_base_document` (untrusted) → `send_mock_email` (external) | `TW-004` | **deny** | High-severity local finding | Untrusted retrieved content must not drive an external action. The demo tool writes only a local mock event; no email is sent. |
+| `customer_request` (trusted) → `search_knowledge_base` (read) | `TW-001` | **allow** | informational | Trusted requests may use read-only tools. |
+| `customer_request` (trusted) → `lookup_customer_record` (sensitive) | default | **deny** | high | No rule matches this path, so the default applies and the policy fails closed. |
+| `customer_record` (conditional) → `send_mock_email` (external) | `TW-002` | **require_approval** | medium | Conditional data reaches an external action only after human review. |
+| `knowledge_base_document` (untrusted) → `send_mock_email` (external) | `TW-004` | **deny** | high | Untrusted retrieved content must not drive an external action. |
 
-Use `trustweave policy-check` to review ordered-rule shadowing, fail-open defaults, and incomplete approval-control declarations before relying on a policy in CI. For the full contract and artifact boundaries, see the [architecture guide](docs/ARCHITECTURE.md) and [policy review guide](docs/site/POLICY_REVIEW.md).
+The example tools have no side effects: `send_mock_email` writes a local event and sends nothing.
+Run `trustweave policy-check` to find shadowed rules, fail-open defaults and incomplete approval
+controls before relying on a policy in CI. The [architecture guide](docs/ARCHITECTURE.md) and the
+[policy review guide](docs/site/POLICY_REVIEW.md) give the full contract.
 
 ## Pick your entry point
 
-| You already have… | Start here |
+| You already have | Start here |
 | --- | --- |
 | A LangGraph, OpenAI Agents, or CrewAI export | [Framework import](docs/FRAMEWORK_IMPORT.md) |
 | A saved MCP `tools/list` snapshot | [MCP import](docs/MCP_IMPORT.md) |
 | A CI pipeline | [Local CI integration](docs/CI_INTEGRATIONS.md) |
-| Nothing yet — just curious | The quickstart above |
+| Nothing yet | The quickstart above |
 
-The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-paste commands for each path.
+The [Developer integration routes](docs/site/INTEGRATIONS.md) page has the commands for each route.
 
 <a name="docs"></a>
 ## Docs
@@ -158,37 +180,55 @@ The [Developer integration routes](docs/site/INTEGRATIONS.md) page has copy-past
 
 **Understanding it:** [Concepts](docs/site/concepts.md) · [How it compares](docs/site/COMPARISON.md) · [Architecture](docs/ARCHITECTURE.md) · [Threat model](docs/THREAT_MODEL.md) · [Product contract](docs/PRODUCT_CONTRACT.md) · [Reviewer workflow](docs/REVIEWER_WORKFLOW.md)
 
-**Trusting it:** [Current evidence](docs/site/CURRENT_EVIDENCE.md) · [Quality & test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Reproducing the study](docs/REPRODUCING_THE_STUDY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
+**Trusting it:** [Current evidence](docs/site/CURRENT_EVIDENCE.md) · [Quality and test gates](docs/QUALITY.md) · [Mutation testing record](docs/MUTATION_TESTING.md) · [Supply-chain evidence](docs/SUPPLY_CHAIN.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Reproducing the study](docs/REPRODUCING_THE_STUDY.md) · [Evaluation framework](docs/evaluation/EVALUATION_CHARTER.md)
 
 <details>
-<summary><strong>Everything else (schemas, risk, release records)</strong></summary>
+<summary><strong>Schemas, risk management and release records</strong></summary>
 
 - [Schema and compatibility policy](docs/SCHEMA_AND_COMPATIBILITY.md)
-- [Local risk management](docs/RISK_MANAGEMENT.md) — fingerprints, baselines, suppressions
+- [Local risk management](docs/RISK_MANAGEMENT.md): fingerprints, baselines and suppressions
 - [Control traceability](docs/CONTROL_TRACEABILITY.md)
 - [Golden deterministic evidence](docs/GOLDEN_EVIDENCE.md)
 - [Resource bounds](docs/RESOURCE_BOUNDS.md)
 - [Release guide](docs/RELEASE.md) and [release history](https://github.com/MohammadThabetHassan/trustweave/releases)
-- Historical release checklists, migration guides, and audit records live under `docs/archive/`
-- [Where the research write-ups are](docs/site/RESEARCH_NOTE.md) — the measurement artifacts under `docs/` are here; the papers written from them are not, until they are published
+- Historical release checklists, migration guides and audit records are under `docs/archive/`.
 
 </details>
 
-## Quality, briefly
+## Quality
 
-95% branch coverage enforced in CI · 97.93% mutation score across the sixteen gated high-risk modules (7,722 of 7,885 mutants), all survivors triaged · reproducible wheels with fixed epoch · SBOM + PyPI provenance attestations · zero runtime dependencies. The mutation measurement is scoped, recorded on 2026-09-07, and does not establish package-wide security; see the [mutation testing record](docs/MUTATION_TESTING.md). Source metadata is prepared as the unpublished `0.3.1` candidate; [`0.3.0` remains the latest published release](docs/RELEASE.md). Details in [QUALITY.md](docs/QUALITY.md).
+- 95% branch coverage, enforced in CI.
+- 97.93% mutation score over the sixteen gated high-risk modules (7,722 of 7,885 mutants,
+  recorded 2026-09-07), with every survivor triaged in the
+  [mutation testing record](docs/MUTATION_TESTING.md).
+- Reproducible wheels with a fixed build epoch, an SBOM and PyPI provenance attestations.
+- No runtime dependencies. YAML manifests need the optional extra:
+  `pip install "trustweave[yaml]"`.
 
-Optional: YAML manifest support via `pip install "trustweave[yaml]"`.
+[QUALITY.md](docs/QUALITY.md) has the details. The latest release on PyPI is 0.3.0, and `main`
+carries the unreleased 0.3.1 changes; see the [release guide](docs/RELEASE.md).
+
+## Research
+
+The measurement artifacts, protocols and analysis scripts behind the TrustWeave research live in
+`docs/` and `scripts/`. [Reproducing the study](docs/REPRODUCING_THE_STUDY.md) maps each result
+to the command that produces it, and the [research note](docs/site/RESEARCH_NOTE.md) explains where
+the write-ups will appear.
 
 ## Contributing
 
-Bug reports and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Questions start at [SUPPORT.md](SUPPORT.md). Please don't report vulnerabilities in public issues; follow [SECURITY.md](SECURITY.md). Community norms: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md); project decisions: [GOVERNANCE.md](GOVERNANCE.md).
-
-Used TrustWeave on a real agent? A short write-up helps the next team decide — [here's the template](docs/CASE_STUDIES.md).
+Bug reports and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md), and
+[SUPPORT.md](SUPPORT.md) for questions. Report vulnerabilities privately as described in
+[SECURITY.md](SECURITY.md), not in public issues. Community norms are in
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and project decisions in [GOVERNANCE.md](GOVERNANCE.md).
+If you have used TrustWeave on a real agent, a short [case study](docs/CASE_STUDIES.md) helps
+other teams decide.
 
 ## Team
 
-Ahmed Sami Alameri, Fahad Sadek, Omar Alraas, Abdulrahman Rezki and Mohammad Thabet Hassan, supervised by Dr. Lobna AbuSerrieh, Canadian University Dubai. Citation metadata: [CITATION.cff](CITATION.cff).
+Ahmed Sami Alameri, Fahad Sadek, Omar Alraas, Abdulrahman Rezki and Mohammad Thabet Hassan,
+supervised by Dr. Lobna AbuSerrieh, Canadian University Dubai. Citation metadata is in
+[CITATION.cff](CITATION.cff).
 
 ## License
 

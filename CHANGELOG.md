@@ -4,6 +4,25 @@ All notable changes to TrustWeave are documented in this file. The project follo
 
 ## [0.3.1] - Unreleased release candidate
 
+### Highlights
+
+- `trustweave discover` reads local Python source, lists the tools an agent can reach, proposes
+  an action class for each with its evidence, and reports what the manifest leaves undeclared
+  (`trustweave.dev/code-discovery/v1alpha1`, ten `TW-CODE-*` rules).
+- Policy review finds rules shadowed by a combination of earlier rules, reports declined cover
+  searches and rules switched off by undeclared controls, and is published as `v1alpha2`; risk
+  identities move to `trustweave/fingerprint/v4`.
+- Thirty-one defects confirmed by a full audit of the branch are fixed, each with a regression
+  case, among them Markdown injection in reviewer-facing reports, false negatives in chain
+  analysis, and a failing test-results file edited to read "passed" that still attested and
+  verified.
+- Research instruments for the exact mutation-adequacy study: protocols fixed before each run,
+  the measurement scripts and artifacts, engine oracles, Lean proofs of the core results and a
+  reproduction guide, `docs/REPRODUCING_THE_STUDY.md`.
+- The README and documentation are reorganized around a verified quickstart.
+
+The entries below give the detail.
+
 ### Added
 
 - `scripts/exact_evaluation_study.py` runs two studies that use exact equivalence as ground
@@ -323,7 +342,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
   shell invocation reached that way as `read`; a wildcard import inside a function was
   likewise dropped instead of forcing a refusal. Names now resolve through every
   enclosing function, innermost first, and a node inside a nested function is judged in
-  that function's scope. A multi-agent audit of the branch caught both before it was
+  that function's scope. A pre-merge audit of the branch caught both before it was
   pushed; both are regression cases now.
 - A rule naming more than 10,000 combinations of its single-valued fields is not
   enumerated for a collective cover, and the artifact used to say `reachable: true`
@@ -336,15 +355,12 @@ All notable changes to TrustWeave are documented in this file. The project follo
   the source does not decide is refused. This is the one case of the review's broader
   point, that unresolved behaviour is silently benign, that came with a reproducible
   snippet; the general audit it asks for is not done here.
-- A multi-agent audit of this branch (about 600 separately prompted reviewer and verifier agents
-  over the code, the research harness and both manuscripts, every error claim adversarially
-  verified before it was accepted) confirmed thirty-five errors. Thirty-one are fixed below,
-  each reproduced from the audit's own probe before it was touched and each kept as a
-  regression case; the four that are not (the new manuscript's missing revision package and
-  its section 8 prose, which have no source on this machine, and the Kyverno mutation rerun,
-  which needs a `kyverno` binary) are recorded in the audit report rather than papered over.
-  Almost all of them had one shape: a confident, clear answer where the evidence supported
-  none.
+- A full audit of this branch, covering the code, the research harness and both manuscripts,
+  with every reported error reproduced before it was accepted, confirmed thirty-five errors.
+  Thirty-one are fixed below, each reproduced from the audit's own probe before it was touched
+  and each kept as a regression case. The other four concern manuscript material kept outside
+  the repository and the Kyverno mutation rerun, which is listed under Changed. Almost all of
+  them had one shape: a confident, clear answer where the evidence supported none.
 
   **Discovery analyzer.**
   - A callee the module cannot name is refused rather than read as benign. `read` at high
@@ -443,8 +459,8 @@ All notable changes to TrustWeave are documented in this file. The project follo
     file, mirrored as `maxItems` in both copies of the manifest schema.
   - The `REVIEW_REQUIRED` placeholder is refused wherever a manifest string field begins with
     it, naming the field. The documentation said the discovery draft failed validation because
-    the parser rejected the placeholder; it failed for other reasons, and a lazy-reviewer loop
-    applying one minimal fix per error reached a passing scan with eight placeholders left.
+    the parser rejected the placeholder; it failed for other reasons, and a reviewer applying
+    one minimal fix per error could reach a passing scan with eight placeholders left.
 
   **Review commands, evidence and I/O.**
   - Markdown forgery in every reviewer-facing artifact. Declared text was interpolated into
@@ -727,7 +743,7 @@ All notable changes to TrustWeave are documented in this file. The project follo
   selects a symbol while `eval` runs whatever it is handed: arbitrary code execution is
   what `sensitive` means here, and it is knowable without reading the code. A constant
   expression is left alone and `getattr` keeps its refusal.
-- Benchmark accuracy rises from 0.806 to 0.987 over the session on a benchmark that grew
+- Benchmark accuracy rises from 0.806 to 0.987 over this release on a benchmark that grew
   from 72 cases to 75, the answer rate on decidable cases from 0.860 to 1.000, and
   precision when answering from 0.918 to 0.9833. Accuracy on labels the two annotators
   agree about is 1.000; the single remaining failure is the one case where they disagree.

@@ -1,6 +1,8 @@
 # Walkthrough: your first review, command by command
 
-This walks through the checked-in support-agent example and shows what each command actually prints, so you know what "working" looks like before you run it on your own agent. Every output below is real.
+This page runs the checked-in support-agent example and shows what each command prints, so you
+know what a working run looks like before you use your own agent. Every output below is copied
+from a real run.
 
 ## 0. Install
 
@@ -28,7 +30,8 @@ Output:
 Wrote Agent Security Bundle: artifacts/agent-security-bundle.json
 ```
 
-One file so far. The bundle records every declared flow — source × tool — with its decision. Exit code `0`.
+The bundle records the decision for every declared flow, that is, every pair of source and tool.
+Exit code `0`.
 
 ## 2. Test the policy against synthetic scenarios
 
@@ -45,7 +48,9 @@ Output:
 Wrote synthetic test results (passed): artifacts/security-test-results.json
 ```
 
-Five scenarios ran: trusted→read allowed, untrusted→external denied, and so on. If someone later edits the policy in a way that breaks an intended decision, this command exits non-zero — wire it into CI and policy regressions die in review.
+Five scenarios ran; for example, trusted→read is allowed and untrusted→external is denied. If a
+later policy edit breaks an intended decision, this command exits non-zero, so running it in CI
+catches policy regressions during review.
 
 ## 3. Attest the evidence
 
@@ -59,7 +64,9 @@ Output:
 Wrote local evidence attestation: artifacts/attestation.json
 ```
 
-The attestation hash-links the artifacts produced above. It is **not** a signature — no identity is attached. Its job is letting a reviewer later confirm the files they're reading are the files this run produced.
+The attestation hash-links the artifacts produced above. It is **not** a signature and carries no
+identity; it lets a reviewer confirm later that the files they are reading are the files this run
+produced.
 
 ## 4. Generate the report
 
@@ -73,7 +80,7 @@ Output:
 Wrote Markdown report: artifacts/report.md
 ```
 
-Open `artifacts/report.md`. The interesting part:
+The core of `artifacts/report.md` is the decision table:
 
 | Source | Trust | Tool | Decision | Rule |
 |---|---|---|---|---|
@@ -82,9 +89,11 @@ Open `artifacts/report.md`. The interesting part:
 | customer_record | conditional | send_mock_email | **require_approval** | TW-002 |
 | knowledge_base_document | untrusted | send_mock_email | **deny** | TW-004 |
 
-Read the `default` row carefully: nobody wrote a rule for trusted→sensitive, so it fails closed to deny. If that lookup is supposed to be allowed, the manifest author needs to add a rule — and a scenario locking it in. This is the review conversation TrustWeave exists to start.
+The `default` row deserves attention. No rule covers trusted→sensitive, so the policy fails closed
+and denies it. If that lookup should be allowed, the policy needs a rule for it and a scenario that
+pins the decision. Surfacing decisions like this one for review is what TrustWeave is for.
 
-## 5. Verify the bytes haven't changed
+## 5. Verify that the files are unchanged
 
 ```shell
 trustweave verify \
@@ -99,10 +108,15 @@ Output:
 v1alpha3 attestation bindings are internally consistent with supplied-file verification
 ```
 
-Supplying all three paths checks those exact files against the attestation. Running only `--attestation` verifies the statement's internal consistency — weaker, and the CLI reference explains when that distinction matters.
+Supplying all three paths checks those exact files against the attestation. With `--attestation`
+alone, `verify` checks only the statement's internal consistency, which is a weaker check; the CLI
+reference explains when the difference matters.
 
 ## Next steps
 
-- Point `scan` at your own agent. If you have a LangGraph / OpenAI Agents / CrewAI setup or a saved MCP `tools/list` snapshot, see [integration routes](INTEGRATIONS.md) for import commands.
-- Something failed? Check [troubleshooting](TROUBLESHOOTING.md) — exit codes are stable and each maps to a cause.
-- Want to see what the decisions mean in practice? The [research-assistant demo](https://github.com/MohammadThabetHassan/trustweave/tree/main/demo/research-assistant) reviews a realistic agent end to end, including a diff that catches a weakened approval control.
+- Point `scan` at your own agent. For a LangGraph, OpenAI Agents or CrewAI setup, or a saved MCP
+  `tools/list` snapshot, the [integration routes](INTEGRATIONS.md) give the import commands.
+- If a command fails, [troubleshooting](TROUBLESHOOTING.md) maps each stable exit code to its
+  cause.
+- The [research-assistant demo](https://github.com/MohammadThabetHassan/trustweave/tree/main/demo/research-assistant)
+  reviews a realistic agent end to end, including a diff that catches a weakened approval control.
