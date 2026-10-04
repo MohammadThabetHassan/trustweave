@@ -161,3 +161,8 @@ here.
   release and cvc5 version that the image installs for Linux. The protocol names both builds'
   digests. A solver's time limit can be reached on one machine and not another, so a fresh
   run's "no answer" counts may differ; its verdicts should not.
+- **The XACML comparison's MC/DC rows depend on the machine.** On the machine that ran the
+  study, XPA's two MC/DC generators ran past the protocol's 30-minute limit on pluto3, so MC/DC
+  is compared on ten policies. A faster machine may finish them and change those rows, so
+  `run.sh xacml` can report the summary as different. The oracle, the mutants, the equivalent
+  mutants and the quotient's figures do not depend on it.

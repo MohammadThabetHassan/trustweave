@@ -2107,12 +2107,18 @@ def _xacml_criteria_claims(docs: Path) -> list[Claim]:
         ("Permit--deny rule pairs (XPA)", "PD-PC", "random_PD-PC"),
         ("One witness per decision (the proxy)", "decision", "random_decision"),
     ]
+    # Like for like: the quotient's size over the policies where XPA built an MC/DC suite, the
+    # policies MC/DC's own figures are averaged over.
+    paired = [r for r in policies if r["suites"]["MCDC"]["status"] == "generated"]
+    paired_size = whole(sum(r["quotient_classes"] for r in paired) / len(paired))
+    assert all(summary["by_policy"][r["policy"]]["quotient"] == 1.0 for r in paired)
     claims: list[Claim] = [
         (
-            r"[Oo]n Xu et al.'s own benchmark the quotient detects every live mutant with (\d+) "
-            r"requests on average, where their MC/DC detects (\d+\.\d)\\% with (\d+)",
-            (whole(size["quotient"]), pct(mean["MCDC"]), whole(size["MCDC"])),
-            "xacml criteria: both halves, as both main texts state them",
+            r"[Oo]n the (\w+) of Xu et al.'s benchmark policies where their tool built an MC/DC "
+            r"suite, the quotient detects every live mutant with (\d+) requests on average, where "
+            r"their MC/DC detects (\d+\.\d)\\% with (\d+)",
+            (_word(len(paired)), paired_size, pct(mean["MCDC"]), whole(size["MCDC"])),
+            "xacml criteria: both halves, like for like, as both main texts state them",
         ),
         (
             r"agrees with all (\d+) of Balana's own conformance cases",
@@ -2120,7 +2126,7 @@ def _xacml_criteria_claims(docs: Path) -> list[Claim]:
             "xacml criteria: the engine oracle",
         ),
         (
-            r"Of XPA's (\d+) benchmark policies, (\d+) are inside the fragment",
+            r"Of XPA's (\d+) benchmark policies, (\d+) are at once inside the fragment",
             (
                 str(len(study["population"]["eligible"]) + len(study["population"]["excluded"])),
                 str(len(study["population"]["eligible"])),
@@ -2148,9 +2154,17 @@ def _xacml_criteria_claims(docs: Path) -> list[Claim]:
             "xacml criteria: where the quotient is the refinement",
         ),
         (
-            r"Its completeness therefore costs (\d+) requests on average, where MC/DC, the "
-            r"strongest of Xu et al.'s criteria, detects (\d+\.\d)\\% with (\d+)",
-            (whole(size["quotient"]), pct(mean["MCDC"]), whole(size["MCDC"])),
+            r"Its completeness therefore costs (\d+) requests on average on the (\w+) policies "
+            r"where XPA built an MC/DC suite \((\d+) over all (\w+)\), where MC/DC, the strongest "
+            r"of Xu et al.'s criteria, detects (\d+\.\d)\\% with (\d+)",
+            (
+                paired_size,
+                _word(len(paired)),
+                whole(size["quotient"]),
+                _word(len(policies)),
+                pct(mean["MCDC"]),
+                whole(size["MCDC"]),
+            ),
             "xacml criteria: both halves, in the supporting information",
         ),
         (
