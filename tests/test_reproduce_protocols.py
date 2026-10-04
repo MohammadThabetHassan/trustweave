@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _module() -> ModuleType:
     specification = importlib.util.spec_from_file_location(
-        "check_protocols", ROOT / "reproduce" / "check_protocols.py"
+        "check_protocols", ROOT / "scripts" / "check_protocols.py"
     )
     assert specification and specification.loader
     module = importlib.util.module_from_spec(specification)

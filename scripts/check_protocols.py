@@ -6,7 +6,7 @@ registration checkable after the fact: hash every `docs/*PROTOCOL*.md` and requi
 artifact's recorded hash to be one of them. A protocol edited after its study ran would leave
 its artifact pointing at nothing, and this reports it.
 
-    python reproduce/check_protocols.py [--docs docs]
+    python scripts/check_protocols.py [--docs docs]
 """
 
 from __future__ import annotations

@@ -19,9 +19,9 @@ case "$mode" in
     echo "== tools"
     opa version | head -1
     kyverno version 2>/dev/null | head -1 || true
-    python -c 'import cedarpy, z3; print("cedarpy", cedarpy.__version__, "z3", z3.get_version_string())'
+    python -c 'from importlib.metadata import version; print("cedarpy", version("cedarpy"), "z3", version("z3-solver"))'
     echo "== every pre-registered artifact names a protocol the repository holds"
-    python reproduce/check_protocols.py
+    python scripts/check_protocols.py
     echo "== the study scripts' tests"
     python -m pytest -q -o addopts="" \
       tests/test_rego_witness_space.py tests/test_rego_payoff_study.py \
