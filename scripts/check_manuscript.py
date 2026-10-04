@@ -1183,6 +1183,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _rego_suite_claims(docs)
     claims += _rego_exact_claims(docs)
     claims += _rego_payoff_claims(docs)
+    claims += _rego_schemas_claims(docs)
     return claims
 
 
@@ -1424,6 +1425,147 @@ def _rego_exact_claims(docs: Path) -> list[Claim]:
             "rego exact study: the table's total",
         )
     )
+    return claims
+
+
+def _rego_schemas_claims(docs: Path) -> list[Claim]:
+    """The policy schemas, instantiated by their suites: the exact study's secondary population.
+
+    Its protocol has it reported beside the primary population and never pooled with it, so the
+    two artifacts are read apart and the paper's comparisons between them are asserted here.
+    """
+
+    schemas = _load(docs, "rego-exact-adequacy-schemas-v1")
+    primary = _load(docs, "rego-exact-adequacy-v1")
+    head, population = schemas["headline"], schemas["population"]
+    assert schemas["population_kind"] == "schemas"
+    measured = {s: r for s, r in schemas["modules"].items() if r.get("status") == "measured"}
+    over_cap = sum(
+        count for status, count in population.items() if status.startswith("excluded: an object")
+    )
+    missing = population["excluded: missing cell"]
+    assert over_cap + missing + len(measured) == population["modules"]
+    # "kill every distinguishable mutant and no equivalent one"
+    assert head["closing_the_gaps_holds_everywhere"]
+    assert head["killed_without_a_decision_change"] == 0
+    # "The weakest suite of either population is here"
+    both = [
+        (record["exact_score"], subject)
+        for artifact in (primary, schemas)
+        for subject, record in artifact["modules"].items()
+        if record.get("status") == "measured" and subject != artifact["development_module"]
+    ]
+    weakest = measured[min(both)[1]]
+    names = {26: "Twenty-six"}
+    low, high = head["difference_bootstrap_95"]
+    claims: list[Claim] = [
+        (
+            r"on the (\d+) of (\d+) whose witness spaces pass, (\d+) of the (\d+) survivors are "
+            r"equivalent, and the suites are (\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
+            (
+                str(head["modules"]),
+                str(population["modules"]),
+                str(head["survivors_equivalent"]),
+                str(head["survivors_suite_study"]),
+                _pct(head["pooled_exact_score"]),
+                _pct(head["pooled_raw_score"]),
+            ),
+            "rego schemas: the main text",
+        ),
+        (
+            r"([\w-]+) of the suite study's other modules are policy schemas",
+            (names[population["modules"]],),
+            "rego schemas: the population",
+        ),
+        (
+            rf"([A-Z][a-z]+) exceed the cap, and in ({_WORD_PATTERN}) the completeness check "
+            rf"found an input no cell covers",
+            (_word(over_cap).capitalize(), _word(missing)),
+            "rego schemas: the exclusions",
+        ),
+        (
+            rf"so ({_WORD_PATTERN}) are measured",
+            (_word(len(measured)),),
+            "rego schemas: modules measured",
+        ),
+        (
+            r"On them (\d+) of the (\d+) survivors are equivalent, and of the (\d+) "
+            r"distinguishable mutants the suites kill (\d+): (\d+\.\d)\\% exactly, pooled, where "
+            r"the raw rate is (\d+\.\d)\\%; in the mean, (\d+\.\d)\\% against a raw (\d+\.\d)\\%, "
+            r"(\d+\.\d) points apart with a 95\\% bootstrap interval of "
+            r"\$\[(\d+\.\d), (\d+\.\d)\]\$",
+            (
+                str(head["survivors_equivalent"]),
+                str(head["survivors_suite_study"]),
+                str(head["distinguishable"]),
+                str(head["killed_through_decision"]),
+                _pct(head["pooled_exact_score"]),
+                _pct(head["pooled_raw_score"]),
+                _pct(head["mean_exact_score"]),
+                _pct(head["mean_raw_score"]),
+                _pct(head["mean_difference"]),
+                _pct(low),
+                _pct(high),
+            ),
+            "rego schemas: the result",
+        ),
+        (
+            r"Each of the (\d+) real gaps comes with an input that kills it, and the inputs, added "
+            r"as tests",
+            (str(head["survivors_real"]),),
+            "rego schemas: the gaps",
+        ),
+        (
+            r"that of \\texttt\{(\w+)\} kills (\d+) of its (\d+) distinguishable mutants",
+            (
+                weakest["subject"].split("/")[-2],
+                str(weakest["killed_through_decision"]),
+                str(weakest["distinguishable"]),
+            ),
+            "rego schemas: the weakest suite of either population",
+        ),
+        (
+            rf"([A-Z][a-z]+) schemas over the cell cap and ({_WORD_PATTERN}) failing the "
+            r"completeness check",
+            (_word(over_cap).capitalize(), _word(missing)),
+            "rego schemas: the table's caption",
+        ),
+        (
+            r"(\d+) schemas & (\d+) & (\d+) & (\d+) & (\d+) & (\d+) & (\d+\.\d) & "
+            r"(\d+\.\d) & (\d+)",
+            (
+                str(head["modules"]),
+                str(head["mutants"]),
+                str(head["stillborn"]),
+                str(head["suite_equivalent"]),
+                str(head["distinguishable"]),
+                str(head["killed_through_decision"]),
+                _pct(head["pooled_raw_score"]),
+                _pct(head["pooled_exact_score"]),
+                str(head["survivors_real"]),
+            ),
+            "rego schemas: the table's total",
+        ),
+    ]
+    for subject, record in sorted(measured.items()):
+        name = subject.split("/")[-2].replace("-", "\\allowbreak-")
+        claims.append(
+            (
+                rf"\\texttt\{{{re.escape(name)}\}} & (\d+) & (\d+) & (\d+) & (\d+) & (\d+) & "
+                r"(\d+\.\d) & (\d+\.\d) & (\d+)",
+                (
+                    str(record["mutants"]),
+                    str(record["stillborn"]),
+                    str(record["suite_equivalent"]),
+                    str(record["distinguishable"]),
+                    str(record["killed_through_decision"]),
+                    _pct(record["raw_score"]),
+                    _pct(record["exact_score"]),
+                    str(len(record["survivors"])),
+                ),
+                f"rego schemas: the row for {subject.split('/')[-2]}",
+            )
+        )
     return claims
 
 
