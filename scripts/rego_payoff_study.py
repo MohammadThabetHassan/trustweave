@@ -247,7 +247,8 @@ class Quotient:
                 wanted.add((json.dumps(at), json.dumps(value, sort_keys=True)))
             kids = self.children.get(at, set())
             if "*" in kids:
-                for element in _elements(value):
+                # A scalar where a collection was expected has no elements, as in `signature`.
+                for element in _elements(value) or []:
                     walk(element, at + ("*",))
             if isinstance(value, dict):
                 for key in kids - {"*"}:
