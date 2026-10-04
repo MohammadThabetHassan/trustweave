@@ -115,10 +115,15 @@ public final class XacmlMatrix {
                 }
                 PDP pdp = pdpFor(path);
                 StringBuilder decisions = new StringBuilder(requests.size());
-                for (AbstractRequestCtx request : requests) {
-                    decisions.append(request == null ? 'I' : letter(pdp.evaluate(request)));
+                try {
+                    for (AbstractRequestCtx request : requests) {
+                        decisions.append(request == null ? 'I' : letter(pdp.evaluate(request)));
+                    }
+                    out.println("DECISIONS " + decisions);
+                } catch (RuntimeException error) {
+                    // A policy the engine reads but fails while evaluating is not scored at all.
+                    out.println("UNEVALUABLE " + String.valueOf(error).replace('\n', ' '));
                 }
-                out.println("DECISIONS " + decisions);
                 out.flush();
             }
         }

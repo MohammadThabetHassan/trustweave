@@ -63,6 +63,16 @@ RESAMPLES = 10_000
 DRAWS = 200
 GENERATOR_TIMEOUT = 1800
 CRITERIA = ("RC", "DC", "NE-DC", "MCDC", "NE-MCDC", "PC", "PD-PC")
+DEVIATIONS = [
+    "The first run of the population, with the instrument as committed at 4bb020d, stopped "
+    "before writing any result: XPA's PTT operator writes its mutant without the Target "
+    "element XACML 3.0 requires of a policy, and Balana 1.2.24 reads that file but raises an "
+    "error evaluating it. Such a mutant is now given an empty Target, which matches every "
+    "request -- the mutant XPA's documentation describes, the policy 'applied to all "
+    "requests' -- and the artifact lists every mutant so restored. A policy whose evaluation "
+    "raises an engine error is now counted unrunnable instead of stopping the run. The "
+    "population was then run again.",
+]
 STRATEGIES = ("refinement", "quotient", "decision", "random_quotient", "random_decision")
 MAVEN = "https://repo1.maven.org/maven2/"
 
@@ -106,6 +116,11 @@ Z3 = {
         "https://github.com/Z3Prover/z3/releases/download/z3-4.6.0/z3-4.6.0-x64-win.zip",
         "d1dc7f6ae0a053ee490aa6899cdae52631d46d4f22993acd732d6835523c3ce1",
         "z3-4.6.0-x64-win/bin/",
+    ),
+    "Linux": (
+        "https://github.com/Z3Prover/z3/releases/download/z3-4.6.0/z3-4.6.0-x64-ubuntu-16.04.zip",
+        "3bdb9e4cefc91e3901aa860472a3a7de61aea6fab225d59dbf425dbba79c3908",
+        "z3-4.6.0-x64-ubuntu-16.04/bin/",
     ),
 }
 
@@ -268,8 +283,12 @@ class Tools:
         self.z3.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(archive) as bundle:
             for member in bundle.namelist():
-                if member.startswith(inner) and not member.endswith("/"):
-                    (self.z3 / Path(member).name).write_bytes(bundle.read(member))
+                # The release's bin folder itself, not the language bindings beneath it.
+                rest = member[len(inner) :] if member.startswith(inner) else ""
+                if rest and "/" not in rest:
+                    target = self.z3 / rest
+                    target.write_bytes(bundle.read(member))
+                    target.chmod(0o755)
         matrix = self.folder / "classes-matrix"
         subprocess.run(
             [
@@ -556,6 +575,24 @@ def xpa_mutants(tools: Tools, text: str, scratch: Path) -> list[tuple[str, str, 
     return found
 
 
+def restore_target(path: Path) -> bool:
+    """Give a policy the Target XACML 3.0 requires of it, empty, if the file has none.
+
+    XPA's PTT writes its mutant without one; its documentation says the mutant is the policy
+    "applied to all requests", which is what an empty Target means. Balana reads such a file but
+    fails evaluating it, so the mutant is given the empty Target XPA describes.
+    """
+
+    root = ET.fromstring(path.read_text(encoding="utf-8-sig"))
+    if root.tag != Q + "Policy" or root.find(Q + "Target") is not None:
+        return False
+    preamble = (Q + "Description", Q + "PolicyIssuer", Q + "PolicyDefaults")
+    position = next((i for i, child in enumerate(root) if child.tag not in preamble), len(root))
+    root.insert(position, ET.Element(Q + "Target"))
+    path.write_text(ET.tostring(root, encoding="unicode"), encoding="utf-8")
+    return True
+
+
 def xpa_suite(tools: Tools, policy: Path, criterion: str, scratch: Path) -> dict[str, Any]:
     """One of XPA's suites for the policy, generated as XPA's test panel generates it."""
 
@@ -609,7 +646,7 @@ def decide_matrix(
     for line in done.stdout.splitlines():
         if line.startswith("DECISIONS "):
             answers.append(line[len("DECISIONS ") :])
-        elif line.startswith("UNLOADABLE"):
+        elif line.startswith(("UNLOADABLE", "UNEVALUABLE")):
             answers.append(None)
     if len(answers) != len(policies):
         raise RuntimeError(
@@ -675,6 +712,7 @@ def analyse_policy(tools: Tools, name: str, text: str, scratch: Path) -> dict[st
     original = scratch / "policy.xml"
     original.write_text(text, encoding="utf-8")
     mutants = xpa_mutants(tools, text, scratch)
+    record["targets_restored"] = [m for m, _, path in mutants if restore_target(path)]
     suites = {criterion: xpa_suite(tools, original, criterion, scratch) for criterion in CRITERIA}
     suite_requests = [r for c in CRITERIA for r in suites[c]["requests"]]
 
@@ -1015,7 +1053,7 @@ def study(tools: Tools, workers: int, development: list[Path] | None = None) -> 
         "tools": tools.versions(),
         "oracle": oracle(tools),
         "population": {"eligible": eligible, "excluded": excluded},
-        "deviations": [],
+        "deviations": DEVIATIONS,
         "summary": summary,
         "hypotheses": hypotheses,
         "policies": records,

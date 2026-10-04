@@ -133,6 +133,22 @@ def test_an_atom_is_its_own_one_rule_policy() -> None:
         assert len(list(root.iter(f"{{{NS}}}{part}"))) == 1
 
 
+def test_a_policy_written_without_its_target_gets_the_empty_one_xpa_describes(
+    tmp_path: Path,
+) -> None:
+    # XPA's PTT writes the policy with no Target at all, after any Description.
+    mutant = tmp_path / "PTT1.xml"
+    mutant.write_text(
+        f'<Policy xmlns="{NS}" PolicyId="p" Version="1.0" RuleCombiningAlgId="x">'
+        '<Description>d</Description><Rule RuleId="r" Effect="Deny"/></Policy>',
+        encoding="utf-8",
+    )
+    assert study.restore_target(mutant) is True
+    children = [c.tag.split("}")[1] for c in ET.fromstring(mutant.read_text("utf-8"))]
+    assert children == ["Description", "Target", "Rule"]
+    assert study.restore_target(mutant) is False
+
+
 def test_the_sign_flip_test_is_exact_and_holm_is_monotone() -> None:
     # Five positive differences: only the all-positive and all-negative patterns are as extreme.
     assert study.exact_sign_flip([0.1, 0.2, 0.3, 0.4, 0.5]) == pytest.approx(2 / 32)
