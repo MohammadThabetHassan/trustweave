@@ -48,6 +48,18 @@ CANDIDATES_SHA256 = "e7b0954e645117a2e21dd6fff65f196b31c715b144fd940564e88049f07
 DEVELOPMENT = "Anumehajain78/promptfence/backend/policies/forbid-support-delete.cedar"
 WALL_CLOCK = 600
 SOLVER_LIMIT_MS = 60_000
+DEVIATIONS = [
+    "A first run of the population, with the instrument as committed at b4cbfee, read every "
+    "counterexample except those holding a datetime, which the command prints as an offset "
+    'from a date, `(datetime("1970-01-01")).offset(duration("0ms"))`. Its 25 such '
+    "counterexamples, all on live mutants of two files, went unreplayed, and those mutants were "
+    "then labelled by their environments' results alone. The parser now reads calls and method "
+    "calls and passes them on in Cedar's JSON form for the engine to evaluate, a live mutant "
+    "whose counterexamples the engine did not confirm has a class of its own, and the whole "
+    "population was run again. The first run found, of 173 equivalent verdicts, none refuted, "
+    "161 verified in every environment, 10 partly checked and 2 unchecked; of 830 live "
+    "verdicts, 722 confirmed live and 72 equivalent in every usable environment.",
+]
 VERIFIED = "Policy sets are equivalent: VERIFIED"
 DOES_NOT_HOLD = "Policy sets are equivalent: DOES NOT HOLD"
 EQUIVALENT_CLASSES = (
@@ -59,6 +71,7 @@ EQUIVALENT_CLASSES = (
 LIVE_CLASSES = (
     "live under the schema",
     "equivalent under the schema",
+    "counterexample not confirmed",
     "equivalent where checked",
     "unchecked",
 )
@@ -106,8 +119,10 @@ class _Reader:
     """A cursor over the environment SymCC prints (`cedar_policy_symcc::Env`'s Display).
 
     Values are printed in Cedar's literal syntax with Rust's `escape_debug` for strings:
-    entity references as `Type::"id"`, extension values as constructor calls such as
-    `decimal("1.0")`, sets in brackets, and records in braces with identifier or string keys.
+    entity references as `Type::"id"`, extension values as calls such as `decimal("1.0")`, or
+    `(datetime("1970-01-01")).offset(duration("0ms"))` for a datetime, sets in brackets, and
+    records in braces with identifier or string keys. A call is passed on in Cedar's JSON form
+    for extension values, so the engine, not this parser, computes what it denotes.
     """
 
     def __init__(self, text: str) -> None:
@@ -164,9 +179,33 @@ class _Reader:
                 return "::".join(path), self.string()
             path.append(self.identifier())
 
+    def arguments(self) -> list[Any]:
+        self.expect("(")
+        found: list[Any] = []
+        while not self.ahead(")"):
+            if found:
+                self.expect(", ")
+            found.append(self.value())
+        self.expect(")")
+        return found
+
+    def methods(self, receiver: Any) -> Any:
+        """`.name(arguments)` calls on a value, as Cedar's JSON writes a call of `name`."""
+
+        while self.ahead("."):
+            self.expect(".")
+            name = self.identifier()
+            receiver = {"__extn": {"fn": name, "args": [receiver, *self.arguments()]}}
+        return receiver
+
     def value(self) -> Any:
         if self.ahead("<unknown>"):
             raise Unreadable("a value SymCC could not concretise")
+        if self.ahead("("):
+            self.expect("(")
+            inner = self.value()
+            self.expect(")")
+            return self.methods(inner)
         if self.ahead('"'):
             return self.string()
         if self.ahead("["):
@@ -202,10 +241,10 @@ class _Reader:
                 return {"__entity": {"type": "::".join(path), "id": self.string()}}
             path.append(self.identifier())
         if self.ahead("("):
-            self.expect("(")
-            argument = self.string()
-            self.expect(")")
-            return {"__extn": {"fn": "::".join(path), "arg": argument}}
+            found = self.arguments()
+            name = "::".join(path)
+            call = {"fn": name, "arg": found[0]} if len(found) == 1 else {"fn": name, "args": found}
+            return self.methods({"__extn": call})
         if path in (["true"], ["false"]):
             return path == ["true"]
         raise Unreadable(f"unknown value {'::'.join(path)!r}")
@@ -401,24 +440,33 @@ def replay(
     return ("confirmed" if decided[0] != decided[1] else "unconfirmed"), detail
 
 
-def classify(study_verdict: str, results: list[str], confirmed: bool) -> str:
-    """A verdict's class from its environments' results, as the protocol defines them."""
+def classify(study_verdict: str, results: list[str], replays: list[str]) -> str:
+    """A verdict's class from its environments' results and its counterexamples' replays.
+
+    The protocol defines the four classes of an equivalent verdict and the first two of a live
+    one. A live verdict in neither is placed by what kept it out: a counterexample the engine
+    did not confirm, or an environment without an answer.
+    """
 
     verified = results.count("verified")
     if study_verdict == "equivalent":
-        if confirmed:
+        if "confirmed" in replays:
             return "refuted"
         if results and verified == len(results):
             return "not refuted, every environment verified"
         return "not refuted, partly checked" if verified else "unchecked"
-    if confirmed:
+    if "confirmed" in replays:
         return "live under the schema"
     if results and verified == len(results):
         return "equivalent under the schema"
+    if replays:
+        return "counterexample not confirmed"
     return "equivalent where checked" if verified else "unchecked"
 
 
 def _operator(name: str) -> str:
+    if name.startswith("literal_to_"):
+        return "literal_to"
     return name.split("[", 1)[0].split("@", 1)[0].rstrip("0123456789")
 
 
@@ -507,7 +555,9 @@ def check_file(task: dict[str, Any]) -> dict[str, Any]:
                     "mutant": name,
                     "operator": _operator(name),
                     "study": verdict["status"],
-                    "class": classify(verdict["status"], results, confirmed),
+                    "class": classify(
+                        verdict["status"], results, [c["replay"] for c in counterexamples]
+                    ),
                     "results": dict(sorted(Counter(results).items())),
                     "counterexamples": counterexamples,
                 }
@@ -591,6 +641,18 @@ def summarise(records: list[dict[str, Any]]) -> dict[str, Any]:
             "refutations_whose_principal_is_the_resource": sum(
                 1 for r in refutations if r.get("principal_is_resource")
             ),
+            "with_a_counterexample_the_engine_did_not_confirm": [
+                {
+                    "file": r["subject"],
+                    "mutant": m["mutant"],
+                    "replays": [c["replay"] for c in m["counterexamples"]],
+                }
+                for r in pooled
+                if r["status"] == "checked"
+                for m in r["mutants"]
+                if m["study"] == "equivalent"
+                and any(c["replay"] != "confirmed" for c in m["counterexamples"])
+            ],
         },
         "secondary": {
             "live_verdicts": len(live),
@@ -681,7 +743,7 @@ def study(
             "platform": f"{platform.system()} {platform.machine()}",
         },
         "limits": {"wall_clock_seconds": WALL_CLOCK, "solver_ms_per_query": SOLVER_LIMIT_MS},
-        "deviations": [],
+        "deviations": DEVIATIONS,
         "summary": summarise(records),
         "development": development,
         "files": [r for r in records if not r["development"]],

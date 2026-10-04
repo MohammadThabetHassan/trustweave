@@ -94,6 +94,20 @@ entities: [
 """
 
 
+# What the command printed for a population file whose policies read a datetime: the value is
+# an expression, an offset from a date, rather than one constructor call.
+DATETIME = r"""✗ Policy sets are equivalent: DOES NOT HOLD
+  Counterexample found:
+principal: User::"", action: Action::"github.read", resource: Resource::""
+context: {call: {agent: {id: ""}, principal: {attrs: {department: "", team: ""}, id: "", type: ""}, resource: {type: ""}, tool: {name: ""}}, now: (datetime("1970-01-01")).offset(duration("0ms"))}
+entities: [
+  Action::"github.read",
+  Resource::"",
+  User::"",
+]
+"""  # noqa: E501 - the command's own line
+
+
 def _entity(entities: list[dict], kind: str, name: str) -> dict:
     return next(e for e in entities if e["uid"]["__entity"] == {"type": kind, "id": name})
 
@@ -135,6 +149,30 @@ def test_every_form_a_value_takes_is_read() -> None:
     }
 
 
+def test_a_datetime_is_passed_on_as_the_call_that_denotes_it() -> None:
+    request, entities = check.parse_counterexample(DATETIME)
+    assert request["context"]["now"] == {
+        "__extn": {
+            "fn": "offset",
+            "args": [
+                {"__extn": {"fn": "datetime", "arg": "1970-01-01"}},
+                {"__extn": {"fn": "duration", "arg": "0ms"}},
+            ],
+        }
+    }
+    assert request["context"]["call"]["principal"]["attrs"] == {"department": "", "team": ""}
+    assert len(entities) == 3
+
+    pytest.importorskip("cedarpy")
+    import cedarpy._internal as internal
+
+    text = 'permit (principal, action, resource) when { context.now < datetime("1970-01-02") };'
+    original = json.loads(internal.policies_to_json_str(text))
+    flipped = json.loads(internal.policies_to_json_str(text.replace("permit", "forbid")))
+    verdict, facts = check.replay(original, flipped, DATETIME)
+    assert (verdict, facts["file"], facts["mutant"]) == ("confirmed", "Allow", "Deny")
+
+
 def test_a_request_whose_principal_is_its_resource_is_read_as_one_entity() -> None:
     request, entities = check.parse_counterexample(SELF)
     assert request["principal"] == request["resource"] == 'App::User::"alice"'
@@ -146,7 +184,8 @@ def test_a_request_whose_principal_is_its_resource_is_read_as_one_entity() -> No
     [
         "✓ Policy sets are equivalent: VERIFIED\n",
         SELF.replace("level: 0,", "level: <unknown>,"),
-        SELF.replace('ip("0.0.0.0/32")', "ip(0)", 1),
+        SELF.replace('ip("0.0.0.0/32")', 'ip"0.0.0.0/32"', 1),
+        SELF.replace('ip("0.0.0.0/32")', 'ip("0.0.0.0/32"', 1),
         SELF.replace('"alice"', '"al\\qice"', 1),
     ],
 )
@@ -174,20 +213,22 @@ def test_each_result_of_the_command_is_named() -> None:
 def test_the_classes_follow_the_protocol() -> None:
     every = ["verified", "verified"]
     partly = ["verified", "mutant does not compile"]
-    assert check.classify("equivalent", every, False) == "not refuted, every environment verified"
-    assert check.classify("equivalent", partly, False) == "not refuted, partly checked"
-    assert check.classify("equivalent", ["no answer"], False) == "unchecked"
-    assert check.classify("equivalent", ["counterexample", "verified"], True) == "refuted"
-    # An unconfirmed counterexample never refutes, and never counts as verified.
-    assert check.classify("equivalent", ["counterexample", "verified"], False) == (
-        "not refuted, partly checked"
-    )
-    assert check.classify("live", ["verified", "counterexample"], True) == "live under the schema"
-    assert check.classify("live", every, False) == "equivalent under the schema"
-    assert check.classify("live", partly, False) == "equivalent where checked"
-    assert check.classify("live", ["wall-clock limit"], False) == "unchecked"
+    found = ["counterexample", "verified"]
+    assert check.classify("equivalent", every, []) == "not refuted, every environment verified"
+    assert check.classify("equivalent", partly, []) == "not refuted, partly checked"
+    assert check.classify("equivalent", ["no answer"], []) == "unchecked"
+    assert check.classify("equivalent", found, ["confirmed"]) == "refuted"
+    # A counterexample the engine does not confirm never refutes, nor counts as verified.
+    for replay in ("unconfirmed", "unreplayed"):
+        assert check.classify("equivalent", found, [replay]) == "not refuted, partly checked"
+        assert check.classify("live", found, [replay]) == "counterexample not confirmed"
+    assert check.classify("live", found, ["unreplayed", "confirmed"]) == "live under the schema"
+    assert check.classify("live", every, []) == "equivalent under the schema"
+    assert check.classify("live", partly, []) == "equivalent where checked"
+    assert check.classify("live", ["wall-clock limit"], []) == "unchecked"
     assert check._operator("negate_condition0[policy0]") == "negate_condition"
     assert check._operator("==_to_!=@c0left[policy3]") == "==_to_!="
+    assert check._operator('literal_to_"ADMIN"@c0right[policy1]') == "literal_to"
 
 
 def test_the_engine_confirms_a_counterexample_only_when_it_separates() -> None:
