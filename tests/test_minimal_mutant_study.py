@@ -58,6 +58,20 @@ def test_the_payoff_strategies_over_a_small_space() -> None:
     assert study.payoff(space, decisions, least)["quotient"] == Fraction(1, 2)
 
 
+def test_decision_coverage_and_the_decision_proxy_are_kept_apart() -> None:
+    payoff = {"quotient": "9/10", "random_quotient": "1/2", "decision": "1/10"}
+    record = {
+        "minimal": {
+            "scores": {"quotient": 0.9, "decision": 0.5},
+            "payoff": {**payoff, "random_decision": "1/20"},
+        }
+    }
+    found = study.hypotheses([record, record, record], ("decision",))
+    # Decision coverage is the criteria study's; the proxy is the payoff studies'.
+    assert found["Q_decision^m"]["mean_difference"] == 0.4
+    assert found["H2m"]["mean_difference"] == 0.8
+
+
 def test_the_reference_policy_scores_over_all_and_minimal_mutants() -> None:
     document = json.loads(ccs.REFERENCE_POLICY.read_text("utf-8"))
     space, decisions = study.generated_space(document)

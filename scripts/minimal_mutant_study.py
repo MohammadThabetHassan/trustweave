@@ -34,6 +34,15 @@ PROTOCOL_SHA256 = "3e7404773b2461689c2f2a275f09fcbcea36b1f8f8824df09cb3ad0cb0071
 SEED = 20261004
 PAYOFF = ("quotient", "random_quotient", "decision", "random_decision")
 
+# Corrections after the first run, kept so the record is whole.
+IMPLEMENTATION_NOTES = (
+    "The first run looked the criteria study's decision coverage up among the payoff "
+    'studies\' strategies, where "decision" names the decision proxy, so its Q_decision^m '
+    "tested the quotient against the proxy a second time, and the per-policy record let the "
+    "proxy's score overwrite decision coverage's. Each strategy is now named with the study it "
+    "comes from. Every other figure of that run is the same as this one's.",
+)
+
 if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -264,14 +273,20 @@ def hypotheses(records: list[dict[str, Any]], criteria: Sequence[str]) -> dict[s
 
     ees = _load("exact_evaluation_study")
 
-    def value(record: dict[str, Any], name: str) -> float:
+    # A strategy is named with the study it comes from: "decision" is the payoff studies'
+    # proxy there and decision coverage in the criteria study.
+    def value(record: dict[str, Any], strategy: tuple[str, str]) -> float:
+        source, name = strategy
         minimal_record = record["minimal"]
-        if name in PAYOFF:
+        if source == "payoff":
             return float(Fraction(minimal_record["payoff"][name]))
         return float(minimal_record["scores"][name])
 
-    pairs = {"H1m": ("quotient", "random_quotient"), "H2m": ("quotient", "decision")}
-    pairs.update({f"Q_{s}^m": ("quotient", s) for s in criteria})
+    pairs = {
+        "H1m": (("payoff", "quotient"), ("payoff", "random_quotient")),
+        "H2m": (("payoff", "quotient"), ("payoff", "decision")),
+    }
+    pairs.update({f"Q_{s}^m": (("criteria", "quotient"), ("criteria", s)) for s in criteria})
     raw: dict[str, float] = {}
     results: dict[str, Any] = {}
     for name, (left, right) in pairs.items():
@@ -354,6 +369,7 @@ def study(cache: Path, workers: int) -> dict[str, Any]:
             "subset of its own; identical difference sets count once"
         ),
         "deviations": [],
+        "implementation_notes": list(IMPLEMENTATION_NOTES),
         "populations": {
             "generated": summarise(
                 generated,
@@ -383,9 +399,9 @@ def _compact(record: dict[str, Any]) -> dict[str, Any]:
     return {
         "live_mutants": record["live_mutants"],
         "minimal_mutants": record["minimal_mutants"],
-        "minimal_scores": {
-            **record["minimal"]["scores"],
-            **{k: _round(float(Fraction(v))) for k, v in record["minimal"]["payoff"].items()},
+        "minimal_criteria_scores": record["minimal"]["scores"],
+        "minimal_payoff_scores": {
+            k: _round(float(Fraction(v))) for k, v in record["minimal"]["payoff"].items()
         },
     }
 
