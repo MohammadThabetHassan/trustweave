@@ -38,6 +38,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 PROTOCOL = DOCS / "EXACT_ADEQUACY_PROTOCOL_REGO.md"
 PROTOCOL_SHA256 = "afe5723345f67b5d79506ac3543f8e8f495fc6101c5901611375212e32246a91"
+# The second population, policy schemas instantiated by their suites, has its own protocol.
+PROTOCOL_SCHEMAS = DOCS / "EXACT_ADEQUACY_PROTOCOL_REGO_SCHEMAS.md"
+PROTOCOL_SCHEMAS_SHA256 = "f57aab7eb3961794f4fd8a94943074c669cec9ca5d0c422c98adafeafd5637c8"
 SUITE_ARTIFACT = DOCS / "rego-suite-adequacy-v1.json"
 MEMBERSHIP_ARTIFACT = DOCS / "fragment-membership-rego-wide-v1.json"
 
@@ -49,13 +52,21 @@ DEVELOPMENT = "src/general/httpsonly/src.rego"
 EVAL_TIMEOUT = 900
 
 
-def require_protocol(development_only: bool) -> None:
-    found = hashlib.sha256(PROTOCOL.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
-    if found != PROTOCOL_SHA256 and not development_only:
+def require_protocol(development_only: bool, kind: str = "inside") -> str:
+    """The hash of the protocol the population runs under; refuse if that protocol changed."""
+
+    protocol, expected = (
+        (PROTOCOL, PROTOCOL_SHA256)
+        if kind == "inside"
+        else (PROTOCOL_SCHEMAS, PROTOCOL_SCHEMAS_SHA256)
+    )
+    found = hashlib.sha256(protocol.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+    if found != expected and not development_only:
         raise SystemExit(
-            f"{PROTOCOL.name} hashes to {found}, not the {PROTOCOL_SHA256} fixed before the "
+            f"{protocol.name} hashes to {found}, not the {expected} fixed before the "
             "study ran; a changed protocol is a different study, so this one refuses to run"
         )
+    return expected
 
 
 def _load(name: str) -> ModuleType:
@@ -72,16 +83,24 @@ def _load(name: str) -> ModuleType:
 # --- the population --------------------------------------------------------------------------
 
 
-def population() -> list[str]:
+def population(kind: str = "inside") -> list[str]:
+    """The suite study's measured modules judged inside, or (second protocol) judged schemas."""
+
     suite = json.loads(SUITE_ARTIFACT.read_text(encoding="utf-8"))["modules"]
     membership = json.loads(MEMBERSHIP_ARTIFACT.read_text(encoding="utf-8"))["policies"]
-    verdicts = {row["subject"]: row["verdict"] for row in membership}
+    rows = {row["subject"]: row for row in membership}
     chosen = []
     for subject, record in sorted(suite.items()):
         if record.get("status") != "measured":
             continue
-        verdict = verdicts.get(f"gatekeeper-library/{subject}")
-        if verdict == "inside":
+        row = rows.get(f"gatekeeper-library/{subject}", {})
+        verdict, reason = row.get("verdict"), row.get("reason", "")
+        wanted = (
+            verdict == "inside"
+            if kind == "inside"
+            else verdict == "outside" and reason.startswith("is a policy schema")
+        )
+        if wanted:
             chosen.append(subject)
     return chosen
 
@@ -488,12 +507,16 @@ def _bootstrap_ci(values: list[float], seed: int) -> list[float]:
     return [round(means[int(0.025 * RESAMPLES)], 4), round(means[int(0.975 * RESAMPLES)], 4)]
 
 
-def study(corpus: Path, workers: int, only: list[str] | None) -> dict[str, Any]:
-    require_protocol(development_only=bool(only) and set(only) == {DEVELOPMENT})
+def study(
+    corpus: Path, workers: int, only: list[str] | None, kind: str = "inside"
+) -> dict[str, Any]:
+    protocol_sha256 = require_protocol(
+        development_only=bool(only) and set(only) == {DEVELOPMENT}, kind=kind
+    )
     suite = _load("rego_suite_study")
     opa = suite._opa()
     libs = suite._lib_dirs(corpus)
-    subjects = population()
+    subjects = population(kind)
     if only:
         subjects = [s for s in subjects if s in only]
     tasks = []
@@ -510,7 +533,8 @@ def study(corpus: Path, workers: int, only: list[str] | None) -> dict[str, Any]:
     statuses = Counter(r.get("status") for r in records.values())
     return {
         "schema_version": "v1",
-        "protocol_sha256": PROTOCOL_SHA256,
+        "population_kind": kind,
+        "protocol_sha256": protocol_sha256,
         "engine": suite._engine_version(),
         "seed": SEED,
         "resamples": RESAMPLES,
@@ -578,9 +602,10 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--corpus", type=Path, required=True)
     run.add_argument("--workers", type=int, default=6)
     run.add_argument("--only", nargs="*", default=None)
+    run.add_argument("--population", choices=("inside", "schemas"), default="inside")
     run.add_argument("--json", type=Path, default=None)
     args = parser.parse_args(argv)
-    findings = study(args.corpus, args.workers, args.only)
+    findings = study(args.corpus, args.workers, args.only, args.population)
     text = json.dumps(findings, indent=1)
     if args.json:
         args.json.write_text(text + "\n", encoding="utf-8")
