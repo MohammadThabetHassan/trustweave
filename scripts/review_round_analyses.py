@@ -1,4 +1,4 @@
-"""Re-analyses a second referee asked for, computed from artifacts the studies already wrote.
+"""Post hoc re-analyses, computed from artifacts the studies already wrote.
 
 Nothing here runs a policy engine or draws a new sample. Each analysis reads JSON under `docs/`
 and answers a question the original reports left open:

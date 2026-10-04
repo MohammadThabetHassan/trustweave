@@ -117,6 +117,7 @@ are pre-registered.
 | `rego-exact-adequacy-v1` | `python scripts/rego_exact_study.py study --corpus <GK> --json ...` | OPA; hours |
 | `rego-exact-adequacy-schemas-v1` | `python scripts/rego_exact_study.py study --corpus <GK> --population schemas --json ...` | OPA; hours |
 | `rego-exact-gaps-v1` | `python scripts/rego_exact_study.py gaps --corpus <GK> --artifact docs/rego-exact-adequacy-v1.json --json ...` | OPA |
+| `kyverno-exact-adequacy-v1` | `python scripts/kyverno_exact_study.py study --corpus <KY> --workers 6 --json ...` | the Kyverno CLI 1.19.1; `<KY>` is `kyverno/policies` at the commit the artifact records; under an hour |
 | `rego-shipped-constraints-v1` | `python scripts/rego_shipped_constraints_study.py study --corpus <GK> --workers 6 --json ...` | OPA; under an hour |
 | `rego-suite-stillborn-v1` | `python scripts/rego_exact_study.py stillborn --corpus <GK> --json ...` | OPA |
 | `rego-suite-strategy-study-v1` | `python scripts/rego_payoff_study.py study --corpus <GK> --json ...` | OPA; hours |

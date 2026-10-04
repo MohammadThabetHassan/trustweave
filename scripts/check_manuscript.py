@@ -1250,6 +1250,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _census_claims(docs)
     claims += _shipped_claims(docs)
     claims += _minimal_claims(docs)
+    claims += _kyverno_exact_claims(docs)
     return claims
 
 
@@ -2067,7 +2068,7 @@ def _cedar_symcc_claims(docs: Path) -> list[Claim]:
 
 
 def _round2_claims(docs: Path) -> list[Claim]:
-    """The second review round: re-analyses of artifacts the studies had already written."""
+    """Post hoc re-analyses of artifacts the studies had already written."""
 
     analyses = _load(docs, "review-round-analyses-v1")
     families = analyses["guard_families"]
@@ -2935,6 +2936,157 @@ def _minimal_claims(docs: Path) -> list[Claim]:
                     cell(c, "minimal", source, name),
                 ),
                 f"minimal mutants table: {label}",
+            )
+        )
+    return claims
+
+
+def _kyverno_exact_claims(docs: Path) -> list[Claim]:
+    """The Kyverno library's suites, decided exactly, wherever the paper states them."""
+
+    study = _load(docs, "kyverno-exact-adequacy-v1")
+    assert study["deviations"] == []
+    results, population = study["results"], study["population"]
+    pooled, scores, mean = (
+        results["pooled"],
+        results["pooled_scores"],
+        results["mean_over_policies"],
+    )
+    reasons, gaps, families = (
+        population["excluded_by_reason"],
+        study["closing_the_gaps"],
+        results["by_family"],
+    )
+    assert pooled["killed_but_equivalent"] == 0 and pooled["stillborn"] == 0
+    assert gaps["exceptions"] == {} and gaps["gaps_not_expressible"] == 0
+    assert "a missing cell" not in reasons and len(population["development"]) == 3
+    assert len(reasons["a kind with neither a suite resource nor a core API version"]) == 1
+    # "one in seventeen", as the contributions and both conclusions put it.
+    assert pooled["equivalent_survivors"] * 17 == pooled["survived"]
+    scored = [
+        record
+        for name, record in study["policies"].items()
+        if "excluded" not in record and name not in population["development"]
+    ]
+    low, high = mean["bootstrap_95"]
+
+    def points(value: float) -> str:
+        return f"{100 * value:.1f}"
+
+    claims: list[Claim] = [
+        (
+            r"The same study on (\d+) Kyverno library policies finds few equivalents: "
+            r"(\d+) of (\d+) survivors, an exact score of (\d+\.\d)\\% against a raw "
+            r"(\d+\.\d)\\%, and each of the (\d+) real gaps comes with a resource that kills it",
+            (
+                str(population["scored"]),
+                str(pooled["equivalent_survivors"]),
+                str(pooled["survived"]),
+                _pct(scores["exact"]),
+                _pct(scores["raw"]),
+                str(pooled["real"]),
+            ),
+            "kyverno exact: both main texts",
+        ),
+        (
+            r"Kyverno's suites are (\d+\.\d)\\%, not (\d+\.\d)\\%",
+            (_pct(scores["exact"]), _pct(scores["raw"])),
+            "kyverno exact: the abstract",
+        ),
+        (
+            r"on (\d+) Kyverno policies only one survivor in seventeen is equivalent",
+            (str(population["scored"]),),
+            "kyverno exact: the full version's contributions",
+        ),
+        (
+            # `with_supplement` drops the M- prefix of a cross-file reference.
+            r"Of the (\d+) Kyverno policies Table~\\ref\{tab:membership\} places inside, "
+            r"(\d+) have rules the witness construction models",
+            (
+                str(population["inside_policies_considered"]),
+                str(population["meeting_conditions_1_to_4"]),
+            ),
+            "kyverno exact: the population",
+        ),
+        (
+            r"Of those, (\d+) have no mutant, (\d+) have more cells than the cap of 20\{,\}000",
+            (str(len(reasons["5: no mutants"])), str(len(reasons["over the cell cap"]))),
+            "kyverno exact: the exclusions",
+        ),
+        (
+            rf"(\d+) are scored\. Their witness spaces hold ({_GROUPED}) cells",
+            (str(population["scored"]), _grouped(sum(r["cells"] for r in scored))),
+            "kyverno exact: the cells",
+        ),
+        (
+            rf"which decided ({_GROUPED}) drawn and author-written inputs",
+            (_grouped(sum(r["check_inputs"] for r in scored)),),
+            "kyverno exact: the completeness inputs",
+        ),
+        (
+            r"The suites kill (\d+) of the (\d+) mutants; of the (\d+) survivors only (\d+) "
+            r"are equivalent, so the exact score is (\d+\.\d)\\% against a raw (\d+\.\d)\\% "
+            r"\((\d+\.\d)\\% and (\d+\.\d)\\% averaged over policies, a difference of "
+            r"(\d+\.\d) points with a 95\\% bootstrap interval of \$\[(\d+\.\d), (\d+\.\d)\]\$\)",
+            (
+                str(pooled["killed"]),
+                str(pooled["mutants"]),
+                str(pooled["survived"]),
+                str(pooled["equivalent_survivors"]),
+                _pct(scores["exact"]),
+                _pct(scores["raw"]),
+                _pct(mean["exact"]),
+                _pct(mean["raw"]),
+                points(mean["difference"]),
+                points(low),
+                points(high),
+            ),
+            "kyverno exact: the scores",
+        ),
+        (
+            r"The other (\d+) survivors are real gaps in (\d+) of the (\d+) suites",
+            (str(pooled["real"]), str(gaps["policies_with_gaps"]), str(population["scored"])),
+            "kyverno exact: the real gaps",
+        ),
+        (
+            r"adding those (\d+) resources to the suites as tests kills every one of them and no "
+            r"equivalent mutant",
+            (str(gaps["tests_added"]),),
+            "kyverno exact: closing the gaps",
+        ),
+        (
+            r"The (\d+) weakenings of a non-empty pattern",
+            (str(families["weakening"].get("real", 0)),),
+            "kyverno exact: the weakenings",
+        ),
+        (
+            r"The (\d+) equality anchors made conditional",
+            (str(families["anchor"].get("real", 0)),),
+            "kyverno exact: the anchors",
+        ),
+    ]
+    rows = (
+        ("anchor", r"Equality anchor \texttt{=(k)} made conditional \texttt{(k)}"),
+        ("weakening", r"Non-empty pattern \texttt{?*} weakened to \texttt{*}"),
+        ("condition operator", "Condition operator negated"),
+        ("expression operator", r"Expression operator (\texttt{||} and \texttt{\&\&})"),
+        ("threshold", "Threshold reversed"),
+        ("boolean", "Boolean flipped"),
+    )
+    for key, label in rows:
+        family = families.get(key, {})
+        claims.append(
+            (
+                re.escape(label)
+                + r" & (\d+) & (\d+) & (\d+) & (\d+) \\\\"
+                + r"(?=(?:(?!\\label\{tab:).)*\\label\{tab:kyvernoexact\})",
+                (
+                    str(family.get("mutants", 0)),
+                    str(family.get("killed_distinguishable", 0)),
+                    str(family.get("equivalent", 0)),
+                    str(family.get("real", 0)),
+                ),
+                f"kyverno exact table: {key}",
             )
         )
     return claims
