@@ -1181,6 +1181,233 @@ def numeric_claims(docs: Path) -> list[Claim]:
     claims += _cedar_claims(docs)
     claims += _sample_oracle_claims(docs)
     claims += _rego_suite_claims(docs)
+    claims += _rego_exact_claims(docs)
+    return claims
+
+
+def _rego_exact_claims(docs: Path) -> list[Claim]:
+    """The Gatekeeper suites decided exactly, and the stillborn kills of the suite study."""
+
+    exact = _load(docs, "rego-exact-adequacy-v1")
+    census = _load(docs, "rego-suite-stillborn-v1")["headline"]
+    realism = _load(docs, "rego-exact-gaps-v1")["headline"]
+    suite = _load(docs, "rego-suite-adequacy-v1")
+    head = exact["headline"]
+    development = exact["development_module"]
+    measured = {
+        s: r
+        for s, r in exact["modules"].items()
+        if r.get("status") == "measured" and s != development
+    }
+    statuses = [r["status"] for s, r in exact["modules"].items() if s != development]
+    over_cap = sorted(
+        (int(status.rsplit(" ", 2)[-2]), subject)
+        for subject, status in ((s, r["status"]) for s, r in exact["modules"].items())
+        if status.startswith("excluded: an object with")
+    )
+    missing = sum(status == "excluded: missing cell" for status in statuses)
+    coverage = statistics.fmean(suite["modules"][s]["coverage"] / 100 for s in measured)
+    exact_mean = statistics.fmean(r["exact_score"] for r in measured.values())
+    raw_mean = statistics.fmean(r["raw_score"] for r in measured.values())
+    outright = sum(
+        r["suite_equivalent"] for r in measured.values() if r["instantiations"] == ["absent"]
+    )
+    ephemeral = [
+        s
+        for s, r in measured.items()
+        if any(
+            g["detail"] == "remove rule input_containers"
+            and "ephemeralContainers" in g["kill_input"]["review"].get("object", {}).get("spec", {})
+            for g in r["survivors"]
+        )
+    ]
+    imagedigests = next(r for s, r in measured.items() if "/imagedigests/" in s)
+    # The prose rounds three fractions; each is checked against the artifact here.
+    assert abs(head["share_of_survivors_equivalent"] - 2 / 3) < 0.01, "no longer two thirds"
+    assert 0.70 < 1 - (coverage - exact_mean) / (coverage - raw_mean) < 0.80, (
+        "the equivalent share of the coverage gap is no longer three quarters"
+    )
+    # "kill every distinguishable mutant and no equivalent one"
+    assert head["closing_the_gaps_holds_everywhere"]
+    assert head["killed_without_a_decision_change"] == 0
+    assert realism["killed_by_a_review_like_the_authors"] == realism["gaps"]
+    claims: list[Claim] = [
+        (
+            r"Of the mutants that (\d+) author-written Rego suites miss, two thirds are "
+            r"equivalent: the suites are (\d+\.\d)\\% adequate, not (\d+\.\d)\\%",
+            (
+                str(head["modules"]),
+                _pct(head["pooled_exact_score"]),
+                _pct(head["pooled_raw_score"]),
+            ),
+            "rego exact study: the abstract",
+        ),
+        (
+            r"but by (\d+\.\d) against exact adequacy on the (\d+) suites a third protocol decides",
+            (_pct(coverage - exact_mean), str(head["modules"])),
+            "rego exact study: the contribution",
+        ),
+        (
+            r"each of the other (\d+) comes with the input that kills it",
+            (str(head["survivors_real"]),),
+            "rego exact study: the real gaps, as the contribution states them",
+        ),
+        (
+            rf"(\d+) of the ({_GROUPED}) do not compile",
+            (str(census["stillborn"]), _grouped(census["mutants"])),
+            "rego suite study: the stillborn kills",
+        ),
+        (
+            r"over the mutants that load the suites kill (\d+\.\d)\\% in the mean",
+            (_pct(census["mean_score_over_mutants_that_load"]),),
+            "rego suite study: the kill rate over the mutants that load",
+        ),
+        (
+            r"(\d+) of these (\d+) modules are inside it",
+            (
+                str(exact["population"]["modules"]),
+                str(suite["population"]["modules_with_a_suite_and_a_decision"]),
+            ),
+            "rego exact study: the population inside the fragment",
+        ),
+        (
+            rf"(\d+) of the (\d+) pass; ({_WORD_PATTERN}) exceed the cap of ({_GROUPED}) cells, "
+            rf"and in ({_WORD_PATTERN}) the check found an input no cell covers",
+            (
+                str(head["modules"]),
+                str(len(statuses)),
+                _word(len(over_cap)),
+                _grouped(exact["max_cells"]),
+                _word(missing),
+            ),
+            "rego exact study: the modules measured and excluded",
+        ),
+        (
+            r"On the (\d+), (\d+) of the (\d+) mutants the suites leave alive are equivalent to "
+            r"their module under every instantiation the suite tests, (\d+) of them outright",
+            (
+                str(head["modules"]),
+                str(head["survivors_equivalent"]),
+                str(head["survivors_suite_study"]),
+                str(outright),
+            ),
+            "rego exact study: the equivalent survivors",
+        ),
+        (
+            r"[Tt]he suites kill (\d+) of the (\d+) distinguishable mutants[:,] an exact score of "
+            r"(\d+\.\d)\\% pooled against a raw (\d+\.\d)\\%",
+            (
+                str(head["killed_through_decision"]),
+                str(head["distinguishable"]),
+                _pct(head["pooled_exact_score"]),
+                _pct(head["pooled_raw_score"]),
+            ),
+            "rego exact study: the pooled exact score",
+        ),
+        (
+            r"and (\d+\.\d)\\% against (\d+\.\d)\\% in the mean, a difference of (\d+\.\d) points "
+            r"with a 95\\% bootstrap interval of \$\[(\d+\.\d), (\d+\.\d)\]\$",
+            (
+                _pct(head["mean_exact_score"]),
+                _pct(head["mean_raw_score"]),
+                _pct(head["mean_difference"]),
+                _pct(head["difference_bootstrap_95"][0]),
+                _pct(head["difference_bootstrap_95"][1]),
+            ),
+            "rego exact study: the mean exact score",
+        ),
+        (
+            r"Line coverage, at (\d+\.\d)\\% on the same modules, overstates exact adequacy by "
+            r"(\d+\.\d) points, not (\d+\.\d)",
+            (_pct(coverage), _pct(coverage - exact_mean), _pct(coverage - raw_mean)),
+            "rego exact study: line coverage against exact adequacy",
+        ),
+        (
+            r"overstates exact adequacy by (\d+\.\d) points, not (\d+\.\d)",
+            (_pct(coverage - exact_mean), _pct(coverage - raw_mean)),
+            "rego exact study: line coverage against exact adequacy, restated",
+        ),
+        (
+            r"Each of the (\d+) surviving mutants that are not equivalent comes with an input that "
+            r"kills it, and the (\d+) inputs, added as tests, kill every distinguishable mutant",
+            (str(head["survivors_real"]), str(head["survivors_real"])),
+            "rego exact study: closing the gaps",
+        ),
+        (
+            rf"in ({_WORD_PATTERN}) of the (\d+) suites, deleting the branch that reads ephemeral "
+            r"containers goes undetected",
+            (_word(len(ephemeral)), str(head["modules"])),
+            "rego exact study: the ephemeral-container gap",
+        ),
+        (
+            rf"all ({_WORD_PATTERN}) survivors of \\texttt\{{imagedigests\}} edit its rule for "
+            r"ephemeral containers",
+            (_word(len(imagedigests["survivors"])),),
+            "rego exact study: the image-digest gaps",
+        ),
+        (
+            r"found each of the (\d+) killed by a review whose every field occurs in the "
+            r"authors' own inputs",
+            (str(realism["gaps"]),),
+            "rego exact study: the gaps a realistic review exposes",
+        ),
+        (
+            rf"\\texttt\{{host-filesystem\}} at ({_GROUPED})",
+            (_grouped(over_cap[0][0]),),
+            "rego exact study: the smallest space over the cap",
+        ),
+        (
+            rf"finds (\d+) of the ({_GROUPED}) that do not, all among its kills: over the mutants "
+            r"that load, the suites kill (\d+\.\d)\\% in the mean rather than (\d+\.\d)\\%, and "
+            r"the gap to line coverage is (\d+\.\d) points rather than (\d+\.\d)",
+            (
+                str(census["stillborn"]),
+                _grouped(census["mutants"]),
+                _pct(census["mean_score_over_mutants_that_load"]),
+                _pct(census["mean_raw_score"]),
+                _pct(census["mean_coverage_gap_over_mutants_that_load"]),
+                _pct(suite["headline"]["mean_gap"]),
+            ),
+            "rego suite study: the stillborn census",
+        ),
+    ]
+    for subject, record in sorted(measured.items()):
+        name = subject.split("/")[-2].replace("-", "\\allowbreak-")
+        claims.append(
+            (
+                rf"\\texttt\{{{re.escape(name)}\}} & (\d+) & (\d+) & (\d+) & (\d+) & (\d+) & "
+                r"(\d+\.\d) & (\d+\.\d) & (\d+)",
+                (
+                    str(record["mutants"]),
+                    str(record["stillborn"]),
+                    str(record["suite_equivalent"]),
+                    str(record["distinguishable"]),
+                    str(record["killed_through_decision"]),
+                    _pct(record["raw_score"]),
+                    _pct(record["exact_score"]),
+                    str(len(record["survivors"])),
+                ),
+                f"rego exact study: the row for {subject.split('/')[-2]}",
+            )
+        )
+    claims.append(
+        (
+            r"(\d+) modules & (\d+) & (\d+) & (\d+) & (\d+) & (\d+) & "
+            r"(\d+\.\d) & (\d+\.\d) & (\d+)",
+            (
+                str(head["modules"]),
+                str(head["mutants"]),
+                str(head["stillborn"]),
+                str(head["suite_equivalent"]),
+                str(head["distinguishable"]),
+                str(head["killed_through_decision"]),
+                _pct(head["pooled_raw_score"]),
+                _pct(head["pooled_exact_score"]),
+                str(head["survivors_real"]),
+            ),
+            "rego exact study: the table's total",
+        )
+    )
     return claims
 
 

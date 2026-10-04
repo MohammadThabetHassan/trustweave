@@ -31,6 +31,7 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter
+from collections.abc import Iterator
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -606,6 +607,161 @@ def aggregate(group: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
     }
 
 
+def _witness_cells(
+    space: ModuleType,
+    module_ast: dict[str, Any],
+    asts: list[dict[str, Any]],
+    mutant_asts: dict[int, dict[str, Any]],
+    package: tuple[str, ...],
+    params: Any,
+    shapes: dict[tuple[Any, ...], str],
+) -> list[Any]:
+    """The cells `study_module` builds for one instantiation, built the same way."""
+
+    merged = space.Analyzer([module_ast, *asts], package, params)
+    merged.run()
+    for ast in mutant_asts.values():
+        other = space.Analyzer([ast, *asts], package, params)
+        try:
+            other.run()
+        except space.Unsupported:
+            continue
+        for segs, hints in other.hints.items():
+            merged.hints[segs] |= hints
+        merged.read |= other.read
+        merged.links |= other.links
+    return list(space.build(merged, shapes, MAX_CELLS))
+
+
+def _leaf_types(
+    value: Any, shapes: dict[tuple[Any, ...], str], at: tuple[Any, ...] = ("review",)
+) -> Iterator[tuple[tuple[Any, ...], str]]:
+    """Every leaf of a review as (path, JSON type), keys of a map collection generalised."""
+
+    if isinstance(value, dict):
+        if not value:
+            yield at, "object"
+        generalise = shapes.get(at) == "map"
+        for key, item in value.items():
+            yield from _leaf_types(item, shapes, at + (("*" if generalise else key),))
+    elif isinstance(value, list):
+        if not value:
+            yield at, "array"
+        for item in value:
+            yield from _leaf_types(item, shapes, at + ("*",))
+    else:
+        yield at, type(value).__name__
+
+
+def _gaps_module(task: tuple[str, str, str, list[str], str, list[int]]) -> dict[str, Any]:
+    subject, source, test_path, lib_paths, opa, survivors = task
+    space = _load("rego_witness_space")
+    mutation = _load("rego_source_mutation")
+    libs = [Path(p) for p in lib_paths]
+    lib_sources = [
+        f for p in libs for f in sorted(p.rglob("*.rego")) if not f.name.endswith("_test.rego")
+    ]
+    inputs = authors_inputs(opa, source, Path(test_path), libs)
+    absent = space.ABSENT
+    instantiations: list[Any] = []
+    seen: set[str] = set()
+    for item in inputs:
+        params = item.get("parameters", absent) if isinstance(item, dict) else absent
+        key = "absent" if params is absent else json.dumps(params, sort_keys=True)
+        if key not in seen:
+            seen.add(key)
+            instantiations.append(params)
+    instantiations = instantiations or [absent]
+    found = mutation.mutants(source)
+    asts = [space.opa_parse(opa, f.read_text(encoding="utf-8")) for f in lib_sources]
+    module_ast = space.opa_parse(opa, source)
+    mutant_asts = {
+        i: space.opa_parse(opa, m.source)
+        for i, m in enumerate(found)
+        if compiles(opa, m.source, libs)
+    }
+    package = space.package_of(module_ast)
+    shapes = space.shapes_from(inputs)
+    known = {
+        typed
+        for item in inputs
+        if isinstance(item, dict) and isinstance(item.get("review"), dict)
+        for typed in _leaf_types(item["review"], shapes)
+    }
+    gaps = {
+        i: {
+            "mutant": i,
+            "operator": found[i].operator,
+            "detail": found[i].detail,
+            "distinguishing_cells": 0,
+            "like_the_authors_inputs": 0,
+            "kill_input_like_the_authors": None,
+        }
+        for i in survivors
+    }
+    for params in instantiations:
+        cells = _witness_cells(space, module_ast, asts, mutant_asts, package, params, shapes)
+        everything = [_wrap(c, params, absent) for c in cells]
+        base = decide(opa, source, libs, everything)
+        realistic = [all(t in known for t in _leaf_types(c, shapes)) for c in cells]
+        for i, gap in gaps.items():
+            got = decide(opa, found[i].source, libs, everything)
+            for c in range(len(cells)):
+                if got[c] == base[c]:
+                    continue
+                gap["distinguishing_cells"] += 1
+                if realistic[c]:
+                    gap["like_the_authors_inputs"] += 1
+                    if gap["kill_input_like_the_authors"] is None:
+                        gap["kill_input_like_the_authors"] = everything[c]
+    return {"subject": subject, "gaps": list(gaps.values())}
+
+
+def gap_realism(corpus: Path, artifact: Path, workers: int) -> dict[str, Any]:
+    """Which real gaps a review shaped like the authors' own inputs exposes.
+
+    A post-hoc reading of a finished study, not part of its protocol. The subject space is
+    every JSON review; an API server's schema validation, which rejects some reviews before any
+    policy runs, is not modelled, so a gap exposed only by a field or a type the authors never
+    use may be unreachable in a cluster. For each surviving mutant that is not equivalent, this
+    counts the cells that kill it and, among them, those whose every field occurs in the
+    authors' inputs with the same JSON type there.
+    """
+
+    suite = _load("rego_suite_study")
+    opa = suite._opa()
+    libs = [str(p) for p in suite._lib_dirs(corpus)]
+    study_result = json.loads(artifact.read_text(encoding="utf-8"))
+    tasks = []
+    for subject, record in sorted(study_result["modules"].items()):
+        if record.get("status") != "measured" or not record["survivors"]:
+            continue
+        module = corpus / subject
+        test = module.with_name(module.name.replace(".rego", "_test.rego"))
+        survivors = [g["mutant"] for g in record["survivors"]]
+        tasks.append((subject, module.read_text("utf-8"), str(test), libs, opa, survivors))
+    rows: dict[str, Any] = {}
+    context = multiprocessing.get_context("spawn")
+    with concurrent.futures.ProcessPoolExecutor(workers, mp_context=context) as pool:
+        for row in pool.map(_gaps_module, tasks):
+            rows[row["subject"]] = row["gaps"]
+    headline = [
+        g for s, gaps in rows.items() if s != study_result.get("development_module") for g in gaps
+    ]
+    return {
+        "schema_version": "v1",
+        "study": artifact.name,
+        "study_protocol_sha256": study_result.get("protocol_sha256"),
+        "headline": {
+            "gaps": len(headline),
+            "killed_by_a_review_like_the_authors": sum(
+                1 for g in headline if g["like_the_authors_inputs"]
+            ),
+        },
+        "modules": rows,
+    }
+
+
 def _census_module(task: tuple[str, str, list[str], str]) -> dict[str, Any]:
     subject, source, lib_paths, opa = task
     mutation = _load("rego_source_mutation")
@@ -688,9 +844,16 @@ def main(argv: list[str] | None = None) -> int:
     census.add_argument("--corpus", type=Path, required=True)
     census.add_argument("--workers", type=int, default=6)
     census.add_argument("--json", type=Path, default=None)
+    realism = sub.add_parser("gaps", help="which real gaps a review like the authors' exposes")
+    realism.add_argument("--corpus", type=Path, required=True)
+    realism.add_argument("--artifact", type=Path, required=True)
+    realism.add_argument("--workers", type=int, default=6)
+    realism.add_argument("--json", type=Path, default=None)
     args = parser.parse_args(argv)
     if args.command == "stillborn":
         findings = stillborn_census(args.corpus, args.workers)
+    elif args.command == "gaps":
+        findings = gap_realism(args.corpus, args.artifact, args.workers)
     else:
         findings = study(args.corpus, args.workers, args.only, args.population)
     text = json.dumps(findings, indent=1)
