@@ -1,0 +1,208 @@
+{
+  "artifacts_considered": 7008,
+  "artifacts_inside": 5175,
+  "combinations": {
+    "not a policy": 169,
+    "not a policy + reads evaluation-time state": 7,
+    "not a policy + the subject does not determine the guard": 740,
+    "reads evaluation-time state": 20,
+    "the subject does not determine the guard": 854
+  },
+  "corpora": 8,
+  "exclusions": 1790,
+  "guard_not_a_function_of_the_request": 1621,
+  "of_which_evaluation_time_state": 27,
+  "of_which_the_subject_does_not_determine_it": 1594,
+  "rows": [
+    {
+      "artifact": "fragment-membership-iam-wide-v1",
+      "artifacts": 1651,
+      "band_shares": {
+        "evaluation time": 0.0,
+        "inside": 100.0,
+        "schema only": 0.0,
+        "subject": 0.0,
+        "undetermined": 0.0
+      },
+      "bands": {
+        "evaluation time": 0,
+        "inside": 1651,
+        "schema only": 0,
+        "subject": 0,
+        "undetermined": 0
+      },
+      "combinations": {},
+      "corpus": "AWS IAM"
+    },
+    {
+      "artifact": "fragment-membership-azure-wide-v1",
+      "artifacts": 3769,
+      "band_shares": {
+        "evaluation time": 0.2,
+        "inside": 56.7,
+        "schema only": 3.0,
+        "subject": 39.0,
+        "undetermined": 1.1
+      },
+      "bands": {
+        "evaluation time": 9,
+        "inside": 2137,
+        "schema only": 112,
+        "subject": 1468,
+        "undetermined": 43
+      },
+      "combinations": {
+        "not a policy": 112,
+        "not a policy + reads evaluation-time state": 5,
+        "not a policy + the subject does not determine the guard": 738,
+        "reads evaluation-time state": 4,
+        "the subject does not determine the guard": 730
+      },
+      "corpus": "Azure Policy"
+    },
+    {
+      "artifact": "fragment-membership-xacml-wide-v1",
+      "artifacts": 1007,
+      "band_shares": {
+        "evaluation time": 1.5,
+        "inside": 94.6,
+        "schema only": 0.0,
+        "subject": 3.9,
+        "undetermined": 0.0
+      },
+      "bands": {
+        "evaluation time": 15,
+        "inside": 953,
+        "schema only": 0,
+        "subject": 39,
+        "undetermined": 0
+      },
+      "combinations": {
+        "reads evaluation-time state": 15,
+        "the subject does not determine the guard": 39
+      },
+      "corpus": "XACML"
+    },
+    {
+      "artifact": "fragment-membership-kyverno-wide-v1",
+      "artifacts": 237,
+      "band_shares": {
+        "evaluation time": 0.0,
+        "inside": 86.9,
+        "schema only": 0.0,
+        "subject": 13.1,
+        "undetermined": 0.0
+      },
+      "bands": {
+        "evaluation time": 0,
+        "inside": 206,
+        "schema only": 0,
+        "subject": 31,
+        "undetermined": 0
+      },
+      "combinations": {
+        "the subject does not determine the guard": 31
+      },
+      "corpus": "Kyverno (vendor)"
+    },
+    {
+      "artifact": "fragment-membership-rego-wide-v1",
+      "artifacts": 186,
+      "band_shares": {
+        "evaluation time": 0.5,
+        "inside": 61.8,
+        "schema only": 14.0,
+        "subject": 23.7,
+        "undetermined": 0.0
+      },
+      "bands": {
+        "evaluation time": 1,
+        "inside": 115,
+        "schema only": 26,
+        "subject": 44,
+        "undetermined": 0
+      },
+      "combinations": {
+        "not a policy": 26,
+        "not a policy + the subject does not determine the guard": 2,
+        "reads evaluation-time state": 1,
+        "the subject does not determine the guard": 42
+      },
+      "corpus": "Rego (four corpora)"
+    },
+    {
+      "artifact": "fragment-membership-rego-gcp-v1",
+      "artifacts": 87,
+      "band_shares": {
+        "evaluation time": 2.3,
+        "inside": 62.1,
+        "schema only": 35.6,
+        "subject": 0.0,
+        "undetermined": 0.0
+      },
+      "bands": {
+        "evaluation time": 2,
+        "inside": 54,
+        "schema only": 31,
+        "subject": 0,
+        "undetermined": 0
+      },
+      "combinations": {
+        "not a policy": 31,
+        "not a policy + reads evaluation-time state": 2
+      },
+      "corpus": "Rego (GCP library)"
+    },
+    {
+      "artifact": "fragment-membership-kyverno-thirdparty-v1",
+      "artifacts": 49,
+      "band_shares": {
+        "evaluation time": 0.0,
+        "inside": 75.5,
+        "schema only": 0.0,
+        "subject": 24.5,
+        "undetermined": 0.0
+      },
+      "bands": {
+        "evaluation time": 0,
+        "inside": 37,
+        "schema only": 0,
+        "subject": 12,
+        "undetermined": 0
+      },
+      "combinations": {
+        "the subject does not determine the guard": 12
+      },
+      "corpus": "Kyverno (third-party)"
+    },
+    {
+      "artifact": "fragment-membership-cedar-wide-v1",
+      "artifacts": 22,
+      "band_shares": {
+        "evaluation time": 0.0,
+        "inside": 100.0,
+        "schema only": 0.0,
+        "subject": 0.0,
+        "undetermined": 0.0
+      },
+      "bands": {
+        "evaluation time": 0,
+        "inside": 22,
+        "schema only": 0,
+        "subject": 0,
+        "undetermined": 0
+      },
+      "combinations": {},
+      "corpus": "Cedar"
+    }
+  ],
+  "schema_only": 169,
+  "schema_version": "v1",
+  "schemas": 916,
+  "schemas_with_a_surviving_obstruction": 747,
+  "share_inside_of_all_artifacts": 0.7384,
+  "share_inside_setting_aside_every_schema": 0.8495,
+  "share_inside_setting_aside_schema_only": 0.7567,
+  "share_of_exclusions_not_a_function_of_the_request": 0.9056,
+  "share_of_exclusions_schema_only": 0.0944
+}

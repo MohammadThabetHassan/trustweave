@@ -1,0 +1,31 @@
+{
+  "title": "TrustWeave: instruments, artifacts and reproduction image for exact mutation adequacy of access-control policies",
+  "upload_type": "software",
+  "description": "The measurement instruments, the JSON artifacts every reported figure is derived from, the pre-registration protocols and the reproduction image (reproduce/Dockerfile) behind TrustWeave's study of exact mutation adequacy for access-control policies. reproduce/README.md maps each measurement to the script and artifact that produced it.",
+  "creators": [
+    {"name": "Hassan, Mohammad Thabet", "affiliation": "Canadian University Dubai"},
+    {"name": "Alameri, Ahmed Sami", "affiliation": "Canadian University Dubai"},
+    {"name": "Sadek, Fahad", "affiliation": "Canadian University Dubai"},
+    {"name": "Alraas, Omar", "affiliation": "Canadian University Dubai"},
+    {"name": "Rezki, Abdulrahman", "affiliation": "Canadian University Dubai"},
+    {"name": "AbuSerrieh, Lobna", "affiliation": "Canadian University Dubai"}
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "mutation testing",
+    "equivalent mutants",
+    "access control",
+    "policy testing",
+    "test adequacy",
+    "Rego",
+    "Cedar",
+    "XACML"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/MohammadThabetHassan/trustweave",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

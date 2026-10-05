@@ -16,12 +16,12 @@ These don't compete. A reasonable stack uses several: SAST on the code, a scanne
 
 Configuration drift is not what the approaches above look for. A pull request that adds a flow from an untrusted source to an external tool changes your attack surface without touching application code. SAST sees no vulnerability, runtime guards meet the new path only after deployment, and scanners only cover the servers involved. TrustWeave makes that diff explicit and reviewable, deterministically, from checked-in files.
 
-That is not a claim that configuration review itself is new. Conftest tests structured configuration against Rego policy, and OPA ships its own policy testing; either could be pointed at an agent manifest. What TrustWeave adds is the agent-specific model -- source trust, tool action class, capability, and flow, with first-match decisions a reviewer can read per flow -- the baseline-and-candidate diff with named review signals, and evidence artifacts that chain to the files they were produced from. Whether that saves a reviewer time over a hand-written Conftest policy is a measurement this project has not made; see the [current evidence](CURRENT_EVIDENCE.md) page for what has and has not been collected.
+That is not a claim that configuration review itself is new. Conftest tests structured configuration against Rego policy, and OPA ships its own policy testing; either could be pointed at an agent manifest. What TrustWeave adds is an agent-specific model (source trust, tool action class, capability and flow, with a first-match decision a reviewer can read per flow), a baseline-and-candidate diff with named review signals, and evidence artifacts that chain to the files they were produced from. Whether that saves a reviewer time over a hand-written Conftest policy is a measurement this project has not made; see the [current evidence](CURRENT_EVIDENCE.md) page for what has and has not been collected.
 
 ## What we won't claim
 
 - TrustWeave doesn't detect real prompt injection, evaluate model behavior, or validate that tools do what their names suggest.
-- A passing scan means the declaration is consistent and policy-covered — not that the deployed agent is secure.
+- A passing scan means the declaration is consistent and covered by the policy, not that the deployed agent is secure.
 - We can't verify runtime enforcement of `require_approval` decisions; those need the production control they name.
 
-If another project already covers this niche better for your stack, use it — and tell us what it does well.
+If another project covers this niche better for your stack, use it, and tell us what it does well.

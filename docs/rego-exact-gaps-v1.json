@@ -1,0 +1,790 @@
+{
+ "schema_version": "v1",
+ "study": "rego-exact-adequacy-v1.json",
+ "study_protocol_sha256": "afe5723345f67b5d79506ac3543f8e8f495fc6101c5901611375212e32246a91",
+ "headline": {
+  "gaps": 27,
+  "killed_by_a_review_like_the_authors": 27
+ },
+ "modules": {
+  "src/general/automount-serviceaccount-token/src.rego": [
+   {
+    "mutant": 13,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 64,
+    "like_the_authors_inputs": 48,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "metadata": {
+        "name": "tw-fresh"
+       },
+       "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+         {
+          "volumeMounts": [
+           {
+            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 16,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 120,
+    "like_the_authors_inputs": 27,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "metadata": {
+        "name": "tw-fresh"
+       },
+       "spec": {
+        "containers": [
+         {
+          "volumeMounts": [
+           {
+            "mountPath": "tw-mutant"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 18,
+    "operator": "change a string literal",
+    "detail": "change a string literal",
+    "distinguishing_cells": 40,
+    "like_the_authors_inputs": 30,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "metadata": {
+        "name": "tw-fresh"
+       },
+       "spec": {
+        "tw-mutant": "tw-fresh",
+        "containers": [
+         {
+          "volumeMounts": [
+           {
+            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 21,
+    "operator": "delete a rule",
+    "detail": "remove rule input_containers",
+    "distinguishing_cells": 8,
+    "like_the_authors_inputs": 6,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "metadata": {
+        "name": "tw-fresh"
+       },
+       "spec": {
+        "initContainers": [
+         {
+          "volumeMounts": [
+           {
+            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/general/block-loadbalancer-services/src.rego": [
+   {
+    "mutant": 2,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 5,
+    "like_the_authors_inputs": 3,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "type": "LoadBalancer"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/general/block-nodeport-services/src.rego": [
+   {
+    "mutant": 2,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 5,
+    "like_the_authors_inputs": 3,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "type": "NodePort"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/general/block-wildcard-ingress/src.rego": [
+   {
+    "mutant": 13,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 90,
+    "like_the_authors_inputs": 45,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "rules": [
+         {}
+        ]
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/general/disallowanonymous/src.rego": [
+   {
+    "mutant": 11,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 1,
+    "like_the_authors_inputs": 1,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "kind": "tw-fresh",
+       "metadata": {
+        "name": "tw-fresh"
+       },
+       "subjects": [
+        {
+         "name": "system:authenticated"
+        }
+       ]
+      }
+     },
+     "parameters": {
+      "allowedRoles": [],
+      "disallowAuthenticated": true
+     }
+    }
+   },
+   {
+    "mutant": 15,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 12,
+    "like_the_authors_inputs": 4,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "kind": "tw-fresh",
+       "metadata": {
+        "name": "tw-fresh"
+       },
+       "roleRef": {
+        "name": "tw-fresh"
+       }
+      }
+     },
+     "parameters": {
+      "allowedRoles": [],
+      "disallowAuthenticated": true
+     }
+    }
+   }
+  ],
+  "src/general/disallowinteractive/src.rego": [
+   {
+    "mutant": 25,
+    "operator": "delete a rule",
+    "detail": "remove rule input_containers",
+    "distinguishing_cells": 896,
+    "like_the_authors_inputs": 896,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "image": false,
+          "name": "tw-fresh",
+          "tty": true
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "exemptImages": [
+       "one/*"
+      ]
+     }
+    }
+   }
+  ],
+  "src/general/httpsonly/src.rego": [
+   {
+    "mutant": 2,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 6224,
+    "like_the_authors_inputs": 240,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "apiVersion": "extensions/",
+       "metadata": {
+        "name": "tw-fresh"
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 4,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 2334,
+    "like_the_authors_inputs": 120,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "kind": "Ingress",
+       "metadata": {
+        "name": "tw-fresh"
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 16,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 5544,
+    "like_the_authors_inputs": 210,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "apiVersion": "extensions/",
+       "metadata": {
+        "name": "tw-fresh"
+       }
+      }
+     },
+     "parameters": {
+      "tlsOptional": true
+     }
+    }
+   },
+   {
+    "mutant": 18,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 2079,
+    "like_the_authors_inputs": 105,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "kind": "Ingress",
+       "metadata": {
+        "name": "tw-fresh"
+       }
+      }
+     },
+     "parameters": {
+      "tlsOptional": true
+     }
+    }
+   },
+   {
+    "mutant": 32,
+    "operator": "change a comparison",
+    "detail": "change a comparison's strictness",
+    "distinguishing_cells": 40,
+    "like_the_authors_inputs": 4,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "apiVersion": "extensions/",
+       "kind": "Ingress",
+       "metadata": {
+        "annotations": {
+         "kubernetes.io/ingress.allow-http": "false"
+        },
+        "name": "tw-fresh"
+       },
+       "spec": {
+        "tls": []
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 33,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 80,
+    "like_the_authors_inputs": 4,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "apiVersion": "extensions/",
+       "kind": "Ingress",
+       "metadata": {
+        "annotations": {
+         "kubernetes.io/ingress.allow-http": "false"
+        },
+        "name": "tw-fresh"
+       },
+       "spec": {
+        "tls": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/general/imagedigests/src.rego": [
+   {
+    "mutant": 16,
+    "operator": "delete a rule",
+    "detail": "remove rule violation",
+    "distinguishing_cells": 5,
+    "like_the_authors_inputs": 4,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "image": "tw-mutant",
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 17,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 3,
+    "like_the_authors_inputs": 3,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "image": "denied/*",
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "exemptImages": [
+       "denied/*"
+      ]
+     }
+    }
+   },
+   {
+    "mutant": 18,
+    "operator": "remove a negation",
+    "detail": "remove a negation",
+    "distinguishing_cells": 8,
+    "like_the_authors_inputs": 7,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "image": "tw-mutant",
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 19,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 12,
+    "like_the_authors_inputs": 12,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "image": "@0+a:A",
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 20,
+    "operator": "remove a negation",
+    "detail": "remove a negation",
+    "distinguishing_cells": 17,
+    "like_the_authors_inputs": 16,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "image": "@0+a:A",
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "mutant": 22,
+    "operator": "change a string literal",
+    "detail": "change a string literal",
+    "distinguishing_cells": 14,
+    "like_the_authors_inputs": 14,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "image": "@0+a:A",
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/pod-security-policy/allow-privilege-escalation/src.rego": [
+   {
+    "mutant": 21,
+    "operator": "delete a rule",
+    "detail": "remove rule input_containers",
+    "distinguishing_cells": 1440,
+    "like_the_authors_inputs": 288,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/pod-security-policy/host-process/src.rego": [
+   {
+    "mutant": 1,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 440,
+    "like_the_authors_inputs": 140,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "metadata": {
+        "name": "tw-fresh"
+       },
+       "spec": {
+        "securityContext": {
+         "windowsOptions": {
+          "hostProcess": true
+         }
+        }
+       }
+      },
+      "operation": "UPDATE"
+     }
+    }
+   }
+  ],
+  "src/pod-security-policy/privileged-containers/src.rego": [
+   {
+    "mutant": 12,
+    "operator": "delete a rule",
+    "detail": "remove rule input_containers",
+    "distinguishing_cells": 56,
+    "like_the_authors_inputs": 18,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "name": "tw-fresh",
+          "securityContext": {
+           "privileged": true
+          }
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  ],
+  "src/pod-security-policy/proc-mount/src.rego": [
+   {
+    "mutant": 30,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 120,
+    "like_the_authors_inputs": 42,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "initContainers": [
+         {
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "procMount": "Default"
+     }
+    }
+   },
+   {
+    "mutant": 32,
+    "operator": "delete a rule",
+    "detail": "remove rule input_containers",
+    "distinguishing_cells": 240,
+    "like_the_authors_inputs": 126,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "name": "tw-fresh",
+          "securityContext": {
+           "procMount": "tw-mutant"
+          }
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "procMount": "Default"
+     }
+    }
+   },
+   {
+    "mutant": 33,
+    "operator": "flip a comparison",
+    "detail": "flip a comparison to its negation",
+    "distinguishing_cells": 240,
+    "like_the_authors_inputs": 126,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "name": "tw-fresh",
+          "securityContext": {
+           "procMount": "tw-mutant"
+          }
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "procMount": "Default"
+     }
+    }
+   },
+   {
+    "mutant": 34,
+    "operator": "drop a condition",
+    "detail": "drop a condition",
+    "distinguishing_cells": 120,
+    "like_the_authors_inputs": 42,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "procMount": "Default"
+     }
+    }
+   },
+   {
+    "mutant": 35,
+    "operator": "negate a condition",
+    "detail": "negate a condition",
+    "distinguishing_cells": 240,
+    "like_the_authors_inputs": 126,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "name": "tw-fresh",
+          "securityContext": {
+           "procMount": "tw-mutant"
+          }
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "procMount": "Default"
+     }
+    }
+   },
+   {
+    "mutant": 46,
+    "operator": "delete a rule",
+    "detail": "remove rule get_allowed_proc_mount",
+    "distinguishing_cells": 96,
+    "like_the_authors_inputs": 54,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "containers": [
+         {
+          "name": "tw-fresh",
+          "securityContext": {
+           "procMount": "tw-mutant"
+          }
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "procMount": "invalid"
+     }
+    }
+   },
+   {
+    "mutant": 48,
+    "operator": "negate a condition",
+    "detail": "negate a condition",
+    "distinguishing_cells": 96,
+    "like_the_authors_inputs": 54,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "containers": [
+         {
+          "name": "tw-fresh",
+          "securityContext": {
+           "procMount": "tw-mutant"
+          }
+         }
+        ]
+       }
+      }
+     },
+     "parameters": {
+      "procMount": "invalid"
+     }
+    }
+   }
+  ],
+  "src/pod-security-policy/read-only-root-filesystem/src.rego": [
+   {
+    "mutant": 21,
+    "operator": "delete a rule",
+    "detail": "remove rule input_containers",
+    "distinguishing_cells": 1008,
+    "like_the_authors_inputs": 216,
+    "kill_input_like_the_authors": {
+     "review": {
+      "object": {
+       "spec": {
+        "ephemeralContainers": [
+         {
+          "name": "tw-fresh"
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  ]
+ }
+}

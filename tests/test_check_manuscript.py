@@ -91,10 +91,16 @@ def workspace(tmp_path: Path) -> Path:
     paper_directory.mkdir()
     shutil.copy(PAPER, paper_directory / "main.tex")
     shutil.copy(PAPER.parent / "refs.bib", paper_directory / "refs.bib")
+    for companion in ("supplement.tex", "graphical-abstract.tex"):
+        if (PAPER.parent / companion).is_file():
+            shutil.copy(PAPER.parent / companion, paper_directory / companion)
     documents = tmp_path / "docs"
     documents.mkdir()
     for artifact in DOCS.glob("*.json"):
         shutil.copy(artifact, documents / artifact.name)
+    # Protocols too: the real-faults claims are read against the protocol's frozen table.
+    for protocol in DOCS.glob("*PROTOCOL*.md"):
+        shutil.copy(protocol, documents / protocol.name)
     return tmp_path
 
 
@@ -129,18 +135,52 @@ def test_a_figure_changed_in_one_section_only_is_caught(workspace: Path) -> None
 
     problems = checker.check(paper, workspace / "docs")
 
-    assert any("policies inside" in problem for problem in problems), problems
+    assert any("artifacts inside" in problem for problem in problems), problems
+
+
+def _holding(workspace: Path, phrase: str) -> Path:
+    """The file of the split manuscript that states `phrase`: material moves between them."""
+
+    for name in ("main.tex", "supplement.tex"):
+        candidate = workspace / "paper" / name
+        if candidate.is_file() and phrase in candidate.read_text(encoding="utf-8"):
+            return candidate
+    raise AssertionError(f"neither file of the manuscript states {phrase!r}")
 
 
 def test_an_edited_phrasing_fails_rather_than_passing_silently(
     workspace: Path,
 ) -> None:
     paper = workspace / "paper" / "main.tex"
-    text = paper.read_text(encoding="utf-8")
-    paper.write_text(text.replace("flags all 88 subjects", "flags every subject"), encoding="utf-8")
+    holder = _holding(workspace, "flags all 88 subjects")
+    text = holder.read_text(encoding="utf-8")
+    holder.write_text(
+        text.replace("flags all 88 subjects", "flags every subject"), encoding="utf-8"
+    )
 
     problems = checker.check(paper, workspace / "docs")
     assert any("no longer states" in problem for problem in problems), problems
+
+
+def test_a_figure_changed_in_the_supplement_is_caught(workspace: Path) -> None:
+    """The claims are about the paper as a whole, so the supporting file is read too.
+
+    A manuscript split to meet a page limit keeps its measurement notes in `supplement.tex`;
+    a guard that read only the main file would pass a wrong number moved there.
+    """
+
+    supplement = workspace / "paper" / "supplement.tex"
+    if not supplement.is_file():
+        pytest.skip("the manuscript is not split into a main file and a supplement")
+    text = supplement.read_text(encoding="utf-8")
+    assert "reproduces all 7 of them" in text
+    supplement.write_text(
+        text.replace("reproduces all 7 of them", "reproduces all 6 of them"), "utf-8"
+    )
+
+    problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
+
+    assert any("provenance" in problem for problem in problems), problems
 
 
 def test_a_perturbed_artifact_disagrees_with_the_manuscript(workspace: Path) -> None:
@@ -196,9 +236,10 @@ def test_a_decomposition_that_no_longer_sums_is_caught(workspace: Path) -> None:
 
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    counts = [int(found) for found in checker.MECHANISM_COUNT.findall(checker.flatten(text))]
+    whole = checker.with_supplement(text, paper)
+    counts = [int(found) for found in checker.MECHANISM_COUNT.findall(checker.flatten(whole))]
     assert len(counts) >= 2, "the worked example must decompose the equivalent mutants"
-    first = counts[0]
+    first = [int(found) for found in checker.MECHANISM_COUNT.findall(checker.flatten(text))][0]
     paper.write_text(
         text.replace(f"({first} mutants)", f"({first - 1} mutants)", 1), encoding="utf-8"
     )
@@ -215,10 +256,17 @@ def test_a_removed_decomposition_is_caught_rather_than_passing(workspace: Path) 
     import re
 
     paper = workspace / "paper" / "main.tex"
-    text = paper.read_text(encoding="utf-8")
-    all_gone = re.sub(r" is unobservable\} \(\d+ mutants\)", "}", text)
-    assert not checker.MECHANISM_COUNT.findall(checker.flatten(all_gone))
-    paper.write_text(all_gone, encoding="utf-8")
+    for name in ("main.tex", "supplement.tex"):
+        part = workspace / "paper" / name
+        if not part.is_file():
+            continue
+        all_gone = re.sub(
+            r"\s+is\s+unobservable(\}?)\s+\(\d+\s+mutants\)",
+            r"\1",
+            part.read_text(encoding="utf-8"),
+        )
+        assert not checker.MECHANISM_COUNT.findall(checker.flatten(all_gone))
+        part.write_text(all_gone, encoding="utf-8")
 
     problems = checker.check(paper, workspace / "docs")
 
@@ -265,11 +313,11 @@ def test_a_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Pat
 
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    series = re.search(r"\\addplot coordinates \{\(([\d.]+),0\)", text)
+    series = re.search(r"\\addplot\[tw inside\] coordinates \{\(([\d.]+),0\)", text)
     assert series, "the taxonomy figure no longer plots a first coordinate"
     perturbed = text.replace(
-        f"\\addplot coordinates {{({series.group(1)},0)",
-        f"\\addplot coordinates {{({float(series.group(1)) - 1.1:.1f},0)",
+        f"\\addplot[tw inside] coordinates {{({series.group(1)},0)",
+        f"\\addplot[tw inside] coordinates {{({float(series.group(1)) - 1.1:.1f},0)",
         1,
     )
     paper.write_text(perturbed, encoding="utf-8")
@@ -279,12 +327,76 @@ def test_a_figure_whose_series_drifts_from_its_artifact_is_caught(workspace: Pat
     assert any("taxonomy figure" in problem for problem in problems), problems
 
 
-def test_a_figure_whose_label_moves_is_reported_rather_than_skipped(workspace: Path) -> None:
+@pytest.mark.parametrize("population", ["cedar", "rego"])
+def test_a_payoff_figure_whose_series_drifts_from_its_artifact_is_caught(
+    workspace: Path, population: str
+) -> None:
+    """The payoff figure restates three pinned tables on one scale, so it is pinned too."""
+
+    paper = workspace / "paper" / "main.tex"
+    holder = _holding(workspace, "\\begin{axis}[name=payoff")
+    text = holder.read_text(encoding="utf-8")
+    series = re.search(rf"\\addplot\[tw {population}\] coordinates \{{\(([\d.]+),0\)", text)
+    assert series, f"the payoff figure no longer plots a first {population} coordinate"
+    perturbed = text.replace(
+        f"\\addplot[tw {population}] coordinates {{({series.group(1)},0)",
+        f"\\addplot[tw {population}] coordinates {{({float(series.group(1)) + 2.0:.1f},0)",
+        1,
+    )
+    holder.write_text(perturbed, encoding="utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+
+    assert any("payoff figure" in problem for problem in problems), problems
+
+
+def test_a_rego_payoff_score_that_drifts_from_its_artifact_is_caught(workspace: Path) -> None:
+    """The Rego replication's table is read across, so its rows are pinned by their own shape."""
+
+    paper = workspace / "paper" / "main.tex"
+    text = paper.read_text(encoding="utf-8")
+    row = re.search(r"\d+ policies & ([\d.]+)\\%", text)
+    assert row, "the Rego payoff table no longer has its row by policy"
+    start, end = row.span(1)
+    paper.write_text(text[:start] + f"{float(row.group(1)) + 0.1:.1f}" + text[end:], "utf-8")
+
+    problems = checker.check(paper, workspace / "docs")
+
+    assert any("rego payoff: the table, by policy" in problem for problem in problems), problems
+
+
+def test_a_graphical_abstract_whose_bars_drift_from_their_artifact_is_caught(
+    workspace: Path,
+) -> None:
+    """The table-of-contents figure is read apart from the paper, so it is pinned too."""
+
+    figure = workspace / "paper" / "graphical-abstract.tex"
+    if not figure.is_file():
+        pytest.skip("the manuscript has no graphical abstract beside it")
+    text = figure.read_text(encoding="utf-8")
+    series = re.search(r"\\addplot\[[^]{]*\] coordinates \{\(([\d.]+),0\)", text)
+    assert series, "the graphical abstract no longer plots a first coordinate"
+    start, end = series.span(1)
+    figure.write_text(text[:start] + f"{float(series.group(1)) - 3.0:.1f}" + text[end:], "utf-8")
+
+    problems = checker.check(workspace / "paper" / "main.tex", workspace / "docs")
+
+    assert any("graphical abstract figure" in problem for problem in problems), problems
+
+
+def test_a_figure_whose_axis_is_renamed_is_reported_rather_than_skipped(workspace: Path) -> None:
     """A guard that quietly finds nothing to check is worse than no guard."""
 
     paper = workspace / "paper" / "main.tex"
     text = paper.read_text(encoding="utf-8")
-    paper.write_text(text.replace("\\label{fig:taxonomy}", "\\label{fig:elsewhere}"), "utf-8")
+    assert "name=taxonomy" in text
+    paper.write_text(text.replace("name=taxonomy", "name=elsewhere"), "utf-8")
+    supplement = workspace / "paper" / "supplement.tex"
+    if supplement.is_file():
+        supplement.write_text(
+            supplement.read_text(encoding="utf-8").replace("name=taxonomy", "name=elsewhere"),
+            "utf-8",
+        )
 
     problems = checker.check(paper, workspace / "docs")
 

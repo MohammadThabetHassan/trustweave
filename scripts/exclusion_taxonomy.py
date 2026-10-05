@@ -174,11 +174,141 @@ def measure(docs: Path) -> dict[str, Any]:
     }
 
 
+SUBJECT = "the subject does not determine the guard"
+EVALUATION_TIME = "reads evaluation-time state"
+SCHEMA = "not a policy"
+
+# Each exclusion placed by what would still keep it out once its parameters were supplied:
+# a guard the subject does not determine, then a guard reading evaluation-time state, and a
+# schema only when awaiting parameters is all there is.
+BANDS = ("inside", "schema only", "subject", "evaluation time", "undetermined")
+
+
+def kinds_of(entry: dict[str, Any]) -> frozenset[str]:
+    """Every row an exclusion falls under, with no precedence among them."""
+
+    reasons = list(entry.get("reasons") or []) + [entry["reason"]]
+    return frozenset(kind for kind in map(classify, reasons) if kind is not None)
+
+
+def band_of(kinds: frozenset[str]) -> str:
+    if SUBJECT in kinds:
+        return "subject"
+    if EVALUATION_TIME in kinds:
+        return "evaluation time"
+    return "schema only"
+
+
+def shares_summing_to_100(counts: dict[str, int]) -> dict[str, float]:
+    """Percentages to one decimal place that sum to exactly 100.0 (largest remainder)."""
+
+    total = sum(counts.values())
+    if not total:
+        return {name: 0.0 for name in counts}
+    tenths = {name: 1000 * count / total for name, count in counts.items()}
+    floors = {name: int(value) for name, value in tenths.items()}
+    spare = 1000 - sum(floors.values())
+    for name in sorted(tenths, key=lambda n: (floors[n] - tenths[n], n))[:spare]:
+        floors[name] += 1
+    return {name: floors[name] / 10 for name in counts}
+
+
+def crosstab(docs: Path) -> dict[str, Any]:
+    """The exclusions against every reason each carries, without the schema-first rule.
+
+    `measure` counts an artifact that is a schema under "not a policy" whatever else is true
+    of it, which answers "is this a policy?" and is the wrong count for "what keeps policy out
+    of the fragment?": 747 of the 916 schemas also carry a guard no parameter binding would
+    change. This counts every combination, and bands each exclusion by what would survive
+    instantiation.
+    """
+
+    combinations: Counter[str] = Counter()
+    rows: list[dict[str, Any]] = []
+    considered = inside = 0
+    for label, stem in CORPORA:
+        findings = json.loads((docs / f"{stem}.json").read_text(encoding="utf-8"))
+        counts = findings["counts"]
+        bands: Counter[str] = Counter(
+            {"inside": counts["inside"], "undetermined": counts["undetermined"]}
+        )
+        corpus_combinations: Counter[str] = Counter()
+        for entry in findings["policies"]:
+            if entry["verdict"] != "outside":
+                continue
+            kinds = kinds_of(entry)
+            key = " + ".join(sorted(kinds)) if kinds else "unclassified"
+            corpus_combinations[key] += 1
+            combinations[key] += 1
+            bands[band_of(kinds)] += 1
+        total = sum(counts.values())
+        considered += total
+        inside += counts["inside"]
+        ordered = {band: bands[band] for band in BANDS}
+        rows.append(
+            {
+                "corpus": label,
+                "artifact": stem,
+                "artifacts": total,
+                "bands": ordered,
+                "band_shares": shares_summing_to_100(ordered),
+                "combinations": dict(sorted(corpus_combinations.items())),
+            }
+        )
+
+    exclusions = sum(combinations.values())
+    schema_only = combinations[SCHEMA]
+    subject = sum(count for key, count in combinations.items() if SUBJECT in key)
+    evaluation_time = sum(
+        count
+        for key, count in combinations.items()
+        if EVALUATION_TIME in key and SUBJECT not in key
+    )
+    schemas = sum(count for key, count in combinations.items() if SCHEMA in key)
+    not_a_function = subject + evaluation_time
+    return {
+        "schema_version": "v1",
+        "corpora": len(CORPORA),
+        "artifacts_considered": considered,
+        "artifacts_inside": inside,
+        "exclusions": exclusions,
+        "combinations": dict(sorted(combinations.items())),
+        "schemas": schemas,
+        "schemas_with_a_surviving_obstruction": schemas - schema_only,
+        "schema_only": schema_only,
+        "guard_not_a_function_of_the_request": not_a_function,
+        "of_which_the_subject_does_not_determine_it": subject,
+        "of_which_evaluation_time_state": evaluation_time,
+        "share_of_exclusions_not_a_function_of_the_request": round(not_a_function / exclusions, 4),
+        "share_of_exclusions_schema_only": round(schema_only / exclusions, 4),
+        "share_inside_of_all_artifacts": round(inside / considered, 4),
+        "share_inside_setting_aside_schema_only": round(inside / (considered - schema_only), 4),
+        "share_inside_setting_aside_every_schema": round(inside / (considered - schemas), 4),
+        "rows": rows,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--docs", type=Path, default=DOCS)
     parser.add_argument("--json", type=Path)
+    parser.add_argument(
+        "--crosstab-json",
+        type=Path,
+        help="also write the exclusions against every reason they carry, unranked",
+    )
     arguments = parser.parse_args(argv)
+
+    if arguments.crosstab_json:
+        table = crosstab(arguments.docs)
+        arguments.crosstab_json.write_text(
+            json.dumps(table, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(
+            f"{table['exclusions']} exclusions: {table['guard_not_a_function_of_the_request']} "
+            f"carry a guard that is not a function of the request, "
+            f"{table['schema_only']} are schemas and nothing else"
+        )
 
     findings = measure(arguments.docs)
     print(

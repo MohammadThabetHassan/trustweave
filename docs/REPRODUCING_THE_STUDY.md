@@ -63,9 +63,10 @@ python scripts/verify_corpus_provenance.py --corpora /tmp/corpora
 
 This re-runs each adapter over the same root with the same scope and compares
 `policies_considered` and the verdict counts against the committed artifact. All seven
-whole-corpus artifacts should reproduce exactly. The four it skips say why: three are the
-smaller corpora joined to a suite study rather than measured whole, and the third-party
-Kyverno sample records its provenance in a manifest of its own
+whole-corpus artifacts should reproduce exactly. The five it skips say why: three are the
+smaller corpora joined to a suite study rather than measured whole, the Cedar archive's
+policies are sealed inside an archive the corpus tracks, which the check does not unpack, and
+the third-party Kyverno sample records its provenance in a manifest of its own
 (`docs/third-party-kyverno-corpus-v1.json`).
 
 The same check runs monthly in CI (`.github/workflows/provenance.yml`) and on request. A
@@ -238,7 +239,7 @@ python scripts/mutation_gate.py --help   # the survivor gate CI gives its own jo
   (`docs/third-party-kyverno-revalidation-v1.json` records both runs). Every sample
   manifest can be re-checked the same way, and a file that has gone is reported with how its
   fetch failed rather than silently dropped.
-- **57 Azure definitions are declined rather than judged.** They name a Gatekeeper
+- **43 Azure definitions are declined rather than judged.** They name a Gatekeeper
   ConstraintTemplate at an HTTPS URL, so their guard is a Rego program the definition does not
   contain, and an offline procedure has nothing to read. The URL is recorded in the artifact,
   so the refusal can be lifted by fetching rather than by re-deriving anything.

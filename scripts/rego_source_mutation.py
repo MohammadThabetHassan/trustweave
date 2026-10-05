@@ -56,7 +56,12 @@ def _opa() -> str:
 def parse(source: str) -> tuple[dict[str, Any], bool] | None:
     """The AST with locations, and whether v0 syntax was needed; None if it will not parse."""
 
-    with tempfile.NamedTemporaryFile("w", suffix=".rego", delete=False) as handle:
+    # Written byte for byte: a platform that turns "\n" into "\r\n" in text mode would give
+    # every multi-line location text a "\r" the source has not got, and its edits would not
+    # apply.
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".rego", delete=False, encoding="utf-8", newline="\n"
+    ) as handle:
         handle.write(source)
         path = handle.name
     try:

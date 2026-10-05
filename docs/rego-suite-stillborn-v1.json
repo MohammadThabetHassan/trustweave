@@ -1,0 +1,470 @@
+{
+ "schema_version": "v1",
+ "engine": "opa 1.20.2",
+ "corpus": {
+  "name": "gatekeeper-library",
+  "commit": "e034212e94e666ab3ba69108d96222bffc8ef671"
+ },
+ "development_module": "src/general/httpsonly/src.rego",
+ "headline": {
+  "modules": 48,
+  "mutants": 2984,
+  "stillborn": 154,
+  "killed": 2057,
+  "mean_raw_score": 0.706,
+  "mean_score_over_mutants_that_load": 0.6898,
+  "mean_coverage_gap_over_mutants_that_load": 0.2486
+ },
+ "with_development_module": {
+  "modules": 49,
+  "mutants": 3042,
+  "stillborn": 157,
+  "killed": 2104,
+  "mean_raw_score": 0.7081,
+  "mean_score_over_mutants_that_load": 0.692,
+  "mean_coverage_gap_over_mutants_that_load": 0.2476
+ },
+ "modules": {
+  "src/general/allowedrepos/src.rego": {
+   "subject": "src/general/allowedrepos/src.rego",
+   "mutants": 15,
+   "stillborn": 0,
+   "killed": 6,
+   "raw_score": 0.4,
+   "score_over_mutants_that_load": 0.4,
+   "coverage": 75.0
+  },
+  "src/general/allowedreposv2/src.rego": {
+   "subject": "src/general/allowedreposv2/src.rego",
+   "mutants": 29,
+   "stillborn": 0,
+   "killed": 17,
+   "raw_score": 0.5862,
+   "score_over_mutants_that_load": 0.5862,
+   "coverage": 85.7143
+  },
+  "src/general/automount-serviceaccount-token/src.rego": {
+   "subject": "src/general/automount-serviceaccount-token/src.rego",
+   "mutants": 24,
+   "stillborn": 3,
+   "killed": 18,
+   "raw_score": 0.75,
+   "score_over_mutants_that_load": 0.7143,
+   "coverage": 93.75
+  },
+  "src/general/block-endpoint-edit-default-role/src.rego": {
+   "subject": "src/general/block-endpoint-edit-default-role/src.rego",
+   "mutants": 31,
+   "stillborn": 6,
+   "killed": 28,
+   "raw_score": 0.9032,
+   "score_over_mutants_that_load": 0.88,
+   "coverage": 100.0
+  },
+  "src/general/block-loadbalancer-services/src.rego": {
+   "subject": "src/general/block-loadbalancer-services/src.rego",
+   "mutants": 11,
+   "stillborn": 0,
+   "killed": 8,
+   "raw_score": 0.7273,
+   "score_over_mutants_that_load": 0.7273,
+   "coverage": 100.0
+  },
+  "src/general/block-nodeport-services/src.rego": {
+   "subject": "src/general/block-nodeport-services/src.rego",
+   "mutants": 11,
+   "stillborn": 0,
+   "killed": 8,
+   "raw_score": 0.7273,
+   "score_over_mutants_that_load": 0.7273,
+   "coverage": 100.0
+  },
+  "src/general/block-wildcard-ingress/src.rego": {
+   "subject": "src/general/block-wildcard-ingress/src.rego",
+   "mutants": 22,
+   "stillborn": 0,
+   "killed": 19,
+   "raw_score": 0.8636,
+   "score_over_mutants_that_load": 0.8636,
+   "coverage": 100.0
+  },
+  "src/general/containerlimits/src.rego": {
+   "subject": "src/general/containerlimits/src.rego",
+   "mutants": 269,
+   "stillborn": 8,
+   "killed": 183,
+   "raw_score": 0.6803,
+   "score_over_mutants_that_load": 0.6705,
+   "coverage": 95.9677
+  },
+  "src/general/containerrequests/src.rego": {
+   "subject": "src/general/containerrequests/src.rego",
+   "mutants": 257,
+   "stillborn": 8,
+   "killed": 175,
+   "raw_score": 0.6809,
+   "score_over_mutants_that_load": 0.6707,
+   "coverage": 95.8678
+  },
+  "src/general/containerresourceratios/src.rego": {
+   "subject": "src/general/containerresourceratios/src.rego",
+   "mutants": 310,
+   "stillborn": 8,
+   "killed": 181,
+   "raw_score": 0.5839,
+   "score_over_mutants_that_load": 0.5728,
+   "coverage": 96.7742
+  },
+  "src/general/containerresources/src.rego": {
+   "subject": "src/general/containerresources/src.rego",
+   "mutants": 36,
+   "stillborn": 8,
+   "killed": 30,
+   "raw_score": 0.8333,
+   "score_over_mutants_that_load": 0.7857,
+   "coverage": 100.0
+  },
+  "src/general/disallowanonymous/src.rego": {
+   "subject": "src/general/disallowanonymous/src.rego",
+   "mutants": 34,
+   "stillborn": 6,
+   "killed": 27,
+   "raw_score": 0.7941,
+   "score_over_mutants_that_load": 0.75,
+   "coverage": 100.0
+  },
+  "src/general/disallowedrepos/src.rego": {
+   "subject": "src/general/disallowedrepos/src.rego",
+   "mutants": 15,
+   "stillborn": 3,
+   "killed": 7,
+   "raw_score": 0.4667,
+   "score_over_mutants_that_load": 0.3333,
+   "coverage": 73.3333
+  },
+  "src/general/disallowedtags/src.rego": {
+   "subject": "src/general/disallowedtags/src.rego",
+   "mutants": 22,
+   "stillborn": 0,
+   "killed": 16,
+   "raw_score": 0.7273,
+   "score_over_mutants_that_load": 0.7273,
+   "coverage": 94.4444
+  },
+  "src/general/disallowinteractive/src.rego": {
+   "subject": "src/general/disallowinteractive/src.rego",
+   "mutants": 31,
+   "stillborn": 1,
+   "killed": 25,
+   "raw_score": 0.8065,
+   "score_over_mutants_that_load": 0.8,
+   "coverage": 94.7368
+  },
+  "src/general/ephemeralstoragelimit/src.rego": {
+   "subject": "src/general/ephemeralstoragelimit/src.rego",
+   "mutants": 219,
+   "stillborn": 8,
+   "killed": 116,
+   "raw_score": 0.5297,
+   "score_over_mutants_that_load": 0.5118,
+   "coverage": 92.4731
+  },
+  "src/general/externalip/src.rego": {
+   "subject": "src/general/externalip/src.rego",
+   "mutants": 16,
+   "stillborn": 0,
+   "killed": 13,
+   "raw_score": 0.8125,
+   "score_over_mutants_that_load": 0.8125,
+   "coverage": 100.0
+  },
+  "src/general/horizontalpodautoscaler/src.rego": {
+   "subject": "src/general/horizontalpodautoscaler/src.rego",
+   "mutants": 53,
+   "stillborn": 3,
+   "killed": 41,
+   "raw_score": 0.7736,
+   "score_over_mutants_that_load": 0.76,
+   "coverage": 100.0
+  },
+  "src/general/httpsonly/src.rego": {
+   "subject": "src/general/httpsonly/src.rego",
+   "mutants": 58,
+   "stillborn": 3,
+   "killed": 47,
+   "raw_score": 0.8103,
+   "score_over_mutants_that_load": 0.8,
+   "coverage": 100.0
+  },
+  "src/general/imagedigests/src.rego": {
+   "subject": "src/general/imagedigests/src.rego",
+   "mutants": 24,
+   "stillborn": 0,
+   "killed": 12,
+   "raw_score": 0.5,
+   "score_over_mutants_that_load": 0.5,
+   "coverage": 73.3333
+  },
+  "src/general/noupdateserviceaccount/src.rego": {
+   "subject": "src/general/noupdateserviceaccount/src.rego",
+   "mutants": 84,
+   "stillborn": 3,
+   "killed": 74,
+   "raw_score": 0.881,
+   "score_over_mutants_that_load": 0.8765,
+   "coverage": 100.0
+  },
+  "src/general/poddisruptionbudget/src.rego": {
+   "subject": "src/general/poddisruptionbudget/src.rego",
+   "mutants": 43,
+   "stillborn": 2,
+   "killed": 33,
+   "raw_score": 0.7674,
+   "score_over_mutants_that_load": 0.7561,
+   "coverage": 100.0
+  },
+  "src/general/replicalimits/src.rego": {
+   "subject": "src/general/replicalimits/src.rego",
+   "mutants": 28,
+   "stillborn": 4,
+   "killed": 20,
+   "raw_score": 0.7143,
+   "score_over_mutants_that_load": 0.6667,
+   "coverage": 100.0
+  },
+  "src/general/requiredannotations/src.rego": {
+   "subject": "src/general/requiredannotations/src.rego",
+   "mutants": 22,
+   "stillborn": 0,
+   "killed": 14,
+   "raw_score": 0.6364,
+   "score_over_mutants_that_load": 0.6364,
+   "coverage": 100.0
+  },
+  "src/general/requiredlabels/src.rego": {
+   "subject": "src/general/requiredlabels/src.rego",
+   "mutants": 28,
+   "stillborn": 0,
+   "killed": 21,
+   "raw_score": 0.75,
+   "score_over_mutants_that_load": 0.75,
+   "coverage": 100.0
+  },
+  "src/general/requiredprobes/src.rego": {
+   "subject": "src/general/requiredprobes/src.rego",
+   "mutants": 22,
+   "stillborn": 3,
+   "killed": 19,
+   "raw_score": 0.8636,
+   "score_over_mutants_that_load": 0.8421,
+   "coverage": 100.0
+  },
+  "src/general/storageclass/src.rego": {
+   "subject": "src/general/storageclass/src.rego",
+   "mutants": 129,
+   "stillborn": 7,
+   "killed": 73,
+   "raw_score": 0.5659,
+   "score_over_mutants_that_load": 0.541,
+   "coverage": 85.3933
+  },
+  "src/general/uniqueingresshost/src.rego": {
+   "subject": "src/general/uniqueingresshost/src.rego",
+   "mutants": 26,
+   "stillborn": 2,
+   "killed": 22,
+   "raw_score": 0.8462,
+   "score_over_mutants_that_load": 0.8333,
+   "coverage": 100.0
+  },
+  "src/general/uniqueserviceselector/src.rego": {
+   "subject": "src/general/uniqueserviceselector/src.rego",
+   "mutants": 50,
+   "stillborn": 4,
+   "killed": 37,
+   "raw_score": 0.74,
+   "score_over_mutants_that_load": 0.7174,
+   "coverage": 92.3077
+  },
+  "src/general/verifydeprecatedapi/src.rego": {
+   "subject": "src/general/verifydeprecatedapi/src.rego",
+   "mutants": 21,
+   "stillborn": 1,
+   "killed": 2,
+   "raw_score": 0.0952,
+   "score_over_mutants_that_load": 0.05,
+   "coverage": 83.7209
+  },
+  "src/pod-security-policy/allow-privilege-escalation/src.rego": {
+   "subject": "src/pod-security-policy/allow-privilege-escalation/src.rego",
+   "mutants": 26,
+   "stillborn": 1,
+   "killed": 20,
+   "raw_score": 0.7692,
+   "score_over_mutants_that_load": 0.76,
+   "coverage": 94.4444
+  },
+  "src/pod-security-policy/apparmor/src.rego": {
+   "subject": "src/pod-security-policy/apparmor/src.rego",
+   "mutants": 61,
+   "stillborn": 2,
+   "killed": 28,
+   "raw_score": 0.459,
+   "score_over_mutants_that_load": 0.4407,
+   "coverage": 73.6842
+  },
+  "src/pod-security-policy/capabilities/src.rego": {
+   "subject": "src/pod-security-policy/capabilities/src.rego",
+   "mutants": 91,
+   "stillborn": 2,
+   "killed": 54,
+   "raw_score": 0.5934,
+   "score_over_mutants_that_load": 0.5843,
+   "coverage": 84.3137
+  },
+  "src/pod-security-policy/flexvolume-drivers/src.rego": {
+   "subject": "src/pod-security-policy/flexvolume-drivers/src.rego",
+   "mutants": 20,
+   "stillborn": 4,
+   "killed": 17,
+   "raw_score": 0.85,
+   "score_over_mutants_that_load": 0.8125,
+   "coverage": 100.0
+  },
+  "src/pod-security-policy/forbidden-sysctls/src.rego": {
+   "subject": "src/pod-security-policy/forbidden-sysctls/src.rego",
+   "mutants": 58,
+   "stillborn": 7,
+   "killed": 42,
+   "raw_score": 0.7241,
+   "score_over_mutants_that_load": 0.6863,
+   "coverage": 82.3529
+  },
+  "src/pod-security-policy/fsgroup/src.rego": {
+   "subject": "src/pod-security-policy/fsgroup/src.rego",
+   "mutants": 68,
+   "stillborn": 2,
+   "killed": 53,
+   "raw_score": 0.7794,
+   "score_over_mutants_that_load": 0.7727,
+   "coverage": 100.0
+  },
+  "src/pod-security-policy/host-filesystem/src.rego": {
+   "subject": "src/pod-security-policy/host-filesystem/src.rego",
+   "mutants": 85,
+   "stillborn": 11,
+   "killed": 75,
+   "raw_score": 0.8824,
+   "score_over_mutants_that_load": 0.8649,
+   "coverage": 94.7368
+  },
+  "src/pod-security-policy/host-namespaces/src.rego": {
+   "subject": "src/pod-security-policy/host-namespaces/src.rego",
+   "mutants": 14,
+   "stillborn": 0,
+   "killed": 11,
+   "raw_score": 0.7857,
+   "score_over_mutants_that_load": 0.7857,
+   "coverage": 100.0
+  },
+  "src/pod-security-policy/host-network-ports/src.rego": {
+   "subject": "src/pod-security-policy/host-network-ports/src.rego",
+   "mutants": 32,
+   "stillborn": 0,
+   "killed": 22,
+   "raw_score": 0.6875,
+   "score_over_mutants_that_load": 0.6875,
+   "coverage": 86.3636
+  },
+  "src/pod-security-policy/host-probes-lifecycle/src.rego": {
+   "subject": "src/pod-security-policy/host-probes-lifecycle/src.rego",
+   "mutants": 56,
+   "stillborn": 0,
+   "killed": 25,
+   "raw_score": 0.4464,
+   "score_over_mutants_that_load": 0.4464,
+   "coverage": 93.3333
+  },
+  "src/pod-security-policy/host-process/src.rego": {
+   "subject": "src/pod-security-policy/host-process/src.rego",
+   "mutants": 25,
+   "stillborn": 0,
+   "killed": 18,
+   "raw_score": 0.72,
+   "score_over_mutants_that_load": 0.72,
+   "coverage": 100.0
+  },
+  "src/pod-security-policy/privileged-containers/src.rego": {
+   "subject": "src/pod-security-policy/privileged-containers/src.rego",
+   "mutants": 13,
+   "stillborn": 0,
+   "killed": 9,
+   "raw_score": 0.6923,
+   "score_over_mutants_that_load": 0.6923,
+   "coverage": 91.6667
+  },
+  "src/pod-security-policy/proc-mount/src.rego": {
+   "subject": "src/pod-security-policy/proc-mount/src.rego",
+   "mutants": 67,
+   "stillborn": 4,
+   "killed": 52,
+   "raw_score": 0.7761,
+   "score_over_mutants_that_load": 0.7619,
+   "coverage": 94.7368
+  },
+  "src/pod-security-policy/read-only-root-filesystem/src.rego": {
+   "subject": "src/pod-security-policy/read-only-root-filesystem/src.rego",
+   "mutants": 26,
+   "stillborn": 1,
+   "killed": 20,
+   "raw_score": 0.7692,
+   "score_over_mutants_that_load": 0.76,
+   "coverage": 94.4444
+  },
+  "src/pod-security-policy/seccomp/src.rego": {
+   "subject": "src/pod-security-policy/seccomp/src.rego",
+   "mutants": 161,
+   "stillborn": 17,
+   "killed": 122,
+   "raw_score": 0.7578,
+   "score_over_mutants_that_load": 0.7292,
+   "coverage": 91.8367
+  },
+  "src/pod-security-policy/seccompv2/src.rego": {
+   "subject": "src/pod-security-policy/seccompv2/src.rego",
+   "mutants": 116,
+   "stillborn": 8,
+   "killed": 98,
+   "raw_score": 0.8448,
+   "score_over_mutants_that_load": 0.8333,
+   "coverage": 96.875
+  },
+  "src/pod-security-policy/selinux/src.rego": {
+   "subject": "src/pod-security-policy/selinux/src.rego",
+   "mutants": 60,
+   "stillborn": 2,
+   "killed": 37,
+   "raw_score": 0.6167,
+   "score_over_mutants_that_load": 0.6034,
+   "coverage": 93.9394
+  },
+  "src/pod-security-policy/users/src.rego": {
+   "subject": "src/pod-security-policy/users/src.rego",
+   "mutants": 105,
+   "stillborn": 3,
+   "killed": 94,
+   "raw_score": 0.8952,
+   "score_over_mutants_that_load": 0.8922,
+   "coverage": 98.6667
+  },
+  "src/pod-security-policy/volumes/src.rego": {
+   "subject": "src/pod-security-policy/volumes/src.rego",
+   "mutants": 18,
+   "stillborn": 2,
+   "killed": 15,
+   "raw_score": 0.8333,
+   "score_over_mutants_that_load": 0.8125,
+   "coverage": 100.0
+  }
+ }
+}

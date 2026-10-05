@@ -1,6 +1,7 @@
 # Installation and five-minute local review
 
-TrustWeave supports **Python 3.11 and later**. Every command reads local files and writes local artifacts — nothing runs, nothing phones home.
+TrustWeave supports **Python 3.11 and later**. Every command reads local files and writes local
+artifacts; nothing is executed and no network request is made.
 
 ## Install the published package
 
@@ -13,7 +14,7 @@ trustweave --help
 python -m trustweave --help
 ```
 
-Safe YAML parsing is optional. Install it only when your supplied declarations use YAML:
+YAML parsing is optional. Install it only if your declarations use YAML:
 
 ```shell
 python -m pip install 'trustweave[yaml]'
@@ -21,7 +22,8 @@ python -m pip install 'trustweave[yaml]'
 
 ## Review the included example
 
-The source tree contains a self-contained example. The following workflow reads only checked-in files and produces local artifacts under `artifacts/`.
+The source tree contains a self-contained example. This workflow reads only checked-in files and
+writes its artifacts under `artifacts/`.
 
 ```shell
 git clone https://github.com/MohammadThabetHassan/trustweave.git
@@ -41,14 +43,21 @@ trustweave attest --source-revision local --output-dir artifacts
 trustweave report --output-dir artifacts
 ```
 
-| Artifact | Review purpose |
+| Artifact | What it holds |
 | --- | --- |
-| `artifacts/agent-security-bundle.json` | Deterministic policy decisions for declared flows |
-| `artifacts/security-test-results.json` | Results for fixed synthetic policy scenarios |
-| `artifacts/report.md` | Human-readable summary of findings and limitations |
+| `artifacts/agent-security-bundle.json` | The policy decision for every declared flow |
+| `artifacts/security-test-results.json` | The results of the synthetic policy scenarios |
+| `artifacts/report.md` | A readable summary of the findings and their limits |
 
-Run `trustweave attest --source-revision local --output-dir artifacts` only after reviewing the source revision you want to identify. Then verify the exact local files under review with `trustweave verify --attestation artifacts/attestation.json --bundle artifacts/agent-security-bundle.json --test-results artifacts/security-test-results.json`. Omitting the bundle and test-result paths checks only the statement’s internal consistency, not a reviewer’s current file bytes. An attestation is not a signature, identity proof, or statement about a deployed system.
+Run `trustweave attest` once you have reviewed the source revision it should identify. To confirm
+later that the files under review are the ones attested, pass all three paths:
+`trustweave verify --attestation artifacts/attestation.json --bundle artifacts/agent-security-bundle.json --test-results artifacts/security-test-results.json`.
+With the attestation alone, `verify` checks only the statement’s internal consistency. An
+attestation is an integrity record, not a signature.
 
 ## Continue with contracts
 
-Use the [configuration guide](CONFIGURATION.md) for repository defaults, the [schema catalog](SCHEMAS.md) for accepted contract versions, and the [command-line interface](CLI.md) for stable exit behavior. A nonzero review finding is evidence for a human reviewer; it is not an automated deployment decision or runtime security conclusion.
+The [configuration guide](CONFIGURATION.md) covers repository defaults, the
+[schema catalog](SCHEMAS.md) the accepted contract versions, and the
+[command-line interface](CLI.md) the exit codes. A nonzero exit on a finding is a signal for the
+reviewer, not a deployment decision.

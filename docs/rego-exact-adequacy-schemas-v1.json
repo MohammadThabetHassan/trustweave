@@ -1,0 +1,5469 @@
+{
+ "schema_version": "v1",
+ "population_kind": "schemas",
+ "protocol_sha256": "f57aab7eb3961794f4fd8a94943074c669cec9ca5d0c422c98adafeafd5637c8",
+ "engine": "opa 1.20.2",
+ "seed": 20261004,
+ "resamples": 10000,
+ "max_cells": 250000,
+ "draws": 200,
+ "corpus": {
+  "name": "gatekeeper-library",
+  "commit": "e034212e94e666ab3ba69108d96222bffc8ef671"
+ },
+ "development_module": "src/general/httpsonly/src.rego",
+ "population": {
+  "modules": 26,
+  "excluded: an object with 176296340 states": 1,
+  "excluded: an object with 363568 states": 1,
+  "excluded: an object with 5947260 states": 1,
+  "excluded: an object with 619519440 states": 1,
+  "excluded: an object with 636754756 states": 1,
+  "excluded: an object with 731140 states": 1,
+  "excluded: an object with 794140 states": 1,
+  "excluded: missing cell": 9,
+  "measured": 10
+ },
+ "headline": {
+  "modules": 10,
+  "mutants": 302,
+  "stillborn": 21,
+  "killed": 199,
+  "killed_stillborn": 21,
+  "suite_equivalent": 62,
+  "distinguishable": 219,
+  "killed_through_decision": 178,
+  "killed_without_a_decision_change": 0,
+  "survivors_suite_study": 103,
+  "survivors_equivalent": 62,
+  "survivors_stillborn": 0,
+  "survivors_real": 41,
+  "share_of_survivors_equivalent": 0.6019,
+  "pooled_raw_score": 0.6589,
+  "pooled_exact_score": 0.8128,
+  "mean_raw_score": 0.6116,
+  "mean_exact_score": 0.7497,
+  "mean_difference": 0.1381,
+  "difference_bootstrap_95": [
+   0.0906,
+   0.1867
+  ],
+  "closing_the_gaps_holds_everywhere": true
+ },
+ "with_development_module": {
+  "modules": 10,
+  "mutants": 302,
+  "stillborn": 21,
+  "killed": 199,
+  "killed_stillborn": 21,
+  "suite_equivalent": 62,
+  "distinguishable": 219,
+  "killed_through_decision": 178,
+  "killed_without_a_decision_change": 0,
+  "survivors_suite_study": 103,
+  "survivors_equivalent": 62,
+  "survivors_stillborn": 0,
+  "survivors_real": 41,
+  "share_of_survivors_equivalent": 0.6019,
+  "pooled_raw_score": 0.6589,
+  "pooled_exact_score": 0.8128,
+  "mean_raw_score": 0.6116,
+  "mean_exact_score": 0.7497,
+  "mean_difference": 0.1381,
+  "difference_bootstrap_95": [
+   0.0906,
+   0.1867
+  ],
+  "closing_the_gaps_holds_everywhere": true
+ },
+ "modules": {
+  "src/general/allowedrepos/src.rego": {
+   "subject": "src/general/allowedrepos/src.rego",
+   "development": false,
+   "authors_inputs": 14,
+   "instantiations": [
+    {
+     "repos": [
+      "other",
+      "allowed"
+     ]
+    },
+    {
+     "repos": [
+      "allowed"
+     ]
+    }
+   ],
+   "mutants": 15,
+   "killed": 6,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "repos": [
+       "other",
+       "allowed"
+      ]
+     },
+     "cells": 48,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "repos": [
+       "allowed"
+      ]
+     },
+     "cells": 36,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 10,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 15,
+   "suite_equivalent": 6,
+   "distinguishable": 9,
+   "killed_through_decision": 6,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.4,
+   "exact_score": 0.6667,
+   "survivors": [
+    {
+     "mutant": 10,
+     "operator": "delete a rule",
+     "detail": "remove rule violation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "tw-mutant",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "repos": [
+        "other",
+        "allowed"
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 11,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "allowed",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "repos": [
+        "other",
+        "allowed"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 12,
+     "operator": "remove a negation",
+     "detail": "remove a negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "allowed",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "repos": [
+        "other",
+        "allowed"
+       ]
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 3,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 6
+   },
+   "survivors_suite_study": 9
+  },
+  "src/general/allowedreposv2/src.rego": {
+   "subject": "src/general/allowedreposv2/src.rego",
+   "development": false,
+   "authors_inputs": 14,
+   "instantiations": [
+    {
+     "allowedImages": [
+      "other",
+      "allowed/*"
+     ]
+    },
+    {
+     "allowedImages": [
+      "allowed/*"
+     ]
+    },
+    {
+     "allowedImages": [
+      "allowed"
+     ]
+    },
+    {
+     "allowedImages": [
+      "other",
+      "allowed"
+     ]
+    },
+    {
+     "allowedImages": [
+      "allowed/nginx*"
+     ]
+    },
+    {
+     "allowedImages": [
+      "allowed/nginx"
+     ]
+    }
+   ],
+   "mutants": 29,
+   "killed": 17,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "allowedImages": [
+       "other",
+       "allowed/*"
+      ]
+     },
+     "cells": 66,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedImages": [
+       "allowed/*"
+      ]
+     },
+     "cells": 54,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedImages": [
+       "allowed"
+      ]
+     },
+     "cells": 42,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedImages": [
+       "other",
+       "allowed"
+      ]
+     },
+     "cells": 54,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedImages": [
+       "allowed/nginx*"
+      ]
+     },
+     "cells": 54,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedImages": [
+       "allowed/nginx"
+      ]
+     },
+     "cells": 42,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 29,
+   "suite_equivalent": 8,
+   "distinguishable": 21,
+   "killed_through_decision": 17,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.5862,
+   "exact_score": 0.8095,
+   "survivors": [
+    {
+     "mutant": 10,
+     "operator": "delete a rule",
+     "detail": "remove rule violation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": false,
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "allowedImages": [
+        "other",
+        "allowed/*"
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 11,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "allowed/*",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "allowedImages": [
+        "other",
+        "allowed/*"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 12,
+     "operator": "remove a negation",
+     "detail": "remove a negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "allowed/*",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "allowedImages": [
+        "other",
+        "allowed/*"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 23,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "containers": [
+          {
+           "image": "othertw",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "allowedImages": [
+        "other",
+        "allowed/*"
+       ]
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 4,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 7,
+    "drop a condition": 1
+   },
+   "survivors_suite_study": 12
+  },
+  "src/general/containerlimits/src.rego": {
+   "subject": "src/general/containerlimits/src.rego",
+   "development": false,
+   "authors_inputs": 37,
+   "instantiations": [
+    {
+     "cpu": "40",
+     "memory": "20"
+    },
+    {
+     "cpu": "4",
+     "memory": "1T"
+    },
+    {
+     "cpu": 40,
+     "memory": 20
+    },
+    {
+     "cpu": "4m",
+     "memory": "2"
+    },
+    {
+     "cpu": "10",
+     "memory": "5"
+    },
+    {
+     "cpu": "-1",
+     "memory": "2"
+    },
+    {
+     "cpu": 10,
+     "memory": 5
+    },
+    {
+     "cpu": "4",
+     "memory": "1k"
+    },
+    {
+     "cpu": "4",
+     "memory": "2"
+    },
+    {
+     "cpu": "4",
+     "memory": "1P"
+    },
+    {
+     "cpu": "4",
+     "memory": "1G"
+    },
+    {
+     "cpu": "4",
+     "memory": "1.5Mi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1m"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Mi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1M"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Ti"
+    },
+    {
+     "cpu": "4",
+     "exemptImages": [
+      "nginx"
+     ],
+     "memory": "1Pi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1"
+    },
+    {
+     "cpu": "4",
+     "memory": "1000m"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Gi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Ki"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Pi"
+    }
+   ],
+   "mutants": 269,
+   "killed": 183,
+   "stillborn": 8,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 0,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "limits": {
+             "memory": "10"
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "40",
+       "memory": "20"
+      }
+     }
+    },
+    {
+     "mutant": 1,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "limits": {
+             "cpu": "20",
+             "memory": "10"
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "40",
+       "memory": "20"
+      }
+     }
+    },
+    {
+     "mutant": 2,
+     "operator": "remove a negation",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "limits": {
+             "cpu": "20",
+             "memory": "10"
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "40",
+       "memory": "20"
+      }
+     }
+    },
+    {
+     "mutant": 3,
+     "operator": "flip a boolean literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "limits": {
+             "memory": "10"
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "40",
+       "memory": "20"
+      }
+     }
+    },
+    {
+     "mutant": 5,
+     "operator": "flip a comparison",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "limits": {
+             "cpu": "20",
+             "memory": "10"
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "40",
+       "memory": "20"
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "cpu": "40",
+      "memory": "20"
+     },
+     "cells": 194948,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/containerrequests/src.rego": {
+   "subject": "src/general/containerrequests/src.rego",
+   "development": false,
+   "authors_inputs": 36,
+   "instantiations": [
+    {
+     "cpu": "4",
+     "memory": "1.5Mi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Ti"
+    },
+    {
+     "cpu": 40,
+     "memory": 20
+    },
+    {
+     "cpu": "4",
+     "memory": "1T"
+    },
+    {
+     "cpu": "4",
+     "memory": "1"
+    },
+    {
+     "cpu": "4",
+     "memory": "2"
+    },
+    {
+     "cpu": "4",
+     "memory": "1M"
+    },
+    {
+     "cpu": "40",
+     "memory": "20"
+    },
+    {
+     "cpu": "4",
+     "exemptImages": [
+      "nginx"
+     ],
+     "memory": "1Pi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Gi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1G"
+    },
+    {
+     "cpu": "4",
+     "memory": "1P"
+    },
+    {
+     "cpu": "4",
+     "memory": "1k"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Pi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Mi"
+    },
+    {
+     "cpu": "4",
+     "memory": "1Ki"
+    },
+    {
+     "cpu": "4m",
+     "memory": "2"
+    },
+    {
+     "cpu": 10,
+     "memory": 5
+    },
+    {
+     "cpu": "4",
+     "memory": "1m"
+    },
+    {
+     "cpu": "4",
+     "memory": "1000m"
+    },
+    {
+     "cpu": "10",
+     "memory": "5"
+    }
+   ],
+   "mutants": 257,
+   "killed": 175,
+   "stillborn": 8,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 0,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "requests": {
+             "tw-k0": [
+              {
+               "resources": {
+                "requests": {
+                 "tw-mutant": ""
+                }
+               }
+              }
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "4",
+       "memory": "1.5Mi"
+      }
+     }
+    },
+    {
+     "mutant": 2,
+     "operator": "remove a negation",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "requests": {
+             "tw-k0": [
+              {
+               "resources": {
+                "requests": {
+                 "tw-mutant": ""
+                }
+               }
+              }
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "4",
+       "memory": "1.5Mi"
+      }
+     }
+    },
+    {
+     "mutant": 3,
+     "operator": "flip a boolean literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "requests": {
+             "tw-k0": [
+              {
+               "resources": {
+                "requests": {
+                 "tw-mutant": ""
+                }
+               }
+              }
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "4",
+       "memory": "1.5Mi"
+      }
+     }
+    },
+    {
+     "mutant": 17,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "requests": {
+             "cpu": "2",
+             "memory": "1Gi"
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "4",
+       "memory": "1.5Mi"
+      }
+     }
+    },
+    {
+     "mutant": 18,
+     "operator": "negate a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "a",
+           "resources": {
+            "requests": {
+             "cpu": "2",
+             "memory": "1Gi"
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "cpu": "4",
+       "memory": "1.5Mi"
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "cpu": "4",
+      "memory": "1.5Mi"
+     },
+     "cells": 194948,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/containerresourceratios/src.rego": {
+   "subject": "src/general/containerresourceratios/src.rego",
+   "development": false,
+   "authors_inputs": 48,
+   "instantiations": [
+    {
+     "cpuRatio": 2,
+     "exemptImages": [
+      "nginx"
+     ],
+     "ratio": 1
+    },
+    {
+     "cpuRatio": 1,
+     "ratio": 10
+    },
+    {
+     "ratio": 2
+    },
+    {
+     "ratio": "2"
+    },
+    {
+     "cpuRatio": 1,
+     "ratio": 1
+    },
+    {
+     "exemptImages": [
+      "nginx"
+     ],
+     "ratio": "4"
+    },
+    {
+     "ratio": "4"
+    },
+    {
+     "raio": "4"
+    },
+    {
+     "cpuRatio": 2,
+     "ratio": 1
+    },
+    {
+     "ratio": "10"
+    },
+    {
+     "ratio": "3"
+    },
+    {
+     "ratio": "1"
+    }
+   ],
+   "mutants": 310,
+   "killed": 181,
+   "stillborn": 8,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 636754756 states",
+   "instantiation_failed": {
+    "cpuRatio": 2,
+    "exemptImages": [
+     "nginx"
+    ],
+    "ratio": 1
+   }
+  },
+  "src/general/containerresources/src.rego": {
+   "subject": "src/general/containerresources/src.rego",
+   "development": false,
+   "authors_inputs": 37,
+   "instantiations": [
+    {
+     "limits": [
+      "memory"
+     ],
+     "requests": [
+      "cpu"
+     ]
+    },
+    {
+     "limits": [],
+     "requests": []
+    },
+    {
+     "limits": [
+      "cpu"
+     ]
+    },
+    {
+     "limits": [
+      "cpu",
+      "memory"
+     ],
+     "requests": [
+      "cpu",
+      "memory"
+     ]
+    },
+    {
+     "requests": [
+      "cpu",
+      "memory"
+     ]
+    },
+    {
+     "limits": [
+      "memory"
+     ],
+     "requests": [
+      "cpu",
+      "memory"
+     ]
+    }
+   ],
+   "mutants": 36,
+   "killed": 30,
+   "stillborn": 8,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 0,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "test",
+           "resources": {}
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "limits": [
+        "memory"
+       ],
+       "requests": [
+        "cpu"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 5,
+     "operator": "change a string literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "test",
+           "resources": {}
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "limits": [
+        "memory"
+       ],
+       "requests": [
+        "cpu"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 14,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "test",
+           "resources": {
+            "requests": {
+             "cpu": 1
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "limits": [
+        "memory"
+       ],
+       "requests": [
+        "cpu"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 16,
+     "operator": "remove a negation",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "test",
+           "resources": {
+            "requests": {
+             "cpu": 1
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "limits": [
+        "memory"
+       ],
+       "requests": [
+        "cpu"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 17,
+     "operator": "flip a comparison",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "test",
+           "resources": {
+            "requests": {
+             "cpu": 1
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "limits": [
+        "memory"
+       ],
+       "requests": [
+        "cpu"
+       ]
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "limits": [
+       "memory"
+      ],
+      "requests": [
+       "cpu"
+      ]
+     },
+     "cells": 84,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 8,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/disallowedrepos/src.rego": {
+   "subject": "src/general/disallowedrepos/src.rego",
+   "development": false,
+   "authors_inputs": 14,
+   "instantiations": [
+    {
+     "repos": [
+      "disallowed"
+     ]
+    },
+    {
+     "repos": [
+      "other",
+      "disallowed"
+     ]
+    },
+    {
+     "repos": [
+      "allowed"
+     ]
+    }
+   ],
+   "mutants": 15,
+   "killed": 7,
+   "stillborn": 3,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "repos": [
+       "disallowed"
+      ]
+     },
+     "cells": 36,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 9,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "repos": [
+       "other",
+       "disallowed"
+      ]
+     },
+     "cells": 48,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "repos": [
+       "allowed"
+      ]
+     },
+     "cells": 36,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 12,
+   "suite_equivalent": 6,
+   "distinguishable": 6,
+   "killed_through_decision": 4,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 3,
+   "raw_score": 0.4667,
+   "exact_score": 0.6667,
+   "survivors": [
+    {
+     "mutant": 10,
+     "operator": "delete a rule",
+     "detail": "remove rule violation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "disallowed",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "repos": [
+        "disallowed"
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 11,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "tw-mutant",
+           "name": "tw-fresh"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "repos": [
+        "disallowed"
+       ]
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 6
+   },
+   "survivors_suite_study": 8
+  },
+  "src/general/disallowedtags/src.rego": {
+   "subject": "src/general/disallowedtags/src.rego",
+   "development": false,
+   "authors_inputs": 22,
+   "instantiations": [
+    {
+     "tags": [
+      "latest",
+      "testing"
+     ]
+    },
+    {
+     "exemptImages": [
+      "exempt:latest"
+     ],
+     "tags": [
+      "latest",
+      "testing"
+     ]
+    },
+    {
+     "exemptImages": [
+      "exempt:latest",
+      "exempt:testing"
+     ],
+     "tags": [
+      "latest",
+      "testing"
+     ]
+    }
+   ],
+   "mutants": 22,
+   "killed": 16,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 0,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "other:testing",
+           "name": "other"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "tags": [
+        "latest",
+        "testing"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 2,
+     "operator": "remove a negation",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "other:testing",
+           "name": "other"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "tags": [
+        "latest",
+        "testing"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 6,
+     "operator": "change a string literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "other:testing",
+           "name": "other"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "tags": [
+        "latest",
+        "testing"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 7,
+     "operator": "change a string literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "other:testing",
+           "name": "other"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "tags": [
+        "latest",
+        "testing"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 15,
+     "operator": "change a string literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx:443/nginx",
+           "name": "nginx"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "tags": [
+        "latest",
+        "testing"
+       ]
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "tags": [
+       "latest",
+       "testing"
+      ]
+     },
+     "cells": 84,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 19,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/ephemeralstoragelimit/src.rego": {
+   "subject": "src/general/ephemeralstoragelimit/src.rego",
+   "development": false,
+   "authors_inputs": 30,
+   "instantiations": [
+    {
+     "ephemeral-storage": "2048"
+    },
+    {
+     "ephemeral-storage": 999999
+    },
+    {
+     "ephemeral-storage": "2Gi"
+    },
+    {
+     "ephemeral-storage": "999999999"
+    },
+    {
+     "ephemeral-storage": 128
+    },
+    {
+     "ephemeral-storage": "0.5Mi"
+    },
+    {
+     "ephemeral-storage": "3Gi"
+    },
+    {
+     "ephemeral-storage": "8192"
+    },
+    {
+     "ephemeral-storage": "1023"
+    },
+    {
+     "ephemeral-storage": "1Pi",
+     "exemptImages": [
+      "nginx"
+     ]
+    },
+    {
+     "ephemeral-storage": "1Gi"
+    },
+    {
+     "ephemeral-storage": "0.22Gi"
+    },
+    {
+     "ephemeral-storage": "999"
+    },
+    {
+     "ephemeral-storage": "9"
+    }
+   ],
+   "mutants": 219,
+   "killed": 116,
+   "stillborn": 8,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 731140 states",
+   "instantiation_failed": {
+    "ephemeral-storage": "2048"
+   }
+  },
+  "src/general/externalip/src.rego": {
+   "subject": "src/general/externalip/src.rego",
+   "development": false,
+   "authors_inputs": 9,
+   "instantiations": [
+    {
+     "allowedIPs": []
+    },
+    {
+     "allowedIPs": [
+      "1.2.3.4"
+     ]
+    },
+    {
+     "allowedIPs": [
+      "1.1.1.1",
+      "1.2.3.4",
+      "203.0.113.1"
+     ]
+    },
+    {
+     "allowedIPs": [
+      "1.1.1.1",
+      "203.0.113.1"
+     ]
+    },
+    {
+     "allowedIPs": [
+      "1.1.1.1",
+      "203.0.113.0",
+      "1.2.3.4",
+      "203.0.113.1"
+     ]
+    },
+    {
+     "allowedIPs": [
+      "1.1.1.1",
+      "1.2.3.4"
+     ]
+    }
+   ],
+   "mutants": 16,
+   "killed": 13,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "allowedIPs": []
+     },
+     "cells": 234,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedIPs": [
+       "1.2.3.4"
+      ]
+     },
+     "cells": 234,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedIPs": [
+       "1.1.1.1",
+       "1.2.3.4",
+       "203.0.113.1"
+      ]
+     },
+     "cells": 234,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedIPs": [
+       "1.1.1.1",
+       "203.0.113.1"
+      ]
+     },
+     "cells": 234,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedIPs": [
+       "1.1.1.1",
+       "203.0.113.0",
+       "1.2.3.4",
+       "203.0.113.1"
+      ]
+     },
+     "cells": 234,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedIPs": [
+       "1.1.1.1",
+       "1.2.3.4"
+      ]
+     },
+     "cells": 234,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 16,
+   "suite_equivalent": 2,
+   "distinguishable": 14,
+   "killed_through_decision": 13,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.8125,
+   "exact_score": 0.9286,
+   "survivors": [
+    {
+     "mutant": 5,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "kind": {
+        "kind": "Service"
+       },
+       "object": {
+        "spec": {
+         "externalIPs": [
+          []
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "allowedIPs": []
+      }
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 1,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 2
+   },
+   "survivors_suite_study": 3
+  },
+  "src/general/replicalimits/src.rego": {
+   "subject": "src/general/replicalimits/src.rego",
+   "development": false,
+   "authors_inputs": 7,
+   "instantiations": [
+    {},
+    {
+     "ranges": [
+      {
+       "max_replicas": 35,
+       "min_replicas": 5
+      }
+     ]
+    },
+    {
+     "ranges": [
+      {
+       "max_replicas": 0,
+       "min_replicas": 0
+      }
+     ]
+    }
+   ],
+   "mutants": 28,
+   "killed": 20,
+   "stillborn": 4,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {},
+     "cells": 30,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "ranges": [
+       {
+        "max_replicas": 35,
+        "min_replicas": 5
+       }
+      ]
+     },
+     "cells": 102,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 5,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "ranges": [
+       {
+        "max_replicas": 0,
+        "min_replicas": 0
+       }
+      ]
+     },
+     "cells": 66,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 24,
+   "suite_equivalent": 4,
+   "distinguishable": 20,
+   "killed_through_decision": 16,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 4,
+   "raw_score": 0.7143,
+   "exact_score": 0.8,
+   "survivors": [
+    {
+     "mutant": 1,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "kind": {
+        "kind": "tw-fresh"
+       },
+       "object": {
+        "spec": {}
+       }
+      },
+      "parameters": {}
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 2,
+     "operator": "flip a boolean literal",
+     "detail": "flip a boolean literal",
+     "kill_input": {
+      "review": {
+       "kind": {
+        "kind": "tw-fresh"
+       },
+       "object": {
+        "spec": {}
+       }
+      },
+      "parameters": {}
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 4,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {}
+       }
+      },
+      "parameters": {}
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 5,
+     "operator": "flip a boolean literal",
+     "detail": "flip a boolean literal",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {}
+       }
+      },
+      "parameters": {}
+     },
+     "module_decision": false
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 4,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 2,
+    "change a comparison": 1,
+    "drop a condition": 1
+   },
+   "survivors_suite_study": 8
+  },
+  "src/general/requiredannotations/src.rego": {
+   "subject": "src/general/requiredannotations/src.rego",
+   "development": false,
+   "authors_inputs": 12,
+   "instantiations": [
+    {},
+    {
+     "annotations": [
+      {
+       "allowedRegex": "label$",
+       "key": "some"
+      }
+     ]
+    },
+    {
+     "annotations": [
+      {
+       "allowedRegex": "annotation",
+       "key": "some"
+      },
+      {
+       "allowedRegex": "annotation",
+       "key": "other"
+      }
+     ]
+    },
+    {
+     "annotations": [
+      {
+       "allowedRegex": "annotation",
+       "key": "some"
+      }
+     ]
+    },
+    {
+     "annotations": [
+      {
+       "allowedRegex": "annotation$",
+       "key": "some"
+      }
+     ]
+    },
+    {
+     "annotations": [
+      {
+       "allowedRegex": "annotation",
+       "key": "some"
+      },
+      {
+       "allowedRegex": "thing",
+       "key": "new"
+      }
+     ]
+    },
+    {
+     "annotations": [
+      {
+       "allowedRegex": "gr[ae]y",
+       "key": "some"
+      },
+      {
+       "allowedRegex": "gr[ae]y",
+       "key": "other"
+      }
+     ]
+    }
+   ],
+   "mutants": 22,
+   "killed": 14,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 8,
+     "operator": "change a number literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "some": "annotation"
+         },
+         "name": "service"
+        }
+       }
+      },
+      "parameters": {
+       "annotations": [
+        {
+         "allowedRegex": "annotation",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "annotation",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 10,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "other": "lbe",
+          "some": "lbe"
+         },
+         "name": "service"
+        }
+       }
+      },
+      "parameters": {
+       "annotations": [
+        {
+         "allowedRegex": "annotation",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "annotation",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 14,
+     "operator": "flip a comparison",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "other": "lbe",
+          "some": "lbe"
+         },
+         "name": "service"
+        }
+       }
+      },
+      "parameters": {
+       "annotations": [
+        {
+         "allowedRegex": "annotation",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "annotation",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 16,
+     "operator": "negate a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "other": "lbe",
+          "some": "lbe"
+         },
+         "name": "service"
+        }
+       }
+      },
+      "parameters": {
+       "annotations": [
+        {
+         "allowedRegex": "annotation",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "annotation",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 18,
+     "operator": "remove a negation",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "annotations": {
+          "other": "lbe",
+          "some": "lbe"
+         },
+         "name": "service"
+        }
+       }
+      },
+      "parameters": {
+       "annotations": [
+        {
+         "allowedRegex": "annotation",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "annotation",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {},
+     "cells": 7,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "annotations": [
+       {
+        "allowedRegex": "label$",
+        "key": "some"
+       }
+      ]
+     },
+     "cells": 10,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "annotations": [
+       {
+        "allowedRegex": "annotation",
+        "key": "some"
+       },
+       {
+        "allowedRegex": "annotation",
+        "key": "other"
+       }
+      ]
+     },
+     "cells": 10,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/requiredlabels/src.rego": {
+   "subject": "src/general/requiredlabels/src.rego",
+   "development": false,
+   "authors_inputs": 13,
+   "instantiations": [
+    {
+     "labels": [
+      {
+       "allowedRegex": "gr[ae]y",
+       "key": "some"
+      },
+      {
+       "allowedRegex": "gr[ae]y",
+       "key": "other"
+      }
+     ]
+    },
+    {
+     "labels": [
+      {
+       "allowedRegex": "label$",
+       "key": "some"
+      }
+     ]
+    },
+    {
+     "labels": [
+      {
+       "allowedRegex": "label",
+       "key": "some"
+      }
+     ]
+    },
+    {},
+    {
+     "labels": [
+      {
+       "allowedRegex": "label",
+       "key": "some"
+      },
+      {
+       "allowedRegex": "label",
+       "key": "other"
+      }
+     ]
+    },
+    {
+     "labels": [
+      {
+       "allowedRegex": "label",
+       "key": "some"
+      },
+      {
+       "allowedRegex": "thing",
+       "key": "new"
+      }
+     ]
+    },
+    {
+     "labels": [
+      {
+       "allowedRegex": "label$",
+       "key": "some"
+      }
+     ],
+     "message": "WRONG_VALUE"
+    }
+   ],
+   "mutants": 28,
+   "killed": 21,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 8,
+     "operator": "change a comparison",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "labels": {
+          "other": "grey",
+          "some": "gray"
+         },
+         "name": "nginx"
+        }
+       }
+      },
+      "parameters": {
+       "labels": [
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 9,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "labels": {
+          "other": "grey",
+          "some": "gray"
+         },
+         "name": "nginx"
+        }
+       }
+      },
+      "parameters": {
+       "labels": [
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 14,
+     "operator": "change a number literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "labels": {
+          "other": "grey"
+         },
+         "name": {
+          "tw-k0": false
+         }
+        }
+       }
+      },
+      "parameters": {
+       "labels": [
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 16,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "labels": {
+          "other": "grey",
+          "some": {
+           "labels": "tw-fresh"
+          }
+         },
+         "name": "nginx"
+        },
+        "tw-extra": 1
+       }
+      },
+      "parameters": {
+       "labels": [
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 17,
+     "operator": "flip a comparison",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "labels": {
+          "other": "grey",
+          "some": "gray",
+          "tw-extra": 1
+         },
+         "name": "nginx",
+         "tw-extra": true
+        }
+       }
+      },
+      "parameters": {
+       "labels": [
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "some"
+        },
+        {
+         "allowedRegex": "gr[ae]y",
+         "key": "other"
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "labels": [
+       {
+        "allowedRegex": "gr[ae]y",
+        "key": "some"
+       },
+       {
+        "allowedRegex": "gr[ae]y",
+        "key": "other"
+       }
+      ]
+     },
+     "cells": 11,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/requiredprobes/src.rego": {
+   "subject": "src/general/requiredprobes/src.rego",
+   "development": false,
+   "authors_inputs": 39,
+   "instantiations": [
+    {
+     "probeTypes": [
+      "tcpSocket",
+      "httpGet",
+      "exec"
+     ],
+     "probes": [
+      "readinessProbe",
+      "livenessProbe"
+     ]
+    }
+   ],
+   "mutants": 22,
+   "killed": 19,
+   "stillborn": 3,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 4,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "kind": {
+        "kind": "Pod"
+       },
+       "object": {
+        "metadata": {
+         "name": "some-name"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "my-image:latest",
+           "livenessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           },
+           "name": "my-container",
+           "readinessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "probeTypes": [
+        "tcpSocket",
+        "httpGet",
+        "exec"
+       ],
+       "probes": [
+        "readinessProbe",
+        "livenessProbe"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 8,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "kind": {
+        "kind": "Pod"
+       },
+       "object": {
+        "metadata": {
+         "name": "some-name"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "my-image:latest",
+           "livenessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           },
+           "name": "my-container",
+           "readinessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "probeTypes": [
+        "tcpSocket",
+        "httpGet",
+        "exec"
+       ],
+       "probes": [
+        "readinessProbe",
+        "livenessProbe"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 9,
+     "operator": "remove a negation",
+     "input": {
+      "review": {
+       "kind": {
+        "kind": "Pod"
+       },
+       "object": {
+        "metadata": {
+         "name": "some-name"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "my-image:latest",
+           "livenessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           },
+           "name": "my-container",
+           "readinessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "probeTypes": [
+        "tcpSocket",
+        "httpGet",
+        "exec"
+       ],
+       "probes": [
+        "readinessProbe",
+        "livenessProbe"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 11,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "kind": {
+        "kind": "Pod"
+       },
+       "object": {
+        "metadata": {
+         "name": "some-name"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "my-image:latest",
+           "livenessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           },
+           "name": "my-container",
+           "readinessProbe": {}
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "probeTypes": [
+        "tcpSocket",
+        "httpGet",
+        "exec"
+       ],
+       "probes": [
+        "readinessProbe",
+        "livenessProbe"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 12,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "kind": {
+        "kind": "Pod"
+       },
+       "object": {
+        "metadata": {
+         "name": "some-name"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "my-image:latest",
+           "livenessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           },
+           "name": "my-container",
+           "readinessProbe": {
+            "tcpSocket": {
+             "port": 80
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "probeTypes": [
+        "tcpSocket",
+        "httpGet",
+        "exec"
+       ],
+       "probes": [
+        "readinessProbe",
+        "livenessProbe"
+       ]
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "probeTypes": [
+       "tcpSocket",
+       "httpGet",
+       "exec"
+      ],
+      "probes": [
+       "readinessProbe",
+       "livenessProbe"
+      ]
+     },
+     "cells": 1500,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 39,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/general/verifydeprecatedapi/src.rego": {
+   "subject": "src/general/verifydeprecatedapi/src.rego",
+   "development": false,
+   "authors_inputs": 2,
+   "instantiations": [
+    {
+     "k8sVersion": 1.26,
+     "kvs": [
+      {
+       "deprecatedAPI": "autoscaling/v2beta2",
+       "kinds": [
+        "HorizontalPodAutoscaler"
+       ],
+       "targetAPI": "autoscaling/v2"
+      }
+     ]
+    }
+   ],
+   "mutants": 21,
+   "killed": 2,
+   "stillborn": 1,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "k8sVersion": 1.26,
+      "kvs": [
+       {
+        "deprecatedAPI": "autoscaling/v2beta2",
+        "kinds": [
+         "HorizontalPodAutoscaler"
+        ],
+        "targetAPI": "autoscaling/v2"
+       }
+      ]
+     },
+     "cells": 26,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 20,
+   "suite_equivalent": 9,
+   "distinguishable": 11,
+   "killed_through_decision": 1,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 1,
+   "raw_score": 0.0952,
+   "exact_score": 0.0909,
+   "survivors": [
+    {
+     "mutant": 1,
+     "operator": "flip a comparison",
+     "detail": "flip a comparison to its negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 2,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": false,
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 3,
+     "operator": "negate a condition",
+     "detail": "negate a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 4,
+     "operator": "flip a comparison",
+     "detail": "flip a comparison to its negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 5,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": false
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 6,
+     "operator": "negate a condition",
+     "detail": "negate a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 8,
+     "operator": "delete a rule",
+     "detail": "remove rule get_message",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 10,
+     "operator": "remove a negation",
+     "detail": "remove a negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 13,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 14,
+     "operator": "negate a condition",
+     "detail": "negate a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "apiVersion": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler"
+       }
+      },
+      "parameters": {
+       "k8sVersion": 1.26,
+       "kvs": [
+        {
+         "deprecatedAPI": "autoscaling/v2beta2",
+         "kinds": [
+          "HorizontalPodAutoscaler"
+         ],
+         "targetAPI": "autoscaling/v2"
+        }
+       ]
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 10,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 4,
+    "drop a condition": 2,
+    "delete a rule": 1,
+    "flip a comparison": 1,
+    "negate a condition": 1
+   },
+   "survivors_suite_study": 19
+  },
+  "src/pod-security-policy/apparmor/src.rego": {
+   "subject": "src/pod-security-policy/apparmor/src.rego",
+   "development": false,
+   "authors_inputs": 11,
+   "instantiations": [
+    {
+     "allowedProfiles": [
+      "unconfined"
+     ]
+    },
+    {
+     "allowedProfiles": []
+    },
+    {
+     "allowedProfiles": [
+      "runtime/default"
+     ]
+    },
+    {
+     "allowedProfiles": [],
+     "exemptImages": "nginx"
+    }
+   ],
+   "mutants": 61,
+   "killed": 28,
+   "stillborn": 2,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 794140 states",
+   "instantiation_failed": {
+    "allowedProfiles": [
+     "unconfined"
+    ]
+   }
+  },
+  "src/pod-security-policy/capabilities/src.rego": {
+   "subject": "src/pod-security-policy/capabilities/src.rego",
+   "development": false,
+   "authors_inputs": 54,
+   "instantiations": [
+    {},
+    {
+     "requiredDropCapabilities": [
+      "one",
+      "two"
+     ]
+    },
+    {
+     "allowedCapabilities": []
+    },
+    {
+     "requiredDropCapabilities": []
+    },
+    {
+     "allowedCapabilities": [
+      "one"
+     ]
+    },
+    {
+     "allowedCapabilities": [
+      "one",
+      "two"
+     ]
+    },
+    {
+     "requiredDropCapabilities": [
+      "one",
+      "ALL"
+     ]
+    },
+    {
+     "allowedCapabilities": [
+      "one",
+      "two"
+     ],
+     "exemptImages": [
+      "nginx"
+     ]
+    },
+    {
+     "allowedCapabilities": [
+      "*"
+     ]
+    },
+    {
+     "exemptImages": [
+      "nginx"
+     ],
+     "requiredDropCapabilities": [
+      "one",
+      "two"
+     ]
+    }
+   ],
+   "mutants": 91,
+   "killed": 54,
+   "stillborn": 2,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 5,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": 0,
+           "securityContext": {
+            "capabilities": {
+             "drop": [
+              "ALL",
+              "two"
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "requiredDropCapabilities": [
+        "one",
+        "two"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 6,
+     "operator": "negate a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": 0,
+           "securityContext": {
+            "capabilities": {
+             "drop": [
+              "ALL",
+              "two"
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "requiredDropCapabilities": [
+        "one",
+        "two"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 16,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": 0,
+           "securityContext": {
+            "capabilities": {
+             "drop": [
+              "ALL",
+              "two"
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "requiredDropCapabilities": [
+        "one",
+        "two"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 25,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "initContainers": [
+          {
+           "image": "nginx",
+           "name": 0,
+           "securityContext": {
+            "capabilities": {
+             "drop": [
+              "one",
+              "two",
+              "three"
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "requiredDropCapabilities": [
+        "one",
+        "two"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 26,
+     "operator": "negate a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "initContainers": [
+          {
+           "image": "nginx",
+           "name": 0,
+           "securityContext": {
+            "capabilities": {
+             "drop": [
+              "one",
+              "two",
+              "three"
+             ]
+            }
+           }
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "requiredDropCapabilities": [
+        "one",
+        "two"
+       ]
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {},
+     "cells": 930,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "requiredDropCapabilities": [
+       "one",
+       "two"
+      ]
+     },
+     "cells": 930,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 20,
+     "authors_drawn": 200
+    }
+   ]
+  },
+  "src/pod-security-policy/flexvolume-drivers/src.rego": {
+   "subject": "src/pod-security-policy/flexvolume-drivers/src.rego",
+   "development": false,
+   "authors_inputs": 11,
+   "instantiations": [
+    {
+     "allowedFlexVolumes": [
+      {
+       "driver": "example/lvm"
+      }
+     ]
+    },
+    {
+     "allowedFlexVolumes": [
+      {
+       "driver": "example/lvm"
+      },
+      {
+       "driver": "example/cifs"
+      }
+     ]
+    },
+    {
+     "allowedFlexVolumes": []
+    },
+    {
+     "allowedFlexVolumes": [
+      {
+       "driver": "example/testdriver"
+      },
+      {
+       "driver": "example/cifs"
+      }
+     ]
+    }
+   ],
+   "mutants": 20,
+   "killed": 17,
+   "stillborn": 4,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "allowedFlexVolumes": [
+       {
+        "driver": "example/lvm"
+       }
+      ]
+     },
+     "cells": 590,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedFlexVolumes": [
+       {
+        "driver": "example/lvm"
+       },
+       {
+        "driver": "example/cifs"
+       }
+      ]
+     },
+     "cells": 650,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedFlexVolumes": []
+     },
+     "cells": 410,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedFlexVolumes": [
+       {
+        "driver": "example/testdriver"
+       },
+       {
+        "driver": "example/cifs"
+       }
+      ]
+     },
+     "cells": 650,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 16,
+   "suite_equivalent": 3,
+   "distinguishable": 13,
+   "killed_through_decision": 13,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 4,
+   "raw_score": 0.85,
+   "exact_score": 1.0,
+   "survivors": [],
+   "closing_the_gaps": {
+    "tests_added": 0,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 3
+   },
+   "survivors_suite_study": 3
+  },
+  "src/pod-security-policy/forbidden-sysctls/src.rego": {
+   "subject": "src/pod-security-policy/forbidden-sysctls/src.rego",
+   "development": false,
+   "authors_inputs": 26,
+   "instantiations": [
+    {
+     "forbiddenSysctls": [
+      "*"
+     ]
+    },
+    {
+     "forbiddenSysctls": []
+    },
+    {
+     "forbiddenSysctls": [
+      "kernel.*"
+     ]
+    },
+    {
+     "forbiddenSysctls": [
+      "kernel.shm_rmid_forced",
+      "net.core.somaxconn"
+     ]
+    },
+    {
+     "forbiddenSysctls": [
+      "kernel.*",
+      "net.core*"
+     ]
+    },
+    {
+     "forbiddenSysctls": [
+      "kernel.shm_rmid_forced"
+     ]
+    },
+    {
+     "forbiddenSysctls": [
+      "kernel.msgmax"
+     ]
+    },
+    {
+     "allowedSysctls": [
+      "kernel.shm_rmid_forced",
+      "net.core.somaxconn"
+     ]
+    },
+    {
+     "forbiddenSysctls": [
+      "kernel.msg*"
+     ]
+    },
+    {
+     "allowedSysctls": [
+      "kernel.*",
+      "net.*"
+     ]
+    },
+    {
+     "allowedSysctls": [
+      "net.*"
+     ]
+    },
+    {
+     "allowedSysctls": []
+    },
+    {
+     "allowedSysctls": [
+      "net.core.somaxconn"
+     ]
+    },
+    {
+     "allowedSysctls": [
+      "kernel.shm_rmid_forced",
+      "net.core.somaxconn"
+     ],
+     "forbiddenSysctls": [
+      "kernel.shm_rmid_forced",
+      "net.core.somaxconn"
+     ]
+    },
+    {
+     "allowedSysctls": [
+      "*"
+     ]
+    }
+   ],
+   "mutants": 58,
+   "killed": 42,
+   "stillborn": 7,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "forbiddenSysctls": [
+       "*"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "forbiddenSysctls": []
+     },
+     "cells": 95,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 4,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "forbiddenSysctls": [
+       "kernel.*"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "forbiddenSysctls": [
+       "kernel.shm_rmid_forced",
+       "net.core.somaxconn"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "forbiddenSysctls": [
+       "kernel.*",
+       "net.core*"
+      ]
+     },
+     "cells": 245,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "forbiddenSysctls": [
+       "kernel.shm_rmid_forced"
+      ]
+     },
+     "cells": 155,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "forbiddenSysctls": [
+       "kernel.msgmax"
+      ]
+     },
+     "cells": 155,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedSysctls": [
+       "kernel.shm_rmid_forced",
+       "net.core.somaxconn"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "forbiddenSysctls": [
+       "kernel.msg*"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedSysctls": [
+       "kernel.*",
+       "net.*"
+      ]
+     },
+     "cells": 245,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedSysctls": [
+       "net.*"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedSysctls": []
+     },
+     "cells": 95,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedSysctls": [
+       "net.core.somaxconn"
+      ]
+     },
+     "cells": 155,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedSysctls": [
+       "kernel.shm_rmid_forced",
+       "net.core.somaxconn"
+      ],
+      "forbiddenSysctls": [
+       "kernel.shm_rmid_forced",
+       "net.core.somaxconn"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "allowedSysctls": [
+       "*"
+      ]
+     },
+     "cells": 185,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 51,
+   "suite_equivalent": 8,
+   "distinguishable": 43,
+   "killed_through_decision": 35,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 7,
+   "raw_score": 0.7241,
+   "exact_score": 0.814,
+   "survivors": [
+    {
+     "mutant": 9,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": false
+           }
+          ]
+         }
+        }
+       },
+       "operation": "UPDATE"
+      },
+      "parameters": {
+       "allowedSysctls": [
+        "kernel.shm_rmid_forced",
+        "net.core.somaxconn"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 16,
+     "operator": "delete a rule",
+     "detail": "remove rule forbidden_sysctl",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": false
+           }
+          ]
+         }
+        }
+       }
+      },
+      "parameters": {
+       "forbiddenSysctls": [
+        "*"
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 20,
+     "operator": "change a string literal",
+     "detail": "change a string literal",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": false
+           }
+          ]
+         }
+        }
+       }
+      },
+      "parameters": {
+       "forbiddenSysctls": [
+        "*"
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 26,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": "kernel.shm_rmid_forcedtw"
+           }
+          ]
+         }
+        }
+       }
+      },
+      "parameters": {
+       "forbiddenSysctls": [
+        "kernel.shm_rmid_forced",
+        "net.core.somaxconn"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 32,
+     "operator": "delete a rule",
+     "detail": "remove rule allowed_sysctl",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": false
+           }
+          ]
+         }
+        }
+       }
+      },
+      "parameters": {
+       "allowedSysctls": [
+        "*"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 36,
+     "operator": "change a string literal",
+     "detail": "change a string literal",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": false
+           }
+          ]
+         }
+        }
+       }
+      },
+      "parameters": {
+       "allowedSysctls": [
+        "*"
+       ]
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 42,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": "kernel.shm_rmid_forcedtw"
+           }
+          ]
+         }
+        }
+       }
+      },
+      "parameters": {
+       "allowedSysctls": [
+        "kernel.shm_rmid_forced",
+        "net.core.somaxconn"
+       ]
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 45,
+     "operator": "negate a condition",
+     "detail": "negate a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "sysctls": [
+           {
+            "name": false
+           }
+          ]
+         }
+        }
+       }
+      },
+      "parameters": {
+       "allowedSysctls": [
+        "kernel.*",
+        "net.*"
+       ]
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 8,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 7,
+    "delete a rule": 1
+   },
+   "survivors_suite_study": 16
+  },
+  "src/pod-security-policy/fsgroup/src.rego": {
+   "subject": "src/pod-security-policy/fsgroup/src.rego",
+   "development": false,
+   "authors_inputs": 11,
+   "instantiations": [
+    {
+     "rule": "RunAsAny"
+    },
+    {
+     "ranges": [
+      {
+       "max": 2000,
+       "min": 1
+      }
+     ],
+     "rule": "MustRunAs"
+    },
+    {
+     "ranges": [
+      {
+       "max": 1000,
+       "min": 1
+      }
+     ],
+     "rule": "MayRunAs"
+    },
+    {
+     "ranges": [
+      {
+       "max": 1000,
+       "min": 1
+      }
+     ],
+     "rule": "MustRunAs"
+    },
+    {
+     "ranges": [
+      {
+       "max": 2000,
+       "min": 1
+      }
+     ],
+     "rule": "MayRunAs"
+    }
+   ],
+   "mutants": 68,
+   "killed": 53,
+   "stillborn": 2,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "rule": "RunAsAny"
+     },
+     "cells": 500,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "ranges": [
+       {
+        "max": 2000,
+        "min": 1
+       }
+      ],
+      "rule": "MustRunAs"
+     },
+     "cells": 980,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "ranges": [
+       {
+        "max": 1000,
+        "min": 1
+       }
+      ],
+      "rule": "MayRunAs"
+     },
+     "cells": 980,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "ranges": [
+       {
+        "max": 1000,
+        "min": 1
+       }
+      ],
+      "rule": "MustRunAs"
+     },
+     "cells": 980,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "ranges": [
+       {
+        "max": 2000,
+        "min": 1
+       }
+      ],
+      "rule": "MayRunAs"
+     },
+     "cells": 980,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 66,
+   "suite_equivalent": 13,
+   "distinguishable": 53,
+   "killed_through_decision": 51,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 2,
+   "raw_score": 0.7794,
+   "exact_score": 0.9623,
+   "survivors": [
+    {
+     "mutant": 57,
+     "operator": "change a comparison",
+     "detail": "change a comparison's strictness",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "fsGroup": 1
+         }
+        }
+       }
+      },
+      "parameters": {
+       "ranges": [
+        {
+         "max": 2000,
+         "min": 1
+        }
+       ],
+       "rule": "MustRunAs"
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 58,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "securityContext": {
+          "fsGroup": 0
+         }
+        }
+       }
+      },
+      "parameters": {
+       "ranges": [
+        {
+         "max": 2000,
+         "min": 1
+        }
+       ],
+       "rule": "MustRunAs"
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 2,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "drop a condition": 6,
+    "change a string literal": 4,
+    "change a comparison": 2,
+    "delete a rule": 1
+   },
+   "survivors_suite_study": 15
+  },
+  "src/pod-security-policy/host-network-ports/src.rego": {
+   "subject": "src/pod-security-policy/host-network-ports/src.rego",
+   "development": false,
+   "authors_inputs": 9,
+   "instantiations": [
+    {
+     "hostNetwork": true,
+     "max": 9000,
+     "min": 80
+    },
+    {
+     "max": 9000,
+     "min": 80
+    },
+    {
+     "exemptImages": [
+      "nginx"
+     ],
+     "hostNetwork": true,
+     "max": 9000,
+     "min": 80
+    }
+   ],
+   "mutants": 32,
+   "killed": 22,
+   "stillborn": 0,
+   "kills_reproduce_the_suite_study": true,
+   "status": "measured",
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "hostNetwork": true,
+      "max": 9000,
+      "min": 80
+     },
+     "cells": 4580,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 6,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "max": 9000,
+      "min": 80
+     },
+     "cells": 4580,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 2,
+     "authors_drawn": 200
+    },
+    {
+     "parameters": {
+      "exemptImages": [
+       "nginx"
+      ],
+      "hostNetwork": true,
+      "max": 9000,
+      "min": 80
+     },
+     "cells": 13220,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 1,
+     "authors_drawn": 200
+    }
+   ],
+   "live": 32,
+   "suite_equivalent": 3,
+   "distinguishable": 29,
+   "killed_through_decision": 22,
+   "killed_without_a_decision_change": 0,
+   "killed_stillborn": 0,
+   "raw_score": 0.6875,
+   "exact_score": 0.7586,
+   "survivors": [
+    {
+     "mutant": 13,
+     "operator": "delete a rule",
+     "detail": "remove rule input_share_hostnetwork",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "containers": [
+          {
+           "ports": [
+            {
+             "hostPort": 79
+            }
+           ]
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "hostNetwork": true,
+       "max": 9000,
+       "min": 80
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 15,
+     "operator": "change a comparison",
+     "detail": "change a comparison's strictness",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "containers": [
+          {
+           "ports": [
+            {
+             "hostPort": 80
+            }
+           ]
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "hostNetwork": true,
+       "max": 9000,
+       "min": 80
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 20,
+     "operator": "change a comparison",
+     "detail": "change a comparison's strictness",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "containers": [
+          {
+           "ports": [
+            {
+             "hostPort": 9000
+            }
+           ]
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "hostNetwork": true,
+       "max": 9000,
+       "min": 80
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 26,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "initContainers": [
+          {
+           "ports": [
+            {
+             "hostPort": 79
+            }
+           ]
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "hostNetwork": true,
+       "max": 9000,
+       "min": 80
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 29,
+     "operator": "delete a rule",
+     "detail": "remove rule input_containers",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "ports": [
+            {
+             "hostPort": 79
+            }
+           ]
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "hostNetwork": true,
+       "max": 9000,
+       "min": 80
+      }
+     },
+     "module_decision": true
+    },
+    {
+     "mutant": 30,
+     "operator": "drop a condition",
+     "detail": "drop a condition",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "image": "nginx",
+           "ports": [
+            {
+             "hostPort": 79
+            }
+           ]
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "exemptImages": [
+        "nginx"
+       ],
+       "hostNetwork": true,
+       "max": 9000,
+       "min": 80
+      }
+     },
+     "module_decision": false
+    },
+    {
+     "mutant": 31,
+     "operator": "remove a negation",
+     "detail": "remove a negation",
+     "kill_input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "ephemeralContainers": [
+          {
+           "ports": [
+            {
+             "hostPort": 79
+            }
+           ]
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "hostNetwork": true,
+       "max": 9000,
+       "min": 80
+      }
+     },
+     "module_decision": true
+    }
+   ],
+   "closing_the_gaps": {
+    "tests_added": 7,
+    "kills_every_distinguishable_mutant": true,
+    "suite_equivalent_kills_unchanged": true,
+    "exceptions": []
+   },
+   "equivalent_by_operator": {
+    "change a string literal": 3
+   },
+   "survivors_suite_study": 10
+  },
+  "src/pod-security-policy/seccomp/src.rego": {
+   "subject": "src/pod-security-policy/seccomp/src.rego",
+   "development": false,
+   "authors_inputs": 72,
+   "instantiations": [
+    {
+     "allowedProfiles": [
+      "*"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "*"
+     ],
+     "allowedProfiles": [
+      "Localhost"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "unconfined",
+      "Unconfined"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "localhost/*"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "runtime/default",
+      "RuntimeDefault"
+     ]
+    },
+    {
+     "allowedProfiles": []
+    },
+    {
+     "allowedProfiles": [
+      "Localhost"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "*"
+     ],
+     "allowedProfiles": [
+      "localhost/*"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "profile1.json",
+      "profile2.json"
+     ],
+     "allowedProfiles": [
+      "RuntimeDefault",
+      "Localhost",
+      "Unconfined"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "profile.json"
+     ],
+     "allowedProfiles": [
+      "runtime/default",
+      "RuntimeDefault",
+      "docker/default",
+      "Localhost"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "unconfined"
+     ],
+     "exemptImages": [
+      "nginx"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "runtime/default",
+      "docker/default",
+      "localhost/profile1.json",
+      "localhost/profile2.json",
+      "unconfined"
+     ]
+    }
+   ],
+   "mutants": 161,
+   "killed": 122,
+   "stillborn": 17,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 363568 states",
+   "instantiation_failed": {
+    "allowedProfiles": [
+     "*"
+    ]
+   }
+  },
+  "src/pod-security-policy/seccompv2/src.rego": {
+   "subject": "src/pod-security-policy/seccompv2/src.rego",
+   "development": false,
+   "authors_inputs": 30,
+   "instantiations": [
+    {
+     "allowedProfiles": [
+      "*"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "RuntimeDefault"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "profile.json"
+     ],
+     "allowedProfiles": [
+      "Localhost"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "Unconfined"
+     ]
+    },
+    {
+     "allowedProfiles": [
+      "Unconfined"
+     ],
+     "exemptImages": [
+      "nginx"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "profile.json"
+     ],
+     "allowedProfiles": [
+      "RuntimeDefault",
+      "Localhost"
+     ]
+    },
+    {
+     "allowedProfiles": []
+    },
+    {
+     "allowedProfiles": [
+      "Localhost"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "profile1.json",
+      "profile2.json"
+     ],
+     "allowedProfiles": [
+      "RuntimeDefault",
+      "Localhost",
+      "Unconfined"
+     ]
+    },
+    {
+     "allowedLocalhostFiles": [
+      "*"
+     ],
+     "allowedProfiles": [
+      "Localhost"
+     ]
+    }
+   ],
+   "mutants": 116,
+   "killed": 98,
+   "stillborn": 8,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 176296340 states",
+   "instantiation_failed": {
+    "allowedProfiles": [
+     "*"
+    ]
+   }
+  },
+  "src/pod-security-policy/selinux/src.rego": {
+   "subject": "src/pod-security-policy/selinux/src.rego",
+   "development": false,
+   "authors_inputs": 23,
+   "instantiations": [
+    {
+     "allowedSELinuxOptions": [
+      {
+       "level": "s1:c234,c567"
+      },
+      {
+       "level": "s2:c345,c678"
+      }
+     ]
+    },
+    {
+     "allowedSELinuxOptions": [
+      {
+       "level": "s0:c123,c456",
+       "role": "object_r"
+      }
+     ]
+    },
+    {
+     "allowedSELinuxOptions": [
+      {
+       "level": "s1:c234,c567",
+       "role": "sysadm_r",
+       "type": "svirt_lxc_net_t",
+       "user": "sysadm_u"
+      }
+     ]
+    },
+    {
+     "allowedSELinuxOptions": [
+      {
+       "level": "s0:c123,c456",
+       "role": "object_r",
+       "type": "svirt_sandbox_file_t",
+       "user": "system_u"
+      }
+     ]
+    },
+    {
+     "allowedSELinuxOptions": [
+      {
+       "level": "s1:c234,c567",
+       "role": "sysadm_r",
+       "type": "svirt_lxc_net_t",
+       "user": "sysadm_u"
+      }
+     ],
+     "exemptImages": [
+      "nginx"
+     ]
+    },
+    {
+     "allowedSELinuxOptions": []
+    },
+    {
+     "allowedSELinuxOptions": [
+      {
+       "level": "s0:c123,c456",
+       "role": "object_r",
+       "type": "svirt_sandbox_file_f",
+       "user": "system_v"
+      },
+      {
+       "level": "s1:c234,c567",
+       "role": "object_f",
+       "type": "svirt_sandbox_file_t",
+       "user": "system_u"
+      }
+     ]
+    },
+    {
+     "allowedSELinuxOptions": [
+      {
+       "level": "s0:c123,c456",
+       "role": "object_r"
+      },
+      {
+       "type": "svirt_sandbox_file_t",
+       "user": "system_u"
+      }
+     ]
+    }
+   ],
+   "mutants": 60,
+   "killed": 37,
+   "stillborn": 2,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 619519440 states",
+   "instantiation_failed": {
+    "allowedSELinuxOptions": [
+     {
+      "level": "s1:c234,c567"
+     },
+     {
+      "level": "s2:c345,c678"
+     }
+    ]
+   }
+  },
+  "src/pod-security-policy/users/src.rego": {
+   "subject": "src/pod-security-policy/users/src.rego",
+   "development": false,
+   "authors_inputs": 125,
+   "instantiations": [
+    {
+     "runAsUser": {
+      "rule": "RunAsAny"
+     }
+    },
+    {
+     "runAsUser": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "runAsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "supplementalGroups": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "runAsGroup": {
+      "rule": "RunAsAny"
+     }
+    },
+    {
+     "fsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MayRunAs"
+     },
+     "runAsGroup": {
+      "rule": "RunAsAny"
+     },
+     "runAsUser": {
+      "rule": "MustRunAsNonRoot"
+     },
+     "supplementalGroups": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "runAsUser": {
+      "rule": "MustRunAsNonRoot"
+     }
+    },
+    {
+     "runAsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MayRunAs"
+     }
+    },
+    {
+     "runAsGroup": {
+      "ranges": [
+       {
+        "max": 100,
+        "min": 100
+       },
+       {
+        "max": 250,
+        "min": 250
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "supplementalGroups": {
+      "rule": "RunAsAny"
+     }
+    },
+    {
+     "runAsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "RunAsAny"
+     }
+    },
+    {
+     "runAsUser": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "RunAsAny"
+     }
+    },
+    {
+     "runAsGroup": {
+      "ranges": [
+       {
+        "max": 100,
+        "min": 100
+       },
+       {
+        "max": 250,
+        "min": 250
+       }
+      ],
+      "rule": "MayRunAs"
+     }
+    },
+    {
+     "runAsUser": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAsNonRoot"
+     }
+    },
+    {
+     "runAsUser": {
+      "ranges": [
+       {
+        "max": 100,
+        "min": 100
+       },
+       {
+        "max": 250,
+        "min": 250
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "exemptImages": [
+      "nginx"
+     ],
+     "runAsUser": {
+      "ranges": [
+       {
+        "max": 100,
+        "min": 100
+       },
+       {
+        "max": 250,
+        "min": 250
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "fsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "supplementalGroups": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MayRunAs"
+     }
+    },
+    {
+     "supplementalGroups": {
+      "ranges": [
+       {
+        "max": 100,
+        "min": 100
+       },
+       {
+        "max": 250,
+        "min": 250
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "fsGroup": {
+      "rule": "RunAsAny"
+     }
+    },
+    {
+     "supplementalGroups": {
+      "ranges": [
+       {
+        "max": 100,
+        "min": 100
+       },
+       {
+        "max": 250,
+        "min": 250
+       }
+      ],
+      "rule": "MayRunAs"
+     }
+    },
+    {
+     "fsGroup": {
+      "ranges": [
+       {
+        "max": 100,
+        "min": 100
+       },
+       {
+        "max": 250,
+        "min": 250
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "fsGroup": {
+      "rule": "RunAsAny"
+     },
+     "runAsGroup": {
+      "rule": "RunAsAny"
+     },
+     "runAsUser": {
+      "rule": "RunAsAny"
+     },
+     "supplementalGroups": {
+      "rule": "RunAsAny"
+     }
+    },
+    {
+     "fsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MayRunAs"
+     }
+    },
+    {
+     "fsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     },
+     "runAsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     },
+     "runAsUser": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     },
+     "supplementalGroups": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MustRunAs"
+     }
+    },
+    {
+     "fsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MayRunAs"
+     },
+     "runAsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MayRunAs"
+     },
+     "runAsUser": {
+      "rule": "MustRunAsNonRoot"
+     },
+     "supplementalGroups": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "MayRunAs"
+     }
+    },
+    {
+     "fsGroup": {
+      "ranges": [
+       {
+        "max": 200,
+        "min": 100
+       }
+      ],
+      "rule": "RunAsAny"
+     }
+    }
+   ],
+   "mutants": 105,
+   "killed": 94,
+   "stillborn": 3,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: an object with 5947260 states",
+   "instantiation_failed": {
+    "runAsUser": {
+     "rule": "RunAsAny"
+    }
+   }
+  },
+  "src/pod-security-policy/volumes/src.rego": {
+   "subject": "src/pod-security-policy/volumes/src.rego",
+   "development": false,
+   "authors_inputs": 13,
+   "instantiations": [
+    {
+     "volumes": [
+      "hostPath",
+      "emptyDir"
+     ]
+    },
+    {
+     "volumes": [
+      "*"
+     ]
+    },
+    {
+     "volumes": []
+    },
+    {
+     "volumes": [
+      "configMap",
+      "secret"
+     ]
+    },
+    {
+     "volumes": [
+      "configMap",
+      "emptyDir"
+     ]
+    }
+   ],
+   "mutants": 18,
+   "killed": 15,
+   "stillborn": 2,
+   "kills_reproduce_the_suite_study": true,
+   "status": "excluded: missing cell",
+   "missing_cells": [
+    {
+     "mutant": 3,
+     "operator": "drop a condition",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "nginx",
+           "volumeMounts": [
+            {
+             "mountPath": "/cache",
+             "name": "cache-volume"
+            }
+           ]
+          }
+         ],
+         "volumes": [
+          {
+           "hostPath": {
+            "path": "/tmp"
+           },
+           "name": "cache-volume"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "volumes": [
+        "hostPath",
+        "emptyDir"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 7,
+     "operator": "change a string literal",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "tw-fresh"
+        },
+        "spec": {
+         "volumes": {
+          "metadata": {
+           "name": "tw-fresh"
+          },
+          "spec": {}
+         },
+         "tw-extra": "tw-x"
+        }
+       },
+       "operation": false
+      },
+      "parameters": {
+       "volumes": [
+        "hostPath",
+        "emptyDir"
+       ]
+      }
+     }
+    },
+    {
+     "mutant": 14,
+     "operator": "delete a rule",
+     "input": {
+      "review": {
+       "object": {
+        "metadata": {
+         "name": "nginx"
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx",
+           "name": "nginx",
+           "volumeMounts": [
+            {
+             "mountPath": "/cache",
+             "name": "cache-volume"
+            }
+           ]
+          }
+         ],
+         "volumes": [
+          {
+           "hostPath": {
+            "path": "/tmp"
+           },
+           "name": "cache-volume"
+          }
+         ]
+        }
+       }
+      },
+      "parameters": {
+       "volumes": [
+        "hostPath",
+        "emptyDir"
+       ]
+      }
+     }
+    }
+   ],
+   "instantiations_checked": [
+    {
+     "parameters": {
+      "volumes": [
+       "hostPath",
+       "emptyDir"
+      ]
+     },
+     "cells": 125,
+     "cells_where_the_module_errors": 0,
+     "drawn": 200,
+     "authors_reviews": 3,
+     "authors_drawn": 200
+    }
+   ]
+  }
+ }
+}

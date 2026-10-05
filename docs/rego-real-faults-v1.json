@@ -1,0 +1,3174 @@
+{
+  "schema_version": "v1",
+  "protocol_sha256": "98a45a877f71f5eb87730535d7a3c4859163a7987a0e1fda1de65289677eba7e",
+  "engine": "opa opa 1.20.2",
+  "seed": 20261004,
+  "resamples": 10000,
+  "max_cells": 250000,
+  "draws": 200,
+  "population": 32,
+  "statuses": {
+    "excluded: missing cell": 4,
+    "scored": 20,
+    "excluded: the policy is outside: reads a document the host injects: data.inventory": 3,
+    "no decision change under the tested settings": 2,
+    "excluded: an object with 1363638 states": 1,
+    "excluded: the policy is outside: calls a builtin whose result is not a function of its arguments: time.now_ns": 1,
+    "excluded: the fix does not compile": 1
+  },
+  "headline": {
+    "faults": 20,
+    "difference_is_a_union_of_classes": 14,
+    "quotient_exposes_with_certainty": 15,
+    "fix_reads_paths_the_policy_does_not": 6,
+    "mean_exposure": {
+      "refinement": 1.0,
+      "quotient": 0.958515,
+      "decision": 0.357596,
+      "random_quotient": 0.856932,
+      "random_decision": 0.117067
+    },
+    "comparisons": {
+      "H1": {
+        "strategies": [
+          "quotient",
+          "random_quotient"
+        ],
+        "alternative": "greater",
+        "faults": 20,
+        "mean_difference": 0.101583,
+        "median_difference": 0.022387,
+        "bootstrap_95": [
+          0.037025,
+          0.182335
+        ],
+        "p_value": 0.0009,
+        "wins": 15,
+        "ties": 3,
+        "losses": 2,
+        "p_value_holm": 0.0009
+      },
+      "H2": {
+        "strategies": [
+          "quotient",
+          "decision"
+        ],
+        "alternative": "greater",
+        "faults": 20,
+        "mean_difference": 0.600918,
+        "median_difference": 0.671936,
+        "bootstrap_95": [
+          0.433194,
+          0.759354
+        ],
+        "p_value": 0.0001,
+        "wins": 17,
+        "ties": 3,
+        "losses": 0,
+        "p_value_holm": 0.0002
+      }
+    }
+  },
+  "by_corpus": {
+    "gatekeeper": {
+      "faults": 2,
+      "difference_is_a_union_of_classes": 2,
+      "quotient_exposes_with_certainty": 2,
+      "fix_reads_paths_the_policy_does_not": 0,
+      "mean_exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.513793,
+        "random_quotient": 0.998333,
+        "random_decision": 0.430217
+      },
+      "comparisons": {
+        "H1": {
+          "strategies": [
+            "quotient",
+            "random_quotient"
+          ],
+          "alternative": "greater",
+          "faults": 2,
+          "mean_difference": 0.001667,
+          "median_difference": 0.001667,
+          "bootstrap_95": [
+            0.0,
+            0.003334
+          ],
+          "p_value": 0.4978,
+          "wins": 1,
+          "ties": 1,
+          "losses": 0,
+          "p_value_holm": 0.9955
+        },
+        "H2": {
+          "strategies": [
+            "quotient",
+            "decision"
+          ],
+          "alternative": "greater",
+          "faults": 2,
+          "mean_difference": 0.486207,
+          "median_difference": 0.486207,
+          "bootstrap_95": [
+            0.0,
+            0.972414
+          ],
+          "p_value": 0.4978,
+          "wins": 1,
+          "ties": 1,
+          "losses": 0,
+          "p_value_holm": 0.9955
+        }
+      }
+    },
+    "gcp": {
+      "faults": 18,
+      "difference_is_a_union_of_classes": 12,
+      "quotient_exposes_with_certainty": 13,
+      "fix_reads_paths_the_policy_does_not": 6,
+      "mean_exposure": {
+        "refinement": 1.0,
+        "quotient": 0.953905,
+        "decision": 0.340241,
+        "random_quotient": 0.841221,
+        "random_decision": 0.082272
+      },
+      "comparisons": {
+        "H1": {
+          "strategies": [
+            "quotient",
+            "random_quotient"
+          ],
+          "alternative": "greater",
+          "faults": 18,
+          "mean_difference": 0.112684,
+          "median_difference": 0.031304,
+          "bootstrap_95": [
+            0.041072,
+            0.199822
+          ],
+          "p_value": 0.0012,
+          "wins": 14,
+          "ties": 2,
+          "losses": 2,
+          "p_value_holm": 0.0012
+        },
+        "H2": {
+          "strategies": [
+            "quotient",
+            "decision"
+          ],
+          "alternative": "greater",
+          "faults": 18,
+          "mean_difference": 0.613664,
+          "median_difference": 0.671936,
+          "bootstrap_95": [
+            0.449613,
+            0.773504
+          ],
+          "p_value": 0.0001,
+          "wins": 16,
+          "ties": 2,
+          "losses": 0,
+          "p_value_holm": 0.0002
+        }
+      }
+    }
+  },
+  "development": [
+    {
+      "number": 2,
+      "corpus": "gatekeeper",
+      "commit": "4416aa12b4",
+      "module": "src/pod-security-policy/proc-mount/src.rego",
+      "development": true,
+      "policy_commit": "37f3adbbcf744c9a29d78ceb413b21661489e516",
+      "fix_commit": "4416aa12b4674d689104f43ca0b6d899c15da7e4",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 14,
+      "settings": 7,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "procMount": "Default"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 406
+        },
+        {
+          "setting": "absent",
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "invalid"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": null,
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "default"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "exemptImages": [
+              "nginx"
+            ],
+            "procMount": "Default"
+          },
+          "cells": 1650,
+          "quotient_classes": 378,
+          "decision_classes": 2,
+          "difference_cells": 60,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "Unmasked"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.26161,
+        "random_quotient": 1.0,
+        "random_decision": 0.396293
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 34,
+      "corpus": "gcp",
+      "commit": "0f5a5d99a7",
+      "module": "validator/gke_disable_legacy_endpoints.rego",
+      "development": true,
+      "policy_commit": "e83c9a874e57338f6917e205d67200fd3e722bf5",
+      "fix_commit": "0f5a5d99a7b4434e98e7130db205b3319c879255",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 5,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPGKEDisableLegacyEndpointsConstraintV1",
+            "metadata": {
+              "annotations": {
+                "benchmark": "GKE_HARDENING_GUIDELINE"
+              },
+              "name": "disable_gke_legacy_endpoints"
+            },
+            "spec": {
+              "match": {
+                "gcp": {
+                  "target": [
+                    "organization/*"
+                  ]
+                }
+              },
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 350,
+          "quotient_classes": 168,
+          "decision_classes": 2,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 405
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.285714,
+        "random_quotient": 0.928043,
+        "random_decision": 0.022759
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    }
+  ],
+  "faults": [
+    {
+      "number": 1,
+      "corpus": "gatekeeper",
+      "commit": "c63556745c",
+      "module": "src/general/disallowedtags/src.rego",
+      "development": false,
+      "policy_commit": "46a7f54554656b60e150a5de2dd26ab6fd310712",
+      "fix_commit": "c63556745c656acbb0bbefcd59582ce4dfbbfe26",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for tags"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for tags"
+        }
+      },
+      "authors_inputs": 22,
+      "settings": 3,
+      "status": "excluded: missing cell",
+      "missing_cell": {
+        "setting": {
+          "tags": [
+            "latest",
+            "testing"
+          ]
+        },
+        "input": {
+          "review": {
+            "object": {
+              "spec": {
+                "containers": [
+                  {
+                    "image": true,
+                    "name": "tw-fresh"
+                  }
+                ]
+              }
+            }
+          },
+          "parameters": {
+            "tags": [
+              "latest",
+              "testing"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "number": 2,
+      "corpus": "gatekeeper",
+      "commit": "4416aa12b4",
+      "module": "src/pod-security-policy/proc-mount/src.rego",
+      "development": true,
+      "policy_commit": "37f3adbbcf744c9a29d78ceb413b21661489e516",
+      "fix_commit": "4416aa12b4674d689104f43ca0b6d899c15da7e4",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 14,
+      "settings": 7,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "procMount": "Default"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 406
+        },
+        {
+          "setting": "absent",
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "invalid"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": null,
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "default"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 2,
+          "difference_cells": 24,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "exemptImages": [
+              "nginx"
+            ],
+            "procMount": "Default"
+          },
+          "cells": 1650,
+          "quotient_classes": 378,
+          "decision_classes": 2,
+          "difference_cells": 60,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "Unmasked"
+          },
+          "cells": 570,
+          "quotient_classes": 198,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.26161,
+        "random_quotient": 1.0,
+        "random_decision": 0.396293
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 3,
+      "corpus": "gatekeeper",
+      "commit": "ee2e26edb6",
+      "module": "src/general/disallowanonymous/src.rego",
+      "development": false,
+      "policy_commit": "c8fb36a233ab329a7205129c213aaa74a92301b9",
+      "fix_commit": "ee2e26edb65000733ec00cb8643c3888a261d68a",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for allowedRoles"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 41,
+      "settings": 5,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "allowedRoles": [
+              "role-1"
+            ]
+          },
+          "cells": 289,
+          "quotient_classes": 145,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 415
+        },
+        {
+          "setting": {
+            "allowedRoles": [
+              "role-2"
+            ]
+          },
+          "cells": 289,
+          "quotient_classes": 145,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 410
+        },
+        {
+          "setting": {
+            "allowedRoles": [
+              "role-1",
+              "role-3"
+            ]
+          },
+          "cells": 337,
+          "quotient_classes": 181,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 406
+        },
+        {
+          "setting": {
+            "allowedRoles": [
+              "role-1",
+              "role-2"
+            ]
+          },
+          "cells": 337,
+          "quotient_classes": 181,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 406
+        },
+        {
+          "setting": "absent",
+          "cells": 145,
+          "quotient_classes": 109,
+          "decision_classes": 1,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 404
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.027586,
+        "random_quotient": 0.996666,
+        "random_decision": 0.027586
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 6,
+      "corpus": "gatekeeper",
+      "commit": "1c6d510c5a",
+      "module": "src/pod-security-policy/proc-mount/src.rego",
+      "development": false,
+      "policy_commit": "979bd65dc0ffd2ccf9e1d89946f89f651bdfca1b",
+      "fix_commit": "1c6d510c5ae29fc14ea2f731c001cd5bc77ef2ee",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 13,
+      "settings": 7,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": "absent",
+          "cells": 102,
+          "quotient_classes": 66,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "Default"
+          },
+          "cells": 102,
+          "quotient_classes": 66,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "procMount": "default"
+          },
+          "cells": 102,
+          "quotient_classes": 66,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "Unmasked"
+          },
+          "cells": 102,
+          "quotient_classes": 66,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": null,
+          "cells": 102,
+          "quotient_classes": 66,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "exemptImages": [
+              "nginx"
+            ],
+            "procMount": "Default"
+          },
+          "cells": 294,
+          "quotient_classes": 126,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 401
+        },
+        {
+          "setting": {
+            "procMount": "invalid"
+          },
+          "cells": 102,
+          "quotient_classes": 66,
+          "decision_classes": 2,
+          "difference_cells": 60,
+          "unmerged_paths": 0,
+          "checks": 401
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 1.0,
+        "random_quotient": 1.0,
+        "random_decision": 0.832848
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 8,
+      "corpus": "gatekeeper",
+      "commit": "2e41e9869d",
+      "module": "src/general/poddisruptionbudget/src.rego",
+      "development": false,
+      "policy_commit": "ecd8c41f4a95547ac5e95938c8130052a3655bda",
+      "fix_commit": "2e41e9869d1e4f0883e96e432fd6195a26d49fb8",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "reads a document the host injects: data.inventory"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "reads a document the host injects: data.inventory"
+        }
+      },
+      "status": "excluded: the policy is outside: reads a document the host injects: data.inventory"
+    },
+    {
+      "number": 9,
+      "corpus": "gatekeeper",
+      "commit": "55c0ac6590",
+      "module": "src/general/storageclass/src.rego",
+      "development": false,
+      "policy_commit": "0b7f69040ce2ef43f6f531011fb758dff34cbc5e",
+      "fix_commit": "55c0ac65903b1a1190457475e47acb7212e00760",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "reads a document the host injects: data.inventory"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "reads a document the host injects: data.inventory"
+        }
+      },
+      "status": "excluded: the policy is outside: reads a document the host injects: data.inventory"
+    },
+    {
+      "number": 10,
+      "corpus": "gatekeeper",
+      "commit": "749ebacafb",
+      "module": "src/general/uniqueserviceselector/src.rego",
+      "development": false,
+      "policy_commit": "524c179d96e37ec67f1c45589dd0c7ba8b8039c3",
+      "fix_commit": "749ebacafb023738aa95ce468b0503a88d3e2d75",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "reads a document the host injects: data.inventory"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "reads a document the host injects: data.inventory"
+        }
+      },
+      "status": "excluded: the policy is outside: reads a document the host injects: data.inventory"
+    },
+    {
+      "number": 11,
+      "corpus": "gatekeeper",
+      "commit": "3f73cca324",
+      "module": "src/pod-security-policy/host-filesystem/src.rego",
+      "development": false,
+      "policy_commit": "24939534557fb3a2a002ce035d09aabac01c5fd1",
+      "fix_commit": "3f73cca3243ed2eec490a93e06df331bfd790b99",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 24,
+      "settings": 8,
+      "status": "no decision change under the tested settings"
+    },
+    {
+      "number": 12,
+      "corpus": "gatekeeper",
+      "commit": "a4273fe2e0",
+      "module": "src/pod-security-policy/users/src.rego",
+      "development": false,
+      "policy_commit": "0372e5fad0d1fffb4f16483655ce48769c39dde0",
+      "fix_commit": "a4273fe2e05221aa43bddb7ab52860e4fcd9fadd",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for <computed>, runAsUser"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for <computed>, runAsUser"
+        }
+      },
+      "authors_inputs": 123,
+      "settings": 26,
+      "status": "excluded: an object with 1363638 states",
+      "setting_failed": {
+        "runAsGroup": {
+          "ranges": [
+            {
+              "max": 200,
+              "min": 100
+            }
+          ],
+          "rule": "MustRunAs"
+        }
+      }
+    },
+    {
+      "number": 13,
+      "corpus": "gcp",
+      "commit": "4a2abc7415",
+      "module": "validator/network_enable_flow_logs.rego",
+      "development": false,
+      "policy_commit": "c3382cbe86e5bae529dac0ac21e86679b606475c",
+      "fix_commit": "4a2abc741583884dd38ca3b9bf2ff5a4d205a609",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 7,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPNetworkEnableFlowLogsConstraintV1",
+            "metadata": {
+              "annotations": {
+                "bundles.validator.forsetisecurity.org/cis-v1.1": 3.09,
+                "description": "Ensure VPC Flow logs is enabled for every subnet in VPC Network"
+              },
+              "name": "enable_network_flow_logs"
+            },
+            "spec": {
+              "match": {
+                "ancestries": [
+                  "organizations/**"
+                ]
+              },
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 4820,
+          "quotient_classes": 204,
+          "decision_classes": 2,
+          "difference_cells": 90,
+          "unmerged_paths": 0,
+          "checks": 407
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 0.997622,
+        "decision": 0.25,
+        "random_quotient": 0.980342,
+        "random_decision": 0.037
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": false,
+      "fix_reads_paths_the_policy_does_not": true
+    },
+    {
+      "number": 14,
+      "corpus": "gcp",
+      "commit": "60e457c8ec",
+      "module": "validator/network_enable_flow_logs.rego",
+      "development": false,
+      "policy_commit": "26b4313f1671cd31295ca93aa5fe95b97cc4863a",
+      "fix_commit": "60e457c8ecd323d7b2ada829cc6e024d4648c082",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 5,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPNetworkEnableFlowLogsConstraintV1",
+            "metadata": {
+              "annotations": {
+                "bundles.validator.forsetisecurity.org/cis-v1.1": 3.09,
+                "description": "Ensure VPC Flow logs is enabled for every subnet in VPC Network"
+              },
+              "name": "enable_network_flow_logs"
+            },
+            "spec": {
+              "match": {
+                "ancestries": [
+                  "organizations/**"
+                ]
+              },
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 620,
+          "quotient_classes": 30,
+          "decision_classes": 2,
+          "difference_cells": 29,
+          "unmerged_paths": 0,
+          "checks": 405
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 0.73675,
+        "decision": 0.1405,
+        "random_quotient": 0.770693,
+        "random_decision": 0.091433
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": false,
+      "fix_reads_paths_the_policy_does_not": true
+    },
+    {
+      "number": 15,
+      "corpus": "gcp",
+      "commit": "b6ca0f44a3",
+      "module": "validator/gcp_iam_restrict_service_account_key_age.rego",
+      "development": false,
+      "policy_commit": "c873feb9bda8cd27b17f5c65a74a5a78196ab1b0",
+      "fix_commit": "b6ca0f44a3a773e5e8a400844fb4a9bc6fe55ffc",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "calls a builtin whose result is not a function of its arguments: time.now_ns"
+        }
+      },
+      "status": "excluded: the policy is outside: calls a builtin whose result is not a function of its arguments: time.now_ns"
+    },
+    {
+      "number": 16,
+      "corpus": "gcp",
+      "commit": "c873feb9bd",
+      "module": "validator/gke_restrict_pod_traffic.rego",
+      "development": false,
+      "policy_commit": "671c270c6ab4dba9175412fd14e93e01abd65fe7",
+      "fix_commit": "c873feb9bda8cd27b17f5c65a74a5a78196ab1b0",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 6,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPGKERestrictPodTrafficConstraintV1",
+            "metadata": {
+              "annotations": {
+                "benchmark": "GKE_HARDENING_GUIDELINE"
+              },
+              "name": "gke_restrict_pod_traffic"
+            },
+            "spec": {
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 13020,
+          "quotient_classes": 4236,
+          "decision_classes": 2,
+          "difference_cells": 90,
+          "unmerged_paths": 0,
+          "checks": 406
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.069767,
+        "random_quotient": 1.0,
+        "random_decision": 0.013778
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 17,
+      "corpus": "gcp",
+      "commit": "117763e905",
+      "module": "validator/storage_bucket_policy_only.rego",
+      "development": false,
+      "policy_commit": "73fdd2fee8f9aa71f66e6cc1d1c781a712f6cf73",
+      "fix_commit": "117763e90564a1b29e924ba4956a50610680383d",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 4,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageBucketPolicyOnlyConstraintV1",
+            "metadata": {
+              "name": "require_bucket_policy_only"
+            },
+            "spec": {
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 1060,
+          "quotient_classes": 84,
+          "decision_classes": 2,
+          "difference_cells": 9,
+          "unmerged_paths": 0,
+          "checks": 404
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 0.521703,
+        "decision": 0.095745,
+        "random_quotient": 0.525737,
+        "random_decision": 0.016917
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": false,
+      "fix_reads_paths_the_policy_does_not": true
+    },
+    {
+      "number": 18,
+      "corpus": "gcp",
+      "commit": "73fdd2fee8",
+      "module": "validator/gke_dashboard.rego",
+      "development": false,
+      "policy_commit": "5cf1dd3644ae9b8aeff2e077f467b35108761888",
+      "fix_commit": "73fdd2fee8f9aa71f66e6cc1d1c781a712f6cf73",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 4,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPGKEDashboardConstraintV1",
+            "metadata": {
+              "annotations": {
+                "benchmark": "GKE_HARDENING_GUIDELINE"
+              },
+              "name": "disable_gke_dashboard"
+            },
+            "spec": {
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 150,
+          "quotient_classes": 78,
+          "decision_classes": 2,
+          "difference_cells": 9,
+          "unmerged_paths": 0,
+          "checks": 404
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.9,
+        "random_quotient": 0.998974,
+        "random_decision": 0.116779
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 19,
+      "corpus": "gcp",
+      "commit": "1be3d446a4",
+      "module": "validator/serviceusage_service.rego",
+      "development": false,
+      "policy_commit": "400e4aff038247dd7cbed6feb6e2ccd4ba78235f",
+      "fix_commit": "1be3d446a4e7520cfaf4ea5d125b0f403ba917f0",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for services"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for services"
+        }
+      },
+      "authors_inputs": 8,
+      "settings": 2,
+      "status": "excluded: missing cell",
+      "missing_cell": {
+        "setting": {
+          "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+          "kind": "GCPServiceUsageConstraintV1",
+          "metadata": {
+            "annotations": {
+              "description": "Prevents the cloud vision API from being enabled"
+            },
+            "name": "deny_cloudvision"
+          },
+          "spec": {
+            "parameters": {
+              "mode": "deny",
+              "services": [
+                "cloudvision.googleapis.com"
+              ]
+            },
+            "severity": "high"
+          }
+        },
+        "input": {
+          "asset": {
+            "asset_type": "serviceusage.googleapis.com/Service",
+            "name": "//serviceusage.googleapis.com/projects/123/services/cloudvision.googleapis.com",
+            "resource": {
+              "data": {
+                "name": "projects/123/services/cloudvision.googleapis.com",
+                "parent": "projects/123",
+                "state": "ENABLED"
+              },
+              "discovery_document_uri": "https://www.googleapis.com/discovery/v1/apis/serviceusage/v1/rest",
+              "discovery_name": "Service",
+              "parent": "//cloudresourcemanager.googleapis.com/projects/123",
+              "version": "v1"
+            }
+          },
+          "constraint": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPServiceUsageConstraintV1",
+            "metadata": {
+              "annotations": {
+                "description": "Prevents the cloud vision API from being enabled"
+              },
+              "name": "deny_cloudvision"
+            },
+            "spec": {
+              "parameters": {
+                "mode": "deny",
+                "services": [
+                  "cloudvision.googleapis.com"
+                ]
+              },
+              "severity": "high"
+            }
+          }
+        }
+      }
+    },
+    {
+      "number": 20,
+      "corpus": "gcp",
+      "commit": "20914add87",
+      "module": "validator/bq_dataset_location.rego",
+      "development": false,
+      "policy_commit": "454b5d484420b5189bcd2a6c68470a418d0b1c28",
+      "fix_commit": "20914add8744141018d1056e2be16e9faf6b58fc",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, locations, mode"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode"
+        }
+      },
+      "authors_inputs": 42,
+      "settings": 10,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_default"
+            },
+            "spec": {
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_denylist_one_exemption"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [
+                  "//bigquery.googleapis.com/projects/sandbox2/datasets/us_west2_test_dataset"
+                ],
+                "locations": [
+                  "us-west2"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_allowlist_one_exemption"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [
+                  "//bigquery.googleapis.com/projects/sandbox2/datasets/eu_test_dataset"
+                ],
+                "locations": [
+                  "us-west2"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_denylist_none"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 409
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_allowlist_all"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "us-west2",
+                  "northamerica-northeast1",
+                  "us-east4",
+                  "southamerica-east1",
+                  "europe-north1",
+                  "europe-west2",
+                  "europe-west6",
+                  "asia-east2",
+                  "asia-south1",
+                  "asia-northeast2",
+                  "asia-east1",
+                  "asia-northeast1",
+                  "asia-southeast1",
+                  "australia-southeast1",
+                  "EU",
+                  "US"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_denylist_one"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "us-west2"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_allowlist_one"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "us-west2"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_denylist_all"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "us-west2",
+                  "northamerica-northeast1",
+                  "us-east4",
+                  "southamerica-east1",
+                  "europe-north1",
+                  "europe-west2",
+                  "europe-west6",
+                  "asia-east2",
+                  "asia-south1",
+                  "asia-northeast2",
+                  "asia-east1",
+                  "asia-northeast1",
+                  "asia-southeast1",
+                  "australia-southeast1",
+                  "EU",
+                  "US"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_allowlist_none"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 409
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetLocationConstraintV1",
+            "metadata": {
+              "name": "bq_dataset_location_allowlist_one"
+            },
+            "spec": {
+              "parameters": {
+                "locations": [
+                  "us-west2"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 403
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.04,
+        "random_quotient": 0.837965,
+        "random_decision": 0.04
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 21,
+      "corpus": "gcp",
+      "commit": "20914add87",
+      "module": "validator/sql_location.rego",
+      "development": false,
+      "policy_commit": "454b5d484420b5189bcd2a6c68470a418d0b1c28",
+      "fix_commit": "20914add8744141018d1056e2be16e9faf6b58fc",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, locations, mode"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode"
+        }
+      },
+      "authors_inputs": 50,
+      "settings": 10,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_default"
+            },
+            "spec": {
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_allowlist_one_exemption"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [
+                  "//cloudsql.googleapis.com/projects/test-project-2/instances/mysql-2nd-gen-sydney"
+                ],
+                "locations": [
+                  "asia-southeast1"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_allowlist_one"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "asia-southeast1"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_denylist_none"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_allowlist_all"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "asia-east1",
+                  "asia-east2",
+                  "asia-northeast1",
+                  "asia-northeast2",
+                  "asia-south1",
+                  "asia-southeast1",
+                  "australia-southeast1",
+                  "europe-north1",
+                  "europe-west1",
+                  "europe-west2",
+                  "europe-west3",
+                  "europe-west4",
+                  "europe-west6",
+                  "northamerica-northeast1",
+                  "southamerica-east1",
+                  "us-central",
+                  "us-central1",
+                  "us-east1",
+                  "us-east4",
+                  "us-west1",
+                  "us-west2"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_denylist_one_exemption"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [
+                  "//cloudsql.googleapis.com/projects/test-project-2/instances/test-instance-2-singapore"
+                ],
+                "locations": [
+                  "asia-southeast1"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_denylist_all"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "asia-east1",
+                  "asia-east2",
+                  "asia-northeast1",
+                  "asia-northeast2",
+                  "asia-south1",
+                  "asia-southeast1",
+                  "australia-southeast1",
+                  "europe-north1",
+                  "europe-west1",
+                  "europe-west2",
+                  "europe-west3",
+                  "europe-west4",
+                  "europe-west6",
+                  "northamerica-northeast1",
+                  "southamerica-east1",
+                  "us-central",
+                  "us-central1",
+                  "us-east1",
+                  "us-east4",
+                  "us-west1",
+                  "us-west2"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_denylist_one"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "asia-southeast1"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_allowlist_none"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 405
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLLocationConstraintV1",
+            "metadata": {
+              "name": "sql_location_allowlist_one"
+            },
+            "spec": {
+              "parameters": {
+                "locations": [
+                  "asia-southeast1"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 405
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.04,
+        "random_quotient": 0.837965,
+        "random_decision": 0.04
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 22,
+      "corpus": "gcp",
+      "commit": "20914add87",
+      "module": "validator/storage_location.rego",
+      "development": false,
+      "policy_commit": "454b5d484420b5189bcd2a6c68470a418d0b1c28",
+      "fix_commit": "20914add8744141018d1056e2be16e9faf6b58fc",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for exemptions, locations, mode"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for locations, mode"
+        }
+      },
+      "authors_inputs": 30,
+      "settings": 10,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_default"
+            },
+            "spec": {
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_denylist_one_exemption"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [
+                  "//storage.googleapis.com/my-storage-bucket"
+                ],
+                "locations": [
+                  "us"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_allowlist_one_exemption"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [
+                  "//storage.googleapis.com/my-storage-bucket-with-secure-logging"
+                ],
+                "locations": [
+                  "US"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_denylist_none"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_allowlist_all"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "NORTHAMERICA-NORTHEAST1",
+                  "US-CENTRAL1",
+                  "US-EAST1",
+                  "US-EAST4",
+                  "US-WEST1",
+                  "US-WEST2",
+                  "SOUTHAMERICA-EAST1",
+                  "EUROPE-NORTH1",
+                  "EUROPE-WEST1",
+                  "EUROPE-WEST2",
+                  "EUROPE-WEST3",
+                  "EUROPE-WEST4",
+                  "EUROPE-WEST6",
+                  "ASIA-EAST1",
+                  "ASIA-EAST2",
+                  "ASIA-NORTHEAST1",
+                  "ASIA-NORTHEAST2",
+                  "ASIA-SOUTH1",
+                  "ASIA-SOUTHEAST1",
+                  "AUSTRALIA-SOUTHEAST1",
+                  "EU",
+                  "US",
+                  "ASIA",
+                  "EUR4",
+                  "NAM4"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_denylist_one"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "US"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_allowlist_one"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "US"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_denylist_all"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [
+                  "NORTHAMERICA-NORTHEAST1",
+                  "US-CENTRAL1",
+                  "US-EAST1",
+                  "US-EAST4",
+                  "US-WEST1",
+                  "US-WEST2",
+                  "SOUTHAMERICA-EAST1",
+                  "EUROPE-NORTH1",
+                  "EUROPE-WEST1",
+                  "EUROPE-WEST2",
+                  "EUROPE-WEST3",
+                  "EUROPE-WEST4",
+                  "EUROPE-WEST6",
+                  "ASIA-EAST1",
+                  "ASIA-EAST2",
+                  "ASIA-NORTHEAST1",
+                  "ASIA-NORTHEAST2",
+                  "ASIA-SOUTH1",
+                  "ASIA-SOUTHEAST1",
+                  "AUSTRALIA-SOUTHEAST1",
+                  "EU",
+                  "US",
+                  "ASIA",
+                  "EUR4",
+                  "NAM4"
+                ],
+                "mode": "denylist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_allowlist_none"
+            },
+            "spec": {
+              "parameters": {
+                "exemptions": [],
+                "locations": [],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 0,
+          "unmerged_paths": 0,
+          "checks": 403
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPStorageLocationConstraintV1",
+            "metadata": {
+              "name": "storage_location_allowlist_one"
+            },
+            "spec": {
+              "parameters": {
+                "locations": [
+                  "US"
+                ],
+                "mode": "allowlist"
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 36,
+          "decision_classes": 1,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 403
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.04,
+        "random_quotient": 0.837965,
+        "random_decision": 0.04
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 24,
+      "corpus": "gcp",
+      "commit": "2c0e9d66e0",
+      "module": "validator/gke_enable_alias_ip_ranges.rego",
+      "development": false,
+      "policy_commit": "323be64acab05d747b5cbc3de3e500c6a77b72bc",
+      "fix_commit": "2c0e9d66e0bef0acef73d922cd5748147446906f",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 6,
+      "settings": 2,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPGKEEnableAliasIPRangesConstraintV1",
+            "metadata": {
+              "name": "enable_alias_ip_ranges"
+            },
+            "spec": {
+              "match": {
+                "gcp": {
+                  "target": [
+                    "organization/*"
+                  ]
+                }
+              },
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 120,
+          "quotient_classes": 60,
+          "decision_classes": 2,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 402
+        },
+        {
+          "setting": {
+            "enable_alias_ip_ranges": {
+              "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+              "kind": "GCPGKEEnableAliasIPRangesConstraintV1",
+              "metadata": {
+                "name": "enable_alias_ip_ranges"
+              },
+              "spec": {
+                "match": {
+                  "gcp": {
+                    "target": [
+                      "organization/*"
+                    ]
+                  }
+                },
+                "parameters": {},
+                "severity": "high"
+              }
+            }
+          },
+          "cells": 120,
+          "quotient_classes": 60,
+          "decision_classes": 2,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 404
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.691358,
+        "random_quotient": 0.996476,
+        "random_decision": 0.12732
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 26,
+      "corpus": "gcp",
+      "commit": "07e9da23f2",
+      "module": "validator/gke_restrict_client_auth_methods.rego",
+      "development": false,
+      "policy_commit": "6d62d28e8c331f5e05ac9aec7cd59603ed880746",
+      "fix_commit": "07e9da23f2832d6ef22768405dc085f67b48c157",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 7,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPGKERestrictClientAuthenticationMethodsConstraintV1",
+            "metadata": {
+              "annotations": {
+                "benchmark": "GKE_HARDENING_GUIDELINE"
+              },
+              "name": "gke_restrict_client_auth_methods"
+            },
+            "spec": {
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 5380,
+          "quotient_classes": 204,
+          "decision_classes": 2,
+          "difference_cells": 12,
+          "unmerged_paths": 0,
+          "checks": 407
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 0.9375,
+        "decision": 0.028302,
+        "random_quotient": 0.371459,
+        "random_decision": 0.004456
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": false,
+      "fix_reads_paths_the_policy_does_not": true
+    },
+    {
+      "number": 27,
+      "corpus": "gcp",
+      "commit": "4e070db149",
+      "module": "validator/bigquery_dataset_world_readable.rego",
+      "development": false,
+      "policy_commit": "9af57154b3e7741c3e4f689ebb6e4a70bae7b056",
+      "fix_commit": "4e070db149c2f969400df22804baa63c0c5c64dc",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 4,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetWorldReadableConstraintV1",
+            "metadata": {
+              "annotations": {
+                "bundles.validator.forsetisecurity.org/cis-v1.1": 5.03
+              },
+              "name": "require_bq_table_iam"
+            },
+            "spec": {
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 48,
+          "decision_classes": 2,
+          "difference_cells": 3,
+          "unmerged_paths": 0,
+          "checks": 404
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.6,
+        "random_quotient": 0.863327,
+        "random_decision": 0.059394
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 28,
+      "corpus": "gcp",
+      "commit": "ef2e3ef1a4",
+      "module": "validator/gcp_lb_forwarding_rules_whitelist.rego",
+      "development": false,
+      "policy_commit": "b158d07cfc52c182e4f654bebba14bfbcca530d6",
+      "fix_commit": "ef2e3ef1a4998d04709e6d6024489834ffbda98b",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for whitelist"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for whitelist"
+        }
+      },
+      "authors_inputs": 4,
+      "settings": 1,
+      "status": "excluded: missing cell",
+      "missing_cell": {
+        "setting": {
+          "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+          "kind": "GCPLBForwardingRuleWhitelistConstraintV1",
+          "metadata": {
+            "name": "gcp_lb_forwarding_rule_whitelist"
+          },
+          "spec": {
+            "parameters": {
+              "whitelist": [
+                {
+                  "ip_address": "34.95.94.170",
+                  "ip_protocol": "TCP",
+                  "load_balancing_scheme": "EXTERNAL",
+                  "port_range": "80-80",
+                  "target": "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-east1/targetHttpProxies/test-noip-target-proxy"
+                },
+                {
+                  "ip_address": "198.51.100.99",
+                  "ip_protocol": "UDP",
+                  "load_balancing_scheme": "INTERNAL",
+                  "port_range": "4500-4500",
+                  "target": "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-east1/targetHttpProxies/test-noip-target-proxy2"
+                }
+              ]
+            },
+            "severity": "high"
+          }
+        },
+        "input": {
+          "asset": {
+            "asset_type": "compute.googleapis.com/ForwardingRule",
+            "name": "//compute.googleapis.com/projects/test-project/regions/us-east1/forwardingRules/ext-ip",
+            "resource": {
+              "data": {
+                "creationTimestamp": "2019-02-27T09:12:12.910-08:00",
+                "description": "",
+                "id": "2807208141737654787",
+                "ipAddress": "34.95.94.170",
+                "ipProtocol": "TCP",
+                "ipVersion": "IPV4",
+                "loadBalancingScheme": "EXTERNAL",
+                "name": "ext-ip",
+                "networkTier": "PREMIUM",
+                "portRange": "80-80",
+                "selfLink": "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-east1/forwardingRules/ext-ip",
+                "target": "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-east1/targetHttpProxies/test-noip-target-proxy"
+              },
+              "discovery_document_uri": "https://www.googleapis.com/discovery/v1/apis/compute/v1/rest",
+              "discovery_name": "ForwardingRule",
+              "parent": "//cloudresourcemanager.googleapis.com/projects/123456789012",
+              "version": "v1"
+            }
+          },
+          "constraint": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPLBForwardingRuleWhitelistConstraintV1",
+            "metadata": {
+              "name": "gcp_lb_forwarding_rule_whitelist"
+            },
+            "spec": {
+              "parameters": {
+                "whitelist": [
+                  {
+                    "ip_address": "34.95.94.170",
+                    "ip_protocol": "TCP",
+                    "load_balancing_scheme": "EXTERNAL",
+                    "port_range": "80-80",
+                    "target": "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-east1/targetHttpProxies/test-noip-target-proxy"
+                  },
+                  {
+                    "ip_address": "198.51.100.99",
+                    "ip_protocol": "UDP",
+                    "load_balancing_scheme": "INTERNAL",
+                    "port_range": "4500-4500",
+                    "target": "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-east1/targetHttpProxies/test-noip-target-proxy2"
+                  }
+                ]
+              },
+              "severity": "high"
+            }
+          }
+        }
+      }
+    },
+    {
+      "number": 29,
+      "corpus": "gcp",
+      "commit": "8ae5c82ca2",
+      "module": "validator/compute_network_interface_whitelist.rego",
+      "development": false,
+      "policy_commit": "fef6b4d2bf8888455143146c987940ba71c7b651",
+      "fix_commit": "8ae5c82ca2d8c4e89196fa9d420b55c428b732ea",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 4,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPComputeNetworkInterfaceWhitelistConstraintV1",
+            "metadata": {
+              "name": "whitelist"
+            },
+            "spec": {
+              "match": {
+                "gcp": {
+                  "target": [
+                    "organization/*"
+                  ]
+                }
+              },
+              "parameters": {
+                "whitelist": [
+                  "https://www.googleapis.com/compute/v1/projects/vpc-sc-pub-sub-billing-alerts/global/networks/default1"
+                ]
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 1710,
+          "quotient_classes": 180,
+          "decision_classes": 2,
+          "difference_cells": 32,
+          "unmerged_paths": 0,
+          "checks": 404
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 1.0,
+        "random_quotient": 0.972506,
+        "random_decision": 0.037087
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": true
+    },
+    {
+      "number": 30,
+      "corpus": "gcp",
+      "commit": "4d8371535f",
+      "module": "validator/bigquery_dataset_world_readable.rego",
+      "development": false,
+      "policy_commit": "7694b20c25cd58b4b9a3437ffb47ba4f63ac523b",
+      "fix_commit": "4d8371535fba77cfe26647afaac6cc56bd1d28c0",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 5,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPBigQueryDatasetWorldReadableConstraintV1",
+            "metadata": {
+              "annotations": {
+                "bundles.validator.forsetisecurity.org/cis-v1.1": 5.03
+              },
+              "name": "require_bq_table_iam"
+            },
+            "spec": {
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 100,
+          "quotient_classes": 42,
+          "decision_classes": 2,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 405
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.040404,
+        "random_quotient": 0.891802,
+        "random_decision": 0.078788
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 33,
+      "corpus": "gcp",
+      "commit": "7221a5ea22",
+      "module": "validator/network_enable_flow_logs.rego",
+      "development": false,
+      "policy_commit": "a60c96c92344ab778ecea51d428384d29133cdde",
+      "fix_commit": "7221a5ea225f21bf689e8e0183f55509f2fba57d",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 2,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPNetworkEnableFlowLogsConstraintV1",
+            "metadata": {
+              "annotations": {
+                "bundles.validator.forsetisecurity.org/cis-v1.1": 3.09,
+                "description": "Ensure VPC Flow logs is enabled for every subnet in VPC Network"
+              },
+              "name": "enable_network_flow_logs"
+            },
+            "spec": {
+              "match": {
+                "gcp": {
+                  "target": [
+                    "organization/*"
+                  ]
+                }
+              },
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 70,
+          "quotient_classes": 30,
+          "decision_classes": 2,
+          "difference_cells": 1,
+          "unmerged_paths": 0,
+          "checks": 402
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.014493,
+        "random_quotient": 0.428571,
+        "random_decision": 0.028571
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 34,
+      "corpus": "gcp",
+      "commit": "0f5a5d99a7",
+      "module": "validator/gke_disable_legacy_endpoints.rego",
+      "development": true,
+      "policy_commit": "e83c9a874e57338f6917e205d67200fd3e722bf5",
+      "fix_commit": "0f5a5d99a7b4434e98e7130db205b3319c879255",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 5,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPGKEDisableLegacyEndpointsConstraintV1",
+            "metadata": {
+              "annotations": {
+                "benchmark": "GKE_HARDENING_GUIDELINE"
+              },
+              "name": "disable_gke_legacy_endpoints"
+            },
+            "spec": {
+              "match": {
+                "gcp": {
+                  "target": [
+                    "organization/*"
+                  ]
+                }
+              },
+              "parameters": {},
+              "severity": "high"
+            }
+          },
+          "cells": 350,
+          "quotient_classes": 168,
+          "decision_classes": 2,
+          "difference_cells": 4,
+          "unmerged_paths": 0,
+          "checks": 405
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.285714,
+        "random_quotient": 0.928043,
+        "random_decision": 0.022759
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 35,
+      "corpus": "gcp",
+      "commit": "b9318add3e",
+      "module": "validator/sql_backup.rego",
+      "development": false,
+      "policy_commit": "8841c03ad953ef682143c41e92fbac3d48eeaeed",
+      "fix_commit": "b9318add3ed092980c61f49e175a979682024ec5",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 21,
+      "settings": 3,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLBackupConstraintV1",
+            "metadata": {
+              "name": "gcp-sql-backup-v1"
+            },
+            "spec": {
+              "match": {
+                "target": [
+                  "organization/*"
+                ]
+              },
+              "parameters": {
+                "exemptions": [
+                  "//cloudsql.googleapis.com/projects/brunore-db-test/instances/mysqlv1-nomaintenance"
+                ]
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 400,
+          "quotient_classes": 126,
+          "decision_classes": 2,
+          "difference_cells": 56,
+          "unmerged_paths": 0,
+          "checks": 407
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLBackupConstraintV1",
+            "metadata": {
+              "name": "gcp-sql-backup-v1"
+            },
+            "spec": {
+              "match": {
+                "target": [
+                  "organization/*"
+                ]
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 400,
+          "quotient_classes": 126,
+          "decision_classes": 2,
+          "difference_cells": 56,
+          "unmerged_paths": 0,
+          "checks": 407
+        },
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPSQLBackupConstraintV1",
+            "metadata": {
+              "name": "gcp-sql-backup-v1"
+            },
+            "spec": {
+              "match": {
+                "target": [
+                  "organization/*"
+                ]
+              },
+              "parameters": {
+                "exemptions": [
+                  "//cloudsql.googleapis.com/projects/brunore-db-test/instances/mysqlv2-nomaintenance"
+                ]
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 400,
+          "quotient_classes": 126,
+          "decision_classes": 2,
+          "difference_cells": 56,
+          "unmerged_paths": 0,
+          "checks": 407
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 1.0,
+        "random_quotient": 1.0,
+        "random_decision": 0.595928
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 37,
+      "corpus": "gcp",
+      "commit": "1987d4f0f6",
+      "module": "validator/sql_maintenance_window.rego",
+      "development": false,
+      "policy_commit": "6bde6c0c206a9bd1de7180a92df23010cb421451",
+      "fix_commit": "1987d4f0f65ce555287d75cba2476e0bef56d373",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 7,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": "absent",
+          "cells": 720,
+          "quotient_classes": 174,
+          "decision_classes": 2,
+          "difference_cells": 12,
+          "unmerged_paths": 0,
+          "checks": 407
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.666667,
+        "random_quotient": 0.964886,
+        "random_decision": 0.033078
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 41,
+      "corpus": "gcp",
+      "commit": "3924e1d48d",
+      "module": "validator/vm_external_ip.rego",
+      "development": false,
+      "policy_commit": "dab7b4b24b0542d94374f09282489a45044b3294",
+      "fix_commit": "3924e1d48d1fa68eceff121db54d1cb4b99846e1",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for instances, mode"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for instances, mode"
+        }
+      },
+      "authors_inputs": 60,
+      "settings": 5,
+      "status": "excluded: missing cell",
+      "missing_cell": {
+        "setting": {
+          "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+          "kind": "GCPExternalIpAccessConstraintV1",
+          "metadata": {
+            "name": "forbid_external_ip_blacklist_all"
+          },
+          "spec": {
+            "parameters": {
+              "instances": [
+                "//compute.googleapis.com/projects/test-project/zones/us-east1-b/instances/vm-external-ip",
+                "//compute.googleapis.com/projects/test-project/zones/us-east1-b/instances/vm-external-ip-two"
+              ],
+              "mode": "blacklist"
+            },
+            "severity": "high"
+          }
+        },
+        "input": {
+          "asset": {
+            "asset_type": "compute.googleapis.com/Instance",
+            "name": "//compute.googleapis.com/projects/test-project/zones/us-east1-b/instances/vm-external-ip",
+            "resource": {
+              "data": {
+                "canIpForward": false,
+                "cpuPlatform": "Unknown CPU Platform",
+                "creationTimestamp": "2018-06-20T14:46:40.689-07:00",
+                "deletionProtection": false,
+                "description": "",
+                "disk": [
+                  {
+                    "autoDelete": true,
+                    "boot": true,
+                    "deviceName": "vm-external-ip",
+                    "guestOsFeature": [
+                      {
+                        "type": "VIRTIO_SCSI_MULTIQUEUE"
+                      }
+                    ],
+                    "index": 0,
+                    "interface": "SCSI",
+                    "license": [
+                      "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/licenses/debian-9-stretch"
+                    ],
+                    "mode": "READ_WRITE",
+                    "source": "https://www.googleapis.com/compute/v1/projects/test-project/zones/us-east1-b/disks/vm-external-ip",
+                    "type": "PERSISTENT"
+                  }
+                ],
+                "id": "108591614595134928",
+                "labelFingerprint": "42WmSpB8rSM=",
+                "machineType": "https://www.googleapis.com/compute/v1/projects/test-project/zones/us-east1-b/machineTypes/n1-standard-1",
+                "name": "vm-external-ip",
+                "networkInterface": [
+                  {
+                    "accessConfig": [
+                      {
+                        "externalIp": "35.196.151.107",
+                        "name": "external-nat",
+                        "networkTier": "PREMIUM",
+                        "type": "ONE_TO_ONE_NAT"
+                      }
+                    ],
+                    "fingerprint": "FKYLBaTiCF0=",
+                    "ipAddress": "10.142.0.2",
+                    "name": "nic0",
+                    "network": "https://www.googleapis.com/compute/v1/projects/test-project/global/networks/default",
+                    "subnetwork": "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-east1/subnetworks/default"
+                  }
+                ],
+                "scheduling": {
+                  "automaticRestart": true,
+                  "onHostMaintenance": "MIGRATE",
+                  "preemptible": false
+                },
+                "selfLink": "https://www.googleapis.com/compute/v1/projects/test-project/zones/us-east1-b/instances/vm-external-ip",
+                "serviceAccount": [
+                  {
+                    "email": "77777777-compute@developer.gserviceaccount.com",
+                    "scope": [
+                      "https://www.googleapis.com/auth/cloud-platform"
+                    ]
+                  }
+                ],
+                "startRestricted": false,
+                "status": "TERMINATED",
+                "tags": {
+                  "fingerprint": "42WmSpB8rSM="
+                },
+                "zone": "https://www.googleapis.com/compute/v1/projects/test-project/zones/us-east1-b"
+              },
+              "discovery_document_uri": "https://www.googleapis.com/discovery/v1/apis/compute/v1/rest",
+              "discovery_name": "Instance",
+              "parent": "//cloudresourcemanager.googleapis.com/projects/68478495408",
+              "version": "v1"
+            }
+          },
+          "constraint": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPExternalIpAccessConstraintV1",
+            "metadata": {
+              "name": "forbid_external_ip_blacklist_all"
+            },
+            "spec": {
+              "parameters": {
+                "instances": [
+                  "//compute.googleapis.com/projects/test-project/zones/us-east1-b/instances/vm-external-ip",
+                  "//compute.googleapis.com/projects/test-project/zones/us-east1-b/instances/vm-external-ip-two"
+                ],
+                "mode": "blacklist"
+              },
+              "severity": "high"
+            }
+          }
+        }
+      }
+    },
+    {
+      "number": 43,
+      "corpus": "gcp",
+      "commit": "5cedf1ecb7",
+      "module": "validator/sql_ssl.rego",
+      "development": false,
+      "policy_commit": "a83ce7885e7b2481438cf0feea3a3f41cf92466a",
+      "fix_commit": "5cedf1ecb79f1882e4a0937262a49560e980918e",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 5,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": "absent",
+          "cells": 780,
+          "quotient_classes": 36,
+          "decision_classes": 2,
+          "difference_cells": 41,
+          "unmerged_paths": 0,
+          "checks": 405
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 0.976715,
+        "decision": 0.48008,
+        "random_quotient": 0.86332,
+        "random_decision": 0.102429
+      },
+      "difference_is_a_union_of_classes": false,
+      "quotient_exposes_with_certainty": false,
+      "fix_reads_paths_the_policy_does_not": true
+    },
+    {
+      "number": 45,
+      "corpus": "gcp",
+      "commit": "5109209ea4",
+      "module": "validator/enforce_labels.rego",
+      "development": false,
+      "policy_commit": "ab20297d2fc72c7a426fc311216bcc61c85b9584",
+      "fix_commit": "5109209ea4c105098c1c05770f88bef7b089ec37",
+      "membership": {
+        "policy": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mandatory_labels"
+        },
+        "fix": {
+          "verdict": "outside",
+          "reason": "is a policy schema rather than a policy: its guard is stated against parameters a Constraint supplies, so it determines no decision function until one is applied; no default is given for mandatory_labels"
+        }
+      },
+      "authors_inputs": 40,
+      "settings": 1,
+      "status": "scored",
+      "per_setting": [
+        {
+          "setting": {
+            "apiVersion": "constraints.gatekeeper.sh/v1alpha1",
+            "kind": "GCPGCPResourceLabelsV1ConstraintV1",
+            "metadata": {
+              "name": "enforce_labels"
+            },
+            "spec": {
+              "match": {
+                "gcp": {
+                  "target": [
+                    "organization/*"
+                  ]
+                }
+              },
+              "parameters": {
+                "mandatory_labels": [
+                  {
+                    "label1": "^label1-value$"
+                  },
+                  {
+                    "label2": "^label2-value.*$"
+                  }
+                ],
+                "resource_types_to_scan": [
+                  "cloudresourcemanager.googleapis.com/Project",
+                  "storage.googleapis.com/Bucket",
+                  "compute.googleapis.com/Instance",
+                  "compute.googleapis.com/Image",
+                  "compute.googleapis.com/Disk",
+                  "compute.googleapis.com/Snapshot",
+                  "google.bigtable.Instance",
+                  "sqladmin.googleapis.com/Instance"
+                ]
+              },
+              "severity": "high"
+            }
+          },
+          "cells": 1776,
+          "quotient_classes": 880,
+          "decision_classes": 2,
+          "difference_cells": 16,
+          "unmerged_paths": 0,
+          "checks": 440
+        }
+      ],
+      "exposure": {
+        "refinement": 1.0,
+        "quotient": 1.0,
+        "decision": 0.027027,
+        "random_quotient": 0.999984,
+        "random_decision": 0.017942
+      },
+      "difference_is_a_union_of_classes": true,
+      "quotient_exposes_with_certainty": true,
+      "fix_reads_paths_the_policy_does_not": false
+    },
+    {
+      "number": 51,
+      "corpus": "gcp",
+      "commit": "de34593780",
+      "module": "validator/gcp_iam_restrict_service_account_creation.rego",
+      "development": false,
+      "policy_commit": "6c40a6c6463279e309894b797e9de4931ef8baed",
+      "fix_commit": "de34593780238810b2522c8cccd510754e989386",
+      "status": "excluded: the fix does not compile"
+    },
+    {
+      "number": 52,
+      "corpus": "gcp",
+      "commit": "caff5d120e",
+      "module": "validator/storage_bucket_world_readable.rego",
+      "development": false,
+      "policy_commit": "6697f8063ff596481d3ef8cbcad8d04e0d2bb5d7",
+      "fix_commit": "caff5d120ea1d307a50b0cda12a1acfb062d4cab",
+      "membership": {
+        "policy": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        },
+        "fix": {
+          "verdict": "inside",
+          "reason": "every guard reads the request and literals the policy contains"
+        }
+      },
+      "authors_inputs": 0,
+      "settings": 1,
+      "status": "no decision change under the tested settings"
+    }
+  ]
+}
