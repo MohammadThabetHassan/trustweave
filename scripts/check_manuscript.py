@@ -655,7 +655,7 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "azure: definitions awaiting an assignment, and those it could judge",
         ),
         (
-            r"moved this row by (\d+) definitions when a second guard region",
+            r"moved this (?:row|column) by (\d+) definitions when a second guard region",
             (str(azure_undefaulted - azure_schemas),),
             "azure: how far counting by the reported reason would move the row",
         ),
