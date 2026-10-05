@@ -3862,7 +3862,7 @@ def _summary_claims(docs: Path) -> list[Claim]:
     assert all(row["sample"]["schemas"] for row in summary["ecosystems"].values())
     return [
         (
-            rf"on ({_GROUPED}) generated policies, one witness per quotient class detects\s*"
+            rf"[Oo]n ({_GROUPED}) generated policies, one witness per quotient class detects\s*"
             r"(\d+\.\d)\\% of seeded faults with a median of (\d+) tests, a random suite of the "
             r"same "
             r"size (\d+\.\d)\\%, and our\s*(\w+)-test decision proxy (\d+\.\d)\\%",
