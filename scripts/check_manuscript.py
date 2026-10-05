@@ -805,7 +805,8 @@ def numeric_claims(docs: Path) -> list[Claim]:
             "exclusions whose guard the request does not determine",
         ),
         (
-            r"have a guard the request\s*does not determine, among them (\d+) of the (\d+) schemas",
+            r"have a guard the request\s*does not determine(?:, | \()among them (\d+) of the (\d+) "
+            r"schemas",
             (str(subject_schema + clock_schema), str(schemas)),
             "schemas that stay outside whatever their parameters",
         ),
@@ -1716,13 +1717,13 @@ def _rego_real_faults_claims(docs: Path) -> list[Claim]:
 
     claims: list[Claim] = [
         (
-            r"On (\d+) real faults fixed by two Rego libraries' maintainers, "
-            r"(\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
+            r"(\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\% on (\d+) real faults fixed by Rego "
+            r"library maintainers",
             (
-                str(head["faults"]),
                 _pct(mean["quotient"]),
                 _pct(mean["random_quotient"]),
                 _pct(mean["decision"]),
+                str(head["faults"]),
             ),
             "real faults: the abstract",
         ),
@@ -2386,9 +2387,9 @@ def _criteria_claims(docs: Path) -> list[Claim]:
             "criteria: MC/DC on XACML in the abstract",
         ),
         (
-            r"on the generated policies MC/DC detects (\d+\.\d)\\% with a median of (\d+) tests "
+            r"on the generated policies, MC/DC detects (\d+\.\d)\\% with a median of (\d+) tests "
             r"and three-wise coverage (\d+\.\d)\\% with (\d+), against the quotient's "
-            r"(\d+\.\d)\\% with (\d+), and on Cedar three-wise coverage detects (\d+\.\d)\\% with "
+            r"(\d+\.\d)\\% with (\d+), and on Cedar, three-wise coverage detects (\d+\.\d)\\% with "
             r"(\d+) against (\d+\.\d)\\% with (\d+)",
             (
                 _pct(g["mean_score"]["mcdc"]),
@@ -2727,8 +2728,8 @@ def _shipped_claims(docs: Path) -> list[Claim]:
 
     claims: list[Claim] = [
         (
-            r"the suites are (\d+\.\d)\\% adequate under every shipped Constraint too, not "
-            r"(\d+\.\d)\\%",
+            r"Gatekeeper's suites are (\d+\.\d)\\% adequate, not (\d+\.\d)\\%, under every "
+            r"shipped Constraint",
             (_pct(shipped), _pct(exact["pooled_raw_score"])),
             "shipped Constraints: the abstract",
         ),
@@ -2989,7 +2990,7 @@ def _kyverno_exact_claims(docs: Path) -> list[Claim]:
             "kyverno exact: both main texts",
         ),
         (
-            r"Kyverno's suites are (\d+\.\d)\\%, not (\d+\.\d)\\%",
+            r"Kyverno's (?:suites )?are (\d+\.\d)\\%, not (\d+\.\d)\\%",
             (_pct(scores["exact"]), _pct(scores["raw"])),
             "kyverno exact: the abstract",
         ),
@@ -3164,8 +3165,8 @@ def _xacml_criteria_claims(docs: Path) -> list[Claim]:
     claims: list[Claim] = [
         (
             r"[Oo]n the (\w+) of Xu et al.'s benchmark policies where their tool built an MC/DC "
-            r"suite, the quotient detects every live mutant with (\d+) requests on average, where "
-            r"their MC/DC detects (\d+\.\d)\\% with (\d+)",
+            r"suite, the quotient detects every live mutant with (\d+) requests on average, "
+            r"whereas their MC/DC detects (\d+\.\d)\\% with (\d+)",
             (_word(len(paired)), paired_size, pct(mean["MCDC"]), whole(size["MCDC"])),
             "xacml criteria: both halves, like for like, as both main texts state them",
         ),
@@ -3385,13 +3386,13 @@ def _rego_payoff_claims(docs: Path) -> list[Claim]:
     with_development = study["with_development_module"]["mean_expected_score"]
     return [
         (
-            r"on (\d+) Gatekeeper Rego modules under the settings their suites "
-            r"test, (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\%",
+            r"(\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\% on (\d+) Gatekeeper Rego modules "
+            r"under the settings their suites test",
             (
-                str(exact["headline"]["modules"]),
                 _pct(scores["quotient"]),
                 _pct(scores["random_quotient"]),
                 _pct(scores["decision"]),
+                str(exact["headline"]["modules"]),
             ),
             "rego payoff: the abstract",
         ),
@@ -3756,8 +3757,9 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar replication: the primary analysis",
         ),
         (
-            r"Covering the quotient detects (\d+\.\d)\\% of the live mutants in expectation and a "
-            r"random suite of the same size (\d+\.\d)\\%, a paired difference of (\d\.\d+) with a "
+            r"Covering the quotient detects (\d+\.\d)\\% of the live mutants in expectation, and a "
+            r"random suite of the same size detects (\d+\.\d)\\%, a paired difference of "
+            r"(\d\.\d+) with a "
             r"95\\% bootstrap interval of \$\[(\d\.\d+), (\d\.\d+)\]\$, higher on "
             rf"({_GROUPED}) of the ({_GROUPED}) files and lower on ({_GROUPED})",
             (
@@ -3816,13 +3818,13 @@ def _cedar_claims(docs: Path) -> list[Claim]:
             "cedar real edits: what a suite of the earlier version catches",
         ),
         (
-            rf"On ({_GROUPED}) real Cedar files, (\d+\.\d)\\%, "
-            r"(\d+\.\d)\\% and (\d+\.\d)\\%",
+            r"The three detect (\d+\.\d)\\%, (\d+\.\d)\\% and (\d+\.\d)\\% on "
+            rf"({_GROUPED}) real Cedar\s*files",
             (
-                _grouped(primary["files_scored"]),
                 _pct(scores["quotient"]),
                 _pct(scores["random_quotient"]),
                 _pct(scores["decision"]),
+                _grouped(primary["files_scored"]),
             ),
             "abstract: the Cedar replication",
         ),
@@ -4188,7 +4190,7 @@ def _payoff_claims(docs: Path) -> list[Claim]:
             "suite strategies: H1, the quotient against random at equal size",
         ),
         (
-            r"Against the\s*decision proxy the difference is (\d\.\d+) "
+            r"Against the\s*decision proxy, the difference is (\d\.\d+) "
             r"\$\[(\d\.\d+), (\d\.\d+)\]\$, higher on "
             rf"({_GROUPED}) policies and lower on (none|{_GROUPED})",
             (
